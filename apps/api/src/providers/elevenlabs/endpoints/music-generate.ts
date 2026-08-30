@@ -72,8 +72,15 @@ function defaultOutputFormatForGatewayFormat(format?: string | null): string | u
 	if (!normalized) return undefined;
 	if (normalized === "mp3") return "mp3_44100_128";
 	if (normalized === "wav") return "pcm_44100";
-	if (normalized === "aac" || normalized === "ogg") return "mp3_44100_128";
+	if (normalized === "ogg") return "opus_48000_128";
 	return undefined;
+}
+
+function invalidParameterResponse(param: string, message: string): Response {
+	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
+		status: 400,
+		headers: { "Content-Type": "application/json" },
+	});
 }
 
 /**
@@ -89,6 +96,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const { canonical, adapterPayload } = buildAdapterPayload(MusicGenerateSchema, args.body, []);
     const typedPayload = adapterPayload as MusicGenerateRequest;
     const elevenParams = (canonical as MusicGenerateRequest).elevenlabs ?? {};
+	if (typedPayload.format === "aac") {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				"format",
+				"ElevenLabs Music does not provide AAC output; use mp3, wav, ogg, or a documented native output_format.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
     const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
     const compositionPlan = elevenParams.composition_plan ?? null;
@@ -101,7 +121,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         prompt,
         composition_plan: compositionPlan,
         music_length_ms: musicLengthMs,
-        model_id: elevenParams.model_id ?? "music_v1",
+        model_id: elevenParams.model_id ?? args.providerModelSlug ?? "music_v2",
         force_instrumental: elevenParams.force_instrumental ?? false,
         store_for_inpainting: elevenParams.store_for_inpainting ?? false,
         with_timestamps: elevenParams.with_timestamps ?? false,
@@ -116,6 +136,9 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         elevenParams.output_format ??
         defaultOutputFormatForGatewayFormat(typedPayload.format);
     delete requestBody.output_format;
+    // `with_timestamps` belongs to the detailed endpoint, not the plain binary
+    // compose endpoint used by this adapter.
+    delete requestBody.with_timestamps;
     const query = outputFormat ? `?output_format=${encodeURIComponent(outputFormat)}` : "";
     const bindings = getBindings() as any;
     const baseUrl = String(bindings.ELEVENLABS_BASE_URL || "https://api.elevenlabs.io").replace(/\/+$/, "");

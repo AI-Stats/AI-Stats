@@ -169,6 +169,7 @@ describe("ElevenLabs audio endpoints", () => {
 						output_format: "mp3_22050_32",
 						language_code: "en",
 						enable_logging: false,
+						optimize_streaming_latency: 3,
 						seed: 7,
 						voice_settings: {
 							stability: 0.42,
@@ -176,6 +177,13 @@ describe("ElevenLabs audio endpoints", () => {
 						pronunciation_dictionary_locators: [
 							{ id: "dict_1", version_id: "1" },
 						],
+						previous_text: "Previous sentence",
+						next_text: "Next sentence",
+						previous_request_ids: ["request_before"],
+						next_request_ids: ["request_after"],
+						apply_text_normalization: "on",
+						apply_language_text_normalization: true,
+						use_pvc_as_ivc: false,
 					},
 				},
 			},
@@ -193,6 +201,7 @@ describe("ElevenLabs audio endpoints", () => {
 		expect(result.upstream.status).toBe(200);
 		expect(capturedUrl).toContain("output_format=mp3_22050_32");
 		expect(capturedUrl).toContain("enable_logging=false");
+		expect(capturedUrl).toContain("optimize_streaming_latency=3");
 		expect(capturedBody?.text).toBe("Hello world");
 		expect(capturedBody?.model_id).toBe("eleven_v3");
 		expect(capturedBody?.language_code).toBe("en");
@@ -200,6 +209,15 @@ describe("ElevenLabs audio endpoints", () => {
 		expect(capturedBody?.voice_settings?.stability).toBe(0.42);
 		expect(capturedBody?.voice_settings?.speed).toBe(1.15);
 		expect(Array.isArray(capturedBody?.pronunciation_dictionary_locators)).toBe(true);
+		expect(capturedBody).toMatchObject({
+			previous_text: "Previous sentence",
+			next_text: "Next sentence",
+			previous_request_ids: ["request_before"],
+			next_request_ids: ["request_after"],
+			apply_text_normalization: "on",
+			apply_language_text_normalization: true,
+			use_pvc_as_ivc: false,
+		});
 	});
 
 	it("returns 400 when ElevenLabs audio.speech voice is missing", async () => {
@@ -522,5 +540,52 @@ describe("ElevenLabs audio endpoints", () => {
 		expect(capturedForm?.get("diarize")).toBe("true");
 		expect(capturedForm?.get("timestamps_granularity")).toBe("word");
 		expect(capturedForm?.get("tag_audio_events")).toBe("true");
+	});
+
+	it("forwards ElevenLabs native character timestamps without duplicating the field", async () => {
+		let capturedForm: FormData | null = null;
+		const mock = installFetchMock([{
+			match: (url, init) => {
+				capturedForm = init?.body as FormData;
+				return url.includes("/v1/speech-to-text");
+			},
+			response: jsonResponse({ text: "Transcribed" }),
+		}]);
+
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "eleven-labs/scribe-v2",
+			body: {
+				model: "eleven-labs/scribe-v2",
+				file: makeAudioFile("character.wav"),
+				timestamp_granularities: ["word"],
+				config: { elevenlabs: { timestamps_granularity: "character" } },
+			},
+			meta: REQUEST_META, workspaceId: "team_test", providerId: "elevenlabs",
+			byokMeta: [], pricingCard: null, providerModelSlug: null, stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedForm?.getAll("timestamps_granularity")).toEqual(["character"]);
+	});
+
+	it("rejects segment timestamps because ElevenLabs Scribe has no segment mode", async () => {
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "eleven-labs/scribe-v2",
+			body: {
+				model: "eleven-labs/scribe-v2",
+				file: makeAudioFile("segment.wav"),
+				timestamp_granularities: ["segment"],
+			},
+			meta: REQUEST_META, workspaceId: "team_test", providerId: "elevenlabs",
+			byokMeta: [], pricingCard: null, providerModelSlug: null, stream: false,
+		} as any);
+
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({
+			error: { param: "timestamp_granularities" },
+		});
 	});
 });

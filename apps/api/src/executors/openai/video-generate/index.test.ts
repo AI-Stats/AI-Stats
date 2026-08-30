@@ -146,11 +146,37 @@ describe("openai video executor", () => {
 		state.batchFileMeta = { provider: "openai", keySource: "gateway" };
 		let body: any;
 		const mock = installFetchMock([{ match: (url) => url.includes("/videos"), response: jsonResponse({ id: "video_json", status: "queued" }), onRequest: (call) => { body = call.bodyJson; } }]);
-		const result = await execute(buildArgs({ model: "sora-2-pro", prompt: "Reference a file", seconds: "20", size: "1920x1080", inputReference: { file_id: "file_123" } }));
+		const result = await execute(buildArgs({ model: "sora-2-pro", prompt: "Reference a file", seconds: "12", size: "1792x1024", inputReference: { file_id: "file_123" } }));
 		mock.restore();
 		expect(result.upstream?.status).toBe(200);
 		expect(state.batchFileMetaCalls).toEqual([["team_test", "file_123"]]);
-		expect(body).toMatchObject({ model: "sora-2-pro", seconds: "20", size: "1920x1080", input_reference: { file_id: "file_123" } });
+		expect(body).toMatchObject({ model: "sora-2-pro", seconds: "12", size: "1792x1024", input_reference: { file_id: "file_123" } });
+	});
+
+	it.each([
+		{
+			label: "seconds",
+			request: { model: "sora-2", prompt: "Unsupported duration", seconds: 20, size: "1280x720" },
+			param: "seconds",
+		},
+		{
+			label: "size",
+			request: { model: "sora-2", prompt: "Unsupported size", seconds: 8, size: "1920x1080" },
+			param: "size",
+		},
+	])("rejects unsupported OpenAI video $label before reserving credits", async ({ request, param }) => {
+		const mock = installFetchMock([
+			{ match: () => true, response: jsonResponse({ id: "should_not_run" }) },
+		]);
+		const result = await execute(buildArgs(request));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.clone().json()).toMatchObject({
+			error: { type: "invalid_request_error", param },
+		});
+		expect(state.reservationCalls).toEqual([]);
+		expect(mock.calls).toEqual([]);
 	});
 
 	it("accepts legacy workspace-owned OpenAI files without key source metadata", async () => {
@@ -282,7 +308,7 @@ describe("openai video executor", () => {
 		const result = await execute(buildArgs({
 			model: "openai/sora-2",
 			prompt: "Pan through a futuristic city",
-			seconds: 6,
+			seconds: 4,
 			resolution: "1280x720",
 			inputImage: {
 				url: "https://example.com/reference.png",
@@ -295,7 +321,7 @@ describe("openai video executor", () => {
 		expect(sentForm).toBeDefined();
 		expect(String(sentForm?.get("model"))).toBe("openai/sora-2");
 		expect(String(sentForm?.get("prompt"))).toBe("Pan through a futuristic city");
-		expect(String(sentForm?.get("seconds"))).toBe("6");
+		expect(String(sentForm?.get("seconds"))).toBe("4");
 		expect(String(sentForm?.get("size"))).toBe("1280x720");
 		const inputRef = sentForm?.get("input_reference");
 		expect(inputRef).toBeTruthy();

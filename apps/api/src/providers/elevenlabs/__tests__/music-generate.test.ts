@@ -94,6 +94,7 @@ describe("ElevenLabs music.generate endpoint", () => {
 	});
 
 	it("handles binary responses as completed music", async () => {
+		let capturedBody: any = null;
 		const mock = installFetchMock([
 			{
 				match: (url) => url === "https://api.elevenlabs.example/v1/music?output_format=mp3_44100_128",
@@ -104,6 +105,9 @@ describe("ElevenLabs music.generate endpoint", () => {
 						"song-id": "el_binary_1",
 					},
 				}),
+				onRequest: (call) => {
+					capturedBody = call.bodyJson;
+				},
 			},
 		]);
 
@@ -114,6 +118,7 @@ describe("ElevenLabs music.generate endpoint", () => {
 				model: "elevenlabs/music_v1",
 				prompt: "Short upbeat melody",
 				format: "mp3",
+				elevenlabs: { with_timestamps: true },
 			},
 			meta: REQUEST_META,
 			workspaceId: "team_test",
@@ -129,5 +134,52 @@ describe("ElevenLabs music.generate endpoint", () => {
 		expect(result.upstream.status).toBe(200);
 		expect(result.normalized?.status).toBe("completed");
 		expect(typeof result.normalized?.audio_base64).toBe("string");
+		expect(capturedBody?.model_id).toBe("music_v2");
+		expect(capturedBody?.with_timestamps).toBeUndefined();
+	});
+
+	it("maps OGG requests to ElevenLabs Opus output", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.elevenlabs.example/v1/music?output_format=opus_48000_128",
+			response: new Response(new Uint8Array([1, 2, 3]), {
+				status: 200,
+				headers: { "Content-Type": "audio/ogg" },
+			}),
+		}]);
+
+		const result = await exec({
+			endpoint: "music.generate",
+			model: "elevenlabs/music_v2",
+			body: { model: "elevenlabs/music_v2", prompt: "Ambient strings", format: "ogg" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "elevenlabs",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "music_v2",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(result.normalized?.content_type).toBe("audio/ogg");
+	});
+
+	it("rejects AAC rather than silently returning MP3", async () => {
+		const result = await exec({
+			endpoint: "music.generate",
+			model: "elevenlabs/music_v2",
+			body: { model: "elevenlabs/music_v2", prompt: "Ambient strings", format: "aac" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "elevenlabs",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "music_v2",
+			stream: false,
+		} as any);
+
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({ error: { param: "format" } });
 	});
 });

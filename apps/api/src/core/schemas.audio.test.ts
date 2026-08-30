@@ -42,6 +42,17 @@ describe("AudioSpeechSchema", () => {
 		expect(AudioSpeechSchema.safeParse({ model: "eleven-labs/eleven-flash-v2", input: "x".repeat(30000) }).success).toBe(true);
 		expect(AudioSpeechSchema.safeParse({ model: "eleven-labs/eleven-flash-v2.5", input: "x".repeat(40000) }).success).toBe(true);
 	});
+
+	it.each([
+		["eleven-labs/eleven-turbo-v2", 30000],
+		["eleven_turbo_v2", 30000],
+		["eleven-labs/eleven-turbo-v2.5", 40000],
+		["eleven-labs/eleven-turbo-v2-5", 40000],
+		["eleven_turbo_v2_5", 40000],
+	])("uses the documented Turbo limit for the %s alias", (model, limit) => {
+		expect(AudioSpeechSchema.safeParse({ model, input: "x".repeat(limit) }).success).toBe(true);
+		expect(AudioSpeechSchema.safeParse({ model, input: "x".repeat(limit + 1) }).success).toBe(false);
+	});
 });
 
 describe("AudioTranslationSchema", () => {

@@ -3809,22 +3809,17 @@
             "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "timestamp_granularities",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
+            "provider_default": "json",
+            "values": ["json"],
+            "notes": "GPT-4o transcription models support JSON output only."
           },
           {
             "param_id": "include",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
-            "notes": null
+            "values": ["logprobs"],
+            "notes": "Log probabilities are available with JSON output."
           }
         ],
         "reasoning": null,
@@ -3930,7 +3925,52 @@
       {
         "capability_id": "audio.speech",
         "status": "active",
-        "params": [],
+        "params": [
+          {
+            "param_id": "input",
+            "provider_min": 1,
+            "provider_max": 4096,
+            "provider_default": null,
+            "notes": "Limits are measured in characters."
+          },
+          {
+            "param_id": "voice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Required built-in or custom voice."
+          },
+          {
+            "param_id": "instructions",
+            "provider_min": null,
+            "provider_max": 4096,
+            "provider_default": null,
+            "notes": "Maximum is measured in characters."
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "mp3",
+            "values": ["mp3", "opus", "aac", "flac", "wav", "pcm"],
+            "notes": null
+          },
+          {
+            "param_id": "speed",
+            "provider_min": 0.25,
+            "provider_max": 4,
+            "provider_default": 1,
+            "notes": null
+          },
+          {
+            "param_id": "stream_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "audio",
+            "values": ["audio", "sse"],
+            "notes": null
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -4150,22 +4190,17 @@
             "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "timestamp_granularities",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
+            "provider_default": "json",
+            "values": ["json"],
+            "notes": "GPT-4o transcription models support JSON output only."
           },
           {
             "param_id": "include",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
-            "notes": null
+            "values": ["logprobs"],
+            "notes": "Log probabilities are available with JSON output."
           }
         ],
         "reasoning": null,
@@ -7906,7 +7941,9 @@
             "notes": null
           },
           "include_reasoning",
-          "reasoning_effort"
+          "reasoning_effort",
+          "reasoning.context",
+          "stream"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8252,7 +8289,9 @@
             "notes": null
           },
           "include_reasoning",
-          "reasoning_effort"
+          "reasoning_effort",
+          "reasoning.context",
+          "stream"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8598,7 +8637,9 @@
             "notes": null
           },
           "include_reasoning",
-          "reasoning_effort"
+          "reasoning_effort",
+          "reasoning.context",
+          "stream"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9085,7 +9126,7 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": {"prompt":{"type":"string","max_length":32000},"size":{"type":"enum","values":["auto","1024x1024","1536x1024","1024x1536"]},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9098,7 +9139,7 @@
       {
         "capability_id": "image.edit",
         "status": "active",
-        "params": [],
+        "params": {"image":{"type":"image_or_array","required":true,"max_items":16,"max_file_size_mb":50,"formats":["png","webp","jpg","jpeg"]},"mask":{"type":"image","max_file_size_mb":4,"formats":["png"]},"prompt":{"type":"string","max_length":32000},"size":{"type":"enum","values":["auto","1024x1024","1536x1024","1024x1536"]},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"},"input_fidelity":{"type":"enum","values":["low","high"],"default":"low"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9178,7 +9219,7 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": {"prompt":{"type":"string","max_length":32000},"size":{"type":"enum","values":["auto","1024x1024","1536x1024","1024x1536"]},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9191,7 +9232,7 @@
       {
         "capability_id": "image.edit",
         "status": "active",
-        "params": [],
+        "params": {"image":{"type":"image_or_array","required":true,"max_items":16,"max_file_size_mb":50,"formats":["png","webp","jpg","jpeg"]},"mask":{"type":"image","max_file_size_mb":4,"formats":["png"]},"prompt":{"type":"string","max_length":32000},"size":{"type":"enum","values":["auto","1024x1024","1536x1024","1024x1536"]},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9324,7 +9365,7 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": {"prompt":{"type":"string","max_length":32000},"size":{"type":"enum","values":["auto","1024x1024","1536x1024","1024x1536"]},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9337,7 +9378,7 @@
       {
         "capability_id": "image.edit",
         "status": "active",
-        "params": [],
+        "params": {"image":{"type":"image_or_array","required":true,"max_items":16,"max_file_size_mb":50,"formats":["png","webp","jpg","jpeg"]},"mask":{"type":"image","max_file_size_mb":4,"formats":["png"]},"prompt":{"type":"string","max_length":32000},"size":{"type":"enum","values":["auto","1024x1024","1536x1024","1024x1536"]},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"},"input_fidelity":{"type":"enum","values":["low","high"],"default":"low"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9418,7 +9459,7 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": {"prompt":{"type":"string","max_length":32000},"size":{"type":"string","values":["auto","1024x1024","1536x1024","1024x1536"],"dimension_multiple_of":16,"max_width":3840,"max_height":3840,"max_aspect_ratio":"3:1","min_pixels":655360,"max_pixels":8294400,"notes":"Also accepts arbitrary WIDTHxHEIGHT values satisfying the documented constraints."},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9431,7 +9472,7 @@
       {
         "capability_id": "image.edit",
         "status": "active",
-        "params": [],
+        "params": {"image":{"type":"image_or_array","required":true,"max_items":16,"max_file_size_mb":50,"formats":["png","webp","jpg","jpeg"]},"mask":{"type":"image","max_file_size_mb":4,"formats":["png"]},"prompt":{"type":"string","max_length":32000},"size":{"type":"string","values":["auto","1024x1024","1536x1024","1024x1536"],"dimension_multiple_of":16,"max_width":3840,"max_height":3840,"max_aspect_ratio":"3:1","min_pixels":655360,"max_pixels":8294400,"notes":"Also accepts arbitrary WIDTHxHEIGHT values satisfying the documented constraints."},"background":{"type":"enum","values":["transparent","opaque","auto"],"default":"auto","notes":"Transparent output requires PNG or WebP; GPT Image 2 transparency is preview."},"moderation":{"type":"enum","values":["low","auto"],"default":"auto"},"n":{"type":"integer","min":1,"max":10},"output_compression":{"type":"integer","min":0,"max":100,"default":100,"notes":"Supported only for JPEG and WebP output."},"output_format":{"type":"enum","values":["png","jpeg","webp"],"default":"png"},"partial_images":{"type":"integer","min":0,"max":3,"notes":"Requires stream=true."},"quality":{"type":"enum","values":["low","medium","high","auto"],"default":"auto"},"stream":{"type":"boolean","default":false},"user":{"type":"string"},"input_fidelity":{"type":"enum","values":["low","high"],"default":"low"}},
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -9487,11 +9528,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/generate",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official GPT Image request schema, including transparent backgrounds and format-dependent output controls."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Image generation parameters reconciled against OpenAI's current first-party API reference."
     },
     "rate_limits": []
   },
@@ -12178,11 +12226,13 @@
         "status": "active",
         "params": {
           "prompt": {
-            "type": "string"
+            "type": "string",
+            "min_length": 1,
+            "max_length": 32000
           },
           "duration": {
-            "type": "number",
-            "min": 1,
+            "type": "enum",
+            "values": [4, 8, 12],
             "aliases": [
               "seconds",
               "duration_seconds"
@@ -12192,32 +12242,17 @@
             "type": "enum",
             "values": [
               "720x1280",
-              "1280x720"
+              "1280x720",
+              "1024x1792",
+              "1792x1024"
             ],
             "aliases": [
               "resolution"
             ]
           },
-          "seed": {
-            "type": "integer"
-          },
-          "input_image": {
-            "type": "string"
-          },
-          "input_video": {
-            "type": "string"
-          },
-          "last_frame": {
-            "type": "string"
-          },
-          "reference_images": {
-            "type": "array"
-          },
-          "generate_audio": {
-            "type": "boolean"
-          },
-          "callback_url": {
-            "type": "string"
+          "input_reference": {
+            "type": "image",
+            "aliases": ["input_image"]
           }
         },
         "reasoning": null,
@@ -12396,11 +12431,13 @@
         "status": "active",
         "params": {
           "prompt": {
-            "type": "string"
+            "type": "string",
+            "min_length": 1,
+            "max_length": 32000
           },
           "duration": {
-            "type": "number",
-            "min": 1,
+            "type": "enum",
+            "values": [4, 8, 12],
             "aliases": [
               "seconds",
               "duration_seconds"
@@ -12412,34 +12449,15 @@
               "720x1280",
               "1280x720",
               "1024x1792",
-              "1792x1024",
-              "1080x1920",
-              "1920x1080"
+              "1792x1024"
             ],
             "aliases": [
               "resolution"
             ]
           },
-          "seed": {
-            "type": "integer"
-          },
-          "input_image": {
-            "type": "string"
-          },
-          "input_video": {
-            "type": "string"
-          },
-          "last_frame": {
-            "type": "string"
-          },
-          "reference_images": {
-            "type": "array"
-          },
-          "generate_audio": {
-            "type": "boolean"
-          },
-          "callback_url": {
-            "type": "string"
+          "input_reference": {
+            "type": "image",
+            "aliases": ["input_image"]
           }
         },
         "reasoning": null,
@@ -12521,7 +12539,17 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": {
+          "encoding_format": {
+            "type": "enum",
+            "values": ["float", "base64"],
+            "default": "float"
+          },
+          "dimensions": {
+            "type": "integer",
+            "min": 1
+          }
+        },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12601,7 +12629,17 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": {
+          "encoding_format": {
+            "type": "enum",
+            "values": ["float", "base64"],
+            "default": "float"
+          },
+          "dimensions": {
+            "type": "integer",
+            "min": 1
+          }
+        },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12681,7 +12719,13 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": {
+          "encoding_format": {
+            "type": "enum",
+            "values": ["float", "base64"],
+            "default": "float"
+          }
+        },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12863,7 +12907,8 @@
             "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": "json",
+            "values": ["json", "text", "srt", "verbose_json", "vtt"],
             "notes": null
           },
           {
@@ -12871,7 +12916,8 @@
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
-            "notes": null
+            "values": ["word", "segment"],
+            "notes": "Requires response_format=verbose_json."
           }
         ],
         "reasoning": null,

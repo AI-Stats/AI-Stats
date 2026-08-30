@@ -34,6 +34,42 @@ function isVoyageMultimodalModel(model?: string | null): boolean {
 	return normalizeModelName(model).toLowerCase().startsWith("voyage-multimodal-");
 }
 
+function isVoyageContextualModel(model?: string | null): boolean {
+	return normalizeModelName(model).toLowerCase().startsWith("voyage-context-");
+}
+
+function toVoyageContextualInputs(input: unknown): string[][] {
+	if (typeof input === "string" && input.length > 0) {
+		return [[input]];
+	}
+	if (
+		Array.isArray(input) &&
+		input.length > 0 &&
+		input.every((entry) => typeof entry === "string" && entry.length > 0)
+	) {
+		// The OpenAI-compatible input surface has no document-grouping field.
+		// Treat a flat list as chunks from one document so the native response
+		// can be flattened without losing document boundaries.
+		return [input as string[]];
+	}
+	throw new Error("voyage_contextualized_embeddings_require_one_text_document");
+}
+
+function decodeVoyageContextualResponse(
+	payload: any,
+	modelFallback: string,
+): IREmbeddingsResponse {
+	const groups = Array.isArray(payload?.data) ? payload.data : [];
+	if (groups.length !== 1 || !Array.isArray(groups[0]?.data)) {
+		throw new Error("voyage_contextualized_embeddings_response_shape_unsupported");
+	}
+	return decodeOpenAIEmbeddingsResponse({
+		...payload,
+		model: payload?.model ?? modelFallback,
+		data: groups[0].data,
+	});
+}
+
 function asString(value: unknown): string {
 	if (typeof value === "string") return value;
 	if (value == null) return "";
@@ -180,6 +216,8 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 	if (args.providerId === "morpheus") {
 		const sessionId = ir.providerOptions?.morpheus?.sessionId;
 		if (sessionId !== undefined) encoded.session_id = sessionId;
+		// Morpheus' embeddings schema does not accept output-dimension overrides.
+		delete encoded.dimensions;
 	}
 
 	if (args.providerId === "mistral" || args.providerId === "mistral-eu") {
@@ -253,7 +291,21 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 		if (voyageOptions?.outputDtype) {
 			encoded.output_dtype = voyageOptions.outputDtype;
 		}
+		// Voyage uses omission, rather than OpenAI's `float` literal, for
+		// ordinary numeric-array embeddings.
+		if (encoded.encoding_format === "float") {
+			delete encoded.encoding_format;
+		}
 		delete encoded.user;
+	}
+
+	if (isVoyageProvider(args.providerId) && isVoyageContextualModel(encoded.model)) {
+		if (ir.providerOptions?.voyage?.truncation !== undefined) {
+			throw new Error("voyage_contextualized_embeddings_truncation_unsupported");
+		}
+		encoded.inputs = toVoyageContextualInputs(ir.input);
+		delete encoded.input;
+		delete encoded.truncation;
 	}
 
 	if (isVoyageProvider(args.providerId) && isVoyageMultimodalModel(encoded.model)) {
@@ -321,10 +373,14 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const captureRequest = Boolean(args.meta.returnUpstreamRequest || args.meta.echoUpstreamRequest);
 	const mappedRequest = captureRequest ? JSON.stringify(requestBody) : undefined;
 
-	const endpointPath =
-		isVoyageProvider(args.providerId) && isVoyageMultimodalModel(resolveTargetModel(ir, args))
+	const targetModel = resolveTargetModel(ir, args);
+	const endpointPath = isVoyageProvider(args.providerId)
+		? isVoyageMultimodalModel(targetModel)
 			? "/multimodalembeddings"
-			: "/embeddings";
+			: isVoyageContextualModel(targetModel)
+				? "/contextualizedembeddings"
+				: "/embeddings"
+		: "/embeddings";
 	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, endpointPath), {
 		method: "POST",
 		headers: openAICompatHeaders(args.providerId, key, {
@@ -355,11 +411,15 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		};
 	}
 
-	const responseIr = json ? decodeOpenAIEmbeddingsResponse(json) : {
-		object: "list",
-		model: ir.model,
-		data: [],
-	} as IREmbeddingsResponse;
+	const responseIr = json
+		? isVoyageProvider(args.providerId) && isVoyageContextualModel(targetModel)
+			? decodeVoyageContextualResponse(json, ir.model)
+			: decodeOpenAIEmbeddingsResponse(json)
+		: {
+			object: "list",
+			model: ir.model,
+			data: [],
+		} as IREmbeddingsResponse;
 
 	responseIr.rawResponse = json ?? null;
 	ir.rawRequest = requestBody;
