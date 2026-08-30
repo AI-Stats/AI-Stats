@@ -62,6 +62,7 @@ function normalizeUrl(input?: string | null): string | null {
     if (!input) return null;
     try {
         const u = new URL(input);
+        if (u.protocol !== "http:" && u.protocol !== "https:") return null;
         const path = (u.pathname || "/").replace(/\/+$/, "");
         return `${u.protocol}//${u.host}${path}`;
     } catch {
@@ -121,6 +122,9 @@ function slugify(s?: string | null): string {
 function normalizeAppId(input?: string | null): string | null {
     const value = String(input ?? "").trim().toLowerCase();
     if (!value) return null;
+    if (["app", "unknown", "unknown-app", "untitled", "none", "null", "undefined"].includes(value)) {
+        return null;
+    }
     const normalized = value
         .replace(/[^a-z0-9._:-]+/g, "-")
         .replace(/-+/g, "-")
@@ -134,17 +138,19 @@ function deriveIdentityUrl(args: {
     appId?: string | null;
     appTitle?: string | null;
     appName?: string | null;
-}): string {
+}): string | null {
     const urlFromReferer = normalizeUrl(args.referer);
     if (urlFromReferer) return urlFromReferer;
 
     const normalizedAppId = normalizeAppId(args.appId);
     if (normalizedAppId) return `app://id/${normalizedAppId}`;
 
-    const titleSlug = slugify(args.appName ?? args.appTitle ?? "");
+    const titleSlug = slugify(
+        normalizeAppLabel(args.appName) ?? normalizeAppLabel(args.appTitle) ?? "",
+    );
     if (titleSlug) return `app://title/${titleSlug}`;
 
-    return "about:blank";
+    return null;
 }
 
 function deriveAppKey(identityUrl: string): string {
@@ -201,6 +207,7 @@ export async function ensureAppId(params: {
     }
     const normalizedAppId = normalizeAppId(appId);
     const identityUrl = deriveIdentityUrl({ referer, appId, appTitle, appName });
+    if (!identityUrl) return null;
     const app_key = deriveAppKey(identityUrl);
     const cacheKey = ensureAppIdCacheKey(workspaceId, app_key);
     const requestedCategories = normalizeAppCategories(appCategories);
@@ -327,10 +334,5 @@ export async function ensureAppId(params: {
         }
     }
 }
-
-
-
-
-
 
 

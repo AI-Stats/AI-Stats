@@ -49,8 +49,13 @@ function missingRollup(error: unknown): boolean {
 }
 
 async function getPublicApp(env: Env, reference: string) {
-	let query = getDataClient(env).from("api_apps").select("*").eq("is_public", true);
-	query = isUuid(reference) ? query.eq("id", reference) : query.eq("slug", reference);
+	let query = getDataClient(env)
+		.from("api_apps")
+		.select("*")
+		.eq("is_public", true)
+		.eq("is_active", true);
+	if (isUuid(reference)) query = query.eq("id", reference);
+	else query = query.eq("slug", reference).order("last_seen", { ascending: false }).limit(1);
 	const { data, error } = await query.maybeSingle();
 	if (error) throw error;
 	return data as Record<string, unknown> | null;
@@ -87,7 +92,8 @@ publicAppsRouter.get("/apps/ids", async (c) => {
 		const { data, error } = await getDataClient(c.env)
 			.from("api_apps")
 			.select("id")
-			.eq("is_public", true);
+			.eq("is_public", true)
+			.eq("is_active", true);
 		if (error) throw error;
 		const ids = (data ?? []).map((row) => String(row.id ?? "").trim()).filter(Boolean);
 		return withPublicCache(c.json({ ids }), {
@@ -105,7 +111,7 @@ publicAppsRouter.get("/apps/images", async (c) => {
 	const ids = [...new Set((c.req.query("ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].slice(0, 500);
 	try {
 		if (ids.length === 0) return withPublicCache(c.json({ images: {} }), { edgeTtlSeconds: 24 * 60 * 60, staleWhileRevalidateSeconds: 7 * 24 * 60 * 60, cacheTags: ["web-api-app-images"] });
-		const { data, error } = await getDataClient(c.env).from("api_apps").select("id,image_url").in("id", ids).eq("is_public", true);
+		const { data, error } = await getDataClient(c.env).from("api_apps").select("id,image_url").in("id", ids).eq("is_public", true).eq("is_active", true);
 		if (error) throw error;
 		return withPublicCache(c.json({ images: Object.fromEntries((data ?? []).map((row) => [row.id, row.image_url ?? null])) }), { edgeTtlSeconds: 24 * 60 * 60, staleWhileRevalidateSeconds: 7 * 24 * 60 * 60, cacheTags: ["web-api-app-images"] });
 	} catch (error) { console.error("[web-api/apps] images failed", error); return c.json({ error: "app_images_unavailable" }, 503); }
@@ -126,14 +132,32 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 });
 
 async function resolveAppNames(env: Env, rows: Array<Record<string, unknown>>) {
-	const unresolved = rows.filter((row) => !String(row.app_name ?? "").trim()).map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
-	const names = new Map<string, string>();
-	if (unresolved.length) {
-		const { data, error } = await getDataClient(env).from("api_apps").select("id,title").in("id", [...new Set(unresolved)]).eq("is_public", true);
+	const ids = [...new Set(rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean))];
+	const metadata = new Map<string, { name: string; url: string | null; category: string | null }>();
+	if (ids.length) {
+		const { data, error } = await getDataClient(env).from("api_apps").select("id,title,url,category").in("id", ids).eq("is_public", true).eq("is_active", true);
 		if (error) throw error;
-		for (const row of data ?? []) names.set(row.id, String(row.title ?? row.id));
+		for (const row of data ?? []) {
+			metadata.set(row.id, {
+				name: String(row.title ?? row.id),
+				url: typeof row.url === "string" ? row.url : null,
+				category: typeof row.category === "string" ? row.category : null,
+			});
+		}
 	}
-	return rows.filter((row) => String(row.app_id ?? "").trim()).map((row) => ({ ...row, app_id: String(row.app_id).trim(), app_name: String(row.app_name ?? "").trim() || names.get(String(row.app_id).trim()) || String(row.app_id).trim() }));
+	return rows
+		.filter((row) => metadata.has(String(row.app_id ?? "").trim()))
+		.map((row) => {
+			const appId = String(row.app_id).trim();
+			const app = metadata.get(appId);
+			return {
+				...row,
+				app_id: appId,
+				app_name: app?.name ?? appId,
+				app_url: app?.url ?? null,
+				app_category: app?.category ?? null,
+			};
+		});
 }
 
 publicAppsRouter.get("/apps/top", async (c) => {
@@ -153,7 +177,7 @@ publicAppsRouter.get("/apps/trending", async (c) => {
 publicAppsRouter.get("/apps/indexability", async (c) => {
 	try {
 		const [idsResult, topResult, trendingResult] = await Promise.all([
-			getDataClient(c.env).from("api_apps").select("id").eq("is_public", true),
+			getDataClient(c.env).from("api_apps").select("id").eq("is_public", true).eq("is_active", true),
 			getDataClient(c.env).rpc("get_public_top_apps", { p_time_range: "4w", p_limit: 100 }),
 			getDataClient(c.env).rpc("get_public_trending_apps", { p_limit: 100, p_min_week_tokens: 0 }),
 		]);

@@ -44,7 +44,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AppLogo from "@/components/(data)/apps/AppLogo";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,6 +89,7 @@ import type { UsageRangePreset } from "@/lib/gateway/usage/timeRange";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import RequestLabelFilter from "@/components/(gateway)/usage/RequestLabelFilter";
 import { Logo } from "@/components/Logo";
+import { getPublicAppPath } from "@/lib/apps/publicAppPath";
 import type { UsageLabelFacet, UsageLabelSummary } from "@/lib/fetchers/internal/settingsTypes";
 import type {
 	ObservabilityBreakdownItem,
@@ -1359,17 +1360,19 @@ function RankedListItem({
 	const positive = (item.deltaPercent ?? 0) >= 0;
 	const DeltaIcon = positive ? ChevronUp : ChevronDown;
 	const href = kind === "app"
-		? `/apps/${encodeURIComponent(item.id)}`
+		? getPublicAppPath(item.label)
 		: "/settings/keys";
 	return (
 		<Link href={href} className="grid grid-cols-[1fr_110px] items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 			<div className="min-w-0">
 				<div className="flex min-w-0 items-center gap-2">
 					{kind === "app" ? (
-						<Avatar className="size-6 rounded-md">
-							{item.imageUrl ? <AvatarImage src={item.imageUrl} alt={item.label} className="rounded-md" /> : null}
-							<AvatarFallback className="rounded-md"><AppWindow className="size-3.5" /></AvatarFallback>
-						</Avatar>
+						<AppLogo
+							src={item.imageUrl}
+							alt={item.label}
+							fallback={<AppWindow className="size-3.5" />}
+							className="size-6"
+						/>
 					) : (
 						<span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: color }} />
 					)}

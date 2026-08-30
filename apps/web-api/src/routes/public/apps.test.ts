@@ -11,6 +11,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("public app routes", () => {
 	it("returns IDs, detail, usage, and recent requests with volatility-specific caching", async () => {
+		const appId = "11111111-1111-4111-8111-111111111111";
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("v2_web_public_usage_daily") && url.includes("canonical_model_id")) {
@@ -41,13 +42,14 @@ describe("public app routes", () => {
 				}]), { status: 200 });
 			}
 			if (url.includes("api_apps") && url.includes("select=id")) {
-				return new Response(JSON.stringify([{ id: "app-1" }]), { status: 200 });
+				return new Response(JSON.stringify([{ id: appId }]), { status: 200 });
 			}
 			if (url.includes("api_apps")) {
 				return new Response(JSON.stringify([{
-					id: "app-1",
+					id: appId,
 					slug: "my-app",
 					title: "My App",
+					is_active: true,
 					is_public: true,
 				}]), { status: 200 });
 			}
@@ -64,12 +66,12 @@ describe("public app routes", () => {
 		expect(ids.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=86400, stale-while-revalidate=604800",
 		);
-		await expect(ids.json()).resolves.toEqual({ ids: ["app-1"] });
+		await expect(ids.json()).resolves.toEqual({ ids: [appId] });
 		expect(detail.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=900, stale-while-revalidate=3600",
 		);
 		await expect(detail.json()).resolves.toMatchObject({
-			app: { id: "app-1", slug: "my-app", total_tokens: 1_000, total_requests: 9 },
+			app: { id: appId, slug: "my-app", total_tokens: 1_000, total_requests: 9 },
 		});
 		expect(usage.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=900, stale-while-revalidate=900",
@@ -96,5 +98,33 @@ describe("public app routes", () => {
 		);
 		expect(response.status).toBe(404);
 		expect(response.headers.get("cloudflare-cdn-cache-control")).toBeNull();
+	});
+
+	it("removes inactive placeholder apps from ranking responses", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("rpc/get_public_top_apps")) {
+				return new Response(JSON.stringify([
+					{ app_id: "active-app", app_name: "Named App", tokens: 100 },
+					{ app_id: "placeholder-app", app_name: "App", tokens: 1_000 },
+				]), { status: 200 });
+			}
+			if (url.includes("api_apps")) {
+				return new Response(JSON.stringify([
+					{ id: "active-app", title: "Named App", category: "chat,productivity", is_public: true, is_active: true },
+				]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/apps/top?time_range=4w&limit=20",
+			{},
+			env,
+		);
+
+		await expect(response.json()).resolves.toEqual({
+			data: [{ app_id: "active-app", app_name: "Named App", app_url: null, app_category: "chat,productivity", tokens: 100 }],
+		});
 	});
 });

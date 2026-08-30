@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TrendingUp, Trophy } from "lucide-react";
+import { Flame, TrendingUp } from "lucide-react";
 import { RankingsEmptyState } from "@/components/(rankings)/RankingsEmptyState";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AppCategoryTags from "@/components/(data)/apps/AppCategoryTags";
+import AppLogo from "@/components/(data)/apps/AppLogo";
 import TopAppsLeaderboardTable from "@/components/(data)/apps/TopAppsLeaderboardTable";
 import {
 	type TopAppData,
@@ -15,15 +16,18 @@ import {
 	fetchFrontendTrendingApps,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
+import { getPublicAppPath } from "@/lib/apps/publicAppPath";
 
-const TOP_APPS_QUERY_LIMIT = 300;
+const TOP_APPS_QUERY_LIMIT = 100;
 const MOST_POPULAR_LIMIT = 4;
-const TRENDING_LIMIT = 12;
+const TRENDING_LIMIT = 6;
 const LEADERBOARD_LIMIT = 100;
 
 type PublicAppUsage = {
 	appId: string;
 	appName: string;
+	appUrl?: string | null;
+	appCategory?: string | null;
 	tokens: number;
 	requests: number;
 	uniqueModels: number;
@@ -85,7 +89,7 @@ function normalizeTopApps(
 			const tokens = Number(row.tokens ?? 0);
 			const requests = Number(row.requests ?? 0);
 			const uniqueModels = Number(row.unique_models ?? 0);
-			return { appId, appName, tokens, requests, uniqueModels };
+			return { appId, appName, appUrl: row.app_url, appCategory: row.app_category, tokens, requests, uniqueModels };
 		})
 		.filter(
 			(row) =>
@@ -170,25 +174,71 @@ function deriveTrendingFallbackApps(
 		.sort((a, b) => b.growthTokens - a.growthTokens);
 }
 
+function PopularAppRow({
+	app,
+	index,
+	imageUrl,
+}: {
+	app: PublicAppUsage & { growthPct: number | null };
+	index: number;
+	imageUrl?: string | null;
+}) {
+	return (
+		<Link
+			href={getPublicAppPath(app.appName)}
+			className="group flex min-w-0 items-center gap-3 border-b border-border/60 py-4 transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+		>
+			<span className="w-7 shrink-0 text-xs font-medium tabular-nums text-muted-foreground">#{index + 1}</span>
+			<AppLogo
+				src={imageUrl}
+				alt={app.appName}
+				fallback={getInitial(app.appName)}
+				className="size-10"
+				fallbackClassName="text-xs"
+			/>
+			<div className="min-w-0 flex-1">
+				<p className="truncate text-sm font-semibold group-hover:underline group-hover:underline-offset-4">{app.appName}</p>
+				<p className="mt-0.5 text-xs text-muted-foreground">{formatCompactNumber(app.requests)} requests</p>
+				<AppCategoryTags categoryCsv={app.appCategory} className="mt-1.5" />
+			</div>
+			<div className="shrink-0 text-right">
+				<p className="text-base font-semibold tabular-nums tracking-tight sm:text-lg">{formatCompactNumber(app.tokens)}</p>
+				<p className="text-[11px] text-muted-foreground">tokens · 4 weeks</p>
+				<span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+					<TrendingUp className="size-3" />
+					{formatPercent(app.growthPct)}
+				</span>
+			</div>
+		</Link>
+	);
+}
+
 export default async function AppsPage() {
-	const [publicAppIds, top4wResult, trendingResult] = await Promise.all([
+	const [publicAppIds, top4wResult, topTodayResult, topWeekResult, topMonthResult, trendingResult] = await Promise.all([
 		fetchFrontendPublicAppIds(),
 		fetchFrontendTopApps("4w", TOP_APPS_QUERY_LIMIT),
+		fetchFrontendTopApps("today", TOP_APPS_QUERY_LIMIT),
+		fetchFrontendTopApps("week", TOP_APPS_QUERY_LIMIT),
+		fetchFrontendTopApps("month", TOP_APPS_QUERY_LIMIT),
 		fetchFrontendTrendingApps(TOP_APPS_QUERY_LIMIT),
 	]);
 
 	const publicAppSet = new Set(publicAppIds);
 	const topApps = normalizeTopApps(top4wResult.data, publicAppSet);
 	const leaderboardApps = topApps.slice(0, LEADERBOARD_LIMIT);
+	const leaderboardAppsByRange = {
+		today: normalizeTopApps(topTodayResult.data, publicAppSet).slice(0, LEADERBOARD_LIMIT),
+		week: normalizeTopApps(topWeekResult.data, publicAppSet).slice(0, LEADERBOARD_LIMIT),
+		month: normalizeTopApps(topMonthResult.data, publicAppSet).slice(0, LEADERBOARD_LIMIT),
+	};
 	let growthApps = normalizeTrendingApps(
 		trendingResult.data,
 		publicAppSet,
 	);
 
 	if (growthApps.length === 0) {
-		const weekResult = await fetchFrontendTopApps("week", TOP_APPS_QUERY_LIMIT);
 		growthApps = deriveTrendingFallbackApps(
-			weekResult.data,
+			topWeekResult.data,
 			topApps,
 			publicAppSet,
 		);
@@ -205,13 +255,14 @@ export default async function AppsPage() {
 	const appIdsForImages = Array.from(
 		new Set([
 			...leaderboardApps.map((app) => app.appId),
+			...Object.values(leaderboardAppsByRange).flatMap((apps) => apps.map((app) => app.appId)),
 			...trendingApps.map((app) => app.appId),
 		]),
 	);
 	const imageUrlsById = await fetchFrontendAppImageUrls(appIdsForImages);
 
 	return (
-		<div className="container mx-auto py-8 space-y-12">
+		<div className="container mx-auto w-full max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 			<header className="space-y-2">
 				<h1 className="text-3xl font-bold tracking-tight">App & Agent Rankings</h1>
 				<p className="text-sm text-muted-foreground">
@@ -219,9 +270,9 @@ export default async function AppsPage() {
 				</p>
 			</header>
 
-			<section className="space-y-4">
+			<section className="space-y-4" aria-labelledby="popular-apps-heading">
 				<div className="space-y-1">
-					<h2 className="text-2xl font-semibold">Most Popular</h2>
+					<h2 id="popular-apps-heading" className="text-2xl font-semibold tracking-tight">Most Popular</h2>
 					<p className="text-sm text-muted-foreground">
 						Top 4 apps by token usage over the last 4 weeks.
 					</p>
@@ -232,59 +283,28 @@ export default async function AppsPage() {
 						description="Public app rankings appear once gateway usage is recorded."
 					/>
 				) : (
-					<div className="grid gap-3 md:grid-cols-2">
+					<div className="border-t border-border/70">
 						{popularApps.map((app, index) => (
-							<div
+							<PopularAppRow
 								key={app.appId}
-								className="flex items-center justify-between rounded-lg border border-border/60 bg-background/80 px-3 py-2"
-							>
-								<div className="flex min-w-0 items-center gap-3">
-									<span className="w-8 text-xs text-zinc-500 dark:text-zinc-400">
-										#{index + 1}
-									</span>
-									<Link
-										href={`/apps/${encodeURIComponent(app.appId)}`}
-										className="flex min-w-0 items-center gap-3"
-									>
-										<Avatar className="h-9 w-9 rounded-lg border border-border/60">
-											<AvatarImage
-												src={imageUrlsById[app.appId] ?? undefined}
-												alt={app.appName}
-												className="object-cover"
-											/>
-											<AvatarFallback className="rounded-lg text-xs font-semibold">
-												{getInitial(app.appName)}
-											</AvatarFallback>
-										</Avatar>
-										<span className="truncate text-sm font-medium text-foreground">
-											{app.appName}
-										</span>
-									</Link>
-								</div>
-								<div className="text-right">
-									<div className="text-sm font-semibold tabular-nums text-foreground">
-										{formatCompactNumber(app.tokens)}
-									</div>
-									<div className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-										<TrendingUp className="h-3 w-3" />
-										{formatPercent(app.growthPct)}
-									</div>
-								</div>
-							</div>
+								app={app}
+								index={index}
+								imageUrl={imageUrlsById[app.appId]}
+							/>
 						))}
 					</div>
 				)}
 			</section>
 
-			<section className="space-y-4">
+			<section className="space-y-4" aria-labelledby="trending-apps-heading">
 				<div className="flex items-end justify-between gap-3">
 					<div className="space-y-1">
-						<h2 className="text-2xl font-semibold">Trending</h2>
+						<h2 id="trending-apps-heading" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><Flame className="size-5 text-orange-500" />Trending</h2>
 						<p className="text-sm text-muted-foreground">
 							Fastest growing apps this week by token growth.
 						</p>
 					</div>
-					<span className="text-xs text-muted-foreground">Fastest growing this week</span>
+						<span className="hidden rounded-full border border-border/70 bg-muted/25 px-3 py-1.5 text-xs text-muted-foreground sm:inline-flex">Fastest growing this week</span>
 				</div>
 				{trendingApps.length === 0 ? (
 					<RankingsEmptyState
@@ -292,34 +312,27 @@ export default async function AppsPage() {
 						description="Trending apps appear once week-over-week growth is available."
 					/>
 				) : (
-					<div className="grid gap-3 md:grid-cols-2">
+					<div className="border-t border-border/70">
 						{trendingApps.map((app, index) => (
-							<div
+							<Link
 								key={app.appId}
-								className="flex items-center justify-between rounded-lg border border-border/60 bg-background/80 px-3 py-2"
+								href={getPublicAppPath(app.appName)}
+								className="group flex min-w-0 items-center justify-between gap-4 border-b border-border/60 py-3.5 transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 							>
 								<div className="flex min-w-0 items-center gap-3">
 									<span className="w-8 text-xs text-zinc-500 dark:text-zinc-400">
 										#{index + 1}
 									</span>
-									<Link
-										href={`/apps/${encodeURIComponent(app.appId)}`}
-										className="flex min-w-0 items-center gap-3"
-									>
-										<Avatar className="h-9 w-9 rounded-lg border border-border/60">
-											<AvatarImage
-												src={imageUrlsById[app.appId] ?? undefined}
-												alt={app.appName}
-												className="object-cover"
-											/>
-											<AvatarFallback className="rounded-lg text-xs font-semibold">
-												{getInitial(app.appName)}
-											</AvatarFallback>
-										</Avatar>
-										<span className="truncate text-sm font-medium text-foreground">
-											{app.appName}
-										</span>
-									</Link>
+									<AppLogo
+										src={imageUrlsById[app.appId]}
+										alt={app.appName}
+										fallback={getInitial(app.appName)}
+										className="size-9"
+										fallbackClassName="text-xs"
+									/>
+									<span className="truncate text-sm font-medium text-foreground group-hover:underline group-hover:underline-offset-4">
+										{app.appName}
+									</span>
 								</div>
 								<div className="text-right">
 									<div className="text-sm font-semibold tabular-nums text-foreground">
@@ -330,22 +343,13 @@ export default async function AppsPage() {
 										{formatPercent(app.growthPct)}
 									</div>
 								</div>
-							</div>
+							</Link>
 						))}
 					</div>
 				)}
 			</section>
 
-			<section className="space-y-4">
-				<div className="space-y-1">
-					<h2 className="inline-flex items-center gap-2 text-2xl font-semibold">
-						<Trophy className="h-5 w-5 text-muted-foreground" />
-						Top Leaderboard
-					</h2>
-					<p className="text-sm text-muted-foreground">
-						Top 100 apps by token usage over the last 4 weeks.
-					</p>
-				</div>
+			<section aria-label="Global app ranking">
 				{leaderboardApps.length === 0 ? (
 					<RankingsEmptyState
 						title="No leaderboard data yet"
@@ -353,7 +357,7 @@ export default async function AppsPage() {
 					/>
 				) : (
 					<TopAppsLeaderboardTable
-						rows={leaderboardApps}
+						rowsByRange={leaderboardAppsByRange}
 						imageUrlsById={imageUrlsById}
 					/>
 				)}

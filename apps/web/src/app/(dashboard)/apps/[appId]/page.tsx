@@ -18,14 +18,14 @@ import {
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
 import { permanentRedirect } from "next/navigation";
+import {
+	getPublicAppPath,
+	getPublicAppRouteSegment,
+} from "@/lib/apps/publicAppPath";
 
 type PageProps = {
 	params: Promise<{ appId: string }>;
 };
-
-function getAppPath(slug: string): string {
-	return `/apps/${encodeURIComponent(slug)}`;
-}
 
 function toNumber(value: unknown): number {
 	const parsed = Number(value);
@@ -83,8 +83,7 @@ function getModelLookupVariants(modelId: string): string[] {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
 	const { appId } = await params;
 	const app = await fetchFrontendAppDetails(appId);
-	const canonicalAppId = app?.slug?.trim() || app?.id || appId;
-	const path = app ? getAppPath(canonicalAppId) : `/apps/${encodeURIComponent(appId)}`;
+	const path = app ? getPublicAppPath(app.title) : `/apps/${encodeURIComponent(appId)}`;
 
 	if (!app) {
 		return buildMetadata({
@@ -131,9 +130,9 @@ export default async function Page({ params }: PageProps) {
 		);
 	}
 
-	const canonicalAppId = app.slug?.trim() || app.id;
+	const canonicalAppId = app.slug?.trim() || getPublicAppRouteSegment(app.title);
 	if (canonicalAppId !== appId) {
-		permanentRedirect(getAppPath(canonicalAppId));
+		permanentRedirect(getPublicAppPath(app.title));
 	}
 
 	const rows4w = await fetchFrontendAppUsage(app.id, "4w");
