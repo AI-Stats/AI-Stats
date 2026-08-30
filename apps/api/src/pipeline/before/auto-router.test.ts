@@ -3,6 +3,7 @@ import {
 	classifyAutoRouterWorkload,
 	applyAutoRouterHardRequirements,
 	autoRouterSpendCaps,
+	buildAutoRouterCandidateEvidence,
 	buildAutoRouterClassifierRequestBody,
 	matchesAutoRouterPattern,
 	parseAutoRouterClassifierResponse,
@@ -27,6 +28,17 @@ function evidence(model: string, overrides: Partial<AutoRouterCandidateEvidence>
 		contextResult: { model },
 		...overrides,
 	};
+}
+
+function provider(providerId: string, input: number | null, output: number | null): AutoRouterCandidateEvidence["providers"][number] {
+	const rules = [
+		...(input === null ? [] : [{ meter: "input_text_tokens", pricing_plan: "standard", price_per_unit: String(input), unit_size: 1_000_000 }]),
+		...(output === null ? [] : [{ meter: "output_text_tokens", pricing_plan: "standard", price_per_unit: String(output), unit_size: 1_000_000 }]),
+	];
+	return {
+		providerId,
+		pricingCard: { rules },
+	} as AutoRouterCandidateEvidence["providers"][number];
 }
 
 describe("auto router", () => {
@@ -65,6 +77,95 @@ describe("auto router", () => {
 			allowFallbacks: true,
 			revision: "unknown",
 		});
+	});
+
+	it("reapplies separate workspace spend caps to the providers used for execution", () => {
+		const providers = [
+			provider("within-cap", 0.2, 1),
+			provider("over-input-cap", 0.4, 1),
+			provider("over-output-cap", 0.2, 2),
+			provider("missing-output-price", 0.2, null),
+		];
+		const result = buildAutoRouterCandidateEvidence({
+			endpoint: "responses",
+			requestedModel: "model/a",
+			resolvedModel: "model/a",
+			providers,
+			contextResult: { ok: true, value: { providers, resolvedModel: "model/a" } },
+			config: config(),
+		});
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.evidence.providers.map((candidate) => candidate.providerId)).toEqual(["within-cap"]);
+		const selectedContext = result.evidence.contextResult as { value: { providers: AutoRouterCandidateEvidence["providers"] } };
+		expect(selectedContext.value.providers.map((candidate) => candidate.providerId)).toEqual(["within-cap"]);
+	});
+
+	it("fails closed when provider.only leaves only an over-cap route", () => {
+		const result = buildAutoRouterCandidateEvidence({
+			endpoint: "responses",
+			requestedModel: "model/a",
+			resolvedModel: "model/a",
+			providers: [provider("requested-over-cap", 0.4, 2)],
+			contextResult: { model: "model/a" },
+			config: config(),
+		});
+
+		expect(result).toEqual({ ok: false, reason: "no_providers_within_spend_caps" });
+	});
+
+	it("fails closed when a standard-tier time window can exceed the cap", () => {
+		const peakPriced = provider("peak-priced", 0.2, 1);
+		peakPriced.pricingCard!.rules[0].time_windows = [{
+			label: "peak",
+			timezone: "UTC",
+			start_time: "00:00",
+			end_time: "23:59",
+			price_per_unit: "0.6",
+		}];
+		const result = buildAutoRouterCandidateEvidence({
+			endpoint: "responses",
+			requestedModel: "model/a",
+			resolvedModel: "model/a",
+			providers: [peakPriced],
+			contextResult: { model: "model/a" },
+			config: config(),
+		});
+
+		expect(result).toEqual({ ok: false, reason: "no_providers_within_spend_caps" });
+	});
+
+	it("keeps non-standard service-tier prices outside the standard-tier ceiling", () => {
+		const tiered = provider("tiered-provider", 0.2, 1);
+		tiered.pricingCard!.rules.push({
+			...tiered.pricingCard!.rules[0],
+			pricing_plan: "priority",
+			price_per_unit: "0.6",
+		});
+		const result = buildAutoRouterCandidateEvidence({
+			endpoint: "responses",
+			requestedModel: "model/a",
+			resolvedModel: "model/a",
+			providers: [tiered],
+			contextResult: { model: "model/a" },
+			config: config(),
+		});
+
+		expect(result.ok && result.evidence.providers.map((candidate) => candidate.providerId)).toEqual(["tiered-provider"]);
+	});
+
+	it("preserves all priced providers for an unrestricted workspace", () => {
+		const result = buildAutoRouterCandidateEvidence({
+			endpoint: "responses",
+			requestedModel: "model/a",
+			resolvedModel: "model/a",
+			providers: [provider("premium-provider", 4, 20)],
+			contextResult: { model: "model/a" },
+			config: config({ spendProfile: "unrestricted" }),
+		});
+
+		expect(result.ok && result.evidence.providers.map((candidate) => candidate.providerId)).toEqual(["premium-provider"]);
 	});
 
 	it("matches exact and wildcard model restrictions", () => {

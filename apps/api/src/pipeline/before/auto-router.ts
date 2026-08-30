@@ -757,18 +757,66 @@ export async function loadAutoRouterBenchmarks(models: string[], benchmarkIds: s
 	return results.flatMap((result) => result.data ?? []) as AutoRouterBenchmarkResult[];
 }
 
-function pricePerMillionTokens(card: PriceCard | null): number | null {
-	if (!card) return null;
+function textPricesPerMillionTokens(card: PriceCard | null): { input: number | null; output: number | null } {
 	let input: number | null = null;
 	let output: number | null = null;
+	if (!card) return { input, output };
 	for (const rule of card.rules) {
 		const price = Number(rule.price_per_unit);
-		if (!Number.isFinite(price) || rule.unit_size <= 0) continue;
-		const perMillion = price * (1_000_000 / rule.unit_size);
+		const unitSize = Number(rule.unit_size);
+		if (!Number.isFinite(price) || price < 0 || !Number.isFinite(unitSize) || unitSize <= 0) continue;
+		const perMillion = price * (1_000_000 / unitSize);
 		if (rule.meter === "input_text_tokens" && (input === null || perMillion < input)) input = perMillion;
 		if (rule.meter === "output_text_tokens" && (output === null || perMillion < output)) output = perMillion;
 	}
-	return input !== null && output !== null ? input + output : null;
+	return { input, output };
+}
+
+function pricePerMillionTokens(card: PriceCard | null): number | null {
+	const prices = textPricesPerMillionTokens(card);
+	return prices.input !== null && prices.output !== null ? prices.input + prices.output : null;
+}
+
+function maximumStandardTextPricesPerMillionTokens(card: PriceCard | null): { input: number | null; output: number | null } {
+	let input: number | null = null;
+	let output: number | null = null;
+	if (!card) return { input, output };
+	for (const rule of card.rules) {
+		if (rule.pricing_plan !== "standard") continue;
+		const unitSize = Number(rule.unit_size);
+		if (!Number.isFinite(unitSize) || unitSize <= 0) continue;
+		const prices = [rule.price_per_unit, ...(rule.time_windows ?? []).map((window) => window.price_per_unit)]
+			.map(Number)
+			.filter((price) => Number.isFinite(price) && price >= 0)
+			.map((price) => price * (1_000_000 / unitSize));
+		if (!prices.length) continue;
+		const maximum = Math.max(...prices);
+		if (rule.meter === "input_text_tokens" && (input === null || maximum > input)) input = maximum;
+		if (rule.meter === "output_text_tokens" && (output === null || maximum > output)) output = maximum;
+	}
+	return { input, output };
+}
+
+function isWithinAutoRouterSpendCaps(provider: ProviderCandidate, config: AutoRouterWorkspaceConfig): boolean {
+	const caps = autoRouterSpendCaps(config);
+	if (caps.input === null && caps.output === null) return true;
+	const prices = maximumStandardTextPricesPerMillionTokens(provider.pricingCard);
+	if (caps.input !== null && (prices.input === null || prices.input > caps.input)) return false;
+	if (caps.output !== null && (prices.output === null || prices.output > caps.output)) return false;
+	return true;
+}
+
+function withAutoRouterProviders(contextResult: unknown, providers: ProviderCandidate[]): unknown {
+	if (!contextResult || typeof contextResult !== "object") return contextResult;
+	const result = contextResult as { value?: unknown };
+	if (!result.value || typeof result.value !== "object") return contextResult;
+	return {
+		...result,
+		value: {
+			...(result.value as Record<string, unknown>),
+			providers,
+		},
+	};
 }
 
 export function buildAutoRouterCandidateEvidence(args: {
@@ -777,10 +825,13 @@ export function buildAutoRouterCandidateEvidence(args: {
 	resolvedModel: string;
 	providers: ProviderCandidate[];
 	contextResult: unknown;
+	config: AutoRouterWorkspaceConfig;
 }): CandidateLoadResult {
-	const providerIds = args.providers.map((provider) => provider.providerId);
+	const capCompliant = args.providers.filter((provider) => isWithinAutoRouterSpendCaps(provider, args.config));
+	if (!capCompliant.length) return { ok: false, reason: "no_providers_within_spend_caps" };
+	const providerIds = capCompliant.map((provider) => provider.providerId);
 	const health = readHealthManyOptimistic(args.endpoint, args.resolvedModel, providerIds);
-	const available = args.providers.filter((provider) =>
+	const available = capCompliant.filter((provider) =>
 		health[provider.providerId]?.breaker !== "open" && Boolean(provider.pricingCard?.rules?.length));
 	if (!available.length) return { ok: false, reason: "all_providers_unavailable" };
 	const observedHealth = available
@@ -798,7 +849,7 @@ export function buildAutoRouterCandidateEvidence(args: {
 			priceUsdPerMillionTokens: priceValues.length ? Math.min(...priceValues) : null,
 			latencyMs: latencyValues.length ? Math.min(...latencyValues) : null,
 			reliability: reliabilityValues.length ? Math.max(...reliabilityValues) : 0.8,
-			contextResult: args.contextResult,
+			contextResult: withAutoRouterProviders(args.contextResult, capCompliant),
 		},
 	};
 }

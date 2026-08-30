@@ -590,6 +590,7 @@ export async function beforeRequest(
 					resolvedModel: candidateResolvedModel,
 					providers: quantizationResult.providers,
 					contextResult,
+					config,
 				});
 			},
 		}));
