@@ -4247,6 +4247,76 @@ class WorkspaceActivityResponse
 	public $total_cost_cents;
 }
 
+class WorkspaceApp
+{
+	/** @var string */
+	public $app_key;
+	/** @var string|null */
+	public $category;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $docs_url;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $image_url;
+	/** @var bool */
+	public $is_active;
+	/** @var bool */
+	public $is_managed;
+	/** @var bool */
+	public $is_public;
+	/** @var string|null */
+	public $last_seen;
+	/** @var string */
+	public $title;
+	/** @var string|null */
+	public $url;
+}
+
+class WorkspaceAppListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceAppMergeRequest
+{
+	/** @var string */
+	public $target_app_id;
+}
+
+class WorkspaceAppMergeResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceAppResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceAppUpdateRequest
+{
+	/** @var string|null */
+	public $category;
+	/** @var string|null */
+	public $docs_url;
+	/** @var string|null */
+	public $image_url;
+	/** @var bool|null */
+	public $is_active;
+	/** @var bool|null */
+	public $is_public;
+	/** @var string|null */
+	public $title;
+	/** @var string|null */
+	public $url;
+}
+
 class WorkspaceAssignableRole { }
 
 class WorkspaceAuditEvent

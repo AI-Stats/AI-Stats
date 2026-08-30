@@ -241,4 +241,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches workspace application authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/apps", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/apps", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

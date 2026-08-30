@@ -13903,6 +13903,61 @@ export async function listWebhookEndpoints(
   });
 }
 
+export type ListWorkspaceAppsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists automatically attributed gateway applications and their editable metadata. Requires `settings:read`.
+ */
+export async function listWorkspaceApps(
+  client: Client,
+  args: ListWorkspaceAppsParams = {},
+): Promise<{
+  data: {
+    app_key: string;
+    category: string | null;
+    created_at: string | null;
+    docs_url: string | null;
+    id: string;
+    image_url: string | null;
+    is_active: boolean;
+    is_managed: boolean;
+    is_public: boolean;
+    last_seen: string | null;
+    title: string;
+    url: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/apps";
+  return client.request<{
+    data: {
+      app_key: string;
+      category: string | null;
+      created_at: string | null;
+      docs_url: string | null;
+      id: string;
+      image_url: string | null;
+      is_active: boolean;
+      is_managed: boolean;
+      is_public: boolean;
+      last_seen: string | null;
+      title: string;
+      url: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspaceAuditEventsParams = {
   path?: Record<string, never>;
   query?: {
@@ -14463,6 +14518,47 @@ export async function listWorkspaceScimAuditEvents(
     }[];
   }>({
     method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type MergeWorkspaceAppParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    target_app_id: string;
+  };
+};
+
+/**
+ * Atomically moves request history and analytics from the source application into another application in the same workspace, then removes the source.
+ */
+export async function mergeWorkspaceApp(
+  client: Client,
+  args: MergeWorkspaceAppParams = {},
+): Promise<{
+  data: {
+    merged: true;
+    source_app_id: string;
+    target_app_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/apps/${encodeURIComponent(String(path?.["id"]))}/merge`;
+  return client.request<{
+    data: {
+      merged: true;
+      source_app_id: string;
+      target_app_id: string;
+    };
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -16998,6 +17094,71 @@ export async function updateWorkspace(
       name: string | null;
       slug: string | null;
       updated_at: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceAppParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    category?: string | null;
+    docs_url?: string | null;
+    image_url?: string | null;
+    is_active?: boolean;
+    is_public?: boolean;
+    title?: string;
+    url?: string | null;
+  };
+};
+
+/**
+ * Updates display metadata, catalogue visibility, or active status for an attributed application. Managed platform applications cannot be edited.
+ */
+export async function updateWorkspaceApp(
+  client: Client,
+  args: UpdateWorkspaceAppParams = {},
+): Promise<{
+  data: {
+    app_key: string;
+    category: string | null;
+    created_at: string | null;
+    docs_url: string | null;
+    id: string;
+    image_url: string | null;
+    is_active: boolean;
+    is_managed: boolean;
+    is_public: boolean;
+    last_seen: string | null;
+    title: string;
+    url: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/apps/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      app_key: string;
+      category: string | null;
+      created_at: string | null;
+      docs_url: string | null;
+      id: string;
+      image_url: string | null;
+      is_active: boolean;
+      is_managed: boolean;
+      is_public: boolean;
+      last_seen: string | null;
+      title: string;
+      url: string | null;
     };
   }>({
     method: "PATCH",

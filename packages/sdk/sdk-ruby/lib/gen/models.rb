@@ -3450,6 +3450,58 @@ module Phaseo
     # @!attribute [rw] total_cost_cents
     #   @return [Float]
     WorkspaceActivityResponse = Struct.new(:activity, :limit, :offset, :ok, :period_days, :total, :total_cost_cents, keyword_init: true)
+    # @!attribute [rw] app_key
+    #   @return [String]
+    # @!attribute [rw] category
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] docs_url
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] image_url
+    #   @return [String, nil]
+    # @!attribute [rw] is_active
+    #   @return [Boolean]
+    # @!attribute [rw] is_managed
+    #   @return [Boolean]
+    # @!attribute [rw] is_public
+    #   @return [Boolean]
+    # @!attribute [rw] last_seen
+    #   @return [String, nil]
+    # @!attribute [rw] title
+    #   @return [String]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WorkspaceApp = Struct.new(:app_key, :category, :created_at, :docs_url, :id, :image_url, :is_active, :is_managed, :is_public, :last_seen, :title, :url, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceAppListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] target_app_id
+    #   @return [String]
+    WorkspaceAppMergeRequest = Struct.new(:target_app_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceAppMergeResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceAppResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] category
+    #   @return [String, nil]
+    # @!attribute [rw] docs_url
+    #   @return [String, nil]
+    # @!attribute [rw] image_url
+    #   @return [String, nil]
+    # @!attribute [rw] is_active
+    #   @return [Boolean, nil]
+    # @!attribute [rw] is_public
+    #   @return [Boolean, nil]
+    # @!attribute [rw] title
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WorkspaceAppUpdateRequest = Struct.new(:category, :docs_url, :image_url, :is_active, :is_public, :title, :url, keyword_init: true)
     WorkspaceAssignableRole = Object
     # @!attribute [rw] action
     #   @return [String]

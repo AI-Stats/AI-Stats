@@ -789,6 +789,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWorkspaceApps(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/apps"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listWorkspaceAuditEvents(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/audit-events"
@@ -847,6 +853,12 @@ module Phaseo
         path ||= {}
         resolved_path = "/identity/scim/audit"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.mergeWorkspaceApp(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/apps/#{URI.encode_uri_component(path["id"].to_s)}/merge"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.openAsyncJobWebSocket(client, path: nil, query: nil, headers: nil, body: nil)
@@ -1062,6 +1074,12 @@ module Phaseo
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceApp(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/apps/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

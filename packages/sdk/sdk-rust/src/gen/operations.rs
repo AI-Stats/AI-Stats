@@ -660,6 +660,11 @@ pub fn listWebhookEndpoints<T: Transport>(client: &Client<T>, path: &HashMap<Str
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWorkspaceApps<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/apps");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listWorkspaceAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/audit-events");
 	client.request("GET", &resolved_path, body)
@@ -708,6 +713,11 @@ pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, S
 pub fn listWorkspaceScimAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/identity/scim/audit");
 	client.request("GET", &resolved_path, body)
+}
+
+pub fn mergeWorkspaceApp<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/apps/{}/merge", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
 }
 
 pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
@@ -887,6 +897,11 @@ pub fn updateWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceApp<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/apps/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

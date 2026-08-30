@@ -3772,6 +3772,47 @@ type WorkspaceActivityResponse struct {
 	TotalCostCents float64 `json:"total_cost_cents"`
 }
 
+type WorkspaceApp struct {
+	AppKey string `json:"app_key"`
+	Category *string `json:"category"`
+	CreatedAt *string `json:"created_at"`
+	DocsUrl *string `json:"docs_url"`
+	Id string `json:"id"`
+	ImageUrl *string `json:"image_url"`
+	IsActive bool `json:"is_active"`
+	IsManaged bool `json:"is_managed"`
+	IsPublic bool `json:"is_public"`
+	LastSeen *string `json:"last_seen"`
+	Title string `json:"title"`
+	Url *string `json:"url"`
+}
+
+type WorkspaceAppListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceAppMergeRequest struct {
+	TargetAppId string `json:"target_app_id"`
+}
+
+type WorkspaceAppMergeResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceAppResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceAppUpdateRequest struct {
+	Category *string `json:"category,omitempty"`
+	DocsUrl *string `json:"docs_url,omitempty"`
+	ImageUrl *string `json:"image_url,omitempty"`
+	IsActive *bool `json:"is_active,omitempty"`
+	IsPublic *bool `json:"is_public,omitempty"`
+	Title *string `json:"title,omitempty"`
+	Url *string `json:"url,omitempty"`
+}
+
 type WorkspaceAssignableRole string
 
 const (

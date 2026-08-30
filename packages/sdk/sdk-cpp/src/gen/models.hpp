@@ -2408,6 +2408,47 @@ struct WorkspaceActivityResponse {
 	double total_cost_cents;
 };
 
+struct WorkspaceApp {
+	std::string app_key;
+	std::optional<std::string> category;
+	std::optional<std::string> created_at;
+	std::optional<std::string> docs_url;
+	std::string id;
+	std::optional<std::string> image_url;
+	bool is_active;
+	bool is_managed;
+	bool is_public;
+	std::optional<std::string> last_seen;
+	std::string title;
+	std::optional<std::string> url;
+};
+
+struct WorkspaceAppListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceAppMergeRequest {
+	std::string target_app_id;
+};
+
+struct WorkspaceAppMergeResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceAppResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceAppUpdateRequest {
+	std::optional<std::string> category;
+	std::optional<std::string> docs_url;
+	std::optional<std::string> image_url;
+	std::optional<bool> is_active;
+	std::optional<bool> is_public;
+	std::string title;
+	std::optional<std::string> url;
+};
+
 using WorkspaceAssignableRole = std::any;
 
 struct WorkspaceAuditEvent {

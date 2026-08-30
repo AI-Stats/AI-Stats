@@ -2428,6 +2428,47 @@ public final class Models {
 		public Double total_cost_cents;
 	}
 
+	public static class WorkspaceApp {
+		public String app_key;
+		public String category;
+		public String created_at;
+		public String docs_url;
+		public String id;
+		public String image_url;
+		public Boolean is_active;
+		public Boolean is_managed;
+		public Boolean is_public;
+		public String last_seen;
+		public String title;
+		public String url;
+	}
+
+	public static class WorkspaceAppListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceAppMergeRequest {
+		public String target_app_id;
+	}
+
+	public static class WorkspaceAppMergeResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceAppResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceAppUpdateRequest {
+		public String category;
+		public String docs_url;
+		public String image_url;
+		public Boolean is_active;
+		public Boolean is_public;
+		public String title;
+		public String url;
+	}
+
 	public static class WorkspaceAssignableRole {
 	}
 

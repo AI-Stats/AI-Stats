@@ -717,6 +717,16 @@
 											"v1/api-reference/endpoint/notifications-routes-list",
 											"v1/api-reference/endpoint/notifications-route-update"
 										]
+									},
+									{
+										"group": "Applications",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/apps-list",
+											"v1/api-reference/endpoint/app-update",
+											"v1/api-reference/endpoint/app-merge"
+										]
 									}
 								]
 							}

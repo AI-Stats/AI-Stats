@@ -2685,6 +2685,40 @@ paths:
       responses:
         '200': {description: Notification settings updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationSettingsResponse'}}}}
         default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /apps:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceApps
+      summary: List workspace applications
+      description: Lists automatically attributed gateway applications and their editable metadata. Requires `settings:read`.
+      responses:
+        '200': {description: Workspace applications, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceAppListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /apps/{id}:
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceApp
+      summary: Update a workspace application
+      description: Updates display metadata, catalogue visibility, or active status for an attributed application. Managed platform applications cannot be edited.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceAppUpdateRequest'}}}}
+      responses:
+        '200': {description: Application updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceAppResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /apps/{id}/merge:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: mergeWorkspaceApp
+      summary: Merge workspace applications
+      description: Atomically moves request history and analytics from the source application into another application in the same workspace, then removes the source.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceAppMergeRequest'}}}}
+      responses:
+        '200': {description: Applications merged, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceAppMergeResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /notifications/destinations:
     get:
       x-beta: true
@@ -13829,6 +13863,63 @@ components:
       type: object
       required: [data]
       properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceGroupMapping'}}}
+      additionalProperties: false
+    WorkspaceApp:
+      type: object
+      required: [id, title, app_key, category, docs_url, url, image_url, is_public, is_active, is_managed, last_seen, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        app_key: {type: string}
+        category: {type: string, nullable: true}
+        docs_url: {type: string, format: uri, nullable: true}
+        url: {type: string, nullable: true}
+        image_url: {type: string, format: uri, nullable: true}
+        is_public: {type: boolean}
+        is_active: {type: boolean}
+        is_managed: {type: boolean}
+        last_seen: {type: string, format: date-time, nullable: true}
+        created_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceAppUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title: {type: string, minLength: 1, maxLength: 120}
+        url: {type: string, nullable: true}
+        docs_url: {type: string, format: uri, nullable: true}
+        image_url: {type: string, format: uri, nullable: true}
+        is_public: {type: boolean}
+        is_active: {type: boolean}
+        category: {type: string, nullable: true}
+      additionalProperties: false
+    WorkspaceAppResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceApp'}}
+      additionalProperties: false
+    WorkspaceAppListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceApp'}}}
+      additionalProperties: false
+    WorkspaceAppMergeRequest:
+      type: object
+      required: [target_app_id]
+      properties: {target_app_id: {type: string, format: uuid}}
+      additionalProperties: false
+    WorkspaceAppMergeResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [source_app_id, target_app_id, merged]
+          properties:
+            source_app_id: {type: string, format: uuid}
+            target_app_id: {type: string, format: uuid}
+            merged: {type: boolean, enum: [true]}
+          additionalProperties: false
       additionalProperties: false
     WorkspaceAutoTopUpSettings:
       type: object

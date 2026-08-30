@@ -920,6 +920,13 @@ function listWebhookEndpoints(Client $client, ?array $path = null, ?array $query
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWorkspaceApps(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/apps";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listWorkspaceAuditEvents(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -988,6 +995,13 @@ function listWorkspaceScimAuditEvents(Client $client, ?array $path = null, ?arra
 	$path = $path ?? [];
 	$resolvedPath = "/identity/scim/audit";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function mergeWorkspaceApp(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/apps/" . rawurlencode((string)($path["id"] ?? "")) . "/merge";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
@@ -1239,6 +1253,13 @@ function updateWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceApp(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/apps/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

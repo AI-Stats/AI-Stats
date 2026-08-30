@@ -278,6 +278,12 @@ export type { WebhookEndpointUpdateRequest } from "./WebhookEndpointUpdateReques
 export type { Workspace } from "./Workspace.js";
 export type { WorkspaceActivityEntry } from "./WorkspaceActivityEntry.js";
 export type { WorkspaceActivityResponse } from "./WorkspaceActivityResponse.js";
+export type { WorkspaceApp } from "./WorkspaceApp.js";
+export type { WorkspaceAppListResponse } from "./WorkspaceAppListResponse.js";
+export type { WorkspaceAppMergeRequest } from "./WorkspaceAppMergeRequest.js";
+export type { WorkspaceAppMergeResponse } from "./WorkspaceAppMergeResponse.js";
+export type { WorkspaceAppResponse } from "./WorkspaceAppResponse.js";
+export type { WorkspaceAppUpdateRequest } from "./WorkspaceAppUpdateRequest.js";
 export type { WorkspaceAssignableRole } from "./WorkspaceAssignableRole.js";
 export type { WorkspaceAuditEvent } from "./WorkspaceAuditEvent.js";
 export type { WorkspaceAuditEventActor } from "./WorkspaceAuditEventActor.js";

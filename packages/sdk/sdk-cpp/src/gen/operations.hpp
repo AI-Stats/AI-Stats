@@ -659,6 +659,11 @@ inline Response ListWebhookEndpoints(Client& client, const std::map<std::string,
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWorkspaceApps(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/apps";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/audit-events";
 	return client.request("GET", resolved_path, body);
@@ -707,6 +712,11 @@ inline Response ListWorkspaces(Client& client, const std::map<std::string, std::
 inline Response ListWorkspaceScimAuditEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/identity/scim/audit";
 	return client.request("GET", resolved_path, body);
+}
+
+inline Response MergeWorkspaceApp(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/apps/" + (path.count("id") ? path.at("id") : std::string{}) + "/merge";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
@@ -886,6 +896,11 @@ inline Response UpdateWebhookEndpoint(Client& client, const std::map<std::string
 
 inline Response UpdateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceApp(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/apps/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

@@ -41,6 +41,7 @@ OpenAPI schema does not count as complete.
 | Provider credentials | Dashboard only | Missing | Add encrypted create/update/delete, workspace/provider filters, model/key/member restrictions, priority ordering, required-only mode, and fallback behavior. |
 | Routing policies | Workspace defaults, provider restrictions, versioned dynamic routes, key assignments, and deployments | Contracted | Add new durable routing controls to the same surface as the dashboard evolves. |
 | Presets | CRUD, publisher identity, immutable versions, forks, upstream updates, and archival | Contracted | Add request-derived versions or designated-version changes only when those become durable dashboard actions. |
+| Gateway applications | Attributed application listing, metadata/visibility updates, and history-preserving merges | Contracted | Applications are created automatically from gateway attribution; managed platform applications remain immutable. |
 | Plugins and tools | Response-healing workspace defaults and lock policy; request-level plugin/tool controls | Contracted where durable | Add assignment APIs when another plugin gains durable dashboard configuration. |
 | Data contribution | Consent, classifier CRUD, sampling configuration, and aggregate analytics | Contracted where feature-enabled | Access remains restricted to the current admin preview segment. |
 | Observability | Logs, workspace I/O logging policy, and webhook/OpenTelemetry destination CRUD with privacy, sampling, key filters, and event rules | Contracted for executable exporters | Add destination types only when their exporters are executable. |
@@ -72,6 +73,8 @@ management capability or an explicit, reviewed exclusion in this document.
 - Ephemeral browser state and local presentation preferences.
 - Interactive authentication ceremonies and payment confirmations.
 - Payment-method collection, purchases, refunds, and other interactive financial execution. Durable auto top-up policy remains part of the Management API.
+- Personal account profile, password, passkey, MFA, email-change, account-deletion, OAuth-consent, and beta-enrollment flows.
+- Partner onboarding, provider claims, catalogue submission, and webhook-secret rotation for provider publishers.
 - Internal service controls, cache invalidation, incident operations, and
   provider-health administration.
 - Secret retrieval after creation. Credential values are write-only.

@@ -2404,6 +2404,47 @@ pub struct WorkspaceActivityResponse {
 	pub total_cost_cents: f64,
 }
 
+pub struct WorkspaceApp {
+	pub app_key: String,
+	pub category: Option<String>,
+	pub created_at: Option<String>,
+	pub docs_url: Option<String>,
+	pub id: String,
+	pub image_url: Option<String>,
+	pub is_active: bool,
+	pub is_managed: bool,
+	pub is_public: bool,
+	pub last_seen: Option<String>,
+	pub title: String,
+	pub url: Option<String>,
+}
+
+pub struct WorkspaceAppListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceAppMergeRequest {
+	pub target_app_id: String,
+}
+
+pub struct WorkspaceAppMergeResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceAppResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceAppUpdateRequest {
+	pub category: Option<Option<String>>,
+	pub docs_url: Option<Option<String>>,
+	pub image_url: Option<Option<String>>,
+	pub is_active: Option<bool>,
+	pub is_public: Option<bool>,
+	pub title: Option<String>,
+	pub url: Option<Option<String>>,
+}
+
 pub type WorkspaceAssignableRole = JsonValue;
 
 pub struct WorkspaceAuditEvent {

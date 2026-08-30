@@ -5833,6 +5833,99 @@ public sealed class WorkspaceActivityResponse
 
 }
 
+public sealed class WorkspaceApp
+{
+	[JsonPropertyName("app_key")]
+	public string AppKey { get; set; }
+
+	[JsonPropertyName("category")]
+	public string? Category { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("docs_url")]
+	public string? DocsUrl { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("image_url")]
+	public string? ImageUrl { get; set; }
+
+	[JsonPropertyName("is_active")]
+	public bool IsActive { get; set; }
+
+	[JsonPropertyName("is_managed")]
+	public bool IsManaged { get; set; }
+
+	[JsonPropertyName("is_public")]
+	public bool IsPublic { get; set; }
+
+	[JsonPropertyName("last_seen")]
+	public string? LastSeen { get; set; }
+
+	[JsonPropertyName("title")]
+	public string Title { get; set; }
+
+	[JsonPropertyName("url")]
+	public string? Url { get; set; }
+
+}
+
+public sealed class WorkspaceAppListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class WorkspaceAppMergeRequest
+{
+	[JsonPropertyName("target_app_id")]
+	public string TargetAppId { get; set; }
+
+}
+
+public sealed class WorkspaceAppMergeResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceAppResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceAppUpdateRequest
+{
+	[JsonPropertyName("category")]
+	public string? Category { get; set; }
+
+	[JsonPropertyName("docs_url")]
+	public string? DocsUrl { get; set; }
+
+	[JsonPropertyName("image_url")]
+	public string? ImageUrl { get; set; }
+
+	[JsonPropertyName("is_active")]
+	public bool? IsActive { get; set; }
+
+	[JsonPropertyName("is_public")]
+	public bool? IsPublic { get; set; }
+
+	[JsonPropertyName("title")]
+	public string? Title { get; set; }
+
+	[JsonPropertyName("url")]
+	public string? Url { get; set; }
+
+}
+
 public sealed class WorkspaceAssignableRole { }
 
 public sealed class WorkspaceAuditEvent
