@@ -15,7 +15,13 @@
     {
       "feature_name": "Mistral Vibe",
       "feature_value": "Included",
-      "feature_description": "All-day coding, PAYG beyond included quota",
+      "feature_description": "All-day coding in the CLI, IDE, or web, with PAYG beyond included quota.",
+      "other_info": null
+    },
+    {
+      "feature_name": "API Credits",
+      "feature_value": "$30 / Month",
+      "feature_description": null,
       "other_info": null
     },
     {
@@ -26,6 +32,12 @@
     }
   ],
   "models": [
+    {
+      "model_id": "mistral/mistral-medium-3",
+      "model_info": "Mistral identifies the Medium family as its most performant option for complex software engineering in Vibe.",
+      "rate_limit": null,
+      "other_info": null
+    },
     {
       "model_id": "mistral/mistral-small-4",
       "model_info": null,
