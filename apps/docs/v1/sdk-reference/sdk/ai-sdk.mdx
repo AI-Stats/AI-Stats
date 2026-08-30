@@ -1,85 +1,58 @@
 ---
 icon: "package"
-title: "AI SDK (Vercel) Overview"
-description: "Use the official Phaseo provider with Vercel AI SDK v6."
+title: "AI SDK (Vercel)"
+description: "Generate text, stream responses, and use tools with the Phaseo provider for AI SDK 7."
 ---
 
-Use `@phaseo/ai-sdk-provider` to connect Vercel AI SDK v6 to Phaseo Gateway.
+Use the official Phaseo provider to call Phaseo models through Vercel AI SDK 7. Start here when your application already uses `generateText`, `streamText`, or another AI SDK function.
 
-## Install packages
+## Install
 
-```bash
-npm install @phaseo/ai-sdk-provider ai@^6
+<CodeGroup>
+
+```bash title="npm"
+npm install @phaseo/ai-sdk-provider@^2 ai@^7
 ```
 
-## Quick start
+```bash title="pnpm"
+pnpm add @phaseo/ai-sdk-provider@^2 ai@^7
+```
+
+```bash title="yarn"
+yarn add @phaseo/ai-sdk-provider@^2 ai@^7
+```
+
+```bash title="bun"
+bun add @phaseo/ai-sdk-provider@^2 ai@^7
+```
+
+</CodeGroup>
+
+Set `PHASEO_API_KEY` in your server environment, then make your first request:
 
 ```typescript
 import { phaseo } from "@phaseo/ai-sdk-provider";
 import { generateText } from "ai";
 
 const result = await generateText({
-  model: phaseo("openai/gpt-5-nano"),
-  prompt: "Summarize the benefits of vector search.",
+  model: phaseo("openai/gpt-5.6-sol"),
+  prompt: "Reply with: AI SDK works",
 });
 
 console.log(result.text);
 console.log(result.providerMetadata);
 ```
 
-## Environment variables
+Use a current model id from the [Models endpoint](../../api-reference/endpoint/models.mdx).
 
-Set:
-
-- `PHASEO_API_KEY`
-
-Optional base URL:
-
-- `PHASEO_BASE_URL`
-
-## Custom provider instance
-
-```typescript
-import { createPhaseo } from "@phaseo/ai-sdk-provider";
-import { generateText } from "ai";
-
-const provider = createPhaseo({
-  apiKey: process.env.PHASEO_API_KEY,
-  baseURL: process.env.PHASEO_BASE_URL ?? "https://api.phaseo.app/v1",
-  headers: {
-    "x-title": "My App",
-    "http-referer": "https://example.com",
-  },
-});
-
-const result = await generateText({
-  model: provider("openai/gpt-5-nano"),
-  prompt: "Hello from a custom provider instance.",
-});
-
-console.log(result.text);
-console.log(result.providerMetadata);
-```
-
-## What this reference covers
-
-- [Generate Text](/v1/sdk-reference/sdk/generate-text)
-- [Stream Text](/v1/sdk-reference/sdk/stream-text)
-- [Tool Calling](/v1/sdk-reference/sdk/tool-calling)
-- [Structured Output](/v1/sdk-reference/sdk/structured-output)
-- [Embeddings](/v1/sdk-reference/sdk/embeddings)
-- [Images](/v1/sdk-reference/sdk/images)
-- [Audio](/v1/sdk-reference/sdk/audio)
-- [Model Discovery](/v1/sdk-reference/sdk/get-models)
-
-## Streaming example
+## Stream text
 
 ```typescript
 import { phaseo } from "@phaseo/ai-sdk-provider";
 import { streamText } from "ai";
 
 const result = streamText({
-  model: phaseo("openai/gpt-5-nano"),
+  model: phaseo("openai/gpt-5.6-sol"),
   prompt: "Stream a short greeting.",
 });
 
@@ -90,7 +63,49 @@ for await (const chunk of result.textStream) {
 console.log(await result.providerMetadata);
 ```
 
-## Notes
+## Add application attribution
 
-- Text, embeddings, image, speech, and transcription calls expose gateway routing metadata through `providerMetadata`.
-- Audio currently uses the AI SDK experimental entry points: `experimental_transcribe(...)` and `experimental_generateSpeech(...)`.
+Create a provider instance when you want Phaseo request details to identify your application:
+
+```typescript
+import { createPhaseo } from "@phaseo/ai-sdk-provider";
+
+const phaseo = createPhaseo({
+  apiKey: process.env.PHASEO_API_KEY,
+  headers: {
+    "x-title": "My App",
+    "http-referer": "https://example.com",
+  },
+});
+```
+
+`PHASEO_BASE_URL` is optional and defaults to `https://api.phaseo.app/v1`.
+
+## Supported AI SDK 7 features
+
+- Text generation and streaming
+- Reasoning output and settings
+- Function tools and streamed tool inputs
+- JSON and JSON Schema output
+- Text and image file inputs
+- URL citation sources
+- Embeddings and image generation
+- Transcription and speech generation
+- Provider metadata, usage, abort signals, and raw stream chunks
+
+Model and provider capabilities still vary. Managed file references, skills, reranking, provider-executed tools, and tool-approval flows are not currently advertised by the provider.
+
+## Earlier AI SDK versions
+
+- AI SDK 6: install `@phaseo/ai-sdk-provider@^1` with `ai@ai-v6`.
+- AI SDK 5: use the version-matched `@ai-sdk/openai-compatible` provider with `https://api.phaseo.app/v1`.
+
+## Related guides
+
+- [Generate Text](/v1/sdk-reference/sdk/generate-text)
+- [Stream Text](/v1/sdk-reference/sdk/stream-text)
+- [Tool Calling](/v1/sdk-reference/sdk/tool-calling)
+- [Structured Output](/v1/sdk-reference/sdk/structured-output)
+- [Embeddings](/v1/sdk-reference/sdk/embeddings)
+- [Images](/v1/sdk-reference/sdk/images)
+- [Audio](/v1/sdk-reference/sdk/audio)

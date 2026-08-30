@@ -24,7 +24,7 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 
 ```bash
 # AI SDK 7 / Provider v4 (default)
-npm install @phaseo/ai-sdk-provider ai
+npm install @phaseo/ai-sdk-provider@^2 ai@^7
 
 # AI SDK 6 / Provider v3 maintenance line
 npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
@@ -418,7 +418,7 @@ pnpm test -- --coverage
 -   `tests/language-model.test.ts` - Text generation and streaming compatibility, including response metadata, provider metadata, `generateObject()` / `streamObject()` structured output, non-stream tool calls, and streamed tool-call assembly (local, mocked gateway responses)
 -   `tests/embedding-model.test.ts` - Embeddings generation and ordering (local, mocked gateway responses)
 -   `tests/image-model.test.ts` - Image generation compatibility for base64 and URL-backed gateway responses
--   `tests/audio-model.test.ts` - Experimental speech/transcription compatibility for AI SDK v6
+-   `tests/audio-model.test.ts` - Speech and transcription compatibility for AI SDK 7
 -   `tests/gateway-test-config.test.ts` - Local regression coverage for paid/live gateway-test gating and env-resolution rules
 -   `tests/gateway-integration.test.ts` - Real gateway tests (requires API key)
 

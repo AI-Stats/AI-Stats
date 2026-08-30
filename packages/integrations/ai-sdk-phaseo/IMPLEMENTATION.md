@@ -2,7 +2,7 @@
 
 ## Overview
 
-This package provides a Vercel AI SDK v6 compatible provider for the Phaseo Gateway, enabling developers to access 30+ AI providers through a standardized interface.
+This package provides a native Vercel AI SDK 7 provider for the Phaseo Gateway, enabling developers to access Phaseo models through the ProviderV4 interface.
 
 ## Implemented Features
 
