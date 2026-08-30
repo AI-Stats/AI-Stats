@@ -86,7 +86,7 @@ import { rerank } from "ai";
 import { phaseo } from "@phaseo/ai-sdk-provider";
 
 const result = await rerank({
-  model: phaseo.rerankingModel("cohere/rerank-v4.0-fast"),
+  model: phaseo.rerankingModel("voyage/rerank-2"),
   query: "Which document is about TypeScript?",
   documents: [
     "TypeScript adds static types to JavaScript.",

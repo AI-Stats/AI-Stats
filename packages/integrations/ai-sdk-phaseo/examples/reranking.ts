@@ -2,7 +2,7 @@ import { phaseo } from '../src/index.js';
 import { rerank } from 'ai';
 
 const result = await rerank({
-  model: phaseo.rerankingModel('cohere/rerank-v4.0-fast'),
+  model: phaseo.rerankingModel('voyage/rerank-2'),
   query: 'Which document best explains TypeScript?',
   documents: [
     'TypeScript adds static types to JavaScript.',

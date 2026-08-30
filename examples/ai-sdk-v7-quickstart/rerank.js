@@ -1,7 +1,7 @@
 import { phaseo } from "@phaseo/ai-sdk-provider";
 import { rerank } from "ai";
 
-const model = process.env.PHASEO_RERANK_MODEL ?? "cohere/rerank-v4.0-fast";
+const model = process.env.PHASEO_RERANK_MODEL ?? "voyage/rerank-2";
 
 const result = await rerank({
   model: phaseo.rerankingModel(model),

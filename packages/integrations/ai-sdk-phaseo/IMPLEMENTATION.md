@@ -219,7 +219,7 @@ await embed({
 import { rerank } from 'ai';
 
 await rerank({
-  model: phaseo.rerankingModel('cohere/rerank-v4.0-fast'),
+  model: phaseo.rerankingModel('voyage/rerank-2'),
   query: 'Most relevant document',
   documents: ['First', 'Second'],
 });

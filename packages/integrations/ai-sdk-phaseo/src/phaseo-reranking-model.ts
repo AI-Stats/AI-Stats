@@ -34,17 +34,12 @@ export class PhaseoRerankingModel implements RerankingModelV4 {
   async doRerank(options: RerankingModelV4CallOptions): Promise<RerankingModelV4Result> {
     const { documents, query, topN, abortSignal, headers, providerOptions } = options;
     const payload: Record<string, unknown> = {
+      ...providerOptions?.phaseo,
       model: this.modelId,
       query,
       documents: documents.values,
       ...(topN != null && { top_n: topN }),
     };
-
-    if (providerOptions) {
-      for (const providerConfig of Object.values(providerOptions)) {
-        Object.assign(payload, providerConfig);
-      }
-    }
 
     const url = `${this.config.baseURL}/rerank`;
     const fetchImpl = this.config.fetch ?? fetch;

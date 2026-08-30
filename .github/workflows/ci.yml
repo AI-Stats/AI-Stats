@@ -1234,9 +1234,37 @@ jobs:
                     package_dir="$1"
                     package_tag="$2"
                     package_version="$(node -p "require('./${package_dir}/package.json').version")"
+                    package_spec="${package_name}@${package_version}"
+                    lookup_error="$(mktemp)"
 
-                    if npm view "${package_name}@${package_version}" version --registry https://registry.npmjs.org >/dev/null 2>&1; then
-                      echo "skip: ${package_name}@${package_version} already exists on npm"
+                    if npm view "${package_spec}" version --registry https://registry.npmjs.org >/dev/null 2>"${lookup_error}"; then
+                      version_exists=true
+                    elif grep -q "E404" "${lookup_error}"; then
+                      version_exists=false
+                    else
+                      cat "${lookup_error}" >&2
+                      rm -f "${lookup_error}"
+                      return 1
+                    fi
+
+                    existing_tag=""
+                    if [[ "${version_exists}" == "true" ]]; then
+                      : >"${lookup_error}"
+                      if ! existing_tag="$(npm view "${package_name}" "dist-tags.${package_tag}" --registry https://registry.npmjs.org 2>"${lookup_error}")"; then
+                        cat "${lookup_error}" >&2
+                        rm -f "${lookup_error}"
+                        return 1
+                      fi
+                    fi
+                    rm -f "${lookup_error}"
+
+                    if [[ "${existing_tag}" == "${package_version}" ]]; then
+                      echo "skip: ${package_spec} already has npm tag ${package_tag}"
+                      return 0
+                    fi
+
+                    if [[ "${version_exists}" == "true" ]]; then
+                      npm dist-tag add "${package_spec}" "${package_tag}"
                       return 0
                     fi
 

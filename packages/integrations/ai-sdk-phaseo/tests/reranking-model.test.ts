@@ -79,13 +79,25 @@ describe('Phaseo Vercel AI SDK reranking compatibility', () => {
       model: phaseo.rerankingModel('voyage/rerank-2.5'),
       query: 'typescript',
       documents: [{ title: 'Guide', text: 'TypeScript handbook' }],
+      topN: 1,
       providerOptions: {
-        phaseo: { return_documents: true, max_tokens_per_doc: 256 },
+        phaseo: {
+          model: 'overridden-model',
+          query: 'overridden-query',
+          documents: ['overridden-document'],
+          top_n: 99,
+          return_documents: true,
+          max_tokens_per_doc: 256,
+        },
+        other: { ignored: true },
       },
     });
 
-    expect(requests[0]).toMatchObject({
+    expect(requests[0]).toEqual({
+      model: 'voyage/rerank-2.5',
+      query: 'typescript',
       documents: [{ title: 'Guide', text: 'TypeScript handbook' }],
+      top_n: 1,
       return_documents: true,
       max_tokens_per_doc: 256,
     });
