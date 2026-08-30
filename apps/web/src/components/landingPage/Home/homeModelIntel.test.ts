@@ -5,7 +5,6 @@ function route(
 	values: Partial<GatewaySupportedModel> & Pick<GatewaySupportedModel, "modelId">,
 ): GatewaySupportedModel {
 	return {
-		modelId: values.modelId,
 		isAvailable: true,
 		inputPricePerMillion: null,
 		outputPricePerMillion: null,
