@@ -89,7 +89,6 @@ import type { UsageRangePreset } from "@/lib/gateway/usage/timeRange";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import RequestLabelFilter from "@/components/(gateway)/usage/RequestLabelFilter";
 import { Logo } from "@/components/Logo";
-import { getPublicAppPath } from "@/lib/apps/publicAppPath";
 import type { UsageLabelFacet, UsageLabelSummary } from "@/lib/fetchers/internal/settingsTypes";
 import type {
 	ObservabilityBreakdownItem,
@@ -1360,7 +1359,7 @@ function RankedListItem({
 	const positive = (item.deltaPercent ?? 0) >= 0;
 	const DeltaIcon = positive ? ChevronUp : ChevronDown;
 	const href = kind === "app"
-		? getPublicAppPath(item.label)
+		? `/apps/${encodeURIComponent(item.id)}`
 		: "/settings/keys";
 	return (
 		<Link href={href} className="grid grid-cols-[1fr_110px] items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">

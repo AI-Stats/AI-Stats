@@ -71,7 +71,7 @@ describe("public app routes", () => {
 			"public, max-age=900, stale-while-revalidate=3600",
 		);
 		await expect(detail.json()).resolves.toMatchObject({
-			app: { id: appId, slug: "my-app", total_tokens: 1_000, total_requests: 9 },
+			app: { id: appId, slug: "my-app", member_ids: [appId], total_tokens: 1_000, total_requests: 9 },
 		});
 		expect(usage.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=900, stale-while-revalidate=900",
@@ -124,7 +124,90 @@ describe("public app routes", () => {
 		);
 
 		await expect(response.json()).resolves.toEqual({
-			data: [{ app_id: "active-app", app_name: "Named App", app_url: null, app_category: "chat,productivity", tokens: 100 }],
+			data: [{ app_id: "active-app", app_name: "Named App", app_slug: "named-app", app_url: null, app_category: "chat,productivity", tokens: 100 }],
+		});
+	});
+
+	it("resolves one stable slug and aggregates every public row in a URL group", async () => {
+		const chatId = "11111111-1111-4111-8111-111111111111";
+		const validationId = "22222222-2222-4222-8222-222222222222";
+		const requests: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			requests.push(url);
+			if (url.includes("api_apps")) {
+				return new Response(JSON.stringify([
+					{ id: chatId, slug: "phaseo-chat", title: "Phaseo Chat", url: "https://phaseo.app/chat", created_at: "2026-01-01T00:00:00Z", is_public: true, is_active: true },
+					{ id: validationId, slug: "phaseo-production-validation", title: "Phaseo production validation", url: "https://phaseo.app/validation", created_at: "2026-02-01T00:00:00Z", is_public: true, is_active: true },
+				]), { status: 200 });
+			}
+			if (url.includes("v2_web_public_usage_daily")) {
+				return new Response(JSON.stringify([
+					{ requests: 10, success_requests: 9, total_tokens: 1_000 },
+					{ requests: 5, success_requests: 5, total_tokens: 500 },
+				]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/apps/phaseo-chat",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			app: {
+				id: chatId,
+				slug: "phaseo-chat",
+				member_ids: [chatId, validationId],
+				total_tokens: 1_500,
+				total_requests: 14,
+			},
+		});
+		expect(requests.some((url) => url.includes("app_id=in.") && url.includes(chatId) && url.includes(validationId))).toBe(true);
+	});
+
+	it("adds a readable host suffix when unrelated apps share a title slug", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("rpc/get_public_top_apps")) {
+				return new Response(JSON.stringify([
+					{ app_id: "first-app", tokens: 200 },
+					{ app_id: "second-app", tokens: 100 },
+				]), { status: 200 });
+			}
+			if (url.includes("api_apps")) {
+				return new Response(JSON.stringify([
+					{ id: "first-app", slug: "my-app", title: "My App", url: "https://example.com", created_at: "2026-01-01T00:00:00Z", is_public: true, is_active: true },
+					{ id: "second-app", slug: "my-app", title: "My App", url: "https://other.example", created_at: "2026-01-01T00:00:00Z", is_public: true, is_active: true },
+				]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/apps/top?time_range=4w&limit=20",
+			{},
+			env,
+		);
+
+		await expect(response.json()).resolves.toMatchObject({
+			data: [
+				{ app_id: "first-app", app_slug: "my-app--example-com" },
+				{ app_id: "second-app", app_slug: "my-app--other-example" },
+			],
+		});
+
+		const detail = await app.request(
+			"https://phaseo.app/api/_web/apps/my-app--example-com",
+			{},
+			env,
+		);
+		expect(detail.status).toBe(200);
+		await expect(detail.json()).resolves.toMatchObject({
+			app: { id: "first-app", slug: "my-app--example-com", member_ids: ["first-app"] },
 		});
 	});
 });
