@@ -3,12 +3,25 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
 	rows: [] as Array<Record<string, unknown>>,
 	updateCalls: [] as Array<{ payload: Record<string, unknown>; id: string }>,
+	suppressionReason: null as string | null,
 	sendEmail: vi.fn(async (_args: Record<string, unknown>) => undefined),
 }));
 
 function buildSupabaseMock() {
 	return {
 		from(table: string) {
+			if (table === "email_delivery_suppressions") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({
+								data: state.suppressionReason ? { reason: state.suppressionReason } : null,
+								error: null,
+							}),
+						}),
+					}),
+				};
+			}
 			if (table !== "email_outbox") {
 				throw new Error(`Unexpected table: ${table}`);
 			}
@@ -54,8 +67,37 @@ describe("email outbox", () => {
 	beforeEach(() => {
 		state.rows.length = 0;
 		state.updateCalls.length = 0;
+		state.suppressionReason = null;
 		state.sendEmail.mockClear();
 		vi.resetModules();
+	});
+
+	it("terminates suppressed recipients without calling Resend", async () => {
+		state.suppressionReason = "complained";
+		state.rows.push({
+			id: "email_suppressed",
+			created_at: "2026-08-30T22:00:00Z",
+			kind: "auto_top_up_failed",
+			template: "auto_top_up_failed",
+			to_email: "owner@example.com",
+			subject: "Auto Top-Up failed",
+			workspace_id: "ws_1",
+			user_id: "user_1",
+			payload: {},
+			attempts: 0,
+			last_error: null,
+			sent_at: null,
+		});
+
+		const { drainEmailOutbox } = await import("./email-outbox");
+		const summary = await drainEmailOutbox(10);
+
+		expect(summary).toEqual({ processed: 1, sent: 0, failed: 1 });
+		expect(state.sendEmail).not.toHaveBeenCalled();
+		expect(state.updateCalls).toContainEqual({
+			id: "email_suppressed",
+			payload: { attempts: 5, last_error: "suppressed:complained" },
+		});
 	});
 
 	it("sends low-balance rows through the configured Resend template", async () => {

@@ -1,6 +1,7 @@
 import { decryptWebhookSecret, validateWebhookEndpointUrlForDelivery } from "@/core/webhook-endpoints";
 import { sendEmail } from "@/lib/email/resend";
 import { getSupabaseAdmin } from "@/runtime/env";
+import { getEmailSuppressionReason } from "@/pipeline/notifications/email-suppressions";
 
 const DELIVERABLE_KINDS = ["low_balance", "auto_top_up_failed", "payment_method_expiring", "model_deprecation", "notification_test"];
 const EVENT_PAGE_SIZE = 100;
@@ -69,7 +70,13 @@ async function deliver(event: EventRow, destination: DestinationRow): Promise<nu
 	if (destination.type === "email") {
 		let recipients: string[];
 		try { const parsed = JSON.parse(target); recipients = Array.isArray(parsed) ? parsed.map(String) : [target]; } catch { recipients = [target]; }
-		for (const [index, recipient] of recipients.entries()) await sendEmail({ to: recipient, subject: content.title, text: `${content.title}\n\n${content.message}\n\nManage notifications: ${content.settingsUrl}`, html: `<div style="font-family:ui-sans-serif,system-ui;line-height:1.5"><h2>${content.title.replaceAll("<", "&lt;")}</h2><p>${content.message.replaceAll("<", "&lt;")}</p><p><a href="${content.settingsUrl}">Manage notifications</a></p></div>`, idempotencyKey: `notification:${event.id}:${destination.id}:${index}`, signal });
+		let delivered = 0;
+		for (const [index, recipient] of recipients.entries()) {
+			if (await getEmailSuppressionReason(recipient)) continue;
+			await sendEmail({ to: recipient, subject: content.title, text: `${content.title}\n\n${content.message}\n\nManage notifications: ${content.settingsUrl}`, html: `<div style="font-family:ui-sans-serif,system-ui;line-height:1.5"><h2>${content.title.replaceAll("<", "&lt;")}</h2><p>${content.message.replaceAll("<", "&lt;")}</p><p><a href="${content.settingsUrl}">Manage notifications</a></p></div>`, idempotencyKey: `notification:${event.id}:${destination.id}:${index}`, signal });
+			delivered += 1;
+		}
+		if (delivered === 0) return 208;
 		return 202;
 	}
 	const request = buildProviderRequest(destination.type, target, content, event);
@@ -111,13 +118,19 @@ export async function deliverNotificationTest(input: {
 	if (input.type === "email") {
 		let recipients: string[];
 		try { const parsed = JSON.parse(input.target); recipients = Array.isArray(parsed) ? parsed.map(String) : [input.target]; } catch { recipients = [input.target]; }
-		for (const [index, recipient] of recipients.entries()) await sendEmail({
+		let delivered = 0;
+		for (const [index, recipient] of recipients.entries()) {
+			if (await getEmailSuppressionReason(recipient)) continue;
+			await sendEmail({
 			to: recipient,
 			subject: content.title,
 			text: `${content.title}\n\n${content.message}\n\nManage notifications: ${content.settingsUrl}`,
 			html: `<div style="font-family:ui-sans-serif,system-ui;line-height:1.5"><h2>${content.title}</h2><p>${content.message}</p><p><a href="${content.settingsUrl}">Manage notifications</a></p></div>`,
 			idempotencyKey: `notification-test:${event.id}:${index}`,
-		});
+			});
+			delivered += 1;
+		}
+		if (delivered === 0) throw new Error("email_recipient_suppressed");
 		return 202;
 	}
 	const request = buildProviderRequest(input.type, input.target, content, event);
