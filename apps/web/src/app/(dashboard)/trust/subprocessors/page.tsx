@@ -74,8 +74,8 @@ export default function SubprocessorsPage() {
 			</TrustSection>
 
 			<TrustSection id="changes" title="5. Changes and objections">
-				<p>Phaseo publishes material changes to this page with a new review date. The current product does not yet provide a contractual subprocessor-change subscription. Customers that require advance email notice, a fixed notice period, or a formal objection process should include that requirement in an executed DPA or contact <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.</p>
-				<p><span className="font-medium text-foreground">Legal-review placeholder:</span> before the public DPA is incorporated into contracts, Phaseo must select and operationalise a notice period, notification channel, and objection process.</p>
+				<p>Phaseo publishes material changes to this page with a new review date. The DPA review draft proposes notice to the Customer's account email at least 30 days before a new Subprocessor begins processing Customer Personal Data, plus a written objection process. Phaseo must operationalise that process before signing or incorporating the DPA.</p>
+				<p>The public product does not yet offer a general subprocessor-change subscription. Customers reviewing an execution copy should confirm the notice contact with <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.</p>
 			</TrustSection>
 
 			<TrustSection id="history" title="6. Change history">

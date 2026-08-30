@@ -39,8 +39,10 @@ requireText("security", /not SOC 2 or ISO 27001 certified/, "security paper must
 requireText("security", /30 seconds to 24 hours/, "security paper must state the complete response-cache range");
 requireText("subprocessors", /Customer-selected AI providers/, "schedule must separate customer-selected AI providers");
 requireText("subprocessors", /factual confirmation/, "schedule must expose unverified processing locations");
-requireText("dpa", /Not yet binding/, "DPA must be presented as a non-binding first draft");
-requireText("dpa", /LEGAL AND OPERATIONAL REVIEW/, "DPA must retain visible operational-review placeholders");
+requireText("dpa", /It does not bind either party/, "DPA must be presented as a non-binding review draft");
+requireText("dpa", /operational 30-day subprocessor-notice process/, "DPA must disclose the unimplemented notice process");
+requireText("dpa", /Before execution, Phaseo must confirm/, "DPA must retain visible factual-review conditions");
+requireText("dpa", /classify each active Phaseo-managed AI Provider/, "DPA must disclose the incomplete AI Subprocessor annex");
 requireText("privacy", /Last updated: 30 August 2026/, "privacy review date is stale");
 requireText("privacy", /five minutes by/, "privacy policy must disclose the default response cache");
 requireText("terms", /Last updated: 30 August 2026/, "terms review date is stale");
