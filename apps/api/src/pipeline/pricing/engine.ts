@@ -669,9 +669,7 @@ export function computeBillSummary(
         let candidates = findCandidatesForPlanAndMeter(pricingPlan, dim);
         let resolvedPlan = pricingPlan;
         let conservativeCoverageFallback = false;
-        // Batch reservations/finalization already reject unmatched paid usage;
-        // interactive tiers must recover provider cost after output is delivered.
-        if (!candidates.length && pricingPlan !== "standard" && pricingPlan !== "batch") {
+        if (!candidates.length && pricingPlan !== "standard") {
             const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
             if (fallbackCandidates.length) {
                 candidates = fallbackCandidates;
@@ -683,7 +681,9 @@ export function computeBillSummary(
                     fallbackPricingPlan: "standard",
                     candidateRuleIds: candidates.map((r) => r.id),
                 });
-            } else {
+            } else if (pricingPlan !== "batch") {
+                // Batch reservations/finalization reject unmatched paid usage;
+                // interactive tiers must recover provider cost after output is delivered.
                 const coverageCandidates = card.rules
                     .filter((rule) =>
                         (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&

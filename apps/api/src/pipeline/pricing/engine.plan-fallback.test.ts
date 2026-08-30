@@ -14,7 +14,7 @@ const makeCard = (rules: PriceCard["rules"]): PriceCard => ({
 });
 
 describe("pricing engine non-standard plan fallback", () => {
-	it("falls back to standard when requested plan is missing for a meter", () => {
+	it("keeps matching standard-meter fallback for batch pricing", () => {
 		const card = makeCard([
 			{
 				id: "standard-input",
@@ -44,7 +44,7 @@ describe("pricing engine non-standard plan fallback", () => {
 			{ input_text_tokens: 100_000, output_text_tokens: 10_000 },
 			card,
 			{},
-			"priority",
+			"batch",
 		);
 
 		expect(result.lines).toHaveLength(2);
