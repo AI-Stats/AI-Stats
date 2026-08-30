@@ -190,7 +190,7 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 					<div className="mx-auto max-w-5xl space-y-8 text-center">
 						<div className="space-y-6">
 							<h1 className="text-balance mx-auto max-w-5xl text-5xl font-semibold leading-[0.96] tracking-[-0.065em] text-zinc-950 dark:text-zinc-50 md:text-7xl md:leading-[0.94] 2xl:max-w-7xl 2xl:whitespace-nowrap">
-								One Gateway, Backed by an Open Model Catalog
+								One Platform for Every AI Model
 							</h1>
 							<p className="text-balance mx-auto max-w-[44rem] text-lg leading-8 text-zinc-600 dark:text-zinc-300 2xl:max-w-5xl 2xl:text-pretty">
 								Discover trusted model data, route requests
