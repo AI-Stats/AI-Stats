@@ -3,6 +3,18 @@ require_relative "client"
 module Phaseo
   module Gen
     module Operations
+      def self.addGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/keys/add"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.addGuardrailMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/members/add"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.addWorkspaceMembers(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/add"
@@ -90,6 +102,12 @@ module Phaseo
       def self.createEmbedding(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/embeddings"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -219,6 +237,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deleteGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteManagementKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/management-keys/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -330,6 +354,12 @@ module Phaseo
       def self.getGeneration(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/generations"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -513,6 +543,24 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/keys"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listGuardrailMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/members"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listGuardrails(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listManagementKeys(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/management-keys"
@@ -645,6 +693,18 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.removeGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/keys/remove"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.removeGuardrailMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/members/remove"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.removeWorkspaceMembers(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/remove"
@@ -654,6 +714,12 @@ module Phaseo
       def self.replaceDynamicRouteKeys(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}/keys"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.replaceGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/keys"
         client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -714,6 +780,12 @@ module Phaseo
       def self.updateDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

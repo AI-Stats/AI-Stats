@@ -1631,6 +1631,180 @@ type GenerationResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type Guardrail struct {
+	AllowedApiModelIds *[]string `json:"allowed_api_model_ids,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	DailyLimitCostNanos *int `json:"daily_limit_cost_nanos,omitempty"`
+	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Id string `json:"id"`
+	ModelRestrictionMode *string `json:"model_restriction_mode,omitempty"`
+	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
+	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
+	Name string `json:"name"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacy_enable_free_may_publish_prompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacy_enable_free_may_train,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacy_enable_input_output_logging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacy_enable_paid_may_train,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacy_zdr_only,omitempty"`
+	PromptInjectionAction *string `json:"prompt_injection_action,omitempty"`
+	PromptInjectionEnabled *bool `json:"prompt_injection_enabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"provider_restriction_enforce_allowed,omitempty"`
+	ProviderRestrictionMode *string `json:"provider_restriction_mode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"provider_restriction_provider_ids,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitive_info_default_action,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitive_info_enabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitive_info_rules,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WeeklyLimitCostNanos *int `json:"weekly_limit_cost_nanos,omitempty"`
+	WeeklyLimitRequests *int `json:"weekly_limit_requests,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type GuardrailBudgetInput struct {
+	DailyCostNanos *int `json:"dailyCostNanos,omitempty"`
+	DailyRequests *int `json:"dailyRequests,omitempty"`
+	MonthlyCostNanos *int `json:"monthlyCostNanos,omitempty"`
+	MonthlyRequests *int `json:"monthlyRequests,omitempty"`
+	WeeklyCostNanos *int `json:"weeklyCostNanos,omitempty"`
+	WeeklyRequests *int `json:"weeklyRequests,omitempty"`
+}
+
+type GuardrailCreateRequest struct {
+	AllowedApiModelIds *[]string `json:"allowedApiModelIds,omitempty"`
+	Budgets *map[string]interface{} `json:"budgets,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	ModelRestrictionMode *string `json:"modelRestrictionMode,omitempty"`
+	Name string `json:"name"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacyEnableFreeMayPublishPrompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacyEnableFreeMayTrain,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacyEnableInputOutputLogging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacyEnablePaidMayTrain,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacyZdrOnly,omitempty"`
+	PromptInjectionAction *string `json:"promptInjectionAction,omitempty"`
+	PromptInjectionEnabled *bool `json:"promptInjectionEnabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"providerRestrictionEnforceAllowed,omitempty"`
+	ProviderRestrictionMode *string `json:"providerRestrictionMode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"providerRestrictionProviderIds,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitiveInfoDefaultAction,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitiveInfoEnabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitiveInfoRules,omitempty"`
+}
+
+type GuardrailDeleteResponse struct {
+	Deleted string `json:"deleted"`
+}
+
+type GuardrailDetailResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GuardrailKeyAddResponse struct {
+	AddedCount int `json:"added_count"`
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GuardrailKeyAssignment struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	KeyId string `json:"key_id"`
+	Name *string `json:"name,omitempty"`
+	Prefix *string `json:"prefix,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type GuardrailKeyIdsRequest struct {
+	KeyIds []string `json:"key_ids"`
+}
+
+type GuardrailKeyListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type GuardrailKeySetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GuardrailListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type GuardrailMemberAddResponse struct {
+	AddedCount int `json:"added_count"`
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GuardrailMemberAssignment struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	JoinedAt *string `json:"joined_at,omitempty"`
+	Role *string `json:"role,omitempty"`
+	UserId string `json:"user_id"`
+}
+
+type GuardrailMemberListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type GuardrailPolicyInput struct {
+	AllowedApiModelIds *[]string `json:"allowedApiModelIds,omitempty"`
+	Budgets *map[string]interface{} `json:"budgets,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	ModelRestrictionMode *string `json:"modelRestrictionMode,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacyEnableFreeMayPublishPrompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacyEnableFreeMayTrain,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacyEnableInputOutputLogging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacyEnablePaidMayTrain,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacyZdrOnly,omitempty"`
+	PromptInjectionAction *string `json:"promptInjectionAction,omitempty"`
+	PromptInjectionEnabled *bool `json:"promptInjectionEnabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"providerRestrictionEnforceAllowed,omitempty"`
+	ProviderRestrictionMode *string `json:"providerRestrictionMode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"providerRestrictionProviderIds,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitiveInfoDefaultAction,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitiveInfoEnabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitiveInfoRules,omitempty"`
+}
+
+type GuardrailRemoveResponse struct {
+	RemovedCount int `json:"removed_count"`
+}
+
+type GuardrailResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GuardrailUpdateRequest struct {
+	AllowedApiModelIds *[]string `json:"allowedApiModelIds,omitempty"`
+	Budgets *map[string]interface{} `json:"budgets,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	ModelRestrictionMode *string `json:"modelRestrictionMode,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacyEnableFreeMayPublishPrompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacyEnableFreeMayTrain,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacyEnableInputOutputLogging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacyEnablePaidMayTrain,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacyZdrOnly,omitempty"`
+	PromptInjectionAction *string `json:"promptInjectionAction,omitempty"`
+	PromptInjectionEnabled *bool `json:"promptInjectionEnabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"providerRestrictionEnforceAllowed,omitempty"`
+	ProviderRestrictionMode *string `json:"providerRestrictionMode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"providerRestrictionProviderIds,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitiveInfoDefaultAction,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitiveInfoEnabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitiveInfoRules,omitempty"`
+}
+
+type GuardrailUserIdsRequest struct {
+	UserIds []string `json:"user_ids"`
+}
+
 type Image struct {
 	B64Json *string `json:"b64_json,omitempty"`
 	RevisedPrompt *string `json:"revised_prompt,omitempty"`

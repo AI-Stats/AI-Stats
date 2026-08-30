@@ -5,6 +5,16 @@ pub fn no_query() -> HashMap<String, String> {
 	HashMap::new()
 }
 
+pub fn addGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys/add", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn addGuardrailMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/members/add", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn addWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/members/add", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
@@ -77,6 +87,11 @@ pub fn createDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 
 pub fn createEmbedding<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/embeddings");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/guardrails");
 	client.request("POST", &resolved_path, body)
 }
 
@@ -185,6 +200,11 @@ pub fn deleteDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deleteGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/management-keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -277,6 +297,11 @@ pub fn getDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn getGeneration<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/generations");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -430,6 +455,21 @@ pub fn listFiles<T: Transport>(client: &Client<T>, path: &HashMap<String, String
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listGuardrailMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/members", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listGuardrails<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/guardrails");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listManagementKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/management-keys");
 	client.request("GET", &resolved_path, body)
@@ -540,6 +580,16 @@ pub fn rejectWorkspaceJoinRequest<T: Transport>(client: &Client<T>, path: &HashM
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn removeGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys/remove", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn removeGuardrailMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/members/remove", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn removeWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/members/remove", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
@@ -547,6 +597,11 @@ pub fn removeWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<S
 
 pub fn replaceDynamicRouteKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}/keys", path.get("id").cloned().unwrap_or_default());
+	client.request("PUT", &resolved_path, body)
+}
+
+pub fn replaceGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys", path.get("id").cloned().unwrap_or_default());
 	client.request("PUT", &resolved_path, body)
 }
 
@@ -597,6 +652,11 @@ pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 
 pub fn updateDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

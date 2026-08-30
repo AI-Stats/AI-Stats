@@ -4,6 +4,32 @@ from typing import Any, Dict, Optional
 from .client import Client
 from . import models
 
+def addGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailKeyAddResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys/add"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def addGuardrailMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailMemberAddResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/members/add"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def addWorkspaceMembers(
 	client: Client,
 	*,
@@ -196,6 +222,19 @@ def createEmbedding(
 ) -> EmbeddingsResponse:
 	path = path or {}
 	resolved_path = "/embeddings"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailResponse:
+	path = path or {}
+	resolved_path = "/guardrails"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -472,6 +511,19 @@ def deleteDynamicRoute(
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
+def deleteGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailDeleteResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteManagementKey(
 	client: Client,
 	*,
@@ -716,6 +768,19 @@ def getGeneration(
 ) -> GenerationResponse:
 	path = path or {}
 	resolved_path = "/generations"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailDetailResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1109,6 +1174,45 @@ def listFiles(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailKeyListResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listGuardrailMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailMemberListResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/members"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listGuardrails(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailListResponse:
+	path = path or {}
+	resolved_path = "/guardrails"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listManagementKeys(
 	client: Client,
 	*,
@@ -1395,6 +1499,32 @@ def rejectWorkspaceJoinRequest(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def removeGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailRemoveResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys/remove"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def removeGuardrailMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailRemoveResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/members/remove"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def removeWorkspaceMembers(
 	client: Client,
 	*,
@@ -1418,6 +1548,19 @@ def replaceDynamicRouteKeys(
 ) -> DynamicRouteKeysResponse:
 	path = path or {}
 	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}/keys"
+	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
+def replaceGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailKeySetResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys"
 	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1548,6 +1691,19 @@ def updateDynamicRoute(
 ) -> DynamicRouteResponse:
 	path = path or {}
 	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}"
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1694,4 +1850,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteManagementKey", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listManagementKeys", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateManagementKey", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

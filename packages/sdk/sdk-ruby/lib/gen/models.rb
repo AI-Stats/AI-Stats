@@ -1326,6 +1326,259 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     GenerationResponse = Struct.new(:app_id, :byok, :cost_nanos, :created_at, :currency, :endpoint, :error_code, :error_message, :generation_ms, :key_id, :latency_ms, :model_id, :native_response_id, :pricing_lines, :provider, :replay_request, :replay_supported, :request_id, :status_code, :stream, :success, :team_id, :throughput, :usage, keyword_init: true)
+    # @!attribute [rw] allowed_api_model_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] daily_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] daily_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] model_restriction_mode
+    #   @return [String, nil]
+    # @!attribute [rw] monthly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_enable_free_may_publish_prompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_input_output_logging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_paid_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_zdr_only
+    #   @return [Boolean, nil]
+    # @!attribute [rw] prompt_injection_action
+    #   @return [String, nil]
+    # @!attribute [rw] prompt_injection_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_enforce_allowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_mode
+    #   @return [String, nil]
+    # @!attribute [rw] provider_restriction_provider_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitive_info_default_action
+    #   @return [String, nil]
+    # @!attribute [rw] sensitive_info_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitive_info_rules
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] weekly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weekly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    Guardrail = Struct.new(:allowed_api_model_ids, :created_at, :daily_limit_cost_nanos, :daily_limit_requests, :description, :enabled, :id, :model_restriction_mode, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :prompt_injection_action, :prompt_injection_enabled, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :sensitive_info_default_action, :sensitive_info_enabled, :sensitive_info_rules, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
+    # @!attribute [rw] dailyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] dailyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyRequests
+    #   @return [Integer, nil]
+    GuardrailBudgetInput = Struct.new(:dailyCostNanos, :dailyRequests, :monthlyCostNanos, :monthlyRequests, :weeklyCostNanos, :weeklyRequests, keyword_init: true)
+    # @!attribute [rw] allowedApiModelIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] budgets
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] modelRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacyEnableFreeMayPublishPrompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableFreeMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableInputOutputLogging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnablePaidMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyZdrOnly
+    #   @return [Boolean, nil]
+    # @!attribute [rw] promptInjectionAction
+    #   @return [String, nil]
+    # @!attribute [rw] promptInjectionEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionEnforceAllowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] providerRestrictionProviderIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitiveInfoDefaultAction
+    #   @return [String, nil]
+    # @!attribute [rw] sensitiveInfoEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitiveInfoRules
+    #   @return [Array<Hash{String => Object}>, nil]
+    GuardrailCreateRequest = Struct.new(:allowedApiModelIds, :budgets, :description, :enabled, :modelRestrictionMode, :name, :privacyEnableFreeMayPublishPrompts, :privacyEnableFreeMayTrain, :privacyEnableInputOutputLogging, :privacyEnablePaidMayTrain, :privacyZdrOnly, :promptInjectionAction, :promptInjectionEnabled, :providerRestrictionEnforceAllowed, :providerRestrictionMode, :providerRestrictionProviderIds, :sensitiveInfoDefaultAction, :sensitiveInfoEnabled, :sensitiveInfoRules, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [String]
+    GuardrailDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GuardrailDetailResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] added_count
+    #   @return [Integer]
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GuardrailKeyAddResponse = Struct.new(:added_count, :data, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] key_id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] prefix
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    GuardrailKeyAssignment = Struct.new(:created_at, :key_id, :name, :prefix, :status, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    GuardrailKeyIdsRequest = Struct.new(:key_ids, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    GuardrailKeyListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GuardrailKeySetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    GuardrailListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] added_count
+    #   @return [Integer]
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GuardrailMemberAddResponse = Struct.new(:added_count, :data, keyword_init: true)
+    # @!attribute [rw] display_name
+    #   @return [String, nil]
+    # @!attribute [rw] joined_at
+    #   @return [String, nil]
+    # @!attribute [rw] role
+    #   @return [String, nil]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    GuardrailMemberAssignment = Struct.new(:display_name, :joined_at, :role, :user_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    GuardrailMemberListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] allowedApiModelIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] budgets
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] modelRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacyEnableFreeMayPublishPrompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableFreeMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableInputOutputLogging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnablePaidMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyZdrOnly
+    #   @return [Boolean, nil]
+    # @!attribute [rw] promptInjectionAction
+    #   @return [String, nil]
+    # @!attribute [rw] promptInjectionEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionEnforceAllowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] providerRestrictionProviderIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitiveInfoDefaultAction
+    #   @return [String, nil]
+    # @!attribute [rw] sensitiveInfoEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitiveInfoRules
+    #   @return [Array<Hash{String => Object}>, nil]
+    GuardrailPolicyInput = Struct.new(:allowedApiModelIds, :budgets, :description, :enabled, :modelRestrictionMode, :name, :privacyEnableFreeMayPublishPrompts, :privacyEnableFreeMayTrain, :privacyEnableInputOutputLogging, :privacyEnablePaidMayTrain, :privacyZdrOnly, :promptInjectionAction, :promptInjectionEnabled, :providerRestrictionEnforceAllowed, :providerRestrictionMode, :providerRestrictionProviderIds, :sensitiveInfoDefaultAction, :sensitiveInfoEnabled, :sensitiveInfoRules, keyword_init: true)
+    # @!attribute [rw] removed_count
+    #   @return [Integer]
+    GuardrailRemoveResponse = Struct.new(:removed_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GuardrailResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] allowedApiModelIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] budgets
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] modelRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacyEnableFreeMayPublishPrompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableFreeMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableInputOutputLogging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnablePaidMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyZdrOnly
+    #   @return [Boolean, nil]
+    # @!attribute [rw] promptInjectionAction
+    #   @return [String, nil]
+    # @!attribute [rw] promptInjectionEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionEnforceAllowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] providerRestrictionProviderIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitiveInfoDefaultAction
+    #   @return [String, nil]
+    # @!attribute [rw] sensitiveInfoEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitiveInfoRules
+    #   @return [Array<Hash{String => Object}>, nil]
+    GuardrailUpdateRequest = Struct.new(:allowedApiModelIds, :budgets, :description, :enabled, :modelRestrictionMode, :name, :privacyEnableFreeMayPublishPrompts, :privacyEnableFreeMayTrain, :privacyEnableInputOutputLogging, :privacyEnablePaidMayTrain, :privacyZdrOnly, :promptInjectionAction, :promptInjectionEnabled, :providerRestrictionEnforceAllowed, :providerRestrictionMode, :providerRestrictionProviderIds, :sensitiveInfoDefaultAction, :sensitiveInfoEnabled, :sensitiveInfoRules, keyword_init: true)
+    # @!attribute [rw] user_ids
+    #   @return [Array<String>]
+    GuardrailUserIdsRequest = Struct.new(:user_ids, keyword_init: true)
     # @!attribute [rw] b64_json
     #   @return [String, nil]
     # @!attribute [rw] revised_prompt

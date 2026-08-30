@@ -917,6 +917,180 @@ pub struct GenerationResponse {
 	pub usage: Option<Option<HashMap<String, String>>>,
 }
 
+pub struct Guardrail {
+	pub allowed_api_model_ids: Option<Option<Vec<String>>>,
+	pub created_at: Option<Option<String>>,
+	pub daily_limit_cost_nanos: Option<Option<i64>>,
+	pub daily_limit_requests: Option<Option<i64>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<Option<bool>>,
+	pub id: String,
+	pub model_restriction_mode: Option<Option<String>>,
+	pub monthly_limit_cost_nanos: Option<Option<i64>>,
+	pub monthly_limit_requests: Option<Option<i64>>,
+	pub name: String,
+	pub privacy_enable_free_may_publish_prompts: Option<Option<bool>>,
+	pub privacy_enable_free_may_train: Option<Option<bool>>,
+	pub privacy_enable_input_output_logging: Option<Option<bool>>,
+	pub privacy_enable_paid_may_train: Option<Option<bool>>,
+	pub privacy_zdr_only: Option<Option<bool>>,
+	pub prompt_injection_action: Option<Option<String>>,
+	pub prompt_injection_enabled: Option<Option<bool>>,
+	pub provider_restriction_enforce_allowed: Option<Option<bool>>,
+	pub provider_restriction_mode: Option<Option<String>>,
+	pub provider_restriction_provider_ids: Option<Option<Vec<String>>>,
+	pub sensitive_info_default_action: Option<Option<String>>,
+	pub sensitive_info_enabled: Option<Option<bool>>,
+	pub sensitive_info_rules: Option<Option<Vec<HashMap<String, String>>>>,
+	pub updated_at: Option<Option<String>>,
+	pub weekly_limit_cost_nanos: Option<Option<i64>>,
+	pub weekly_limit_requests: Option<Option<i64>>,
+	pub workspace_id: String,
+}
+
+pub struct GuardrailBudgetInput {
+	pub dailyCostNanos: Option<Option<i64>>,
+	pub dailyRequests: Option<Option<i64>>,
+	pub monthlyCostNanos: Option<Option<i64>>,
+	pub monthlyRequests: Option<Option<i64>>,
+	pub weeklyCostNanos: Option<Option<i64>>,
+	pub weeklyRequests: Option<Option<i64>>,
+}
+
+pub struct GuardrailCreateRequest {
+	pub allowedApiModelIds: Option<Vec<String>>,
+	pub budgets: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub modelRestrictionMode: Option<String>,
+	pub name: String,
+	pub privacyEnableFreeMayPublishPrompts: Option<Option<bool>>,
+	pub privacyEnableFreeMayTrain: Option<Option<bool>>,
+	pub privacyEnableInputOutputLogging: Option<Option<bool>>,
+	pub privacyEnablePaidMayTrain: Option<Option<bool>>,
+	pub privacyZdrOnly: Option<Option<bool>>,
+	pub promptInjectionAction: Option<String>,
+	pub promptInjectionEnabled: Option<bool>,
+	pub providerRestrictionEnforceAllowed: Option<bool>,
+	pub providerRestrictionMode: Option<String>,
+	pub providerRestrictionProviderIds: Option<Vec<String>>,
+	pub sensitiveInfoDefaultAction: Option<String>,
+	pub sensitiveInfoEnabled: Option<bool>,
+	pub sensitiveInfoRules: Option<Vec<HashMap<String, String>>>,
+}
+
+pub struct GuardrailDeleteResponse {
+	pub deleted: String,
+}
+
+pub struct GuardrailDetailResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct GuardrailKeyAddResponse {
+	pub added_count: i64,
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct GuardrailKeyAssignment {
+	pub created_at: Option<Option<String>>,
+	pub key_id: String,
+	pub name: Option<Option<String>>,
+	pub prefix: Option<Option<String>>,
+	pub status: Option<Option<String>>,
+}
+
+pub struct GuardrailKeyIdsRequest {
+	pub key_ids: Vec<String>,
+}
+
+pub struct GuardrailKeyListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct GuardrailKeySetResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct GuardrailListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct GuardrailMemberAddResponse {
+	pub added_count: i64,
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct GuardrailMemberAssignment {
+	pub display_name: Option<Option<String>>,
+	pub joined_at: Option<Option<String>>,
+	pub role: Option<Option<String>>,
+	pub user_id: String,
+}
+
+pub struct GuardrailMemberListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct GuardrailPolicyInput {
+	pub allowedApiModelIds: Option<Vec<String>>,
+	pub budgets: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub modelRestrictionMode: Option<String>,
+	pub name: Option<String>,
+	pub privacyEnableFreeMayPublishPrompts: Option<Option<bool>>,
+	pub privacyEnableFreeMayTrain: Option<Option<bool>>,
+	pub privacyEnableInputOutputLogging: Option<Option<bool>>,
+	pub privacyEnablePaidMayTrain: Option<Option<bool>>,
+	pub privacyZdrOnly: Option<Option<bool>>,
+	pub promptInjectionAction: Option<String>,
+	pub promptInjectionEnabled: Option<bool>,
+	pub providerRestrictionEnforceAllowed: Option<bool>,
+	pub providerRestrictionMode: Option<String>,
+	pub providerRestrictionProviderIds: Option<Vec<String>>,
+	pub sensitiveInfoDefaultAction: Option<String>,
+	pub sensitiveInfoEnabled: Option<bool>,
+	pub sensitiveInfoRules: Option<Vec<HashMap<String, String>>>,
+}
+
+pub struct GuardrailRemoveResponse {
+	pub removed_count: i64,
+}
+
+pub struct GuardrailResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct GuardrailUpdateRequest {
+	pub allowedApiModelIds: Option<Vec<String>>,
+	pub budgets: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub modelRestrictionMode: Option<String>,
+	pub name: Option<String>,
+	pub privacyEnableFreeMayPublishPrompts: Option<Option<bool>>,
+	pub privacyEnableFreeMayTrain: Option<Option<bool>>,
+	pub privacyEnableInputOutputLogging: Option<Option<bool>>,
+	pub privacyEnablePaidMayTrain: Option<Option<bool>>,
+	pub privacyZdrOnly: Option<Option<bool>>,
+	pub promptInjectionAction: Option<String>,
+	pub promptInjectionEnabled: Option<bool>,
+	pub providerRestrictionEnforceAllowed: Option<bool>,
+	pub providerRestrictionMode: Option<String>,
+	pub providerRestrictionProviderIds: Option<Vec<String>>,
+	pub sensitiveInfoDefaultAction: Option<String>,
+	pub sensitiveInfoEnabled: Option<bool>,
+	pub sensitiveInfoRules: Option<Vec<HashMap<String, String>>>,
+}
+
+pub struct GuardrailUserIdsRequest {
+	pub user_ids: Vec<String>,
+}
+
 pub struct Image {
 	pub b64_json: Option<String>,
 	pub revised_prompt: Option<String>,

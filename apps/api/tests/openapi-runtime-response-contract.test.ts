@@ -189,4 +189,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches /guardrails 401 response schema when authorization is missing", async () => {
+		const result = await requestJson("/v1/guardrails", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/guardrails", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

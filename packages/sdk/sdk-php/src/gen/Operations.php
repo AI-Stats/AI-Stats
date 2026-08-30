@@ -3,6 +3,20 @@ declare(strict_types=1);
 
 namespace Phaseo\Gen;
 
+function addGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/keys/add";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function addGuardrailMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/members/add";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function addWorkspaceMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -105,6 +119,13 @@ function createEmbedding(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/embeddings";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -255,6 +276,13 @@ function deleteDynamicRoute(Client $client, ?array $path = null, ?array $query =
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deleteGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteManagementKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -385,6 +413,13 @@ function getGeneration(Client $client, ?array $path = null, ?array $query = null
 {
 	$path = $path ?? [];
 	$resolvedPath = "/generations";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -598,6 +633,27 @@ function listFiles(Client $client, ?array $path = null, ?array $query = null, ?a
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/keys";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listGuardrailMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/members";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listGuardrails(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listManagementKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -752,6 +808,20 @@ function rejectWorkspaceJoinRequest(Client $client, ?array $path = null, ?array 
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function removeGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/keys/remove";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function removeGuardrailMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/members/remove";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function removeWorkspaceMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -763,6 +833,13 @@ function replaceDynamicRouteKeys(Client $client, ?array $path = null, ?array $qu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? "")) . "/keys";
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
+function replaceGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? "")) . "/keys";
 	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
 }
 
@@ -833,6 +910,13 @@ function updateDynamicRoute(Client $client, ?array $path = null, ?array $query =
 {
 	$path = $path ?? [];
 	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

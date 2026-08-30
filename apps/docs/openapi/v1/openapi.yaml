@@ -2422,6 +2422,270 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /guardrails:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listGuardrails
+      summary: List guardrails
+      description: Lists workspace guardrails. Requires `guardrails:read`.
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit100'
+      responses:
+        '200':
+          description: Guardrail list
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailListResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createGuardrail
+      summary: Create a guardrail
+      description: Creates a workspace guardrail. Requires `guardrails:write`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailCreateRequest'}
+      responses:
+        '201':
+          description: Guardrail created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}:
+    parameters:
+      - $ref: '#/components/parameters/GuardrailId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getGuardrail
+      summary: Get a guardrail
+      description: Returns a guardrail and its assigned key IDs. Requires `guardrails:read`.
+      responses:
+        '200':
+          description: Guardrail details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailDetailResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateGuardrail
+      summary: Update a guardrail
+      description: Updates guardrail policy fields. Requires `guardrails:write`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailUpdateRequest'}
+      responses:
+        '200':
+          description: Guardrail updated
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteGuardrail
+      summary: Delete a guardrail
+      description: Deletes a guardrail and its assignments. Requires `guardrails:delete`.
+      responses:
+        '200':
+          description: Guardrail deleted
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailDeleteResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}/keys:
+    parameters:
+      - $ref: '#/components/parameters/GuardrailId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listGuardrailKeys
+      summary: List guardrail key assignments
+      description: Lists API keys assigned to a guardrail. Requires `guardrails:read`.
+      responses:
+        '200':
+          description: Assigned keys
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailKeyListResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: replaceGuardrailKeys
+      summary: Replace guardrail key assignments
+      description: Replaces the complete key assignment set. Requires `guardrails:write`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailKeyIdsRequest'}
+      responses:
+        '200':
+          description: Key assignments replaced
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailKeySetResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}/keys/add:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: addGuardrailKeys
+      summary: Add guardrail key assignments
+      description: Assigns one or more workspace API keys. Requires `guardrails:write`.
+      parameters:
+        - $ref: '#/components/parameters/GuardrailId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailKeyIdsRequest'}
+      responses:
+        '200':
+          description: Key assignments added
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailKeyAddResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}/keys/remove:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: removeGuardrailKeys
+      summary: Remove guardrail key assignments
+      description: Removes one or more API-key assignments. Requires `guardrails:write`.
+      parameters:
+        - $ref: '#/components/parameters/GuardrailId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailKeyIdsRequest'}
+      responses:
+        '200':
+          description: Key assignments removed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailRemoveResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}/members:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listGuardrailMembers
+      summary: List guardrail member assignments
+      description: Lists workspace members assigned to a guardrail. Requires `guardrails:read`.
+      parameters:
+        - $ref: '#/components/parameters/GuardrailId'
+      responses:
+        '200':
+          description: Assigned members
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailMemberListResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}/members/add:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: addGuardrailMembers
+      summary: Add guardrail member assignments
+      description: Assigns workspace members to a guardrail. Requires `guardrails:write`.
+      parameters:
+        - $ref: '#/components/parameters/GuardrailId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailUserIdsRequest'}
+      responses:
+        '200':
+          description: Member assignments added
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailMemberAddResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
+  /guardrails/{id}/members/remove:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: removeGuardrailMembers
+      summary: Remove guardrail member assignments
+      description: Removes workspace-member assignments. Requires `guardrails:write`.
+      parameters:
+        - $ref: '#/components/parameters/GuardrailId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/GuardrailUserIdsRequest'}
+      responses:
+        '200':
+          description: Member assignments removed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GuardrailRemoveResponse'}
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ErrorResponse'}
   /management-keys:
     get:
       x-beta: true
@@ -5253,6 +5517,14 @@ components:
       schema:
         type: string
   parameters:
+    GuardrailId:
+      name: id
+      in: path
+      required: true
+      description: Guardrail identifier.
+      schema:
+        type: string
+        format: uuid
     DynamicRouteId:
       name: id
       in: path
@@ -12722,6 +12994,247 @@ components:
         soft_blocked:
           type: boolean
           example: false
+    GuardrailBudgetInput:
+      type: object
+      properties:
+        dailyRequests: {type: integer, minimum: 0, nullable: true}
+        weeklyRequests: {type: integer, minimum: 0, nullable: true}
+        monthlyRequests: {type: integer, minimum: 0, nullable: true}
+        dailyCostNanos: {type: integer, minimum: 0, nullable: true}
+        weeklyCostNanos: {type: integer, minimum: 0, nullable: true}
+        monthlyCostNanos: {type: integer, minimum: 0, nullable: true}
+      additionalProperties: false
+    GuardrailPolicyInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 200}
+        description: {type: string, nullable: true}
+        enabled: {type: boolean}
+        privacyEnablePaidMayTrain: {type: boolean, nullable: true}
+        privacyEnableFreeMayTrain: {type: boolean, nullable: true}
+        privacyEnableFreeMayPublishPrompts: {type: boolean, nullable: true}
+        privacyEnableInputOutputLogging: {type: boolean, nullable: true}
+        privacyZdrOnly: {type: boolean, nullable: true}
+        providerRestrictionMode:
+          type: string
+          enum: [none, allowlist, blocklist]
+        providerRestrictionProviderIds:
+          type: array
+          items: {type: string}
+        providerRestrictionEnforceAllowed: {type: boolean}
+        modelRestrictionMode:
+          type: string
+          enum: [none, allowlist, blocklist]
+        allowedApiModelIds:
+          type: array
+          items: {type: string}
+        promptInjectionEnabled: {type: boolean}
+        promptInjectionAction:
+          type: string
+          enum: [flag, block]
+        sensitiveInfoEnabled: {type: boolean}
+        sensitiveInfoDefaultAction:
+          type: string
+          enum: [flag, redact, block]
+        sensitiveInfoRules:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        budgets: {$ref: '#/components/schemas/GuardrailBudgetInput'}
+      additionalProperties: false
+    GuardrailCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/GuardrailPolicyInput'
+        - type: object
+          required: [name]
+    GuardrailUpdateRequest:
+      $ref: '#/components/schemas/GuardrailPolicyInput'
+    Guardrail:
+      type: object
+      required: [id, workspace_id, name]
+      properties:
+        id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        name: {type: string}
+        description: {type: string, nullable: true}
+        enabled: {type: boolean, nullable: true}
+        privacy_enable_paid_may_train: {type: boolean, nullable: true}
+        privacy_enable_free_may_train: {type: boolean, nullable: true}
+        privacy_enable_free_may_publish_prompts: {type: boolean, nullable: true}
+        privacy_enable_input_output_logging: {type: boolean, nullable: true}
+        privacy_zdr_only: {type: boolean, nullable: true}
+        provider_restriction_mode:
+          type: string
+          nullable: true
+          enum: [none, allowlist, blocklist]
+        provider_restriction_provider_ids:
+          type: array
+          nullable: true
+          items: {type: string}
+        provider_restriction_enforce_allowed: {type: boolean, nullable: true}
+        model_restriction_mode:
+          type: string
+          nullable: true
+          enum: [none, allowlist, blocklist]
+        allowed_api_model_ids:
+          type: array
+          nullable: true
+          items: {type: string}
+        prompt_injection_enabled: {type: boolean, nullable: true}
+        prompt_injection_action:
+          type: string
+          nullable: true
+          enum: [flag, block]
+        sensitive_info_enabled: {type: boolean, nullable: true}
+        sensitive_info_default_action:
+          type: string
+          nullable: true
+          enum: [flag, redact, block]
+        sensitive_info_rules:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        daily_limit_requests: {type: integer, nullable: true}
+        weekly_limit_requests: {type: integer, nullable: true}
+        monthly_limit_requests: {type: integer, nullable: true}
+        daily_limit_cost_nanos: {type: integer, nullable: true}
+        weekly_limit_cost_nanos: {type: integer, nullable: true}
+        monthly_limit_cost_nanos: {type: integer, nullable: true}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    GuardrailResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {$ref: '#/components/schemas/Guardrail'}
+      additionalProperties: false
+    GuardrailDetailResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/Guardrail'
+            - type: object
+              required: [key_ids]
+              properties:
+                key_ids:
+                  type: array
+                  items: {type: string}
+      additionalProperties: false
+    GuardrailListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/Guardrail'}
+        total_count: {type: integer, minimum: 0}
+      additionalProperties: false
+    GuardrailDeleteResponse:
+      type: object
+      required: [deleted]
+      properties:
+        deleted: {type: boolean, enum: [true]}
+      additionalProperties: false
+    GuardrailKeyIdsRequest:
+      type: object
+      required: [key_ids]
+      properties:
+        key_ids:
+          type: array
+          uniqueItems: true
+          items: {type: string}
+      additionalProperties: false
+    GuardrailUserIdsRequest:
+      type: object
+      required: [user_ids]
+      properties:
+        user_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: {type: string}
+      additionalProperties: false
+    GuardrailKeyAssignment:
+      type: object
+      required: [key_id]
+      properties:
+        key_id: {type: string}
+        name: {type: string, nullable: true}
+        prefix: {type: string, nullable: true}
+        status: {type: string, nullable: true}
+        created_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    GuardrailMemberAssignment:
+      type: object
+      required: [user_id]
+      properties:
+        user_id: {type: string}
+        role: {type: string, nullable: true}
+        display_name: {type: string, nullable: true}
+        joined_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    GuardrailKeyListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/GuardrailKeyAssignment'}
+        total_count: {type: integer, minimum: 0}
+      additionalProperties: false
+    GuardrailMemberListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/GuardrailMemberAssignment'}
+        total_count: {type: integer, minimum: 0}
+      additionalProperties: false
+    GuardrailKeySetResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [guardrail_id, key_ids]
+          properties:
+            guardrail_id: {type: string}
+            key_ids:
+              type: array
+              items: {type: string}
+          additionalProperties: false
+      additionalProperties: false
+    GuardrailKeyAddResponse:
+      type: object
+      required: [added_count, data]
+      properties:
+        added_count: {type: integer, minimum: 0}
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/GuardrailKeyAssignment'}
+      additionalProperties: false
+    GuardrailMemberAddResponse:
+      type: object
+      required: [added_count, data]
+      properties:
+        added_count: {type: integer, minimum: 0}
+        data:
+          type: array
+          items: {$ref: '#/components/schemas/GuardrailMemberAssignment'}
+      additionalProperties: false
+    GuardrailRemoveResponse:
+      type: object
+      required: [removed_count]
+      properties:
+        removed_count: {type: integer, minimum: 0}
+      additionalProperties: false
     ManagementKeyRuntime:
       type: object
       required:

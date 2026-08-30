@@ -6,6 +6,30 @@ namespace Phaseo.Gen;
 
 public static class Operations
 {
+	public static Task<Dictionary<string, object>?> AddGuardrailKeysAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/keys/add";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> AddGuardrailMembersAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members/add";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> AddWorkspaceMembersAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -183,6 +207,18 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/embeddings";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> CreateGuardrailAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -438,6 +474,18 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> DeleteGuardrailAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
+		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> DeleteManagementKeyAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -663,6 +711,18 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/generations";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> GetGuardrailAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -1026,6 +1086,42 @@ public static class Operations
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> ListGuardrailKeysAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/keys";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> ListGuardrailMembersAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> ListGuardrailsAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> ListManagementKeysAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -1290,6 +1386,30 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> RemoveGuardrailKeysAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/keys/remove";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> RemoveGuardrailMembersAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members/remove";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> RemoveWorkspaceMembersAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -1311,6 +1431,18 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/routing/dynamic-routes/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/keys";
+		return client.SendAsync<Dictionary<string, object>>("PUT", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> ReplaceGuardrailKeysAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/keys";
 		return client.SendAsync<Dictionary<string, object>>("PUT", resolvedPath, query, headers, body);
 	}
 
@@ -1431,6 +1563,18 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/routing/dynamic-routes/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
+		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> UpdateGuardrailAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/guardrails/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
 	}
 

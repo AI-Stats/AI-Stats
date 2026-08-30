@@ -4,6 +4,16 @@
 #include "client.hpp"
 
 namespace phaseo::gen {
+inline Response AddGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys/add";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response AddGuardrailMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/add";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response AddWorkspaceMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/add";
 	return client.request("POST", resolved_path, body);
@@ -76,6 +86,11 @@ inline Response CreateDynamicRoute(Client& client, const std::map<std::string, s
 
 inline Response CreateEmbedding(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/embeddings";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -184,6 +199,11 @@ inline Response DeleteDynamicRoute(Client& client, const std::map<std::string, s
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeleteGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteManagementKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/management-keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -276,6 +296,11 @@ inline Response GetDynamicRoute(Client& client, const std::map<std::string, std:
 
 inline Response GetGeneration(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/generations";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -429,6 +454,21 @@ inline Response ListFiles(Client& client, const std::map<std::string, std::strin
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListGuardrailMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/members";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListGuardrails(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListManagementKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/management-keys";
 	return client.request("GET", resolved_path, body);
@@ -539,6 +579,16 @@ inline Response RejectWorkspaceJoinRequest(Client& client, const std::map<std::s
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response RemoveGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys/remove";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response RemoveGuardrailMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/remove";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response RemoveWorkspaceMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/remove";
 	return client.request("POST", resolved_path, body);
@@ -546,6 +596,11 @@ inline Response RemoveWorkspaceMembers(Client& client, const std::map<std::strin
 
 inline Response ReplaceDynamicRouteKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
+	return client.request("PUT", resolved_path, body);
+}
+
+inline Response ReplaceGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
 	return client.request("PUT", resolved_path, body);
 }
 
@@ -596,6 +651,11 @@ inline Response UpdateApiKey(Client& client, const std::map<std::string, std::st
 
 inline Response UpdateDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

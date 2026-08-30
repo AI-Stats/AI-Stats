@@ -619,10 +619,21 @@
 									},
 									{
 										"group": "Guardrails",
-										"tag": "Coming soon",
 										"expanded": false,
 										"pages": [
-											"v1/api-reference/endpoint/guardrails"
+											"v1/api-reference/endpoint/guardrails",
+											"v1/api-reference/endpoint/guardrails-list",
+											"v1/api-reference/endpoint/guardrails-create",
+											"v1/api-reference/endpoint/guardrails-get",
+											"v1/api-reference/endpoint/guardrails-update",
+											"v1/api-reference/endpoint/guardrails-delete",
+											"v1/api-reference/endpoint/guardrail-keys-list",
+											"v1/api-reference/endpoint/guardrail-keys-replace",
+											"v1/api-reference/endpoint/guardrail-keys-add",
+											"v1/api-reference/endpoint/guardrail-keys-remove",
+											"v1/api-reference/endpoint/guardrail-members-list",
+											"v1/api-reference/endpoint/guardrail-members-add",
+											"v1/api-reference/endpoint/guardrail-members-remove"
 										]
 									}
 								]
