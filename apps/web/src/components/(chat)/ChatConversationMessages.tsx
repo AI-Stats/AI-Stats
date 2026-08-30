@@ -375,6 +375,7 @@ type ChatConversationMessagesProps = {
 	onSelectPrompt: (prompt: string) => void;
 	temporaryMode?: boolean;
 	onSelectionAction: (prompt: string) => void;
+	onOpenModelPicker: () => void;
 };
 
 export function ChatConversationMessages({
@@ -404,6 +405,7 @@ export function ChatConversationMessages({
 	onSelectPrompt,
 	temporaryMode = false,
 	onSelectionAction,
+	onOpenModelPicker,
 }: ChatConversationMessagesProps) {
 	const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
 	const copiedResetTimeoutRef = useRef<number | null>(null);
@@ -893,6 +895,8 @@ export function ChatConversationMessages({
 										error={messageRequestError}
 										threadTitle={activeThread.title}
 										className="mb-0 max-w-full"
+										onRetry={() => onRetryAssistant(message.id)}
+										onChooseModel={onOpenModelPicker}
 									/>
 								) : (
 									<div
@@ -1674,6 +1678,7 @@ export function ChatConversationMessages({
 		onEditingIdChange,
 		onEditMessage,
 		onRetryAssistant,
+		onOpenModelPicker,
 		onBranchAssistant,
 		onSelectVariant,
 		endToEndDisplay,
