@@ -94,8 +94,8 @@ import {
 import {
 	clearProviderInspector,
 	dispatchProviderInspectorOpen,
-	PROVIDER_INSPECTOR_OPEN_EVENT,
-	type ProviderInspectorOpenDetail,
+	PROVIDER_INSPECTOR_CHANGE_EVENT,
+	type ProviderInspectorChangeDetail,
 } from "@/components/(data)/model/pricing/providerInspectorSync";
 
 const PROVIDER_STATUSES_DOCS_HREF =
@@ -1626,9 +1626,12 @@ export default function ProviderCard({
 
 	useEffect(() => {
 		const handleOpen = (event: Event) => {
-			const detail = (event as CustomEvent<ProviderInspectorOpenDetail>).detail;
+			const detail = (event as CustomEvent<ProviderInspectorChangeDetail>).detail;
 			const providerId = detail?.providerId;
-			if (!providerId) return;
+			if (!providerId) {
+				setExpanded(false);
+				return;
+			}
 			setInspectorNavigationProviderIds(
 				detail.navigationProviderIds?.length ? detail.navigationProviderIds : null,
 			);
@@ -1680,9 +1683,9 @@ export default function ProviderCard({
 			setExpanded(isTargetProvider);
 		};
 
-		window.addEventListener(PROVIDER_INSPECTOR_OPEN_EVENT, handleOpen);
+		window.addEventListener(PROVIDER_INSPECTOR_CHANGE_EVENT, handleOpen);
 		return () => {
-			window.removeEventListener(PROVIDER_INSPECTOR_OPEN_EVENT, handleOpen);
+			window.removeEventListener(PROVIDER_INSPECTOR_CHANGE_EVENT, handleOpen);
 			if (inspectorAnimationResetRef.current !== null) {
 				window.clearTimeout(inspectorAnimationResetRef.current);
 			}
