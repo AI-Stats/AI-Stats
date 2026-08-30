@@ -37,6 +37,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "settings:read", label: "Read settings", description: "Inspect workspace settings.", group: "Read" },
 	{ value: "provider_credentials:read", label: "Read provider credentials", description: "Inspect provider credential metadata.", group: "Read" },
 	{ value: "guardrails:read", label: "Read guardrails", description: "Inspect guardrail configuration.", group: "Read" },
+	{ value: "budgets:read", label: "Read budgets", description: "Inspect workspace spend budgets and usage.", group: "Read" },
 	{ value: "management_keys:read", label: "Read management keys", description: "Inspect management-key metadata.", group: "Read" },
 	{ value: "oauth_clients:read", label: "Read OAuth apps", description: "Inspect OAuth client configuration.", group: "Read" },
 	{ value: "workspaces:write", label: "Manage workspaces", description: "Create or update workspaces.", group: "Write" },
@@ -45,6 +46,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "settings:write", label: "Manage settings", description: "Change workspace settings.", group: "Write" },
 	{ value: "provider_credentials:write", label: "Manage provider credentials", description: "Create or update provider credentials.", group: "Write" },
 	{ value: "guardrails:write", label: "Manage guardrails", description: "Create or update guardrails.", group: "Write" },
+	{ value: "budgets:write", label: "Manage budgets", description: "Create or update workspace spend budgets.", group: "Write" },
 	{ value: "management_keys:write", label: "Manage management keys", description: "Create or update management keys.", group: "Write" },
 	{ value: "oauth_clients:write", label: "Manage OAuth apps", description: "Create or update OAuth apps.", group: "Write" },
 	{ value: "feedback:write", label: "Manage feedback", description: "Create feedback, observability events, and preset test runs.", group: "Write" },
@@ -53,6 +55,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "presets:delete", label: "Delete presets", description: "Permanently delete presets.", group: "Delete" },
 	{ value: "provider_credentials:delete", label: "Delete provider credentials", description: "Permanently delete provider credentials.", group: "Delete" },
 	{ value: "guardrails:delete", label: "Delete guardrails", description: "Permanently delete guardrails.", group: "Delete" },
+	{ value: "budgets:delete", label: "Delete budgets", description: "Permanently delete workspace spend budgets.", group: "Delete" },
 	{ value: "management_keys:delete", label: "Delete management keys", description: "Permanently delete management keys.", group: "Delete" },
 	{ value: "oauth_clients:delete", label: "Delete OAuth apps", description: "Permanently delete OAuth apps.", group: "Delete" },
 ];

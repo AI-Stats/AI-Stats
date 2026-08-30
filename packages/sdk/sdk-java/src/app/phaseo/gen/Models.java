@@ -104,6 +104,7 @@ public final class Models {
 	public static class ApiKey {
 		public String created_at;
 		public String created_by;
+		public String creator_user_id;
 		public Boolean disabled;
 		public String expires_at;
 		public String hash;
@@ -119,6 +120,11 @@ public final class Models {
 		public Boolean soft_blocked;
 		public String status;
 		public String updated_at;
+		public Double usage;
+		public Double usage_daily;
+		public Object usage_details;
+		public Double usage_monthly;
+		public Double usage_weekly;
 		public String workspace_id;
 	}
 
@@ -128,10 +134,33 @@ public final class Models {
 		public Boolean include_byok_in_limit;
 		public Double limit;
 		public Object limit_reset;
+		public Object limits;
 		public String name;
 		public Object scopes;
 		public Boolean soft_blocked;
 		public String workspace_id;
+	}
+
+	public static class ApiKeyLimitBucket {
+		public Double cost;
+		public Integer requests;
+	}
+
+	public static class ApiKeyLimitInputBucket {
+		public Double cost;
+		public Integer requests;
+	}
+
+	public static class ApiKeyLimitInputWindows {
+		public Object daily;
+		public Object monthly;
+		public Object weekly;
+	}
+
+	public static class ApiKeyLimitWindows {
+		public Object daily;
+		public Object monthly;
+		public Object weekly;
 	}
 
 	public static class ApiKeyListResponse {
@@ -162,14 +191,28 @@ public final class Models {
 		public Boolean include_byok_in_limit;
 		public Double limit;
 		public Object limit_reset;
+		public Object limits;
 		public String name;
 		public Object scopes;
 		public Boolean soft_blocked;
 	}
 
+	public static class ApiKeyUsageBucket {
+		public Double cost;
+		public Integer requests;
+	}
+
+	public static class ApiKeyUsageWindows {
+		public Object daily;
+		public Object monthly;
+		public Object total;
+		public Object weekly;
+	}
+
 	public static class ApiKeyWithValue {
 		public String created_at;
 		public String created_by;
+		public String creator_user_id;
 		public Boolean disabled;
 		public String expires_at;
 		public String hash;
@@ -186,6 +229,11 @@ public final class Models {
 		public Boolean soft_blocked;
 		public String status;
 		public String updated_at;
+		public Double usage;
+		public Double usage_daily;
+		public Object usage_details;
+		public Double usage_monthly;
+		public Double usage_weekly;
 		public String workspace_id;
 	}
 

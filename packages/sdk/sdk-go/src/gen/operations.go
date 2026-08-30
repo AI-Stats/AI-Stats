@@ -2837,6 +2837,21 @@ func UpdateWorkspaceSso(client *Client, path map[string]string, query map[string
 	return out, nil
 }
 
+func UpdateWorkspaceBudget(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
+	resolvedPath := "/budgets/" + url.PathEscape(path["id"])
+	data, err := client.Request("PATCH", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero map[string]interface{}
+		return zero, err
+	}
+	var out map[string]interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero map[string]interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
 func UploadBatchFile(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
 	resolvedPath := "/batches/files"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)

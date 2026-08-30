@@ -2461,6 +2461,19 @@ def updateWorkspaceSso(
 	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def uploadBatchFile(
 	client: Client,
 	*,

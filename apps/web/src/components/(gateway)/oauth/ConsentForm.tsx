@@ -240,6 +240,24 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		icon: Shield,
 		tone: "delete",
 	},
+	"budgets:read": {
+		label: "Read budgets",
+		description: "Lets the app inspect workspace spend budgets and usage.",
+		icon: Settings2,
+		tone: "read",
+	},
+	"budgets:write": {
+		label: "Manage budgets",
+		description: "Lets the app create or update workspace spend budgets.",
+		icon: Settings2,
+		tone: "write",
+	},
+	"budgets:delete": {
+		label: "Delete budgets",
+		description: "Lets the app permanently remove workspace spend budgets.",
+		icon: Settings2,
+		tone: "delete",
+	},
 	"management_keys:read": {
 		label: "Read management keys",
 		description: "Lets the app inspect machine-level management key metadata.",

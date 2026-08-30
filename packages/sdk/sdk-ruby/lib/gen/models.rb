@@ -145,6 +145,8 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] created_by
     #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
+    #   @return [String, nil]
     # @!attribute [rw] disabled
     #   @return [Boolean]
     # @!attribute [rw] expires_at
@@ -175,6 +177,16 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] updated_at
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_daily
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_details
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] usage_monthly
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_weekly
+    #   @return [Float, nil]
     # @!attribute [rw] workspace_id
     #   @return [String]
     ApiKey = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :label, :last_used_at, :limit, :limit_reset, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
@@ -188,6 +200,8 @@ module Phaseo
     #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] scopes
@@ -196,7 +210,31 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] workspace_id
     #   @return [String, nil]
-    ApiKeyCreateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :name, :scopes, :soft_blocked, :workspace_id, keyword_init: true)
+    ApiKeyCreateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :limits, :name, :scopes, :soft_blocked, :workspace_id, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float, nil]
+    # @!attribute [rw] requests
+    #   @return [Integer, nil]
+    ApiKeyLimitBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float, nil]
+    # @!attribute [rw] requests
+    #   @return [Integer, nil]
+    ApiKeyLimitInputBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}, nil]
+    ApiKeyLimitInputWindows = Struct.new(:daily, :monthly, :weekly, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}]
+    ApiKeyLimitWindows = Struct.new(:daily, :monthly, :weekly, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
     # @!attribute [rw] total_count
@@ -226,16 +264,34 @@ module Phaseo
     #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] scopes
     #   @return [String, Array<String>, nil]
     # @!attribute [rw] soft_blocked
     #   @return [Boolean, nil]
-    ApiKeyUpdateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :name, :scopes, :soft_blocked, keyword_init: true)
+    ApiKeyUpdateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :limits, :name, :scopes, :soft_blocked, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float]
+    # @!attribute [rw] requests
+    #   @return [Integer]
+    ApiKeyUsageBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] total
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}]
+    ApiKeyUsageWindows = Struct.new(:daily, :monthly, :total, :weekly, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
     #   @return [String, nil]
     # @!attribute [rw] disabled
     #   @return [Boolean]
@@ -269,6 +325,16 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] updated_at
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_daily
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_details
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] usage_monthly
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_weekly
+    #   @return [Float, nil]
     # @!attribute [rw] workspace_id
     #   @return [String]
     ApiKeyWithValue = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :key, :label, :last_used_at, :limit, :limit_reset, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)

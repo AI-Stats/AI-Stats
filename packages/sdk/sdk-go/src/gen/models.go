@@ -101,6 +101,7 @@ type AnthropicUsage struct {
 type ApiKey struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
+	CreatorUserId *string `json:"creator_user_id,omitempty"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
@@ -116,6 +117,11 @@ type ApiKey struct {
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
+	Usage *float64 `json:"usage,omitempty"`
+	UsageDaily *float64 `json:"usage_daily,omitempty"`
+	UsageDetails *map[string]interface{} `json:"usage_details,omitempty"`
+	UsageMonthly *float64 `json:"usage_monthly,omitempty"`
+	UsageWeekly *float64 `json:"usage_weekly,omitempty"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -125,10 +131,33 @@ type ApiKeyCreateRequest struct {
 	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Limit *float64 `json:"limit,omitempty"`
 	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name string `json:"name"`
 	Scopes interface{} `json:"scopes,omitempty"`
 	SoftBlocked *bool `json:"soft_blocked,omitempty"`
 	WorkspaceId *string `json:"workspace_id,omitempty"`
+}
+
+type ApiKeyLimitBucket struct {
+	Cost *float64 `json:"cost"`
+	Requests *int `json:"requests"`
+}
+
+type ApiKeyLimitInputBucket struct {
+	Cost *float64 `json:"cost,omitempty"`
+	Requests *int `json:"requests,omitempty"`
+}
+
+type ApiKeyLimitInputWindows struct {
+	Daily *map[string]interface{} `json:"daily,omitempty"`
+	Monthly *map[string]interface{} `json:"monthly,omitempty"`
+	Weekly *map[string]interface{} `json:"weekly,omitempty"`
+}
+
+type ApiKeyLimitWindows struct {
+	Daily map[string]interface{} `json:"daily"`
+	Monthly map[string]interface{} `json:"monthly"`
+	Weekly map[string]interface{} `json:"weekly"`
 }
 
 type ApiKeyListResponse struct {
@@ -158,14 +187,28 @@ type ApiKeyUpdateRequest struct {
 	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Limit *float64 `json:"limit,omitempty"`
 	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name *string `json:"name,omitempty"`
 	Scopes interface{} `json:"scopes,omitempty"`
 	SoftBlocked *bool `json:"soft_blocked,omitempty"`
 }
 
+type ApiKeyUsageBucket struct {
+	Cost float64 `json:"cost"`
+	Requests int `json:"requests"`
+}
+
+type ApiKeyUsageWindows struct {
+	Daily map[string]interface{} `json:"daily"`
+	Monthly map[string]interface{} `json:"monthly"`
+	Total map[string]interface{} `json:"total"`
+	Weekly map[string]interface{} `json:"weekly"`
+}
+
 type ApiKeyWithValue struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
+	CreatorUserId *string `json:"creator_user_id,omitempty"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
@@ -182,6 +225,11 @@ type ApiKeyWithValue struct {
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
+	Usage *float64 `json:"usage,omitempty"`
+	UsageDaily *float64 `json:"usage_daily,omitempty"`
+	UsageDetails *map[string]interface{} `json:"usage_details,omitempty"`
+	UsageMonthly *float64 `json:"usage_monthly,omitempty"`
+	UsageWeekly *float64 `json:"usage_weekly,omitempty"`
 	WorkspaceId string `json:"workspace_id"`
 }
 

@@ -107,6 +107,7 @@ struct AnthropicUsage {
 struct ApiKey {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
+	std::optional<std::string> creator_user_id;
 	bool disabled;
 	std::optional<std::string> expires_at;
 	std::string hash;
@@ -122,6 +123,11 @@ struct ApiKey {
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
+	std::optional<double> usage;
+	std::optional<double> usage_daily;
+	std::map<std::string, std::any> usage_details;
+	std::optional<double> usage_monthly;
+	std::optional<double> usage_weekly;
 	std::string workspace_id;
 };
 
@@ -131,10 +137,33 @@ struct ApiKeyCreateRequest {
 	std::optional<bool> include_byok_in_limit;
 	std::optional<double> limit;
 	std::any limit_reset;
+	std::map<std::string, std::any> limits;
 	std::string name;
 	std::any scopes;
 	std::optional<bool> soft_blocked;
 	std::string workspace_id;
+};
+
+struct ApiKeyLimitBucket {
+	std::optional<double> cost;
+	std::optional<int> requests;
+};
+
+struct ApiKeyLimitInputBucket {
+	std::optional<double> cost;
+	std::optional<int> requests;
+};
+
+struct ApiKeyLimitInputWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> weekly;
+};
+
+struct ApiKeyLimitWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> weekly;
 };
 
 struct ApiKeyListResponse {
@@ -164,14 +193,28 @@ struct ApiKeyUpdateRequest {
 	std::optional<bool> include_byok_in_limit;
 	std::optional<double> limit;
 	std::any limit_reset;
+	std::map<std::string, std::any> limits;
 	std::string name;
 	std::any scopes;
 	std::optional<bool> soft_blocked;
 };
 
+struct ApiKeyUsageBucket {
+	double cost;
+	int requests;
+};
+
+struct ApiKeyUsageWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> total;
+	std::map<std::string, std::any> weekly;
+};
+
 struct ApiKeyWithValue {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
+	std::optional<std::string> creator_user_id;
 	bool disabled;
 	std::optional<std::string> expires_at;
 	std::string hash;
@@ -188,6 +231,11 @@ struct ApiKeyWithValue {
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
+	std::optional<double> usage;
+	std::optional<double> usage_daily;
+	std::map<std::string, std::any> usage_details;
+	std::optional<double> usage_monthly;
+	std::optional<double> usage_weekly;
 	std::string workspace_id;
 };
 

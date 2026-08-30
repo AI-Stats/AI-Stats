@@ -479,6 +479,17 @@
 										]
 									},
 									{
+										"group": "Budgets",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/budgets-list",
+											"v1/api-reference/endpoint/budgets-create",
+											"v1/api-reference/endpoint/budgets-get",
+											"v1/api-reference/endpoint/budgets-update",
+											"v1/api-reference/endpoint/budgets-delete"
+										]
+									},
+									{
 										"group": "API Keys",
 										"expanded": false,
 										"pages": [
@@ -486,6 +497,7 @@
 											"v1/api-reference/endpoint/keys-list",
 											"v1/api-reference/endpoint/keys-create",
 											"v1/api-reference/endpoint/keys-get",
+											"v1/api-reference/endpoint/keys-rotate",
 											"v1/api-reference/endpoint/keys-delete",
 											"v1/api-reference/endpoint/keys-update",
 											"v1/api-reference/endpoint/keys-rotate",

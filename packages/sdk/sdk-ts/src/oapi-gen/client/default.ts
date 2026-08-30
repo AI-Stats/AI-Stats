@@ -1104,6 +1104,20 @@ export type CreateApiKeyParams = {
     include_byok_in_limit?: boolean;
     limit?: number | null;
     limit_reset?: "daily" | "weekly" | "monthly";
+    limits?: {
+      daily?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      monthly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      weekly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+    };
     name: string;
     scopes?: string | string[];
     soft_blocked?: boolean;
@@ -1121,6 +1135,7 @@ export async function createApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id?: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -1137,6 +1152,28 @@ export async function createApiKey(
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
     workspace_id: string;
   };
 }> {
@@ -1146,6 +1183,7 @@ export async function createApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id?: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -1162,6 +1200,28 @@ export async function createApiKey(
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
       workspace_id: string;
     };
   }>({
@@ -17697,6 +17757,72 @@ export async function updateWorkspaceSso(
     };
   }>({
     method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval?: "daily" | "weekly" | "monthly" | "lifetime";
+    limit?: number;
+  };
+};
+
+/**
+ * Changes the interval or USD ceiling for an existing workspace budget.
+ */
+export async function updateWorkspaceBudget(
+  client: Client,
+  args: UpdateWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
     path: resolvedPath,
     query,
     headers,

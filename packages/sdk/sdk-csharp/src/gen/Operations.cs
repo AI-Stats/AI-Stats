@@ -2274,6 +2274,18 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("PUT", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> UpdateWorkspaceBudgetAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/budgets/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
+		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> UploadBatchFileAsync(
 		Client client,
 		Dictionary<string, string>? path = null,

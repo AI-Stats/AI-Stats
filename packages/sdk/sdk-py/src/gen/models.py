@@ -93,6 +93,7 @@ class AnthropicUsage(TypedDict):
 class ApiKey(TypedDict):
 	created_at: Optional[str]
 	created_by: Optional[str]
+	creator_user_id: NotRequired[Optional[str]]
 	disabled: bool
 	expires_at: Optional[str]
 	hash: str
@@ -108,6 +109,11 @@ class ApiKey(TypedDict):
 	soft_blocked: bool
 	status: Optional[str]
 	updated_at: Optional[str]
+	usage: NotRequired[float]
+	usage_daily: NotRequired[float]
+	usage_details: NotRequired[ApiKeyUsageWindows]
+	usage_monthly: NotRequired[float]
+	usage_weekly: NotRequired[float]
 	workspace_id: str
 
 class ApiKeyCreateRequest(TypedDict):
@@ -116,10 +122,29 @@ class ApiKeyCreateRequest(TypedDict):
 	include_byok_in_limit: NotRequired[bool]
 	limit: NotRequired[Optional[float]]
 	limit_reset: NotRequired[Literal["daily", "weekly", "monthly"]]
+	limits: NotRequired[ApiKeyLimitInputWindows]
 	name: str
 	scopes: NotRequired[Union[str, List[str]]]
 	soft_blocked: NotRequired[bool]
 	workspace_id: NotRequired[str]
+
+class ApiKeyLimitBucket(TypedDict):
+	cost: Optional[float]
+	requests: Optional[int]
+
+class ApiKeyLimitInputBucket(TypedDict):
+	cost: NotRequired[Optional[float]]
+	requests: NotRequired[Optional[int]]
+
+class ApiKeyLimitInputWindows(TypedDict):
+	daily: NotRequired[ApiKeyLimitInputBucket]
+	monthly: NotRequired[ApiKeyLimitInputBucket]
+	weekly: NotRequired[ApiKeyLimitInputBucket]
+
+class ApiKeyLimitWindows(TypedDict):
+	daily: ApiKeyLimitBucket
+	monthly: ApiKeyLimitBucket
+	weekly: ApiKeyLimitBucket
 
 class ApiKeyListResponse(TypedDict):
 	data: List[ApiKey]
@@ -144,13 +169,25 @@ class ApiKeyUpdateRequest(TypedDict):
 	include_byok_in_limit: NotRequired[bool]
 	limit: NotRequired[Optional[float]]
 	limit_reset: NotRequired[Literal["daily", "weekly", "monthly"]]
+	limits: NotRequired[ApiKeyLimitInputWindows]
 	name: NotRequired[str]
 	scopes: NotRequired[Union[str, List[str]]]
 	soft_blocked: NotRequired[bool]
 
+class ApiKeyUsageBucket(TypedDict):
+	cost: float
+	requests: int
+
+class ApiKeyUsageWindows(TypedDict):
+	daily: ApiKeyUsageBucket
+	monthly: ApiKeyUsageBucket
+	total: ApiKeyUsageBucket
+	weekly: ApiKeyUsageBucket
+
 class ApiKeyWithValue(TypedDict):
 	created_at: Optional[str]
 	created_by: Optional[str]
+	creator_user_id: NotRequired[Optional[str]]
 	disabled: bool
 	expires_at: Optional[str]
 	hash: str
@@ -167,6 +204,11 @@ class ApiKeyWithValue(TypedDict):
 	soft_blocked: bool
 	status: Optional[str]
 	updated_at: Optional[str]
+	usage: NotRequired[float]
+	usage_daily: NotRequired[float]
+	usage_details: NotRequired[ApiKeyUsageWindows]
+	usage_monthly: NotRequired[float]
+	usage_weekly: NotRequired[float]
 	workspace_id: str
 
 class ApiKeyWithValueResponse(TypedDict):

@@ -251,6 +251,9 @@ public sealed class ApiKey
 	[JsonPropertyName("created_by")]
 	public string? CreatedBy { get; set; }
 
+	[JsonPropertyName("creator_user_id")]
+	public string? CreatorUserId { get; set; }
+
 	[JsonPropertyName("disabled")]
 	public bool Disabled { get; set; }
 
@@ -296,6 +299,21 @@ public sealed class ApiKey
 	[JsonPropertyName("updated_at")]
 	public string? UpdatedAt { get; set; }
 
+	[JsonPropertyName("usage")]
+	public double? Usage { get; set; }
+
+	[JsonPropertyName("usage_daily")]
+	public double? UsageDaily { get; set; }
+
+	[JsonPropertyName("usage_details")]
+	public Dictionary<string, object>? UsageDetails { get; set; }
+
+	[JsonPropertyName("usage_monthly")]
+	public double? UsageMonthly { get; set; }
+
+	[JsonPropertyName("usage_weekly")]
+	public double? UsageWeekly { get; set; }
+
 	[JsonPropertyName("workspace_id")]
 	public string WorkspaceId { get; set; }
 
@@ -318,6 +336,9 @@ public sealed class ApiKeyCreateRequest
 	[JsonPropertyName("limit_reset")]
 	public string? LimitReset { get; set; }
 
+	[JsonPropertyName("limits")]
+	public Dictionary<string, object>? Limits { get; set; }
+
 	[JsonPropertyName("name")]
 	public string Name { get; set; }
 
@@ -329,6 +350,52 @@ public sealed class ApiKeyCreateRequest
 
 	[JsonPropertyName("workspace_id")]
 	public string? WorkspaceId { get; set; }
+
+}
+
+public sealed class ApiKeyLimitBucket
+{
+	[JsonPropertyName("cost")]
+	public double? Cost { get; set; }
+
+	[JsonPropertyName("requests")]
+	public int? Requests { get; set; }
+
+}
+
+public sealed class ApiKeyLimitInputBucket
+{
+	[JsonPropertyName("cost")]
+	public double? Cost { get; set; }
+
+	[JsonPropertyName("requests")]
+	public int? Requests { get; set; }
+
+}
+
+public sealed class ApiKeyLimitInputWindows
+{
+	[JsonPropertyName("daily")]
+	public Dictionary<string, object>? Daily { get; set; }
+
+	[JsonPropertyName("monthly")]
+	public Dictionary<string, object>? Monthly { get; set; }
+
+	[JsonPropertyName("weekly")]
+	public Dictionary<string, object>? Weekly { get; set; }
+
+}
+
+public sealed class ApiKeyLimitWindows
+{
+	[JsonPropertyName("daily")]
+	public Dictionary<string, object> Daily { get; set; }
+
+	[JsonPropertyName("monthly")]
+	public Dictionary<string, object> Monthly { get; set; }
+
+	[JsonPropertyName("weekly")]
+	public Dictionary<string, object> Weekly { get; set; }
 
 }
 
@@ -388,6 +455,9 @@ public sealed class ApiKeyUpdateRequest
 	[JsonPropertyName("limit_reset")]
 	public string? LimitReset { get; set; }
 
+	[JsonPropertyName("limits")]
+	public Dictionary<string, object>? Limits { get; set; }
+
 	[JsonPropertyName("name")]
 	public string? Name { get; set; }
 
@@ -399,6 +469,32 @@ public sealed class ApiKeyUpdateRequest
 
 }
 
+public sealed class ApiKeyUsageBucket
+{
+	[JsonPropertyName("cost")]
+	public double Cost { get; set; }
+
+	[JsonPropertyName("requests")]
+	public int Requests { get; set; }
+
+}
+
+public sealed class ApiKeyUsageWindows
+{
+	[JsonPropertyName("daily")]
+	public Dictionary<string, object> Daily { get; set; }
+
+	[JsonPropertyName("monthly")]
+	public Dictionary<string, object> Monthly { get; set; }
+
+	[JsonPropertyName("total")]
+	public Dictionary<string, object> Total { get; set; }
+
+	[JsonPropertyName("weekly")]
+	public Dictionary<string, object> Weekly { get; set; }
+
+}
+
 public sealed class ApiKeyWithValue
 {
 	[JsonPropertyName("created_at")]
@@ -406,6 +502,9 @@ public sealed class ApiKeyWithValue
 
 	[JsonPropertyName("created_by")]
 	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("creator_user_id")]
+	public string? CreatorUserId { get; set; }
 
 	[JsonPropertyName("disabled")]
 	public bool Disabled { get; set; }
@@ -454,6 +553,21 @@ public sealed class ApiKeyWithValue
 
 	[JsonPropertyName("updated_at")]
 	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("usage")]
+	public double? Usage { get; set; }
+
+	[JsonPropertyName("usage_daily")]
+	public double? UsageDaily { get; set; }
+
+	[JsonPropertyName("usage_details")]
+	public Dictionary<string, object>? UsageDetails { get; set; }
+
+	[JsonPropertyName("usage_monthly")]
+	public double? UsageMonthly { get; set; }
+
+	[JsonPropertyName("usage_weekly")]
+	public double? UsageWeekly { get; set; }
 
 	[JsonPropertyName("workspace_id")]
 	public string WorkspaceId { get; set; }

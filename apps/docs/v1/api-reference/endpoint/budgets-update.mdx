@@ -1,0 +1,9 @@
+---
+title: "Update a workspace budget"
+sidebarTitle: "Update budget"
+badge: "Beta"
+openapi: "PATCH /budgets/{id}"
+description: "Change a workspace budget interval or spend ceiling."
+---
+
+Requires `budgets:write`. Lowering a ceiling below current usage blocks new requests immediately.

@@ -18,6 +18,10 @@ export type WalletReservationStatus =
 	| "daily_cost_limit_reached"
 	| "weekly_cost_limit_reached"
 	| "monthly_cost_limit_reached"
+	| "workspace_daily_cost_budget_reached"
+	| "workspace_weekly_cost_budget_reached"
+	| "workspace_monthly_cost_budget_reached"
+	| "workspace_lifetime_cost_budget_reached"
 	| "key_limit_soft_blocked"
 	| "key_not_found"
 	| "key_not_active"
@@ -87,6 +91,10 @@ function normalizeStatus(value: unknown): WalletReservationStatus {
 		status === "daily_cost_limit_reached" ||
 		status === "weekly_cost_limit_reached" ||
 		status === "monthly_cost_limit_reached" ||
+		status === "workspace_daily_cost_budget_reached" ||
+		status === "workspace_weekly_cost_budget_reached" ||
+		status === "workspace_monthly_cost_budget_reached" ||
+		status === "workspace_lifetime_cost_budget_reached" ||
 		status === "key_limit_soft_blocked" ||
 		status === "key_not_found" ||
 		status === "key_not_active" ||

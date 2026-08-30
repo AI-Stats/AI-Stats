@@ -103,6 +103,7 @@ pub struct AnthropicUsage {
 pub struct ApiKey {
 	pub created_at: Option<String>,
 	pub created_by: Option<String>,
+	pub creator_user_id: Option<Option<String>>,
 	pub disabled: bool,
 	pub expires_at: Option<String>,
 	pub hash: String,
@@ -118,6 +119,11 @@ pub struct ApiKey {
 	pub soft_blocked: bool,
 	pub status: Option<String>,
 	pub updated_at: Option<String>,
+	pub usage: Option<f64>,
+	pub usage_daily: Option<f64>,
+	pub usage_details: Option<HashMap<String, String>>,
+	pub usage_monthly: Option<f64>,
+	pub usage_weekly: Option<f64>,
 	pub workspace_id: String,
 }
 
@@ -127,10 +133,33 @@ pub struct ApiKeyCreateRequest {
 	pub include_byok_in_limit: Option<bool>,
 	pub limit: Option<Option<f64>>,
 	pub limit_reset: Option<String>,
+	pub limits: Option<HashMap<String, String>>,
 	pub name: String,
 	pub scopes: Option<String>,
 	pub soft_blocked: Option<bool>,
 	pub workspace_id: Option<String>,
+}
+
+pub struct ApiKeyLimitBucket {
+	pub cost: Option<f64>,
+	pub requests: Option<i64>,
+}
+
+pub struct ApiKeyLimitInputBucket {
+	pub cost: Option<Option<f64>>,
+	pub requests: Option<Option<i64>>,
+}
+
+pub struct ApiKeyLimitInputWindows {
+	pub daily: Option<HashMap<String, String>>,
+	pub monthly: Option<HashMap<String, String>>,
+	pub weekly: Option<HashMap<String, String>>,
+}
+
+pub struct ApiKeyLimitWindows {
+	pub daily: HashMap<String, String>,
+	pub monthly: HashMap<String, String>,
+	pub weekly: HashMap<String, String>,
 }
 
 pub struct ApiKeyListResponse {
@@ -160,14 +189,28 @@ pub struct ApiKeyUpdateRequest {
 	pub include_byok_in_limit: Option<bool>,
 	pub limit: Option<Option<f64>>,
 	pub limit_reset: Option<String>,
+	pub limits: Option<HashMap<String, String>>,
 	pub name: Option<String>,
 	pub scopes: Option<String>,
 	pub soft_blocked: Option<bool>,
 }
 
+pub struct ApiKeyUsageBucket {
+	pub cost: f64,
+	pub requests: i64,
+}
+
+pub struct ApiKeyUsageWindows {
+	pub daily: HashMap<String, String>,
+	pub monthly: HashMap<String, String>,
+	pub total: HashMap<String, String>,
+	pub weekly: HashMap<String, String>,
+}
+
 pub struct ApiKeyWithValue {
 	pub created_at: Option<String>,
 	pub created_by: Option<String>,
+	pub creator_user_id: Option<Option<String>>,
 	pub disabled: bool,
 	pub expires_at: Option<String>,
 	pub hash: String,
@@ -184,6 +227,11 @@ pub struct ApiKeyWithValue {
 	pub soft_blocked: bool,
 	pub status: Option<String>,
 	pub updated_at: Option<String>,
+	pub usage: Option<f64>,
+	pub usage_daily: Option<f64>,
+	pub usage_details: Option<HashMap<String, String>>,
+	pub usage_monthly: Option<f64>,
+	pub usage_weekly: Option<f64>,
 	pub workspace_id: String,
 }
 
