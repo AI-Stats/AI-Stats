@@ -333,10 +333,10 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("thinking-machines", "audio.transcription")).toBeNull();
 		expect(resolveProviderExecutor("thinking-machines", "video.generation")).toBeNull();
 		expect(resolveProviderExecutor("xiaomi", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("xiaomi", "audio.transcription")).toBeTruthy();
 		for (const capability of [
 			"images.generations",
 			"images.edits",
-			"audio.transcription",
 			"audio.translations",
 			"video.generation",
 		]) {

@@ -282,7 +282,15 @@ describe("runTextGeneratePipeline response cache", () => {
 		doRequestWithIRMock.mockResolvedValue({
 			result: {
 				kind: "completed",
-				ir: { id: "ir_123" },
+				ir: {
+					id: "ir_123",
+					model: "openai/gpt-5.4-nano",
+					choices: [{
+						index: 0,
+						message: { role: "assistant", content: [{ type: "text", text: "hello" }] },
+						finishReason: "stop",
+					}],
+				},
 				upstream: new Response(JSON.stringify({ ok: true }), { status: 200 }),
 				provider: "openai",
 				generationTimeMs: 4,

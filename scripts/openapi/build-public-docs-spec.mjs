@@ -13,6 +13,7 @@ const INTERNAL_PATHS = [
 	/^\/batches(?:\/|$)/,
 	/^\/batch(?:\/|$)/,
 ];
+const HTTP_METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace"];
 
 function decodePointerSegment(value) {
 	return value.replaceAll("~1", "/").replaceAll("~0", "~");
@@ -70,8 +71,18 @@ function publicComponents(document, sourceComponents) {
 
 function buildPublicDocument(source) {
 	const document = structuredClone(source);
-	for (const path of Object.keys(document.paths ?? {})) {
-		if (INTERNAL_PATHS.some((pattern) => pattern.test(path))) delete document.paths[path];
+	for (const [path, pathItem] of Object.entries(document.paths ?? {})) {
+		if (
+			INTERNAL_PATHS.some((pattern) => pattern.test(path)) ||
+			pathItem?.["x-internal"] === true
+		) {
+			delete document.paths[path];
+			continue;
+		}
+		for (const method of HTTP_METHODS) {
+			if (pathItem?.[method]?.["x-internal"] === true) delete pathItem[method];
+		}
+		if (!HTTP_METHODS.some((method) => pathItem?.[method])) delete document.paths[path];
 	}
 	const sourceComponents = document.components;
 	delete document.components;

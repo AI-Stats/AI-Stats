@@ -33,6 +33,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.connectRealtimeSessionRelay(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions/#{URI.encode_uri_component(path["session_id"].to_s)}/relay"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createAnthropicMessage(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/messages"
@@ -96,6 +102,12 @@ module Phaseo
       def self.createParse(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/parse"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createRealtimeSession(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -181,6 +193,18 @@ module Phaseo
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.extendRealtimeSession(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions/#{URI.encode_uri_component(path["session_id"].to_s)}/extend"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.finalizeRealtimeSession(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions/#{URI.encode_uri_component(path["session_id"].to_s)}/finalize"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.generateMusic(client, path: nil, query: nil, headers: nil, body: nil)
@@ -435,6 +459,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.markRealtimeSessionConnected(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions/#{URI.encode_uri_component(path["session_id"].to_s)}/connected"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.openAsyncJobWebSocket(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/async/#{URI.encode_uri_component(path["kind"].to_s)}/#{URI.encode_uri_component(path["id"].to_s)}/ws"
@@ -493,6 +523,12 @@ module Phaseo
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateRealtimeSessionUsage(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions/#{URI.encode_uri_component(path["session_id"].to_s)}/usage"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)

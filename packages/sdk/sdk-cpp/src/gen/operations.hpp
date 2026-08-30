@@ -29,6 +29,11 @@ inline Response CancelVideoAlias(Client& client, const std::map<std::string, std
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response ConnectRealtimeSessionRelay(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/relay";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response CreateAnthropicMessage(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/messages";
 	return client.request("POST", resolved_path, body);
@@ -81,6 +86,11 @@ inline Response CreateOcr(Client& client, const std::map<std::string, std::strin
 
 inline Response CreateParse(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/parse";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateRealtimeSession(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -152,6 +162,16 @@ inline Response DeleteVideoAlias(Client& client, const std::map<std::string, std
 inline Response DeleteWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response ExtendRealtimeSession(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/extend";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response FinalizeRealtimeSession(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/finalize";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response GenerateMusic(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
@@ -364,6 +384,11 @@ inline Response ListWorkspaces(Client& client, const std::map<std::string, std::
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response MarkRealtimeSessionConnected(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/connected";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
 	return client.request("GET", resolved_path, body);
@@ -412,6 +437,11 @@ inline Response RetrieveFileContent(Client& client, const std::map<std::string, 
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateRealtimeSessionUsage(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/usage";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response UpdateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {

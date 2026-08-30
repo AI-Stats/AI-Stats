@@ -590,6 +590,33 @@ export async function cancelVideoAlias(
   });
 }
 
+export type ConnectRealtimeSessionRelayParams = {
+  path?: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Upgrades to a WebSocket relay using the session relay secret as a subprotocol.
+ */
+export async function connectRealtimeSessionRelay(
+  client: Client,
+  args: ConnectRealtimeSessionRelayParams = {},
+): Promise<unknown> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/relay`;
+  return client.request<unknown>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateAnthropicMessageParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -2997,6 +3024,45 @@ export async function createParse(
   });
 }
 
+export type CreateRealtimeSessionParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    instructions?: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    model: string;
+    provider?: string;
+    source?: "api" | "chat";
+    type?: "realtime";
+    voice?: string;
+  };
+};
+
+/**
+ * Creates a metered realtime audio session and returns relay connection details.
+ */
+export async function createRealtimeSession(
+  client: Client,
+  args: CreateRealtimeSessionParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/audio/realtime/sessions";
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateRerankParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4687,6 +4753,79 @@ export async function deleteWorkspace(
     deleted: true;
   }>({
     method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ExtendRealtimeSessionParams = {
+  path?: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    estimated_cost_nanos?: number;
+    target_reserved_nanos?: number;
+  };
+};
+
+/**
+ * Extends the reserved credit for an active realtime audio session.
+ */
+export async function extendRealtimeSession(
+  client: Client,
+  args: ExtendRealtimeSessionParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/extend`;
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type FinalizeRealtimeSessionParams = {
+  path?: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    disconnect_reason?: string;
+    error_code?: string;
+    error_message?: string;
+    status?: "completed" | "failed" | "cancelled" | "expired";
+    usage?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Finalizes metering and releases any remaining credit reservation for a realtime session.
+ */
+export async function finalizeRealtimeSession(
+  client: Client,
+  args: FinalizeRealtimeSessionParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/finalize`;
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -9756,6 +9895,37 @@ export async function listWorkspaces(
   });
 }
 
+export type MarkRealtimeSessionConnectedParams = {
+  path?: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Records that the upstream realtime relay connection has been established.
+ */
+export async function markRealtimeSessionConnected(
+  client: Client,
+  args: MarkRealtimeSessionConnectedParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/connected`;
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type OpenAsyncJobWebSocketParams = {
   path?: {
     id: string;
@@ -10565,6 +10735,42 @@ export async function updateApiKey(
     };
   }>({
     method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateRealtimeSessionUsageParams = {
+  path?: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    estimated_cost_nanos?: number;
+    usage?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Records the latest metered usage for an active realtime audio session.
+ */
+export async function updateRealtimeSessionUsage(
+  client: Client,
+  args: UpdateRealtimeSessionUsageParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/usage`;
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,

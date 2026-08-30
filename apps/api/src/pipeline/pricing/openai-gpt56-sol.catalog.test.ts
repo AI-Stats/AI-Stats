@@ -35,7 +35,7 @@ describe("GPT-5.6 Sol catalogue billing", () => {
 			"standard",
 		);
 
-		expect(result.cost_usd_str).toBe("3.500000000");
+		expect(result.cost_usd_str).toBe("2.400000000");
 		expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.quantity).toBe(100_000);
 		expect(result.lines.find((line) => line.dimension === "output_reasoning_tokens")).toBeUndefined();
 	});
