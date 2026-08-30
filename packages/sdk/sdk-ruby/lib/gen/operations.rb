@@ -111,6 +111,18 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createGatewayFeedback(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/feedback"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createGatewayObservabilityEvent(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/events"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/guardrails"
@@ -168,6 +180,18 @@ module Phaseo
       def self.createPreset(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/presets"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createPresetTestRun(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/preset-test-runs"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -234,6 +258,12 @@ module Phaseo
       def self.createWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createWorkspaceBudget(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/budgets"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -315,6 +345,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deleteProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteVideo(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}"
@@ -336,6 +372,12 @@ module Phaseo
       def self.deleteWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWorkspaceBudget(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/budgets/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -441,6 +483,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.getGatewayRequestLog(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/logs/#{URI.encode_uri_component(path["requestId"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.getGeneration(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/generations"
@@ -507,6 +555,18 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.getPresetTestRun(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/preset-test-runs/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.getProviderDerankStatus(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/health/providers/#{URI.encode_uri_component(path["provider_id"].to_s)}/derank"
@@ -546,6 +606,12 @@ module Phaseo
       def self.getWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getWorkspaceBudget(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/budgets/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -675,6 +741,24 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listGatewayFeedback(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/feedback"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listGatewayObservabilityEvents(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/events"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listGatewayRequestLogs(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/logs"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/guardrails/#{URI.encode_uri_component(path["id"].to_s)}/keys"
@@ -732,6 +816,12 @@ module Phaseo
       def self.listPresets(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/presets"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listPresetTestRuns(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/preset-test-runs"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -804,6 +894,12 @@ module Phaseo
       def self.listWorkspaceAuditEvents(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/audit-events"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listWorkspaceBudgets(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/budgets"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -909,6 +1005,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.reorderProviderCredentials(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/reorder"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.replaceDynamicRouteKeys(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}/keys"
@@ -993,6 +1095,12 @@ module Phaseo
         client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.summarizeGatewayFeedback(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/feedback/summary"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.testWorkspaceNotificationDestination(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/notifications/destinations/#{URI.encode_uri_component(path["id"].to_s)}/test"
@@ -1071,6 +1179,18 @@ module Phaseo
         client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.updatePresetTestRun(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/preset-test-runs/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.updateWebhookEndpoint(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/webhook-endpoints/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -1086,6 +1206,12 @@ module Phaseo
       def self.updateWorkspaceApp(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/apps/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceBudget(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/budgets/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

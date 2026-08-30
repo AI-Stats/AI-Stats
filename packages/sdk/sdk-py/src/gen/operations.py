@@ -238,6 +238,32 @@ def createEmbedding(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createGatewayFeedback(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayFeedbackResponse:
+	path = path or {}
+	resolved_path = "/feedback"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createGatewayObservabilityEvent(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayObservabilityEventResponse:
+	path = path or {}
+	resolved_path = "/events"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createGuardrail(
 	client: Client,
 	*,
@@ -365,6 +391,32 @@ def createPreset(
 ) -> PresetCreateResponse:
 	path = path or {}
 	resolved_path = "/presets"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createPresetTestRun(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetTestRunResponse:
+	path = path or {}
+	resolved_path = "/preset-test-runs"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialResponse:
+	path = path or {}
+	resolved_path = "/byok"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -508,6 +560,19 @@ def createWorkspace(
 ) -> WorkspaceResponse:
 	path = path or {}
 	resolved_path = "/workspaces"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = "/budgets"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -680,6 +745,19 @@ def deletePreset(
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
+def deleteProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialDeleteResponse:
+	path = path or {}
+	resolved_path = f"/byok/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteVideo(
 	client: Client,
 	*,
@@ -729,6 +807,19 @@ def deleteWorkspace(
 ) -> Dict[str, Any]:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetDeleteResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -953,6 +1044,19 @@ def getDynamicRoute(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def getGatewayRequestLog(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayRequestLogResponse:
+	path = path or {}
+	resolved_path = f"/logs/{path.get('requestId', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def getGeneration(
 	client: Client,
 	*,
@@ -1096,6 +1200,32 @@ def getPresetPublisher(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def getPresetTestRun(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetTestRunDetailResponse:
+	path = path or {}
+	resolved_path = f"/preset-test-runs/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialResponse:
+	path = path or {}
+	resolved_path = f"/byok/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def getProviderDerankStatus(
 	client: Client,
 	*,
@@ -1184,6 +1314,19 @@ def getWorkspace(
 ) -> WorkspaceResponse:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1460,6 +1603,45 @@ def listFiles(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listGatewayFeedback(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayFeedbackListResponse:
+	path = path or {}
+	resolved_path = "/feedback"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listGatewayObservabilityEvents(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayObservabilityEventListResponse:
+	path = path or {}
+	resolved_path = "/events"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listGatewayRequestLogs(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayRequestLogListResponse:
+	path = path or {}
+	resolved_path = "/logs"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listGuardrailKeys(
 	client: Client,
 	*,
@@ -1590,6 +1772,19 @@ def listPresets(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listPresetTestRuns(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetTestRunListResponse:
+	path = path or {}
+	resolved_path = "/preset-test-runs"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listPresetVersions(
 	client: Client,
 	*,
@@ -1613,6 +1808,19 @@ def listPricingModels(
 ) -> Dict[str, Any]:
 	path = path or {}
 	resolved_path = "/pricing/models"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listProviderCredentials(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialListResponse:
+	path = path or {}
+	resolved_path = "/byok"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1730,6 +1938,19 @@ def listWorkspaceAuditEvents(
 ) -> WorkspaceAuditEventListResponse:
 	path = path or {}
 	resolved_path = "/audit-events"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listWorkspaceBudgets(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetListResponse:
+	path = path or {}
+	resolved_path = "/budgets"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1954,6 +2175,19 @@ def removeWorkspaceMembers(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def reorderProviderCredentials(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialReorderResponse:
+	path = path or {}
+	resolved_path = "/byok/reorder"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def replaceDynamicRouteKeys(
 	client: Client,
 	*,
@@ -2136,6 +2370,19 @@ def setWorkspaceDepartmentMember(
 	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
 
 
+def summarizeGatewayFeedback(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GatewayFeedbackSummaryResponse:
+	path = path or {}
+	resolved_path = "/feedback/summary"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def testWorkspaceNotificationDestination(
 	client: Client,
 	*,
@@ -2305,6 +2552,32 @@ def updatePresetPublisher(
 	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
 
 
+def updatePresetTestRun(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetTestRunResponse:
+	path = path or {}
+	resolved_path = f"/preset-test-runs/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialResponse:
+	path = path or {}
+	resolved_path = f"/byok/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateWebhookEndpoint(
 	client: Client,
 	*,
@@ -2341,6 +2614,19 @@ def updateWorkspaceApp(
 ) -> WorkspaceAppResponse:
 	path = path or {}
 	resolved_path = f"/apps/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -2461,19 +2747,6 @@ def updateWorkspaceSso(
 	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
 
 
-def updateWorkspaceBudget(
-	client: Client,
-	*,
-	path: Optional[Dict[str, Any]] = None,
-	query: Optional[Dict[str, Any]] = None,
-	headers: Optional[Dict[str, str]] = None,
-	body: Optional[Any] = None,
-) -> WorkspaceBudgetResponse:
-	path = path or {}
-	resolved_path = f"/budgets/{path.get('id', '')}"
-	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
-
-
 def uploadBatchFile(
 	client: Client,
 	*,
@@ -2513,4 +2786,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDataContributionClassifier", "createDynamicRoute", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createOAuthClient", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWebhookEndpoint", "createWorkspace", "createWorkspaceDepartment", "createWorkspaceGroupMapping", "createWorkspaceInvite", "createWorkspaceNotificationDestination", "createWorkspaceScimToken", "deleteApiKey", "deleteDataContributionClassifier", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteOAuthClient", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWebhookEndpoint", "deleteWorkspace", "deleteWorkspaceDepartment", "deleteWorkspaceDepartmentMember", "deleteWorkspaceGroupMapping", "deleteWorkspaceInvite", "deleteWorkspaceNotificationDestination", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDataContributionSettings", "getDynamicRoute", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getOAuthClient", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWebhookEndpoint", "getWorkspace", "getWorkspaceDirectory", "getWorkspaceNotificationSettings", "getWorkspaceScim", "getWorkspaceSettings", "getWorkspaceSso", "invalidateApiKeyCache", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listOAuthClients", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWebhookEndpoints", "listWorkspaceApps", "listWorkspaceAuditEvents", "listWorkspaceDepartments", "listWorkspaceGroupMappings", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaceNotificationDestinations", "listWorkspaceNotificationRoutes", "listWorkspaces", "listWorkspaceScimAuditEvents", "mergeWorkspaceApp", "openAsyncJobWebSocket", "publishPresetVersion", "regenerateOAuthClientSecret", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "revokeWorkspaceScimToken", "rotateApiKey", "rotateWebhookEndpointSecret", "setWorkspaceDepartmentMember", "testWorkspaceNotificationDestination", "testWorkspaceNotificationDestinationConfig", "updateApiKey", "updateDataContributionClassifier", "updateDataContributionConsent", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateOAuthClient", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWebhookEndpoint", "updateWorkspace", "updateWorkspaceApp", "updateWorkspaceDepartment", "updateWorkspaceDirectoryMember", "updateWorkspaceGroupMapping", "updateWorkspaceMemberRole", "updateWorkspaceNotificationRoute", "updateWorkspaceNotificationSettings", "updateWorkspaceScim", "updateWorkspaceSettings", "updateWorkspaceSso", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDataContributionClassifier", "createDynamicRoute", "createEmbedding", "createGatewayFeedback", "createGatewayObservabilityEvent", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createOAuthClient", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createPresetTestRun", "createProviderCredential", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWebhookEndpoint", "createWorkspace", "createWorkspaceBudget", "createWorkspaceDepartment", "createWorkspaceGroupMapping", "createWorkspaceInvite", "createWorkspaceNotificationDestination", "createWorkspaceScimToken", "deleteApiKey", "deleteDataContributionClassifier", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteOAuthClient", "deleteObservabilityDestination", "deletePreset", "deleteProviderCredential", "deleteVideo", "deleteVideoAlias", "deleteWebhookEndpoint", "deleteWorkspace", "deleteWorkspaceBudget", "deleteWorkspaceDepartment", "deleteWorkspaceDepartmentMember", "deleteWorkspaceGroupMapping", "deleteWorkspaceInvite", "deleteWorkspaceNotificationDestination", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDataContributionSettings", "getDynamicRoute", "getGatewayRequestLog", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getOAuthClient", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getPresetTestRun", "getProviderCredential", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWebhookEndpoint", "getWorkspace", "getWorkspaceBudget", "getWorkspaceDirectory", "getWorkspaceNotificationSettings", "getWorkspaceScim", "getWorkspaceSettings", "getWorkspaceSso", "invalidateApiKeyCache", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGatewayFeedback", "listGatewayObservabilityEvents", "listGatewayRequestLogs", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listOAuthClients", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetTestRuns", "listPresetVersions", "listPricingModels", "listProviderCredentials", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWebhookEndpoints", "listWorkspaceApps", "listWorkspaceAuditEvents", "listWorkspaceBudgets", "listWorkspaceDepartments", "listWorkspaceGroupMappings", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaceNotificationDestinations", "listWorkspaceNotificationRoutes", "listWorkspaces", "listWorkspaceScimAuditEvents", "mergeWorkspaceApp", "openAsyncJobWebSocket", "publishPresetVersion", "regenerateOAuthClientSecret", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "reorderProviderCredentials", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "revokeWorkspaceScimToken", "rotateApiKey", "rotateWebhookEndpointSecret", "setWorkspaceDepartmentMember", "summarizeGatewayFeedback", "testWorkspaceNotificationDestination", "testWorkspaceNotificationDestinationConfig", "updateApiKey", "updateDataContributionClassifier", "updateDataContributionConsent", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateOAuthClient", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updatePresetTestRun", "updateProviderCredential", "updateWebhookEndpoint", "updateWorkspace", "updateWorkspaceApp", "updateWorkspaceBudget", "updateWorkspaceDepartment", "updateWorkspaceDirectoryMember", "updateWorkspaceGroupMapping", "updateWorkspaceMemberRole", "updateWorkspaceNotificationRoute", "updateWorkspaceNotificationSettings", "updateWorkspaceScim", "updateWorkspaceSettings", "updateWorkspaceSso", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

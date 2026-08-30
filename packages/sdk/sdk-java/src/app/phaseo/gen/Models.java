@@ -113,7 +113,9 @@ public final class Models {
 		public String label;
 		public String last_used_at;
 		public Double limit;
+		public Double limit_remaining;
 		public Object limit_reset;
+		public Object limits;
 		public String name;
 		public String prefix;
 		public Object scopes;
@@ -222,7 +224,9 @@ public final class Models {
 		public String label;
 		public String last_used_at;
 		public Double limit;
+		public Double limit_remaining;
 		public Object limit_reset;
+		public Object limits;
 		public String name;
 		public String prefix;
 		public Object scopes;
@@ -964,6 +968,69 @@ public final class Models {
 		public Object type;
 	}
 
+	public static class GatewayFeedback {
+		public String comment;
+		public String created_at;
+		public String created_by_user_id;
+		public String end_user_id;
+		public String id;
+		public Object metadata;
+		public Object metadata_dimensions;
+		public String preset_id;
+		public String rating;
+		public String reason;
+		public java.util.List<String> reason_tags;
+		public String request_id;
+		public Double score;
+		public String session_id;
+		public Object source;
+		public String test_run_id;
+		public String workspace_id;
+	}
+
+	public static class GatewayFeedbackCreateRequest {
+		public String comment;
+		public String end_user_id;
+		public Object metadata;
+		public Object metadata_dimensions;
+		public String preset_id;
+		public String rating;
+		public String reason;
+		public java.util.List<String> reason_tags;
+		public String request_id;
+		public Double score;
+		public String session_id;
+		public Object source;
+		public String test_run_id;
+	}
+
+	public static class GatewayFeedbackListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class GatewayFeedbackResponse {
+		public Object data;
+	}
+
+	public static class GatewayFeedbackSummaryResponse {
+		public java.util.List<Object> data;
+		public Object group_by;
+	}
+
+	public static class GatewayFeedbackSummaryRow {
+		public Double average_score;
+		public Integer count;
+		public String last_feedback_at;
+		public String metadata_key;
+		public String metadata_value;
+		public Integer negative;
+		public Integer partial;
+		public Integer positive;
+		public String preset_id;
+		public Object ratings;
+		public String test_run_id;
+	}
+
 	public static class GatewayModalities {
 		public java.util.List<String> input;
 		public java.util.List<String> output;
@@ -1009,6 +1076,50 @@ public final class Models {
 		public Integer total;
 	}
 
+	public static class GatewayObservabilityEvent {
+		public Object category;
+		public String created_at;
+		public String created_by_user_id;
+		public String end_user_id;
+		public String event_name;
+		public String id;
+		public Object metadata;
+		public Object metadata_dimensions;
+		public Double numeric_value;
+		public String occurred_at;
+		public String preset_id;
+		public String request_id;
+		public String session_id;
+		public Object source;
+		public String test_run_id;
+		public Object value;
+		public String workspace_id;
+	}
+
+	public static class GatewayObservabilityEventCreateRequest {
+		public Object category;
+		public String end_user_id;
+		public String event_name;
+		public Object metadata;
+		public Object metadata_dimensions;
+		public Double numeric_value;
+		public String occurred_at;
+		public String preset_id;
+		public String request_id;
+		public String session_id;
+		public Object source;
+		public String test_run_id;
+		public Object value;
+	}
+
+	public static class GatewayObservabilityEventListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class GatewayObservabilityEventResponse {
+		public Object data;
+	}
+
 	public static class GatewayPricing {
 		public Object meters;
 		public Object pricing_plan;
@@ -1018,6 +1129,50 @@ public final class Models {
 	}
 
 	public static class GatewayProviderAvailabilityReason {
+	}
+
+	public static class GatewayRequestLog {
+		public String auth_method;
+		public Boolean byok;
+		public String canonical_model_id;
+		public Integer cost_nanos;
+		public String created_at;
+		public String currency;
+		public String endpoint;
+		public String error_code;
+		public String finish_reason;
+		public Double generation_ms;
+		public String key_id;
+		public Double latency_ms;
+		public String location;
+		public String model_id;
+		public String native_response_id;
+		public String oauth_client_id;
+		public java.util.List<Object> pricing_lines;
+		public String provider;
+		public String request_id;
+		public String requested_model_id;
+		public String routed_model_id;
+		public Integer status_code;
+		public Boolean stream;
+		public Boolean success;
+		public Double throughput;
+		public Object usage;
+	}
+
+	public static class GatewayRequestLogListResponse {
+		public java.util.List<Object> data;
+		public String from_time;
+		public Integer limit;
+		public Integer offset;
+		public Object ok;
+		public String to_time;
+		public Integer total;
+	}
+
+	public static class GatewayRequestLogResponse {
+		public Object data;
+		public Object ok;
 	}
 
 	public static class GatewayRoutingStatus {
@@ -1921,6 +2076,59 @@ public final class Models {
 		public Object data;
 	}
 
+	public static class PresetTestRun {
+		public String baseline_preset_id;
+		public String completed_at;
+		public Object config;
+		public String created_at;
+		public String created_by_user_id;
+		public String dataset_name;
+		public String description;
+		public String id;
+		public String name;
+		public String preset_id;
+		public String started_at;
+		public Object status;
+		public Object summary;
+		public String updated_at;
+		public String workspace_id;
+	}
+
+	public static class PresetTestRunCreateRequest {
+		public String baseline_preset_id;
+		public String completed_at;
+		public Object config;
+		public String dataset_name;
+		public String description;
+		public String name;
+		public String preset_id;
+		public String started_at;
+		public Object status;
+		public Object summary;
+	}
+
+	public static class PresetTestRunDetailResponse {
+		public Object data;
+		public Object feedback_summary;
+	}
+
+	public static class PresetTestRunListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class PresetTestRunResponse {
+		public Object data;
+	}
+
+	public static class PresetTestRunUpdateRequest {
+		public String completed_at;
+		public String description;
+		public String name;
+		public String started_at;
+		public Object status;
+		public Object summary;
+	}
+
 	public static class PresetUpdateRequest {
 		public Object config;
 		public String description;
@@ -2647,6 +2855,49 @@ public final class Models {
 		public Integer balance_threshold_nanos;
 		public Boolean enabled;
 		public String payment_method_id;
+	}
+
+	public static class WorkspaceBudget {
+		public String created_at;
+		public String created_by;
+		public Boolean exceeded;
+		public String id;
+		public Object interval;
+		public Double limit;
+		public Integer limit_nanos;
+		public Double remaining;
+		public Integer remaining_nanos;
+		public String reset_at;
+		public String updated_at;
+		public Double usage;
+		public Integer usage_nanos;
+		public String window_start;
+		public String workspace_id;
+	}
+
+	public static class WorkspaceBudgetDeleteResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceBudgetInput {
+		public Object interval;
+		public Double limit;
+	}
+
+	public static class WorkspaceBudgetInterval {
+	}
+
+	public static class WorkspaceBudgetListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceBudgetResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceBudgetUpdateInput {
+		public Object interval;
+		public Double limit;
 	}
 
 	public static class WorkspaceCreateRequest {

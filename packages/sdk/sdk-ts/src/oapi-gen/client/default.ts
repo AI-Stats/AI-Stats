@@ -1135,7 +1135,7 @@ export async function createApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
-    creator_user_id?: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -1145,16 +1145,31 @@ export async function createApiKey(
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
+    limit_remaining: number | null;
     limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
-    usage?: number;
-    usage_daily?: number;
-    usage_details?: {
+    usage: number;
+    usage_daily: number;
+    usage_details: {
       daily: {
         cost: number;
         requests: number;
@@ -1172,8 +1187,8 @@ export async function createApiKey(
         requests: number;
       };
     };
-    usage_monthly?: number;
-    usage_weekly?: number;
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
@@ -1183,7 +1198,7 @@ export async function createApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
-      creator_user_id?: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -1193,16 +1208,31 @@ export async function createApiKey(
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
+      limit_remaining: number | null;
       limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
-      usage?: number;
-      usage_daily?: number;
-      usage_details?: {
+      usage: number;
+      usage_daily: number;
+      usage_details: {
         daily: {
           cost: number;
           requests: number;
@@ -1220,8 +1250,8 @@ export async function createApiKey(
           requests: number;
         };
       };
-      usage_monthly?: number;
-      usage_weekly?: number;
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -2916,6 +2946,188 @@ export async function createEmbedding(
   });
 }
 
+export type CreateGatewayFeedbackParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    comment?: string;
+    end_user_id?: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions?: {
+      [key: string]: unknown;
+    };
+    preset_id?: string;
+    rating?: string;
+    reason?: string;
+    reason_tags?: string[];
+    request_id?: string;
+    score?: number;
+    session_id?: string;
+    source?: "api" | "user" | "system" | "import" | "test";
+    test_run_id?: string;
+  };
+};
+
+/**
+ * Records feedback for a request, session, preset, or preset test run. Requires `feedback:write`.
+ */
+export async function createGatewayFeedback(
+  client: Client,
+  args: CreateGatewayFeedbackParams = {},
+): Promise<{
+  data: {
+    comment: string | null;
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    preset_id: string | null;
+    rating: string | null;
+    reason: string | null;
+    reason_tags: string[];
+    request_id: string | null;
+    score: number | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/feedback";
+  return client.request<{
+    data: {
+      comment: string | null;
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      preset_id: string | null;
+      rating: string | null;
+      reason: string | null;
+      reason_tags: string[];
+      request_id: string | null;
+      score: number | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateGatewayObservabilityEventParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    category?: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+    end_user_id?: string;
+    event_name: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions?: {
+      [key: string]: unknown;
+    };
+    numeric_value?: number;
+    occurred_at?: string;
+    preset_id?: string;
+    request_id?: string;
+    session_id?: string;
+    source?: "api" | "user" | "system" | "import" | "test";
+    test_run_id?: string;
+    value?: unknown;
+  };
+};
+
+/**
+ * Records a custom outcome or behavior event linked to a request, session, preset, or test run. Requires `feedback:write`.
+ */
+export async function createGatewayObservabilityEvent(
+  client: Client,
+  args: CreateGatewayObservabilityEventParams = {},
+): Promise<{
+  data: {
+    category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    event_name: string;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    numeric_value: number | null;
+    occurred_at: string;
+    preset_id: string | null;
+    request_id: string | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    value: unknown | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/events";
+  return client.request<{
+    data: {
+      category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      event_name: string;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      numeric_value: number | null;
+      occurred_at: string;
+      preset_id: string | null;
+      request_id: string | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      value: unknown | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateGuardrailParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4137,6 +4349,169 @@ export async function createPreset(
       upstream_version_id?: string | null;
       versioning_method: "sequential" | "semver" | "date";
       visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreatePresetTestRunParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    baseline_preset_id?: string;
+    completed_at?: string;
+    config?: {
+      [key: string]: unknown;
+    };
+    dataset_name?: string;
+    description?: string;
+    name?: string;
+    preset_id?: string;
+    started_at?: string;
+    status?: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Creates a workspace test run for a preset or baseline comparison. Requires `feedback:write` and an owner or admin identity.
+ */
+export async function createPresetTestRun(
+  client: Client,
+  args: CreatePresetTestRunParams = {},
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/preset-test-runs";
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateProviderCredentialParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_api_key_ids?: string[];
+    allowed_models?: string[];
+    enabled?: boolean;
+    key: string;
+    name: string;
+    provider: string;
+    routing_mode?: "priority" | "fallback";
+  };
+};
+
+/**
+ * Encrypts and stores a write-only provider credential for the authenticated workspace.
+ */
+export async function createProviderCredential(
+  client: Client,
+  args: CreateProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok";
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
       workspace_id: string;
     };
   }>({
@@ -5768,6 +6143,70 @@ export async function createWorkspace(
   });
 }
 
+export type CreateWorkspaceBudgetParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+  };
+};
+
+/**
+ * Creates an enforced spend ceiling for one workspace interval.
+ */
+export async function createWorkspaceBudget(
+  client: Client,
+  args: CreateWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/budgets";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateWorkspaceDepartmentParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -6350,6 +6789,37 @@ export async function deletePreset(
   });
 }
 
+export type DeleteProviderCredentialParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently removes a provider credential. Repeated deletion is safe.
+ */
+export async function deleteProviderCredential(
+  client: Client,
+  args: DeleteProviderCredentialParams = {},
+): Promise<{
+  deleted: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: boolean;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteVideoParams = {
   path?: {
     video_id: string;
@@ -6477,6 +6947,43 @@ export async function deleteWorkspace(
   const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a workspace spend ceiling and stops enforcing that interval.
+ */
+export async function deleteWorkspaceBudget(
+  client: Client,
+  args: DeleteWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    deleted: boolean;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: boolean;
+      id: string;
+    };
   }>({
     method: "DELETE",
     path: resolvedPath,
@@ -7215,6 +7722,7 @@ export async function getApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -7223,13 +7731,50 @@ export async function getApiKey(
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
+    limit_remaining: number | null;
     limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
@@ -7239,6 +7784,7 @@ export async function getApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -7247,13 +7793,50 @@ export async function getApiKey(
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
+      limit_remaining: number | null;
       limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -7329,6 +7912,7 @@ export async function getCurrentApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -7337,13 +7921,50 @@ export async function getCurrentApiKey(
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
+    limit_remaining: number | null;
     limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
@@ -7353,6 +7974,7 @@ export async function getCurrentApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -7361,13 +7983,50 @@ export async function getCurrentApiKey(
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
+      limit_remaining: number | null;
       limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -7656,6 +8315,105 @@ export async function getDynamicRoute(
       }[];
       workspace_id: string;
     };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetGatewayRequestLogParams = {
+  path?: {
+    requestId: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one redacted request record by request identifier.
+ */
+export async function getGatewayRequestLog(
+  client: Client,
+  args: GetGatewayRequestLogParams = {},
+): Promise<{
+  data: {
+    auth_method?: string | null;
+    byok?: boolean | null;
+    canonical_model_id?: string | null;
+    cost_nanos?: number | null;
+    created_at?: string;
+    currency?: string | null;
+    endpoint?: string | null;
+    error_code?: string | null;
+    finish_reason?: string | null;
+    generation_ms?: number | null;
+    key_id?: string | null;
+    latency_ms?: number | null;
+    location?: string | null;
+    model_id?: string | null;
+    native_response_id?: string | null;
+    oauth_client_id?: string | null;
+    pricing_lines?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    provider?: string | null;
+    request_id?: string;
+    requested_model_id?: string | null;
+    routed_model_id?: string | null;
+    status_code?: number | null;
+    stream?: boolean | null;
+    success?: boolean | null;
+    throughput?: number | null;
+    usage?: {
+      [key: string]: unknown;
+    } | null;
+  };
+  ok: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/logs/${encodeURIComponent(String(path?.["requestId"]))}`;
+  return client.request<{
+    data: {
+      auth_method?: string | null;
+      byok?: boolean | null;
+      canonical_model_id?: string | null;
+      cost_nanos?: number | null;
+      created_at?: string;
+      currency?: string | null;
+      endpoint?: string | null;
+      error_code?: string | null;
+      finish_reason?: string | null;
+      generation_ms?: number | null;
+      key_id?: string | null;
+      latency_ms?: number | null;
+      location?: string | null;
+      model_id?: string | null;
+      native_response_id?: string | null;
+      oauth_client_id?: string | null;
+      pricing_lines?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      provider?: string | null;
+      request_id?: string;
+      requested_model_id?: string | null;
+      routed_model_id?: string | null;
+      status_code?: number | null;
+      stream?: boolean | null;
+      success?: boolean | null;
+      throughput?: number | null;
+      usage?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    ok: true;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -8420,6 +9178,180 @@ export async function getPresetPublisher(
   });
 }
 
+export type GetPresetTestRunParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns a test run and its feedback summary.
+ */
+export async function getPresetTestRun(
+  client: Client,
+  args: GetPresetTestRunParams = {},
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  };
+  feedback_summary: {
+    average_score: number | null;
+    count: number;
+    last_feedback_at: string | null;
+    metadata_key?: string;
+    metadata_value?: string | null;
+    negative: number;
+    partial: number;
+    positive: number;
+    preset_id?: string | null;
+    ratings: {
+      [key: string]: number;
+    };
+    test_run_id?: string | null;
+  } | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    };
+    feedback_summary: {
+      average_score: number | null;
+      count: number;
+      last_feedback_at: string | null;
+      metadata_key?: string;
+      metadata_value?: string | null;
+      negative: number;
+      partial: number;
+      positive: number;
+      preset_id?: string | null;
+      ratings: {
+        [key: string]: number;
+      };
+      test_run_id?: string | null;
+    } | null;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetProviderCredentialParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns safe metadata without exposing encrypted fields or the raw secret.
+ */
+export async function getProviderCredential(
+  client: Client,
+  args: GetProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetProviderDerankStatusParams = {
   path?: {
     provider_id: string;
@@ -9097,6 +10029,69 @@ export async function getWorkspace(
   });
 }
 
+export type GetWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one workspace spend ceiling with current usage and remaining spend.
+ */
+export async function getWorkspaceBudget(
+  client: Client,
+  args: GetWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetWorkspaceDirectoryParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -9543,6 +10538,7 @@ export async function listApiKeys(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -9551,13 +10547,50 @@ export async function listApiKeys(
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
+    limit_remaining: number | null;
     limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   }[];
   total_count: number;
@@ -9568,6 +10601,7 @@ export async function listApiKeys(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -9576,13 +10610,50 @@ export async function listApiKeys(
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
+      limit_remaining: number | null;
       limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     }[];
     total_count: number;
@@ -11182,6 +12253,292 @@ export async function listFiles(
   });
 }
 
+export type ListGatewayFeedbackParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    preset_id?: string;
+    rating?: string;
+    request_id?: string;
+    session_id?: string;
+    since?: string;
+    test_run_id?: string;
+    until?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists workspace feedback with target, date, rating, and metadata-dimension filters. Requires `feedback:read`.
+ */
+export async function listGatewayFeedback(
+  client: Client,
+  args: ListGatewayFeedbackParams = {},
+): Promise<{
+  data: {
+    comment: string | null;
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    preset_id: string | null;
+    rating: string | null;
+    reason: string | null;
+    reason_tags: string[];
+    request_id: string | null;
+    score: number | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/feedback";
+  return client.request<{
+    data: {
+      comment: string | null;
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      preset_id: string | null;
+      rating: string | null;
+      reason: string | null;
+      reason_tags: string[];
+      request_id: string | null;
+      score: number | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGatewayObservabilityEventsParams = {
+  path?: Record<string, never>;
+  query?: {
+    category?: string;
+    event?: string;
+    limit?: number;
+    offset?: number;
+    preset_id?: string;
+    request_id?: string;
+    session_id?: string;
+    test_run_id?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists custom workspace outcome and behavior events. Requires `feedback:read`.
+ */
+export async function listGatewayObservabilityEvents(
+  client: Client,
+  args: ListGatewayObservabilityEventsParams = {},
+): Promise<{
+  data: {
+    category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    event_name: string;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    numeric_value: number | null;
+    occurred_at: string;
+    preset_id: string | null;
+    request_id: string | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    value: unknown | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/events";
+  return client.request<{
+    data: {
+      category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      event_name: string;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      numeric_value: number | null;
+      occurred_at: string;
+      preset_id: string | null;
+      request_id: string | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      value: unknown | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGatewayRequestLogsParams = {
+  path?: Record<string, never>;
+  query?: {
+    endpoint?: string;
+    error_code?: string;
+    from?: string;
+    key_id?: string;
+    limit?: number;
+    model?: string;
+    offset?: number;
+    provider?: string;
+    request_id?: string;
+    session_id?: string;
+    since?: string;
+    status?: string;
+    to?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists redacted request facts for the authenticated workspace with bounded time-range and field filters. Requires `activity:read`.
+ */
+export async function listGatewayRequestLogs(
+  client: Client,
+  args: ListGatewayRequestLogsParams = {},
+): Promise<{
+  data: {
+    auth_method?: string | null;
+    byok?: boolean | null;
+    canonical_model_id?: string | null;
+    cost_nanos?: number | null;
+    created_at?: string;
+    currency?: string | null;
+    endpoint?: string | null;
+    error_code?: string | null;
+    finish_reason?: string | null;
+    generation_ms?: number | null;
+    key_id?: string | null;
+    latency_ms?: number | null;
+    location?: string | null;
+    model_id?: string | null;
+    native_response_id?: string | null;
+    oauth_client_id?: string | null;
+    pricing_lines?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    provider?: string | null;
+    request_id?: string;
+    requested_model_id?: string | null;
+    routed_model_id?: string | null;
+    status_code?: number | null;
+    stream?: boolean | null;
+    success?: boolean | null;
+    throughput?: number | null;
+    usage?: {
+      [key: string]: unknown;
+    } | null;
+  }[];
+  from_time: string;
+  limit: number;
+  offset: number;
+  ok: true;
+  to_time: string | null;
+  total: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/logs";
+  return client.request<{
+    data: {
+      auth_method?: string | null;
+      byok?: boolean | null;
+      canonical_model_id?: string | null;
+      cost_nanos?: number | null;
+      created_at?: string;
+      currency?: string | null;
+      endpoint?: string | null;
+      error_code?: string | null;
+      finish_reason?: string | null;
+      generation_ms?: number | null;
+      key_id?: string | null;
+      latency_ms?: number | null;
+      location?: string | null;
+      model_id?: string | null;
+      native_response_id?: string | null;
+      oauth_client_id?: string | null;
+      pricing_lines?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      provider?: string | null;
+      request_id?: string;
+      requested_model_id?: string | null;
+      routed_model_id?: string | null;
+      status_code?: number | null;
+      stream?: boolean | null;
+      success?: boolean | null;
+      throughput?: number | null;
+      usage?: {
+        [key: string]: unknown;
+      } | null;
+    }[];
+    from_time: string;
+    limit: number;
+    offset: number;
+    ok: true;
+    to_time: string | null;
+    total: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListGuardrailKeysParams = {
   path?: {
     id: string;
@@ -12526,6 +13883,79 @@ export async function listPresets(
   });
 }
 
+export type ListPresetTestRunsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    preset_id?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists visible test runs, optionally filtered by preset. Requires `feedback:read`.
+ */
+export async function listPresetTestRuns(
+  client: Client,
+  args: ListPresetTestRunsParams = {},
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/preset-test-runs";
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListPresetVersionsParams = {
   path?: {
     id: string;
@@ -12615,6 +14045,83 @@ export async function listPricingModels(
       [key: string]: unknown;
     }[];
     ok?: boolean;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListProviderCredentialsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    provider?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns write-only provider credential metadata for the authenticated workspace.
+ */
+export async function listProviderCredentials(
+  client: Client,
+  args: ListProviderCredentialsParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok";
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    }[];
+    total_count: number;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -14124,6 +15631,67 @@ export async function listWorkspaceAuditEvents(
   });
 }
 
+export type ListWorkspaceBudgetsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists spend ceilings with current usage, remaining spend, and reset timestamps.
+ */
+export async function listWorkspaceBudgets(
+  client: Client,
+  args: ListWorkspaceBudgetsParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/budgets";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspaceDepartmentsParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -14901,6 +16469,39 @@ export async function removeWorkspaceMembers(
   const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/remove`;
   return client.request<{
     removed_count: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ReorderProviderCredentialsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+    provider: string;
+    routing_mode: "priority" | "fallback";
+  };
+};
+
+/**
+ * Replaces the priority order for one provider and routing group.
+ */
+export async function reorderProviderCredentials(
+  client: Client,
+  args: ReorderProviderCredentialsParams = {},
+): Promise<{
+  reordered: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok/reorder";
+  return client.request<{
+    reordered: boolean;
   }>({
     method: "POST",
     path: resolvedPath,
@@ -15751,6 +17352,7 @@ export async function rotateApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -15760,13 +17362,50 @@ export async function rotateApiKey(
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
+    limit_remaining: number | null;
     limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
   previous_key_expires_at: string | null;
@@ -15777,6 +17416,7 @@ export async function rotateApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -15786,13 +17426,50 @@ export async function rotateApiKey(
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
+      limit_remaining: number | null;
       limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
     previous_key_expires_at: string | null;
@@ -15903,6 +17580,72 @@ export async function setWorkspaceDepartmentMember(
   });
 }
 
+export type SummarizeGatewayFeedbackParams = {
+  path?: Record<string, never>;
+  query?: {
+    group_by?: "preset" | "preset_id" | "test_run" | "test_run_id" | "metadata";
+    metadata_key?: string;
+    preset_id?: string;
+    since?: string;
+    test_run_id?: string;
+    until?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Aggregates workspace feedback by preset, test run, or metadata dimension.
+ */
+export async function summarizeGatewayFeedback(
+  client: Client,
+  args: SummarizeGatewayFeedbackParams = {},
+): Promise<{
+  data: {
+    average_score: number | null;
+    count: number;
+    last_feedback_at: string | null;
+    metadata_key?: string;
+    metadata_value?: string | null;
+    negative: number;
+    partial: number;
+    positive: number;
+    preset_id?: string | null;
+    ratings: {
+      [key: string]: number;
+    };
+    test_run_id?: string | null;
+  }[];
+  group_by: "preset_id" | "test_run_id" | "metadata";
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/feedback/summary";
+  return client.request<{
+    data: {
+      average_score: number | null;
+      count: number;
+      last_feedback_at: string | null;
+      metadata_key?: string;
+      metadata_value?: string | null;
+      negative: number;
+      partial: number;
+      positive: number;
+      preset_id?: string | null;
+      ratings: {
+        [key: string]: number;
+      };
+      test_run_id?: string | null;
+    }[];
+    group_by: "preset_id" | "test_run_id" | "metadata";
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type TestWorkspaceNotificationDestinationParams = {
   path?: {
     id: string;
@@ -15996,6 +17739,20 @@ export type UpdateApiKeyParams = {
     include_byok_in_limit?: boolean;
     limit?: number | null;
     limit_reset?: "daily" | "weekly" | "monthly";
+    limits?: {
+      daily?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      monthly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      weekly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+    };
     name?: string;
     scopes?: string | string[];
     soft_blocked?: boolean;
@@ -16012,6 +17769,7 @@ export async function updateApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
@@ -16020,13 +17778,50 @@ export async function updateApiKey(
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
+    limit_remaining: number | null;
     limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
@@ -16036,6 +17831,7 @@ export async function updateApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
@@ -16044,13 +17840,50 @@ export async function updateApiKey(
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
+      limit_remaining: number | null;
       limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -17060,6 +18893,166 @@ export async function updatePresetPublisher(
   });
 }
 
+export type UpdatePresetTestRunParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    completed_at?: string | null;
+    description?: string | null;
+    name?: string | null;
+    started_at?: string | null;
+    status?: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Updates test-run lifecycle state, summary, timestamps, name, or description. Requires `feedback:write` and an owner or admin identity.
+ */
+export async function updatePresetTestRun(
+  client: Client,
+  args: UpdatePresetTestRunParams = {},
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateProviderCredentialParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_api_key_ids?: string[];
+    allowed_models?: string[];
+    enabled?: boolean;
+    key?: string;
+    name?: string;
+    routing_mode?: "priority" | "fallback";
+  };
+};
+
+/**
+ * Updates credential metadata, filters, routing group, or replaces the write-only secret.
+ */
+export async function updateProviderCredential(
+  client: Client,
+  args: UpdateProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateWebhookEndpointParams = {
   path?: {
     id: string;
@@ -17219,6 +19212,72 @@ export async function updateWorkspaceApp(
       last_seen: string | null;
       title: string;
       url: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval?: "daily" | "weekly" | "monthly" | "lifetime";
+    limit?: number;
+  };
+};
+
+/**
+ * Changes the interval or USD ceiling for an existing workspace budget.
+ */
+export async function updateWorkspaceBudget(
+  client: Client,
+  args: UpdateWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
     };
   }>({
     method: "PATCH",
@@ -17757,72 +19816,6 @@ export async function updateWorkspaceSso(
     };
   }>({
     method: "PUT",
-    path: resolvedPath,
-    query,
-    headers,
-    body,
-  });
-}
-
-export type UpdateWorkspaceBudgetParams = {
-  path?: {
-    id: string;
-  };
-  query?: Record<string, never>;
-  headers?: Record<string, never>;
-  body?: {
-    interval?: "daily" | "weekly" | "monthly" | "lifetime";
-    limit?: number;
-  };
-};
-
-/**
- * Changes the interval or USD ceiling for an existing workspace budget.
- */
-export async function updateWorkspaceBudget(
-  client: Client,
-  args: UpdateWorkspaceBudgetParams = {},
-): Promise<{
-  data: {
-    created_at: string;
-    created_by?: string | null;
-    exceeded: boolean;
-    id: string;
-    interval: "daily" | "weekly" | "monthly" | "lifetime";
-    limit: number;
-    limit_nanos: number;
-    remaining: number;
-    remaining_nanos: number;
-    reset_at?: string | null;
-    updated_at: string;
-    usage: number;
-    usage_nanos: number;
-    window_start?: string | null;
-    workspace_id: string;
-  };
-}> {
-  const { path, query, headers, body } = args;
-  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
-  return client.request<{
-    data: {
-      created_at: string;
-      created_by?: string | null;
-      exceeded: boolean;
-      id: string;
-      interval: "daily" | "weekly" | "monthly" | "lifetime";
-      limit: number;
-      limit_nanos: number;
-      remaining: number;
-      remaining_nanos: number;
-      reset_at?: string | null;
-      updated_at: string;
-      usage: number;
-      usage_nanos: number;
-      window_start?: string | null;
-      workspace_id: string;
-    };
-  }>({
-    method: "PATCH",
     path: resolvedPath,
     query,
     headers,

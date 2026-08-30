@@ -103,7 +103,7 @@ pub struct AnthropicUsage {
 pub struct ApiKey {
 	pub created_at: Option<String>,
 	pub created_by: Option<String>,
-	pub creator_user_id: Option<Option<String>>,
+	pub creator_user_id: Option<String>,
 	pub disabled: bool,
 	pub expires_at: Option<String>,
 	pub hash: String,
@@ -112,18 +112,20 @@ pub struct ApiKey {
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
 	pub limit: Option<f64>,
+	pub limit_remaining: Option<f64>,
 	pub limit_reset: Option<String>,
+	pub limits: HashMap<String, String>,
 	pub name: Option<String>,
 	pub prefix: Option<String>,
 	pub scopes: String,
 	pub soft_blocked: bool,
 	pub status: Option<String>,
 	pub updated_at: Option<String>,
-	pub usage: Option<f64>,
-	pub usage_daily: Option<f64>,
-	pub usage_details: Option<HashMap<String, String>>,
-	pub usage_monthly: Option<f64>,
-	pub usage_weekly: Option<f64>,
+	pub usage: f64,
+	pub usage_daily: f64,
+	pub usage_details: HashMap<String, String>,
+	pub usage_monthly: f64,
+	pub usage_weekly: f64,
 	pub workspace_id: String,
 }
 
@@ -210,7 +212,7 @@ pub struct ApiKeyUsageWindows {
 pub struct ApiKeyWithValue {
 	pub created_at: Option<String>,
 	pub created_by: Option<String>,
-	pub creator_user_id: Option<Option<String>>,
+	pub creator_user_id: Option<String>,
 	pub disabled: bool,
 	pub expires_at: Option<String>,
 	pub hash: String,
@@ -220,18 +222,20 @@ pub struct ApiKeyWithValue {
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
 	pub limit: Option<f64>,
+	pub limit_remaining: Option<f64>,
 	pub limit_reset: Option<String>,
+	pub limits: HashMap<String, String>,
 	pub name: Option<String>,
 	pub prefix: Option<String>,
 	pub scopes: String,
 	pub soft_blocked: bool,
 	pub status: Option<String>,
 	pub updated_at: Option<String>,
-	pub usage: Option<f64>,
-	pub usage_daily: Option<f64>,
-	pub usage_details: Option<HashMap<String, String>>,
-	pub usage_monthly: Option<f64>,
-	pub usage_weekly: Option<f64>,
+	pub usage: f64,
+	pub usage_daily: f64,
+	pub usage_details: HashMap<String, String>,
+	pub usage_monthly: f64,
+	pub usage_weekly: f64,
 	pub workspace_id: String,
 }
 
@@ -959,6 +963,69 @@ pub struct GatewayDatetimeToolDefinition {
 	pub r#type: String,
 }
 
+pub struct GatewayFeedback {
+	pub comment: Option<String>,
+	pub created_at: String,
+	pub created_by_user_id: Option<String>,
+	pub end_user_id: Option<String>,
+	pub id: String,
+	pub metadata: HashMap<String, String>,
+	pub metadata_dimensions: HashMap<String, String>,
+	pub preset_id: Option<String>,
+	pub rating: Option<String>,
+	pub reason: Option<String>,
+	pub reason_tags: Vec<String>,
+	pub request_id: Option<String>,
+	pub score: Option<f64>,
+	pub session_id: Option<String>,
+	pub source: String,
+	pub test_run_id: Option<String>,
+	pub workspace_id: String,
+}
+
+pub struct GatewayFeedbackCreateRequest {
+	pub comment: Option<String>,
+	pub end_user_id: Option<String>,
+	pub metadata: Option<HashMap<String, String>>,
+	pub metadata_dimensions: Option<HashMap<String, String>>,
+	pub preset_id: Option<String>,
+	pub rating: Option<String>,
+	pub reason: Option<String>,
+	pub reason_tags: Option<Vec<String>>,
+	pub request_id: Option<String>,
+	pub score: Option<f64>,
+	pub session_id: Option<String>,
+	pub source: Option<String>,
+	pub test_run_id: Option<String>,
+}
+
+pub struct GatewayFeedbackListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct GatewayFeedbackResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct GatewayFeedbackSummaryResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub group_by: String,
+}
+
+pub struct GatewayFeedbackSummaryRow {
+	pub average_score: Option<f64>,
+	pub count: i64,
+	pub last_feedback_at: Option<String>,
+	pub metadata_key: Option<String>,
+	pub metadata_value: Option<Option<String>>,
+	pub negative: i64,
+	pub partial: i64,
+	pub positive: i64,
+	pub preset_id: Option<Option<String>>,
+	pub ratings: HashMap<String, String>,
+	pub test_run_id: Option<Option<String>>,
+}
+
 pub struct GatewayModalities {
 	pub input: Vec<String>,
 	pub output: Vec<String>,
@@ -1003,6 +1070,50 @@ pub struct GatewayModelsResponse {
 	pub total: i64,
 }
 
+pub struct GatewayObservabilityEvent {
+	pub category: String,
+	pub created_at: String,
+	pub created_by_user_id: Option<String>,
+	pub end_user_id: Option<String>,
+	pub event_name: String,
+	pub id: String,
+	pub metadata: HashMap<String, String>,
+	pub metadata_dimensions: HashMap<String, String>,
+	pub numeric_value: Option<f64>,
+	pub occurred_at: String,
+	pub preset_id: Option<String>,
+	pub request_id: Option<String>,
+	pub session_id: Option<String>,
+	pub source: String,
+	pub test_run_id: Option<String>,
+	pub value: Option<String>,
+	pub workspace_id: String,
+}
+
+pub struct GatewayObservabilityEventCreateRequest {
+	pub category: Option<String>,
+	pub end_user_id: Option<String>,
+	pub event_name: String,
+	pub metadata: Option<HashMap<String, String>>,
+	pub metadata_dimensions: Option<HashMap<String, String>>,
+	pub numeric_value: Option<f64>,
+	pub occurred_at: Option<String>,
+	pub preset_id: Option<String>,
+	pub request_id: Option<String>,
+	pub session_id: Option<String>,
+	pub source: Option<String>,
+	pub test_run_id: Option<String>,
+	pub value: Option<String>,
+}
+
+pub struct GatewayObservabilityEventListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct GatewayObservabilityEventResponse {
+	pub data: HashMap<String, String>,
+}
+
 pub struct GatewayPricing {
 	pub meters: HashMap<String, String>,
 	pub pricing_plan: String,
@@ -1011,6 +1122,50 @@ pub struct GatewayPricing {
 pub type GatewayPricingMeter = JsonValue;
 
 pub type GatewayProviderAvailabilityReason = JsonValue;
+
+pub struct GatewayRequestLog {
+	pub auth_method: Option<Option<String>>,
+	pub byok: Option<Option<bool>>,
+	pub canonical_model_id: Option<Option<String>>,
+	pub cost_nanos: Option<Option<i64>>,
+	pub created_at: Option<String>,
+	pub currency: Option<Option<String>>,
+	pub endpoint: Option<Option<String>>,
+	pub error_code: Option<Option<String>>,
+	pub finish_reason: Option<Option<String>>,
+	pub generation_ms: Option<Option<f64>>,
+	pub key_id: Option<Option<String>>,
+	pub latency_ms: Option<Option<f64>>,
+	pub location: Option<Option<String>>,
+	pub model_id: Option<Option<String>>,
+	pub native_response_id: Option<Option<String>>,
+	pub oauth_client_id: Option<Option<String>>,
+	pub pricing_lines: Option<Option<Vec<HashMap<String, String>>>>,
+	pub provider: Option<Option<String>>,
+	pub request_id: Option<String>,
+	pub requested_model_id: Option<Option<String>>,
+	pub routed_model_id: Option<Option<String>>,
+	pub status_code: Option<Option<i64>>,
+	pub stream: Option<Option<bool>>,
+	pub success: Option<Option<bool>>,
+	pub throughput: Option<Option<f64>>,
+	pub usage: Option<Option<HashMap<String, String>>>,
+}
+
+pub struct GatewayRequestLogListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub from_time: String,
+	pub limit: i64,
+	pub offset: i64,
+	pub ok: String,
+	pub to_time: Option<String>,
+	pub total: i64,
+}
+
+pub struct GatewayRequestLogResponse {
+	pub data: HashMap<String, String>,
+	pub ok: String,
+}
 
 pub type GatewayRoutingStatus = JsonValue;
 
@@ -1904,6 +2059,59 @@ pub struct PresetResponse {
 	pub data: HashMap<String, String>,
 }
 
+pub struct PresetTestRun {
+	pub baseline_preset_id: Option<String>,
+	pub completed_at: Option<String>,
+	pub config: HashMap<String, String>,
+	pub created_at: String,
+	pub created_by_user_id: Option<String>,
+	pub dataset_name: Option<String>,
+	pub description: Option<String>,
+	pub id: String,
+	pub name: Option<String>,
+	pub preset_id: Option<String>,
+	pub started_at: Option<String>,
+	pub status: String,
+	pub summary: HashMap<String, String>,
+	pub updated_at: String,
+	pub workspace_id: String,
+}
+
+pub struct PresetTestRunCreateRequest {
+	pub baseline_preset_id: Option<String>,
+	pub completed_at: Option<String>,
+	pub config: Option<HashMap<String, String>>,
+	pub dataset_name: Option<String>,
+	pub description: Option<String>,
+	pub name: Option<String>,
+	pub preset_id: Option<String>,
+	pub started_at: Option<String>,
+	pub status: Option<String>,
+	pub summary: Option<HashMap<String, String>>,
+}
+
+pub struct PresetTestRunDetailResponse {
+	pub data: HashMap<String, String>,
+	pub feedback_summary: Option<HashMap<String, String>>,
+}
+
+pub struct PresetTestRunListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct PresetTestRunResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct PresetTestRunUpdateRequest {
+	pub completed_at: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub name: Option<Option<String>>,
+	pub started_at: Option<Option<String>>,
+	pub status: Option<String>,
+	pub summary: Option<HashMap<String, String>>,
+}
+
 pub struct PresetUpdateRequest {
 	pub config: Option<HashMap<String, String>>,
 	pub description: Option<Option<String>>,
@@ -2621,6 +2829,48 @@ pub struct WorkspaceAutoTopUpUpdate {
 	pub balance_threshold_nanos: Option<i64>,
 	pub enabled: bool,
 	pub payment_method_id: Option<Option<String>>,
+}
+
+pub struct WorkspaceBudget {
+	pub created_at: String,
+	pub created_by: Option<Option<String>>,
+	pub exceeded: bool,
+	pub id: String,
+	pub interval: String,
+	pub limit: f64,
+	pub limit_nanos: i64,
+	pub remaining: f64,
+	pub remaining_nanos: i64,
+	pub reset_at: Option<Option<String>>,
+	pub updated_at: String,
+	pub usage: f64,
+	pub usage_nanos: i64,
+	pub window_start: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceBudgetDeleteResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceBudgetInput {
+	pub interval: String,
+	pub limit: f64,
+}
+
+pub type WorkspaceBudgetInterval = JsonValue;
+
+pub struct WorkspaceBudgetListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceBudgetResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceBudgetUpdateInput {
+	pub interval: Option<String>,
+	pub limit: Option<f64>,
 }
 
 pub struct WorkspaceCreateRequest {

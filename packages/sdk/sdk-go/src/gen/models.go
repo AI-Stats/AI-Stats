@@ -101,7 +101,7 @@ type AnthropicUsage struct {
 type ApiKey struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
-	CreatorUserId *string `json:"creator_user_id,omitempty"`
+	CreatorUserId *string `json:"creator_user_id"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
@@ -110,18 +110,20 @@ type ApiKey struct {
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
 	Limit *float64 `json:"limit"`
+	LimitRemaining *float64 `json:"limit_remaining"`
 	LimitReset *string `json:"limit_reset"`
+	Limits map[string]interface{} `json:"limits"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
-	Usage *float64 `json:"usage,omitempty"`
-	UsageDaily *float64 `json:"usage_daily,omitempty"`
-	UsageDetails *map[string]interface{} `json:"usage_details,omitempty"`
-	UsageMonthly *float64 `json:"usage_monthly,omitempty"`
-	UsageWeekly *float64 `json:"usage_weekly,omitempty"`
+	Usage float64 `json:"usage"`
+	UsageDaily float64 `json:"usage_daily"`
+	UsageDetails map[string]interface{} `json:"usage_details"`
+	UsageMonthly float64 `json:"usage_monthly"`
+	UsageWeekly float64 `json:"usage_weekly"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -208,7 +210,7 @@ type ApiKeyUsageWindows struct {
 type ApiKeyWithValue struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
-	CreatorUserId *string `json:"creator_user_id,omitempty"`
+	CreatorUserId *string `json:"creator_user_id"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
@@ -218,18 +220,20 @@ type ApiKeyWithValue struct {
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
 	Limit *float64 `json:"limit"`
+	LimitRemaining *float64 `json:"limit_remaining"`
 	LimitReset *string `json:"limit_reset"`
+	Limits map[string]interface{} `json:"limits"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
-	Usage *float64 `json:"usage,omitempty"`
-	UsageDaily *float64 `json:"usage_daily,omitempty"`
-	UsageDetails *map[string]interface{} `json:"usage_details,omitempty"`
-	UsageMonthly *float64 `json:"usage_monthly,omitempty"`
-	UsageWeekly *float64 `json:"usage_weekly,omitempty"`
+	Usage float64 `json:"usage"`
+	UsageDaily float64 `json:"usage_daily"`
+	UsageDetails map[string]interface{} `json:"usage_details"`
+	UsageMonthly float64 `json:"usage_monthly"`
+	UsageWeekly float64 `json:"usage_weekly"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -1639,6 +1643,69 @@ type GatewayDatetimeToolDefinition struct {
 	Type string `json:"type"`
 }
 
+type GatewayFeedback struct {
+	Comment *string `json:"comment"`
+	CreatedAt string `json:"created_at"`
+	CreatedByUserId *string `json:"created_by_user_id"`
+	EndUserId *string `json:"end_user_id"`
+	Id string `json:"id"`
+	Metadata map[string]interface{} `json:"metadata"`
+	MetadataDimensions map[string]interface{} `json:"metadata_dimensions"`
+	PresetId *string `json:"preset_id"`
+	Rating *string `json:"rating"`
+	Reason *string `json:"reason"`
+	ReasonTags []string `json:"reason_tags"`
+	RequestId *string `json:"request_id"`
+	Score *float64 `json:"score"`
+	SessionId *string `json:"session_id"`
+	Source string `json:"source"`
+	TestRunId *string `json:"test_run_id"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type GatewayFeedbackCreateRequest struct {
+	Comment *string `json:"comment,omitempty"`
+	EndUserId *string `json:"end_user_id,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	MetadataDimensions *map[string]interface{} `json:"metadata_dimensions,omitempty"`
+	PresetId *string `json:"preset_id,omitempty"`
+	Rating *string `json:"rating,omitempty"`
+	Reason *string `json:"reason,omitempty"`
+	ReasonTags *[]string `json:"reason_tags,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	Score *float64 `json:"score,omitempty"`
+	SessionId *string `json:"session_id,omitempty"`
+	Source *string `json:"source,omitempty"`
+	TestRunId *string `json:"test_run_id,omitempty"`
+}
+
+type GatewayFeedbackListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GatewayFeedbackResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GatewayFeedbackSummaryResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	GroupBy string `json:"group_by"`
+}
+
+type GatewayFeedbackSummaryRow struct {
+	AverageScore *float64 `json:"average_score"`
+	Count int `json:"count"`
+	LastFeedbackAt *string `json:"last_feedback_at"`
+	MetadataKey *string `json:"metadata_key,omitempty"`
+	MetadataValue *string `json:"metadata_value,omitempty"`
+	Negative int `json:"negative"`
+	Partial int `json:"partial"`
+	Positive int `json:"positive"`
+	PresetId *string `json:"preset_id,omitempty"`
+	Ratings map[string]interface{} `json:"ratings"`
+	TestRunId *string `json:"test_run_id,omitempty"`
+}
+
 type GatewayModalities struct {
 	Input []string `json:"input"`
 	Output []string `json:"output"`
@@ -1683,6 +1750,50 @@ type GatewayModelsResponse struct {
 	Total int `json:"total"`
 }
 
+type GatewayObservabilityEvent struct {
+	Category string `json:"category"`
+	CreatedAt string `json:"created_at"`
+	CreatedByUserId *string `json:"created_by_user_id"`
+	EndUserId *string `json:"end_user_id"`
+	EventName string `json:"event_name"`
+	Id string `json:"id"`
+	Metadata map[string]interface{} `json:"metadata"`
+	MetadataDimensions map[string]interface{} `json:"metadata_dimensions"`
+	NumericValue *float64 `json:"numeric_value"`
+	OccurredAt string `json:"occurred_at"`
+	PresetId *string `json:"preset_id"`
+	RequestId *string `json:"request_id"`
+	SessionId *string `json:"session_id"`
+	Source string `json:"source"`
+	TestRunId *string `json:"test_run_id"`
+	Value *interface{} `json:"value"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type GatewayObservabilityEventCreateRequest struct {
+	Category *string `json:"category,omitempty"`
+	EndUserId *string `json:"end_user_id,omitempty"`
+	EventName string `json:"event_name"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	MetadataDimensions *map[string]interface{} `json:"metadata_dimensions,omitempty"`
+	NumericValue *float64 `json:"numeric_value,omitempty"`
+	OccurredAt *string `json:"occurred_at,omitempty"`
+	PresetId *string `json:"preset_id,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	SessionId *string `json:"session_id,omitempty"`
+	Source *string `json:"source,omitempty"`
+	TestRunId *string `json:"test_run_id,omitempty"`
+	Value interface{} `json:"value,omitempty"`
+}
+
+type GatewayObservabilityEventListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GatewayObservabilityEventResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type GatewayPricing struct {
 	Meters map[string]interface{} `json:"meters"`
 	PricingPlan string `json:"pricing_plan"`
@@ -1716,6 +1827,50 @@ const (
 	GatewayProviderAvailabilityReasonRetired GatewayProviderAvailabilityReason = "retired"
 )
 
+
+type GatewayRequestLog struct {
+	AuthMethod *string `json:"auth_method,omitempty"`
+	Byok *bool `json:"byok,omitempty"`
+	CanonicalModelId *string `json:"canonical_model_id,omitempty"`
+	CostNanos *int `json:"cost_nanos,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	Endpoint *string `json:"endpoint,omitempty"`
+	ErrorCode *string `json:"error_code,omitempty"`
+	FinishReason *string `json:"finish_reason,omitempty"`
+	GenerationMs *float64 `json:"generation_ms,omitempty"`
+	KeyId *string `json:"key_id,omitempty"`
+	LatencyMs *float64 `json:"latency_ms,omitempty"`
+	Location *string `json:"location,omitempty"`
+	ModelId *string `json:"model_id,omitempty"`
+	NativeResponseId *string `json:"native_response_id,omitempty"`
+	OauthClientId *string `json:"oauth_client_id,omitempty"`
+	PricingLines *[]map[string]interface{} `json:"pricing_lines,omitempty"`
+	Provider *string `json:"provider,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	RequestedModelId *string `json:"requested_model_id,omitempty"`
+	RoutedModelId *string `json:"routed_model_id,omitempty"`
+	StatusCode *int `json:"status_code,omitempty"`
+	Stream *bool `json:"stream,omitempty"`
+	Success *bool `json:"success,omitempty"`
+	Throughput *float64 `json:"throughput,omitempty"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
+}
+
+type GatewayRequestLogListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	FromTime string `json:"from_time"`
+	Limit int `json:"limit"`
+	Offset int `json:"offset"`
+	Ok string `json:"ok"`
+	ToTime *string `json:"to_time"`
+	Total int `json:"total"`
+}
+
+type GatewayRequestLogResponse struct {
+	Data map[string]interface{} `json:"data"`
+	Ok string `json:"ok"`
+}
 
 type GatewayRoutingStatus string
 
@@ -3258,6 +3413,59 @@ type PresetResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type PresetTestRun struct {
+	BaselinePresetId *string `json:"baseline_preset_id"`
+	CompletedAt *string `json:"completed_at"`
+	Config map[string]interface{} `json:"config"`
+	CreatedAt string `json:"created_at"`
+	CreatedByUserId *string `json:"created_by_user_id"`
+	DatasetName *string `json:"dataset_name"`
+	Description *string `json:"description"`
+	Id string `json:"id"`
+	Name *string `json:"name"`
+	PresetId *string `json:"preset_id"`
+	StartedAt *string `json:"started_at"`
+	Status string `json:"status"`
+	Summary map[string]interface{} `json:"summary"`
+	UpdatedAt string `json:"updated_at"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PresetTestRunCreateRequest struct {
+	BaselinePresetId *string `json:"baseline_preset_id,omitempty"`
+	CompletedAt *string `json:"completed_at,omitempty"`
+	Config *map[string]interface{} `json:"config,omitempty"`
+	DatasetName *string `json:"dataset_name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PresetId *string `json:"preset_id,omitempty"`
+	StartedAt *string `json:"started_at,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Summary *map[string]interface{} `json:"summary,omitempty"`
+}
+
+type PresetTestRunDetailResponse struct {
+	Data map[string]interface{} `json:"data"`
+	FeedbackSummary *map[string]interface{} `json:"feedback_summary"`
+}
+
+type PresetTestRunListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type PresetTestRunResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetTestRunUpdateRequest struct {
+	CompletedAt *string `json:"completed_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	StartedAt *string `json:"started_at,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Summary *map[string]interface{} `json:"summary,omitempty"`
+}
+
 type PresetUpdateRequest struct {
 	Config *map[string]interface{} `json:"config,omitempty"`
 	Description *string `json:"description,omitempty"`
@@ -4001,6 +4209,56 @@ type WorkspaceAutoTopUpUpdate struct {
 	BalanceThresholdNanos *int `json:"balance_threshold_nanos,omitempty"`
 	Enabled bool `json:"enabled"`
 	PaymentMethodId *string `json:"payment_method_id,omitempty"`
+}
+
+type WorkspaceBudget struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Exceeded bool `json:"exceeded"`
+	Id string `json:"id"`
+	Interval string `json:"interval"`
+	Limit float64 `json:"limit"`
+	LimitNanos int `json:"limit_nanos"`
+	Remaining float64 `json:"remaining"`
+	RemainingNanos int `json:"remaining_nanos"`
+	ResetAt *string `json:"reset_at,omitempty"`
+	UpdatedAt string `json:"updated_at"`
+	Usage float64 `json:"usage"`
+	UsageNanos int `json:"usage_nanos"`
+	WindowStart *string `json:"window_start,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceBudgetDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetInput struct {
+	Interval string `json:"interval"`
+	Limit float64 `json:"limit"`
+}
+
+type WorkspaceBudgetInterval string
+
+const (
+	WorkspaceBudgetIntervalDaily WorkspaceBudgetInterval = "daily"
+	WorkspaceBudgetIntervalWeekly WorkspaceBudgetInterval = "weekly"
+	WorkspaceBudgetIntervalMonthly WorkspaceBudgetInterval = "monthly"
+	WorkspaceBudgetIntervalLifetime WorkspaceBudgetInterval = "lifetime"
+)
+
+
+type WorkspaceBudgetListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetUpdateInput struct {
+	Interval *string `json:"interval,omitempty"`
+	Limit *float64 `json:"limit,omitempty"`
 }
 
 type WorkspaceCreateRequest struct {

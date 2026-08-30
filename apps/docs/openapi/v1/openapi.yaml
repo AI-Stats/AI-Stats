@@ -2719,6 +2719,277 @@ paths:
       responses:
         '200': {description: Applications merged, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceAppMergeResponse'}}}}
         default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /logs:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listGatewayRequestLogs
+      summary: List gateway request logs
+      description: Lists redacted request facts for the authenticated workspace with bounded time-range and field filters. Requires `activity:read`.
+      parameters:
+        - {name: since, in: query, schema: {type: string, default: 24h}}
+        - {name: from, in: query, schema: {type: string, format: date-time}}
+        - {name: to, in: query, schema: {type: string, format: date-time}}
+        - {name: provider, in: query, schema: {type: string}}
+        - {name: model, in: query, schema: {type: string}}
+        - {name: endpoint, in: query, schema: {type: string}}
+        - {name: request_id, in: query, schema: {type: string}}
+        - {name: key_id, in: query, schema: {type: string}}
+        - {name: session_id, in: query, schema: {type: string}}
+        - {name: error_code, in: query, schema: {type: string}}
+        - {name: status, in: query, schema: {type: string}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 200, default: 50}}
+      responses:
+        '200': {description: Request logs, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayRequestLogListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /logs/{requestId}:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getGatewayRequestLog
+      summary: Get a gateway request log
+      description: Returns one redacted request record by request identifier.
+      parameters: [{name: requestId, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: Request log, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayRequestLogResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /feedback:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listGatewayFeedback
+      summary: List gateway feedback
+      description: Lists workspace feedback with target, date, rating, and metadata-dimension filters. Requires `feedback:read`.
+      parameters:
+        - {name: request_id, in: query, schema: {type: string}}
+        - {name: session_id, in: query, schema: {type: string}}
+        - {name: preset_id, in: query, schema: {type: string, format: uuid}}
+        - {name: test_run_id, in: query, schema: {type: string, format: uuid}}
+        - {name: rating, in: query, schema: {type: string}}
+        - {name: since, in: query, schema: {type: string, format: date-time}}
+        - {name: until, in: query, schema: {type: string, format: date-time}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 500, default: 100}}
+      responses:
+        '200': {description: Feedback records, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayFeedbackListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createGatewayFeedback
+      summary: Create gateway feedback
+      description: Records feedback for a request, session, preset, or preset test run. Requires `feedback:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayFeedbackCreateRequest'}}}}
+      responses:
+        '201': {description: Feedback recorded, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayFeedbackResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /feedback/summary:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: summarizeGatewayFeedback
+      summary: Summarize gateway feedback
+      description: Aggregates workspace feedback by preset, test run, or metadata dimension.
+      parameters:
+        - {name: group_by, in: query, schema: {type: string, enum: [preset, preset_id, test_run, test_run_id, metadata], default: preset}}
+        - {name: metadata_key, in: query, schema: {type: string}}
+        - {name: preset_id, in: query, schema: {type: string, format: uuid}}
+        - {name: test_run_id, in: query, schema: {type: string, format: uuid}}
+        - {name: since, in: query, schema: {type: string, format: date-time}}
+        - {name: until, in: query, schema: {type: string, format: date-time}}
+      responses:
+        '200': {description: Feedback summary, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayFeedbackSummaryResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /events:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listGatewayObservabilityEvents
+      summary: List gateway observability events
+      description: Lists custom workspace outcome and behavior events. Requires `feedback:read`.
+      parameters:
+        - {name: request_id, in: query, schema: {type: string}}
+        - {name: session_id, in: query, schema: {type: string}}
+        - {name: preset_id, in: query, schema: {type: string, format: uuid}}
+        - {name: test_run_id, in: query, schema: {type: string, format: uuid}}
+        - {name: category, in: query, schema: {type: string}}
+        - {name: event, in: query, schema: {type: string}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 500, default: 100}}
+      responses:
+        '200': {description: Observability events, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayObservabilityEventListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createGatewayObservabilityEvent
+      summary: Create a gateway observability event
+      description: Records a custom outcome or behavior event linked to a request, session, preset, or test run. Requires `feedback:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayObservabilityEventCreateRequest'}}}}
+      responses:
+        '201': {description: Event recorded, content: {application/json: {schema: {$ref: '#/components/schemas/GatewayObservabilityEventResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /preset-test-runs:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listPresetTestRuns
+      summary: List preset test runs
+      description: Lists visible test runs, optionally filtered by preset. Requires `feedback:read`.
+      parameters:
+        - {name: preset_id, in: query, schema: {type: string, format: uuid}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 250, default: 100}}
+      responses:
+        '200': {description: Preset test runs, content: {application/json: {schema: {$ref: '#/components/schemas/PresetTestRunListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createPresetTestRun
+      summary: Create a preset test run
+      description: Creates a workspace test run for a preset or baseline comparison. Requires `feedback:write` and an owner or admin identity.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PresetTestRunCreateRequest'}}}}
+      responses:
+        '201': {description: Test run created, content: {application/json: {schema: {$ref: '#/components/schemas/PresetTestRunResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /preset-test-runs/{id}:
+    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getPresetTestRun
+      summary: Get a preset test run
+      description: Returns a test run and its feedback summary.
+      responses:
+        '200': {description: Preset test run, content: {application/json: {schema: {$ref: '#/components/schemas/PresetTestRunDetailResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updatePresetTestRun
+      summary: Update a preset test run
+      description: Updates test-run lifecycle state, summary, timestamps, name, or description. Requires `feedback:write` and an owner or admin identity.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PresetTestRunUpdateRequest'}}}}
+      responses:
+        '200': {description: Test run updated, content: {application/json: {schema: {$ref: '#/components/schemas/PresetTestRunResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /byok:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listProviderCredentials
+      summary: List provider credentials
+      description: Returns write-only provider credential metadata for the authenticated workspace.
+      parameters:
+        - {name: provider, in: query, schema: {type: string}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 50}}
+      responses:
+        '200': {description: Provider credentials, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createProviderCredential
+      summary: Create a provider credential
+      description: Encrypts and stores a write-only provider credential for the authenticated workspace.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialCreateRequest'}}}}
+      responses:
+        '201': {description: Provider credential created, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /byok/reorder:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: reorderProviderCredentials
+      summary: Reorder provider credentials
+      description: Replaces the priority order for one provider and routing group.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialReorderRequest'}}}}
+      responses:
+        '200': {description: Provider credentials reordered, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialReorderResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /byok/{id}:
+    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getProviderCredential
+      summary: Get a provider credential
+      description: Returns safe metadata without exposing encrypted fields or the raw secret.
+      responses:
+        '200': {description: Provider credential metadata, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateProviderCredential
+      summary: Update a provider credential
+      description: Updates credential metadata, filters, routing group, or replaces the write-only secret.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialUpdateRequest'}}}}
+      responses:
+        '200': {description: Provider credential updated, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteProviderCredential
+      summary: Delete a provider credential
+      description: Permanently removes a provider credential. Repeated deletion is safe.
+      responses:
+        '200': {description: Provider credential deleted or already absent, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderCredentialDeleteResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /budgets:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceBudgets
+      summary: List workspace budgets
+      description: Lists spend ceilings with current usage, remaining spend, and reset timestamps.
+      responses:
+        '200': {description: Workspace budgets, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createWorkspaceBudget
+      summary: Create a workspace budget
+      description: Creates an enforced spend ceiling for one workspace interval.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetInput'}}}}
+      responses:
+        '201': {description: Workspace budget created, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /budgets/{id}:
+    parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWorkspaceBudget
+      summary: Get a workspace budget
+      description: Returns one workspace spend ceiling with current usage and remaining spend.
+      responses:
+        '200': {description: Workspace budget, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceBudget
+      summary: Update a workspace budget
+      description: Changes the interval or USD ceiling for an existing workspace budget.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetUpdateInput'}}}}
+      responses:
+        '200': {description: Workspace budget updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteWorkspaceBudget
+      summary: Delete a workspace budget
+      description: Removes a workspace spend ceiling and stops enforcing that interval.
+      responses:
+        '200': {description: Workspace budget deleted, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceBudgetDeleteResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /notifications/destinations:
     get:
       x-beta: true
@@ -11325,9 +11596,17 @@ components:
         - disabled
         - soft_blocked
         - scopes
+        - creator_user_id
         - include_byok_in_limit
         - limit
         - limit_reset
+        - limit_remaining
+        - usage
+        - usage_daily
+        - usage_weekly
+        - usage_monthly
+        - limits
+        - usage_details
         - created_by
         - created_at
         - updated_at
@@ -11369,6 +11648,9 @@ components:
           example: false
         scopes:
           $ref: '#/components/schemas/ApiKeyScopeValue'
+        creator_user_id:
+          type: string
+          nullable: true
         created_by:
           type: string
           nullable: true
@@ -11404,6 +11686,59 @@ components:
           type: string
           nullable: true
           enum: [daily, weekly, monthly]
+        limit_remaining:
+          type: number
+          nullable: true
+        usage: {type: number}
+        usage_daily: {type: number}
+        usage_weekly: {type: number}
+        usage_monthly: {type: number}
+        limits: {$ref: '#/components/schemas/ApiKeyLimitWindows'}
+        usage_details: {$ref: '#/components/schemas/ApiKeyUsageWindows'}
+      additionalProperties: false
+    ApiKeyLimitBucket:
+      type: object
+      required: [requests, cost]
+      properties:
+        requests: {type: integer, nullable: true, minimum: 0}
+        cost: {type: number, nullable: true, minimum: 0, description: Spend limit in USD.}
+      additionalProperties: false
+    ApiKeyLimitWindows:
+      type: object
+      required: [daily, weekly, monthly]
+      properties:
+        daily: {$ref: '#/components/schemas/ApiKeyLimitBucket'}
+        weekly: {$ref: '#/components/schemas/ApiKeyLimitBucket'}
+        monthly: {$ref: '#/components/schemas/ApiKeyLimitBucket'}
+      additionalProperties: false
+    ApiKeyUsageBucket:
+      type: object
+      required: [requests, cost]
+      properties:
+        requests: {type: integer, minimum: 0}
+        cost: {type: number, minimum: 0, description: Spend in USD.}
+      additionalProperties: false
+    ApiKeyUsageWindows:
+      type: object
+      required: [total, daily, weekly, monthly]
+      properties:
+        total: {$ref: '#/components/schemas/ApiKeyUsageBucket'}
+        daily: {$ref: '#/components/schemas/ApiKeyUsageBucket'}
+        weekly: {$ref: '#/components/schemas/ApiKeyUsageBucket'}
+        monthly: {$ref: '#/components/schemas/ApiKeyUsageBucket'}
+      additionalProperties: false
+    ApiKeyLimitInputBucket:
+      type: object
+      properties:
+        requests: {type: integer, nullable: true, minimum: 0}
+        cost: {type: number, nullable: true, minimum: 0, description: Spend limit in USD.}
+      additionalProperties: false
+    ApiKeyLimitInputWindows:
+      type: object
+      properties:
+        daily: {$ref: '#/components/schemas/ApiKeyLimitInputBucket'}
+        weekly: {$ref: '#/components/schemas/ApiKeyLimitInputBucket'}
+        monthly: {$ref: '#/components/schemas/ApiKeyLimitInputBucket'}
       additionalProperties: false
     ApiKeyResponse:
       type: object
@@ -11490,6 +11825,8 @@ components:
         soft_blocked:
           type: boolean
           default: false
+        limits:
+          $ref: '#/components/schemas/ApiKeyLimitInputWindows'
       additionalProperties: false
     ApiKeyUpdateRequest:
       type: object
@@ -11524,6 +11861,8 @@ components:
           type: boolean
         soft_blocked:
           type: boolean
+        limits:
+          $ref: '#/components/schemas/ApiKeyLimitInputWindows'
       additionalProperties: false
     ApiKeyRotateRequest:
       type: object
@@ -13863,6 +14202,377 @@ components:
       type: object
       required: [data]
       properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceGroupMapping'}}}
+      additionalProperties: false
+    GatewayRequestLog:
+      type: object
+      properties:
+        request_id: {type: string}
+        created_at: {type: string, format: date-time}
+        endpoint: {type: string, nullable: true}
+        model_id: {type: string, nullable: true}
+        requested_model_id: {type: string, nullable: true}
+        routed_model_id: {type: string, nullable: true}
+        canonical_model_id: {type: string, nullable: true}
+        provider: {type: string, nullable: true}
+        status_code: {type: integer, nullable: true}
+        success: {type: boolean, nullable: true}
+        error_code: {type: string, nullable: true}
+        latency_ms: {type: number, nullable: true}
+        generation_ms: {type: number, nullable: true}
+        usage: {type: object, nullable: true, additionalProperties: true}
+        cost_nanos: {type: integer, nullable: true}
+        currency: {type: string, nullable: true}
+        pricing_lines: {type: array, nullable: true, items: {type: object, additionalProperties: true}}
+        key_id: {type: string, nullable: true}
+        auth_method: {type: string, nullable: true}
+        oauth_client_id: {type: string, nullable: true}
+        stream: {type: boolean, nullable: true}
+        byok: {type: boolean, nullable: true}
+        native_response_id: {type: string, nullable: true}
+        throughput: {type: number, nullable: true}
+        location: {type: string, nullable: true}
+        finish_reason: {type: string, nullable: true}
+      additionalProperties: false
+    GatewayRequestLogListResponse:
+      type: object
+      required: [ok, data, total, limit, offset, from_time, to_time]
+      properties:
+        ok: {type: boolean, enum: [true]}
+        data: {type: array, items: {$ref: '#/components/schemas/GatewayRequestLog'}}
+        total: {type: integer, minimum: 0}
+        limit: {type: integer, minimum: 1}
+        offset: {type: integer, minimum: 0}
+        from_time: {type: string, format: date-time}
+        to_time: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    GatewayRequestLogResponse:
+      type: object
+      required: [ok, data]
+      properties:
+        ok: {type: boolean, enum: [true]}
+        data: {$ref: '#/components/schemas/GatewayRequestLog'}
+      additionalProperties: false
+    GatewayFeedback:
+      type: object
+      required: [id, workspace_id, request_id, session_id, preset_id, test_run_id, source, rating, score, reason, reason_tags, comment, metadata, metadata_dimensions, end_user_id, created_by_user_id, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        request_id: {type: string, nullable: true}
+        session_id: {type: string, nullable: true}
+        preset_id: {type: string, format: uuid, nullable: true}
+        test_run_id: {type: string, format: uuid, nullable: true}
+        source: {type: string, enum: [api, user, system, import, test]}
+        rating: {type: string, nullable: true}
+        score: {type: number, minimum: 0, maximum: 1, nullable: true}
+        reason: {type: string, nullable: true}
+        reason_tags: {type: array, items: {type: string}}
+        comment: {type: string, nullable: true}
+        metadata: {type: object, additionalProperties: true}
+        metadata_dimensions: {type: object, additionalProperties: {type: string}}
+        end_user_id: {type: string, nullable: true}
+        created_by_user_id: {type: string, format: uuid, nullable: true}
+        created_at: {type: string, format: date-time}
+      additionalProperties: false
+    GatewayFeedbackCreateRequest:
+      type: object
+      properties:
+        request_id: {type: string}
+        session_id: {type: string}
+        preset_id: {type: string, format: uuid}
+        test_run_id: {type: string, format: uuid}
+        source: {type: string, enum: [api, user, system, import, test]}
+        rating: {type: string}
+        score: {type: number, minimum: 0, maximum: 1}
+        reason: {type: string, maxLength: 128}
+        reason_tags: {type: array, maxItems: 20, items: {type: string}}
+        comment: {type: string, maxLength: 2048}
+        metadata: {type: object, additionalProperties: true}
+        metadata_dimensions: {type: object, additionalProperties: true}
+        end_user_id: {type: string}
+      additionalProperties: false
+    GatewayFeedbackResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/GatewayFeedback'}}
+      additionalProperties: false
+    GatewayFeedbackListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/GatewayFeedback'}}}
+      additionalProperties: false
+    GatewayFeedbackSummaryRow:
+      type: object
+      required: [count, positive, negative, partial, average_score, ratings, last_feedback_at]
+      properties:
+        preset_id: {type: string, nullable: true}
+        test_run_id: {type: string, nullable: true}
+        metadata_key: {type: string}
+        metadata_value: {type: string, nullable: true}
+        count: {type: integer, minimum: 0}
+        positive: {type: integer, minimum: 0}
+        negative: {type: integer, minimum: 0}
+        partial: {type: integer, minimum: 0}
+        average_score: {type: number, nullable: true}
+        ratings: {type: object, additionalProperties: {type: integer}}
+        last_feedback_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    GatewayFeedbackSummaryResponse:
+      type: object
+      required: [group_by, data]
+      properties:
+        group_by: {type: string, enum: [preset_id, test_run_id, metadata]}
+        data: {type: array, items: {$ref: '#/components/schemas/GatewayFeedbackSummaryRow'}}
+      additionalProperties: false
+    GatewayObservabilityEvent:
+      type: object
+      required: [id, workspace_id, request_id, session_id, preset_id, test_run_id, category, event_name, value, numeric_value, metadata, metadata_dimensions, end_user_id, source, occurred_at, created_by_user_id, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        request_id: {type: string, nullable: true}
+        session_id: {type: string, nullable: true}
+        preset_id: {type: string, format: uuid, nullable: true}
+        test_run_id: {type: string, format: uuid, nullable: true}
+        category: {type: string, enum: [feedback, behavior, outcome, app, test, custom]}
+        event_name: {type: string}
+        value: {nullable: true}
+        numeric_value: {type: number, nullable: true}
+        metadata: {type: object, additionalProperties: true}
+        metadata_dimensions: {type: object, additionalProperties: {type: string}}
+        end_user_id: {type: string, nullable: true}
+        source: {type: string, enum: [api, user, system, import, test]}
+        occurred_at: {type: string, format: date-time}
+        created_by_user_id: {type: string, format: uuid, nullable: true}
+        created_at: {type: string, format: date-time}
+      additionalProperties: false
+    GatewayObservabilityEventCreateRequest:
+      type: object
+      required: [event_name]
+      properties:
+        request_id: {type: string}
+        session_id: {type: string}
+        preset_id: {type: string, format: uuid}
+        test_run_id: {type: string, format: uuid}
+        category: {type: string, enum: [feedback, behavior, outcome, app, test, custom]}
+        event_name: {type: string, minLength: 1, maxLength: 128}
+        value: {}
+        numeric_value: {type: number}
+        metadata: {type: object, additionalProperties: true}
+        metadata_dimensions: {type: object, additionalProperties: true}
+        end_user_id: {type: string}
+        source: {type: string, enum: [api, user, system, import, test]}
+        occurred_at: {type: string, format: date-time}
+      additionalProperties: false
+    GatewayObservabilityEventResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/GatewayObservabilityEvent'}}
+      additionalProperties: false
+    GatewayObservabilityEventListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/GatewayObservabilityEvent'}}}
+      additionalProperties: false
+    PresetTestRun:
+      type: object
+      required: [id, workspace_id, preset_id, baseline_preset_id, name, description, status, dataset_name, config, summary, started_at, completed_at, created_by_user_id, created_at, updated_at]
+      properties:
+        id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        preset_id: {type: string, format: uuid, nullable: true}
+        baseline_preset_id: {type: string, format: uuid, nullable: true}
+        name: {type: string, nullable: true}
+        description: {type: string, nullable: true}
+        status: {type: string, enum: [pending, running, completed, failed, cancelled]}
+        dataset_name: {type: string, nullable: true}
+        config: {type: object, additionalProperties: true}
+        summary: {type: object, additionalProperties: true}
+        started_at: {type: string, format: date-time, nullable: true}
+        completed_at: {type: string, format: date-time, nullable: true}
+        created_by_user_id: {type: string, format: uuid, nullable: true}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    PresetTestRunCreateRequest:
+      type: object
+      properties:
+        preset_id: {type: string, format: uuid}
+        baseline_preset_id: {type: string, format: uuid}
+        name: {type: string, maxLength: 160}
+        description: {type: string, maxLength: 1000}
+        status: {type: string, enum: [pending, running, completed, failed, cancelled]}
+        dataset_name: {type: string, maxLength: 160}
+        config: {type: object, additionalProperties: true}
+        summary: {type: object, additionalProperties: true}
+        started_at: {type: string, format: date-time}
+        completed_at: {type: string, format: date-time}
+      additionalProperties: false
+    PresetTestRunUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name: {type: string, maxLength: 160, nullable: true}
+        description: {type: string, maxLength: 1000, nullable: true}
+        status: {type: string, enum: [pending, running, completed, failed, cancelled]}
+        summary: {type: object, additionalProperties: true}
+        started_at: {type: string, format: date-time, nullable: true}
+        completed_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    PresetTestRunResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/PresetTestRun'}}
+      additionalProperties: false
+    PresetTestRunListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/PresetTestRun'}}}
+      additionalProperties: false
+    PresetTestRunDetailResponse:
+      type: object
+      required: [data, feedback_summary]
+      properties:
+        data: {$ref: '#/components/schemas/PresetTestRun'}
+        feedback_summary:
+          allOf: [{$ref: '#/components/schemas/GatewayFeedbackSummaryRow'}]
+          nullable: true
+      additionalProperties: false
+    ProviderCredentialRoutingMode: {type: string, enum: [priority, fallback]}
+    ProviderCredential:
+      type: object
+      required: [id, workspace_id, provider_id, name, enabled, disabled, routing_mode, is_fallback, sort_order]
+      properties:
+        id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        provider_id: {type: string}
+        name: {type: string}
+        enabled: {type: boolean}
+        disabled: {type: boolean}
+        always_use: {type: boolean}
+        routing_mode: {$ref: '#/components/schemas/ProviderCredentialRoutingMode'}
+        is_fallback: {type: boolean}
+        sort_order: {type: integer, minimum: 0}
+        prefix: {type: string, nullable: true}
+        suffix: {type: string, nullable: true}
+        verification_status: {type: string, nullable: true}
+        error_message: {type: string, nullable: true}
+        last_verified_at: {type: string, format: date-time, nullable: true}
+        last_used_at: {type: string, format: date-time, nullable: true}
+        created_at: {type: string, format: date-time, nullable: true}
+        created_by: {type: string, nullable: true}
+        allowed_model_slugs: {type: array, maxItems: 256, items: {type: string}}
+        allowed_api_key_ids: {type: array, maxItems: 256, items: {type: string, format: uuid}}
+      additionalProperties: false
+    ProviderCredentialCreateRequest:
+      type: object
+      required: [provider, name, key]
+      properties:
+        provider: {type: string}
+        name: {type: string, minLength: 1, maxLength: 255}
+        key: {type: string, minLength: 1, writeOnly: true, description: "Raw credential. Encrypted and never returned."}
+        enabled: {type: boolean, default: true}
+        routing_mode: {$ref: '#/components/schemas/ProviderCredentialRoutingMode'}
+        allowed_models: {type: array, maxItems: 256, items: {type: string}}
+        allowed_api_key_ids: {type: array, maxItems: 256, items: {type: string, format: uuid}}
+      additionalProperties: false
+    ProviderCredentialUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name: {type: string, minLength: 1, maxLength: 255}
+        key: {type: string, minLength: 1, writeOnly: true, description: "Replacement raw credential. Encrypted and never returned."}
+        enabled: {type: boolean}
+        routing_mode: {$ref: '#/components/schemas/ProviderCredentialRoutingMode'}
+        allowed_models: {type: array, maxItems: 256, items: {type: string}}
+        allowed_api_key_ids: {type: array, maxItems: 256, items: {type: string, format: uuid}}
+      additionalProperties: false
+    ProviderCredentialReorderRequest:
+      type: object
+      required: [provider, routing_mode, key_ids]
+      properties:
+        provider: {type: string}
+        routing_mode: {$ref: '#/components/schemas/ProviderCredentialRoutingMode'}
+        key_ids: {type: array, minItems: 1, maxItems: 16, uniqueItems: true, items: {type: string, format: uuid}}
+      additionalProperties: false
+    ProviderCredentialResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/ProviderCredential'}}
+      additionalProperties: false
+    ProviderCredentialListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data: {type: array, items: {$ref: '#/components/schemas/ProviderCredential'}}
+        total_count: {type: integer, minimum: 0}
+      additionalProperties: false
+    ProviderCredentialDeleteResponse:
+      type: object
+      required: [deleted]
+      properties: {deleted: {type: boolean}}
+      additionalProperties: false
+    ProviderCredentialReorderResponse:
+      type: object
+      required: [reordered]
+      properties: {reordered: {type: boolean}}
+      additionalProperties: false
+    WorkspaceBudgetInterval: {type: string, enum: [daily, weekly, monthly, lifetime]}
+    WorkspaceBudget:
+      type: object
+      required: [id, workspace_id, interval, limit, limit_nanos, usage, usage_nanos, remaining, remaining_nanos, exceeded, created_at, updated_at]
+      properties:
+        id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        interval: {$ref: '#/components/schemas/WorkspaceBudgetInterval'}
+        limit: {type: number, format: double}
+        limit_nanos: {type: integer, format: int64}
+        usage: {type: number, format: double}
+        usage_nanos: {type: integer, format: int64}
+        remaining: {type: number, format: double}
+        remaining_nanos: {type: integer, format: int64}
+        exceeded: {type: boolean}
+        window_start: {type: string, format: date-time, nullable: true}
+        reset_at: {type: string, format: date-time, nullable: true}
+        created_by: {type: string, format: uuid, nullable: true}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+      additionalProperties: false
+    WorkspaceBudgetInput:
+      type: object
+      required: [interval, limit]
+      properties:
+        interval: {$ref: '#/components/schemas/WorkspaceBudgetInterval'}
+        limit: {type: number, format: double, minimum: 0, exclusiveMinimum: true}
+      additionalProperties: false
+    WorkspaceBudgetUpdateInput:
+      type: object
+      minProperties: 1
+      properties:
+        interval: {$ref: '#/components/schemas/WorkspaceBudgetInterval'}
+        limit: {type: number, format: double, minimum: 0, exclusiveMinimum: true}
+      additionalProperties: false
+    WorkspaceBudgetResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceBudget'}}
+      additionalProperties: false
+    WorkspaceBudgetListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceBudget'}}}
+      additionalProperties: false
+    WorkspaceBudgetDeleteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, deleted]
+          properties:
+            id: {type: string, format: uuid}
+            deleted: {type: boolean}
+          additionalProperties: false
       additionalProperties: false
     WorkspaceApp:
       type: object

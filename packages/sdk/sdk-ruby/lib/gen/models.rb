@@ -163,8 +163,12 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] limit
     #   @return [Float, nil]
+    # @!attribute [rw] limit_remaining
+    #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] prefix
@@ -178,18 +182,18 @@ module Phaseo
     # @!attribute [rw] updated_at
     #   @return [String, nil]
     # @!attribute [rw] usage
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] usage_daily
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] usage_details
-    #   @return [Hash{String => Object}, nil]
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] usage_monthly
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] usage_weekly
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKey = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :label, :last_used_at, :limit, :limit_reset, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKey = Struct.new(:created_at, :created_by, :creator_user_id, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :label, :last_used_at, :limit, :limit_remaining, :limit_reset, :limits, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :usage, :usage_daily, :usage_details, :usage_monthly, :usage_weekly, :workspace_id, keyword_init: true)
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
     # @!attribute [rw] expires_at
@@ -311,8 +315,12 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] limit
     #   @return [Float, nil]
+    # @!attribute [rw] limit_remaining
+    #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] prefix
@@ -326,18 +334,18 @@ module Phaseo
     # @!attribute [rw] updated_at
     #   @return [String, nil]
     # @!attribute [rw] usage
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] usage_daily
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] usage_details
-    #   @return [Hash{String => Object}, nil]
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] usage_monthly
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] usage_weekly
-    #   @return [Float, nil]
+    #   @return [Float]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKeyWithValue = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :key, :label, :last_used_at, :limit, :limit_reset, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKeyWithValue = Struct.new(:created_at, :created_by, :creator_user_id, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :key, :label, :last_used_at, :limit, :limit_remaining, :limit_reset, :limits, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :usage, :usage_daily, :usage_details, :usage_monthly, :usage_weekly, :workspace_id, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyWithValueResponse = Struct.new(:data, keyword_init: true)
@@ -1377,6 +1385,102 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     GatewayDatetimeToolDefinition = Struct.new(:parameters, :timezone, :type, keyword_init: true)
+    # @!attribute [rw] comment
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] rating
+    #   @return [String, nil]
+    # @!attribute [rw] reason
+    #   @return [String, nil]
+    # @!attribute [rw] reason_tags
+    #   @return [Array<String>]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] score
+    #   @return [Float, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    GatewayFeedback = Struct.new(:comment, :created_at, :created_by_user_id, :end_user_id, :id, :metadata, :metadata_dimensions, :preset_id, :rating, :reason, :reason_tags, :request_id, :score, :session_id, :source, :test_run_id, :workspace_id, keyword_init: true)
+    # @!attribute [rw] comment
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] rating
+    #   @return [String, nil]
+    # @!attribute [rw] reason
+    #   @return [String, nil]
+    # @!attribute [rw] reason_tags
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] score
+    #   @return [Float, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String, nil]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    GatewayFeedbackCreateRequest = Struct.new(:comment, :end_user_id, :metadata, :metadata_dimensions, :preset_id, :rating, :reason, :reason_tags, :request_id, :score, :session_id, :source, :test_run_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GatewayFeedbackListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GatewayFeedbackResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] group_by
+    #   @return [String]
+    GatewayFeedbackSummaryResponse = Struct.new(:data, :group_by, keyword_init: true)
+    # @!attribute [rw] average_score
+    #   @return [Float, nil]
+    # @!attribute [rw] count
+    #   @return [Integer]
+    # @!attribute [rw] last_feedback_at
+    #   @return [String, nil]
+    # @!attribute [rw] metadata_key
+    #   @return [String, nil]
+    # @!attribute [rw] metadata_value
+    #   @return [String, nil]
+    # @!attribute [rw] negative
+    #   @return [Integer]
+    # @!attribute [rw] partial
+    #   @return [Integer]
+    # @!attribute [rw] positive
+    #   @return [Integer]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] ratings
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    GatewayFeedbackSummaryRow = Struct.new(:average_score, :count, :last_feedback_at, :metadata_key, :metadata_value, :negative, :partial, :positive, :preset_id, :ratings, :test_run_id, keyword_init: true)
     # @!attribute [rw] input
     #   @return [Array<String>]
     # @!attribute [rw] output
@@ -1437,6 +1541,74 @@ module Phaseo
     # @!attribute [rw] total
     #   @return [Integer]
     GatewayModelsResponse = Struct.new(:availability_mode, :limit, :models, :offset, :ok, :total, keyword_init: true)
+    # @!attribute [rw] category
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] event_name
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] numeric_value
+    #   @return [Float, nil]
+    # @!attribute [rw] occurred_at
+    #   @return [String]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    # @!attribute [rw] value
+    #   @return [Object, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    GatewayObservabilityEvent = Struct.new(:category, :created_at, :created_by_user_id, :end_user_id, :event_name, :id, :metadata, :metadata_dimensions, :numeric_value, :occurred_at, :preset_id, :request_id, :session_id, :source, :test_run_id, :value, :workspace_id, keyword_init: true)
+    # @!attribute [rw] category
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] event_name
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] numeric_value
+    #   @return [Float, nil]
+    # @!attribute [rw] occurred_at
+    #   @return [String, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String, nil]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    # @!attribute [rw] value
+    #   @return [Object, nil]
+    GatewayObservabilityEventCreateRequest = Struct.new(:category, :end_user_id, :event_name, :metadata, :metadata_dimensions, :numeric_value, :occurred_at, :preset_id, :request_id, :session_id, :source, :test_run_id, :value, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GatewayObservabilityEventListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GatewayObservabilityEventResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] meters
     #   @return [Hash{String => Object}]
     # @!attribute [rw] pricing_plan
@@ -1444,6 +1616,79 @@ module Phaseo
     GatewayPricing = Struct.new(:meters, :pricing_plan, keyword_init: true)
     GatewayPricingMeter = Object
     GatewayProviderAvailabilityReason = Object
+    # @!attribute [rw] auth_method
+    #   @return [String, nil]
+    # @!attribute [rw] byok
+    #   @return [Boolean, nil]
+    # @!attribute [rw] canonical_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] currency
+    #   @return [String, nil]
+    # @!attribute [rw] endpoint
+    #   @return [String, nil]
+    # @!attribute [rw] error_code
+    #   @return [String, nil]
+    # @!attribute [rw] finish_reason
+    #   @return [String, nil]
+    # @!attribute [rw] generation_ms
+    #   @return [Float, nil]
+    # @!attribute [rw] key_id
+    #   @return [String, nil]
+    # @!attribute [rw] latency_ms
+    #   @return [Float, nil]
+    # @!attribute [rw] location
+    #   @return [String, nil]
+    # @!attribute [rw] model_id
+    #   @return [String, nil]
+    # @!attribute [rw] native_response_id
+    #   @return [String, nil]
+    # @!attribute [rw] oauth_client_id
+    #   @return [String, nil]
+    # @!attribute [rw] pricing_lines
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] provider
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] requested_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] routed_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] status_code
+    #   @return [Integer, nil]
+    # @!attribute [rw] stream
+    #   @return [Boolean, nil]
+    # @!attribute [rw] success
+    #   @return [Boolean, nil]
+    # @!attribute [rw] throughput
+    #   @return [Float, nil]
+    # @!attribute [rw] usage
+    #   @return [Hash{String => Object}, nil]
+    GatewayRequestLog = Struct.new(:auth_method, :byok, :canonical_model_id, :cost_nanos, :created_at, :currency, :endpoint, :error_code, :finish_reason, :generation_ms, :key_id, :latency_ms, :location, :model_id, :native_response_id, :oauth_client_id, :pricing_lines, :provider, :request_id, :requested_model_id, :routed_model_id, :status_code, :stream, :success, :throughput, :usage, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] from_time
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Integer]
+    # @!attribute [rw] offset
+    #   @return [Integer]
+    # @!attribute [rw] ok
+    #   @return [String]
+    # @!attribute [rw] to_time
+    #   @return [String, nil]
+    # @!attribute [rw] total
+    #   @return [Integer]
+    GatewayRequestLogListResponse = Struct.new(:data, :from_time, :limit, :offset, :ok, :to_time, :total, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] ok
+    #   @return [String]
+    GatewayRequestLogResponse = Struct.new(:data, :ok, keyword_init: true)
     GatewayRoutingStatus = Object
     # @!attribute [rw] max_chars
     #   @return [Integer, nil]
@@ -2716,6 +2961,82 @@ module Phaseo
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     PresetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] baseline_preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] completed_at
+    #   @return [String, nil]
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] dataset_name
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] started_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] summary
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] updated_at
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    PresetTestRun = Struct.new(:baseline_preset_id, :completed_at, :config, :created_at, :created_by_user_id, :dataset_name, :description, :id, :name, :preset_id, :started_at, :status, :summary, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] baseline_preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] completed_at
+    #   @return [String, nil]
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] dataset_name
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] started_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    # @!attribute [rw] summary
+    #   @return [Hash{String => Object}, nil]
+    PresetTestRunCreateRequest = Struct.new(:baseline_preset_id, :completed_at, :config, :dataset_name, :description, :name, :preset_id, :started_at, :status, :summary, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] feedback_summary
+    #   @return [Hash{String => Object}, nil]
+    PresetTestRunDetailResponse = Struct.new(:data, :feedback_summary, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    PresetTestRunListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetTestRunResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] completed_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] started_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    # @!attribute [rw] summary
+    #   @return [Hash{String => Object}, nil]
+    PresetTestRunUpdateRequest = Struct.new(:completed_at, :description, :name, :started_at, :status, :summary, keyword_init: true)
     # @!attribute [rw] config
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] description
@@ -3747,6 +4068,57 @@ module Phaseo
     # @!attribute [rw] payment_method_id
     #   @return [String, nil]
     WorkspaceAutoTopUpUpdate = Struct.new(:amount_nanos, :balance_threshold_nanos, :enabled, :payment_method_id, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] exceeded
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] interval
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Float]
+    # @!attribute [rw] limit_nanos
+    #   @return [Integer]
+    # @!attribute [rw] remaining
+    #   @return [Float]
+    # @!attribute [rw] remaining_nanos
+    #   @return [Integer]
+    # @!attribute [rw] reset_at
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String]
+    # @!attribute [rw] usage
+    #   @return [Float]
+    # @!attribute [rw] usage_nanos
+    #   @return [Integer]
+    # @!attribute [rw] window_start
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceBudget = Struct.new(:created_at, :created_by, :exceeded, :id, :interval, :limit, :limit_nanos, :remaining, :remaining_nanos, :reset_at, :updated_at, :usage, :usage_nanos, :window_start, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceBudgetDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] interval
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Float]
+    WorkspaceBudgetInput = Struct.new(:interval, :limit, keyword_init: true)
+    WorkspaceBudgetInterval = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceBudgetListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceBudgetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] interval
+    #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    WorkspaceBudgetUpdateInput = Struct.new(:interval, :limit, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] slug

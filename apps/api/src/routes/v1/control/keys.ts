@@ -15,7 +15,6 @@ import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 import { loadOAuthClient } from "@/lib/oauth/service";
 import { internalServerError, requireCapability, type ManagementRouteAuth } from "./route-helpers";
 import { CHAT_MANAGED_KEY_NAME, enforceWorkspaceKeyLimit } from "./management-helpers";
-import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 
 type KeyRow = {
 	id: string;
@@ -258,6 +257,16 @@ function formatApiKey(row: KeyRow, usage?: KeyUsageRow) {
 		last_used_at: usage?.last_used_at ?? row.last_used_at ?? null,
 		expires_at: row.expires_at ?? null,
 	};
+}
+
+async function loadKeyUsage(workspaceId: string, keyIds: string[]): Promise<Map<string, KeyUsageRow>> {
+	if (keyIds.length === 0) return new Map();
+	const { data, error } = await getSupabaseAdmin().rpc("gateway_workspace_key_usage", {
+		p_workspace_id: workspaceId,
+		p_key_ids: keyIds,
+	});
+	if (error) throw error;
+	return new Map(((data ?? []) as KeyUsageRow[]).map((row) => [row.key_id, row]));
 }
 
 async function auditApiKey(
@@ -814,97 +823,6 @@ async function handleUpdateKey(req: Request) {
 	}
 }
 
-async function handleRotateKey(req: Request) {
-	const auth = await guardManagementAuth(req, { useKvCache: false });
-	if (!auth.ok) return (auth as GuardErr).response;
-	const scopeError = requireCapability(auth.value, CAPABILITIES.KEYS_WRITE);
-	if (scopeError) return scopeError;
-	const pathSegments = new URL(req.url).pathname.split("/").filter(Boolean);
-	const keyId = pathSegments.at(-1) === "rotate" ? decodeURIComponent(pathSegments.at(-2) ?? "").trim() : null;
-	if (!keyId) return json({ error: "bad_request", message: "Key id is required" }, 400, { "Cache-Control": "no-store" });
-	const roleError = await requireOAuthWorkspaceAdmin(auth.value, auth.value.workspaceId);
-	if (roleError) return roleError;
-
-	let body: Record<string, unknown> = {};
-	try {
-		const rawBody = await req.text();
-		if (rawBody.trim()) body = JSON.parse(rawBody) as Record<string, unknown>;
-	} catch (error) {
-		if (error instanceof SyntaxError) return json({ error: "invalid_json", message: "Invalid JSON body" }, 400, { "Cache-Control": "no-store" });
-		throw error;
-	}
-	const previousExpiryRaw = Object.prototype.hasOwnProperty.call(body, "previous_key_expires_at")
-		? body.previous_key_expires_at
-		: body.previousKeyExpiresAt;
-	const previousExpiry = resolveExpiresAt(previousExpiryRaw);
-	if (previousExpiry.ok === false) return json({ error: "bad_request", message: `previous_key_${previousExpiry.message}` }, 400, { "Cache-Control": "no-store" });
-
-	try {
-		const supabase = getSupabaseAdmin();
-		const lookupColumn = resolveKeyLookupColumn(keyId);
-		const { data: existing, error: fetchError } = await supabase.from("keys").select(KEY_WITH_KID_COLUMNS)
-			.eq("workspace_id", auth.value.workspaceId).neq("name", CHAT_MANAGED_KEY_NAME).eq(lookupColumn, keyId).maybeSingle();
-		if (fetchError) throw fetchError;
-		if (!existing) return json({ error: "not_found", message: "API key not found" }, 404, { "Cache-Control": "no-store" });
-		if (String(existing.status ?? "").toLowerCase() === "deleted") return json({ error: "conflict", message: "Deleted API keys cannot be rotated" }, 409, { "Cache-Control": "no-store" });
-		await enforceWorkspaceKeyLimit(auth.value.workspaceId);
-
-		const creatorUserId = auth.value.userId ?? await resolveWorkspaceOwnerUserId(auth.value.workspaceId);
-		const pepper = resolveActiveKeyPepper(getBindings());
-		if (!pepper) return json({ error: "server_misconfig_missing_pepper", message: "KEY_PEPPER_ACTIVE is not configured" }, 503, { "Cache-Control": "no-store" });
-		const generated = generateGatewayKey();
-		const requestedName = String(body.new_name ?? body.newName ?? "").trim();
-		const replacementName = requestedName || `${String(existing.name ?? "API key")} (rotated)`;
-		const effectivePreviousExpiry = previousExpiry.value === undefined
-			? existing.expires_at ?? null
-			: previousExpiry.value;
-		const insertPayload = {
-			workspace_id: auth.value.workspaceId,
-			name: replacementName,
-			scopes: "[]",
-			kid: generated.kid,
-			hash: await hmacSecret(generated.secret, pepper),
-			prefix: generated.prefix,
-			status: "active",
-			created_by: creatorUserId,
-			daily_limit_requests: Number(existing.daily_limit_requests ?? 0),
-			weekly_limit_requests: Number(existing.weekly_limit_requests ?? 0),
-			monthly_limit_requests: Number(existing.monthly_limit_requests ?? 0),
-			daily_limit_cost_nanos: Number(existing.daily_limit_cost_nanos ?? 0),
-			weekly_limit_cost_nanos: Number(existing.weekly_limit_cost_nanos ?? 0),
-			monthly_limit_cost_nanos: Number(existing.monthly_limit_cost_nanos ?? 0),
-			soft_blocked: Boolean(existing.soft_blocked),
-		};
-		const { data: replacement, error: insertError } = await supabase.from("keys").insert(insertPayload).select(KEY_COLUMNS).maybeSingle();
-		if (insertError || !replacement) throw insertError ?? new Error("Failed to create replacement API key");
-
-		if (previousExpiry.value !== undefined) {
-			const { error: updateError } = await supabase.from("keys").update({ expires_at: previousExpiry.value })
-				.eq("id", existing.id).eq("workspace_id", auth.value.workspaceId);
-			if (updateError) {
-				await supabase.from("keys").delete().eq("id", replacement.id).eq("workspace_id", auth.value.workspaceId);
-				throw updateError;
-			}
-			await invalidateKeyCache({ id: existing.id, kid: existing.kid ?? null });
-		}
-
-		await recordWorkspaceAuditEvent(supabase, {
-			workspaceId: auth.value.workspaceId,
-			actorUserId: creatorUserId,
-			action: "api_key.rotated",
-			targetType: "api_key",
-			targetId: existing.id,
-			targetName: existing.name,
-			metadata: { replacement_key_id: replacement.id, replacement_key_name: replacementName, previous_key_expires_at: effectivePreviousExpiry },
-		});
-		return json({
-			data: { ...formatApiKey(replacement as KeyRow), key: generated.plaintext },
-			previous_key_expires_at: effectivePreviousExpiry,
-		}, 201, { "Cache-Control": "no-store" });
-	} catch (error) {
-		return internalServerError("keys.rotate", error);
-	}
-}
 
 async function handleDeleteKey(req: Request) {
 	const auth = await guardManagementAuth(req, { useKvCache: false });
@@ -1115,5 +1033,4 @@ keysRoutes.get("/:id", withRuntime(handleGetKey));
 keysRoutes.patch("/:id", withRuntime(handleUpdateKey));
 keysRoutes.post("/:id/rotate", withRuntime(handleRotateKey));
 keysRoutes.delete("/:id", withRuntime(handleDeleteKey));
-keysRoutes.post("/:id/rotate", withRuntime(handleRotateKey));
 keysRoutes.post("/:id/invalidate", withRuntime(handleInvalidateKey));

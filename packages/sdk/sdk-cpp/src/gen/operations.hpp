@@ -94,6 +94,16 @@ inline Response CreateEmbedding(Client& client, const std::map<std::string, std:
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateGatewayFeedback(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/feedback";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateGatewayObservabilityEvent(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/events";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/guardrails";
 	return client.request("POST", resolved_path, body);
@@ -141,6 +151,16 @@ inline Response CreateParse(Client& client, const std::map<std::string, std::str
 
 inline Response CreatePreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreatePresetTestRun(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/preset-test-runs";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -196,6 +216,11 @@ inline Response CreateWebhookEndpoint(Client& client, const std::map<std::string
 
 inline Response CreateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateWorkspaceBudget(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/budgets";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -264,6 +289,11 @@ inline Response DeletePreset(Client& client, const std::map<std::string, std::st
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeleteProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteVideo(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/videos/" + (path.count("video_id") ? path.at("video_id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -281,6 +311,11 @@ inline Response DeleteWebhookEndpoint(Client& client, const std::map<std::string
 
 inline Response DeleteWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWorkspaceBudget(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/budgets/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -369,6 +404,11 @@ inline Response GetDynamicRoute(Client& client, const std::map<std::string, std:
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response GetGatewayRequestLog(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/logs/" + (path.count("requestId") ? path.at("requestId") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response GetGeneration(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/generations";
 	return client.request("GET", resolved_path, body);
@@ -424,6 +464,16 @@ inline Response GetPresetPublisher(Client& client, const std::map<std::string, s
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response GetPresetTestRun(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/preset-test-runs/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response GetProviderDerankStatus(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/health/providers/" + (path.count("provider_id") ? path.at("provider_id") : std::string{}) + "/derank";
 	return client.request("GET", resolved_path, body);
@@ -456,6 +506,11 @@ inline Response GetWebhookEndpoint(Client& client, const std::map<std::string, s
 
 inline Response GetWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetWorkspaceBudget(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/budgets/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -564,6 +619,21 @@ inline Response ListFiles(Client& client, const std::map<std::string, std::strin
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListGatewayFeedback(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/feedback";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListGatewayObservabilityEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/events";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListGatewayRequestLogs(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/logs";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
 	return client.request("GET", resolved_path, body);
@@ -611,6 +681,11 @@ inline Response ListOrganisations(Client& client, const std::map<std::string, st
 
 inline Response ListPresets(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListPresetTestRuns(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/preset-test-runs";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -671,6 +746,11 @@ inline Response ListWorkspaceApps(Client& client, const std::map<std::string, st
 
 inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/audit-events";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListWorkspaceBudgets(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/budgets";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -759,6 +839,11 @@ inline Response RemoveWorkspaceMembers(Client& client, const std::map<std::strin
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response ReorderProviderCredentials(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/reorder";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response ReplaceDynamicRouteKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
 	return client.request("PUT", resolved_path, body);
@@ -829,6 +914,11 @@ inline Response SetWorkspaceDepartmentMember(Client& client, const std::map<std:
 	return client.request("PUT", resolved_path, body);
 }
 
+inline Response SummarizeGatewayFeedback(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/feedback/summary";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response TestWorkspaceNotificationDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/notifications/destinations/" + (path.count("id") ? path.at("id") : std::string{}) + "/test";
 	return client.request("POST", resolved_path, body);
@@ -894,6 +984,16 @@ inline Response UpdatePresetPublisher(Client& client, const std::map<std::string
 	return client.request("PUT", resolved_path, body);
 }
 
+inline Response UpdatePresetTestRun(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/preset-test-runs/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
 inline Response UpdateWebhookEndpoint(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/webhook-endpoints/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
@@ -906,6 +1006,11 @@ inline Response UpdateWorkspace(Client& client, const std::map<std::string, std:
 
 inline Response UpdateWorkspaceApp(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/apps/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceBudget(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/budgets/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

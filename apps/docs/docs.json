@@ -751,6 +751,31 @@
 											"v1/api-reference/endpoint/app-update",
 											"v1/api-reference/endpoint/app-merge"
 										]
+									},
+									{
+										"group": "Logs",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/logs-list",
+											"v1/api-reference/endpoint/logs-get"
+										]
+									},
+									{
+										"group": "Feedback & Evaluations",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/feedback-list",
+											"v1/api-reference/endpoint/feedback-create",
+											"v1/api-reference/endpoint/feedback-summary",
+											"v1/api-reference/endpoint/events-list",
+											"v1/api-reference/endpoint/events-create",
+											"v1/api-reference/endpoint/preset-test-runs-list",
+											"v1/api-reference/endpoint/preset-test-run-create",
+											"v1/api-reference/endpoint/preset-test-run-get",
+											"v1/api-reference/endpoint/preset-test-run-update"
+										]
 									}
 								]
 							}

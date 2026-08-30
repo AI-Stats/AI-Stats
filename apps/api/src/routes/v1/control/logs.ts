@@ -209,8 +209,8 @@ async function handleListLogs(req: Request) {
 			total: count ?? 0,
 			limit,
 			offset,
-			from: timeRange.from,
-			to: timeRange.to,
+			from_time: timeRange.from,
+			to_time: timeRange.to,
 		}, 200, { "Cache-Control": "no-store" });
 	} catch (error) {
 		console.error("logs_list_failed", { message: error instanceof Error ? error.message : String(error) });

@@ -129,6 +129,20 @@ function createEmbedding(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createGatewayFeedback(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/feedback";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createGatewayObservabilityEvent(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/events";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -196,6 +210,20 @@ function createPreset(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/presets";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createPresetTestRun(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/preset-test-runs";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -273,6 +301,13 @@ function createWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createWorkspaceBudget(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/budgets";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -367,6 +402,13 @@ function deletePreset(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deleteProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteVideo(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -392,6 +434,13 @@ function deleteWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWorkspaceBudget(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/budgets/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -514,6 +563,13 @@ function getDynamicRoute(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function getGatewayRequestLog(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/logs/" . rawurlencode((string)($path["requestId"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function getGeneration(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -591,6 +647,20 @@ function getPresetPublisher(Client $client, ?array $path = null, ?array $query =
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function getPresetTestRun(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/preset-test-runs/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function getProviderDerankStatus(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -637,6 +707,13 @@ function getWorkspace(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getWorkspaceBudget(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/budgets/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -787,6 +864,27 @@ function listFiles(Client $client, ?array $path = null, ?array $query = null, ?a
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listGatewayFeedback(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/feedback";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listGatewayObservabilityEvents(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/events";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listGatewayRequestLogs(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/logs";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -854,6 +952,13 @@ function listPresets(Client $client, ?array $path = null, ?array $query = null, 
 {
 	$path = $path ?? [];
 	$resolvedPath = "/presets";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listPresetTestRuns(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/preset-test-runs";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -938,6 +1043,13 @@ function listWorkspaceAuditEvents(Client $client, ?array $path = null, ?array $q
 {
 	$path = $path ?? [];
 	$resolvedPath = "/audit-events";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listWorkspaceBudgets(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/budgets";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -1060,6 +1172,13 @@ function removeWorkspaceMembers(Client $client, ?array $path = null, ?array $que
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function reorderProviderCredentials(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/reorder";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function replaceDynamicRouteKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1158,6 +1277,13 @@ function setWorkspaceDepartmentMember(Client $client, ?array $path = null, ?arra
 	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
 }
 
+function summarizeGatewayFeedback(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/feedback/summary";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function testWorkspaceNotificationDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1249,6 +1375,20 @@ function updatePresetPublisher(Client $client, ?array $path = null, ?array $quer
 	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
 }
 
+function updatePresetTestRun(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/preset-test-runs/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
 function updateWebhookEndpoint(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1267,6 +1407,13 @@ function updateWorkspaceApp(Client $client, ?array $path = null, ?array $query =
 {
 	$path = $path ?? [];
 	$resolvedPath = "/apps/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceBudget(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/budgets/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

@@ -95,6 +95,16 @@ pub fn createEmbedding<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createGatewayFeedback<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/feedback");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createGatewayObservabilityEvent<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/events");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/guardrails");
 	client.request("POST", &resolved_path, body)
@@ -142,6 +152,16 @@ pub fn createParse<T: Transport>(client: &Client<T>, path: &HashMap<String, Stri
 
 pub fn createPreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/presets");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createPresetTestRun<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/preset-test-runs");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/byok");
 	client.request("POST", &resolved_path, body)
 }
 
@@ -197,6 +217,11 @@ pub fn createWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn createWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/workspaces");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createWorkspaceBudget<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/budgets");
 	client.request("POST", &resolved_path, body)
 }
 
@@ -265,6 +290,11 @@ pub fn deletePreset<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deleteProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/byok/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteVideo<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/videos/{}", path.get("video_id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -282,6 +312,11 @@ pub fn deleteWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn deleteWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWorkspaceBudget<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/budgets/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -370,6 +405,11 @@ pub fn getDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn getGatewayRequestLog<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/logs/{}", path.get("requestId").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn getGeneration<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/generations");
 	client.request("GET", &resolved_path, body)
@@ -425,6 +465,16 @@ pub fn getPresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn getPresetTestRun<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/preset-test-runs/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/byok/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn getProviderDerankStatus<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/health/providers/{}/derank", path.get("provider_id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -457,6 +507,11 @@ pub fn getWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 
 pub fn getWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getWorkspaceBudget<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/budgets/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -565,6 +620,21 @@ pub fn listFiles<T: Transport>(client: &Client<T>, path: &HashMap<String, String
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listGatewayFeedback<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/feedback");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listGatewayObservabilityEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/events");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listGatewayRequestLogs<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/logs");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/guardrails/{}/keys", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -612,6 +682,11 @@ pub fn listOrganisations<T: Transport>(client: &Client<T>, path: &HashMap<String
 
 pub fn listPresets<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/presets");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listPresetTestRuns<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/preset-test-runs");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -672,6 +747,11 @@ pub fn listWorkspaceApps<T: Transport>(client: &Client<T>, path: &HashMap<String
 
 pub fn listWorkspaceAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/audit-events");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listWorkspaceBudgets<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/budgets");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -760,6 +840,11 @@ pub fn removeWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<S
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn reorderProviderCredentials<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/byok/reorder");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn replaceDynamicRouteKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}/keys", path.get("id").cloned().unwrap_or_default());
 	client.request("PUT", &resolved_path, body)
@@ -830,6 +915,11 @@ pub fn setWorkspaceDepartmentMember<T: Transport>(client: &Client<T>, path: &Has
 	client.request("PUT", &resolved_path, body)
 }
 
+pub fn summarizeGatewayFeedback<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/feedback/summary");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn testWorkspaceNotificationDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/notifications/destinations/{}/test", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
@@ -895,6 +985,16 @@ pub fn updatePresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<St
 	client.request("PUT", &resolved_path, body)
 }
 
+pub fn updatePresetTestRun<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/preset-test-runs/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/byok/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
 pub fn updateWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/webhook-endpoints/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
@@ -907,6 +1007,11 @@ pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn updateWorkspaceApp<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/apps/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceBudget<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/budgets/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

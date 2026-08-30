@@ -116,18 +116,20 @@ struct ApiKey {
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
 	std::optional<double> limit;
+	std::optional<double> limit_remaining;
 	std::optional<std::any> limit_reset;
+	std::map<std::string, std::any> limits;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
-	std::optional<double> usage;
-	std::optional<double> usage_daily;
+	double usage;
+	double usage_daily;
 	std::map<std::string, std::any> usage_details;
-	std::optional<double> usage_monthly;
-	std::optional<double> usage_weekly;
+	double usage_monthly;
+	double usage_weekly;
 	std::string workspace_id;
 };
 
@@ -224,18 +226,20 @@ struct ApiKeyWithValue {
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
 	std::optional<double> limit;
+	std::optional<double> limit_remaining;
 	std::optional<std::any> limit_reset;
+	std::map<std::string, std::any> limits;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
-	std::optional<double> usage;
-	std::optional<double> usage_daily;
+	double usage;
+	double usage_daily;
 	std::map<std::string, std::any> usage_details;
-	std::optional<double> usage_monthly;
-	std::optional<double> usage_weekly;
+	double usage_monthly;
+	double usage_weekly;
 	std::string workspace_id;
 };
 
@@ -963,6 +967,69 @@ struct GatewayDatetimeToolDefinition {
 	std::any type;
 };
 
+struct GatewayFeedback {
+	std::optional<std::string> comment;
+	std::string created_at;
+	std::optional<std::string> created_by_user_id;
+	std::optional<std::string> end_user_id;
+	std::string id;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::optional<std::string> preset_id;
+	std::optional<std::string> rating;
+	std::optional<std::string> reason;
+	std::vector<std::string> reason_tags;
+	std::optional<std::string> request_id;
+	std::optional<double> score;
+	std::optional<std::string> session_id;
+	std::any source;
+	std::optional<std::string> test_run_id;
+	std::string workspace_id;
+};
+
+struct GatewayFeedbackCreateRequest {
+	std::string comment;
+	std::string end_user_id;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::string preset_id;
+	std::string rating;
+	std::string reason;
+	std::vector<std::string> reason_tags;
+	std::string request_id;
+	std::optional<double> score;
+	std::string session_id;
+	std::any source;
+	std::string test_run_id;
+};
+
+struct GatewayFeedbackListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GatewayFeedbackResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GatewayFeedbackSummaryResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::any group_by;
+};
+
+struct GatewayFeedbackSummaryRow {
+	std::optional<double> average_score;
+	int count;
+	std::optional<std::string> last_feedback_at;
+	std::string metadata_key;
+	std::optional<std::string> metadata_value;
+	int negative;
+	int partial;
+	int positive;
+	std::optional<std::string> preset_id;
+	std::map<std::string, std::any> ratings;
+	std::optional<std::string> test_run_id;
+};
+
 struct GatewayModalities {
 	std::vector<std::string> input;
 	std::vector<std::string> output;
@@ -1007,6 +1074,50 @@ struct GatewayModelsResponse {
 	int total;
 };
 
+struct GatewayObservabilityEvent {
+	std::any category;
+	std::string created_at;
+	std::optional<std::string> created_by_user_id;
+	std::optional<std::string> end_user_id;
+	std::string event_name;
+	std::string id;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::optional<double> numeric_value;
+	std::string occurred_at;
+	std::optional<std::string> preset_id;
+	std::optional<std::string> request_id;
+	std::optional<std::string> session_id;
+	std::any source;
+	std::optional<std::string> test_run_id;
+	std::optional<std::any> value;
+	std::string workspace_id;
+};
+
+struct GatewayObservabilityEventCreateRequest {
+	std::any category;
+	std::string end_user_id;
+	std::string event_name;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::optional<double> numeric_value;
+	std::string occurred_at;
+	std::string preset_id;
+	std::string request_id;
+	std::string session_id;
+	std::any source;
+	std::string test_run_id;
+	std::any value;
+};
+
+struct GatewayObservabilityEventListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GatewayObservabilityEventResponse {
+	std::map<std::string, std::any> data;
+};
+
 struct GatewayPricing {
 	std::map<std::string, std::any> meters;
 	std::any pricing_plan;
@@ -1015,6 +1126,50 @@ struct GatewayPricing {
 using GatewayPricingMeter = std::any;
 
 using GatewayProviderAvailabilityReason = std::any;
+
+struct GatewayRequestLog {
+	std::optional<std::string> auth_method;
+	std::optional<bool> byok;
+	std::optional<std::string> canonical_model_id;
+	std::optional<int> cost_nanos;
+	std::string created_at;
+	std::optional<std::string> currency;
+	std::optional<std::string> endpoint;
+	std::optional<std::string> error_code;
+	std::optional<std::string> finish_reason;
+	std::optional<double> generation_ms;
+	std::optional<std::string> key_id;
+	std::optional<double> latency_ms;
+	std::optional<std::string> location;
+	std::optional<std::string> model_id;
+	std::optional<std::string> native_response_id;
+	std::optional<std::string> oauth_client_id;
+	std::optional<std::vector<std::map<std::string, std::any>>> pricing_lines;
+	std::optional<std::string> provider;
+	std::string request_id;
+	std::optional<std::string> requested_model_id;
+	std::optional<std::string> routed_model_id;
+	std::optional<int> status_code;
+	std::optional<bool> stream;
+	std::optional<bool> success;
+	std::optional<double> throughput;
+	std::optional<std::map<std::string, std::any>> usage;
+};
+
+struct GatewayRequestLogListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::string from_time;
+	int limit;
+	int offset;
+	std::any ok;
+	std::optional<std::string> to_time;
+	int total;
+};
+
+struct GatewayRequestLogResponse {
+	std::map<std::string, std::any> data;
+	std::any ok;
+};
 
 using GatewayRoutingStatus = std::any;
 
@@ -1908,6 +2063,59 @@ struct PresetResponse {
 	std::map<std::string, std::any> data;
 };
 
+struct PresetTestRun {
+	std::optional<std::string> baseline_preset_id;
+	std::optional<std::string> completed_at;
+	std::map<std::string, std::any> config;
+	std::string created_at;
+	std::optional<std::string> created_by_user_id;
+	std::optional<std::string> dataset_name;
+	std::optional<std::string> description;
+	std::string id;
+	std::optional<std::string> name;
+	std::optional<std::string> preset_id;
+	std::optional<std::string> started_at;
+	std::any status;
+	std::map<std::string, std::any> summary;
+	std::string updated_at;
+	std::string workspace_id;
+};
+
+struct PresetTestRunCreateRequest {
+	std::string baseline_preset_id;
+	std::string completed_at;
+	std::map<std::string, std::any> config;
+	std::string dataset_name;
+	std::string description;
+	std::string name;
+	std::string preset_id;
+	std::string started_at;
+	std::any status;
+	std::map<std::string, std::any> summary;
+};
+
+struct PresetTestRunDetailResponse {
+	std::map<std::string, std::any> data;
+	std::optional<std::map<std::string, std::any>> feedback_summary;
+};
+
+struct PresetTestRunListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct PresetTestRunResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetTestRunUpdateRequest {
+	std::optional<std::string> completed_at;
+	std::optional<std::string> description;
+	std::optional<std::string> name;
+	std::optional<std::string> started_at;
+	std::any status;
+	std::map<std::string, std::any> summary;
+};
+
 struct PresetUpdateRequest {
 	std::map<std::string, std::any> config;
 	std::optional<std::string> description;
@@ -2625,6 +2833,48 @@ struct WorkspaceAutoTopUpUpdate {
 	std::optional<int> balance_threshold_nanos;
 	bool enabled;
 	std::optional<std::string> payment_method_id;
+};
+
+struct WorkspaceBudget {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	bool exceeded;
+	std::string id;
+	std::any interval;
+	double limit;
+	int limit_nanos;
+	double remaining;
+	int remaining_nanos;
+	std::optional<std::string> reset_at;
+	std::string updated_at;
+	double usage;
+	int usage_nanos;
+	std::optional<std::string> window_start;
+	std::string workspace_id;
+};
+
+struct WorkspaceBudgetDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceBudgetInput {
+	std::any interval;
+	double limit;
+};
+
+using WorkspaceBudgetInterval = std::any;
+
+struct WorkspaceBudgetListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceBudgetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceBudgetUpdateInput {
+	std::any interval;
+	std::optional<double> limit;
 };
 
 struct WorkspaceCreateRequest {

@@ -34,6 +34,8 @@ import { identityRoutes } from "./identity";
 import { enterpriseDirectoryRoutes } from "./enterprise-directory";
 import { notificationRoutes } from "./notifications";
 import { appRoutes } from "./apps";
+import { providerCredentialsRoutes } from "./provider-credentials";
+import { budgetsRoutes } from "./budgets";
 import {
 	feedbackRoutes,
 	observabilityEventsRoutes,
@@ -74,6 +76,8 @@ platformRouter.route("/identity", identityRoutes);
 platformRouter.route("/identity", enterpriseDirectoryRoutes);
 platformRouter.route("/notifications", notificationRoutes);
 platformRouter.route("/apps", appRoutes);
+platformRouter.route("/byok", providerCredentialsRoutes);
+platformRouter.route("/budgets", budgetsRoutes);
 platformRouter.route("/me", meRoutes);
 platformRouter.route("/", placeholdersRoutes);
 

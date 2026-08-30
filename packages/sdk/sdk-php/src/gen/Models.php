@@ -201,8 +201,12 @@ class ApiKey
 	public $last_used_at;
 	/** @var float|null */
 	public $limit;
+	/** @var float|null */
+	public $limit_remaining;
 	/** @var string|null */
 	public $limit_reset;
+	/** @var array<string, mixed> */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -215,15 +219,15 @@ class ApiKey
 	public $status;
 	/** @var string|null */
 	public $updated_at;
-	/** @var float|null */
+	/** @var float */
 	public $usage;
-	/** @var float|null */
+	/** @var float */
 	public $usage_daily;
-	/** @var array<string, mixed>|null */
+	/** @var array<string, mixed> */
 	public $usage_details;
-	/** @var float|null */
+	/** @var float */
 	public $usage_monthly;
-	/** @var float|null */
+	/** @var float */
 	public $usage_weekly;
 	/** @var string */
 	public $workspace_id;
@@ -379,8 +383,6 @@ class ApiKeyWithValue
 	public $hash;
 	/** @var string */
 	public $id;
-	/** @var bool|null */
-	public $include_byok_in_limit;
 	/** @var string */
 	public $include_byok_in_limit;
 	/** @var string */
@@ -391,8 +393,12 @@ class ApiKeyWithValue
 	public $last_used_at;
 	/** @var float|null */
 	public $limit;
+	/** @var float|null */
+	public $limit_remaining;
 	/** @var string|null */
 	public $limit_reset;
+	/** @var array<string, mixed> */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -405,15 +411,15 @@ class ApiKeyWithValue
 	public $status;
 	/** @var string|null */
 	public $updated_at;
-	/** @var float|null */
+	/** @var float */
 	public $usage;
-	/** @var float|null */
+	/** @var float */
 	public $usage_daily;
-	/** @var array<string, mixed>|null */
+	/** @var array<string, mixed> */
 	public $usage_details;
-	/** @var float|null */
+	/** @var float */
 	public $usage_monthly;
-	/** @var float|null */
+	/** @var float */
 	public $usage_weekly;
 	/** @var string */
 	public $workspace_id;
@@ -1701,6 +1707,120 @@ class GatewayDatetimeToolDefinition
 	public $type;
 }
 
+class GatewayFeedback
+{
+	/** @var string|null */
+	public $comment;
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by_user_id;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed> */
+	public $metadata;
+	/** @var array<string, mixed> */
+	public $metadata_dimensions;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $rating;
+	/** @var string|null */
+	public $reason;
+	/** @var array */
+	public $reason_tags;
+	/** @var string|null */
+	public $request_id;
+	/** @var float|null */
+	public $score;
+	/** @var string|null */
+	public $session_id;
+	/** @var string */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+	/** @var string */
+	public $workspace_id;
+}
+
+class GatewayFeedbackCreateRequest
+{
+	/** @var string|null */
+	public $comment;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var array<string, mixed>|null */
+	public $metadata;
+	/** @var array<string, mixed>|null */
+	public $metadata_dimensions;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $rating;
+	/** @var string|null */
+	public $reason;
+	/** @var array|null */
+	public $reason_tags;
+	/** @var string|null */
+	public $request_id;
+	/** @var float|null */
+	public $score;
+	/** @var string|null */
+	public $session_id;
+	/** @var string|null */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+}
+
+class GatewayFeedbackListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class GatewayFeedbackResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GatewayFeedbackSummaryResponse
+{
+	/** @var array */
+	public $data;
+	/** @var string */
+	public $group_by;
+}
+
+class GatewayFeedbackSummaryRow
+{
+	/** @var float|null */
+	public $average_score;
+	/** @var int */
+	public $count;
+	/** @var string|null */
+	public $last_feedback_at;
+	/** @var string|null */
+	public $metadata_key;
+	/** @var string|null */
+	public $metadata_value;
+	/** @var int */
+	public $negative;
+	/** @var int */
+	public $partial;
+	/** @var int */
+	public $positive;
+	/** @var string|null */
+	public $preset_id;
+	/** @var array<string, mixed> */
+	public $ratings;
+	/** @var string|null */
+	public $test_run_id;
+}
+
 class GatewayModalities
 {
 	/** @var array */
@@ -1777,6 +1897,86 @@ class GatewayModelsResponse
 	public $total;
 }
 
+class GatewayObservabilityEvent
+{
+	/** @var string */
+	public $category;
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by_user_id;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var string */
+	public $event_name;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed> */
+	public $metadata;
+	/** @var array<string, mixed> */
+	public $metadata_dimensions;
+	/** @var float|null */
+	public $numeric_value;
+	/** @var string */
+	public $occurred_at;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $session_id;
+	/** @var string */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+	/** @var mixed|null */
+	public $value;
+	/** @var string */
+	public $workspace_id;
+}
+
+class GatewayObservabilityEventCreateRequest
+{
+	/** @var string|null */
+	public $category;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var string */
+	public $event_name;
+	/** @var array<string, mixed>|null */
+	public $metadata;
+	/** @var array<string, mixed>|null */
+	public $metadata_dimensions;
+	/** @var float|null */
+	public $numeric_value;
+	/** @var string|null */
+	public $occurred_at;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $session_id;
+	/** @var string|null */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+	/** @var mixed|null */
+	public $value;
+}
+
+class GatewayObservabilityEventListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class GatewayObservabilityEventResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
 class GatewayPricing
 {
 	/** @var array<string, mixed> */
@@ -1788,6 +1988,88 @@ class GatewayPricing
 class GatewayPricingMeter { }
 
 class GatewayProviderAvailabilityReason { }
+
+class GatewayRequestLog
+{
+	/** @var string|null */
+	public $auth_method;
+	/** @var bool|null */
+	public $byok;
+	/** @var string|null */
+	public $canonical_model_id;
+	/** @var int|null */
+	public $cost_nanos;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $currency;
+	/** @var string|null */
+	public $endpoint;
+	/** @var string|null */
+	public $error_code;
+	/** @var string|null */
+	public $finish_reason;
+	/** @var float|null */
+	public $generation_ms;
+	/** @var string|null */
+	public $key_id;
+	/** @var float|null */
+	public $latency_ms;
+	/** @var string|null */
+	public $location;
+	/** @var string|null */
+	public $model_id;
+	/** @var string|null */
+	public $native_response_id;
+	/** @var string|null */
+	public $oauth_client_id;
+	/** @var array|null */
+	public $pricing_lines;
+	/** @var string|null */
+	public $provider;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $requested_model_id;
+	/** @var string|null */
+	public $routed_model_id;
+	/** @var int|null */
+	public $status_code;
+	/** @var bool|null */
+	public $stream;
+	/** @var bool|null */
+	public $success;
+	/** @var float|null */
+	public $throughput;
+	/** @var array<string, mixed>|null */
+	public $usage;
+}
+
+class GatewayRequestLogListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var string */
+	public $from_time;
+	/** @var int */
+	public $limit;
+	/** @var int */
+	public $offset;
+	/** @var string */
+	public $ok;
+	/** @var string|null */
+	public $to_time;
+	/** @var int */
+	public $total;
+}
+
+class GatewayRequestLogResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string */
+	public $ok;
+}
 
 class GatewayRoutingStatus { }
 
@@ -3361,6 +3643,100 @@ class PresetResponse
 	public $data;
 }
 
+class PresetTestRun
+{
+	/** @var string|null */
+	public $baseline_preset_id;
+	/** @var string|null */
+	public $completed_at;
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by_user_id;
+	/** @var string|null */
+	public $dataset_name;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $started_at;
+	/** @var string */
+	public $status;
+	/** @var array<string, mixed> */
+	public $summary;
+	/** @var string */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class PresetTestRunCreateRequest
+{
+	/** @var string|null */
+	public $baseline_preset_id;
+	/** @var string|null */
+	public $completed_at;
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $dataset_name;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $started_at;
+	/** @var string|null */
+	public $status;
+	/** @var array<string, mixed>|null */
+	public $summary;
+}
+
+class PresetTestRunDetailResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var array<string, mixed>|null */
+	public $feedback_summary;
+}
+
+class PresetTestRunListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class PresetTestRunResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetTestRunUpdateRequest
+{
+	/** @var string|null */
+	public $completed_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $started_at;
+	/** @var string|null */
+	public $status;
+	/** @var array<string, mixed>|null */
+	public $summary;
+}
+
 class PresetUpdateRequest
 {
 	/** @var array<string, mixed>|null */
@@ -3457,6 +3833,122 @@ class Provider
 	public $description;
 	/** @var string|null */
 	public $link;
+}
+
+class ProviderCredential
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_model_slugs;
+	/** @var bool|null */
+	public $always_use;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var bool */
+	public $disabled;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $error_message;
+	/** @var string */
+	public $id;
+	/** @var bool */
+	public $is_fallback;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $last_verified_at;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $prefix;
+	/** @var string */
+	public $provider_id;
+	/** @var string */
+	public $routing_mode;
+	/** @var int */
+	public $sort_order;
+	/** @var string|null */
+	public $suffix;
+	/** @var string|null */
+	public $verification_status;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ProviderCredentialCreateRequest
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_models;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $key;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $provider;
+	/** @var string|null */
+	public $routing_mode;
+}
+
+class ProviderCredentialDeleteResponse
+{
+	/** @var bool */
+	public $deleted;
+}
+
+class ProviderCredentialListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class ProviderCredentialReorderRequest
+{
+	/** @var array */
+	public $key_ids;
+	/** @var string */
+	public $provider;
+	/** @var string */
+	public $routing_mode;
+}
+
+class ProviderCredentialReorderResponse
+{
+	/** @var bool */
+	public $reordered;
+}
+
+class ProviderCredentialResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ProviderCredentialRoutingMode { }
+
+class ProviderCredentialUpdateRequest
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_models;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $key;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $routing_mode;
 }
 
 class ProviderOptions
@@ -4511,6 +5003,76 @@ class WorkspaceAutoTopUpUpdate
 	public $enabled;
 	/** @var string|null */
 	public $payment_method_id;
+}
+
+class WorkspaceBudget
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var bool */
+	public $exceeded;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $interval;
+	/** @var float */
+	public $limit;
+	/** @var int */
+	public $limit_nanos;
+	/** @var float */
+	public $remaining;
+	/** @var int */
+	public $remaining_nanos;
+	/** @var string|null */
+	public $reset_at;
+	/** @var string */
+	public $updated_at;
+	/** @var float */
+	public $usage;
+	/** @var int */
+	public $usage_nanos;
+	/** @var string|null */
+	public $window_start;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceBudgetDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceBudgetInput
+{
+	/** @var string */
+	public $interval;
+	/** @var float */
+	public $limit;
+}
+
+class WorkspaceBudgetInterval { }
+
+class WorkspaceBudgetListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceBudgetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceBudgetUpdateInput
+{
+	/** @var string|null */
+	public $interval;
+	/** @var float|null */
+	public $limit;
 }
 
 class WorkspaceCreateRequest
