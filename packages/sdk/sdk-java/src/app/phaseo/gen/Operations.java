@@ -216,6 +216,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object createWorkspaceNotificationDestination(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/destinations";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object createWorkspaceScimToken(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/identity/scim/tokens";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -298,6 +303,11 @@ public final class Operations {
 
 	public static Object deleteWorkspaceInvite(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invites/" + (path != null && path.containsKey("invite_id") ? path.get("invite_id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Object deleteWorkspaceNotificationDestination(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/destinations/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -453,6 +463,11 @@ public final class Operations {
 
 	public static Object getWorkspaceDirectory(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/identity/directory";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getWorkspaceNotificationSettings(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/settings";
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -676,6 +691,16 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listWorkspaceNotificationDestinations(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/destinations";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listWorkspaceNotificationRoutes(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/routes";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object listWorkspaces(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -791,6 +816,16 @@ public final class Operations {
 		return client.request("PUT", resolvedPath, query, headers, body);
 	}
 
+	public static Object testWorkspaceNotificationDestination(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/destinations/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/test";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object testWorkspaceNotificationDestinationConfig(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/destinations/test";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object updateApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
@@ -873,6 +908,16 @@ public final class Operations {
 
 	public static Object updateWorkspaceMemberRole(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members/" + (path != null && path.containsKey("user_id") ? path.get("user_id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceNotificationRoute(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/routes/" + (path != null && path.containsKey("eventKind") ? path.get("eventKind") : "");
+		return client.request("PUT", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceNotificationSettings(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/notifications/settings";
 		return client.request("PATCH", resolvedPath, query, headers, body);
 	}
 

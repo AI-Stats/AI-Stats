@@ -701,6 +701,22 @@
 											"v1/api-reference/endpoint/identity-group-mapping-update",
 											"v1/api-reference/endpoint/identity-group-mapping-delete"
 										]
+									},
+									{
+										"group": "Notifications",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/notifications-settings-get",
+											"v1/api-reference/endpoint/notifications-settings-update",
+											"v1/api-reference/endpoint/notifications-destinations-list",
+											"v1/api-reference/endpoint/notifications-destination-create",
+											"v1/api-reference/endpoint/notifications-destination-delete",
+											"v1/api-reference/endpoint/notifications-destination-config-test",
+											"v1/api-reference/endpoint/notifications-destination-test",
+											"v1/api-reference/endpoint/notifications-routes-list",
+											"v1/api-reference/endpoint/notifications-route-update"
+										]
 									}
 								]
 							}

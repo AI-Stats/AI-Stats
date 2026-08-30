@@ -3827,6 +3827,20 @@ type WorkspaceAuditEventMetadata struct {
 	Status *string `json:"status,omitempty"`
 }
 
+type WorkspaceAutoTopUpSettings struct {
+	AmountNanos int `json:"amount_nanos"`
+	BalanceThresholdNanos int `json:"balance_threshold_nanos"`
+	Enabled bool `json:"enabled"`
+	PaymentMethodId *string `json:"payment_method_id"`
+}
+
+type WorkspaceAutoTopUpUpdate struct {
+	AmountNanos *int `json:"amount_nanos,omitempty"`
+	BalanceThresholdNanos *int `json:"balance_threshold_nanos,omitempty"`
+	Enabled bool `json:"enabled"`
+	PaymentMethodId *string `json:"payment_method_id,omitempty"`
+}
+
 type WorkspaceCreateRequest struct {
 	Name string `json:"name"`
 	Slug *string `json:"slug,omitempty"`
@@ -4011,6 +4025,16 @@ type WorkspaceListResponse struct {
 	TotalCount int `json:"total_count"`
 }
 
+type WorkspaceLowBalanceEmailSettings struct {
+	Enabled bool `json:"enabled"`
+	ThresholdUsd float64 `json:"threshold_usd"`
+}
+
+type WorkspaceLowBalanceEmailUpdate struct {
+	Enabled bool `json:"enabled"`
+	ThresholdUsd *float64 `json:"threshold_usd,omitempty"`
+}
+
 type WorkspaceMember struct {
 	DisplayName *string `json:"display_name,omitempty"`
 	JoinedAt *string `json:"joined_at,omitempty"`
@@ -4048,6 +4072,113 @@ type WorkspaceMemberResponse struct {
 
 type WorkspaceMemberRoleUpdateRequest struct {
 	Role string `json:"role"`
+}
+
+type WorkspaceNotificationDestination struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Status string `json:"status"`
+	TargetPreview string `json:"target_preview"`
+	Type string `json:"type"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceNotificationDestinationCreateRequest struct {
+	Name string `json:"name"`
+	Target string `json:"target"`
+	Type string `json:"type"`
+}
+
+type WorkspaceNotificationDestinationListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationDestinationResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationDestinationTestRequest struct {
+	Target string `json:"target"`
+	Type string `json:"type"`
+}
+
+type WorkspaceNotificationDestinationType string
+
+const (
+	WorkspaceNotificationDestinationTypeEmail WorkspaceNotificationDestinationType = "email"
+	WorkspaceNotificationDestinationTypeDiscord WorkspaceNotificationDestinationType = "discord"
+	WorkspaceNotificationDestinationTypeDiscordWebhook WorkspaceNotificationDestinationType = "discord_webhook"
+	WorkspaceNotificationDestinationTypeSlack WorkspaceNotificationDestinationType = "slack"
+	WorkspaceNotificationDestinationTypeMicrosoftTeams WorkspaceNotificationDestinationType = "microsoft_teams"
+	WorkspaceNotificationDestinationTypeCustomWebhook WorkspaceNotificationDestinationType = "custom_webhook"
+)
+
+
+type WorkspaceNotificationEmailPreferences struct {
+	AutoTopUpFailure bool `json:"auto_top_up_failure"`
+	ModelDeprecation bool `json:"model_deprecation"`
+	PaymentMethodExpiring bool `json:"payment_method_expiring"`
+}
+
+type WorkspaceNotificationEmailPreferencesUpdate struct {
+	AutoTopUpFailure *bool `json:"auto_top_up_failure,omitempty"`
+	ModelDeprecation *bool `json:"model_deprecation,omitempty"`
+	PaymentMethodExpiring *bool `json:"payment_method_expiring,omitempty"`
+}
+
+type WorkspaceNotificationEventKind string
+
+const (
+	WorkspaceNotificationEventKindLowBalance WorkspaceNotificationEventKind = "low_balance"
+	WorkspaceNotificationEventKindAutoTopUpFailed WorkspaceNotificationEventKind = "auto_top_up_failed"
+	WorkspaceNotificationEventKindPaymentMethodExpiring WorkspaceNotificationEventKind = "payment_method_expiring"
+	WorkspaceNotificationEventKindModelDeprecation WorkspaceNotificationEventKind = "model_deprecation"
+)
+
+
+type WorkspaceNotificationRoute struct {
+	DestinationIds []string `json:"destination_ids"`
+	EventKind string `json:"event_kind"`
+}
+
+type WorkspaceNotificationRouteMap struct {
+	AutoTopUpFailed []string `json:"auto_top_up_failed"`
+	LowBalance []string `json:"low_balance"`
+	ModelDeprecation []string `json:"model_deprecation"`
+	PaymentMethodExpiring []string `json:"payment_method_expiring"`
+}
+
+type WorkspaceNotificationRouteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationRoutesResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationRouteUpdateRequest struct {
+	DestinationIds []string `json:"destination_ids"`
+}
+
+type WorkspaceNotificationSettings struct {
+	AutoTopUp map[string]interface{} `json:"auto_top_up"`
+	EmailPreferences map[string]interface{} `json:"email_preferences"`
+	LowBalanceEmail map[string]interface{} `json:"low_balance_email"`
+}
+
+type WorkspaceNotificationSettingsResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationSettingsUpdateRequest struct {
+	AutoTopUp *map[string]interface{} `json:"auto_top_up,omitempty"`
+	EmailPreferences *map[string]interface{} `json:"email_preferences,omitempty"`
+	LowBalanceEmail *map[string]interface{} `json:"low_balance_email,omitempty"`
+}
+
+type WorkspaceNotificationTestResponse struct {
+	Data map[string]interface{} `json:"data"`
 }
 
 type WorkspaceProviderRestrictionMode string

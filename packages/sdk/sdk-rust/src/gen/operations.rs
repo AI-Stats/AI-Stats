@@ -215,6 +215,11 @@ pub fn createWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<St
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createWorkspaceNotificationDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/notifications/destinations");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createWorkspaceScimToken<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/identity/scim/tokens");
 	client.request("POST", &resolved_path, body)
@@ -297,6 +302,11 @@ pub fn deleteWorkspaceGroupMapping<T: Transport>(client: &Client<T>, path: &Hash
 
 pub fn deleteWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/invites/{}", path.get("id").cloned().unwrap_or_default(), path.get("invite_id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWorkspaceNotificationDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/notifications/destinations/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -452,6 +462,11 @@ pub fn getWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 
 pub fn getWorkspaceDirectory<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/identity/directory");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getWorkspaceNotificationSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/notifications/settings");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -675,6 +690,16 @@ pub fn listWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<Str
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWorkspaceNotificationDestinations<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/notifications/destinations");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listWorkspaceNotificationRoutes<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/notifications/routes");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/workspaces");
 	client.request("GET", &resolved_path, body)
@@ -790,6 +815,16 @@ pub fn setWorkspaceDepartmentMember<T: Transport>(client: &Client<T>, path: &Has
 	client.request("PUT", &resolved_path, body)
 }
 
+pub fn testWorkspaceNotificationDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/notifications/destinations/{}/test", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn testWorkspaceNotificationDestinationConfig<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/notifications/destinations/test");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
@@ -872,6 +907,16 @@ pub fn updateWorkspaceGroupMapping<T: Transport>(client: &Client<T>, path: &Hash
 
 pub fn updateWorkspaceMemberRole<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/members/{}", path.get("id").cloned().unwrap_or_default(), path.get("user_id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceNotificationRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/notifications/routes/{}", path.get("eventKind").cloned().unwrap_or_default());
+	client.request("PUT", &resolved_path, body)
+}
+
+pub fn updateWorkspaceNotificationSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/notifications/settings");
 	client.request("PATCH", &resolved_path, body)
 }
 

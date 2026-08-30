@@ -2665,6 +2665,101 @@ paths:
       responses:
         '200': {description: Group mapping deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DeletedResponse'}}}}
         default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/settings:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWorkspaceNotificationSettings
+      summary: Get workspace notification settings
+      description: Returns auto top-up policy, low-balance email configuration, and workspace email preferences. Requires `settings:read` and an owner or admin identity.
+      responses:
+        '200': {description: Notification settings, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationSettingsResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceNotificationSettings
+      summary: Update workspace notification settings
+      description: Updates one or more durable notification-policy sections. Enabling auto top-up requires an existing saved payment method identifier; payment collection remains an interactive account flow.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationSettingsUpdateRequest'}}}}
+      responses:
+        '200': {description: Notification settings updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationSettingsResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/destinations:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceNotificationDestinations
+      summary: List notification destinations
+      description: Lists active and disabled workspace destinations without returning encrypted target values.
+      responses:
+        '200': {description: Notification destinations, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationDestinationListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createWorkspaceNotificationDestination
+      summary: Create a notification destination
+      description: Validates and encrypts an email, chat, or HTTPS webhook destination. The raw target is never returned.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationDestinationCreateRequest'}}}}
+      responses:
+        '201': {description: Destination created, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationDestinationResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/destinations/{id}:
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteWorkspaceNotificationDestination
+      summary: Delete a notification destination
+      description: Soft-deletes a workspace notification destination and removes it from future routing.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: Destination deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DeletedResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/destinations/test:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: testWorkspaceNotificationDestinationConfig
+      summary: Test notification destination configuration
+      description: Validates and delivers a test to an unsaved destination configuration. The target is not persisted.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationDestinationTestRequest'}}}}
+      responses:
+        '200': {description: Test delivered, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationTestResponse'}}}}
+        default: {description: Test failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/destinations/{id}/test:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: testWorkspaceNotificationDestination
+      summary: Test a saved notification destination
+      description: Delivers a test through an existing encrypted workspace destination.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: Test delivered, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationTestResponse'}}}}
+        default: {description: Test failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/routes:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceNotificationRoutes
+      summary: List notification routes
+      description: Returns destination assignments for each supported workspace notification event.
+      responses:
+        '200': {description: Notification routes, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationRoutesResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /notifications/routes/{eventKind}:
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceNotificationRoute
+      summary: Update a notification route
+      description: Replaces the destination assignments for a supported event kind.
+      parameters: [{name: eventKind, in: path, required: true, schema: {$ref: '#/components/schemas/WorkspaceNotificationEventKind'}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationRouteUpdateRequest'}}}}
+      responses:
+        '200': {description: Notification route updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceNotificationRouteResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /data-contribution:
     get:
       x-beta: true
@@ -13734,6 +13829,161 @@ components:
       type: object
       required: [data]
       properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceGroupMapping'}}}
+      additionalProperties: false
+    WorkspaceAutoTopUpSettings:
+      type: object
+      required: [enabled, balance_threshold_nanos, amount_nanos, payment_method_id]
+      properties:
+        enabled: {type: boolean}
+        balance_threshold_nanos: {type: integer, minimum: 0}
+        amount_nanos: {type: integer, minimum: 0}
+        payment_method_id: {type: string, nullable: true}
+      additionalProperties: false
+    WorkspaceLowBalanceEmailSettings:
+      type: object
+      required: [enabled, threshold_usd]
+      properties:
+        enabled: {type: boolean}
+        threshold_usd: {type: number, minimum: 0, multipleOf: 0.01}
+      additionalProperties: false
+    WorkspaceNotificationEmailPreferences:
+      type: object
+      required: [auto_top_up_failure, payment_method_expiring, model_deprecation]
+      properties:
+        auto_top_up_failure: {type: boolean}
+        payment_method_expiring: {type: boolean}
+        model_deprecation: {type: boolean}
+      additionalProperties: false
+    WorkspaceNotificationSettings:
+      type: object
+      required: [auto_top_up, low_balance_email, email_preferences]
+      properties:
+        auto_top_up: {$ref: '#/components/schemas/WorkspaceAutoTopUpSettings'}
+        low_balance_email: {$ref: '#/components/schemas/WorkspaceLowBalanceEmailSettings'}
+        email_preferences: {$ref: '#/components/schemas/WorkspaceNotificationEmailPreferences'}
+      additionalProperties: false
+    WorkspaceNotificationSettingsResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceNotificationSettings'}}
+      additionalProperties: false
+    WorkspaceAutoTopUpUpdate:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: {type: boolean}
+        balance_threshold_nanos: {type: integer, minimum: 0}
+        amount_nanos: {type: integer, minimum: 0}
+        payment_method_id: {type: string, nullable: true}
+      additionalProperties: false
+    WorkspaceLowBalanceEmailUpdate:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: {type: boolean}
+        threshold_usd: {type: number, minimum: 0, multipleOf: 0.01}
+      additionalProperties: false
+    WorkspaceNotificationEmailPreferencesUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        auto_top_up_failure: {type: boolean}
+        payment_method_expiring: {type: boolean}
+        model_deprecation: {type: boolean}
+      additionalProperties: false
+    WorkspaceNotificationSettingsUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        auto_top_up: {$ref: '#/components/schemas/WorkspaceAutoTopUpUpdate'}
+        low_balance_email: {$ref: '#/components/schemas/WorkspaceLowBalanceEmailUpdate'}
+        email_preferences: {$ref: '#/components/schemas/WorkspaceNotificationEmailPreferencesUpdate'}
+      additionalProperties: false
+    WorkspaceNotificationDestinationType:
+      type: string
+      enum: [email, discord, discord_webhook, slack, microsoft_teams, custom_webhook]
+    WorkspaceNotificationDestination:
+      type: object
+      required: [id, name, type, target_preview, status]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        type: {$ref: '#/components/schemas/WorkspaceNotificationDestinationType'}
+        target_preview: {type: string}
+        status: {type: string, enum: [active, disabled]}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceNotificationDestinationCreateRequest:
+      type: object
+      required: [name, type, target]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 100}
+        type: {$ref: '#/components/schemas/WorkspaceNotificationDestinationType'}
+        target: {type: string, minLength: 1, description: "Destination address, URL, or JSON-encoded provider configuration. Stored encrypted and never returned."}
+      additionalProperties: false
+    WorkspaceNotificationDestinationTestRequest:
+      type: object
+      required: [type, target]
+      properties:
+        type: {$ref: '#/components/schemas/WorkspaceNotificationDestinationType'}
+        target: {type: string, minLength: 1}
+      additionalProperties: false
+    WorkspaceNotificationDestinationResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceNotificationDestination'}}
+      additionalProperties: false
+    WorkspaceNotificationDestinationListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceNotificationDestination'}}}
+      additionalProperties: false
+    WorkspaceNotificationTestResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [delivered, status]
+          properties:
+            delivered: {type: boolean, enum: [true]}
+            status: {type: integer, nullable: true}
+          additionalProperties: false
+      additionalProperties: false
+    WorkspaceNotificationEventKind:
+      type: string
+      enum: [low_balance, auto_top_up_failed, payment_method_expiring, model_deprecation]
+    WorkspaceNotificationRouteMap:
+      type: object
+      required: [low_balance, auto_top_up_failed, payment_method_expiring, model_deprecation]
+      properties:
+        low_balance: {type: array, items: {type: string, format: uuid}}
+        auto_top_up_failed: {type: array, items: {type: string, format: uuid}}
+        payment_method_expiring: {type: array, items: {type: string, format: uuid}}
+        model_deprecation: {type: array, items: {type: string, format: uuid}}
+      additionalProperties: false
+    WorkspaceNotificationRoutesResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceNotificationRouteMap'}}
+      additionalProperties: false
+    WorkspaceNotificationRouteUpdateRequest:
+      type: object
+      required: [destination_ids]
+      properties: {destination_ids: {type: array, maxItems: 50, uniqueItems: true, items: {type: string, format: uuid}}}
+      additionalProperties: false
+    WorkspaceNotificationRoute:
+      type: object
+      required: [event_kind, destination_ids]
+      properties:
+        event_kind: {$ref: '#/components/schemas/WorkspaceNotificationEventKind'}
+        destination_ids: {type: array, maxItems: 50, uniqueItems: true, items: {type: string, format: uuid}}
+      additionalProperties: false
+    WorkspaceNotificationRouteResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceNotificationRoute'}}
       additionalProperties: false
     DataContributionCategories:
       type: object

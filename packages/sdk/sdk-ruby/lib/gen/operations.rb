@@ -255,6 +255,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createWorkspaceNotificationDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/destinations"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createWorkspaceScimToken(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/identity/scim/tokens"
@@ -354,6 +360,12 @@ module Phaseo
       def self.deleteWorkspaceInvite(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites/#{URI.encode_uri_component(path["invite_id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWorkspaceNotificationDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -540,6 +552,12 @@ module Phaseo
       def self.getWorkspaceDirectory(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/identity/directory"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getWorkspaceNotificationSettings(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/settings"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -807,6 +825,18 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWorkspaceNotificationDestinations(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/destinations"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listWorkspaceNotificationRoutes(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/routes"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listWorkspaces(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces"
@@ -945,6 +975,18 @@ module Phaseo
         client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.testWorkspaceNotificationDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/destinations/#{URI.encode_uri_component(path["id"].to_s)}/test"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.testWorkspaceNotificationDestinationConfig(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/destinations/test"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -1044,6 +1086,18 @@ module Phaseo
       def self.updateWorkspaceMemberRole(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/#{URI.encode_uri_component(path["user_id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceNotificationRoute(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/routes/#{URI.encode_uri_component(path["eventKind"].to_s)}"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceNotificationSettings(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/notifications/settings"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

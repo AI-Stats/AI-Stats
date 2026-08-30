@@ -3520,6 +3520,24 @@ module Phaseo
     # @!attribute [rw] status
     #   @return [String, nil]
     WorkspaceAuditEventMetadata = Struct.new(:accessTemplate, :changedFields, :expiresAt, :limits, :prefix, :previousKeyExpiresAt, :replacementKeyId, :replacementKeyName, :status, keyword_init: true)
+    # @!attribute [rw] amount_nanos
+    #   @return [Integer]
+    # @!attribute [rw] balance_threshold_nanos
+    #   @return [Integer]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] payment_method_id
+    #   @return [String, nil]
+    WorkspaceAutoTopUpSettings = Struct.new(:amount_nanos, :balance_threshold_nanos, :enabled, :payment_method_id, keyword_init: true)
+    # @!attribute [rw] amount_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] balance_threshold_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] payment_method_id
+    #   @return [String, nil]
+    WorkspaceAutoTopUpUpdate = Struct.new(:amount_nanos, :balance_threshold_nanos, :enabled, :payment_method_id, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] slug
@@ -3741,6 +3759,16 @@ module Phaseo
     # @!attribute [rw] total_count
     #   @return [Integer]
     WorkspaceListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] threshold_usd
+    #   @return [Float]
+    WorkspaceLowBalanceEmailSettings = Struct.new(:enabled, :threshold_usd, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] threshold_usd
+    #   @return [Float, nil]
+    WorkspaceLowBalanceEmailUpdate = Struct.new(:enabled, :threshold_usd, keyword_init: true)
     # @!attribute [rw] display_name
     #   @return [String, nil]
     # @!attribute [rw] joined_at
@@ -3779,6 +3807,98 @@ module Phaseo
     # @!attribute [rw] role
     #   @return [String]
     WorkspaceMemberRoleUpdateRequest = Struct.new(:role, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] target_preview
+    #   @return [String]
+    # @!attribute [rw] type
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceNotificationDestination = Struct.new(:created_at, :id, :name, :status, :target_preview, :type, :updated_at, keyword_init: true)
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] target
+    #   @return [String]
+    # @!attribute [rw] type
+    #   @return [String]
+    WorkspaceNotificationDestinationCreateRequest = Struct.new(:name, :target, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceNotificationDestinationListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationDestinationResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] target
+    #   @return [String]
+    # @!attribute [rw] type
+    #   @return [String]
+    WorkspaceNotificationDestinationTestRequest = Struct.new(:target, :type, keyword_init: true)
+    WorkspaceNotificationDestinationType = Object
+    # @!attribute [rw] auto_top_up_failure
+    #   @return [Boolean]
+    # @!attribute [rw] model_deprecation
+    #   @return [Boolean]
+    # @!attribute [rw] payment_method_expiring
+    #   @return [Boolean]
+    WorkspaceNotificationEmailPreferences = Struct.new(:auto_top_up_failure, :model_deprecation, :payment_method_expiring, keyword_init: true)
+    # @!attribute [rw] auto_top_up_failure
+    #   @return [Boolean, nil]
+    # @!attribute [rw] model_deprecation
+    #   @return [Boolean, nil]
+    # @!attribute [rw] payment_method_expiring
+    #   @return [Boolean, nil]
+    WorkspaceNotificationEmailPreferencesUpdate = Struct.new(:auto_top_up_failure, :model_deprecation, :payment_method_expiring, keyword_init: true)
+    WorkspaceNotificationEventKind = Object
+    # @!attribute [rw] destination_ids
+    #   @return [Array<String>]
+    # @!attribute [rw] event_kind
+    #   @return [String]
+    WorkspaceNotificationRoute = Struct.new(:destination_ids, :event_kind, keyword_init: true)
+    # @!attribute [rw] auto_top_up_failed
+    #   @return [Array<String>]
+    # @!attribute [rw] low_balance
+    #   @return [Array<String>]
+    # @!attribute [rw] model_deprecation
+    #   @return [Array<String>]
+    # @!attribute [rw] payment_method_expiring
+    #   @return [Array<String>]
+    WorkspaceNotificationRouteMap = Struct.new(:auto_top_up_failed, :low_balance, :model_deprecation, :payment_method_expiring, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationRouteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationRoutesResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] destination_ids
+    #   @return [Array<String>]
+    WorkspaceNotificationRouteUpdateRequest = Struct.new(:destination_ids, keyword_init: true)
+    # @!attribute [rw] auto_top_up
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] email_preferences
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] low_balance_email
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationSettings = Struct.new(:auto_top_up, :email_preferences, :low_balance_email, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationSettingsResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] auto_top_up
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] email_preferences
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] low_balance_email
+    #   @return [Hash{String => Object}, nil]
+    WorkspaceNotificationSettingsUpdateRequest = Struct.new(:auto_top_up, :email_preferences, :low_balance_email, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationTestResponse = Struct.new(:data, keyword_init: true)
     WorkspaceProviderRestrictionMode = Object
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]

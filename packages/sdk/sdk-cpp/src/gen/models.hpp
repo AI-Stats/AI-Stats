@@ -2457,6 +2457,20 @@ struct WorkspaceAuditEventMetadata {
 	std::string status;
 };
 
+struct WorkspaceAutoTopUpSettings {
+	int amount_nanos;
+	int balance_threshold_nanos;
+	bool enabled;
+	std::optional<std::string> payment_method_id;
+};
+
+struct WorkspaceAutoTopUpUpdate {
+	std::optional<int> amount_nanos;
+	std::optional<int> balance_threshold_nanos;
+	bool enabled;
+	std::optional<std::string> payment_method_id;
+};
+
 struct WorkspaceCreateRequest {
 	std::string name;
 	std::string slug;
@@ -2634,6 +2648,16 @@ struct WorkspaceListResponse {
 	int total_count;
 };
 
+struct WorkspaceLowBalanceEmailSettings {
+	bool enabled;
+	double threshold_usd;
+};
+
+struct WorkspaceLowBalanceEmailUpdate {
+	bool enabled;
+	std::optional<double> threshold_usd;
+};
+
 struct WorkspaceMember {
 	std::optional<std::string> display_name;
 	std::optional<std::string> joined_at;
@@ -2671,6 +2695,95 @@ struct WorkspaceMemberResponse {
 
 struct WorkspaceMemberRoleUpdateRequest {
 	std::any role;
+};
+
+struct WorkspaceNotificationDestination {
+	std::optional<std::string> created_at;
+	std::string id;
+	std::string name;
+	std::any status;
+	std::string target_preview;
+	std::any type;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceNotificationDestinationCreateRequest {
+	std::string name;
+	std::string target;
+	std::any type;
+};
+
+struct WorkspaceNotificationDestinationListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceNotificationDestinationResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationDestinationTestRequest {
+	std::string target;
+	std::any type;
+};
+
+using WorkspaceNotificationDestinationType = std::any;
+
+struct WorkspaceNotificationEmailPreferences {
+	bool auto_top_up_failure;
+	bool model_deprecation;
+	bool payment_method_expiring;
+};
+
+struct WorkspaceNotificationEmailPreferencesUpdate {
+	std::optional<bool> auto_top_up_failure;
+	std::optional<bool> model_deprecation;
+	std::optional<bool> payment_method_expiring;
+};
+
+using WorkspaceNotificationEventKind = std::any;
+
+struct WorkspaceNotificationRoute {
+	std::vector<std::string> destination_ids;
+	std::any event_kind;
+};
+
+struct WorkspaceNotificationRouteMap {
+	std::vector<std::string> auto_top_up_failed;
+	std::vector<std::string> low_balance;
+	std::vector<std::string> model_deprecation;
+	std::vector<std::string> payment_method_expiring;
+};
+
+struct WorkspaceNotificationRouteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationRoutesResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationRouteUpdateRequest {
+	std::vector<std::string> destination_ids;
+};
+
+struct WorkspaceNotificationSettings {
+	std::map<std::string, std::any> auto_top_up;
+	std::map<std::string, std::any> email_preferences;
+	std::map<std::string, std::any> low_balance_email;
+};
+
+struct WorkspaceNotificationSettingsResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationSettingsUpdateRequest {
+	std::map<std::string, std::any> auto_top_up;
+	std::map<std::string, std::any> email_preferences;
+	std::map<std::string, std::any> low_balance_email;
+};
+
+struct WorkspaceNotificationTestResponse {
+	std::map<std::string, std::any> data;
 };
 
 using WorkspaceProviderRestrictionMode = std::any;

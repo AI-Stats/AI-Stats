@@ -49,7 +49,7 @@ OpenAPI schema does not count as complete.
 | Usage, credits, and analytics | Read endpoints with workspace/key/end-user/model/provider/endpoint/outcome filters and CSV analytics export | Contracted for queryable request facts | Add member attribution only when request facts carry a durable workspace-member identity. |
 | Activity and audit events | Read endpoints | Contracted | Expand audit producers as each mutation group becomes public. |
 | OAuth clients and webhook endpoints | CRUD plus secret regeneration/rotation | Contracted where feature-enabled | OAuth applications remain beta-gated; async webhook endpoints remain limited to workspaces with async API access. |
-| Billing and notifications | Dashboard controls | Missing or partial | Expose durable administrative settings; keep payment confirmation and other interactive personal flows out of scope. |
+| Billing and notifications | Auto top-up policy, low-balance alerts, email preferences, encrypted destination lifecycle/testing, and event routing | Contracted for durable workspace notification administration | Payment-method collection, payment confirmation, purchases, refunds, and other interactive financial execution remain deliberately excluded. |
 
 ## Delivery order
 
@@ -71,6 +71,7 @@ management capability or an explicit, reviewed exclusion in this document.
 
 - Ephemeral browser state and local presentation preferences.
 - Interactive authentication ceremonies and payment confirmations.
+- Payment-method collection, purchases, refunds, and other interactive financial execution. Durable auto top-up policy remains part of the Management API.
 - Internal service controls, cache invalidation, incident operations, and
   provider-health administration.
 - Secret retrieval after creation. Credential values are write-only.

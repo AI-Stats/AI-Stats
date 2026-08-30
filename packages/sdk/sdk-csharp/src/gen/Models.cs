@@ -5951,6 +5951,38 @@ public sealed class WorkspaceAuditEventMetadata
 
 }
 
+public sealed class WorkspaceAutoTopUpSettings
+{
+	[JsonPropertyName("amount_nanos")]
+	public int AmountNanos { get; set; }
+
+	[JsonPropertyName("balance_threshold_nanos")]
+	public int BalanceThresholdNanos { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("payment_method_id")]
+	public string? PaymentMethodId { get; set; }
+
+}
+
+public sealed class WorkspaceAutoTopUpUpdate
+{
+	[JsonPropertyName("amount_nanos")]
+	public int? AmountNanos { get; set; }
+
+	[JsonPropertyName("balance_threshold_nanos")]
+	public int? BalanceThresholdNanos { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("payment_method_id")]
+	public string? PaymentMethodId { get; set; }
+
+}
+
 public sealed class WorkspaceCreateRequest
 {
 	[JsonPropertyName("name")]
@@ -6348,6 +6380,26 @@ public sealed class WorkspaceListResponse
 
 }
 
+public sealed class WorkspaceLowBalanceEmailSettings
+{
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("threshold_usd")]
+	public double ThresholdUsd { get; set; }
+
+}
+
+public sealed class WorkspaceLowBalanceEmailUpdate
+{
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("threshold_usd")]
+	public double? ThresholdUsd { get; set; }
+
+}
+
 public sealed class WorkspaceMember
 {
 	[JsonPropertyName("display_name")]
@@ -6422,6 +6474,185 @@ public sealed class WorkspaceMemberRoleUpdateRequest
 {
 	[JsonPropertyName("role")]
 	public string Role { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationDestination
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("target_preview")]
+	public string TargetPreview { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationDestinationCreateRequest
+{
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("target")]
+	public string Target { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationDestinationListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationDestinationResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationDestinationTestRequest
+{
+	[JsonPropertyName("target")]
+	public string Target { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationDestinationType { }
+
+public sealed class WorkspaceNotificationEmailPreferences
+{
+	[JsonPropertyName("auto_top_up_failure")]
+	public bool AutoTopUpFailure { get; set; }
+
+	[JsonPropertyName("model_deprecation")]
+	public bool ModelDeprecation { get; set; }
+
+	[JsonPropertyName("payment_method_expiring")]
+	public bool PaymentMethodExpiring { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationEmailPreferencesUpdate
+{
+	[JsonPropertyName("auto_top_up_failure")]
+	public bool? AutoTopUpFailure { get; set; }
+
+	[JsonPropertyName("model_deprecation")]
+	public bool? ModelDeprecation { get; set; }
+
+	[JsonPropertyName("payment_method_expiring")]
+	public bool? PaymentMethodExpiring { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationEventKind { }
+
+public sealed class WorkspaceNotificationRoute
+{
+	[JsonPropertyName("destination_ids")]
+	public List<string> DestinationIds { get; set; }
+
+	[JsonPropertyName("event_kind")]
+	public string EventKind { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationRouteMap
+{
+	[JsonPropertyName("auto_top_up_failed")]
+	public List<string> AutoTopUpFailed { get; set; }
+
+	[JsonPropertyName("low_balance")]
+	public List<string> LowBalance { get; set; }
+
+	[JsonPropertyName("model_deprecation")]
+	public List<string> ModelDeprecation { get; set; }
+
+	[JsonPropertyName("payment_method_expiring")]
+	public List<string> PaymentMethodExpiring { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationRouteResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationRoutesResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationRouteUpdateRequest
+{
+	[JsonPropertyName("destination_ids")]
+	public List<string> DestinationIds { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationSettings
+{
+	[JsonPropertyName("auto_top_up")]
+	public Dictionary<string, object> AutoTopUp { get; set; }
+
+	[JsonPropertyName("email_preferences")]
+	public Dictionary<string, object> EmailPreferences { get; set; }
+
+	[JsonPropertyName("low_balance_email")]
+	public Dictionary<string, object> LowBalanceEmail { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationSettingsResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationSettingsUpdateRequest
+{
+	[JsonPropertyName("auto_top_up")]
+	public Dictionary<string, object>? AutoTopUp { get; set; }
+
+	[JsonPropertyName("email_preferences")]
+	public Dictionary<string, object>? EmailPreferences { get; set; }
+
+	[JsonPropertyName("low_balance_email")]
+	public Dictionary<string, object>? LowBalanceEmail { get; set; }
+
+}
+
+public sealed class WorkspaceNotificationTestResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
 
 }
 

@@ -297,6 +297,13 @@ function createWorkspaceInvite(Client $client, ?array $path = null, ?array $quer
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createWorkspaceNotificationDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/destinations";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createWorkspaceScimToken(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -413,6 +420,13 @@ function deleteWorkspaceInvite(Client $client, ?array $path = null, ?array $quer
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/invites/" . rawurlencode((string)($path["invite_id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWorkspaceNotificationDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/destinations/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -630,6 +644,13 @@ function getWorkspaceDirectory(Client $client, ?array $path = null, ?array $quer
 {
 	$path = $path ?? [];
 	$resolvedPath = "/identity/directory";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getWorkspaceNotificationSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/settings";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -941,6 +962,20 @@ function listWorkspaceMembers(Client $client, ?array $path = null, ?array $query
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWorkspaceNotificationDestinations(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/destinations";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listWorkspaceNotificationRoutes(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/routes";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listWorkspaces(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1102,6 +1137,20 @@ function setWorkspaceDepartmentMember(Client $client, ?array $path = null, ?arra
 	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
 }
 
+function testWorkspaceNotificationDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/destinations/" . rawurlencode((string)($path["id"] ?? "")) . "/test";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function testWorkspaceNotificationDestinationConfig(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/destinations/test";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function updateApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1218,6 +1267,20 @@ function updateWorkspaceMemberRole(Client $client, ?array $path = null, ?array $
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/members/" . rawurlencode((string)($path["user_id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceNotificationRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/routes/" . rawurlencode((string)($path["eventKind"] ?? ""));
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceNotificationSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/notifications/settings";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

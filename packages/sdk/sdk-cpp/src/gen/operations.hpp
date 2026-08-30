@@ -214,6 +214,11 @@ inline Response CreateWorkspaceInvite(Client& client, const std::map<std::string
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateWorkspaceNotificationDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/destinations";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateWorkspaceScimToken(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/identity/scim/tokens";
 	return client.request("POST", resolved_path, body);
@@ -296,6 +301,11 @@ inline Response DeleteWorkspaceGroupMapping(Client& client, const std::map<std::
 
 inline Response DeleteWorkspaceInvite(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites/" + (path.count("invite_id") ? path.at("invite_id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWorkspaceNotificationDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/destinations/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -451,6 +461,11 @@ inline Response GetWorkspace(Client& client, const std::map<std::string, std::st
 
 inline Response GetWorkspaceDirectory(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/identity/directory";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetWorkspaceNotificationSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/settings";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -674,6 +689,16 @@ inline Response ListWorkspaceMembers(Client& client, const std::map<std::string,
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWorkspaceNotificationDestinations(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/destinations";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListWorkspaceNotificationRoutes(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/routes";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListWorkspaces(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
 	return client.request("GET", resolved_path, body);
@@ -789,6 +814,16 @@ inline Response SetWorkspaceDepartmentMember(Client& client, const std::map<std:
 	return client.request("PUT", resolved_path, body);
 }
 
+inline Response TestWorkspaceNotificationDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/destinations/" + (path.count("id") ? path.at("id") : std::string{}) + "/test";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response TestWorkspaceNotificationDestinationConfig(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/destinations/test";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
@@ -871,6 +906,16 @@ inline Response UpdateWorkspaceGroupMapping(Client& client, const std::map<std::
 
 inline Response UpdateWorkspaceMemberRole(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/" + (path.count("user_id") ? path.at("user_id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceNotificationRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/routes/" + (path.count("eventKind") ? path.at("eventKind") : std::string{});
+	return client.request("PUT", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceNotificationSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/notifications/settings";
 	return client.request("PATCH", resolved_path, body);
 }
 

@@ -4333,6 +4333,30 @@ class WorkspaceAuditEventMetadata
 	public $status;
 }
 
+class WorkspaceAutoTopUpSettings
+{
+	/** @var int */
+	public $amount_nanos;
+	/** @var int */
+	public $balance_threshold_nanos;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $payment_method_id;
+}
+
+class WorkspaceAutoTopUpUpdate
+{
+	/** @var int|null */
+	public $amount_nanos;
+	/** @var int|null */
+	public $balance_threshold_nanos;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $payment_method_id;
+}
+
 class WorkspaceCreateRequest
 {
 	/** @var string */
@@ -4633,6 +4657,22 @@ class WorkspaceListResponse
 	public $total_count;
 }
 
+class WorkspaceLowBalanceEmailSettings
+{
+	/** @var bool */
+	public $enabled;
+	/** @var float */
+	public $threshold_usd;
+}
+
+class WorkspaceLowBalanceEmailUpdate
+{
+	/** @var bool */
+	public $enabled;
+	/** @var float|null */
+	public $threshold_usd;
+}
+
 class WorkspaceMember
 {
 	/** @var string|null */
@@ -4693,6 +4733,148 @@ class WorkspaceMemberRoleUpdateRequest
 {
 	/** @var string */
 	public $role;
+}
+
+class WorkspaceNotificationDestination
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $target_preview;
+	/** @var string */
+	public $type;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceNotificationDestinationCreateRequest
+{
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $target;
+	/** @var string */
+	public $type;
+}
+
+class WorkspaceNotificationDestinationListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceNotificationDestinationResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationDestinationTestRequest
+{
+	/** @var string */
+	public $target;
+	/** @var string */
+	public $type;
+}
+
+class WorkspaceNotificationDestinationType { }
+
+class WorkspaceNotificationEmailPreferences
+{
+	/** @var bool */
+	public $auto_top_up_failure;
+	/** @var bool */
+	public $model_deprecation;
+	/** @var bool */
+	public $payment_method_expiring;
+}
+
+class WorkspaceNotificationEmailPreferencesUpdate
+{
+	/** @var bool|null */
+	public $auto_top_up_failure;
+	/** @var bool|null */
+	public $model_deprecation;
+	/** @var bool|null */
+	public $payment_method_expiring;
+}
+
+class WorkspaceNotificationEventKind { }
+
+class WorkspaceNotificationRoute
+{
+	/** @var array */
+	public $destination_ids;
+	/** @var string */
+	public $event_kind;
+}
+
+class WorkspaceNotificationRouteMap
+{
+	/** @var array */
+	public $auto_top_up_failed;
+	/** @var array */
+	public $low_balance;
+	/** @var array */
+	public $model_deprecation;
+	/** @var array */
+	public $payment_method_expiring;
+}
+
+class WorkspaceNotificationRouteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationRoutesResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationRouteUpdateRequest
+{
+	/** @var array */
+	public $destination_ids;
+}
+
+class WorkspaceNotificationSettings
+{
+	/** @var array<string, mixed> */
+	public $auto_top_up;
+	/** @var array<string, mixed> */
+	public $email_preferences;
+	/** @var array<string, mixed> */
+	public $low_balance_email;
+}
+
+class WorkspaceNotificationSettingsResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationSettingsUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $auto_top_up;
+	/** @var array<string, mixed>|null */
+	public $email_preferences;
+	/** @var array<string, mixed>|null */
+	public $low_balance_email;
+}
+
+class WorkspaceNotificationTestResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
 }
 
 class WorkspaceProviderRestrictionMode { }

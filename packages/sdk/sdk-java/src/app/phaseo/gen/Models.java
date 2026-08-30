@@ -2478,6 +2478,20 @@ public final class Models {
 		public String status;
 	}
 
+	public static class WorkspaceAutoTopUpSettings {
+		public Integer amount_nanos;
+		public Integer balance_threshold_nanos;
+		public Boolean enabled;
+		public String payment_method_id;
+	}
+
+	public static class WorkspaceAutoTopUpUpdate {
+		public Integer amount_nanos;
+		public Integer balance_threshold_nanos;
+		public Boolean enabled;
+		public String payment_method_id;
+	}
+
 	public static class WorkspaceCreateRequest {
 		public String name;
 		public String slug;
@@ -2656,6 +2670,16 @@ public final class Models {
 		public Integer total_count;
 	}
 
+	public static class WorkspaceLowBalanceEmailSettings {
+		public Boolean enabled;
+		public Double threshold_usd;
+	}
+
+	public static class WorkspaceLowBalanceEmailUpdate {
+		public Boolean enabled;
+		public Double threshold_usd;
+	}
+
 	public static class WorkspaceMember {
 		public String display_name;
 		public String joined_at;
@@ -2693,6 +2717,97 @@ public final class Models {
 
 	public static class WorkspaceMemberRoleUpdateRequest {
 		public Object role;
+	}
+
+	public static class WorkspaceNotificationDestination {
+		public String created_at;
+		public String id;
+		public String name;
+		public Object status;
+		public String target_preview;
+		public Object type;
+		public String updated_at;
+	}
+
+	public static class WorkspaceNotificationDestinationCreateRequest {
+		public String name;
+		public String target;
+		public Object type;
+	}
+
+	public static class WorkspaceNotificationDestinationListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceNotificationDestinationResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceNotificationDestinationTestRequest {
+		public String target;
+		public Object type;
+	}
+
+	public static class WorkspaceNotificationDestinationType {
+	}
+
+	public static class WorkspaceNotificationEmailPreferences {
+		public Boolean auto_top_up_failure;
+		public Boolean model_deprecation;
+		public Boolean payment_method_expiring;
+	}
+
+	public static class WorkspaceNotificationEmailPreferencesUpdate {
+		public Boolean auto_top_up_failure;
+		public Boolean model_deprecation;
+		public Boolean payment_method_expiring;
+	}
+
+	public static class WorkspaceNotificationEventKind {
+	}
+
+	public static class WorkspaceNotificationRoute {
+		public java.util.List<String> destination_ids;
+		public Object event_kind;
+	}
+
+	public static class WorkspaceNotificationRouteMap {
+		public java.util.List<String> auto_top_up_failed;
+		public java.util.List<String> low_balance;
+		public java.util.List<String> model_deprecation;
+		public java.util.List<String> payment_method_expiring;
+	}
+
+	public static class WorkspaceNotificationRouteResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceNotificationRoutesResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceNotificationRouteUpdateRequest {
+		public java.util.List<String> destination_ids;
+	}
+
+	public static class WorkspaceNotificationSettings {
+		public Object auto_top_up;
+		public Object email_preferences;
+		public Object low_balance_email;
+	}
+
+	public static class WorkspaceNotificationSettingsResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceNotificationSettingsUpdateRequest {
+		public Object auto_top_up;
+		public Object email_preferences;
+		public Object low_balance_email;
+	}
+
+	public static class WorkspaceNotificationTestResponse {
+		public Object data;
 	}
 
 	public static class WorkspaceProviderRestrictionMode {

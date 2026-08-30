@@ -5909,6 +5909,73 @@ export async function createWorkspaceInvite(
   });
 }
 
+export type CreateWorkspaceNotificationDestinationParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    name: string;
+    target: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+  };
+};
+
+/**
+ * Validates and encrypts an email, chat, or HTTPS webhook destination. The raw target is never returned.
+ */
+export async function createWorkspaceNotificationDestination(
+  client: Client,
+  args: CreateWorkspaceNotificationDestinationParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    id: string;
+    name: string;
+    status: "active" | "disabled";
+    target_preview: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/destinations";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      id: string;
+      name: string;
+      status: "active" | "disabled";
+      target_preview: string;
+      type:
+        | "email"
+        | "discord"
+        | "discord_webhook"
+        | "slack"
+        | "microsoft_teams"
+        | "custom_webhook";
+      updated_at?: string | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateWorkspaceScimTokenParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -6474,6 +6541,37 @@ export async function deleteWorkspaceInvite(
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites/${encodeURIComponent(String(path?.["invite_id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceNotificationDestinationParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Soft-deletes a workspace notification destination and removes it from future routing.
+ */
+export async function deleteWorkspaceNotificationDestination(
+  client: Client,
+  args: DeleteWorkspaceNotificationDestinationParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -9042,6 +9140,67 @@ export async function getWorkspaceDirectory(
         user_id: string;
         workspace_role: string;
       }[];
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceNotificationSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns auto top-up policy, low-balance email configuration, and workspace email preferences. Requires `settings:read` and an owner or admin identity.
+ */
+export async function getWorkspaceNotificationSettings(
+  client: Client,
+  args: GetWorkspaceNotificationSettingsParams = {},
+): Promise<{
+  data: {
+    auto_top_up: {
+      amount_nanos: number;
+      balance_threshold_nanos: number;
+      enabled: boolean;
+      payment_method_id: string | null;
+    };
+    email_preferences: {
+      auto_top_up_failure: boolean;
+      model_deprecation: boolean;
+      payment_method_expiring: boolean;
+    };
+    low_balance_email: {
+      enabled: boolean;
+      threshold_usd: number;
+    };
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/settings";
+  return client.request<{
+    data: {
+      auto_top_up: {
+        amount_nanos: number;
+        balance_threshold_nanos: number;
+        enabled: boolean;
+        payment_method_id: string | null;
+      };
+      email_preferences: {
+        auto_top_up_failure: boolean;
+        model_deprecation: boolean;
+        payment_method_expiring: boolean;
+      };
+      low_balance_email: {
+        enabled: boolean;
+        threshold_usd: number;
+      };
     };
   }>({
     method: "GET",
@@ -14107,6 +14266,102 @@ export async function listWorkspaceMembers(
   });
 }
 
+export type ListWorkspaceNotificationDestinationsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists active and disabled workspace destinations without returning encrypted target values.
+ */
+export async function listWorkspaceNotificationDestinations(
+  client: Client,
+  args: ListWorkspaceNotificationDestinationsParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    id: string;
+    name: string;
+    status: "active" | "disabled";
+    target_preview: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+    updated_at?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/destinations";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      id: string;
+      name: string;
+      status: "active" | "disabled";
+      target_preview: string;
+      type:
+        | "email"
+        | "discord"
+        | "discord_webhook"
+        | "slack"
+        | "microsoft_teams"
+        | "custom_webhook";
+      updated_at?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceNotificationRoutesParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns destination assignments for each supported workspace notification event.
+ */
+export async function listWorkspaceNotificationRoutes(
+  client: Client,
+  args: ListWorkspaceNotificationRoutesParams = {},
+): Promise<{
+  data: {
+    auto_top_up_failed: string[];
+    low_balance: string[];
+    model_deprecation: string[];
+    payment_method_expiring: string[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/routes";
+  return client.request<{
+    data: {
+      auto_top_up_failed: string[];
+      low_balance: string[];
+      model_deprecation: string[];
+      payment_method_expiring: string[];
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspacesParams = {
   path?: Record<string, never>;
   query?: {
@@ -15485,6 +15740,87 @@ export async function setWorkspaceDepartmentMember(
     };
   }>({
     method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type TestWorkspaceNotificationDestinationParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Delivers a test through an existing encrypted workspace destination.
+ */
+export async function testWorkspaceNotificationDestination(
+  client: Client,
+  args: TestWorkspaceNotificationDestinationParams = {},
+): Promise<{
+  data: {
+    delivered: true;
+    status: number | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path?.["id"]))}/test`;
+  return client.request<{
+    data: {
+      delivered: true;
+      status: number | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type TestWorkspaceNotificationDestinationConfigParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    target: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+  };
+};
+
+/**
+ * Validates and delivers a test to an unsaved destination configuration. The target is not persisted.
+ */
+export async function testWorkspaceNotificationDestinationConfig(
+  client: Client,
+  args: TestWorkspaceNotificationDestinationConfigParams = {},
+): Promise<{
+  data: {
+    delivered: true;
+    status: number | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/destinations/test";
+  return client.request<{
+    data: {
+      delivered: true;
+      status: number | null;
+    };
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -16894,6 +17230,134 @@ export async function updateWorkspaceMemberRole(
       role: "owner" | "admin" | "member";
       user_id: string;
       workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceNotificationRouteParams = {
+  path?: {
+    eventKind:
+      | "low_balance"
+      | "auto_top_up_failed"
+      | "payment_method_expiring"
+      | "model_deprecation";
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    destination_ids: string[];
+  };
+};
+
+/**
+ * Replaces the destination assignments for a supported event kind.
+ */
+export async function updateWorkspaceNotificationRoute(
+  client: Client,
+  args: UpdateWorkspaceNotificationRouteParams = {},
+): Promise<{
+  data: {
+    destination_ids: string[];
+    event_kind:
+      | "low_balance"
+      | "auto_top_up_failed"
+      | "payment_method_expiring"
+      | "model_deprecation";
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/notifications/routes/${encodeURIComponent(String(path?.["eventKind"]))}`;
+  return client.request<{
+    data: {
+      destination_ids: string[];
+      event_kind:
+        | "low_balance"
+        | "auto_top_up_failed"
+        | "payment_method_expiring"
+        | "model_deprecation";
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceNotificationSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    auto_top_up?: {
+      amount_nanos?: number;
+      balance_threshold_nanos?: number;
+      enabled: boolean;
+      payment_method_id?: string | null;
+    };
+    email_preferences?: {
+      auto_top_up_failure?: boolean;
+      model_deprecation?: boolean;
+      payment_method_expiring?: boolean;
+    };
+    low_balance_email?: {
+      enabled: boolean;
+      threshold_usd?: number;
+    };
+  };
+};
+
+/**
+ * Updates one or more durable notification-policy sections. Enabling auto top-up requires an existing saved payment method identifier; payment collection remains an interactive account flow.
+ */
+export async function updateWorkspaceNotificationSettings(
+  client: Client,
+  args: UpdateWorkspaceNotificationSettingsParams = {},
+): Promise<{
+  data: {
+    auto_top_up: {
+      amount_nanos: number;
+      balance_threshold_nanos: number;
+      enabled: boolean;
+      payment_method_id: string | null;
+    };
+    email_preferences: {
+      auto_top_up_failure: boolean;
+      model_deprecation: boolean;
+      payment_method_expiring: boolean;
+    };
+    low_balance_email: {
+      enabled: boolean;
+      threshold_usd: number;
+    };
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/settings";
+  return client.request<{
+    data: {
+      auto_top_up: {
+        amount_nanos: number;
+        balance_threshold_nanos: number;
+        enabled: boolean;
+        payment_method_id: string | null;
+      };
+      email_preferences: {
+        auto_top_up_failure: boolean;
+        model_deprecation: boolean;
+        payment_method_expiring: boolean;
+      };
+      low_balance_email: {
+        enabled: boolean;
+        threshold_usd: number;
+      };
     };
   }>({
     method: "PATCH",

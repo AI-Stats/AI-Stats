@@ -2453,6 +2453,20 @@ pub struct WorkspaceAuditEventMetadata {
 	pub status: Option<String>,
 }
 
+pub struct WorkspaceAutoTopUpSettings {
+	pub amount_nanos: i64,
+	pub balance_threshold_nanos: i64,
+	pub enabled: bool,
+	pub payment_method_id: Option<String>,
+}
+
+pub struct WorkspaceAutoTopUpUpdate {
+	pub amount_nanos: Option<i64>,
+	pub balance_threshold_nanos: Option<i64>,
+	pub enabled: bool,
+	pub payment_method_id: Option<Option<String>>,
+}
+
 pub struct WorkspaceCreateRequest {
 	pub name: String,
 	pub slug: Option<String>,
@@ -2630,6 +2644,16 @@ pub struct WorkspaceListResponse {
 	pub total_count: i64,
 }
 
+pub struct WorkspaceLowBalanceEmailSettings {
+	pub enabled: bool,
+	pub threshold_usd: f64,
+}
+
+pub struct WorkspaceLowBalanceEmailUpdate {
+	pub enabled: bool,
+	pub threshold_usd: Option<f64>,
+}
+
 pub struct WorkspaceMember {
 	pub display_name: Option<Option<String>>,
 	pub joined_at: Option<Option<String>>,
@@ -2667,6 +2691,95 @@ pub struct WorkspaceMemberResponse {
 
 pub struct WorkspaceMemberRoleUpdateRequest {
 	pub role: String,
+}
+
+pub struct WorkspaceNotificationDestination {
+	pub created_at: Option<Option<String>>,
+	pub id: String,
+	pub name: String,
+	pub status: String,
+	pub target_preview: String,
+	pub r#type: String,
+	pub updated_at: Option<Option<String>>,
+}
+
+pub struct WorkspaceNotificationDestinationCreateRequest {
+	pub name: String,
+	pub target: String,
+	pub r#type: String,
+}
+
+pub struct WorkspaceNotificationDestinationListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceNotificationDestinationResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceNotificationDestinationTestRequest {
+	pub target: String,
+	pub r#type: String,
+}
+
+pub type WorkspaceNotificationDestinationType = JsonValue;
+
+pub struct WorkspaceNotificationEmailPreferences {
+	pub auto_top_up_failure: bool,
+	pub model_deprecation: bool,
+	pub payment_method_expiring: bool,
+}
+
+pub struct WorkspaceNotificationEmailPreferencesUpdate {
+	pub auto_top_up_failure: Option<bool>,
+	pub model_deprecation: Option<bool>,
+	pub payment_method_expiring: Option<bool>,
+}
+
+pub type WorkspaceNotificationEventKind = JsonValue;
+
+pub struct WorkspaceNotificationRoute {
+	pub destination_ids: Vec<String>,
+	pub event_kind: String,
+}
+
+pub struct WorkspaceNotificationRouteMap {
+	pub auto_top_up_failed: Vec<String>,
+	pub low_balance: Vec<String>,
+	pub model_deprecation: Vec<String>,
+	pub payment_method_expiring: Vec<String>,
+}
+
+pub struct WorkspaceNotificationRouteResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceNotificationRoutesResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceNotificationRouteUpdateRequest {
+	pub destination_ids: Vec<String>,
+}
+
+pub struct WorkspaceNotificationSettings {
+	pub auto_top_up: HashMap<String, String>,
+	pub email_preferences: HashMap<String, String>,
+	pub low_balance_email: HashMap<String, String>,
+}
+
+pub struct WorkspaceNotificationSettingsResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceNotificationSettingsUpdateRequest {
+	pub auto_top_up: Option<HashMap<String, String>>,
+	pub email_preferences: Option<HashMap<String, String>>,
+	pub low_balance_email: Option<HashMap<String, String>>,
+}
+
+pub struct WorkspaceNotificationTestResponse {
+	pub data: HashMap<String, String>,
 }
 
 pub type WorkspaceProviderRestrictionMode = JsonValue;
