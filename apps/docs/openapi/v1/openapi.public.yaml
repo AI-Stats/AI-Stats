@@ -944,6 +944,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AudioTranslationResponse'
+  /audio/realtime/sessions:
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: createRealtimeSession
+      summary: Create realtime audio session
+      description: Creates a metered realtime audio session and returns relay connection details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - model
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - realtime
+                model:
+                  type: string
+                provider:
+                  type: string
+                voice:
+                  type: string
+                instructions:
+                  type: string
+                  maxLength: 4000
+                source:
+                  type: string
+                  enum:
+                    - api
+                    - chat
+                metadata:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Realtime session created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /audio/realtime/sessions/{session_id}/relay:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: connectRealtimeSessionRelay
+      summary: Connect realtime relay
+      description: Upgrades to a WebSocket relay using the session relay secret as a subprotocol.
+      security: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket connection established
   /images/generations:
     post:
       x-beta: true

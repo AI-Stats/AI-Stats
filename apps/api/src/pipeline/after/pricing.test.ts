@@ -182,7 +182,7 @@ describe("after/pricing calculatePricing", () => {
 		expect(result.pricedUsage?.pricing?.lines ?? []).toHaveLength(0);
 	});
 
-	it("bills conservatively when a requested pricing plan has a coverage gap", () => {
+	it("falls back to a matching standard rule when the requested plan conditions do not match", () => {
 		const card: PriceCard = {
 			...TTS_CARD,
 			rules: [
@@ -202,9 +202,9 @@ describe("after/pricing calculatePricing", () => {
 			{ service_tier: "priority" },
 		);
 
-		expect(result.totalNanos).toBe(2_000_000);
+		expect(result.totalNanos).toBe(600_000);
 		expect(result.pricedUsage?.pricing?.lines?.[0]?.rule_id).toBeUndefined();
-		expect(result.pricedUsage?.pricing?.lines?.[0]?.unit_price_usd).toBe("2.000000000");
+		expect(result.pricedUsage?.pricing?.lines?.[0]?.unit_price_usd).toBe("0.600000000");
 	});
 
 	it("infers image pricing qualifiers from output tokens when the request used auto defaults", () => {

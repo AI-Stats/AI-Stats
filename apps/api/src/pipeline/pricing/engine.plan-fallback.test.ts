@@ -118,5 +118,30 @@ describe("pricing engine non-standard plan fallback", () => {
 		]);
 		expect(result.cost_usd_str).toBe("9.900000000");
 	});
-});
 
+	it("does not bill an unmatched rule when no requested or standard plan condition applies", () => {
+		const card = makeCard([
+			{
+				id: "batch-high-quality-image",
+				pricing_plan: "batch",
+				meter: "output_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: "0.25",
+				currency: "USD",
+				match: [{ path: "image_params.quality", op: "eq", value: "high" }],
+				priority: 100,
+			},
+		]);
+
+		const result = computeBillSummary(
+			{ output_image: 1 },
+			card,
+			{ image_params: { quality: "low" } },
+			"batch",
+		);
+
+		expect(result.lines).toEqual([]);
+		expect(result.cost_usd_str).toBe("0.000000000");
+	});
+});

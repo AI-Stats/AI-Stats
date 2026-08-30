@@ -99,6 +99,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createRealtimeSession(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audio/realtime/sessions"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createRerank(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/rerank"
@@ -432,12 +438,6 @@ module Phaseo
       def self.listWorkspaces(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces"
-        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
-      def self.openAsyncJobWebSocket(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/async/#{URI.encode_uri_component(path["kind"].to_s)}/#{URI.encode_uri_component(path["id"].to_s)}/ws"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
