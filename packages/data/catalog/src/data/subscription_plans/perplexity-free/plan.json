@@ -2,7 +2,7 @@
   "plan_id": "perplexity-free",
   "name": "Perplexity Free",
   "organisation_id": "perplexity",
-  "description": null,
+  "description": "Free Perplexity plan for basic search and occasional Pro Search use.",
   "pricing_options": [
     {
       "frequency": "monthly",
@@ -11,6 +11,31 @@
       "other_info": null
     }
   ],
-  "features": [],
+  "features": [
+    {
+      "feature_name": "Basic Searches",
+      "feature_value": "Practically unlimited",
+      "feature_description": null,
+      "other_info": null
+    },
+    {
+      "feature_name": "Pro Searches",
+      "feature_value": "Very limited",
+      "feature_description": null,
+      "other_info": null
+    },
+    {
+      "feature_name": "Model Selection",
+      "feature_value": "Best automatic selection",
+      "feature_description": "Free users cannot manually select advanced Search models.",
+      "other_info": null
+    },
+    {
+      "feature_name": "File Uploads",
+      "feature_value": "Limited",
+      "feature_description": null,
+      "other_info": null
+    }
+  ],
   "models": []
 }

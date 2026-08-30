@@ -6,6 +6,7 @@ import {
     checkPreviousModelReference,
     checkPricingEntrySafety,
     checkSubscriptionPlanModels,
+    checkSubscriptionPlanShape,
     isMajorError,
     normalizedModelIdentity,
 } from '@/data/validate';
@@ -60,6 +61,36 @@ describe('subscription plan model checks', () => {
         )).toEqual([
             'Subscription plan example-plan contains duplicate model example/model',
         ]);
+    });
+});
+
+describe('subscription plan shape checks', () => {
+    test('rejects missing pricing, feature, and model arrays', () => {
+        expect(checkSubscriptionPlanShape('example-plan', {})).toEqual([
+            'Subscription plan example-plan must contain at least one pricing option',
+            'Subscription plan example-plan features must be an array',
+            'Subscription plan example-plan models must be an array',
+        ]);
+    });
+
+    test('rejects invalid prices, frequencies, and source links', () => {
+        expect(checkSubscriptionPlanShape('example-plan', {
+            pricing_options: [{ frequency: 'weekly', usd_price: -1, link: 'http://example.com' }],
+            features: [],
+            models: [],
+        })).toEqual([
+            'Subscription plan example-plan pricing option 0 has unsupported frequency weekly',
+            'Subscription plan example-plan pricing option 0 must have a non-negative finite usd_price',
+            'Subscription plan example-plan pricing option 0 source link must use HTTPS',
+        ]);
+    });
+
+    test('accepts a valid usage-priced plan', () => {
+        expect(checkSubscriptionPlanShape('example-plan', {
+            pricing_options: [{ frequency: 'usage', usd_price: 0, link: 'https://example.com/pricing' }],
+            features: [],
+            models: [],
+        })).toEqual([]);
     });
 });
 

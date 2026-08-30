@@ -7,7 +7,7 @@
     {
       "frequency": "one-time",
       "usd_price": 1,
-      "link": "https://platform.moonshot.ai/docs/pricing/limits.en-US",
+      "link": "https://platform.kimi.ai/docs/pricing/limits",
       "other_info": "Minimum recharge required to start usage"
     }
   ],
@@ -38,6 +38,12 @@
     }
   ],
   "models": [
+    {
+      "model_id": "moonshotai/kimi-k3",
+      "model_info": "Current Kimi API flagship model",
+      "rate_limit": "Tier0 account limits apply",
+      "other_info": null
+    },
     {
       "model_id": "moonshotai/kimi-k2.5",
       "model_info": null,
