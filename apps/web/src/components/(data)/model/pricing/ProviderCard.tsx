@@ -46,7 +46,7 @@ import {
 	UpcomingPricingSection,
 } from "@/components/(data)/model/pricing/sections";
 import {
-	buildSupportedParameters,
+	buildParameterSupportSummary,
 	prettifyParamName,
 } from "@/components/(data)/model/pricing/ProviderModelParameters";
 import {
@@ -2503,7 +2503,8 @@ export default function ProviderCard({
 		capacityMetrics.find((metric) => metric.label === "Total Context")?.value ?? "--";
 	const maxOutputValue =
 		capacityMetrics.find((metric) => metric.label === "Max Output")?.value ?? "--";
-	const supportedParameters = buildSupportedParameters(infoScope);
+	const parameterSupport = buildParameterSupportSummary(infoScope);
+	const supportedParameters = parameterSupport.parameters;
 	const displayProviderModelIds = Array.from(
 		new Set(
 			infoScope.map(
@@ -3572,15 +3573,27 @@ export default function ProviderCard({
 								id={parametersSectionId}
 								className="scroll-mt-5 space-y-1 border-t border-zinc-200/80 py-2 dark:border-zinc-800"
 							>
-								<div>
-									<h3 className="text-[15px] font-semibold text-foreground">Supported Parameters</h3>
+								<div className="flex items-center justify-between gap-3">
+									<h3 className="text-[15px] font-semibold text-foreground">Parameter support</h3>
+									{parameterSupport.status !== "documented" ? (
+										<span className="rounded-full border border-amber-300/70 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+											{parameterSupport.status === "partial" ? "Partial" : "Unknown"}
+										</span>
+									) : null}
 								</div>
 								{supportedParameters.length > 0 ? (
-									<div className="flex flex-wrap items-start gap-1.5">
-										{supportedParameters.map((param) => {
-											const reference = getParameterReference(param);
-											return (
-												<HoverCard key={param} openDelay={120} closeDelay={80}>
+									<div className="space-y-2">
+										{parameterSupport.status === "partial" ? (
+											<p className="text-xs leading-relaxed text-muted-foreground">
+												Listed parameters are documented. Other selected routes do not publish
+												parameter metadata, so additional support may vary.
+											</p>
+										) : null}
+										<div className="flex flex-wrap items-start gap-1.5">
+											{supportedParameters.map((param) => {
+												const reference = getParameterReference(param);
+												return (
+													<HoverCard key={param} openDelay={120} closeDelay={80}>
 													<HoverCardTrigger asChild>
 														<Button
 															type="button"
@@ -3625,13 +3638,23 @@ export default function ProviderCard({
 															</div>
 														</div>
 													</HoverCardContent>
-												</HoverCard>
-											);
-										})}
+													</HoverCard>
+												);
+											})}
+										</div>
 									</div>
 								) : (
-									<div className="rounded-lg border border-dashed border-zinc-200/80 bg-zinc-50/60 px-3 py-3 text-sm text-muted-foreground dark:border-zinc-800 dark:bg-zinc-900/30">
-										No parameter metadata is published for this route.
+									<div className="rounded-lg border border-amber-200/80 bg-amber-50/60 px-3 py-3 dark:border-amber-900/70 dark:bg-amber-950/20">
+										<div className="flex items-start gap-2">
+											<Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300" />
+											<div>
+												<p className="text-sm font-medium text-foreground">Support not documented</p>
+												<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+													Phaseo has no verified parameter list for this route. Recognized API
+													parameters may still be sent, but the provider can reject unsupported values.
+												</p>
+											</div>
+										</div>
 									</div>
 								)}
 							</section>
