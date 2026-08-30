@@ -2723,6 +2723,183 @@ export async function createModeration(
   });
 }
 
+export type CreateObservabilityDestinationParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config: {
+      [key: string]: string;
+    };
+    enabled?: boolean;
+    group_join?: "and" | "or";
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters?: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode?: boolean;
+    rule_groups?: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate?: number;
+    type: "otel_collector" | "webhook";
+  };
+};
+
+/**
+ * Creates a destination with encrypted, write-only configuration. Management API key required.
+ */
+export async function createObservabilityDestination(
+  client: Client,
+  args: CreateObservabilityDestinationParams = {},
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/destinations";
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateOcrParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4748,6 +4925,37 @@ export async function deleteApiKey(
   });
 }
 
+export type DeleteObservabilityDestinationParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a destination and its key and rule filters.
+ */
+export async function deleteObservabilityDestination(
+  client: Client,
+  args: DeleteObservabilityDestinationParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteVideoParams = {
   path?: {
     video_id: string;
@@ -5678,6 +5886,184 @@ export async function getMusicGenerationAlias(
       [key: string]: unknown;
     };
     [key: string]: unknown;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetObservabilityDestinationParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns destination metadata and filters without secret configuration.
+ */
+export async function getObservabilityDestination(
+  client: Client,
+  args: GetObservabilityDestinationParams = {},
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetObservabilityLoggingPolicyParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns workspace log storage and retention settings with read-only billing state.
+ */
+export async function getObservabilityLoggingPolicy(
+  client: Client,
+  args: GetObservabilityLoggingPolicyParams = {},
+): Promise<{
+  data: {
+    billing_status: "active" | "grace" | "suspended";
+    enabled: boolean;
+    grace_until?: string | null;
+    include_provider_payloads: boolean;
+    price_per_million_units_nanos: number;
+    retention_days: number;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/logging-policy";
+  return client.request<{
+    data: {
+      billing_status: "active" | "grace" | "suspended";
+      enabled: boolean;
+      grace_until?: string | null;
+      include_provider_payloads: boolean;
+      price_per_million_units_nanos: number;
+      retention_days: number;
+      updated_at?: string | null;
+      workspace_id: string;
+    };
   }>({
     method: "GET",
     path: resolvedPath,
@@ -8528,6 +8914,140 @@ export async function listModels(
   });
 }
 
+export type ListObservabilityDestinationsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists executable observability destinations for the management key workspace.
+ */
+export async function listObservabilityDestinations(
+  client: Client,
+  args: ListObservabilityDestinationsParams = {},
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/destinations";
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListOrganisationsParams = {
   path?: Record<string, never>;
   query?: {
@@ -11096,6 +11616,235 @@ export async function updateApiKey(
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateObservabilityDestinationParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      [key: string]: string;
+    };
+    enabled?: boolean;
+    group_join?: "and" | "or";
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters?: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name?: string;
+    privacy_mode?: boolean;
+    rule_groups?: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate?: number;
+  };
+};
+
+/**
+ * Updates destination policy, filters, or write-only configuration.
+ */
+export async function updateObservabilityDestination(
+  client: Client,
+  args: UpdateObservabilityDestinationParams = {},
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateObservabilityLoggingPolicyParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    enabled?: boolean;
+    include_provider_payloads?: boolean;
+    retention_days?: number;
+  };
+};
+
+/**
+ * Updates log storage, retention, and provider-payload capture settings.
+ */
+export async function updateObservabilityLoggingPolicy(
+  client: Client,
+  args: UpdateObservabilityLoggingPolicyParams = {},
+): Promise<{
+  data: {
+    billing_status: "active" | "grace" | "suspended";
+    enabled: boolean;
+    grace_until?: string | null;
+    include_provider_payloads: boolean;
+    price_per_million_units_nanos: number;
+    retention_days: number;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/logging-policy";
+  return client.request<{
+    data: {
+      billing_status: "active" | "grace" | "suspended";
+      enabled: boolean;
+      grace_until?: string | null;
+      include_provider_payloads: boolean;
+      price_per_million_units_nanos: number;
+      retention_days: number;
+      updated_at?: string | null;
       workspace_id: string;
     };
   }>({

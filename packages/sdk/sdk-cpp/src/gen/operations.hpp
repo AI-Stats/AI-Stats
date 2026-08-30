@@ -84,6 +84,11 @@ inline Response CreateModeration(Client& client, const std::map<std::string, std
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/destinations";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateOcr(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/ocr";
 	return client.request("POST", resolved_path, body);
@@ -151,6 +156,11 @@ inline Response CreateWorkspaceInvite(Client& client, const std::map<std::string
 
 inline Response DeleteApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -226,6 +236,16 @@ inline Response GetMusicGeneration(Client& client, const std::map<std::string, s
 
 inline Response GetMusicGenerationAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/music/generations/" + (path.count("music_id") ? path.at("music_id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetObservabilityLoggingPolicy(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/logging-policy";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -336,6 +356,11 @@ inline Response ListModelEndpoints(Client& client, const std::map<std::string, s
 
 inline Response ListModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/models";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListObservabilityDestinations(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/destinations";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -461,6 +486,16 @@ inline Response RetrieveFileContent(Client& client, const std::map<std::string, 
 
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateObservabilityLoggingPolicy(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/observability/logging-policy";
 	return client.request("PATCH", resolved_path, body);
 }
 

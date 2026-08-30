@@ -1095,6 +1095,119 @@ struct NotImplementedResponse {
 	int status_code;
 };
 
+struct ObservabilityDestination {
+	bool configured;
+	std::optional<std::string> created_at;
+	bool enabled;
+	std::any group_join;
+	std::string id;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	bool privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	double sampling_rate;
+	std::any type;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct ObservabilityDestinationCreateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<bool> enabled;
+	std::any group_join;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	std::optional<bool> privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	std::optional<double> sampling_rate;
+	std::any type;
+};
+
+struct ObservabilityDestinationListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct ObservabilityDestinationPolicyInput {
+	std::optional<bool> enabled;
+	std::any group_join;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	std::optional<bool> privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	std::optional<double> sampling_rate;
+};
+
+struct ObservabilityDestinationResponse {
+	std::map<std::string, std::any> data;
+};
+
+using ObservabilityDestinationType = std::any;
+
+struct ObservabilityDestinationUpdateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<bool> enabled;
+	std::any group_join;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	std::optional<bool> privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	std::optional<double> sampling_rate;
+};
+
+struct ObservabilityKeyFilter {
+	std::string key_id;
+	std::any mode;
+};
+
+struct ObservabilityLoggingPolicy {
+	std::any billing_status;
+	bool enabled;
+	std::optional<std::string> grace_until;
+	bool include_provider_payloads;
+	int price_per_million_units_nanos;
+	int retention_days;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct ObservabilityLoggingPolicyResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct ObservabilityLoggingPolicyUpdateRequest {
+	std::optional<bool> enabled;
+	std::optional<bool> include_provider_payloads;
+	std::optional<int> retention_days;
+};
+
+struct ObservabilityRule {
+	std::any condition;
+	std::any field;
+	std::optional<std::string> value;
+};
+
+struct ObservabilityRuleGroup {
+	std::any match;
+	std::vector<std::map<std::string, std::any>> rules;
+};
+
 struct OcrRequest {
 	std::map<std::string, std::any> debug;
 	std::optional<bool> echo_upstream_request;

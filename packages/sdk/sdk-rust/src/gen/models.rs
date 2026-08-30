@@ -1091,6 +1091,119 @@ pub struct NotImplementedResponse {
 	pub status_code: i64,
 }
 
+pub struct ObservabilityDestination {
+	pub configured: bool,
+	pub created_at: Option<Option<String>>,
+	pub enabled: bool,
+	pub group_join: String,
+	pub id: String,
+	pub include_cost_metadata: Option<bool>,
+	pub include_generation_metadata: Option<bool>,
+	pub include_identity_metadata: Option<bool>,
+	pub include_request_context: Option<bool>,
+	pub key_filters: Vec<HashMap<String, String>>,
+	pub name: String,
+	pub privacy_mode: bool,
+	pub rule_groups: Vec<HashMap<String, String>>,
+	pub sampling_rate: f64,
+	pub r#type: String,
+	pub updated_at: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct ObservabilityDestinationCreateRequest {
+	pub config: HashMap<String, String>,
+	pub enabled: Option<bool>,
+	pub group_join: Option<String>,
+	pub include_cost_metadata: Option<bool>,
+	pub include_generation_metadata: Option<bool>,
+	pub include_identity_metadata: Option<bool>,
+	pub include_request_context: Option<bool>,
+	pub key_filters: Option<Vec<HashMap<String, String>>>,
+	pub name: String,
+	pub privacy_mode: Option<bool>,
+	pub rule_groups: Option<Vec<HashMap<String, String>>>,
+	pub sampling_rate: Option<f64>,
+	pub r#type: String,
+}
+
+pub struct ObservabilityDestinationListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct ObservabilityDestinationPolicyInput {
+	pub enabled: Option<bool>,
+	pub group_join: Option<String>,
+	pub include_cost_metadata: Option<bool>,
+	pub include_generation_metadata: Option<bool>,
+	pub include_identity_metadata: Option<bool>,
+	pub include_request_context: Option<bool>,
+	pub key_filters: Option<Vec<HashMap<String, String>>>,
+	pub name: Option<String>,
+	pub privacy_mode: Option<bool>,
+	pub rule_groups: Option<Vec<HashMap<String, String>>>,
+	pub sampling_rate: Option<f64>,
+}
+
+pub struct ObservabilityDestinationResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub type ObservabilityDestinationType = JsonValue;
+
+pub struct ObservabilityDestinationUpdateRequest {
+	pub config: Option<HashMap<String, String>>,
+	pub enabled: Option<bool>,
+	pub group_join: Option<String>,
+	pub include_cost_metadata: Option<bool>,
+	pub include_generation_metadata: Option<bool>,
+	pub include_identity_metadata: Option<bool>,
+	pub include_request_context: Option<bool>,
+	pub key_filters: Option<Vec<HashMap<String, String>>>,
+	pub name: Option<String>,
+	pub privacy_mode: Option<bool>,
+	pub rule_groups: Option<Vec<HashMap<String, String>>>,
+	pub sampling_rate: Option<f64>,
+}
+
+pub struct ObservabilityKeyFilter {
+	pub key_id: String,
+	pub mode: String,
+}
+
+pub struct ObservabilityLoggingPolicy {
+	pub billing_status: String,
+	pub enabled: bool,
+	pub grace_until: Option<Option<String>>,
+	pub include_provider_payloads: bool,
+	pub price_per_million_units_nanos: i64,
+	pub retention_days: i64,
+	pub updated_at: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct ObservabilityLoggingPolicyResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct ObservabilityLoggingPolicyUpdateRequest {
+	pub enabled: Option<bool>,
+	pub include_provider_payloads: Option<bool>,
+	pub retention_days: Option<i64>,
+}
+
+pub struct ObservabilityRule {
+	pub condition: String,
+	pub field: String,
+	pub value: Option<Option<String>>,
+}
+
+pub struct ObservabilityRuleGroup {
+	pub r#match: String,
+	pub rules: Vec<HashMap<String, String>>,
+}
+
 pub struct OcrRequest {
 	pub debug: Option<HashMap<String, String>>,
 	pub echo_upstream_request: Option<bool>,

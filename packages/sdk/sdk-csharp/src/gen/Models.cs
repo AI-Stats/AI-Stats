@@ -2672,6 +2672,281 @@ public sealed class NotImplementedResponse
 
 }
 
+public sealed class ObservabilityDestination
+{
+	[JsonPropertyName("configured")]
+	public bool Configured { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("group_join")]
+	public string GroupJoin { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("include_cost_metadata")]
+	public bool? IncludeCostMetadata { get; set; }
+
+	[JsonPropertyName("include_generation_metadata")]
+	public bool? IncludeGenerationMetadata { get; set; }
+
+	[JsonPropertyName("include_identity_metadata")]
+	public bool? IncludeIdentityMetadata { get; set; }
+
+	[JsonPropertyName("include_request_context")]
+	public bool? IncludeRequestContext { get; set; }
+
+	[JsonPropertyName("key_filters")]
+	public List<Dictionary<string, object>> KeyFilters { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacy_mode")]
+	public bool PrivacyMode { get; set; }
+
+	[JsonPropertyName("rule_groups")]
+	public List<Dictionary<string, object>> RuleGroups { get; set; }
+
+	[JsonPropertyName("sampling_rate")]
+	public double SamplingRate { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class ObservabilityDestinationCreateRequest
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object> Config { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("group_join")]
+	public string? GroupJoin { get; set; }
+
+	[JsonPropertyName("include_cost_metadata")]
+	public bool? IncludeCostMetadata { get; set; }
+
+	[JsonPropertyName("include_generation_metadata")]
+	public bool? IncludeGenerationMetadata { get; set; }
+
+	[JsonPropertyName("include_identity_metadata")]
+	public bool? IncludeIdentityMetadata { get; set; }
+
+	[JsonPropertyName("include_request_context")]
+	public bool? IncludeRequestContext { get; set; }
+
+	[JsonPropertyName("key_filters")]
+	public List<Dictionary<string, object>>? KeyFilters { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacy_mode")]
+	public bool? PrivacyMode { get; set; }
+
+	[JsonPropertyName("rule_groups")]
+	public List<Dictionary<string, object>>? RuleGroups { get; set; }
+
+	[JsonPropertyName("sampling_rate")]
+	public double? SamplingRate { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+}
+
+public sealed class ObservabilityDestinationListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class ObservabilityDestinationPolicyInput
+{
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("group_join")]
+	public string? GroupJoin { get; set; }
+
+	[JsonPropertyName("include_cost_metadata")]
+	public bool? IncludeCostMetadata { get; set; }
+
+	[JsonPropertyName("include_generation_metadata")]
+	public bool? IncludeGenerationMetadata { get; set; }
+
+	[JsonPropertyName("include_identity_metadata")]
+	public bool? IncludeIdentityMetadata { get; set; }
+
+	[JsonPropertyName("include_request_context")]
+	public bool? IncludeRequestContext { get; set; }
+
+	[JsonPropertyName("key_filters")]
+	public List<Dictionary<string, object>>? KeyFilters { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("privacy_mode")]
+	public bool? PrivacyMode { get; set; }
+
+	[JsonPropertyName("rule_groups")]
+	public List<Dictionary<string, object>>? RuleGroups { get; set; }
+
+	[JsonPropertyName("sampling_rate")]
+	public double? SamplingRate { get; set; }
+
+}
+
+public sealed class ObservabilityDestinationResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class ObservabilityDestinationType { }
+
+public sealed class ObservabilityDestinationUpdateRequest
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object>? Config { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("group_join")]
+	public string? GroupJoin { get; set; }
+
+	[JsonPropertyName("include_cost_metadata")]
+	public bool? IncludeCostMetadata { get; set; }
+
+	[JsonPropertyName("include_generation_metadata")]
+	public bool? IncludeGenerationMetadata { get; set; }
+
+	[JsonPropertyName("include_identity_metadata")]
+	public bool? IncludeIdentityMetadata { get; set; }
+
+	[JsonPropertyName("include_request_context")]
+	public bool? IncludeRequestContext { get; set; }
+
+	[JsonPropertyName("key_filters")]
+	public List<Dictionary<string, object>>? KeyFilters { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("privacy_mode")]
+	public bool? PrivacyMode { get; set; }
+
+	[JsonPropertyName("rule_groups")]
+	public List<Dictionary<string, object>>? RuleGroups { get; set; }
+
+	[JsonPropertyName("sampling_rate")]
+	public double? SamplingRate { get; set; }
+
+}
+
+public sealed class ObservabilityKeyFilter
+{
+	[JsonPropertyName("key_id")]
+	public string KeyId { get; set; }
+
+	[JsonPropertyName("mode")]
+	public string Mode { get; set; }
+
+}
+
+public sealed class ObservabilityLoggingPolicy
+{
+	[JsonPropertyName("billing_status")]
+	public string BillingStatus { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("grace_until")]
+	public string? GraceUntil { get; set; }
+
+	[JsonPropertyName("include_provider_payloads")]
+	public bool IncludeProviderPayloads { get; set; }
+
+	[JsonPropertyName("price_per_million_units_nanos")]
+	public int PricePerMillionUnitsNanos { get; set; }
+
+	[JsonPropertyName("retention_days")]
+	public int RetentionDays { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class ObservabilityLoggingPolicyResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class ObservabilityLoggingPolicyUpdateRequest
+{
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("include_provider_payloads")]
+	public bool? IncludeProviderPayloads { get; set; }
+
+	[JsonPropertyName("retention_days")]
+	public int? RetentionDays { get; set; }
+
+}
+
+public sealed class ObservabilityRule
+{
+	[JsonPropertyName("condition")]
+	public string Condition { get; set; }
+
+	[JsonPropertyName("field")]
+	public string Field { get; set; }
+
+	[JsonPropertyName("value")]
+	public string? Value { get; set; }
+
+}
+
+public sealed class ObservabilityRuleGroup
+{
+	[JsonPropertyName("match")]
+	public string Match { get; set; }
+
+	[JsonPropertyName("rules")]
+	public List<Dictionary<string, object>> Rules { get; set; }
+
+}
+
 public sealed class OcrRequest
 {
 	[JsonPropertyName("debug")]

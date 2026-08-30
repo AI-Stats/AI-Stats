@@ -42,7 +42,7 @@ OpenAPI schema does not count as complete.
 | Routing policies | Settings and dashboard controls | Partial | Contract workspace defaults, provider ordering, fallback policy, and dynamic route/version deployment. |
 | Presets | CRUD and version publish | Runtime only | Publish the existing contract; add request-derived versions, designated-version changes, forks, and upstream/publisher operations where supported by the UI. |
 | Plugins and tools | Dashboard/request controls | Missing | Add workspace defaults and assignment APIs for durable plugin configuration. |
-| Observability | Logs plus dashboard destinations | Partial | Contract logs, I/O logging policy, sampling/key filters, broadcast destinations, and destination key assignments. |
+| Observability | Logs, workspace I/O logging policy, and webhook/OpenTelemetry destination CRUD with privacy, sampling, key filters, and event rules | Contracted for executable exporters | Add destination types only when their exporters are executable. |
 | Workspace budgets | Guardrail/limit primitives | Missing as a resource | Add daily, weekly, monthly, and lifetime budget CRUD with hierarchy validation and usage/remaining values. |
 | Organisation administration | Workspace-native membership and invitations | Partial | Contract SSO, SCIM, and directory administration; Phaseo currently treats each organisation workspace as the membership boundary. |
 | Usage, credits, and analytics | Read endpoints | Partially contracted | Close OpenAPI/SDK gaps and provide workspace, member, key, model, and provider filters with stable pagination/export behavior. |

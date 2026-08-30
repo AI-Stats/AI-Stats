@@ -115,6 +115,13 @@ function createModeration(Client $client, ?array $path = null, ?array $query = n
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/destinations";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createOcr(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -210,6 +217,13 @@ function deleteApiKey(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/destinations/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -315,6 +329,20 @@ function getMusicGenerationAlias(Client $client, ?array $path = null, ?array $qu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/music/generations/" . rawurlencode((string)($path["music_id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/destinations/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getObservabilityLoggingPolicy(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/logging-policy";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -469,6 +497,13 @@ function listModels(Client $client, ?array $path = null, ?array $query = null, ?
 {
 	$path = $path ?? [];
 	$resolvedPath = "/models";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listObservabilityDestinations(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/destinations";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -644,6 +679,20 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/destinations/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateObservabilityLoggingPolicy(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/observability/logging-policy";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

@@ -3053,6 +3053,217 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /observability/logging-policy:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getObservabilityLoggingPolicy
+      summary: Get workspace I/O logging policy
+      description: Returns workspace log storage and retention settings with read-only billing state.
+      responses:
+        '200':
+          description: Logging policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityLoggingPolicyResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateObservabilityLoggingPolicy
+      summary: Update workspace I/O logging policy
+      description: Updates log storage, retention, and provider-payload capture settings.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservabilityLoggingPolicyUpdateRequest'
+      responses:
+        '200':
+          description: Updated logging policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityLoggingPolicyResponse'
+        '400':
+          description: Invalid logging policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /observability/destinations:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listObservabilityDestinations
+      summary: List observability destinations
+      description: Lists executable observability destinations for the management key workspace.
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit100'
+      responses:
+        '200':
+          description: Destination list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityDestinationListResponse'
+        '400':
+          description: Invalid pagination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createObservabilityDestination
+      summary: Create an observability destination
+      description: Creates a destination with encrypted, write-only configuration. Management API key required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservabilityDestinationCreateRequest'
+      responses:
+        '201':
+          description: Destination created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityDestinationResponse'
+        '400':
+          description: Invalid destination configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Destination persistence failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /observability/destinations/{id}:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getObservabilityDestination
+      summary: Get an observability destination
+      description: Returns destination metadata and filters without secret configuration.
+      parameters:
+        - $ref: '#/components/parameters/ObservabilityDestinationId'
+      responses:
+        '200':
+          description: Destination metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityDestinationResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Destination not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateObservabilityDestination
+      summary: Update an observability destination
+      description: Updates destination policy, filters, or write-only configuration.
+      parameters:
+        - $ref: '#/components/parameters/ObservabilityDestinationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservabilityDestinationUpdateRequest'
+      responses:
+        '200':
+          description: Destination updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityDestinationResponse'
+        '400':
+          description: Invalid update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Destination not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteObservabilityDestination
+      summary: Delete an observability destination
+      description: Deletes a destination and its key and rule filters.
+      parameters:
+        - $ref: '#/components/parameters/ObservabilityDestinationId'
+      responses:
+        '200':
+          description: Destination deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Destination not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /organisations:
     get:
       x-beta: true
@@ -4127,6 +4338,14 @@ components:
       schema:
         type: string
   parameters:
+    ObservabilityDestinationId:
+      name: id
+      in: path
+      required: true
+      description: Observability destination identifier.
+      schema:
+        type: string
+        format: uuid
     Offset:
       name: offset
       in: query
@@ -9850,6 +10069,237 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WorkspaceJoinRequest'
+        total_count:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    ObservabilityLoggingPolicy:
+      type: object
+      required: [workspace_id, enabled, retention_days, include_provider_payloads, billing_status, price_per_million_units_nanos]
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        enabled:
+          type: boolean
+        retention_days:
+          type: integer
+          minimum: 90
+          maximum: 365
+        include_provider_payloads:
+          type: boolean
+        billing_status:
+          type: string
+          enum: [active, grace, suspended]
+          readOnly: true
+        grace_until:
+          type: string
+          format: date-time
+          nullable: true
+          readOnly: true
+        price_per_million_units_nanos:
+          type: integer
+          minimum: 0
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    ObservabilityLoggingPolicyUpdateRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        retention_days:
+          type: integer
+          minimum: 90
+          maximum: 365
+        include_provider_payloads:
+          type: boolean
+      minProperties: 1
+      additionalProperties: false
+    ObservabilityLoggingPolicyResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ObservabilityLoggingPolicy'
+      additionalProperties: false
+    ObservabilityDestinationType:
+      type: string
+      enum: [otel_collector, webhook]
+    ObservabilityKeyFilter:
+      type: object
+      required: [key_id, mode]
+      properties:
+        key_id:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum: [include, exclude]
+      additionalProperties: false
+    ObservabilityRule:
+      type: object
+      required: [field, condition]
+      properties:
+        field:
+          type: string
+          enum: [model, provider, session_id, user_id, api_key_name, finish_reason, input, output, token_cost, total_cost, total_tokens, prompt_tokens, completion_tokens]
+        condition:
+          type: string
+          enum: [equals, not_equals, contains, not_contains, starts_with, ends_with, exists, not_exists, matches_regex]
+        value:
+          type: string
+          maxLength: 2000
+          nullable: true
+      additionalProperties: false
+    ObservabilityRuleGroup:
+      type: object
+      required: [match, rules]
+      properties:
+        match:
+          type: string
+          enum: [and, or]
+        rules:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/ObservabilityRule'
+      additionalProperties: false
+    ObservabilityDestination:
+      type: object
+      required: [id, workspace_id, type, name, enabled, privacy_mode, sampling_rate, group_join, key_filters, rule_groups, configured]
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/ObservabilityDestinationType'
+        name:
+          type: string
+        enabled:
+          type: boolean
+        privacy_mode:
+          type: boolean
+        sampling_rate:
+          type: number
+          minimum: 0.0001
+          maximum: 1
+        group_join:
+          type: string
+          enum: [and, or]
+        include_generation_metadata:
+          type: boolean
+        include_cost_metadata:
+          type: boolean
+        include_identity_metadata:
+          type: boolean
+        include_request_context:
+          type: boolean
+        key_filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservabilityKeyFilter'
+        rule_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservabilityRuleGroup'
+        configured:
+          type: boolean
+          description: Whether encrypted destination configuration is present.
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    ObservabilityDestinationPolicyInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        enabled:
+          type: boolean
+        privacy_mode:
+          type: boolean
+        sampling_rate:
+          type: number
+          minimum: 0.0001
+          maximum: 1
+        group_join:
+          type: string
+          enum: [and, or]
+        include_generation_metadata:
+          type: boolean
+        include_cost_metadata:
+          type: boolean
+        include_identity_metadata:
+          type: boolean
+        include_request_context:
+          type: boolean
+        key_filters:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ObservabilityKeyFilter'
+        rule_groups:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ObservabilityRuleGroup'
+    ObservabilityDestinationCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/ObservabilityDestinationPolicyInput'
+        - type: object
+          required: [type, name, config]
+          properties:
+            type:
+              $ref: '#/components/schemas/ObservabilityDestinationType'
+            config:
+              type: object
+              minProperties: 1
+              maxProperties: 30
+              additionalProperties:
+                type: string
+              writeOnly: true
+    ObservabilityDestinationUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/ObservabilityDestinationPolicyInput'
+        - type: object
+          properties:
+            config:
+              type: object
+              minProperties: 1
+              maxProperties: 30
+              additionalProperties:
+                type: string
+              writeOnly: true
+    ObservabilityDestinationResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ObservabilityDestination'
+      additionalProperties: false
+    ObservabilityDestinationListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservabilityDestination'
         total_count:
           type: integer
           minimum: 0

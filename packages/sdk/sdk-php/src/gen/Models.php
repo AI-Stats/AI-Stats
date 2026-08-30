@@ -1937,6 +1937,206 @@ class NotImplementedResponse
 	public $status_code;
 }
 
+class ObservabilityDestination
+{
+	/** @var bool */
+	public $configured;
+	/** @var string|null */
+	public $created_at;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $group_join;
+	/** @var string */
+	public $id;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array */
+	public $key_filters;
+	/** @var string */
+	public $name;
+	/** @var bool */
+	public $privacy_mode;
+	/** @var array */
+	public $rule_groups;
+	/** @var float */
+	public $sampling_rate;
+	/** @var string */
+	public $type;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ObservabilityDestinationCreateRequest
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $group_join;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array|null */
+	public $key_filters;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $privacy_mode;
+	/** @var array|null */
+	public $rule_groups;
+	/** @var float|null */
+	public $sampling_rate;
+	/** @var string */
+	public $type;
+}
+
+class ObservabilityDestinationListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class ObservabilityDestinationPolicyInput
+{
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $group_join;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array|null */
+	public $key_filters;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacy_mode;
+	/** @var array|null */
+	public $rule_groups;
+	/** @var float|null */
+	public $sampling_rate;
+}
+
+class ObservabilityDestinationResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ObservabilityDestinationType { }
+
+class ObservabilityDestinationUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $group_join;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array|null */
+	public $key_filters;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacy_mode;
+	/** @var array|null */
+	public $rule_groups;
+	/** @var float|null */
+	public $sampling_rate;
+}
+
+class ObservabilityKeyFilter
+{
+	/** @var string */
+	public $key_id;
+	/** @var string */
+	public $mode;
+}
+
+class ObservabilityLoggingPolicy
+{
+	/** @var string */
+	public $billing_status;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $grace_until;
+	/** @var bool */
+	public $include_provider_payloads;
+	/** @var int */
+	public $price_per_million_units_nanos;
+	/** @var int */
+	public $retention_days;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ObservabilityLoggingPolicyResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ObservabilityLoggingPolicyUpdateRequest
+{
+	/** @var bool|null */
+	public $enabled;
+	/** @var bool|null */
+	public $include_provider_payloads;
+	/** @var int|null */
+	public $retention_days;
+}
+
+class ObservabilityRule
+{
+	/** @var string */
+	public $condition;
+	/** @var string */
+	public $field;
+	/** @var string|null */
+	public $value;
+}
+
+class ObservabilityRuleGroup
+{
+	/** @var string */
+	public $match;
+	/** @var array */
+	public $rules;
+}
+
 class OcrRequest
 {
 	/** @var array<string, mixed>|null */

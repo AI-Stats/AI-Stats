@@ -212,6 +212,19 @@ def createModeration(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createObservabilityDestination(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ObservabilityDestinationResponse:
+	path = path or {}
+	resolved_path = "/observability/destinations"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createOcr(
 	client: Client,
 	*,
@@ -391,6 +404,19 @@ def deleteApiKey(
 ) -> DeletedResponse:
 	path = path or {}
 	resolved_path = f"/keys/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteObservabilityDestination(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DeletedResponse:
+	path = path or {}
+	resolved_path = f"/observability/destinations/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -586,6 +612,32 @@ def getMusicGenerationAlias(
 ) -> MusicGenerateResponse:
 	path = path or {}
 	resolved_path = f"/music/generations/{path.get('music_id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getObservabilityDestination(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ObservabilityDestinationResponse:
+	path = path or {}
+	resolved_path = f"/observability/destinations/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getObservabilityLoggingPolicy(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ObservabilityLoggingPolicyResponse:
+	path = path or {}
+	resolved_path = "/observability/logging-policy"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -872,6 +924,19 @@ def listModels(
 ) -> GatewayModelsResponse:
 	path = path or {}
 	resolved_path = "/models"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listObservabilityDestinations(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ObservabilityDestinationListResponse:
+	path = path or {}
+	resolved_path = "/observability/destinations"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1200,6 +1265,32 @@ def updateApiKey(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateObservabilityDestination(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ObservabilityDestinationResponse:
+	path = path or {}
+	resolved_path = f"/observability/destinations/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateObservabilityLoggingPolicy(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ObservabilityLoggingPolicyResponse:
+	path = path or {}
+	resolved_path = "/observability/logging-policy"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateWorkspace(
 	client: Client,
 	*,
@@ -1265,4 +1356,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addWorkspaceMembers", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "updateWorkspaceMemberRole", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addWorkspaceMembers", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteObservabilityDestination", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updateWorkspace", "updateWorkspaceMemberRole", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

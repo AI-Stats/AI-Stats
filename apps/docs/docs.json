@@ -512,6 +512,19 @@
 										]
 									},
 									{
+										"group": "Observability",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/observability-logging-policy-get",
+											"v1/api-reference/endpoint/observability-logging-policy-update",
+											"v1/api-reference/endpoint/observability-destinations-list",
+											"v1/api-reference/endpoint/observability-destinations-create",
+											"v1/api-reference/endpoint/observability-destinations-get",
+											"v1/api-reference/endpoint/observability-destinations-update",
+											"v1/api-reference/endpoint/observability-destinations-delete"
+										]
+									},
+									{
 										"group": "Organisations",
 										"expanded": false,
 										"pages": [

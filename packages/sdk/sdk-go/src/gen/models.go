@@ -2369,6 +2369,125 @@ type NotImplementedResponse struct {
 	StatusCode int `json:"status_code"`
 }
 
+type ObservabilityDestination struct {
+	Configured bool `json:"configured"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Enabled bool `json:"enabled"`
+	GroupJoin string `json:"group_join"`
+	Id string `json:"id"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters []map[string]interface{} `json:"key_filters"`
+	Name string `json:"name"`
+	PrivacyMode bool `json:"privacy_mode"`
+	RuleGroups []map[string]interface{} `json:"rule_groups"`
+	SamplingRate float64 `json:"sampling_rate"`
+	Type string `json:"type"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ObservabilityDestinationCreateRequest struct {
+	Config map[string]interface{} `json:"config"`
+	Enabled *bool `json:"enabled,omitempty"`
+	GroupJoin *string `json:"group_join,omitempty"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters *[]map[string]interface{} `json:"key_filters,omitempty"`
+	Name string `json:"name"`
+	PrivacyMode *bool `json:"privacy_mode,omitempty"`
+	RuleGroups *[]map[string]interface{} `json:"rule_groups,omitempty"`
+	SamplingRate *float64 `json:"sampling_rate,omitempty"`
+	Type string `json:"type"`
+}
+
+type ObservabilityDestinationListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type ObservabilityDestinationPolicyInput struct {
+	Enabled *bool `json:"enabled,omitempty"`
+	GroupJoin *string `json:"group_join,omitempty"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters *[]map[string]interface{} `json:"key_filters,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyMode *bool `json:"privacy_mode,omitempty"`
+	RuleGroups *[]map[string]interface{} `json:"rule_groups,omitempty"`
+	SamplingRate *float64 `json:"sampling_rate,omitempty"`
+}
+
+type ObservabilityDestinationResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ObservabilityDestinationType string
+
+const (
+	ObservabilityDestinationTypeOtelCollector ObservabilityDestinationType = "otel_collector"
+	ObservabilityDestinationTypeWebhook ObservabilityDestinationType = "webhook"
+)
+
+
+type ObservabilityDestinationUpdateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	GroupJoin *string `json:"group_join,omitempty"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters *[]map[string]interface{} `json:"key_filters,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyMode *bool `json:"privacy_mode,omitempty"`
+	RuleGroups *[]map[string]interface{} `json:"rule_groups,omitempty"`
+	SamplingRate *float64 `json:"sampling_rate,omitempty"`
+}
+
+type ObservabilityKeyFilter struct {
+	KeyId string `json:"key_id"`
+	Mode string `json:"mode"`
+}
+
+type ObservabilityLoggingPolicy struct {
+	BillingStatus string `json:"billing_status"`
+	Enabled bool `json:"enabled"`
+	GraceUntil *string `json:"grace_until,omitempty"`
+	IncludeProviderPayloads bool `json:"include_provider_payloads"`
+	PricePerMillionUnitsNanos int `json:"price_per_million_units_nanos"`
+	RetentionDays int `json:"retention_days"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ObservabilityLoggingPolicyResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ObservabilityLoggingPolicyUpdateRequest struct {
+	Enabled *bool `json:"enabled,omitempty"`
+	IncludeProviderPayloads *bool `json:"include_provider_payloads,omitempty"`
+	RetentionDays *int `json:"retention_days,omitempty"`
+}
+
+type ObservabilityRule struct {
+	Condition string `json:"condition"`
+	Field string `json:"field"`
+	Value *string `json:"value,omitempty"`
+}
+
+type ObservabilityRuleGroup struct {
+	Match string `json:"match"`
+	Rules []map[string]interface{} `json:"rules"`
+}
+
 type OcrRequest struct {
 	Debug *map[string]interface{} `json:"debug,omitempty"`
 	EchoUpstreamRequest *bool `json:"echo_upstream_request,omitempty"`

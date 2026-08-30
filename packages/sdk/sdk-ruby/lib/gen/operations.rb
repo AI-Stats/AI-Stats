@@ -99,6 +99,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/destinations"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createOcr(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/ocr"
@@ -180,6 +186,12 @@ module Phaseo
       def self.deleteApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -270,6 +282,18 @@ module Phaseo
       def self.getMusicGenerationAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/music/generations/#{URI.encode_uri_component(path["music_id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getObservabilityLoggingPolicy(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/logging-policy"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -402,6 +426,12 @@ module Phaseo
       def self.listModels(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/models"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listObservabilityDestinations(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/destinations"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -552,6 +582,18 @@ module Phaseo
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateObservabilityLoggingPolicy(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/observability/logging-policy"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

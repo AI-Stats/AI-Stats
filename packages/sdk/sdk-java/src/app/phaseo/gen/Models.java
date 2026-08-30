@@ -1103,6 +1103,120 @@ public final class Models {
 		public Integer status_code;
 	}
 
+	public static class ObservabilityDestination {
+		public Boolean configured;
+		public String created_at;
+		public Boolean enabled;
+		public Object group_join;
+		public String id;
+		public Boolean include_cost_metadata;
+		public Boolean include_generation_metadata;
+		public Boolean include_identity_metadata;
+		public Boolean include_request_context;
+		public java.util.List<Object> key_filters;
+		public String name;
+		public Boolean privacy_mode;
+		public java.util.List<Object> rule_groups;
+		public Double sampling_rate;
+		public Object type;
+		public String updated_at;
+		public String workspace_id;
+	}
+
+	public static class ObservabilityDestinationCreateRequest {
+		public Object config;
+		public Boolean enabled;
+		public Object group_join;
+		public Boolean include_cost_metadata;
+		public Boolean include_generation_metadata;
+		public Boolean include_identity_metadata;
+		public Boolean include_request_context;
+		public java.util.List<Object> key_filters;
+		public String name;
+		public Boolean privacy_mode;
+		public java.util.List<Object> rule_groups;
+		public Double sampling_rate;
+		public Object type;
+	}
+
+	public static class ObservabilityDestinationListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class ObservabilityDestinationPolicyInput {
+		public Boolean enabled;
+		public Object group_join;
+		public Boolean include_cost_metadata;
+		public Boolean include_generation_metadata;
+		public Boolean include_identity_metadata;
+		public Boolean include_request_context;
+		public java.util.List<Object> key_filters;
+		public String name;
+		public Boolean privacy_mode;
+		public java.util.List<Object> rule_groups;
+		public Double sampling_rate;
+	}
+
+	public static class ObservabilityDestinationResponse {
+		public Object data;
+	}
+
+	public static class ObservabilityDestinationType {
+	}
+
+	public static class ObservabilityDestinationUpdateRequest {
+		public Object config;
+		public Boolean enabled;
+		public Object group_join;
+		public Boolean include_cost_metadata;
+		public Boolean include_generation_metadata;
+		public Boolean include_identity_metadata;
+		public Boolean include_request_context;
+		public java.util.List<Object> key_filters;
+		public String name;
+		public Boolean privacy_mode;
+		public java.util.List<Object> rule_groups;
+		public Double sampling_rate;
+	}
+
+	public static class ObservabilityKeyFilter {
+		public String key_id;
+		public Object mode;
+	}
+
+	public static class ObservabilityLoggingPolicy {
+		public Object billing_status;
+		public Boolean enabled;
+		public String grace_until;
+		public Boolean include_provider_payloads;
+		public Integer price_per_million_units_nanos;
+		public Integer retention_days;
+		public String updated_at;
+		public String workspace_id;
+	}
+
+	public static class ObservabilityLoggingPolicyResponse {
+		public Object data;
+	}
+
+	public static class ObservabilityLoggingPolicyUpdateRequest {
+		public Boolean enabled;
+		public Boolean include_provider_payloads;
+		public Integer retention_days;
+	}
+
+	public static class ObservabilityRule {
+		public Object condition;
+		public Object field;
+		public String value;
+	}
+
+	public static class ObservabilityRuleGroup {
+		public Object match;
+		public java.util.List<Object> rules;
+	}
+
 	public static class OcrRequest {
 		public Object debug;
 		public Boolean echo_upstream_request;

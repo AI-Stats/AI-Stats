@@ -1590,6 +1590,169 @@ module Phaseo
     # @!attribute [rw] status_code
     #   @return [Integer]
     NotImplementedResponse = Struct.new(:description, :error, :status_code, keyword_init: true)
+    # @!attribute [rw] configured
+    #   @return [Boolean]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] group_join
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float]
+    # @!attribute [rw] type
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ObservabilityDestination = Struct.new(:configured, :created_at, :enabled, :group_join, :id, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, :type, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] group_join
+    #   @return [String, nil]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean, nil]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    ObservabilityDestinationCreateRequest = Struct.new(:config, :enabled, :group_join, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    ObservabilityDestinationListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] group_join
+    #   @return [String, nil]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean, nil]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float, nil]
+    ObservabilityDestinationPolicyInput = Struct.new(:enabled, :group_join, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ObservabilityDestinationResponse = Struct.new(:data, keyword_init: true)
+    ObservabilityDestinationType = Object
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] group_join
+    #   @return [String, nil]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean, nil]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float, nil]
+    ObservabilityDestinationUpdateRequest = Struct.new(:config, :enabled, :group_join, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, keyword_init: true)
+    # @!attribute [rw] key_id
+    #   @return [String]
+    # @!attribute [rw] mode
+    #   @return [String]
+    ObservabilityKeyFilter = Struct.new(:key_id, :mode, keyword_init: true)
+    # @!attribute [rw] billing_status
+    #   @return [String]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] grace_until
+    #   @return [String, nil]
+    # @!attribute [rw] include_provider_payloads
+    #   @return [Boolean]
+    # @!attribute [rw] price_per_million_units_nanos
+    #   @return [Integer]
+    # @!attribute [rw] retention_days
+    #   @return [Integer]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ObservabilityLoggingPolicy = Struct.new(:billing_status, :enabled, :grace_until, :include_provider_payloads, :price_per_million_units_nanos, :retention_days, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ObservabilityLoggingPolicyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_provider_payloads
+    #   @return [Boolean, nil]
+    # @!attribute [rw] retention_days
+    #   @return [Integer, nil]
+    ObservabilityLoggingPolicyUpdateRequest = Struct.new(:enabled, :include_provider_payloads, :retention_days, keyword_init: true)
+    # @!attribute [rw] condition
+    #   @return [String]
+    # @!attribute [rw] field
+    #   @return [String]
+    # @!attribute [rw] value
+    #   @return [String, nil]
+    ObservabilityRule = Struct.new(:condition, :field, :value, keyword_init: true)
+    # @!attribute [rw] match
+    #   @return [String]
+    # @!attribute [rw] rules
+    #   @return [Array<Hash{String => Object}>]
+    ObservabilityRuleGroup = Struct.new(:match, :rules, keyword_init: true)
     # @!attribute [rw] debug
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] echo_upstream_request
