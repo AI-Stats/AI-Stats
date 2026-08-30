@@ -30,12 +30,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": null,
+      "data": null
     },
     "service_tiers": [],
     "api": {
@@ -45,6 +41,12 @@
     },
     "sources": [
       {
+        "kind": "models",
+        "url": "https://www.inceptron.io/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official serverless catalogue confirms Kimi-K2.6 availability, multimodal input, 262K context, INT4 quantization, tool calling, reasoning, throughput, and pricing."
+      },
+      {
         "kind": "models.dev",
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
@@ -53,8 +55,8 @@
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "checked_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Availability and model characteristics verified against Inceptron's official catalogue; exact API identifier is not exposed in the public catalogue. Routing remains disabled."
     },
     "rate_limits": []
   },
@@ -98,11 +100,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.inceptron.io/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official serverless catalogue confirms Kimi-K2.7 Code availability, multimodal input, 262K context, INT4 quantization, tool calling, reasoning, throughput, and pricing."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Availability and model characteristics verified against Inceptron's official catalogue; exact API identifier is not exposed in the public catalogue. Routing remains disabled."
     },
     "rate_limits": []
   },
@@ -146,11 +155,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.inceptron.io/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official serverless catalogue confirms GLM-5.2 availability, text input, 1M context, FP4 quantization, tool calling, reasoning, throughput, and pricing."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Availability and model characteristics verified against Inceptron's official catalogue; exact API identifier is not exposed in the public catalogue. Routing remains disabled."
     },
     "rate_limits": []
   },
@@ -170,7 +186,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -215,6 +231,12 @@
     },
     "sources": [
       {
+        "kind": "models",
+        "url": "https://www.inceptron.io/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official serverless catalogue confirms DeepSeek-V4 Flash 0731 availability, text input, 1M context, FP4 quantization, tool calling, reasoning, throughput, and pricing."
+      },
+      {
         "kind": "provider_models",
         "url": null,
         "accessed_at": "2026-08-12T00:00:00Z",
@@ -223,15 +245,15 @@
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "checked_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Availability and model characteristics verified against Inceptron's official catalogue; exact API identifier is not exposed in the public catalogue. Routing remains disabled."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "minimax/minimax-m2.5",
     "provider_api_model_id": "inceptron:minimax/minimax-m2.5",
-    "provider_model_slug": "minimax/minimax-m2.5",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M2.5",
     "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": false,
     "quantization_scheme": "fp8",
@@ -244,7 +266,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -288,6 +310,12 @@
     },
     "sources": [
       {
+        "kind": "api_reference",
+        "url": "https://docs.inceptron.io/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official API quickstart documents the exact model identifier MiniMaxAI/MiniMax-M2.5; official catalogue confirms availability, text input, 196K context, FP8 quantization, tool calling, reasoning, throughput, and pricing."
+      },
+      {
         "kind": "provider_models",
         "url": null,
         "accessed_at": "2026-08-12T00:00:00Z",
@@ -295,9 +323,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Exact API identifier and current model characteristics verified against Inceptron's official documentation and catalogue. Routing remains disabled."
     },
     "rate_limits": []
   }
