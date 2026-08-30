@@ -238,7 +238,7 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		gatewayInputModes: ["file", "requests"],
 		documentationUrl: "https://docs.together.ai/docs/inference/batch/overview",
 		status: "active",
-		previewReadiness: "experimental",
+		previewReadiness: "validated",
 		reconciliationMode: "polling",
 		submissionRecovery: "manual_review",
 		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
