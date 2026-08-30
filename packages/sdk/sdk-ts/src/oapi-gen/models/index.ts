@@ -28,6 +28,7 @@ export type { AudioTranscriptionRequest } from "./AudioTranscriptionRequest.js";
 export type { AudioTranscriptionResponse } from "./AudioTranscriptionResponse.js";
 export type { AudioTranslationRequest } from "./AudioTranslationRequest.js";
 export type { AudioTranslationResponse } from "./AudioTranslationResponse.js";
+export type { AutoRouterOptions } from "./AutoRouterOptions.js";
 export type { BatchBillingSummary } from "./BatchBillingSummary.js";
 export type { BatchListResponse } from "./BatchListResponse.js";
 export type { BatchModelCapability } from "./BatchModelCapability.js";

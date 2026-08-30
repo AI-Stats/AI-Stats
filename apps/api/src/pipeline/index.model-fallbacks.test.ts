@@ -25,6 +25,14 @@ function context(model: string, modelFallbacks: string[] = []) {
 	};
 }
 
+function autoRouterContext(model: string, fallbackModels: string[] = []) {
+	return {
+		meta: {},
+		model,
+		routingDiagnostics: { autoRouter: { fallbackModels } },
+	};
+}
+
 describe("dynamic route model fallbacks", () => {
 	beforeEach(() => {
 		beforeRequestMock.mockReset();
@@ -104,5 +112,25 @@ describe("dynamic route model fallbacks", () => {
 		expect(response.status).toBe(400);
 		expect(runnerMock).toHaveBeenCalledTimes(1);
 		expect(beforeRequestMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("reruns phaseo/auto with the next ranked allow-listed model", async () => {
+		beforeRequestMock
+			.mockResolvedValueOnce({ ok: true, ctx: autoRouterContext("model/primary", ["model/fallback"]) })
+			.mockResolvedValueOnce({ ok: true, ctx: autoRouterContext("model/fallback") });
+		runnerMock
+			.mockResolvedValueOnce(new Response("rate limited", { status: 429 }))
+			.mockResolvedValueOnce(new Response("ok", { status: 200 }));
+
+		const response = await makeEndpointHandler({ endpoint: "responses", schema: null })(new Request("https://api.phaseo.app/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ model: "phaseo/auto", input: "hello", routing: { auto: { allowed_models: ["model/primary", "model/fallback"] } } }),
+		}));
+
+		expect(response.status).toBe(200);
+		expect(beforeRequestMock.mock.calls[1]?.[4]).toEqual(expect.objectContaining({
+			autoRouterModelOverride: "model/fallback",
+		}));
 	});
 });

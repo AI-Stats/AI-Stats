@@ -262,6 +262,12 @@ public final class Models {
 		public String text;
 	}
 
+	public static class AutoRouterOptions {
+		public Boolean allow_fallbacks;
+		public java.util.List<String> allowed_models;
+		public Object objective;
+	}
+
 	public static class BatchBillingSummary {
 		public Boolean billed;
 		public Boolean charged;
@@ -1178,6 +1184,7 @@ public final class Models {
 
 	public static class ProviderRoutingOptions {
 		public Boolean allow_fallbacks;
+		public Object auto;
 		public Object data_collection;
 		public Boolean enforce_distillable_text;
 		public java.util.List<String> ignore;

@@ -1044,6 +1044,9 @@ inline constexpr std::string_view PERPLEXITY_PPLX_EMBED_V1_0_6B = "perplexity/pp
 // Model ID: perplexity/pplx-embed-v1-4b
 // Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
 inline constexpr std::string_view PERPLEXITY_PPLX_EMBED_V1_4B = "perplexity/pplx-embed-v1-4b";
+// Model ID: phaseo/auto
+// Model page: https://phaseo.app/models/phaseo/auto
+inline constexpr std::string_view PHASEO_AUTO = "phaseo/auto";
 // Model ID: phaseo/free
 // Model page: https://phaseo.app/models/phaseo/free
 inline constexpr std::string_view PHASEO_FREE = "phaseo/free";
@@ -1692,7 +1695,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 561> ALL = {
+inline constexpr std::array<std::string_view, 562> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -2039,6 +2042,7 @@ inline constexpr std::array<std::string_view, 561> ALL = {
 	OPENAI_WHISPER_LARGE_V3_TURBO,
 	PERPLEXITY_PPLX_EMBED_V1_0_6B,
 	PERPLEXITY_PPLX_EMBED_V1_4B,
+	PHASEO_AUTO,
 	PHASEO_FREE,
 	POOLSIDE_LAGUNA_M_1_FREE,
 	POOLSIDE_LAGUNA_S_2_1_FREE,

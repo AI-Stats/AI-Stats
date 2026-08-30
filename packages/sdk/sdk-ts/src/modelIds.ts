@@ -695,6 +695,8 @@ export const ModelIds = {
   PERPLEXITY_PPLX_EMBED_V1_0_6B: "perplexity/pplx-embed-v1-0.6b",
   /** Model ID: `perplexity/pplx-embed-v1-4b`. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b */
   PERPLEXITY_PPLX_EMBED_V1_4B: "perplexity/pplx-embed-v1-4b",
+  /** Model ID: `phaseo/auto`. Model page: https://phaseo.app/models/phaseo/auto */
+  PHASEO_AUTO: "phaseo/auto",
   /** Model ID: `phaseo/free`. Model page: https://phaseo.app/models/phaseo/free */
   PHASEO_FREE: "phaseo/free",
   /** Model ID: `poolside/laguna-m.1:free`. Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree */

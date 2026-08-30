@@ -459,6 +459,16 @@ class AudioTranslationResponse
 	public $text;
 }
 
+class AutoRouterOptions
+{
+	/** @var bool|null */
+	public $allow_fallbacks;
+	/** @var array */
+	public $allowed_models;
+	/** @var string|null */
+	public $objective;
+}
+
 class BatchBillingSummary
 {
 	/** @var bool|null */
@@ -2055,6 +2065,8 @@ class ProviderRoutingOptions
 {
 	/** @var bool|null */
 	public $allow_fallbacks;
+	/** @var array<string, mixed>|null */
+	public $auto;
 	/** @var string|null */
 	public $data_collection;
 	/** @var bool|null */

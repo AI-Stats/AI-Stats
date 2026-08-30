@@ -19,7 +19,11 @@ const EARLY_OBSERVABILITY_BODY_LIMIT_BYTES = 256 * 1024;
 const MODEL_FALLBACK_STATUSES = new Set([429, 500, 502, 503, 504]);
 
 function configuredModelFallbacks(ctx: { model: string; routingDiagnostics?: Record<string, any> | null }): string[] {
-    const values = ctx.routingDiagnostics?.dynamicRoute?.action?.modelFallbacks;
+	const dynamicRouteFallbacks = ctx.routingDiagnostics?.dynamicRoute?.action?.modelFallbacks;
+	const autoRouterFallbacks = ctx.routingDiagnostics?.autoRouter?.fallbackModels;
+	const values = Array.isArray(dynamicRouteFallbacks) && dynamicRouteFallbacks.length
+		? dynamicRouteFallbacks
+		: autoRouterFallbacks;
     if (!Array.isArray(values)) return [];
     return [...new Set(values.filter((value): value is string => typeof value === "string" && value.trim().length > 0))]
         .filter((value) => value !== ctx.model)
@@ -126,6 +130,7 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 					schema,
 					{
 						dynamicRouteModelOverride: fallbackModel,
+						autoRouterModelOverride: fallbackModel,
 						onObservabilitySnapshot: (snapshot) => {
 							fallbackRequestObservability = snapshot;
 						},

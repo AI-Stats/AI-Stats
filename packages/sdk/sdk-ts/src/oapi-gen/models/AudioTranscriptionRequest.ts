@@ -15,6 +15,11 @@ export interface AudioTranscriptionRequest {
   model: string;
   provider?: {
     allow_fallbacks?: boolean | null;
+    auto?: {
+      allow_fallbacks?: boolean;
+      allowed_models: string[];
+      objective?: "balanced" | "quality" | "cost" | "latency";
+    };
     data_collection?: "allow" | "deny" | null;
     enforce_distillable_text?: boolean | null;
     ignore?: string[];

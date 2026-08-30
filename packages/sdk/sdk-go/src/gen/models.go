@@ -258,6 +258,12 @@ type AudioTranslationResponse struct {
 	Text *string `json:"text,omitempty"`
 }
 
+type AutoRouterOptions struct {
+	AllowFallbacks *bool `json:"allow_fallbacks,omitempty"`
+	AllowedModels []string `json:"allowed_models"`
+	Objective *string `json:"objective,omitempty"`
+}
+
 type BatchBillingSummary struct {
 	Billed *bool `json:"billed,omitempty"`
 	Charged *bool `json:"charged,omitempty"`
@@ -1934,6 +1940,7 @@ const (
 	KnownModelIdOpenaiWhisperLargeV3Turbo KnownModelId = "openai/whisper-large-v3-turbo"
 	KnownModelIdPerplexityPplxEmbedV106b KnownModelId = "perplexity/pplx-embed-v1-0.6b"
 	KnownModelIdPerplexityPplxEmbedV14b KnownModelId = "perplexity/pplx-embed-v1-4b"
+	KnownModelIdPhaseoAuto KnownModelId = "phaseo/auto"
 	KnownModelIdPhaseoFree KnownModelId = "phaseo/free"
 	KnownModelIdPoolsideLagunaM1Free KnownModelId = "poolside/laguna-m.1:free"
 	KnownModelIdPoolsideLagunaS21Free KnownModelId = "poolside/laguna-s-2.1:free"
@@ -1967,6 +1974,7 @@ const (
 	KnownModelIdQwenQwen2572b KnownModelId = "qwen/qwen2.5-72b"
 	KnownModelIdQwenQwen257b KnownModelId = "qwen/qwen2.5-7b"
 	KnownModelIdQwenQwen257b1m KnownModelId = "qwen/qwen2.5-7b-1m"
+	KnownModelIdQwenQwen25Coder7b KnownModelId = "qwen/qwen2.5-coder-7b"
 	KnownModelIdQwenQwen25Vl32b KnownModelId = "qwen/qwen2.5-vl-32b"
 	KnownModelIdQwenQwen25Vl32bInstruct KnownModelId = "qwen/qwen2.5-vl-32b-instruct"
 	KnownModelIdQwenQwen25Vl72b KnownModelId = "qwen/qwen2.5-vl-72b"
@@ -2510,6 +2518,7 @@ type ProviderOptions struct {
 
 type ProviderRoutingOptions struct {
 	AllowFallbacks *bool `json:"allow_fallbacks,omitempty"`
+	Auto *map[string]interface{} `json:"auto,omitempty"`
 	DataCollection *string `json:"data_collection,omitempty"`
 	EnforceDistillableText *bool `json:"enforce_distillable_text,omitempty"`
 	Ignore *[]string `json:"ignore,omitempty"`

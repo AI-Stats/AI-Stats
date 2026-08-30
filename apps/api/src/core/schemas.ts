@@ -59,6 +59,13 @@ const ProviderRoutingSchema = z.object({
     diagnostics: z.boolean().nullable().optional(),
     return_diagnostics: z.boolean().nullable().optional(),
     returnDiagnostics: z.boolean().nullable().optional(),
+	auto: z.object({
+		allowed_models: z.array(z.string()).min(2).max(8).optional(),
+		allowedModels: z.array(z.string()).min(2).max(8).optional(),
+		objective: z.enum(["balanced", "quality", "cost", "latency"]).optional(),
+		allow_fallbacks: z.boolean().optional(),
+		allowFallbacks: z.boolean().optional(),
+	}).passthrough().optional(),
 }).passthrough().optional();
 
 const DebugOptionsSchema = z.object({

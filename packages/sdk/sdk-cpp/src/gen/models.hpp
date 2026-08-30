@@ -264,6 +264,12 @@ struct AudioTranslationResponse {
 	std::string text;
 };
 
+struct AutoRouterOptions {
+	std::optional<bool> allow_fallbacks;
+	std::vector<std::string> allowed_models;
+	std::any objective;
+};
+
 struct BatchBillingSummary {
 	std::optional<bool> billed;
 	std::optional<bool> charged;
@@ -1166,6 +1172,7 @@ struct ProviderOptions {
 
 struct ProviderRoutingOptions {
 	std::optional<bool> allow_fallbacks;
+	std::map<std::string, std::any> auto;
 	std::optional<std::any> data_collection;
 	std::optional<bool> enforce_distillable_text;
 	std::vector<std::string> ignore;

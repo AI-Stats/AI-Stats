@@ -368,6 +368,13 @@ module Phaseo
     # @!attribute [rw] text
     #   @return [String, nil]
     AudioTranslationResponse = Struct.new(:text, keyword_init: true)
+    # @!attribute [rw] allow_fallbacks
+    #   @return [Boolean, nil]
+    # @!attribute [rw] allowed_models
+    #   @return [Array<String>]
+    # @!attribute [rw] objective
+    #   @return [String, nil]
+    AutoRouterOptions = Struct.new(:allow_fallbacks, :allowed_models, :objective, keyword_init: true)
     # @!attribute [rw] billed
     #   @return [Boolean, nil]
     # @!attribute [rw] charged
@@ -1678,6 +1685,8 @@ module Phaseo
     ProviderOptions = Struct.new(:anthropic, :google, :openai, keyword_init: true)
     # @!attribute [rw] allow_fallbacks
     #   @return [Boolean, nil]
+    # @!attribute [rw] auto
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] data_collection
     #   @return [String, nil]
     # @!attribute [rw] enforce_distillable_text
@@ -1710,7 +1719,7 @@ module Phaseo
     #   @return [String, Hash{String => Object}, nil]
     # @!attribute [rw] zdr
     #   @return [Boolean, nil]
-    ProviderRoutingOptions = Struct.new(:allow_fallbacks, :data_collection, :enforce_distillable_text, :ignore, :include_alpha, :max_price, :only, :order, :preferred_max_latency, :preferred_min_throughput, :quantizations, :require_parameters, :require_zero_data_retention, :required_data_region, :required_execution_region, :sort, :zdr, keyword_init: true)
+    ProviderRoutingOptions = Struct.new(:allow_fallbacks, :auto, :data_collection, :enforce_distillable_text, :ignore, :include_alpha, :max_price, :only, :order, :preferred_max_latency, :preferred_min_throughput, :quantizations, :require_parameters, :require_zero_data_retention, :required_data_region, :required_execution_region, :sort, :zdr, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] id

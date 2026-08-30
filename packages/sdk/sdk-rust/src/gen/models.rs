@@ -260,6 +260,12 @@ pub struct AudioTranslationResponse {
 	pub text: Option<String>,
 }
 
+pub struct AutoRouterOptions {
+	pub allow_fallbacks: Option<bool>,
+	pub allowed_models: Vec<String>,
+	pub objective: Option<String>,
+}
+
 pub struct BatchBillingSummary {
 	pub billed: Option<bool>,
 	pub charged: Option<bool>,
@@ -1162,6 +1168,7 @@ pub struct ProviderOptions {
 
 pub struct ProviderRoutingOptions {
 	pub allow_fallbacks: Option<Option<bool>>,
+	pub auto: Option<HashMap<String, String>>,
 	pub data_collection: Option<Option<String>>,
 	pub enforce_distillable_text: Option<Option<bool>>,
 	pub ignore: Option<Vec<String>>,

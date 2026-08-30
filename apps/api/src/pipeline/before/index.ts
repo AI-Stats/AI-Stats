@@ -46,6 +46,14 @@ import {
     suppressDynamicRouteModelOverrides,
     type DynamicRouteEvaluation,
 } from "./dynamic-routes";
+import {
+	buildAutoRouterCandidateEvidence,
+	isAutoRouterModel,
+	loadAutoRouterBenchmarks,
+	parseAutoRouterConfig,
+	selectAutoRouterModel,
+	type AutoRouterEvaluation,
+} from "./auto-router";
 
 function resolveRequestRoutingModeOverride(
     body: any,
@@ -202,6 +210,7 @@ export async function beforeRequest(
     zodSchema: z.ZodTypeAny | null = schemaFor(endpoint),
     options?: {
         dynamicRouteModelOverride?: string | null;
+		autoRouterModelOverride?: string | null;
         onObservabilitySnapshot?: (snapshot: BeforeRequestObservabilitySnapshot) => void;
     },
 ): Promise<{ ok: true; ctx: PipelineContext } | { ok: false; response: Response }> {
@@ -415,19 +424,125 @@ export async function beforeRequest(
 
     // 5) RPC + gating + providers (choose viable providers for this model/endpoint)
     const capability = normalizeCapability(resolveCapabilityFromEndpoint(endpoint));
-    const c = await timer.span("guardContext", () =>
-        guardContext({
-            workspaceId,
-            apiKeyId,
-            endpoint,
-            capability,
-            model,
-            requestId,
-            internal,
-            testingMode: testingModeEnabled,
-            disableCache: debugEnabled,
-        })
-    );
+    let autoRouterEvaluation: AutoRouterEvaluation | null = null;
+    let workspacePolicyLoad: Awaited<typeof workspacePolicyPromise> | null = null;
+    const loadWorkspacePolicy = async () => {
+		workspacePolicyLoad ??= await workspacePolicyPromise;
+		return workspacePolicyLoad;
+	};
+	const contextForModel = (candidateModel: string) => guardContext({
+		workspaceId,
+		apiKeyId,
+		endpoint,
+		capability,
+		model: candidateModel,
+		requestId,
+		internal,
+		testingMode: testingModeEnabled,
+		disableCache: debugEnabled,
+	});
+
+	let c: Awaited<ReturnType<typeof guardContext>>;
+	if (isAutoRouterModel(model)) {
+		const config = parseAutoRouterConfig(body);
+		if (!config || config.allowedModels.length < 2) {
+			return {
+				ok: false,
+				response: err("validation_error", {
+					reason: "auto_router_allowlist_required",
+					description: "phaseo/auto requires routing.auto.allowed_models with 2 to 8 explicit model IDs",
+					details: [{
+						message: "Provide 2 to 8 eligible model IDs in routing.auto.allowed_models",
+						path: ["routing", "auto", "allowed_models"],
+						keyword: "auto_router_allowlist_required",
+					}],
+					request_id: requestId,
+					workspace_id: workspaceId,
+				}),
+			};
+		}
+		const policyLoad = await loadWorkspacePolicy();
+		if ("error" in policyLoad) {
+			console.error("[beforeRequest] workspace_policy_fetch_failed", {
+				workspaceId,
+				requestId,
+				error: policyLoad.error instanceof Error ? policyLoad.error.message : String(policyLoad.error),
+			});
+			return { ok: false, response: err("gateway_error", { reason: "workspace_policy_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
+		}
+		const selection = await timer.span("selectAutoRouterModel", () => selectAutoRouterModel({
+			endpoint,
+			body,
+			config,
+			modelOverride: options?.autoRouterModelOverride,
+			loadBenchmarks: loadAutoRouterBenchmarks,
+			loadCandidate: async (candidateModel) => {
+				const candidateContext = await contextForModel(candidateModel);
+				if (!candidateContext.ok) return { ok: false as const, reason: "model_or_endpoint_unavailable" };
+				const candidateResolvedModel = candidateContext.value.resolvedModel || candidateModel;
+				const policyResult = applyWorkspacePolicy({
+					providers: candidateContext.value.providers,
+					resolvedModel: candidateResolvedModel,
+					body,
+					workspacePolicy: policyLoad.value,
+					teamSettings: candidateContext.value.context.teamSettings ?? null,
+				});
+				if (policyResult.ok === false) {
+					return { ok: false as const, reason: policyResult.reason === "model_not_allowed" ? "model_restricted_by_policy" : "no_policy_compliant_providers" };
+				}
+				const executableProviders = policyResult.providers.filter((provider) =>
+					isProviderCapabilityEnabled(provider.providerId, capability) &&
+					Boolean(adapterFor(provider.providerId, endpoint)) &&
+					Boolean(provider.pricingCard?.rules?.length));
+				if (!executableProviders.length) {
+					return { ok: false as const, reason: "no_executable_providers" };
+				}
+				const capabilityResult = await validateCapabilities({
+					endpoint,
+					rawBody,
+					body,
+					requestId,
+					workspaceId,
+					providers: executableProviders,
+					model: candidateResolvedModel,
+				});
+				if (!capabilityResult.ok || !capabilityResult.providers.length) {
+					return { ok: false as const, reason: "request_capabilities_unsupported" };
+				}
+				const contextResult = {
+					...candidateContext,
+					value: { ...candidateContext.value, providers: capabilityResult.providers },
+				};
+				return buildAutoRouterCandidateEvidence({
+					endpoint,
+					requestedModel: candidateModel,
+					resolvedModel: candidateResolvedModel,
+					providers: capabilityResult.providers,
+					contextResult,
+				});
+			},
+		}));
+		if (selection.ok === false) {
+			return {
+				ok: false,
+				response: err("unsupported_model_or_endpoint", {
+					model,
+					reason: selection.reason === "invalid_override" ? "auto_router_invalid_fallback" : "auto_router_no_eligible_models",
+					description: selection.reason === "invalid_override"
+						? "The requested auto-router fallback is outside the configured allow-list"
+						: "No allow-listed auto-router model is currently eligible for this request",
+					routing_diagnostics: { autoRouter: { candidates: selection.candidates } },
+					request_id: requestId,
+					workspace_id: workspaceId,
+				}),
+			};
+		}
+		autoRouterEvaluation = selection.evaluation;
+		c = selection.selected.contextResult as Awaited<ReturnType<typeof guardContext>>;
+		options?.onObservabilitySnapshot?.({ requestPayload: rawBody, requestedModel, model: selection.selected.resolvedModel });
+	} else {
+		c = await timer.span("guardContext", () => contextForModel(model));
+	}
     if (!c.ok) return c as { ok: false; response: Response };
     let { context, providers, resolvedModel, candidateDiagnostics } = c.value;
     const contextTelemetry = context.contextTelemetry ?? null;
@@ -444,7 +559,7 @@ export async function beforeRequest(
         if (typeof durationMs === "number") timer.record(name, durationMs);
     }
 
-    const workspacePolicyLoad = await workspacePolicyPromise;
+    workspacePolicyLoad = await loadWorkspacePolicy();
     if ("error" in workspacePolicyLoad) {
         const error = workspacePolicyLoad.error;
         console.error("[beforeRequest] workspace_policy_fetch_failed", {
@@ -521,6 +636,17 @@ export async function beforeRequest(
             break;
         }
         if (routedContextFailure) return routedContextFailure;
+		if (
+			autoRouterEvaluation &&
+			dynamicRouteEvaluation.action.model &&
+			dynamicRouteEvaluation.action.model !== autoRouterEvaluation.selectedResolvedModel
+		) {
+			autoRouterEvaluation = {
+				...autoRouterEvaluation,
+				fallbackModels: [],
+				overriddenByDynamicRoute: dynamicRouteEvaluation.action.model,
+			};
+		}
     }
 
     // 5.3) Apply preset configuration if present
@@ -1127,6 +1253,7 @@ export async function beforeRequest(
         routingDiagnostics: {
             workspacePolicy: workspacePolicyResult.diagnostics,
             dynamicRoute: dynamicRouteEvaluation,
+			autoRouter: autoRouterEvaluation,
         },
         guardrailEnforcement: sensitiveInfoResult.enforcement,
     };
