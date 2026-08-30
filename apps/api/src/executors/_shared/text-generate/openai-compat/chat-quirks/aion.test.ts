@@ -21,8 +21,8 @@ describe("Aion Labs current API quirks", () => {
 		["high", "high"],
 		["xhigh", "high"],
 		["max", "high"],
-	] as const)("maps Aion 2.0 reasoning effort %s to %s", (effort, expected) => {
-		const ir = request("aion-labs/aion-2.0", { effort });
+	] as const)("maps documented Aion reasoning effort %s to %s", (effort, expected) => {
+		const ir = request("aion-labs/aion-3.0", { effort });
 		const wire: Record<string, unknown> = { model: ir.model };
 		aionChatQuirk.onRequest?.({ ir, providerId: "aion-labs", model: ir.model, request: wire });
 
@@ -30,13 +30,31 @@ describe("Aion Labs current API quirks", () => {
 		expect(wire.reasoning_split).toBe(true);
 	});
 
-	it("does not send the Aion 2.0-only effort field to other models", () => {
-		const ir = request("aion-labs/aion-3.0", { effort: "high" });
+	it("retains Aion 2.0 reasoning effort support", () => {
+		const ir = request("aion-labs/aion-2.0", { enabled: true });
+		const wire: Record<string, unknown> = { model: ir.model };
+		aionChatQuirk.onRequest?.({ ir, providerId: "aion-labs", model: ir.model, request: wire });
+
+		expect(wire.reasoning_effort).toBe("medium");
+		expect(wire.reasoning_split).toBe(true);
+	});
+
+	it("maps reasoning effort for Aion 3.0 Mini aliases", () => {
+		const ir = request("aion-labs/aion-3.0-mini", { effort: "high" });
 		const wire: Record<string, unknown> = { model: ir.model };
 		aionChatQuirk.onRequest?.({ ir, providerId: "aionlabs", model: ir.model, request: wire });
 
-		expect(wire.reasoning_effort).toBeUndefined();
+		expect(wire.reasoning_effort).toBe("high");
 		expect(wire.reasoning_split).toBe(true);
+	});
+
+	it("does not send reasoning effort to the RP model", () => {
+		const ir = request("aion-labs/aion-rp-llama-3.1-8b", { effort: "high" });
+		const wire: Record<string, unknown> = { model: ir.model };
+		aionChatQuirk.onRequest?.({ ir, providerId: "aion-labs", model: ir.model, request: wire });
+
+		expect(wire.reasoning_effort).toBeUndefined();
+		expect(wire.reasoning_split).toBeUndefined();
 	});
 
 	it("maps the documented streamed reasoning field into normalized reasoning deltas", () => {

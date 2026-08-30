@@ -19,6 +19,34 @@ function isNebiusProvider(providerId: string): boolean {
 	return providerId.startsWith("nebius-token-factory");
 }
 
+function unsupportedParameterResult(parameter: string, message: string): ExecutorResult {
+	const rawResponse = {
+		error: {
+			type: "invalid_request_error",
+			code: "unsupported_parameter",
+			message,
+			param: parameter,
+		},
+	};
+	return {
+		kind: "completed",
+		ir: undefined,
+		bill: {
+			cost_cents: 0,
+			currency: "USD",
+			usage: undefined,
+			upstream_id: null,
+			finish_reason: null,
+		},
+		upstream: new Response(JSON.stringify(rawResponse), {
+			status: 400,
+			headers: { "Content-Type": "application/json" },
+		}),
+		keySource: "gateway",
+		rawResponse,
+	};
+}
+
 function normalizeModelName(model?: string | null): string {
 	if (!model) return "";
 	const trimmed = model.trim();
@@ -32,6 +60,48 @@ function normalizeModelName(model?: string | null): string {
 
 function isVoyageMultimodalModel(model?: string | null): boolean {
 	return normalizeModelName(model).toLowerCase().startsWith("voyage-multimodal-");
+}
+
+function isVoyageContextualModel(model?: string | null): boolean {
+	return normalizeModelName(model).toLowerCase().startsWith("voyage-context-");
+}
+
+function toVoyageContextualInputs(input: unknown, inputType?: string): string[][] {
+	if (typeof input === "string" && input.length > 0) {
+		return [[input]];
+	}
+	if (
+		Array.isArray(input) &&
+		input.length > 0 &&
+		input.every((entry) => typeof entry === "string" && entry.length > 0)
+	) {
+		if (inputType === "query") {
+			return (input as string[]).map((entry) => [entry]);
+		}
+		// The OpenAI-compatible input surface has no document-grouping field.
+		// Treat a flat list as chunks from one document so the native response
+		// can be flattened without losing document boundaries.
+		return [input as string[]];
+	}
+	throw new Error("voyage_contextualized_embeddings_require_one_text_document");
+}
+
+function decodeVoyageContextualResponse(
+	payload: any,
+	modelFallback: string,
+): IREmbeddingsResponse {
+	const groups = Array.isArray(payload?.data) ? payload.data : [];
+	if (groups.length === 0 || groups.some((group: any) => !Array.isArray(group?.data))) {
+		throw new Error("voyage_contextualized_embeddings_response_shape_unsupported");
+	}
+	const data = groups
+		.flatMap((group: any) => group.data)
+		.map((entry: any, index: number) => ({ ...entry, index }));
+	return decodeOpenAIEmbeddingsResponse({
+		...payload,
+		model: payload?.model ?? modelFallback,
+		data,
+	});
 }
 
 function asString(value: unknown): string {
@@ -253,7 +323,21 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 		if (voyageOptions?.outputDtype) {
 			encoded.output_dtype = voyageOptions.outputDtype;
 		}
+		// Voyage uses omission, rather than OpenAI's `float` literal, for
+		// ordinary numeric-array embeddings.
+		if (encoded.encoding_format === "float") {
+			delete encoded.encoding_format;
+		}
 		delete encoded.user;
+	}
+
+	if (isVoyageProvider(args.providerId) && isVoyageContextualModel(encoded.model)) {
+		if (ir.providerOptions?.voyage?.truncation !== undefined) {
+			throw new Error("voyage_contextualized_embeddings_truncation_unsupported");
+		}
+		encoded.inputs = toVoyageContextualInputs(ir.input, encoded.input_type);
+		delete encoded.input;
+		delete encoded.truncation;
 	}
 
 	if (isVoyageProvider(args.providerId) && isVoyageMultimodalModel(encoded.model)) {
@@ -313,6 +397,12 @@ function usageToMeters(usage?: IREmbeddingsResponse["usage"]): Record<string, nu
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IREmbeddingsRequest;
+	if (args.providerId === "morpheus" && ir.dimensions !== undefined) {
+		return unsupportedParameterResult(
+			"dimensions",
+			"Morpheus embeddings do not support the dimensions parameter.",
+		);
+	}
 	const keyInfo = await resolveOpenAICompatKey(args as any);
 	const key = keyInfo.key;
 
@@ -321,10 +411,14 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const captureRequest = Boolean(args.meta.returnUpstreamRequest || args.meta.echoUpstreamRequest);
 	const mappedRequest = captureRequest ? JSON.stringify(requestBody) : undefined;
 
-	const endpointPath =
-		isVoyageProvider(args.providerId) && isVoyageMultimodalModel(resolveTargetModel(ir, args))
+	const targetModel = resolveTargetModel(ir, args);
+	const endpointPath = isVoyageProvider(args.providerId)
+		? isVoyageMultimodalModel(targetModel)
 			? "/multimodalembeddings"
-			: "/embeddings";
+			: isVoyageContextualModel(targetModel)
+				? "/contextualizedembeddings"
+				: "/embeddings"
+		: "/embeddings";
 	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, endpointPath), {
 		method: "POST",
 		headers: openAICompatHeaders(args.providerId, key, {
@@ -355,11 +449,15 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		};
 	}
 
-	const responseIr = json ? decodeOpenAIEmbeddingsResponse(json) : {
-		object: "list",
-		model: ir.model,
-		data: [],
-	} as IREmbeddingsResponse;
+	const responseIr = json
+		? isVoyageProvider(args.providerId) && isVoyageContextualModel(targetModel)
+			? decodeVoyageContextualResponse(json, ir.model)
+			: decodeOpenAIEmbeddingsResponse(json)
+		: {
+			object: "list",
+			model: ir.model,
+			data: [],
+		} as IREmbeddingsResponse;
 
 	responseIr.rawResponse = json ?? null;
 	ir.rawRequest = requestBody;

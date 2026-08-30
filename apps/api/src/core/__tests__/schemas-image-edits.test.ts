@@ -51,7 +51,22 @@ describe("OpenAI image edit schema", () => {
 		}
 	});
 
-	it("enforces image count, prompt, and GPT Image 2 option constraints", () => {
+	it("accepts GPT Image 2 transparent backgrounds and configurable input fidelity", () => {
+		for (const model of ["openai/gpt-image-2", "openai/gpt-image-2-2026-04-21"]) {
+			for (const input_fidelity of ["low", "high"] as const) {
+				expect(ImagesEditSchema.safeParse({
+					model,
+					image: "image",
+					prompt: "edit",
+					input_fidelity,
+					background: "transparent",
+					output_format: "png",
+				}).success).toBe(true);
+			}
+		}
+	});
+
+	it("enforces image count, prompt, and output compression constraints", () => {
 		expect(ImagesEditSchema.safeParse({
 			model: "openai/gpt-image-1.5",
 			image: Array.from({ length: 17 }, (_, index) => `image-${index}`),
@@ -63,23 +78,52 @@ describe("OpenAI image edit schema", () => {
 			prompt: "x".repeat(1001),
 		}).success).toBe(false);
 		expect(ImagesEditSchema.safeParse({
-			model: "openai/gpt-image-2",
-			image: "image",
-			prompt: "edit",
-			input_fidelity: "high",
-		}).success).toBe(false);
-		expect(ImagesEditSchema.safeParse({
-			model: "openai/gpt-image-2",
-			image: "image",
-			prompt: "edit",
-			background: "transparent",
-		}).success).toBe(false);
-		expect(ImagesEditSchema.safeParse({
 			model: "openai/gpt-image-1.5",
 			image: "image",
 			prompt: "edit",
 			output_format: "png",
 			output_compression: 50,
 		}).success).toBe(false);
+	});
+
+	it("preserves documented MiniMax edit controls and direct subject references", () => {
+		const parsed = ImagesEditSchema.parse({
+			model: "minimax/image-01",
+			image: "https://example.com/person.jpg",
+			prompt: "Put the person in a library",
+			aspect_ratio: "16:9",
+			seed: "42",
+			prompt_optimizer: "true",
+			subject_reference: [{
+				type: "character",
+				image_file: "https://example.com/person.jpg",
+			}],
+		});
+
+		expect(parsed).toMatchObject({
+			aspect_ratio: "16:9",
+			seed: 42,
+			prompt_optimizer: true,
+			subject_reference: [{
+				type: "character",
+				image_file: "https://example.com/person.jpg",
+			}],
+		});
+	});
+
+	it("rejects malformed MiniMax subject references without constraining other models", () => {
+		expect(ImagesEditSchema.safeParse({
+			model: "minimax/image-01",
+			image: "image",
+			prompt: "edit",
+			subject_reference: [{ type: "style", image_file: "" }],
+		}).success).toBe(false);
+		expect(ImagesEditSchema.safeParse({
+			model: "other/image-model",
+			image: "image",
+			prompt: "edit",
+			width: 4096,
+			height: 4096,
+		}).success).toBe(true);
 	});
 });

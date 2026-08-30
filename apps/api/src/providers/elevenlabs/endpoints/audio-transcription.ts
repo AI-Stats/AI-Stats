@@ -10,6 +10,15 @@ import { getBindings } from "@/runtime/env";
 import { computeBill } from "@pipeline/pricing/engine";
 import { estimateAudioDurationSeconds } from "../../openai/endpoints/audio-transcription-usage";
 
+const ELEVENLABS_TIMESTAMP_GRANULARITIES = new Set(["none", "word", "character"]);
+
+function invalidParameterResponse(param: string, message: string): Response {
+	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
+		status: 400,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
 function responseAudioDurationSeconds(json: Record<string, any>): number | undefined {
 	for (const value of [json.usage?.input_audio_seconds, json.audio_duration, json.duration, json.duration_seconds]) {
 		if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
@@ -43,6 +52,26 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const modelId = resolveElevenLabsModelSlug(typedPayload.model, args.providerModelSlug);
 	const raw = typedPayload as AudioTranscriptionRequest & { config?: { elevenlabs?: Record<string, unknown> } };
 	const elevenlabs = raw.config?.elevenlabs ?? {};
+	const nativeTimestampGranularity = elevenlabs.timestamps_granularity;
+	const invalidTimestampParam = typedPayload.timestamp_granularities?.includes("segment")
+		? "timestamp_granularities"
+		: typeof nativeTimestampGranularity === "string" &&
+			!ELEVENLABS_TIMESTAMP_GRANULARITIES.has(nativeTimestampGranularity)
+			? "timestamps_granularity"
+			: null;
+	if (invalidTimestampParam) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				invalidTimestampParam,
+				"ElevenLabs Scribe does not support segment timestamps; use word timestamps or config.elevenlabs.timestamps_granularity with none, word, or character.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 	const requiresAudioDuration = Boolean(args.pricingCard?.rules?.some((rule: any) => rule.meter === "input_audio_seconds"));
 	if (requiresAudioDuration && keyInfo.source !== "byok" && !typedPayload.file) {
 		return {
@@ -80,11 +109,13 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	}
 	if (typeof typedPayload.temperature === "number") form.append("temperature", String(typedPayload.temperature));
 	if (typeof typedPayload.diarize === "boolean") form.append("diarize", String(typedPayload.diarize));
-	if (typedPayload.timestamp_granularities?.length) {
-		form.append("timestamps_granularity", typedPayload.timestamp_granularities.includes("word") ? "word" : "none");
+	if (typeof nativeTimestampGranularity === "string") {
+		form.append("timestamps_granularity", nativeTimestampGranularity);
+	} else if (typedPayload.timestamp_granularities?.includes("word")) {
+		form.append("timestamps_granularity", "word");
 	}
 	for (const [key, value] of Object.entries(elevenlabs)) {
-		if (value == null || ["model_id", "file", "source_url", "language_code", "keyterms", "enable_logging"].includes(key)) continue;
+		if (value == null || ["model_id", "file", "source_url", "language_code", "keyterms", "enable_logging", "timestamps_granularity"].includes(key)) continue;
 		form.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
 	}
 	const query = typeof elevenlabs.enable_logging === "boolean"

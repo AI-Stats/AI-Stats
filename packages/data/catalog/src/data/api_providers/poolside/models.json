@@ -20,67 +20,37 @@
         "params": [
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": 32768,
             "notes": null
           },
           {
             "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 0,
+            "provider_max": 2,
+            "provider_default": 1,
             "notes": null
           },
           {
-            "param_id": "tool_choice",
+            "param_id": "top_k",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": 20,
             "notes": null
           },
           {
-            "param_id": "tools",
+            "param_id": "min_p",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": 0,
             "notes": null
           },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
+          { "param_id": "stream", "provider_min": null, "provider_max": null, "provider_default": false, "notes": null },
+          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "parallel_tool_calls", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Maps to chat_template_kwargs.enable_thinking; thinking is enabled by default." },
+          { "param_id": "include_reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Reasoning is returned in reasoning_content." }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -104,11 +74,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      { "kind": "documentation", "url": "https://docs.poolside.ai/api/openai-api-examples", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents Poolside-hosted sampling controls, streaming, tool calling, parallel tool calls, and thinking control." },
+      { "kind": "documentation", "url": "https://docs.poolside.ai/get-started/supported-models", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents thinking and non-thinking modes for Laguna M.1." }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Request controls and their documented limits were verified against Poolside-hosted inference documentation."
     },
     "rate_limits": []
   },
@@ -133,69 +106,37 @@
         "params": [
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": 32768,
             "notes": null
           },
           {
             "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 0,
+            "provider_max": 2,
+            "provider_default": 1,
             "notes": null
           },
           {
-            "param_id": "tool_choice",
+            "param_id": "top_k",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": 20,
             "notes": null
           },
           {
-            "param_id": "tools",
+            "param_id": "min_p",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": 0,
             "notes": null
           },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          "reasoning",
-          "include_reasoning"
+          { "param_id": "stream", "provider_min": null, "provider_max": null, "provider_default": false, "notes": null },
+          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "parallel_tool_calls", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Maps to chat_template_kwargs.enable_thinking; thinking is enabled by default." },
+          { "param_id": "include_reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Reasoning is returned in reasoning_content." }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -219,11 +160,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      { "kind": "documentation", "url": "https://docs.poolside.ai/api/openai-api-examples", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents Poolside-hosted sampling controls, streaming, tool calling, parallel tool calls, and thinking control." },
+      { "kind": "documentation", "url": "https://docs.poolside.ai/get-started/supported-models", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents thinking and non-thinking modes for Laguna S 2.1." }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Request controls and their documented limits were verified against Poolside-hosted inference documentation."
     },
     "rate_limits": []
   },
@@ -248,69 +192,37 @@
         "params": [
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": 32768,
             "notes": null
           },
           {
             "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 0,
+            "provider_max": 2,
+            "provider_default": 1,
             "notes": null
           },
           {
-            "param_id": "tool_choice",
+            "param_id": "top_k",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": 20,
             "notes": null
           },
           {
-            "param_id": "tools",
+            "param_id": "min_p",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
+            "provider_default": 0,
             "notes": null
           },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          "reasoning",
-          "include_reasoning"
+          { "param_id": "stream", "provider_min": null, "provider_max": null, "provider_default": false, "notes": null },
+          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "parallel_tool_calls", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Maps to chat_template_kwargs.enable_thinking; thinking is enabled by default." },
+          { "param_id": "include_reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Reasoning is returned in reasoning_content." }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -334,11 +246,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      { "kind": "documentation", "url": "https://docs.poolside.ai/api/openai-api-examples", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents Poolside-hosted sampling controls, streaming, tool calling, parallel tool calls, and thinking control." },
+      { "kind": "documentation", "url": "https://docs.poolside.ai/get-started/supported-models", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents thinking and non-thinking modes for Laguna XS 2.1." }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Request controls and their documented limits were verified against Poolside-hosted inference documentation."
     },
     "rate_limits": []
   },
