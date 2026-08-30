@@ -127,6 +127,26 @@ describe("applyByokServiceFee", () => {
 		expect(result.pricedUsage.pricing.byok_reference_total_nanos).toBe(baseCost);
 	});
 
+	it("previews the next completed-request count without incrementing reservations", async () => {
+		maybeSingleMock.mockResolvedValue({
+			data: { month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS },
+			error: null,
+		});
+
+		const result = await applyByokServiceFee({
+			workspaceId: "team_1",
+			isByok: true,
+			countRequest: false,
+			baseCostNanos: 2_000_000_000,
+			pricedUsage: { pricing: { total_nanos: 2_000_000_000, currency: "USD" } },
+		});
+
+		expect(rpcMock).not.toHaveBeenCalled();
+		expect(result.byokMonthlyRequestCount).toBe(BYOK_MONTHLY_FREE_REQUESTS + 1);
+		expect(result.pricedUsage.byok_billing.counter_source).toBe("preview_read");
+		expect(result.byokFeeNanos).toBe(50_000_000);
+	});
+
 	it("charges only the percentage fee for low-cost paid-tier requests", async () => {
 		rpcMock.mockResolvedValue({
 			data: [{ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 }],

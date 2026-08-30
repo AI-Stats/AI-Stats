@@ -16,6 +16,7 @@ type ByokCounterRow = {
 type ByokFeeArgs = {
 	workspaceId: string;
 	isByok: boolean;
+	countRequest?: boolean;
 	baseCostNanos: number;
 	pricedUsage: any;
 	currencyHint?: string;
@@ -34,7 +35,7 @@ type ByokFeeResult = {
 type ByokCounterResolution = {
 	requestCount: number | null;
 	monthStart: string | null;
-	source: "rpc" | "fallback_read" | "unavailable";
+	source: "rpc" | "fallback_read" | "preview_read" | "unavailable";
 };
 
 function normalizeNanos(value: unknown): number {
@@ -78,9 +79,42 @@ function utcMonthStartIso(nowIso: string): string {
 	return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)).toISOString();
 }
 
-async function resolveByokCounter(workspaceId: string): Promise<ByokCounterResolution> {
+async function readByokCounter(
+	workspaceId: string,
+	nowIso: string,
+	source: "fallback_read" | "preview_read",
+	lastRpcError: unknown = null,
+): Promise<ByokCounterResolution> {
+	const monthStartIso = utcMonthStartIso(nowIso);
+	try {
+		const { data, error } = await getSupabaseAdmin()
+			.from("workspace_byok_monthly_usage")
+			.select("month_start,request_count")
+			.eq("workspace_id", workspaceId)
+			.eq("month_start", monthStartIso)
+			.maybeSingle();
+		if (error) throw error;
+		const row = data as ByokCounterRow | null;
+		const existingCount = coerceRequestCount(row?.request_count) ?? 0;
+		return {
+			requestCount: existingCount + 1,
+			monthStart: typeof row?.month_start === "string" ? row.month_start : monthStartIso,
+			source,
+		};
+	} catch (error) {
+		console.error("byok_monthly_counter_fallback_failed", {
+			workspaceId,
+			error,
+			lastRpcError,
+		});
+		return { requestCount: null, monthStart: monthStartIso, source: "unavailable" };
+	}
+}
+
+async function resolveByokCounter(workspaceId: string, countRequest: boolean): Promise<ByokCounterResolution> {
 	const supabase = getSupabaseAdmin();
 	const nowIso = new Date().toISOString();
+	if (!countRequest) return readByokCounter(workspaceId, nowIso, "preview_read");
 	let lastError: unknown = null;
 
 	for (let attempt = 1; attempt <= COUNTER_RPC_MAX_ATTEMPTS; attempt++) {
@@ -110,34 +144,7 @@ async function resolveByokCounter(workspaceId: string): Promise<ByokCounterResol
 	}
 
 	// Fallback read path: approximate count by reading current row and treating this call as +1.
-	const monthStartIso = utcMonthStartIso(nowIso);
-	try {
-		const { data, error } = await supabase
-			.from("workspace_byok_monthly_usage")
-			.select("month_start,request_count")
-			.eq("workspace_id", workspaceId)
-			.eq("month_start", monthStartIso)
-			.maybeSingle();
-		if (error) throw error;
-		const row = data as ByokCounterRow | null;
-		const existingCount = coerceRequestCount(row?.request_count) ?? 0;
-		return {
-			requestCount: existingCount + 1,
-			monthStart: (typeof row?.month_start === "string" ? row.month_start : monthStartIso),
-			source: "fallback_read",
-		};
-	} catch (fallbackErr) {
-		console.error("byok_monthly_counter_fallback_failed", {
-			workspaceId,
-			error: fallbackErr,
-			lastRpcError: lastError,
-		});
-		return {
-			requestCount: null,
-			monthStart: monthStartIso,
-			source: "unavailable",
-		};
-	}
+	return readByokCounter(workspaceId, nowIso, "fallback_read", lastError);
 }
 
 function buildByokFeeLine(feeNanos: number) {
@@ -215,7 +222,7 @@ export async function applyByokServiceFee(args: ByokFeeArgs): Promise<ByokFeeRes
 		};
 	}
 
-	const counter = await resolveByokCounter(args.workspaceId);
+	const counter = await resolveByokCounter(args.workspaceId, args.countRequest !== false);
 	const requestCount = counter.requestCount;
 	const monthStart = counter.monthStart;
 	if (counter.source === "unavailable") {

@@ -24,11 +24,19 @@ begin
   v_cutoff := now() - make_interval(days => p_retention_days);
 
   with candidates as (
-    select request_event_id
-    from public.v2_request_facts
-    where byok is true
-      and occurred_at < v_cutoff
-    order by occurred_at, request_event_id
+    select facts.request_event_id
+    from public.v2_request_facts facts
+    where (
+        facts.byok is true
+        or exists (
+          select 1
+          from public.v2_request_attempts attempt
+          where attempt.request_event_id = facts.request_event_id
+            and attempt.safe_metadata->>'key_source' = 'byok'
+        )
+      )
+      and facts.occurred_at < v_cutoff
+    order by facts.occurred_at, facts.request_event_id
     limit p_batch_size
   )
   delete from public.v2_request_facts facts
@@ -37,11 +45,20 @@ begin
   get diagnostics v_v2_deleted = row_count;
 
   with candidates as (
-    select id, created_at
-    from public.gateway_requests
-    where byok is true
-      and created_at < v_cutoff
-    order by created_at, id
+    select requests.id, requests.created_at
+    from public.gateway_requests requests
+    where (
+        requests.byok is true
+        or exists (
+          select 1
+          from public.gateway_upstream_requests attempt
+          where attempt.gateway_request_id = requests.id
+            and attempt.gateway_request_created_at = requests.created_at
+            and attempt.key_source = 'byok'
+        )
+      )
+      and requests.created_at < v_cutoff
+    order by requests.created_at, requests.id
     limit p_batch_size
   )
   delete from public.gateway_requests requests
