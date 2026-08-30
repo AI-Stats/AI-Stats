@@ -130,6 +130,9 @@ export async function loadProviderPricing(
 				apiModelId ?? card.model ?? getBaseModel(ctx.model),
 				ctx.capability,
 			);
+			if (!card && apiModelId) {
+				throw new Error(`pricing_card_missing_for_executed_route:${result.provider}:${apiModelId}`);
+			}
 		}
 
         return card;

@@ -735,7 +735,7 @@ export function computeBillSummary(
                 id: r.id,
                 price_per_unit: r.price_per_unit,
                 unit_size: r.unit_size,
-                priority: r.priority,
+				priority: effectiveRulePriority(r),
                 match: r.match,
             })),
             selection_rankings: selectionSummary.rankings.slice(0, 10),

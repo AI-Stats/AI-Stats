@@ -8,7 +8,7 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { resolveEnforcedZdr } from "./zdr";
+import { resolveEnforcedZdr } from "@/components/(data)/model/pricing/zdr";
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

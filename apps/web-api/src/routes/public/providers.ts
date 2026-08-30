@@ -310,7 +310,7 @@ async function recentModels(env: Env, providerId: string, since: string | null, 
 	if (providerResult.error) throw providerResult.error;
 	const modelIds = Array.from(new Set((providerResult.data ?? []).map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
 	const modelResult = modelIds.length
-		? await client.from("v2_models").select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)").in("model_slug", modelIds)
+		? await client.from("v2_models").select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)").in("model_slug", modelIds).eq("hidden", false).neq("status", "disabled")
 		: { data: [], error: null };
 	if (modelResult.error) throw modelResult.error;
 	const details = new Map((modelResult.data ?? []).map((row) => [row.model_slug, {
@@ -484,7 +484,7 @@ publicProvidersRouter.get("/:providerId/models", async (c) => {
 		const modelIds = Array.from(new Set(providerRows.map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
 		const [capsResult, modelsResult, skusResult] = await Promise.all([
 			providerModelIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
-			modelIds.length ? client.from("v2_models").select("model_slug,name,released_at,announced_at,hidden").in("model_slug", modelIds).eq("hidden", false) : Promise.resolve({ data: [], error: null }),
+			modelIds.length ? client.from("v2_models").select("model_slug,name,released_at,announced_at,hidden").in("model_slug", modelIds).eq("hidden", false).neq("status", "disabled") : Promise.resolve({ data: [], error: null }),
 			providerModelIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,status,effective_from,effective_to").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
 		]);
 		if (capsResult.error || modelsResult.error || skusResult.error) throw capsResult.error ?? modelsResult.error ?? skusResult.error;

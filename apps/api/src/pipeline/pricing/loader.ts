@@ -16,6 +16,10 @@ type PricingL1Entry = {
 const pricingL1 = new Map<string, PricingL1Entry>();
 const pricingInflight = new Map<string, Promise<PriceCard | null>>();
 
+export function isSafePostgrestFilterLiteral(value: string): boolean {
+	return !/[(),"\\]/.test(value);
+}
+
 export function selectPricingRouteRows(
 	exact: Array<Record<string, any>>,
 	canonical: Array<Record<string, any>>,
@@ -59,6 +63,7 @@ function resolvePricingL1TtlMs(card: PriceCard, nowMs: number = Date.now()): num
 }
 
 export async function loadPriceCard(provider: string, model: string, endpoint: string): Promise<PriceCard | null> {
+	if (!isSafePostgrestFilterLiteral(model)) return null;
     const cacheKey = pricingCacheKey(provider, model, endpoint);
     const l1 = readPricingL1(cacheKey);
     if (l1 !== undefined) return l1;

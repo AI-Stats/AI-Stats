@@ -509,12 +509,13 @@ export async function handleStreamResponse(
 			const baseModel = getBaseModel(ctx.model);
 			const healthContext = (result as any).healthContext ?? null;
 			const isProbe = Boolean(healthContext?.isProbe);
-			if (info?.aborted || streamFailed) {
-				const healthImpact = classifyProviderHealthImpact({
-					upstreamStatus: result.upstream.status,
-					aborted: info?.aborted === true,
-					midStreamError: streamFailed,
-				});
+			const healthImpact = classifyProviderHealthImpact({
+				upstreamStatus: result.upstream.status,
+				aborted: info?.aborted === true,
+				midStreamError: streamFailed,
+				finishReason: cachedFinishReason ?? result.bill.finish_reason ?? null,
+			});
+			if (info?.aborted || streamFailed || healthImpact === "failure") {
 				await onCallEnd(ctx.endpoint, {
 					provider: result.provider,
 					model: baseModel,
@@ -545,11 +546,6 @@ export async function handleStreamResponse(
                 result.upstream.status >= 200 &&
                 result.upstream.status < 400 &&
                 !info?.aborted;
-			const healthImpact = classifyProviderHealthImpact({
-				upstreamStatus: result.upstream.status,
-				aborted: info?.aborted === true,
-				finishReason: cachedFinishReason ?? result.bill.finish_reason ?? null,
-            });
             await onCallEnd(ctx.endpoint, {
                 provider: result.provider,
                 model: baseModel,
@@ -572,8 +568,6 @@ export async function handleStreamResponse(
             });
             if (isProbe && healthImpact !== "neutral") {
 				await reportProbeResult(ctx.endpoint, result.provider, baseModel, healthImpact === "success");
-            } else if (healthImpact === "failure") {
-                await maybeOpenOnRecentErrors(ctx.endpoint, result.provider, baseModel);
             }
 
             const finalizeFromBill = async (bill: Bill | null | undefined) => {
@@ -822,8 +816,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
-
 
 
 

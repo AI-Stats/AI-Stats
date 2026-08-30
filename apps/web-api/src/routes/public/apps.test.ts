@@ -142,6 +142,7 @@ describe("public app routes", () => {
 			if (url.includes("rpc/get_public_app_groups")) {
 				return new Response(JSON.stringify([
 					{ reference: "phaseo-chat", app_id: chatId, app_name: "Phaseo Chat", app_url: "https://phaseo.app/chat", app_created_at: "2026-01-01T00:00:00Z", app_is_public: true, app_is_active: true, member_ids: [chatId], public_slug: "phaseo-chat" },
+					{ reference: "phaseo-validation", app_id: validationId, app_name: "Phaseo Validation", app_url: "https://phaseo.app/validate", app_created_at: "2026-01-02T00:00:00Z", app_is_public: true, app_is_active: true, member_ids: [validationId], public_slug: "phaseo-validation" },
 				]), { status: 200 });
 			}
 			if (url.includes("v2_web_public_usage_daily")) {

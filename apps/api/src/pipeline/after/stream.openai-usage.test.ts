@@ -124,6 +124,18 @@ function makeEmptySuccessfulOpenAIStream(): Response {
 	});
 }
 
+function makeFailedOpenAIStream(): Response {
+	const frame = {
+		id: "chatcmpl_failed",
+		object: "chat.completion.chunk",
+		choices: [{ index: 0, delta: {}, finish_reason: "error" }],
+	};
+	return new Response(`data: ${JSON.stringify(frame)}\n\ndata: [DONE]\n\n`, {
+		status: 200,
+		headers: { "Content-Type": "text/event-stream" },
+	});
+}
+
 function baseCtx(): any {
 	return {
 		requestId: "req_local_openai_usage_test",
@@ -270,5 +282,41 @@ describe("handleStreamResponse OpenAI usage finalization", () => {
 		}));
 		expect(auditFailureMock).not.toHaveBeenCalled();
 		expect(maybeOpenOnRecentErrorsMock).not.toHaveBeenCalled();
+	});
+
+	it("does not charge a stream with a terminal error finish reason", async () => {
+		auditSuccessMock.mockReset().mockResolvedValue(undefined);
+		auditFailureMock.mockReset().mockResolvedValue(undefined);
+		emitGatewayRequestEventMock.mockReset().mockResolvedValue(undefined);
+		recordUsageAndChargeOnceMock.mockReset().mockResolvedValue(undefined);
+		onCallEndMock.mockReset().mockResolvedValue(undefined);
+		reportProbeResultMock.mockReset().mockResolvedValue(undefined);
+		maybeOpenOnRecentErrorsMock.mockReset().mockResolvedValue(undefined);
+		maybeWriteStickyRoutingFromUsageMock.mockReset().mockResolvedValue(undefined);
+		classifyProviderHealthImpactMock.mockReset().mockImplementation(({ finishReason }) =>
+			finishReason === "error" ? "failure" : "success",
+		);
+
+		const upstream = makeFailedOpenAIStream();
+		const response = await handleStreamResponse(
+			baseCtx(),
+			{
+				kind: "stream",
+				stream: upstream.body,
+				upstream,
+				provider: "openai",
+				usageFinalizer: async () => null,
+				bill: { cost_cents: 10, currency: "USD", usage: { input_tokens: 10 }, finish_reason: null },
+			} as any,
+			null,
+		);
+
+		await response.text();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		expect(classifyProviderHealthImpactMock).toHaveBeenCalledWith(expect.objectContaining({ finishReason: "error" }));
+		expect(recordUsageAndChargeOnceMock).not.toHaveBeenCalled();
+		expect(auditSuccessMock).not.toHaveBeenCalled();
+		expect(auditFailureMock).toHaveBeenCalledTimes(1);
 	});
 });

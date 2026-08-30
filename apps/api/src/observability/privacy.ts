@@ -155,7 +155,7 @@ function shouldRedactByKey(
 	return false;
 }
 
-function sanitizeInternal(value: unknown, depth: number, path: readonly string[]): unknown {
+function sanitizeInternal(value: unknown, depth: number): unknown {
 	if (depth > MAX_DEPTH) return "[truncated depth]";
 
 	if (value == null) return value;
@@ -163,7 +163,7 @@ function sanitizeInternal(value: unknown, depth: number, path: readonly string[]
 	if (typeof value !== "object") return value;
 
 	if (Array.isArray(value)) {
-		const limited = value.slice(0, MAX_ARRAY_ITEMS).map((item, index) => sanitizeInternal(item, depth + 1, [...path, String(index)]));
+		const limited = value.slice(0, MAX_ARRAY_ITEMS).map((item) => sanitizeInternal(item, depth + 1));
 		if (value.length > MAX_ARRAY_ITEMS) {
 			limited.push(`[truncated ${value.length - MAX_ARRAY_ITEMS} items]`);
 		}
@@ -179,7 +179,7 @@ function sanitizeInternal(value: unknown, depth: number, path: readonly string[]
 			output[key] = redactedMarker(val);
 			continue;
 		}
-		output[key] = sanitizeInternal(val, depth + 1, [...path, key]);
+		output[key] = sanitizeInternal(val, depth + 1);
 	}
 
 	if (Object.keys(input).length > MAX_OBJECT_KEYS) {
@@ -190,7 +190,7 @@ function sanitizeInternal(value: unknown, depth: number, path: readonly string[]
 }
 
 export function sanitizeForAxiom(value: unknown): unknown {
-	return sanitizeInternal(value, 0, []);
+	return sanitizeInternal(value, 0);
 }
 
 export function sanitizeJsonStringForAxiom(raw: string | null | undefined): unknown {

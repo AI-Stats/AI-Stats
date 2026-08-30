@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { resolveEnforcedZdr } from "./zdr";
+import { resolveEnforcedZdr } from "@/components/(data)/model/pricing/zdr";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {

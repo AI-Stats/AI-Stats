@@ -8,7 +8,8 @@ alter table public.provider_catalog_review_events
   add constraint provider_catalog_review_events_run_id_fkey
   foreign key (run_id)
   references public.provider_catalog_sync_runs(id)
-  on delete restrict;
+  on delete restrict
+  not valid;
 
 revoke delete on table public.provider_catalog_sync_runs from service_role;
 revoke update, delete on table public.provider_catalog_review_events from service_role;

@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { selectPricingRouteRows } from "./loader";
+import { isSafePostgrestFilterLiteral, selectPricingRouteRows } from "./loader";
+
+describe("isSafePostgrestFilterLiteral", () => {
+	it.each([",", "(", ")", '"', "\\"])("rejects reserved PostgREST syntax %s", (character) => {
+		expect(isSafePostgrestFilterLiteral(`model${character}injection`)).toBe(false);
+	});
+
+	it("accepts normal provider model identifiers", () => {
+		expect(isSafePostgrestFilterLiteral("openai/gpt-5.6:standard-v2")).toBe(true);
+	});
+});
 
 describe("selectPricingRouteRows", () => {
 	it("keeps an executed provider-model route isolated from canonical siblings", () => {

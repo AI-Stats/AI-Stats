@@ -55,7 +55,8 @@ async function gatewayModels(env: Env) {
 			client.from("v2_models")
 				.select("model_id:model_slug,name,status,organisation_id:lab_slug,input_modalities,output_modalities,previous_model_id:previous_model_slug,release_date:released_at,announcement_date:announced_at,deprecation_date:deprecated_at,retirement_date:retired_at")
 				.in("model_slug", modelIds.slice(index * idChunkSize, (index + 1) * idChunkSize))
-				.eq("hidden", false)),
+				.eq("hidden", false)
+				.neq("status", "disabled")),
 	);
 	for (const result of [...providerResults, ...modelResults]) {
 		if (result.error) throw result.error;
