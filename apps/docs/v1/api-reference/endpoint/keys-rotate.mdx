@@ -1,0 +1,9 @@
+---
+title: "Rotate an API key"
+sidebarTitle: "Rotate key"
+badge: "Beta"
+openapi: "POST /keys/{id}/rotate"
+description: "Create a replacement API key while preserving the previous key's limits."
+---
+
+Requires `keys:write`. The replacement plaintext is returned once. Set `previous_key_expires_at` to allow a controlled overlap window before the previous key stops working.

@@ -87,18 +87,29 @@ class AnthropicUsage(TypedDict):
 class ApiKey(TypedDict):
 	created_at: Optional[str]
 	created_by: Optional[str]
+	creator_user_id: NotRequired[Optional[str]]
 	disabled: bool
 	expires_at: Optional[str]
 	hash: str
 	id: str
+	include_byok_in_limit: NotRequired[bool]
 	label: Optional[str]
 	last_used_at: Optional[str]
+	limit: NotRequired[Optional[float]]
+	limit_remaining: NotRequired[Optional[float]]
+	limit_reset: NotRequired[Optional[Literal["daily", "weekly", "monthly"]]]
+	limits: NotRequired[ApiKeyLimitWindows]
 	name: Optional[str]
 	prefix: Optional[str]
 	scopes: Union[str, List[str]]
 	soft_blocked: bool
 	status: Optional[str]
 	updated_at: Optional[str]
+	usage: NotRequired[float]
+	usage_daily: NotRequired[float]
+	usage_details: NotRequired[ApiKeyUsageWindows]
+	usage_monthly: NotRequired[float]
+	usage_weekly: NotRequired[float]
 	workspace_id: str
 
 class ApiKeyCreateRequest(TypedDict):
@@ -107,10 +118,29 @@ class ApiKeyCreateRequest(TypedDict):
 	include_byok_in_limit: NotRequired[bool]
 	limit: NotRequired[Optional[float]]
 	limit_reset: NotRequired[Literal["daily", "weekly", "monthly"]]
+	limits: NotRequired[ApiKeyLimitInputWindows]
 	name: str
 	scopes: NotRequired[Union[str, List[str]]]
 	soft_blocked: NotRequired[bool]
 	workspace_id: NotRequired[str]
+
+class ApiKeyLimitBucket(TypedDict):
+	cost: Optional[float]
+	requests: Optional[int]
+
+class ApiKeyLimitInputBucket(TypedDict):
+	cost: NotRequired[Optional[float]]
+	requests: NotRequired[Optional[int]]
+
+class ApiKeyLimitInputWindows(TypedDict):
+	daily: NotRequired[ApiKeyLimitInputBucket]
+	monthly: NotRequired[ApiKeyLimitInputBucket]
+	weekly: NotRequired[ApiKeyLimitInputBucket]
+
+class ApiKeyLimitWindows(TypedDict):
+	daily: ApiKeyLimitBucket
+	monthly: ApiKeyLimitBucket
+	weekly: ApiKeyLimitBucket
 
 class ApiKeyListResponse(TypedDict):
 	data: List[ApiKey]
@@ -118,6 +148,14 @@ class ApiKeyListResponse(TypedDict):
 
 class ApiKeyResponse(TypedDict):
 	data: ApiKey
+
+class ApiKeyRotateRequest(TypedDict):
+	new_name: NotRequired[str]
+	previous_key_expires_at: NotRequired[Optional[str]]
+
+class ApiKeyRotateResponse(TypedDict):
+	data: ApiKeyWithValue
+	previous_key_expires_at: Optional[str]
 
 ApiKeyScopeValue = Union[str, List[str]]
 
@@ -127,26 +165,48 @@ class ApiKeyUpdateRequest(TypedDict):
 	include_byok_in_limit: NotRequired[bool]
 	limit: NotRequired[Optional[float]]
 	limit_reset: NotRequired[Literal["daily", "weekly", "monthly"]]
+	limits: NotRequired[ApiKeyLimitInputWindows]
 	name: NotRequired[str]
 	scopes: NotRequired[Union[str, List[str]]]
 	soft_blocked: NotRequired[bool]
 
+class ApiKeyUsageBucket(TypedDict):
+	cost: float
+	requests: int
+
+class ApiKeyUsageWindows(TypedDict):
+	daily: ApiKeyUsageBucket
+	monthly: ApiKeyUsageBucket
+	total: ApiKeyUsageBucket
+	weekly: ApiKeyUsageBucket
+
 class ApiKeyWithValue(TypedDict):
 	created_at: Optional[str]
 	created_by: Optional[str]
+	creator_user_id: NotRequired[Optional[str]]
 	disabled: bool
 	expires_at: Optional[str]
 	hash: str
 	id: str
+	include_byok_in_limit: NotRequired[bool]
 	key: str
 	label: Optional[str]
 	last_used_at: Optional[str]
+	limit: NotRequired[Optional[float]]
+	limit_remaining: NotRequired[Optional[float]]
+	limit_reset: NotRequired[Optional[Literal["daily", "weekly", "monthly"]]]
+	limits: NotRequired[ApiKeyLimitWindows]
 	name: Optional[str]
 	prefix: Optional[str]
 	scopes: Union[str, List[str]]
 	soft_blocked: bool
 	status: Optional[str]
 	updated_at: Optional[str]
+	usage: NotRequired[float]
+	usage_daily: NotRequired[float]
+	usage_details: NotRequired[ApiKeyUsageWindows]
+	usage_monthly: NotRequired[float]
+	usage_weekly: NotRequired[float]
 	workspace_id: str
 
 class ApiKeyWithValueResponse(TypedDict):
@@ -1468,6 +1528,42 @@ class WorkspaceAuditEventMetadata(TypedDict):
 	replacementKeyName: NotRequired[str]
 	status: NotRequired[str]
 
+class WorkspaceBudget(TypedDict):
+	created_at: str
+	created_by: NotRequired[Optional[str]]
+	exceeded: bool
+	id: str
+	interval: Literal["daily", "weekly", "monthly", "lifetime"]
+	limit: float
+	limit_nanos: int
+	remaining: float
+	remaining_nanos: int
+	reset_at: NotRequired[Optional[str]]
+	updated_at: str
+	usage: float
+	usage_nanos: int
+	window_start: NotRequired[Optional[str]]
+	workspace_id: str
+
+class WorkspaceBudgetDeleteResponse(TypedDict):
+	data: Dict[str, Any]
+
+class WorkspaceBudgetInput(TypedDict):
+	interval: Literal["daily", "weekly", "monthly", "lifetime"]
+	limit: float
+
+WorkspaceBudgetInterval = Literal["daily", "weekly", "monthly", "lifetime"]
+
+class WorkspaceBudgetListResponse(TypedDict):
+	data: List[WorkspaceBudget]
+
+class WorkspaceBudgetResponse(TypedDict):
+	data: WorkspaceBudget
+
+class WorkspaceBudgetUpdateInput(TypedDict):
+	interval: NotRequired[Literal["daily", "weekly", "monthly", "lifetime"]]
+	limit: NotRequired[float]
+
 class WorkspaceCreateRequest(TypedDict):
 	name: str
 	slug: NotRequired[str]
@@ -1483,4 +1579,4 @@ class WorkspaceUpdateRequest(TypedDict):
 	name: NotRequired[str]
 	slug: NotRequired[str]
 
-models___all__ = ["ActivityEntry", "ActivityResponse", "AnalyticsAccessTokenRequiredResponse", "AnalyticsNotImplementedResponse", "AnthropicContentBlock", "AnthropicMessage", "AnthropicMessagesRequest", "AnthropicMessagesResponse", "AnthropicTool", "AnthropicUsage", "ApiKey", "ApiKeyCreateRequest", "ApiKeyListResponse", "ApiKeyResponse", "ApiKeyScopeValue", "ApiKeyUpdateRequest", "ApiKeyWithValue", "ApiKeyWithValueResponse", "AsyncJobWebSocketClientEvent", "AsyncJobWebSocketServerEvent", "AsyncJobWebSocketUpgradeRequiredResponse", "AsyncWebhookDeliveryAttempt", "AsyncWebhookDeliverySummary", "AsyncWebhookPublicState", "AudioContentPart", "AudioSpeechRequest", "AudioTranscriptionRequest", "AudioTranscriptionResponse", "AudioTranslationRequest", "AudioTranslationResponse", "BatchBillingSummary", "BatchListResponse", "BatchModelCapability", "BatchModelProviderCapability", "BatchModelsResponse", "BatchProviderCapability", "BatchRequest", "BatchRequestCounts", "BatchRequestItem", "BatchRequestRow", "BatchResponse", "BenchmarkId", "CacheControl", "ChatAudioOutputPart", "ChatChoice", "ChatCompletionsRequest", "ChatCompletionsResponse", "ChatImageOutputPart", "ChatMessage", "CreditsResponse", "DataModel", "DataModelOrganisation", "DebugOptions", "DeletedResponse", "Embedding", "EmbeddingsMultimodalInput", "EmbeddingsRequest", "EmbeddingsResponse", "EndpointCatalogueEntry", "EndpointCatalogueResponse", "ErrorFailureSampleItem", "ErrorProviderCandidateDiagnostics", "ErrorProviderEnablementDiagnostics", "ErrorProviderFailureDiagnostics", "ErrorResponse", "ErrorRoutingDiagnostics", "ErrorUpstreamError", "FileResponse", "FileUploadRequest", "FunctionToolDefinition", "FusionToolDefinition", "GatewayCapabilities", "GatewayCapabilityStatus", "GatewayDatetimeToolDefinition", "GatewayModalities", "GatewayModelLifecycle", "GatewayModelLimits", "GatewayModelOffer", "GatewayModelOrganization", "GatewayModelsResponse", "GatewayPricing", "GatewayPricingMeter", "GatewayProviderAvailabilityReason", "GatewayRoutingStatus", "GatewayWebFetchToolDefinition", "GatewayWebSearchToolDefinition", "GenerationResponse", "Image", "ImageConfig", "ImageContentPart", "ImageModerationInput", "ImagesEditRequest", "ImagesEditResponse", "ImagesGenerationRequest", "ImagesGenerationResponse", "InvalidRequestResponse", "KeyInvalidateResponse", "KnownModelId", "ListFilesResponse", "ManagementKeyCreateRequest", "ManagementKeyCreateResponse", "ManagementKeyDeleteResponse", "ManagementKeyDetailResponse", "ManagementKeyListResponse", "ManagementKeyUpdateRequest", "ManagementKeyUpdateResponse", "MessageContentPart", "Model", "ModelAvailability", "ModelEndpointCapability", "ModelEndpointsResponse", "ModelId", "ModelLifecycle", "ModelProviderAvailability", "ModerationCategories", "ModerationCategoryScores", "ModerationResult", "ModerationsRequest", "ModerationsResponse", "MusicGenerateRequest", "MusicGenerateResponse", "NotImplementedResponse", "OcrRequest", "OcrResponse", "OrganisationId", "OrganisationIdList", "ParseBlock", "ParseBoundingBox", "ParseImage", "ParsePage", "ParseRequest", "ParseResponse", "Provider", "ProviderOptions", "ProviderRoutingOptions", "ProvisioningKey", "ProvisioningKeyDetail", "ProvisioningKeyWithValue", "ReasoningConfig", "RerankDocument", "RerankRequest", "RerankResponse", "RerankResult", "ResponsesInputItem", "ResponsesOutputAudioPart", "ResponsesOutputContentPart", "ResponsesOutputImagePart", "ResponsesOutputItem", "ResponsesOutputTextPart", "ResponsesRequest", "ResponsesResponse", "SearchModelsToolDefinition", "ServerToolUsage", "SubagentToolDefinition", "SupportedParameterDetails", "TextContentPart", "TextGenerateTool", "TextModerationInput", "TextToolChoice", "ToolCall", "ToolCallContentPart", "Usage", "VideoBillingSummary", "VideoContentPart", "VideoDeleteResponse", "VideoGenerationRequest", "VideoGenerationResponse", "VideoInputReference", "VideoListResponse", "VideoModelCapability", "VideoModelProviderCapability", "VideoModelsResponse", "VideoOutput", "VideoOutputConfig", "Workspace", "WorkspaceActivityEntry", "WorkspaceActivityResponse", "WorkspaceAuditEvent", "WorkspaceAuditEventActor", "WorkspaceAuditEventLimits", "WorkspaceAuditEventListResponse", "WorkspaceAuditEventMetadata", "WorkspaceCreateRequest", "WorkspaceListResponse", "WorkspaceResponse", "WorkspaceUpdateRequest"]
+models___all__ = ["ActivityEntry", "ActivityResponse", "AnalyticsAccessTokenRequiredResponse", "AnalyticsNotImplementedResponse", "AnthropicContentBlock", "AnthropicMessage", "AnthropicMessagesRequest", "AnthropicMessagesResponse", "AnthropicTool", "AnthropicUsage", "ApiKey", "ApiKeyCreateRequest", "ApiKeyLimitBucket", "ApiKeyLimitInputBucket", "ApiKeyLimitInputWindows", "ApiKeyLimitWindows", "ApiKeyListResponse", "ApiKeyResponse", "ApiKeyRotateRequest", "ApiKeyRotateResponse", "ApiKeyScopeValue", "ApiKeyUpdateRequest", "ApiKeyUsageBucket", "ApiKeyUsageWindows", "ApiKeyWithValue", "ApiKeyWithValueResponse", "AsyncJobWebSocketClientEvent", "AsyncJobWebSocketServerEvent", "AsyncJobWebSocketUpgradeRequiredResponse", "AsyncWebhookDeliveryAttempt", "AsyncWebhookDeliverySummary", "AsyncWebhookPublicState", "AudioContentPart", "AudioSpeechRequest", "AudioTranscriptionRequest", "AudioTranscriptionResponse", "AudioTranslationRequest", "AudioTranslationResponse", "BatchBillingSummary", "BatchListResponse", "BatchModelCapability", "BatchModelProviderCapability", "BatchModelsResponse", "BatchProviderCapability", "BatchRequest", "BatchRequestCounts", "BatchRequestItem", "BatchRequestRow", "BatchResponse", "BenchmarkId", "CacheControl", "ChatAudioOutputPart", "ChatChoice", "ChatCompletionsRequest", "ChatCompletionsResponse", "ChatImageOutputPart", "ChatMessage", "CreditsResponse", "DataModel", "DataModelOrganisation", "DebugOptions", "DeletedResponse", "Embedding", "EmbeddingsMultimodalInput", "EmbeddingsRequest", "EmbeddingsResponse", "EndpointCatalogueEntry", "EndpointCatalogueResponse", "ErrorFailureSampleItem", "ErrorProviderCandidateDiagnostics", "ErrorProviderEnablementDiagnostics", "ErrorProviderFailureDiagnostics", "ErrorResponse", "ErrorRoutingDiagnostics", "ErrorUpstreamError", "FileResponse", "FileUploadRequest", "FunctionToolDefinition", "FusionToolDefinition", "GatewayCapabilities", "GatewayCapabilityStatus", "GatewayDatetimeToolDefinition", "GatewayModalities", "GatewayModelLifecycle", "GatewayModelLimits", "GatewayModelOffer", "GatewayModelOrganization", "GatewayModelsResponse", "GatewayPricing", "GatewayPricingMeter", "GatewayProviderAvailabilityReason", "GatewayRoutingStatus", "GatewayWebFetchToolDefinition", "GatewayWebSearchToolDefinition", "GenerationResponse", "Image", "ImageConfig", "ImageContentPart", "ImageModerationInput", "ImagesEditRequest", "ImagesEditResponse", "ImagesGenerationRequest", "ImagesGenerationResponse", "InvalidRequestResponse", "KeyInvalidateResponse", "KnownModelId", "ListFilesResponse", "ManagementKeyCreateRequest", "ManagementKeyCreateResponse", "ManagementKeyDeleteResponse", "ManagementKeyDetailResponse", "ManagementKeyListResponse", "ManagementKeyUpdateRequest", "ManagementKeyUpdateResponse", "MessageContentPart", "Model", "ModelAvailability", "ModelEndpointCapability", "ModelEndpointsResponse", "ModelId", "ModelLifecycle", "ModelProviderAvailability", "ModerationCategories", "ModerationCategoryScores", "ModerationResult", "ModerationsRequest", "ModerationsResponse", "MusicGenerateRequest", "MusicGenerateResponse", "NotImplementedResponse", "OcrRequest", "OcrResponse", "OrganisationId", "OrganisationIdList", "ParseBlock", "ParseBoundingBox", "ParseImage", "ParsePage", "ParseRequest", "ParseResponse", "Provider", "ProviderOptions", "ProviderRoutingOptions", "ProvisioningKey", "ProvisioningKeyDetail", "ProvisioningKeyWithValue", "ReasoningConfig", "RerankDocument", "RerankRequest", "RerankResponse", "RerankResult", "ResponsesInputItem", "ResponsesOutputAudioPart", "ResponsesOutputContentPart", "ResponsesOutputImagePart", "ResponsesOutputItem", "ResponsesOutputTextPart", "ResponsesRequest", "ResponsesResponse", "SearchModelsToolDefinition", "ServerToolUsage", "SubagentToolDefinition", "SupportedParameterDetails", "TextContentPart", "TextGenerateTool", "TextModerationInput", "TextToolChoice", "ToolCall", "ToolCallContentPart", "Usage", "VideoBillingSummary", "VideoContentPart", "VideoDeleteResponse", "VideoGenerationRequest", "VideoGenerationResponse", "VideoInputReference", "VideoListResponse", "VideoModelCapability", "VideoModelProviderCapability", "VideoModelsResponse", "VideoOutput", "VideoOutputConfig", "Workspace", "WorkspaceActivityEntry", "WorkspaceActivityResponse", "WorkspaceAuditEvent", "WorkspaceAuditEventActor", "WorkspaceAuditEventLimits", "WorkspaceAuditEventListResponse", "WorkspaceAuditEventMetadata", "WorkspaceBudget", "WorkspaceBudgetDeleteResponse", "WorkspaceBudgetInput", "WorkspaceBudgetInterval", "WorkspaceBudgetListResponse", "WorkspaceBudgetResponse", "WorkspaceBudgetUpdateInput", "WorkspaceCreateRequest", "WorkspaceListResponse", "WorkspaceResponse", "WorkspaceUpdateRequest"]

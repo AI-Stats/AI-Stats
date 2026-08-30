@@ -171,6 +171,8 @@ class ApiKey
 	public $created_at;
 	/** @var string|null */
 	public $created_by;
+	/** @var string|null */
+	public $creator_user_id;
 	/** @var bool */
 	public $disabled;
 	/** @var string|null */
@@ -179,10 +181,20 @@ class ApiKey
 	public $hash;
 	/** @var string */
 	public $id;
+	/** @var bool|null */
+	public $include_byok_in_limit;
 	/** @var string|null */
 	public $label;
 	/** @var string|null */
 	public $last_used_at;
+	/** @var float|null */
+	public $limit;
+	/** @var float|null */
+	public $limit_remaining;
+	/** @var string|null */
+	public $limit_reset;
+	/** @var array<string, mixed>|null */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -195,6 +207,16 @@ class ApiKey
 	public $status;
 	/** @var string|null */
 	public $updated_at;
+	/** @var float|null */
+	public $usage;
+	/** @var float|null */
+	public $usage_daily;
+	/** @var array<string, mixed>|null */
+	public $usage_details;
+	/** @var float|null */
+	public $usage_monthly;
+	/** @var float|null */
+	public $usage_weekly;
 	/** @var string */
 	public $workspace_id;
 }
@@ -211,6 +233,8 @@ class ApiKeyCreateRequest
 	public $limit;
 	/** @var string|null */
 	public $limit_reset;
+	/** @var array<string, mixed>|null */
+	public $limits;
 	/** @var string */
 	public $name;
 	/** @var string|array|null */
@@ -219,6 +243,42 @@ class ApiKeyCreateRequest
 	public $soft_blocked;
 	/** @var string|null */
 	public $workspace_id;
+}
+
+class ApiKeyLimitBucket
+{
+	/** @var float|null */
+	public $cost;
+	/** @var int|null */
+	public $requests;
+}
+
+class ApiKeyLimitInputBucket
+{
+	/** @var float|null */
+	public $cost;
+	/** @var int|null */
+	public $requests;
+}
+
+class ApiKeyLimitInputWindows
+{
+	/** @var array<string, mixed>|null */
+	public $daily;
+	/** @var array<string, mixed>|null */
+	public $monthly;
+	/** @var array<string, mixed>|null */
+	public $weekly;
+}
+
+class ApiKeyLimitWindows
+{
+	/** @var array<string, mixed> */
+	public $daily;
+	/** @var array<string, mixed> */
+	public $monthly;
+	/** @var array<string, mixed> */
+	public $weekly;
 }
 
 class ApiKeyListResponse
@@ -235,6 +295,22 @@ class ApiKeyResponse
 	public $data;
 }
 
+class ApiKeyRotateRequest
+{
+	/** @var string|null */
+	public $new_name;
+	/** @var string|null */
+	public $previous_key_expires_at;
+}
+
+class ApiKeyRotateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string|null */
+	public $previous_key_expires_at;
+}
+
 class ApiKeyScopeValue { }
 
 class ApiKeyUpdateRequest
@@ -249,6 +325,8 @@ class ApiKeyUpdateRequest
 	public $limit;
 	/** @var string|null */
 	public $limit_reset;
+	/** @var array<string, mixed>|null */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|array|null */
@@ -257,12 +335,34 @@ class ApiKeyUpdateRequest
 	public $soft_blocked;
 }
 
+class ApiKeyUsageBucket
+{
+	/** @var float */
+	public $cost;
+	/** @var int */
+	public $requests;
+}
+
+class ApiKeyUsageWindows
+{
+	/** @var array<string, mixed> */
+	public $daily;
+	/** @var array<string, mixed> */
+	public $monthly;
+	/** @var array<string, mixed> */
+	public $total;
+	/** @var array<string, mixed> */
+	public $weekly;
+}
+
 class ApiKeyWithValue
 {
 	/** @var string|null */
 	public $created_at;
 	/** @var string|null */
 	public $created_by;
+	/** @var string|null */
+	public $creator_user_id;
 	/** @var bool */
 	public $disabled;
 	/** @var string|null */
@@ -271,12 +371,22 @@ class ApiKeyWithValue
 	public $hash;
 	/** @var string */
 	public $id;
+	/** @var bool|null */
+	public $include_byok_in_limit;
 	/** @var string */
 	public $key;
 	/** @var string|null */
 	public $label;
 	/** @var string|null */
 	public $last_used_at;
+	/** @var float|null */
+	public $limit;
+	/** @var float|null */
+	public $limit_remaining;
+	/** @var string|null */
+	public $limit_reset;
+	/** @var array<string, mixed>|null */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -289,6 +399,16 @@ class ApiKeyWithValue
 	public $status;
 	/** @var string|null */
 	public $updated_at;
+	/** @var float|null */
+	public $usage;
+	/** @var float|null */
+	public $usage_daily;
+	/** @var array<string, mixed>|null */
+	public $usage_details;
+	/** @var float|null */
+	public $usage_monthly;
+	/** @var float|null */
+	public $usage_weekly;
 	/** @var string */
 	public $workspace_id;
 }
@@ -2887,6 +3007,76 @@ class WorkspaceAuditEventMetadata
 	public $replacementKeyName;
 	/** @var string|null */
 	public $status;
+}
+
+class WorkspaceBudget
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var bool */
+	public $exceeded;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $interval;
+	/** @var float */
+	public $limit;
+	/** @var int */
+	public $limit_nanos;
+	/** @var float */
+	public $remaining;
+	/** @var int */
+	public $remaining_nanos;
+	/** @var string|null */
+	public $reset_at;
+	/** @var string */
+	public $updated_at;
+	/** @var float */
+	public $usage;
+	/** @var int */
+	public $usage_nanos;
+	/** @var string|null */
+	public $window_start;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceBudgetDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceBudgetInput
+{
+	/** @var string */
+	public $interval;
+	/** @var float */
+	public $limit;
+}
+
+class WorkspaceBudgetInterval { }
+
+class WorkspaceBudgetListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceBudgetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceBudgetUpdateInput
+{
+	/** @var string|null */
+	public $interval;
+	/** @var float|null */
+	public $limit;
 }
 
 class WorkspaceCreateRequest

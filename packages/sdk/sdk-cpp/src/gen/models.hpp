@@ -100,18 +100,29 @@ struct AnthropicUsage {
 struct ApiKey {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
+	std::optional<std::string> creator_user_id;
 	bool disabled;
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
+	std::optional<bool> include_byok_in_limit;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
+	std::optional<double> limit;
+	std::optional<double> limit_remaining;
+	std::optional<std::any> limit_reset;
+	std::map<std::string, std::any> limits;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
+	std::optional<double> usage;
+	std::optional<double> usage_daily;
+	std::map<std::string, std::any> usage_details;
+	std::optional<double> usage_monthly;
+	std::optional<double> usage_weekly;
 	std::string workspace_id;
 };
 
@@ -121,10 +132,33 @@ struct ApiKeyCreateRequest {
 	std::optional<bool> include_byok_in_limit;
 	std::optional<double> limit;
 	std::any limit_reset;
+	std::map<std::string, std::any> limits;
 	std::string name;
 	std::any scopes;
 	std::optional<bool> soft_blocked;
 	std::string workspace_id;
+};
+
+struct ApiKeyLimitBucket {
+	std::optional<double> cost;
+	std::optional<int> requests;
+};
+
+struct ApiKeyLimitInputBucket {
+	std::optional<double> cost;
+	std::optional<int> requests;
+};
+
+struct ApiKeyLimitInputWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> weekly;
+};
+
+struct ApiKeyLimitWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> weekly;
 };
 
 struct ApiKeyListResponse {
@@ -136,6 +170,16 @@ struct ApiKeyResponse {
 	std::map<std::string, std::any> data;
 };
 
+struct ApiKeyRotateRequest {
+	std::string new_name;
+	std::optional<std::string> previous_key_expires_at;
+};
+
+struct ApiKeyRotateResponse {
+	std::map<std::string, std::any> data;
+	std::optional<std::string> previous_key_expires_at;
+};
+
 using ApiKeyScopeValue = std::any;
 
 struct ApiKeyUpdateRequest {
@@ -144,27 +188,51 @@ struct ApiKeyUpdateRequest {
 	std::optional<bool> include_byok_in_limit;
 	std::optional<double> limit;
 	std::any limit_reset;
+	std::map<std::string, std::any> limits;
 	std::string name;
 	std::any scopes;
 	std::optional<bool> soft_blocked;
 };
 
+struct ApiKeyUsageBucket {
+	double cost;
+	int requests;
+};
+
+struct ApiKeyUsageWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> total;
+	std::map<std::string, std::any> weekly;
+};
+
 struct ApiKeyWithValue {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
+	std::optional<std::string> creator_user_id;
 	bool disabled;
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
+	std::optional<bool> include_byok_in_limit;
 	std::string key;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
+	std::optional<double> limit;
+	std::optional<double> limit_remaining;
+	std::optional<std::any> limit_reset;
+	std::map<std::string, std::any> limits;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
+	std::optional<double> usage;
+	std::optional<double> usage_daily;
+	std::map<std::string, std::any> usage_details;
+	std::optional<double> usage_monthly;
+	std::optional<double> usage_weekly;
 	std::string workspace_id;
 };
 
@@ -1629,6 +1697,48 @@ struct WorkspaceAuditEventMetadata {
 	std::string replacementKeyId;
 	std::string replacementKeyName;
 	std::string status;
+};
+
+struct WorkspaceBudget {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	bool exceeded;
+	std::string id;
+	std::any interval;
+	double limit;
+	int limit_nanos;
+	double remaining;
+	int remaining_nanos;
+	std::optional<std::string> reset_at;
+	std::string updated_at;
+	double usage;
+	int usage_nanos;
+	std::optional<std::string> window_start;
+	std::string workspace_id;
+};
+
+struct WorkspaceBudgetDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceBudgetInput {
+	std::any interval;
+	double limit;
+};
+
+using WorkspaceBudgetInterval = std::any;
+
+struct WorkspaceBudgetListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceBudgetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceBudgetUpdateInput {
+	std::any interval;
+	std::optional<double> limit;
 };
 
 struct WorkspaceCreateRequest {

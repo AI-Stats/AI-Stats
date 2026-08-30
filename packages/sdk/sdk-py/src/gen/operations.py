@@ -342,6 +342,19 @@ def createWorkspace(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = "/budgets"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteApiKey(
 	client: Client,
 	*,
@@ -391,6 +404,19 @@ def deleteWorkspace(
 ) -> DeletedResponse:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetDeleteResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -612,6 +638,19 @@ def getWorkspace(
 ) -> WorkspaceResponse:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -940,6 +979,19 @@ def listWorkspaceAuditEvents(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listWorkspaceBudgets(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetListResponse:
+	path = path or {}
+	resolved_path = "/budgets"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listWorkspaces(
 	client: Client,
 	*,
@@ -1070,6 +1122,19 @@ def retrieveFileContent(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def rotateApiKey(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ApiKeyRotateResponse:
+	path = path or {}
+	resolved_path = f"/keys/{path.get('id', '')}/rotate"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateApiKey(
 	client: Client,
 	*,
@@ -1093,6 +1158,19 @@ def updateWorkspace(
 ) -> WorkspaceResponse:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateWorkspaceBudget(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceBudgetResponse:
+	path = path or {}
+	resolved_path = f"/budgets/{path.get('id', '')}"
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1135,4 +1213,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceBudget", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceBudget", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceBudget", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceBudgets", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "rotateApiKey", "updateApiKey", "updateWorkspace", "updateWorkspaceBudget", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

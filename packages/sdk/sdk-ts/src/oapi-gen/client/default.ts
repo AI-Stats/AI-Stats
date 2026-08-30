@@ -873,6 +873,20 @@ export type CreateApiKeyParams = {
     include_byok_in_limit?: boolean;
     limit?: number | null;
     limit_reset?: "daily" | "weekly" | "monthly";
+    limits?: {
+      daily?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      monthly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      weekly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+    };
     name: string;
     scopes?: string | string[];
     soft_blocked?: boolean;
@@ -890,19 +904,60 @@ export async function createApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id?: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit?: boolean;
     key: string;
     label: string | null;
     last_used_at: string | null;
+    limit?: number | null;
+    limit_remaining?: number | null;
+    limit_reset?: "daily" | "weekly" | "monthly" | null;
+    limits?: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
     workspace_id: string;
   };
 }> {
@@ -912,19 +967,60 @@ export async function createApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id?: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit?: boolean;
       key: string;
       label: string | null;
       last_used_at: string | null;
+      limit?: number | null;
+      limit_remaining?: number | null;
+      limit_reset?: "daily" | "weekly" | "monthly" | null;
+      limits?: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
       workspace_id: string;
     };
   }>({
@@ -4562,6 +4658,70 @@ export async function createWorkspace(
   });
 }
 
+export type CreateWorkspaceBudgetParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+  };
+};
+
+/**
+ * Creates an enforced spend ceiling for one workspace interval.
+ */
+export async function createWorkspaceBudget(
+  client: Client,
+  args: CreateWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/budgets";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteApiKeyParams = {
   path?: {
     id: string;
@@ -4685,6 +4845,43 @@ export async function deleteWorkspace(
   const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a workspace spend ceiling and stops enforcing that interval.
+ */
+export async function deleteWorkspaceBudget(
+  client: Client,
+  args: DeleteWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    deleted: boolean;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: boolean;
+      id: string;
+    };
   }>({
     method: "DELETE",
     path: resolvedPath,
@@ -5108,18 +5305,59 @@ export async function getApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id?: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit?: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit?: number | null;
+    limit_remaining?: number | null;
+    limit_reset?: "daily" | "weekly" | "monthly" | null;
+    limits?: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
     workspace_id: string;
   };
 }> {
@@ -5129,18 +5367,59 @@ export async function getApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id?: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit?: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit?: number | null;
+      limit_remaining?: number | null;
+      limit_reset?: "daily" | "weekly" | "monthly" | null;
+      limits?: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
       workspace_id: string;
     };
   }>({
@@ -5216,18 +5495,59 @@ export async function getCurrentApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id?: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit?: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit?: number | null;
+    limit_remaining?: number | null;
+    limit_reset?: "daily" | "weekly" | "monthly" | null;
+    limits?: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
     workspace_id: string;
   };
 }> {
@@ -5237,18 +5557,59 @@ export async function getCurrentApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id?: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit?: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit?: number | null;
+      limit_remaining?: number | null;
+      limit_reset?: "daily" | "weekly" | "monthly" | null;
+      limits?: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
       workspace_id: string;
     };
   }>({
@@ -6126,6 +6487,69 @@ export async function getWorkspace(
   });
 }
 
+export type GetWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one workspace spend ceiling with current usage and remaining spend.
+ */
+export async function getWorkspaceBudget(
+  client: Client,
+  args: GetWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListApiKeysParams = {
   path?: Record<string, never>;
   query?: {
@@ -6148,18 +6572,59 @@ export async function listApiKeys(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id?: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit?: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit?: number | null;
+    limit_remaining?: number | null;
+    limit_reset?: "daily" | "weekly" | "monthly" | null;
+    limits?: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
     workspace_id: string;
   }[];
   total_count: number;
@@ -6170,18 +6635,59 @@ export async function listApiKeys(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id?: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit?: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit?: number | null;
+      limit_remaining?: number | null;
+      limit_reset?: "daily" | "weekly" | "monthly" | null;
+      limits?: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
       workspace_id: string;
     }[];
     total_count: number;
@@ -9814,6 +10320,67 @@ export async function listWorkspaceAuditEvents(
   });
 }
 
+export type ListWorkspaceBudgetsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists workspace spend ceilings with current usage, remaining spend, and reset timestamps.
+ */
+export async function listWorkspaceBudgets(
+  client: Client,
+  args: ListWorkspaceBudgetsParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/budgets";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspacesParams = {
   path?: Record<string, never>;
   query?: {
@@ -10606,6 +11173,158 @@ export async function retrieveFileContent(
   });
 }
 
+export type RotateApiKeyParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    new_name?: string;
+    previous_key_expires_at?: string | null;
+  };
+};
+
+/**
+ * Creates a replacement key with the same limits and optionally schedules expiry for the previous key.
+ */
+export async function rotateApiKey(
+  client: Client,
+  args: RotateApiKeyParams = {},
+): Promise<{
+  data: {
+    created_at: string | null;
+    created_by: string | null;
+    creator_user_id?: string | null;
+    disabled: boolean;
+    expires_at: string | null;
+    hash: string;
+    id: string;
+    include_byok_in_limit?: boolean;
+    key: string;
+    label: string | null;
+    last_used_at: string | null;
+    limit?: number | null;
+    limit_remaining?: number | null;
+    limit_reset?: "daily" | "weekly" | "monthly" | null;
+    limits?: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
+    name: string | null;
+    prefix: string | null;
+    scopes: string | string[];
+    soft_blocked: boolean;
+    status: string | null;
+    updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
+    workspace_id: string;
+  };
+  previous_key_expires_at: string | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}/rotate`;
+  return client.request<{
+    data: {
+      created_at: string | null;
+      created_by: string | null;
+      creator_user_id?: string | null;
+      disabled: boolean;
+      expires_at: string | null;
+      hash: string;
+      id: string;
+      include_byok_in_limit?: boolean;
+      key: string;
+      label: string | null;
+      last_used_at: string | null;
+      limit?: number | null;
+      limit_remaining?: number | null;
+      limit_reset?: "daily" | "weekly" | "monthly" | null;
+      limits?: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
+      name: string | null;
+      prefix: string | null;
+      scopes: string | string[];
+      soft_blocked: boolean;
+      status: string | null;
+      updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
+      workspace_id: string;
+    };
+    previous_key_expires_at: string | null;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateApiKeyParams = {
   path?: {
     id: string;
@@ -10618,6 +11337,20 @@ export type UpdateApiKeyParams = {
     include_byok_in_limit?: boolean;
     limit?: number | null;
     limit_reset?: "daily" | "weekly" | "monthly";
+    limits?: {
+      daily?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      monthly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      weekly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+    };
     name?: string;
     scopes?: string | string[];
     soft_blocked?: boolean;
@@ -10634,18 +11367,59 @@ export async function updateApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id?: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit?: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit?: number | null;
+    limit_remaining?: number | null;
+    limit_reset?: "daily" | "weekly" | "monthly" | null;
+    limits?: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage?: number;
+    usage_daily?: number;
+    usage_details?: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly?: number;
+    usage_weekly?: number;
     workspace_id: string;
   };
 }> {
@@ -10655,18 +11429,59 @@ export async function updateApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id?: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit?: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit?: number | null;
+      limit_remaining?: number | null;
+      limit_reset?: "daily" | "weekly" | "monthly" | null;
+      limits?: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage?: number;
+      usage_daily?: number;
+      usage_details?: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly?: number;
+      usage_weekly?: number;
       workspace_id: string;
     };
   }>({
@@ -10716,6 +11531,72 @@ export async function updateWorkspace(
       name: string | null;
       slug: string | null;
       updated_at: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceBudgetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval?: "daily" | "weekly" | "monthly" | "lifetime";
+    limit?: number;
+  };
+};
+
+/**
+ * Changes the interval or USD ceiling for an existing workspace budget.
+ */
+export async function updateWorkspaceBudget(
+  client: Client,
+  args: UpdateWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
     };
   }>({
     method: "PATCH",

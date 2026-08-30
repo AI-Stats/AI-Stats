@@ -96,18 +96,29 @@ pub struct AnthropicUsage {
 pub struct ApiKey {
 	pub created_at: Option<String>,
 	pub created_by: Option<String>,
+	pub creator_user_id: Option<Option<String>>,
 	pub disabled: bool,
 	pub expires_at: Option<String>,
 	pub hash: String,
 	pub id: String,
+	pub include_byok_in_limit: Option<bool>,
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
+	pub limit: Option<Option<f64>>,
+	pub limit_remaining: Option<Option<f64>>,
+	pub limit_reset: Option<Option<String>>,
+	pub limits: Option<HashMap<String, String>>,
 	pub name: Option<String>,
 	pub prefix: Option<String>,
 	pub scopes: String,
 	pub soft_blocked: bool,
 	pub status: Option<String>,
 	pub updated_at: Option<String>,
+	pub usage: Option<f64>,
+	pub usage_daily: Option<f64>,
+	pub usage_details: Option<HashMap<String, String>>,
+	pub usage_monthly: Option<f64>,
+	pub usage_weekly: Option<f64>,
 	pub workspace_id: String,
 }
 
@@ -117,10 +128,33 @@ pub struct ApiKeyCreateRequest {
 	pub include_byok_in_limit: Option<bool>,
 	pub limit: Option<Option<f64>>,
 	pub limit_reset: Option<String>,
+	pub limits: Option<HashMap<String, String>>,
 	pub name: String,
 	pub scopes: Option<String>,
 	pub soft_blocked: Option<bool>,
 	pub workspace_id: Option<String>,
+}
+
+pub struct ApiKeyLimitBucket {
+	pub cost: Option<f64>,
+	pub requests: Option<i64>,
+}
+
+pub struct ApiKeyLimitInputBucket {
+	pub cost: Option<Option<f64>>,
+	pub requests: Option<Option<i64>>,
+}
+
+pub struct ApiKeyLimitInputWindows {
+	pub daily: Option<HashMap<String, String>>,
+	pub monthly: Option<HashMap<String, String>>,
+	pub weekly: Option<HashMap<String, String>>,
+}
+
+pub struct ApiKeyLimitWindows {
+	pub daily: HashMap<String, String>,
+	pub monthly: HashMap<String, String>,
+	pub weekly: HashMap<String, String>,
 }
 
 pub struct ApiKeyListResponse {
@@ -132,6 +166,16 @@ pub struct ApiKeyResponse {
 	pub data: HashMap<String, String>,
 }
 
+pub struct ApiKeyRotateRequest {
+	pub new_name: Option<String>,
+	pub previous_key_expires_at: Option<Option<String>>,
+}
+
+pub struct ApiKeyRotateResponse {
+	pub data: HashMap<String, String>,
+	pub previous_key_expires_at: Option<String>,
+}
+
 pub type ApiKeyScopeValue = JsonValue;
 
 pub struct ApiKeyUpdateRequest {
@@ -140,27 +184,51 @@ pub struct ApiKeyUpdateRequest {
 	pub include_byok_in_limit: Option<bool>,
 	pub limit: Option<Option<f64>>,
 	pub limit_reset: Option<String>,
+	pub limits: Option<HashMap<String, String>>,
 	pub name: Option<String>,
 	pub scopes: Option<String>,
 	pub soft_blocked: Option<bool>,
 }
 
+pub struct ApiKeyUsageBucket {
+	pub cost: f64,
+	pub requests: i64,
+}
+
+pub struct ApiKeyUsageWindows {
+	pub daily: HashMap<String, String>,
+	pub monthly: HashMap<String, String>,
+	pub total: HashMap<String, String>,
+	pub weekly: HashMap<String, String>,
+}
+
 pub struct ApiKeyWithValue {
 	pub created_at: Option<String>,
 	pub created_by: Option<String>,
+	pub creator_user_id: Option<Option<String>>,
 	pub disabled: bool,
 	pub expires_at: Option<String>,
 	pub hash: String,
 	pub id: String,
+	pub include_byok_in_limit: Option<bool>,
 	pub key: String,
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
+	pub limit: Option<Option<f64>>,
+	pub limit_remaining: Option<Option<f64>>,
+	pub limit_reset: Option<Option<String>>,
+	pub limits: Option<HashMap<String, String>>,
 	pub name: Option<String>,
 	pub prefix: Option<String>,
 	pub scopes: String,
 	pub soft_blocked: bool,
 	pub status: Option<String>,
 	pub updated_at: Option<String>,
+	pub usage: Option<f64>,
+	pub usage_daily: Option<f64>,
+	pub usage_details: Option<HashMap<String, String>>,
+	pub usage_monthly: Option<f64>,
+	pub usage_weekly: Option<f64>,
 	pub workspace_id: String,
 }
 
@@ -1625,6 +1693,48 @@ pub struct WorkspaceAuditEventMetadata {
 	pub replacementKeyId: Option<String>,
 	pub replacementKeyName: Option<String>,
 	pub status: Option<String>,
+}
+
+pub struct WorkspaceBudget {
+	pub created_at: String,
+	pub created_by: Option<Option<String>>,
+	pub exceeded: bool,
+	pub id: String,
+	pub interval: String,
+	pub limit: f64,
+	pub limit_nanos: i64,
+	pub remaining: f64,
+	pub remaining_nanos: i64,
+	pub reset_at: Option<Option<String>>,
+	pub updated_at: String,
+	pub usage: f64,
+	pub usage_nanos: i64,
+	pub window_start: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceBudgetDeleteResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceBudgetInput {
+	pub interval: String,
+	pub limit: f64,
+}
+
+pub type WorkspaceBudgetInterval = JsonValue;
+
+pub struct WorkspaceBudgetListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceBudgetResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceBudgetUpdateInput {
+	pub interval: Option<String>,
+	pub limit: Option<f64>,
 }
 
 pub struct WorkspaceCreateRequest {

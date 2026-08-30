@@ -25,7 +25,7 @@ export type GateCheck = {
     resetAt: string | null;
     now?: string | null;
     balanceNanos?: number | null;
-    limitWindow?: "daily" | "weekly" | "monthly" | null;
+    limitWindow?: "daily" | "weekly" | "monthly" | "lifetime" | null;
     limitMetric?: "requests" | "cost" | "soft_blocked" | null;
     currentValue?: number | null;
     limitValue?: number | null;
@@ -52,6 +52,17 @@ export type GateCheck = {
             costLimitNanos: number;
         };
     } | null;
+    budgets?: Array<{
+        id: string;
+        interval: "daily" | "weekly" | "monthly" | "lifetime";
+        limitNanos: number;
+        usageNanos: number;
+        remainingNanos: number;
+        projectedUsageNanos: number;
+        exceeded: boolean;
+        windowStart: string | null;
+        resetAt: string | null;
+    }> | null;
 };
 
 /**

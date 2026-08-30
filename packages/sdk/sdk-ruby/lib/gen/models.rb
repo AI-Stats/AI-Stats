@@ -136,6 +136,8 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] created_by
     #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
+    #   @return [String, nil]
     # @!attribute [rw] disabled
     #   @return [Boolean]
     # @!attribute [rw] expires_at
@@ -144,10 +146,20 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
+    # @!attribute [rw] include_byok_in_limit
+    #   @return [Boolean, nil]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
     #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_remaining
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_reset
+    #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] prefix
@@ -160,9 +172,19 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] updated_at
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_daily
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_details
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] usage_monthly
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_weekly
+    #   @return [Float, nil]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKey = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :label, :last_used_at, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKey = Struct.new(:created_at, :created_by, :creator_user_id, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :label, :last_used_at, :limit, :limit_remaining, :limit_reset, :limits, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :usage, :usage_daily, :usage_details, :usage_monthly, :usage_weekly, :workspace_id, keyword_init: true)
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
     # @!attribute [rw] expires_at
@@ -173,6 +195,8 @@ module Phaseo
     #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] scopes
@@ -181,7 +205,31 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] workspace_id
     #   @return [String, nil]
-    ApiKeyCreateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :name, :scopes, :soft_blocked, :workspace_id, keyword_init: true)
+    ApiKeyCreateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :limits, :name, :scopes, :soft_blocked, :workspace_id, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float, nil]
+    # @!attribute [rw] requests
+    #   @return [Integer, nil]
+    ApiKeyLimitBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float, nil]
+    # @!attribute [rw] requests
+    #   @return [Integer, nil]
+    ApiKeyLimitInputBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}, nil]
+    ApiKeyLimitInputWindows = Struct.new(:daily, :monthly, :weekly, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}]
+    ApiKeyLimitWindows = Struct.new(:daily, :monthly, :weekly, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
     # @!attribute [rw] total_count
@@ -190,6 +238,16 @@ module Phaseo
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] new_name
+    #   @return [String, nil]
+    # @!attribute [rw] previous_key_expires_at
+    #   @return [String, nil]
+    ApiKeyRotateRequest = Struct.new(:new_name, :previous_key_expires_at, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] previous_key_expires_at
+    #   @return [String, nil]
+    ApiKeyRotateResponse = Struct.new(:data, :previous_key_expires_at, keyword_init: true)
     ApiKeyScopeValue = Object
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
@@ -201,16 +259,34 @@ module Phaseo
     #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] scopes
     #   @return [String, Array<String>, nil]
     # @!attribute [rw] soft_blocked
     #   @return [Boolean, nil]
-    ApiKeyUpdateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :name, :scopes, :soft_blocked, keyword_init: true)
+    ApiKeyUpdateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :limits, :name, :scopes, :soft_blocked, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float]
+    # @!attribute [rw] requests
+    #   @return [Integer]
+    ApiKeyUsageBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] total
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}]
+    ApiKeyUsageWindows = Struct.new(:daily, :monthly, :total, :weekly, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
     #   @return [String, nil]
     # @!attribute [rw] disabled
     #   @return [Boolean]
@@ -220,12 +296,22 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
+    # @!attribute [rw] include_byok_in_limit
+    #   @return [Boolean, nil]
     # @!attribute [rw] key
     #   @return [String]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
     #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_remaining
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_reset
+    #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] prefix
@@ -238,9 +324,19 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] updated_at
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_daily
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_details
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] usage_monthly
+    #   @return [Float, nil]
+    # @!attribute [rw] usage_weekly
+    #   @return [Float, nil]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKeyWithValue = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :key, :label, :last_used_at, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKeyWithValue = Struct.new(:created_at, :created_by, :creator_user_id, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :key, :label, :last_used_at, :limit, :limit_remaining, :limit_reset, :limits, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :usage, :usage_daily, :usage_details, :usage_monthly, :usage_weekly, :workspace_id, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyWithValueResponse = Struct.new(:data, keyword_init: true)
@@ -2380,6 +2476,57 @@ module Phaseo
     # @!attribute [rw] status
     #   @return [String, nil]
     WorkspaceAuditEventMetadata = Struct.new(:accessTemplate, :changedFields, :expiresAt, :limits, :prefix, :previousKeyExpiresAt, :replacementKeyId, :replacementKeyName, :status, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] exceeded
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] interval
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Float]
+    # @!attribute [rw] limit_nanos
+    #   @return [Integer]
+    # @!attribute [rw] remaining
+    #   @return [Float]
+    # @!attribute [rw] remaining_nanos
+    #   @return [Integer]
+    # @!attribute [rw] reset_at
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String]
+    # @!attribute [rw] usage
+    #   @return [Float]
+    # @!attribute [rw] usage_nanos
+    #   @return [Integer]
+    # @!attribute [rw] window_start
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceBudget = Struct.new(:created_at, :created_by, :exceeded, :id, :interval, :limit, :limit_nanos, :remaining, :remaining_nanos, :reset_at, :updated_at, :usage, :usage_nanos, :window_start, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceBudgetDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] interval
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Float]
+    WorkspaceBudgetInput = Struct.new(:interval, :limit, keyword_init: true)
+    WorkspaceBudgetInterval = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceBudgetListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceBudgetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] interval
+    #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    WorkspaceBudgetUpdateInput = Struct.new(:interval, :limit, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] slug

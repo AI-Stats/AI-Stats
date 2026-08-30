@@ -36,6 +36,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "presets:read", label: "Read presets", description: "Inspect saved routing and prompt presets.", group: "Read" },
 	{ value: "settings:read", label: "Read settings", description: "Inspect workspace settings.", group: "Read" },
 	{ value: "guardrails:read", label: "Read guardrails", description: "Inspect guardrail configuration.", group: "Read" },
+	{ value: "budgets:read", label: "Read budgets", description: "Inspect workspace spend budgets and usage.", group: "Read" },
 	{ value: "management_keys:read", label: "Read management keys", description: "Inspect management-key metadata.", group: "Read" },
 	{ value: "oauth_clients:read", label: "Read OAuth apps", description: "Inspect OAuth client configuration.", group: "Read" },
 	{ value: "workspaces:write", label: "Manage workspaces", description: "Create or update workspaces.", group: "Write" },
@@ -43,6 +44,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "presets:write", label: "Manage presets", description: "Create or update presets.", group: "Write" },
 	{ value: "settings:write", label: "Manage settings", description: "Change workspace settings.", group: "Write" },
 	{ value: "guardrails:write", label: "Manage guardrails", description: "Create or update guardrails.", group: "Write" },
+	{ value: "budgets:write", label: "Manage budgets", description: "Create or update workspace spend budgets.", group: "Write" },
 	{ value: "management_keys:write", label: "Manage management keys", description: "Create or update management keys.", group: "Write" },
 	{ value: "oauth_clients:write", label: "Manage OAuth apps", description: "Create or update OAuth apps.", group: "Write" },
 	{ value: "feedback:write", label: "Manage feedback", description: "Create feedback, observability events, and preset test runs.", group: "Write" },
@@ -50,6 +52,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "keys:delete", label: "Delete API keys", description: "Permanently delete API keys.", group: "Delete" },
 	{ value: "presets:delete", label: "Delete presets", description: "Permanently delete presets.", group: "Delete" },
 	{ value: "guardrails:delete", label: "Delete guardrails", description: "Permanently delete guardrails.", group: "Delete" },
+	{ value: "budgets:delete", label: "Delete budgets", description: "Permanently delete workspace spend budgets.", group: "Delete" },
 	{ value: "management_keys:delete", label: "Delete management keys", description: "Permanently delete management keys.", group: "Delete" },
 	{ value: "oauth_clients:delete", label: "Delete OAuth apps", description: "Permanently delete OAuth apps.", group: "Delete" },
 ];

@@ -1,0 +1,14 @@
+export interface ApiKeyLimitInputWindows {
+  daily?: {
+    cost?: number | null;
+    requests?: number | null;
+  };
+  monthly?: {
+    cost?: number | null;
+    requests?: number | null;
+  };
+  weekly?: {
+    cost?: number | null;
+    requests?: number | null;
+  };
+}

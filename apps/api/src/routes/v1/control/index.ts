@@ -27,6 +27,7 @@ import { guardrailsRoutes } from "./guardrails";
 import { managementKeysRoutes } from "./management-keys";
 import { dataContributionRoutes } from "./data-contribution";
 import { auditEventsRoutes } from "./audit-events";
+import { budgetsRoutes } from "./budgets";
 import {
 	feedbackRoutes,
 	observabilityEventsRoutes,
@@ -45,6 +46,7 @@ platformRouter.route("/pricing", pricingRoutes);
 platformRouter.route("/credits", creditsRoutes);
 platformRouter.route("/activity", activityRoutes);
 platformRouter.route("/audit-events", auditEventsRoutes);
+platformRouter.route("/budgets", budgetsRoutes);
 platformRouter.route("/logs", logsRoutes);
 platformRouter.route("/security", securityRoutes);
 platformRouter.route("/key", currentKeyRoutes);

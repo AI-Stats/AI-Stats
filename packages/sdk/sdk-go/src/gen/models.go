@@ -94,18 +94,29 @@ type AnthropicUsage struct {
 type ApiKey struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
+	CreatorUserId *string `json:"creator_user_id,omitempty"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
+	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
+	Limit *float64 `json:"limit,omitempty"`
+	LimitRemaining *float64 `json:"limit_remaining,omitempty"`
+	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
+	Usage *float64 `json:"usage,omitempty"`
+	UsageDaily *float64 `json:"usage_daily,omitempty"`
+	UsageDetails *map[string]interface{} `json:"usage_details,omitempty"`
+	UsageMonthly *float64 `json:"usage_monthly,omitempty"`
+	UsageWeekly *float64 `json:"usage_weekly,omitempty"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -115,10 +126,33 @@ type ApiKeyCreateRequest struct {
 	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Limit *float64 `json:"limit,omitempty"`
 	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name string `json:"name"`
 	Scopes interface{} `json:"scopes,omitempty"`
 	SoftBlocked *bool `json:"soft_blocked,omitempty"`
 	WorkspaceId *string `json:"workspace_id,omitempty"`
+}
+
+type ApiKeyLimitBucket struct {
+	Cost *float64 `json:"cost"`
+	Requests *int `json:"requests"`
+}
+
+type ApiKeyLimitInputBucket struct {
+	Cost *float64 `json:"cost,omitempty"`
+	Requests *int `json:"requests,omitempty"`
+}
+
+type ApiKeyLimitInputWindows struct {
+	Daily *map[string]interface{} `json:"daily,omitempty"`
+	Monthly *map[string]interface{} `json:"monthly,omitempty"`
+	Weekly *map[string]interface{} `json:"weekly,omitempty"`
+}
+
+type ApiKeyLimitWindows struct {
+	Daily map[string]interface{} `json:"daily"`
+	Monthly map[string]interface{} `json:"monthly"`
+	Weekly map[string]interface{} `json:"weekly"`
 }
 
 type ApiKeyListResponse struct {
@@ -130,6 +164,16 @@ type ApiKeyResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type ApiKeyRotateRequest struct {
+	NewName *string `json:"new_name,omitempty"`
+	PreviousKeyExpiresAt *string `json:"previous_key_expires_at,omitempty"`
+}
+
+type ApiKeyRotateResponse struct {
+	Data map[string]interface{} `json:"data"`
+	PreviousKeyExpiresAt *string `json:"previous_key_expires_at"`
+}
+
 type ApiKeyScopeValue = interface{}
 
 type ApiKeyUpdateRequest struct {
@@ -138,27 +182,51 @@ type ApiKeyUpdateRequest struct {
 	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Limit *float64 `json:"limit,omitempty"`
 	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name *string `json:"name,omitempty"`
 	Scopes interface{} `json:"scopes,omitempty"`
 	SoftBlocked *bool `json:"soft_blocked,omitempty"`
 }
 
+type ApiKeyUsageBucket struct {
+	Cost float64 `json:"cost"`
+	Requests int `json:"requests"`
+}
+
+type ApiKeyUsageWindows struct {
+	Daily map[string]interface{} `json:"daily"`
+	Monthly map[string]interface{} `json:"monthly"`
+	Total map[string]interface{} `json:"total"`
+	Weekly map[string]interface{} `json:"weekly"`
+}
+
 type ApiKeyWithValue struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
+	CreatorUserId *string `json:"creator_user_id,omitempty"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
+	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Key string `json:"key"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
+	Limit *float64 `json:"limit,omitempty"`
+	LimitRemaining *float64 `json:"limit_remaining,omitempty"`
+	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
+	Usage *float64 `json:"usage,omitempty"`
+	UsageDaily *float64 `json:"usage_daily,omitempty"`
+	UsageDetails *map[string]interface{} `json:"usage_details,omitempty"`
+	UsageMonthly *float64 `json:"usage_monthly,omitempty"`
+	UsageWeekly *float64 `json:"usage_weekly,omitempty"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -2973,6 +3041,56 @@ type WorkspaceAuditEventMetadata struct {
 	ReplacementKeyId *string `json:"replacementKeyId,omitempty"`
 	ReplacementKeyName *string `json:"replacementKeyName,omitempty"`
 	Status *string `json:"status,omitempty"`
+}
+
+type WorkspaceBudget struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Exceeded bool `json:"exceeded"`
+	Id string `json:"id"`
+	Interval string `json:"interval"`
+	Limit float64 `json:"limit"`
+	LimitNanos int `json:"limit_nanos"`
+	Remaining float64 `json:"remaining"`
+	RemainingNanos int `json:"remaining_nanos"`
+	ResetAt *string `json:"reset_at,omitempty"`
+	UpdatedAt string `json:"updated_at"`
+	Usage float64 `json:"usage"`
+	UsageNanos int `json:"usage_nanos"`
+	WindowStart *string `json:"window_start,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceBudgetDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetInput struct {
+	Interval string `json:"interval"`
+	Limit float64 `json:"limit"`
+}
+
+type WorkspaceBudgetInterval string
+
+const (
+	WorkspaceBudgetIntervalDaily WorkspaceBudgetInterval = "daily"
+	WorkspaceBudgetIntervalWeekly WorkspaceBudgetInterval = "weekly"
+	WorkspaceBudgetIntervalMonthly WorkspaceBudgetInterval = "monthly"
+	WorkspaceBudgetIntervalLifetime WorkspaceBudgetInterval = "lifetime"
+)
+
+
+type WorkspaceBudgetListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetUpdateInput struct {
+	Interval *string `json:"interval,omitempty"`
+	Limit *float64 `json:"limit,omitempty"`
 }
 
 type WorkspaceCreateRequest struct {

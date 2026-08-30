@@ -2297,6 +2297,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /keys/{id}/rotate:
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: rotateApiKey
+      summary: Rotate an API key
+      description: >-
+        Creates a replacement key with the same limits and optionally schedules
+        expiry for the previous key.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: API key identifier or hash.
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyRotateRequest'
+      responses:
+        '201':
+          description: Replacement API key created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyRotateResponse'
+        '400':
+          description: Invalid rotation request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: API key not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Deleted key or workspace key limit conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /activity:
     get:
       x-beta: true
@@ -2431,6 +2485,156 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /budgets:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listWorkspaceBudgets
+      summary: List workspace budgets
+      description: >-
+        Lists workspace spend ceilings with current usage, remaining spend, and
+        reset timestamps.
+      responses:
+        '200':
+          description: Workspace budgets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceBudgetListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing budgets read scope or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: createWorkspaceBudget
+      summary: Create a workspace budget
+      description: Creates an enforced spend ceiling for one workspace interval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceBudgetInput'
+      responses:
+        '201':
+          description: Workspace budget created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceBudgetResponse'
+        '400':
+          description: Invalid budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: A budget for the interval already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /budgets/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Workspace budget identifier.
+        schema:
+          type: string
+          format: uuid
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: getWorkspaceBudget
+      summary: Get a workspace budget
+      description: >-
+        Returns one workspace spend ceiling with current usage and remaining
+        spend.
+      responses:
+        '200':
+          description: Workspace budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceBudgetResponse'
+        '404':
+          description: Budget not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: updateWorkspaceBudget
+      summary: Update a workspace budget
+      description: Changes the interval or USD ceiling for an existing workspace budget.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceBudgetUpdateInput'
+      responses:
+        '200':
+          description: Workspace budget updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceBudgetResponse'
+        '400':
+          description: Invalid budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Budget not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: A budget for the interval already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: deleteWorkspaceBudget
+      summary: Delete a workspace budget
+      description: Removes a workspace spend ceiling and stops enforcing that interval.
+      responses:
+        '200':
+          description: Workspace budget deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceBudgetDeleteResponse'
+        '404':
+          description: Budget not found
           content:
             application/json:
               schema:
@@ -8958,6 +9162,121 @@ components:
           format: date-time
           nullable: true
           example: '2027-12-31T23:59:59Z'
+        creator_user_id:
+          type: string
+          nullable: true
+        include_byok_in_limit:
+          type: boolean
+        limit:
+          type: number
+          nullable: true
+          description: Compatibility spend limit in USD.
+        limit_reset:
+          type: string
+          nullable: true
+          enum:
+            - daily
+            - weekly
+            - monthly
+        limit_remaining:
+          type: number
+          nullable: true
+        usage:
+          type: number
+        usage_daily:
+          type: number
+        usage_weekly:
+          type: number
+        usage_monthly:
+          type: number
+        limits:
+          $ref: '#/components/schemas/ApiKeyLimitWindows'
+        usage_details:
+          $ref: '#/components/schemas/ApiKeyUsageWindows'
+      additionalProperties: false
+    ApiKeyLimitBucket:
+      type: object
+      required:
+        - requests
+        - cost
+      properties:
+        requests:
+          type: integer
+          nullable: true
+          minimum: 0
+        cost:
+          type: number
+          nullable: true
+          minimum: 0
+          description: Spend limit in USD.
+      additionalProperties: false
+    ApiKeyLimitWindows:
+      type: object
+      required:
+        - daily
+        - weekly
+        - monthly
+      properties:
+        daily:
+          $ref: '#/components/schemas/ApiKeyLimitBucket'
+        weekly:
+          $ref: '#/components/schemas/ApiKeyLimitBucket'
+        monthly:
+          $ref: '#/components/schemas/ApiKeyLimitBucket'
+      additionalProperties: false
+    ApiKeyUsageBucket:
+      type: object
+      required:
+        - requests
+        - cost
+      properties:
+        requests:
+          type: integer
+          minimum: 0
+        cost:
+          type: number
+          minimum: 0
+          description: Spend in USD.
+      additionalProperties: false
+    ApiKeyUsageWindows:
+      type: object
+      required:
+        - total
+        - daily
+        - weekly
+        - monthly
+      properties:
+        total:
+          $ref: '#/components/schemas/ApiKeyUsageBucket'
+        daily:
+          $ref: '#/components/schemas/ApiKeyUsageBucket'
+        weekly:
+          $ref: '#/components/schemas/ApiKeyUsageBucket'
+        monthly:
+          $ref: '#/components/schemas/ApiKeyUsageBucket'
+      additionalProperties: false
+    ApiKeyLimitInputBucket:
+      type: object
+      properties:
+        requests:
+          type: integer
+          nullable: true
+          minimum: 0
+        cost:
+          type: number
+          nullable: true
+          minimum: 0
+          description: Spend limit in USD.
+      additionalProperties: false
+    ApiKeyLimitInputWindows:
+      type: object
+      properties:
+        daily:
+          $ref: '#/components/schemas/ApiKeyLimitInputBucket'
+        weekly:
+          $ref: '#/components/schemas/ApiKeyLimitInputBucket'
+        monthly:
+          $ref: '#/components/schemas/ApiKeyLimitInputBucket'
       additionalProperties: false
     ApiKeyResponse:
       type: object
@@ -9002,6 +9321,34 @@ components:
         data:
           $ref: '#/components/schemas/ApiKeyWithValue'
       additionalProperties: false
+    ApiKeyRotateRequest:
+      type: object
+      properties:
+        new_name:
+          type: string
+          minLength: 1
+          description: Optional name for the replacement key.
+        previous_key_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            Optional expiry for the previous key. Null clears an existing
+            expiry.
+      additionalProperties: false
+    ApiKeyRotateResponse:
+      type: object
+      required:
+        - data
+        - previous_key_expires_at
+      properties:
+        data:
+          $ref: '#/components/schemas/ApiKeyWithValue'
+        previous_key_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
     ApiKeyCreateRequest:
       type: object
       required:
@@ -9044,6 +9391,8 @@ components:
         soft_blocked:
           type: boolean
           default: false
+        limits:
+          $ref: '#/components/schemas/ApiKeyLimitInputWindows'
       additionalProperties: false
     ApiKeyUpdateRequest:
       type: object
@@ -9078,6 +9427,8 @@ components:
           type: boolean
         soft_blocked:
           type: boolean
+        limits:
+          $ref: '#/components/schemas/ApiKeyLimitInputWindows'
       additionalProperties: false
     Workspace:
       type: object
@@ -9424,6 +9775,142 @@ components:
         next_cursor:
           type: string
           nullable: true
+      additionalProperties: false
+    WorkspaceBudgetInterval:
+      type: string
+      enum:
+        - daily
+        - weekly
+        - monthly
+        - lifetime
+    WorkspaceBudget:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - interval
+        - limit
+        - limit_nanos
+        - usage
+        - usage_nanos
+        - remaining
+        - remaining_nanos
+        - exceeded
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        interval:
+          $ref: '#/components/schemas/WorkspaceBudgetInterval'
+        limit:
+          type: number
+          format: double
+          description: Configured spend ceiling in USD.
+        limit_nanos:
+          type: integer
+          format: int64
+        usage:
+          type: number
+          format: double
+          description: Current spend in USD for this interval.
+        usage_nanos:
+          type: integer
+          format: int64
+        remaining:
+          type: number
+          format: double
+        remaining_nanos:
+          type: integer
+          format: int64
+        exceeded:
+          type: boolean
+        window_start:
+          type: string
+          format: date-time
+          nullable: true
+        reset_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      additionalProperties: false
+    WorkspaceBudgetInput:
+      type: object
+      required:
+        - interval
+        - limit
+      properties:
+        interval:
+          $ref: '#/components/schemas/WorkspaceBudgetInterval'
+        limit:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          description: Spend ceiling in USD.
+      additionalProperties: false
+    WorkspaceBudgetUpdateInput:
+      type: object
+      minProperties: 1
+      properties:
+        interval:
+          $ref: '#/components/schemas/WorkspaceBudgetInterval'
+        limit:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          description: Spend ceiling in USD.
+      additionalProperties: false
+    WorkspaceBudgetResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/WorkspaceBudget'
+      additionalProperties: false
+    WorkspaceBudgetListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceBudget'
+      additionalProperties: false
+    WorkspaceBudgetDeleteResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - deleted
+          properties:
+            id:
+              type: string
+              format: uuid
+            deleted:
+              type: boolean
+          additionalProperties: false
       additionalProperties: false
     GatewayModelsResponse:
       type: object

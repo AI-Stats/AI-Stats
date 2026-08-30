@@ -33,6 +33,7 @@ const PHASEO_CLI_SCOPES = [
 	"workspaces:read", "workspaces:write", "workspaces:delete", "keys:read", "keys:write",
 	"keys:delete", "presets:read", "presets:write", "presets:delete", "settings:read",
 	"settings:write", "guardrails:read", "guardrails:write", "guardrails:delete",
+	"budgets:read", "budgets:write", "budgets:delete",
 	"management_keys:read", "management_keys:write", "management_keys:delete",
 	"oauth_clients:read", "oauth_clients:write", "oauth_clients:delete",
 ] as const;

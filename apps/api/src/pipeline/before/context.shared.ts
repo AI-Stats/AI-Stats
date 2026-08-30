@@ -110,6 +110,7 @@ export function computeCreditSnapshotTtlForContext(context: GatewayContextData):
 }
 
 export function hasConfiguredKeyLimits(keyLimit: GatewayContextData["keyLimit"]): boolean {
+	if ((keyLimit?.budgets?.length ?? 0) > 0) return true;
 	const buckets = keyLimit?.buckets ?? null;
 	return [buckets?.daily, buckets?.weekly, buckets?.monthly].some((bucket) =>
 		Boolean(
@@ -321,6 +322,7 @@ export function cloneGatewayContextData(value: GatewayContextData): GatewayConte
 		keyLimit: value.keyLimit
 			? {
 					...value.keyLimit,
+					budgets: value.keyLimit.budgets?.map((budget) => ({ ...budget })) ?? value.keyLimit.budgets ?? null,
 					buckets: value.keyLimit.buckets
 						? {
 								daily: value.keyLimit.buckets.daily
