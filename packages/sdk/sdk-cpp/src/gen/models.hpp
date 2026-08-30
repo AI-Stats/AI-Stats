@@ -1919,6 +1919,73 @@ struct Provider {
 	std::optional<std::string> link;
 };
 
+struct ProviderCredential {
+	std::vector<std::string> allowed_api_key_ids;
+	std::vector<std::string> allowed_model_slugs;
+	std::optional<bool> always_use;
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	bool disabled;
+	bool enabled;
+	std::optional<std::string> error_message;
+	std::string id;
+	bool is_fallback;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> last_verified_at;
+	std::string name;
+	std::optional<std::string> prefix;
+	std::string provider_id;
+	std::any routing_mode;
+	int sort_order;
+	std::optional<std::string> suffix;
+	std::optional<std::string> verification_status;
+	std::string workspace_id;
+};
+
+struct ProviderCredentialCreateRequest {
+	std::vector<std::string> allowed_api_key_ids;
+	std::vector<std::string> allowed_models;
+	std::optional<bool> enabled;
+	std::string key;
+	std::string name;
+	std::string provider;
+	std::any routing_mode;
+};
+
+struct ProviderCredentialDeleteResponse {
+	bool deleted;
+};
+
+struct ProviderCredentialListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct ProviderCredentialReorderRequest {
+	std::vector<std::string> key_ids;
+	std::string provider;
+	std::any routing_mode;
+};
+
+struct ProviderCredentialReorderResponse {
+	bool reordered;
+};
+
+struct ProviderCredentialResponse {
+	std::map<std::string, std::any> data;
+};
+
+using ProviderCredentialRoutingMode = std::any;
+
+struct ProviderCredentialUpdateRequest {
+	std::vector<std::string> allowed_api_key_ids;
+	std::vector<std::string> allowed_models;
+	std::optional<bool> enabled;
+	std::string key;
+	std::string name;
+	std::any routing_mode;
+};
+
 struct ProviderOptions {
 	std::map<std::string, std::any> anthropic;
 	std::map<std::string, std::any> google;

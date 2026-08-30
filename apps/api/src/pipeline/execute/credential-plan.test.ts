@@ -33,7 +33,7 @@ describe("credential attempt plan", () => {
 			},
 		};
 
-		const plan = buildCredentialAttemptPlan([providerA, providerB]);
+		const plan = buildCredentialAttemptPlan([providerA, providerB], { allowManagedFallback: true });
 		expect(plan.map((attempt) => attempt.phase)).toEqual([
 			"priority_byok",
 			"priority_byok",
@@ -56,7 +56,7 @@ describe("credential attempt plan", () => {
 		]);
 	});
 
-	it("omits fallback BYOK keys when the workspace setting is disabled", () => {
+	it("omits fallback BYOK keys when requested", () => {
 		const provider = {
 			candidate: {
 				providerId: "provider-a",
@@ -64,8 +64,20 @@ describe("credential attempt plan", () => {
 			},
 		};
 
-		const plan = buildCredentialAttemptPlan([provider], { includeFallbackByok: false });
+		const plan = buildCredentialAttemptPlan([provider], { includeFallbackByok: false, allowManagedFallback: true });
 		expect(plan.map((attempt) => attempt.phase)).toEqual(["priority_byok", "gateway"]);
+	});
+
+	it("does not use managed capacity after priority credentials unless enabled", () => {
+		const provider = {
+			candidate: {
+				providerId: "provider-a",
+				byokMeta: [key("priority", "priority", 0), key("fallback", "fallback", 0)],
+			},
+		};
+
+		const plan = buildCredentialAttemptPlan([provider]);
+		expect(plan.map((attempt) => attempt.phase)).toEqual(["priority_byok", "fallback_byok"]);
 	});
 
 	it("caps total BYOK attempts without removing the managed provider attempt", () => {
@@ -78,7 +90,7 @@ describe("credential attempt plan", () => {
 			},
 		};
 
-		const plan = buildCredentialAttemptPlan([provider]);
+		const plan = buildCredentialAttemptPlan([provider], { allowManagedFallback: true });
 
 		expect(plan).toHaveLength(MAX_BYOK_CREDENTIAL_ATTEMPTS + 1);
 		expect(plan.filter((attempt) => attempt.credential.kind === "byok")).toHaveLength(

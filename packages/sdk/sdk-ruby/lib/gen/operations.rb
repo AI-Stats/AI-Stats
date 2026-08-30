@@ -747,6 +747,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listProviderCredentials(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listProviders(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/providers"

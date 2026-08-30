@@ -226,6 +226,15 @@ export type { PresetVersionPublishRequest } from "./PresetVersionPublishRequest.
 export type { PresetVersionResponse } from "./PresetVersionResponse.js";
 export type { PresetVisibility } from "./PresetVisibility.js";
 export type { Provider } from "./Provider.js";
+export type { ProviderCredential } from "./ProviderCredential.js";
+export type { ProviderCredentialCreateRequest } from "./ProviderCredentialCreateRequest.js";
+export type { ProviderCredentialDeleteResponse } from "./ProviderCredentialDeleteResponse.js";
+export type { ProviderCredentialListResponse } from "./ProviderCredentialListResponse.js";
+export type { ProviderCredentialReorderRequest } from "./ProviderCredentialReorderRequest.js";
+export type { ProviderCredentialReorderResponse } from "./ProviderCredentialReorderResponse.js";
+export type { ProviderCredentialResponse } from "./ProviderCredentialResponse.js";
+export type { ProviderCredentialRoutingMode } from "./ProviderCredentialRoutingMode.js";
+export type { ProviderCredentialUpdateRequest } from "./ProviderCredentialUpdateRequest.js";
 export type { ProviderOptions } from "./ProviderOptions.js";
 export type { ProviderRoutingOptions } from "./ProviderRoutingOptions.js";
 export type { ProvisioningKey } from "./ProvisioningKey.js";

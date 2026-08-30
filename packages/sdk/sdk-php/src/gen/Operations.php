@@ -871,6 +871,13 @@ function listPricingModels(Client $client, ?array $path = null, ?array $query = 
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listProviderCredentials(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listProviders(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];

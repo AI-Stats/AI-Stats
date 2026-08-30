@@ -626,6 +626,11 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listProviderCredentials(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/byok";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object listProviders(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/providers";
 		return client.request("GET", resolvedPath, query, headers, body);

@@ -363,4 +363,5 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "TEST_STRIPE_SECRET_KEY",
     "BYOK_KMS_KEY_V1_B64",
     "BYOK_ACTIVE_KEY_VERSION",
+    "BYOK_FINGERPRINT_PEPPER",
 ];

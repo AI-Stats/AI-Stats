@@ -1709,6 +1709,65 @@ class Provider(TypedDict):
 	description: NotRequired[Optional[str]]
 	link: NotRequired[Optional[str]]
 
+class ProviderCredential(TypedDict):
+	allowed_api_key_ids: NotRequired[List[str]]
+	allowed_model_slugs: NotRequired[List[str]]
+	always_use: NotRequired[bool]
+	created_at: NotRequired[Optional[str]]
+	created_by: NotRequired[Optional[str]]
+	disabled: bool
+	enabled: bool
+	error_message: NotRequired[Optional[str]]
+	id: str
+	is_fallback: bool
+	last_used_at: NotRequired[Optional[str]]
+	last_verified_at: NotRequired[Optional[str]]
+	name: str
+	prefix: NotRequired[Optional[str]]
+	provider_id: str
+	routing_mode: Literal["priority", "fallback"]
+	sort_order: int
+	suffix: NotRequired[Optional[str]]
+	verification_status: NotRequired[Optional[str]]
+	workspace_id: str
+
+class ProviderCredentialCreateRequest(TypedDict):
+	allowed_api_key_ids: NotRequired[List[str]]
+	allowed_models: NotRequired[List[str]]
+	enabled: NotRequired[bool]
+	key: str
+	name: str
+	provider: str
+	routing_mode: NotRequired[Literal["priority", "fallback"]]
+
+class ProviderCredentialDeleteResponse(TypedDict):
+	deleted: bool
+
+class ProviderCredentialListResponse(TypedDict):
+	data: List[ProviderCredential]
+	total_count: int
+
+class ProviderCredentialReorderRequest(TypedDict):
+	key_ids: List[str]
+	provider: str
+	routing_mode: Literal["priority", "fallback"]
+
+class ProviderCredentialReorderResponse(TypedDict):
+	reordered: bool
+
+class ProviderCredentialResponse(TypedDict):
+	data: ProviderCredential
+
+ProviderCredentialRoutingMode = Literal["priority", "fallback"]
+
+class ProviderCredentialUpdateRequest(TypedDict):
+	allowed_api_key_ids: NotRequired[List[str]]
+	allowed_models: NotRequired[List[str]]
+	enabled: NotRequired[bool]
+	key: NotRequired[str]
+	name: NotRequired[str]
+	routing_mode: NotRequired[Literal["priority", "fallback"]]
+
 class ProviderOptions(TypedDict):
 	anthropic: NotRequired[Dict[str, Any]]
 	google: NotRequired[Dict[str, Any]]

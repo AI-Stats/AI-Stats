@@ -56,8 +56,8 @@ OpenAPI schema does not count as complete.
 
 Ship focused, end-to-end slices rather than adding route stubs:
 
-1. Provider credential lifecycle, filters, ordering, and fallback.
-2. Workspace budgets and complete key limit/usage semantics.
+1. Workspace budgets and complete key limit/usage semantics.
+2. Provider-credential member restrictions alongside organisation identity.
 3. Workspace and organisation membership, invitations, roles, and assignments.
 4. Observability destinations, logging policy, and key assignments.
 5. Routing policies, dynamic routes, versions, and deployments.

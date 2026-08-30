@@ -1915,6 +1915,73 @@ pub struct Provider {
 	pub link: Option<Option<String>>,
 }
 
+pub struct ProviderCredential {
+	pub allowed_api_key_ids: Option<Vec<String>>,
+	pub allowed_model_slugs: Option<Vec<String>>,
+	pub always_use: Option<bool>,
+	pub created_at: Option<Option<String>>,
+	pub created_by: Option<Option<String>>,
+	pub disabled: bool,
+	pub enabled: bool,
+	pub error_message: Option<Option<String>>,
+	pub id: String,
+	pub is_fallback: bool,
+	pub last_used_at: Option<Option<String>>,
+	pub last_verified_at: Option<Option<String>>,
+	pub name: String,
+	pub prefix: Option<Option<String>>,
+	pub provider_id: String,
+	pub routing_mode: String,
+	pub sort_order: i64,
+	pub suffix: Option<Option<String>>,
+	pub verification_status: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct ProviderCredentialCreateRequest {
+	pub allowed_api_key_ids: Option<Vec<String>>,
+	pub allowed_models: Option<Vec<String>>,
+	pub enabled: Option<bool>,
+	pub key: String,
+	pub name: String,
+	pub provider: String,
+	pub routing_mode: Option<String>,
+}
+
+pub struct ProviderCredentialDeleteResponse {
+	pub deleted: bool,
+}
+
+pub struct ProviderCredentialListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct ProviderCredentialReorderRequest {
+	pub key_ids: Vec<String>,
+	pub provider: String,
+	pub routing_mode: String,
+}
+
+pub struct ProviderCredentialReorderResponse {
+	pub reordered: bool,
+}
+
+pub struct ProviderCredentialResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub type ProviderCredentialRoutingMode = JsonValue;
+
+pub struct ProviderCredentialUpdateRequest {
+	pub allowed_api_key_ids: Option<Vec<String>>,
+	pub allowed_models: Option<Vec<String>>,
+	pub enabled: Option<bool>,
+	pub key: Option<String>,
+	pub name: Option<String>,
+	pub routing_mode: Option<String>,
+}
+
 pub struct ProviderOptions {
 	pub anthropic: Option<HashMap<String, String>>,
 	pub google: Option<HashMap<String, String>>,

@@ -625,6 +625,11 @@ pub fn listPricingModels<T: Transport>(client: &Client<T>, path: &HashMap<String
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listProviderCredentials<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/byok");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listProviders<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/providers");
 	client.request("GET", &resolved_path, body)

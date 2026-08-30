@@ -1934,6 +1934,74 @@ public final class Models {
 		public String link;
 	}
 
+	public static class ProviderCredential {
+		public java.util.List<String> allowed_api_key_ids;
+		public java.util.List<String> allowed_model_slugs;
+		public Boolean always_use;
+		public String created_at;
+		public String created_by;
+		public Boolean disabled;
+		public Boolean enabled;
+		public String error_message;
+		public String id;
+		public Boolean is_fallback;
+		public String last_used_at;
+		public String last_verified_at;
+		public String name;
+		public String prefix;
+		public String provider_id;
+		public Object routing_mode;
+		public Integer sort_order;
+		public String suffix;
+		public String verification_status;
+		public String workspace_id;
+	}
+
+	public static class ProviderCredentialCreateRequest {
+		public java.util.List<String> allowed_api_key_ids;
+		public java.util.List<String> allowed_models;
+		public Boolean enabled;
+		public String key;
+		public String name;
+		public String provider;
+		public Object routing_mode;
+	}
+
+	public static class ProviderCredentialDeleteResponse {
+		public Boolean deleted;
+	}
+
+	public static class ProviderCredentialListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class ProviderCredentialReorderRequest {
+		public java.util.List<String> key_ids;
+		public String provider;
+		public Object routing_mode;
+	}
+
+	public static class ProviderCredentialReorderResponse {
+		public Boolean reordered;
+	}
+
+	public static class ProviderCredentialResponse {
+		public Object data;
+	}
+
+	public static class ProviderCredentialRoutingMode {
+	}
+
+	public static class ProviderCredentialUpdateRequest {
+		public java.util.List<String> allowed_api_key_ids;
+		public java.util.List<String> allowed_models;
+		public Boolean enabled;
+		public String key;
+		public String name;
+		public Object routing_mode;
+	}
+
 	public static class ProviderOptions {
 		public Object anthropic;
 		public Object google;

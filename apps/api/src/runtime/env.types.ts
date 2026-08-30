@@ -363,6 +363,7 @@ export type GatewayBindings = {
     NODE_ENV?: string;
     BYOK_KMS_KEY_V1_B64?: string;
     BYOK_ACTIVE_KEY_VERSION?: string;
+    BYOK_FINGERPRINT_PEPPER?: string;
 };
 
 export type GatewayRuntime = {

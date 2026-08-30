@@ -624,6 +624,11 @@ inline Response ListPricingModels(Client& client, const std::map<std::string, st
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListProviderCredentials(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListProviders(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/providers";
 	return client.request("GET", resolved_path, body);
