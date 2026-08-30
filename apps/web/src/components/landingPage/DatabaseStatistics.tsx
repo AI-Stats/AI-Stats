@@ -52,7 +52,7 @@ export default async function DatabaseStats() {
 			route: "/api-providers",
 		},
 		{
-			label: "Tokens routed (30d)",
+			label: "Monthly tokens routed",
 			value: `${formatCompact(monthlyTokenTotal ?? 0)}+`,
 			route: "/rankings",
 		},
@@ -80,4 +80,3 @@ export default async function DatabaseStats() {
 		</div>
 	);
 }
-

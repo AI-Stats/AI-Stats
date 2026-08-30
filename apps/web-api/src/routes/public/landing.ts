@@ -121,7 +121,7 @@ publicLandingRouter.get("/landing/models/stats", async (c) => {
 			fetchAllRows(
 				c.env,
 				"v2_model_provider_routes",
-				"model_id:model_slug,internal_model_id:model_slug,api_model_id:model_slug",
+				"model_id:model_slug,internal_model_id:model_slug,api_model_id:model_slug,effective_from,effective_to",
 				(query) => query.eq("routing_enabled", true).in("status", ["active", "degraded"]),
 			),
 		]);
@@ -129,12 +129,21 @@ publicLandingRouter.get("/landing/models/stats", async (c) => {
 		const organisationIds = new Set(
 			models.map((model) => String(model.organisation_id ?? "")).filter(Boolean),
 		);
+		const now = Date.now();
 		const activeGatewayModels = new Set(
 			providerModels
+				.filter((model) => {
+					const effectiveFrom = model.effective_from
+						? Date.parse(String(model.effective_from))
+						: Number.NEGATIVE_INFINITY;
+					const effectiveTo = model.effective_to
+						? Date.parse(String(model.effective_to))
+						: Number.POSITIVE_INFINITY;
+					return now >= effectiveFrom && now < effectiveTo;
+				})
 				.map((model) => String(model.model_id ?? model.internal_model_id ?? model.api_model_id ?? ""))
 				.filter((modelId) => modelIds.has(modelId)),
 		);
-		const now = Date.now();
 		const cutoff = now - 90 * 24 * 60 * 60 * 1_000;
 		const recentCount = models.filter((model) =>
 			[model.announcement_date, model.release_date].some((value) => {

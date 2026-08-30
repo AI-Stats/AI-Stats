@@ -58,7 +58,8 @@ describe("public landing routes", () => {
 			const url = String(input);
 			if (url.includes("v2_model_provider_routes")) {
 				return new Response(JSON.stringify([
-					{ model_id: "openai/gpt-test", internal_model_id: "openai/gpt-test", api_model_id: "openai/gpt-test" },
+					{ model_id: "openai/gpt-test", internal_model_id: "openai/gpt-test", api_model_id: "openai/gpt-test", effective_from: null, effective_to: null },
+					{ model_id: "anthropic/claude-test", internal_model_id: "anthropic/claude-test", api_model_id: "anthropic/claude-test", effective_from: "2999-01-01T00:00:00Z", effective_to: null },
 				]), { status: 200 });
 			}
 			if (url.includes("v2_models") && url.includes("model_slug=in.")) {

@@ -54,7 +54,7 @@ describe("DatabaseStats", () => {
 		expect(html).toContain("Catalog models");
 		expect(html).toContain("Routable models");
 		expect(html).toMatch(
-			/<a[^>]*href="\/rankings"[^>]*>.*Tokens routed \(30d\)/,
+			/<a[^>]*href="\/rankings"[^>]*>.*Monthly tokens routed/,
 		);
 	});
 });
