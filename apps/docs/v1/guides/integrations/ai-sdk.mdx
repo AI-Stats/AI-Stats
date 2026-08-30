@@ -71,11 +71,27 @@ Provider 2.x implements and tests AI SDK 7's native v4 contracts for:
 - Text and image file inputs using V7's tagged file-data format
 - URL citation sources
 - Embeddings and image generation
+- Reranking
 - Transcription and speech generation
 - Provider metadata, usage, request headers, abort signals, and raw stream chunks
 
 Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx). Individual capabilities still depend on the selected model and upstream provider.
 
-## Explicitly unsupported V7 surfaces
+## Reranking and capability boundaries
 
-ProviderV4 capabilities that require Phaseo API surfaces not currently exposed—managed file uploads and references, skills, reranking, provider-executed tools, and tool-approval flows—are not advertised. Unsupported provider-specific or custom prompt parts fail with a clear error instead of being silently discarded.
+Reranking is available through the AI SDK `rerank()` helper and `phaseo.rerankingModel(modelId)`. ProviderV4 capabilities that require Phaseo API surfaces not currently exposed—managed file uploads and references, skills, and provider-executed tool definitions, results, or approval responses—are not advertised. Application-executed function tools continue to use the AI SDK's normal execution and approval flow. Unsupported provider-specific or custom prompt parts fail with a clear error instead of being silently discarded.
+
+```typescript
+import { rerank } from "ai";
+import { phaseo } from "@phaseo/ai-sdk-provider";
+
+const result = await rerank({
+  model: phaseo.rerankingModel("cohere/rerank-v4.0-fast"),
+  query: "Which document is about TypeScript?",
+  documents: [
+    "TypeScript adds static types to JavaScript.",
+    "Rust is a systems programming language.",
+  ],
+  topN: 1,
+});
+```

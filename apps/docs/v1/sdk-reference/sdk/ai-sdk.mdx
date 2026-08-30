@@ -90,10 +90,11 @@ const phaseo = createPhaseo({
 - Text and image file inputs
 - URL citation sources
 - Embeddings and image generation
+- Reranking
 - Transcription and speech generation
 - Provider metadata, usage, abort signals, and raw stream chunks
 
-Model and provider capabilities still vary. Managed file references, skills, reranking, provider-executed tools, and tool-approval flows are not currently advertised by the provider.
+Reranking is supported through `rerank()` with `phaseo.rerankingModel(modelId)`. Model and provider capabilities still vary. Managed file references, skills, and provider-executed tool definitions, results, or approval responses are not currently advertised by the provider. Application-executed function tools can use the AI SDK's normal execution and approval flow.
 
 ## Earlier AI SDK versions
 

@@ -9,6 +9,7 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 
 -   Text: `generateText`, `streamText`, `generateObject`, `streamObject`
 -   Embeddings: `embed`, `embedMany`
+-   Reranking: `rerank`
 -   Images: `generateImage`
 -   Audio: `experimental_transcribe` (STT), `experimental_generateSpeech` (TTS)
     🛠️ **Tool Calling** - Complete support for function/tool calling with parallel execution
@@ -179,6 +180,26 @@ if (result.images[0].base64) {
 	console.log(result.images[0].base64); // Present for base64-backed gateway responses
 }
 console.log(result.providerMetadata); // Gateway request/routing metadata (under the gateway key for image calls)
+```
+
+### Reranking
+
+```typescript
+import { phaseo } from "@phaseo/ai-sdk-provider";
+import { rerank } from "ai";
+
+const result = await rerank({
+	model: phaseo.rerankingModel("cohere/rerank-v4.0-fast"),
+	query: "Which document best explains TypeScript?",
+	documents: [
+		"TypeScript adds static types to JavaScript.",
+		"Rust is a systems programming language.",
+	],
+	topN: 1,
+});
+
+console.log(result.rerankedDocuments);
+console.log(result.ranking);
 ```
 
 ### Audio Transcription (Speech-to-Text)

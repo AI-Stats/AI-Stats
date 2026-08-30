@@ -1,4 +1,4 @@
-import { generateText, jsonSchema, streamText, tool } from 'ai';
+import { generateText, jsonSchema, rerank, streamText, tool } from 'ai';
 import { createPhaseo } from '../dist/index.js';
 
 const requests = [];
@@ -64,6 +64,17 @@ const phaseo = createPhaseo({
       return jsonResponse({
         data: [{ index: 0, embedding: [0.1, 0.2] }],
         usage: { total_tokens: 2 },
+      });
+    }
+
+    if (href.endsWith('/rerank')) {
+      return jsonResponse({
+        id: 'rerank_test',
+        model: body.model,
+        results: [
+          { index: 1, relevance_score: 0.95 },
+          { index: 0, relevance_score: 0.25 },
+        ],
       });
     }
 
@@ -201,6 +212,16 @@ const embedding = await phaseo.embeddingModel('openai/embedding').doEmbed({
   values: ['hello'],
 });
 assert(embedding.embeddings[0][1] === 0.2, 'Embedding ProviderV4 failed');
+
+const reranked = await rerank({
+  model: phaseo.rerankingModel('cohere/rerank-v4.0-fast'),
+  query: 'most relevant',
+  documents: ['first', 'second'],
+  topN: 2,
+});
+assert(reranked.rerankedDocuments[0] === 'second', 'Reranking ProviderV4 failed');
+const rerankRequest = requests.find((request) => request.href.endsWith('/rerank'));
+assert(rerankRequest.body.top_n === 2, 'Reranking topN was not forwarded');
 
 const image = await phaseo.imageModel('openai/image').doGenerate({
   prompt: 'A blue square',

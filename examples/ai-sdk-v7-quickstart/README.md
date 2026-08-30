@@ -17,6 +17,12 @@ pnpm start
 
 Set `PHASEO_MODEL` to use a different current model id. The API key stays in the server-side environment and is never bundled into client code.
 
+To run the native AI SDK reranking example, optionally set `PHASEO_RERANK_MODEL`, then run:
+
+```bash
+pnpm rerank
+```
+
 ## Validate without an API call
 
 ```bash
