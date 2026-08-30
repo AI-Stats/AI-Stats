@@ -9,20 +9,24 @@
 For new projects, install the active line without a Phaseo package version:
 
 ```bash
-npm install @phaseo/ai-sdk-provider ai@^7
+npm install @phaseo/ai-sdk-provider
 ```
 
 Install the AI SDK 6 maintenance line through its compatibility tag:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@ai-sdk-v6 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6
 ```
 
 AI SDK 5 has a dedicated compatibility release:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5
 ```
+
+Each provider line declares its compatible `ai` major as a peer dependency. npm
+installs that peer automatically. If peer auto-installation is disabled, install
+`ai@^7`, `ai@^6`, or `ai@^5` alongside the corresponding provider line.
 
 It covers ProviderV2 text, streaming, tool, structured-output, embedding,
 image, transcription, and speech surfaces. Standardized reranking was added in

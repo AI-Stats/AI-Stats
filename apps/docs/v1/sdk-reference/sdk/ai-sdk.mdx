@@ -11,24 +11,24 @@ Use the official Phaseo provider to call Phaseo models through Vercel AI SDK 7. 
 <CodeGroup>
 
 ```bash title="npm"
-npm install @phaseo/ai-sdk-provider ai@^7
+npm install @phaseo/ai-sdk-provider
 ```
 
 ```bash title="pnpm"
-pnpm add @phaseo/ai-sdk-provider ai@^7
+pnpm add @phaseo/ai-sdk-provider
 ```
 
 ```bash title="yarn"
-yarn add @phaseo/ai-sdk-provider ai@^7
+yarn add @phaseo/ai-sdk-provider
 ```
 
 ```bash title="bun"
-bun add @phaseo/ai-sdk-provider@^2 ai@^7
+bun add @phaseo/ai-sdk-provider
 ```
 
 </CodeGroup>
 
-The unversioned Phaseo package follows npm's `latest` tag and selects the active AI SDK 7-compatible provider line.
+The unversioned Phaseo package follows npm's `latest` tag and selects the active AI SDK 7-compatible provider line. It declares AI SDK 7 as a peer dependency, so package managers with peer auto-installation enabled install the compatible runtime automatically.
 
 Set `PHASEO_API_KEY` in your server environment, then make your first request:
 
@@ -100,8 +100,10 @@ Reranking is supported through `rerank()` with `phaseo.rerankingModel(modelId)`.
 
 ## Earlier AI SDK versions
 
-- AI SDK 6: install `@phaseo/ai-sdk-provider@ai-sdk-v6` with `ai@ai-v6`.
-- AI SDK 5: install `@phaseo/ai-sdk-provider@ai-sdk-v5` with `ai@ai-v5`.
+- AI SDK 6: install `@phaseo/ai-sdk-provider@ai-sdk-v6`.
+- AI SDK 5: install `@phaseo/ai-sdk-provider@ai-sdk-v5`.
+
+If peer auto-installation is disabled, install the matching `ai` major (`ai@^7`, `ai@^6`, or `ai@^5`) separately.
 
 ## Related guides
 

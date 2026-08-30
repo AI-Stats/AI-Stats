@@ -11,17 +11,17 @@ Phaseo ships an official Vercel AI SDK provider in the `@phaseo/ai-sdk-provider`
 AI SDK 7 and the native Phaseo `ProviderV4` implementation are the default for new projects:
 
 ```bash
-npm install @phaseo/ai-sdk-provider ai@^7
+npm install @phaseo/ai-sdk-provider
 ```
 
-The unversioned Phaseo package follows npm's `latest` tag and therefore selects the active AI SDK 7-compatible provider line.
+The unversioned Phaseo package follows npm's `latest` tag and therefore selects the active AI SDK 7-compatible provider line. The package declares AI SDK 7 as a peer dependency, which npm installs automatically.
 
 ### AI SDK 6 maintenance line
 
 AI SDK 6 uses the previous `ProviderV3` contract. Install its tagged compatibility release:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@ai-sdk-v6 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6
 ```
 
 Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SDK 8 reaches a stable release, Phaseo will mark the 1.x line as deprecated on npm. Deprecation will not remove existing releases; any eventual end-of-support decision will be announced separately.
@@ -31,8 +31,10 @@ Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SD
 AI SDK 5 accepts the older ProviderV2 contract. Install Phaseo's dedicated compatibility release:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5
 ```
+
+If your package manager is configured not to install peer dependencies automatically, install the matching `ai` major (`ai@^7`, `ai@^6`, or `ai@^5`) separately.
 
 ```ts
 import { phaseo } from "@phaseo/ai-sdk-provider";

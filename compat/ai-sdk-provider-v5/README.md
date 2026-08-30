@@ -3,7 +3,7 @@
 This maintenance release provides the Phaseo Gateway provider for Vercel AI SDK 5's ProviderV2 contract.
 
 ```bash
-npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5
 ```
 
 ```typescript

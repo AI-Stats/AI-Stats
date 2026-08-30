@@ -25,16 +25,16 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 
 ```bash
 # AI SDK 7 / Provider v4 (default)
-npm install @phaseo/ai-sdk-provider ai@^7
+npm install @phaseo/ai-sdk-provider
 
 # AI SDK 6 / Provider v3 maintenance line
-npm install @phaseo/ai-sdk-provider@ai-sdk-v6 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6
 
 # AI SDK 5 / Provider v2 compatibility line
-npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5
 ```
 
-The unversioned provider install follows npm's `latest` tag, which points to the active AI SDK 7-compatible line after the 2.x release. The `ai-sdk-v6` and `ai-sdk-v5` dist-tags select the maintained compatibility lines. See [SUPPORT.md](./SUPPORT.md).
+The unversioned provider install follows npm's `latest` tag, which points to the active AI SDK 7-compatible line after the 2.x release. The `ai-sdk-v6` and `ai-sdk-v5` dist-tags select the maintained compatibility lines. Each release declares the matching `ai` version as a peer dependency, so npm installs the compatible AI SDK alongside the provider. See [SUPPORT.md](./SUPPORT.md).
 
 ## Quick Start
 
