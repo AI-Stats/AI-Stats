@@ -45,6 +45,7 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 			let query = client
 				.from("v2_model_provider_routes")
 				.select("provider_model_id,provider_slug,provider_model_slug,model_slug,routing_enabled,status,effective_from,effective_to")
+				.eq("is_stealth", false)
 				.eq("routing_enabled", true)
 				.in("status", ["active", "degraded"]);
 			if (requestedModelIds.length > 0) query = query.in("model_slug", requestedModelIds);
@@ -62,7 +63,7 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 		const routeIds = providerRows.map((row) => String(row.provider_model_id ?? "")).filter(Boolean);
 		const modelIds = [...new Set(providerRows.map((row) => String(row.model_slug ?? "")).filter(Boolean))];
 		const [modelResults, skuResults] = await Promise.all([
-			Promise.all(chunks(modelIds).map((ids) => client.from("v2_models").select("model_slug,name,released_at,announced_at").in("model_slug", ids).eq("hidden", false))),
+			Promise.all(chunks(modelIds).map((ids) => client.from("v2_models").select("model_slug,name,released_at,announced_at").in("model_slug", ids).eq("hidden", false).neq("status", "disabled"))),
 			Promise.all(chunks(routeIds).map((ids) => client.from("v2_pricing_skus").select("sku_id,provider_model_id,operation,service_tier_slug,currency,status,effective_from,effective_to,metadata").in("provider_model_id", ids).neq("status", "disabled"))),
 		]);
 		const modelRows = rowsOrThrow(modelResults);

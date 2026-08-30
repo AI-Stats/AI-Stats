@@ -131,7 +131,7 @@ describe("pricing loader performance", () => {
 		expect(a).not.toBeNull();
 		expect(b).not.toBeNull();
 		expect(c).not.toBeNull();
-		expect(executeCount).toBe(4);
+		expect(executeCount).toBe(3);
 		expect(getSupabaseAdminMock).toHaveBeenCalledTimes(1);
 	});
 
@@ -162,7 +162,7 @@ describe("pricing loader performance", () => {
 		expect(first).not.toBeNull();
 		expect(second).toBe(first);
 		expect(third).toBe(first);
-		expect(executeCount).toBe(4);
+		expect(executeCount).toBe(3);
 		expect(getSupabaseAdminMock).toHaveBeenCalledTimes(1);
 	});
 
@@ -193,7 +193,7 @@ describe("pricing loader performance", () => {
 		expect(first).toBeNull();
 		expect(second).toBeNull();
 		expect(third).toBeNull();
-		expect(executeCount).toBe(2);
+		expect(executeCount).toBe(1);
 		expect(getSupabaseAdminMock).toHaveBeenCalledTimes(1);
 	});
 

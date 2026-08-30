@@ -659,6 +659,26 @@ describe("after/pricing calculatePricing", () => {
 		expect(card?.model).toBe("anthropic/claude-opus-5-fast");
 	});
 
+	it("fails closed when an executed provider-model route has no exact pricing card", async () => {
+		loadPriceCardMock.mockResolvedValue(null);
+
+		await expect(loadProviderPricing(
+			{
+				model: "minimax/speech-2.8",
+				capability: "audio.speech",
+				pricing: {},
+			} as any,
+			{
+				provider: "minimax",
+				apiModelId: "minimax/speech-2.8-hd",
+				generationTimeMs: 0,
+				kind: "completed",
+				bill: { usage: {} } as any,
+				upstream: new Response(null, { status: 200 }),
+			},
+		)).rejects.toThrow("pricing_card_missing_for_executed_route");
+	});
+
 	it("reloads pricing when provider acceptance crosses the cached card boundary", async () => {
 		const oldCard = {
 			...TTS_CARD,
@@ -697,5 +717,33 @@ describe("after/pricing calculatePricing", () => {
 			"text.generate",
 		);
 		expect(card).toBe(newCard);
+	});
+
+	it("fails closed when an expired executed-route card cannot be refreshed", async () => {
+		const oldCard = {
+			...TTS_CARD,
+			provider: "deepseek",
+			model: "deepseek/deepseek-v4-pro-0813",
+			effective_to: "2026-08-16T16:00:00Z",
+		};
+		loadPriceCardMock.mockResolvedValue(null);
+
+		await expect(loadProviderPricing(
+			{
+				model: "deepseek/deepseek-v4-pro-0813",
+				capability: "text.generate",
+				pricing: { "deepseek:deepseek/deepseek-v4-pro-0813": oldCard },
+				meta: { upstreamStartMs: Date.parse("2026-08-16T16:00:00.001Z") },
+			} as any,
+			{
+				provider: "deepseek",
+				apiModelId: "deepseek/deepseek-v4-pro-0813",
+				pricingKey: "deepseek:deepseek/deepseek-v4-pro-0813",
+				generationTimeMs: 0,
+				kind: "completed",
+				bill: { usage: {} } as any,
+				upstream: new Response(null, { status: 200 }),
+			},
+		)).rejects.toThrow("pricing_card_missing_for_executed_route");
 	});
 });

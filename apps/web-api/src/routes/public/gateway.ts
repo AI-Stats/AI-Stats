@@ -29,7 +29,7 @@ function pricePerMillion(row: any): number | null {
 
 async function gatewayModels(env: Env) {
 	const client = getDataClient(env); const providerModels: Array<Record<string, unknown>> = [];
-	for (let offset = 0; ; offset += 1_000) { const result = await client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,input_modalities,output_modalities,effective_from,effective_to").order("provider_model_id", { ascending: true }).range(offset, offset + 999); if (result.error) throw result.error; providerModels.push(...((result.data ?? []) as Array<Record<string, unknown>>)); if ((result.data?.length ?? 0) < 1_000) break; }
+	for (let offset = 0; ; offset += 1_000) { const result = await client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,input_modalities,output_modalities,effective_from,effective_to").eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]).order("provider_model_id", { ascending: true }).range(offset, offset + 999); if (result.error) throw result.error; providerModels.push(...((result.data ?? []) as Array<Record<string, unknown>>)); if ((result.data?.length ?? 0) < 1_000) break; }
 	const providerModelIds = providerModels.map((row) => String(row.provider_api_model_id ?? "")).filter(Boolean); const capabilities = new Map<string, Set<string>>(); const capabilityParams = new Map<string, Record<string, unknown>>();
 	for (let offset = 0; offset < providerModelIds.length; offset += 200) { const result = await client.from("v2_route_capabilities").select("provider_api_model_id:provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds.slice(offset, offset + 200)); if (result.error) throw result.error; for (const row of result.data ?? []) { const capabilityId = normalizeCapabilityId(row.capability_id); if (!row.provider_api_model_id || !capabilityId || ["disabled", "internal_testing"].includes(String(row.status ?? "").toLowerCase())) continue; const values = capabilities.get(row.provider_api_model_id) ?? new Set<string>(); values.add(capabilityId); capabilities.set(row.provider_api_model_id, values); const params = capabilityParams.get(row.provider_api_model_id) ?? {}; params[capabilityId] = row.params && typeof row.params === "object" ? row.params : {}; capabilityParams.set(row.provider_api_model_id, params); } }
 	const pricingSkuResults = await Promise.all(Array.from({ length: Math.ceil(providerModelIds.length / 200) }, (_, index) => client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,status,effective_from,effective_to").in("provider_model_id", providerModelIds.slice(index * 200, (index + 1) * 200)).eq("service_tier_slug", "standard").neq("status", "disabled")));
@@ -55,7 +55,8 @@ async function gatewayModels(env: Env) {
 			client.from("v2_models")
 				.select("model_id:model_slug,name,status,organisation_id:lab_slug,input_modalities,output_modalities,previous_model_id:previous_model_slug,release_date:released_at,announcement_date:announced_at,deprecation_date:deprecated_at,retirement_date:retired_at")
 				.in("model_slug", modelIds.slice(index * idChunkSize, (index + 1) * idChunkSize))
-				.eq("hidden", false)),
+				.eq("hidden", false)
+				.neq("status", "disabled")),
 	);
 	for (const result of [...providerResults, ...modelResults]) {
 		if (result.error) throw result.error;

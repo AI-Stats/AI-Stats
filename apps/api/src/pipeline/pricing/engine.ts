@@ -60,6 +60,11 @@ type RuleScore = {
     hasConditions: boolean;
 };
 
+function effectiveRulePriority(rule: PriceRule): number {
+	if (Number.isFinite(rule.priority)) return Number(rule.priority);
+	return Array.isArray(rule.match) && rule.match.length > 0 ? 300 : 100;
+}
+
 function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): RuleScore[] {
     return candidates.map((rule, index) => {
         const summary = evaluateConditions(rule.match, ctx);
@@ -69,7 +74,7 @@ function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): Rul
         return {
             rule,
             index,
-            priority: rule.priority ?? 0,
+			priority: effectiveRulePriority(rule),
             matchedConditions: summary.matchedConditions,
             totalConditions: summary.totalConditions,
             fullySatisfiedGroups,
@@ -659,7 +664,7 @@ export function computeBillSummary(
         card.rules
             .filter((r) => r.pricing_plan === plan && r.meter === meter)
             .filter((r) => matchesConditions(r.match, matchContext))
-            .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+			.sort((a, b) => effectiveRulePriority(b) - effectiveRulePriority(a));
 
     for (const dim of dims) {
         const qty = meters[dim];
@@ -689,7 +694,7 @@ export function computeBillSummary(
                         (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
                         rule.meter === dim,
                     )
-                    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+					.sort((a, b) => effectiveRulePriority(b) - effectiveRulePriority(a));
                 if (coverageCandidates.length) {
                     candidates = coverageCandidates;
                     conservativeCoverageFallback = true;
@@ -730,7 +735,7 @@ export function computeBillSummary(
                 id: r.id,
                 price_per_unit: r.price_per_unit,
                 unit_size: r.unit_size,
-                priority: r.priority,
+				priority: effectiveRulePriority(r),
                 match: r.match,
             })),
             selection_rankings: selectionSummary.rankings.slice(0, 10),
@@ -777,7 +782,7 @@ export function computeBillSummary(
                 id: rule.id,
                 unit_size: rule.unit_size,
                 price_per_unit: priced.unitPriceUsd,
-                priority: rule.priority,
+				priority: effectiveRulePriority(rule),
                 pricing_plan: rule.pricing_plan,
                 billing_timestamp_basis: priced.billingTimestampBasis,
                 billing_timestamp_basis_configured: priced.billingTimestampBasisConfigured,
@@ -804,7 +809,7 @@ export function computeBillSummary(
             line_nanos: priced.lineNanos,
             bill_mode: (rule.included_quantity ?? 0) > 0 ? "over" : "all",
             included_quantity: rule.included_quantity,
-            rule_priority: rule.priority,
+			rule_priority: effectiveRulePriority(rule),
             rule_id: rule.id,
             billing_timestamp_basis: priced.billingTimestampBasis,
             billing_timestamp_basis_configured: priced.billingTimestampBasisConfigured,

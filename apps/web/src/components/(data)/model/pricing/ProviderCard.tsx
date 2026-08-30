@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { resolveEnforcedZdr } from "@/components/(data)/model/pricing/zdr";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
@@ -2425,11 +2426,10 @@ export default function ProviderCard({
 				notes: policy.reason ?? provider.provider.prompt_training_notes ?? null,
 				sourceUrl: policy.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
 				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
-				zeroDataRetention: policy.zdrEligibility === "eligible"
-					? true
-					: policy.zdrEligibility === "ineligible"
-						? false
-						: provider.provider.zero_data_retention ?? null,
+				zeroDataRetention: resolveEnforcedZdr(
+					provider.provider.zero_data_retention,
+					policy.zdrEligibility,
+				),
 			}));
 		})(),
 		residency: [
@@ -2841,11 +2841,10 @@ export default function ProviderCard({
 		: selectedDataPolicy?.tier ?? provider.provider.data_policy_tier;
 	const selectedZdr = hasMixedCapabilityPolicies
 		? null
-		: selectedDataPolicy?.zdrEligibility === "eligible"
-			? true
-			: selectedDataPolicy?.zdrEligibility === "ineligible"
-				? false
-				: provider.provider.zero_data_retention;
+		: resolveEnforcedZdr(
+			provider.provider.zero_data_retention,
+			selectedDataPolicy?.zdrEligibility,
+		);
 	const dataPolicySummary = [
 		{
 			label: "Data Policy",

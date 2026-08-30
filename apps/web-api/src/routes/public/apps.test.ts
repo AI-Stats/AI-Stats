@@ -72,9 +72,11 @@ describe("public app routes", () => {
 		expect(detail.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=900, stale-while-revalidate=3600",
 		);
-		await expect(detail.json()).resolves.toMatchObject({
-			app: { id: appId, slug: "my-app", member_ids: [appId], total_tokens: 1_000, total_requests: 9 },
+		const detailPayload = await detail.json() as any;
+		expect(detailPayload).toMatchObject({
+			app: { id: appId, slug: "my-app", total_tokens: 1_000, total_requests: 9 },
 		});
+		expect(detailPayload.app.member_ids).toBeUndefined();
 		expect(usage.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=900, stale-while-revalidate=900",
 		);
@@ -130,7 +132,7 @@ describe("public app routes", () => {
 		});
 	});
 
-	it("resolves one stable slug and aggregates every public row in a URL group", async () => {
+	it("keeps caller-attributed app rows isolated from same-host rows", async () => {
 		const chatId = "11111111-1111-4111-8111-111111111111";
 		const validationId = "22222222-2222-4222-8222-222222222222";
 		const requests: string[] = [];
@@ -139,13 +141,13 @@ describe("public app routes", () => {
 			requests.push(url);
 			if (url.includes("rpc/get_public_app_groups")) {
 				return new Response(JSON.stringify([
-					{ reference: "phaseo-chat", app_id: chatId, app_name: "Phaseo Chat", app_url: "https://phaseo.app/chat", app_created_at: "2026-01-01T00:00:00Z", app_is_public: true, app_is_active: true, member_ids: [chatId, validationId], public_slug: "phaseo-chat" },
+					{ reference: "phaseo-chat", app_id: chatId, app_name: "Phaseo Chat", app_url: "https://phaseo.app/chat", app_created_at: "2026-01-01T00:00:00Z", app_is_public: true, app_is_active: true, member_ids: [chatId], public_slug: "phaseo-chat" },
+					{ reference: "phaseo-validation", app_id: validationId, app_name: "Phaseo Validation", app_url: "https://phaseo.app/validate", app_created_at: "2026-01-02T00:00:00Z", app_is_public: true, app_is_active: true, member_ids: [validationId], public_slug: "phaseo-validation" },
 				]), { status: 200 });
 			}
 			if (url.includes("v2_web_public_usage_daily")) {
 				return new Response(JSON.stringify([
 					{ requests: 10, success_requests: 9, total_tokens: 1_000 },
-					{ requests: 5, success_requests: 5, total_tokens: 500 },
 				]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -162,15 +164,14 @@ describe("public app routes", () => {
 			app: {
 				id: chatId,
 				slug: "phaseo-chat",
-				member_ids: [chatId, validationId],
-				total_tokens: 1_500,
-				total_requests: 14,
+				total_tokens: 1_000,
+				total_requests: 9,
 			},
 		});
-		expect(requests.some((url) => url.includes("app_id=in.") && url.includes(chatId) && url.includes(validationId))).toBe(true);
+		expect(requests.some((url) => url.includes("app_id=in.") && url.includes(chatId) && !url.includes(validationId))).toBe(true);
 	});
 
-	it("adds a readable host suffix when unrelated apps share a title slug", async () => {
+	it("keeps public slugs unique when unrelated apps share a title", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("rpc/get_public_top_apps")) {
@@ -181,8 +182,8 @@ describe("public app routes", () => {
 			}
 			if (url.includes("rpc/get_public_app_groups")) {
 				return new Response(JSON.stringify([
-					{ reference: "first-app", app_id: "first-app", app_name: "My App", app_url: "https://example.com", app_is_public: true, app_is_active: true, member_ids: ["first-app"], public_slug: "my-app--example.com" },
-					{ reference: "second-app", app_id: "second-app", app_name: "My App", app_url: "https://other.example", app_is_public: true, app_is_active: true, member_ids: ["second-app"], public_slug: "my-app--other.example" },
+					{ reference: "first-app", app_id: "first-app", app_name: "My App", app_url: "https://example.com", app_is_public: true, app_is_active: true, member_ids: ["first-app"], public_slug: "my-app--111111111111" },
+					{ reference: "second-app", app_id: "second-app", app_name: "My App", app_url: "https://other.example", app_is_public: true, app_is_active: true, member_ids: ["second-app"], public_slug: "my-app--222222222222" },
 				]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -196,19 +197,19 @@ describe("public app routes", () => {
 
 		await expect(response.json()).resolves.toMatchObject({
 			data: [
-				{ app_id: "first-app", app_slug: "my-app--example.com" },
-				{ app_id: "second-app", app_slug: "my-app--other.example" },
+				{ app_id: "first-app", app_slug: "my-app--111111111111" },
+				{ app_id: "second-app", app_slug: "my-app--222222222222" },
 			],
 		});
 
 		const detail = await app.request(
-			"https://phaseo.app/api/_web/apps/my-app--example.com",
+			"https://phaseo.app/api/_web/apps/my-app--111111111111",
 			{},
 			env,
 		);
 		expect(detail.status).toBe(200);
 		await expect(detail.json()).resolves.toMatchObject({
-			app: { id: "first-app", slug: "my-app--example.com", member_ids: ["first-app"] },
+			app: { id: "first-app", slug: "my-app--111111111111" },
 		});
 	});
 });

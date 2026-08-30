@@ -147,11 +147,17 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 	const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].slice(0, 100);
 	try {
 		if (modelIds.length === 0) return withPublicCache(c.json({ mappings: [] }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
-		let query = getDataClient(c.env).from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug").in("provider_model_slug", modelIds);
+		let query = getDataClient(c.env).from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug").in("provider_model_slug", modelIds).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]);
 		if (providerIds.length) query = query.in("provider_slug", providerIds);
 		const { data, error } = await query;
 		if (error) throw error;
-		const mappings = (data ?? []).map((row) => ({ provider_id: row.provider_slug, api_model_id: row.provider_model_slug, model_id: row.model_slug }));
+		const modelSlugs = [...new Set((data ?? []).map((row) => String(row.model_slug ?? "")).filter(Boolean))];
+		const visibleModels = modelSlugs.length
+			? await getDataClient(c.env).from("v2_models").select("model_slug").in("model_slug", modelSlugs).eq("hidden", false).neq("status", "disabled")
+			: { data: [], error: null };
+		if (visibleModels.error) throw visibleModels.error;
+		const visibleModelSlugs = new Set((visibleModels.data ?? []).map((row) => row.model_slug));
+		const mappings = (data ?? []).filter((row) => visibleModelSlugs.has(row.model_slug)).map((row) => ({ provider_id: row.provider_slug, api_model_id: row.provider_model_slug, model_id: row.model_slug }));
 		return withPublicCache(c.json({ mappings }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
 	} catch (error) { console.error("[web-api/apps] mappings failed", error); return c.json({ error: "app_model_mappings_unavailable" }, 503); }
 });
@@ -328,7 +334,6 @@ publicAppsRouter.get("/apps/:appReference", async (c) => {
 		return withPublicCache(c.json({ app: {
 			...app,
 			slug: publicSlug,
-			member_ids: appIds,
 			total_tokens: totalTokens,
 			total_requests: totalRequests,
 		} }), {
