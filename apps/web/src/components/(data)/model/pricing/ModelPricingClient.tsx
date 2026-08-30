@@ -8,6 +8,7 @@ import React, {
     useRef,
     useState,
 } from "react";
+import { resolveEnforcedZdr } from "./zdr";
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -469,10 +470,11 @@ function getPlanZdrEligibility(
     provider: ProviderPricing,
     plan: string,
 ): boolean | null {
-    const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
-    const tierEligibility = tierPolicy?.zdrEligibility;
-    if (tierEligibility === "eligible") return true;
-    if (tierEligibility === "ineligible") return false;
+	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+	const tierEligibility = tierPolicy?.zdrEligibility;
+	if (tierEligibility === "eligible" || tierEligibility === "ineligible") {
+		return resolveEnforcedZdr(provider.provider.zero_data_retention, tierEligibility);
+	}
 
     const providerModels = getProviderModelScopeForPlan(provider, plan);
     const capabilityPolicies = providerModels.map((providerModel) => providerModel.data_policy);
@@ -487,9 +489,7 @@ function getPlanZdrEligibility(
     );
     if (eligibilities.size !== 1) return null;
     const eligibility = policiesWithData[0]?.zdrEligibility;
-    if (eligibility === "eligible") return true;
-    if (eligibility === "ineligible") return false;
-    return provider.provider.zero_data_retention ?? null;
+	return resolveEnforcedZdr(provider.provider.zero_data_retention, eligibility);
 }
 
 function formatServiceTierLabel(plan: string): string {
@@ -549,12 +549,10 @@ function ProviderServiceTierInfoIcons({
 		notes: policy?.reason ?? provider.provider.prompt_training_notes ?? null,
 		sourceUrl: policy?.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
 		promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
-		zeroDataRetention:
-			policy?.zdrEligibility === "eligible"
-				? true
-				: policy?.zdrEligibility === "ineligible"
-					? false
-					: provider.provider.zero_data_retention ?? null,
+		zeroDataRetention: resolveEnforcedZdr(
+			provider.provider.zero_data_retention,
+			policy?.zdrEligibility,
+		),
 	}));
 
 	return (

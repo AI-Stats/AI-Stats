@@ -45,6 +45,7 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 			let query = client
 				.from("v2_model_provider_routes")
 				.select("provider_model_id,provider_slug,provider_model_slug,model_slug,routing_enabled,status,effective_from,effective_to")
+				.eq("is_stealth", false)
 				.eq("routing_enabled", true)
 				.in("status", ["active", "degraded"]);
 			if (requestedModelIds.length > 0) query = query.in("model_slug", requestedModelIds);

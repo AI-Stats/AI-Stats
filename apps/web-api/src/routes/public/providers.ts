@@ -306,7 +306,7 @@ function lifecycleDate(model: RecentModel): string | null {
 async function recentModels(env: Env, providerId: string, since: string | null, limit: number): Promise<RecentModel[]> {
 	const client = getDataClient(env);
 	const providerResult = await client.from("v2_model_provider_routes")
-		.select("model_slug,provider_model_slug,created_at,routing_enabled,status").eq("provider_slug", providerId);
+		.select("model_slug,provider_model_slug,created_at,routing_enabled,status").eq("provider_slug", providerId).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]);
 	if (providerResult.error) throw providerResult.error;
 	const modelIds = Array.from(new Set((providerResult.data ?? []).map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
 	const modelResult = modelIds.length
@@ -347,6 +347,20 @@ async function recentModels(env: Env, providerId: string, since: string | null, 
 }
 
 export const publicProvidersRouter = new Hono<{ Bindings: Env }>();
+
+publicProvidersRouter.use("/:providerId/*", async (c, next) => {
+	const providerId = c.req.param("providerId");
+	const visibility = await getDataClient(c.env).from("v2_model_provider_routes")
+		.select("provider_model_id")
+		.eq("provider_slug", providerId)
+		.eq("is_stealth", false)
+		.eq("routing_enabled", true)
+		.in("status", ["active", "degraded"])
+		.limit(1);
+	if (visibility.error) return c.json({ error: "provider_unavailable" }, 503);
+	if (!visibility.data?.length) return c.json({ error: "provider_not_found" }, 404);
+	await next();
+});
 
 publicProvidersRouter.get("/", async (c) => {
 	try { return withPublicCache(c.json({ providers: await providerIndex(c.env) }), TELEMETRY_CACHE); }
@@ -462,6 +476,9 @@ publicProvidersRouter.get("/:providerId/models", async (c) => {
 		const providerResult = await client.from("v2_model_provider_routes")
 			.select("provider_model_id,provider_model_slug,model_slug,routing_enabled,status,input_modalities,output_modalities,created_at")
 			.eq("provider_slug", providerId)
+			.eq("is_stealth", false)
+			.eq("routing_enabled", true)
+			.in("status", ["active", "degraded"])
 			.order("created_at", { ascending: false });
 		if (providerResult.error) throw providerResult.error;
 		const providerRows = providerResult.data ?? [];

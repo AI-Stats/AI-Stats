@@ -98,6 +98,33 @@ const card: PriceCard = {
 };
 
 describe("computeBillSummary long context thresholds", () => {
+	it("prefers a matching conditional rate when imported data omits its priority", () => {
+		const missingPriorityCard: PriceCard = {
+			...card,
+			rules: [
+				{
+					pricing_plan: "standard", meter: "input_text_tokens", unit: "token", unit_size: 1_000_000,
+					price_per_unit: "5", currency: "USD", match: [], priority: 200,
+				},
+				{
+					pricing_plan: "standard", meter: "input_text_tokens", unit: "token", unit_size: 1_000_000,
+					price_per_unit: "10", currency: "USD",
+					match: [{ path: "input_tokens", op: "gte", value: 272_000, or_group: 1 }],
+				} as any,
+			],
+		};
+
+		const result = computeBillSummary(
+			{ input_text_tokens: 300_000 },
+			missingPriorityCard,
+			{ input_tokens: 300_000 },
+			"standard",
+		);
+
+		expect(result.lines[0]?.unit_price_usd).toBe("10.000000000");
+		expect(result.lines[0]?.rule_priority).toBe(300);
+	});
+
 	it("uses cache-aware threshold to select long-context rates", () => {
 		const result = computeBillSummary(
 			{

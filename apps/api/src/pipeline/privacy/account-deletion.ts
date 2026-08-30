@@ -15,17 +15,22 @@ type AccountDeletionJob = {
 	deadline_at: string;
 	r2_objects_deleted: number | null;
 	kv_keys_deleted: number | null;
+	kv_scan_cursor: string | null;
+	attempts: number;
 };
 
 type PurgeProgress = {
 	r2ObjectsDeleted: number;
 	kvKeysDeleted: number;
+	kvScanComplete: boolean;
+	kvScanCursor: string | null;
 };
 
 export type AccountDeletionPurgeSummary = {
 	claimed: number;
 	completed: number;
 	failed: number;
+	deferred: number;
 	deadlineMissed: number;
 	r2ObjectsDeleted: number;
 	kvKeysDeleted: number;
@@ -77,8 +82,9 @@ export async function purgeKvAccountData(args: {
 	workspaceIds: readonly string[];
 	keyIds: readonly string[];
 	keyKids: readonly string[];
-}): Promise<{ complete: boolean; deleted: number }> {
-	let cursor: string | undefined;
+	cursor?: string | null;
+}): Promise<{ complete: boolean; deleted: number; cursor: string | null }> {
+	let cursor = args.cursor ?? undefined;
 	let deleted = 0;
 	for (let page = 0; page < MAX_KV_LIST_PAGES; page += 1) {
 		const result = await args.cache.list({ cursor, limit: 1000 });
@@ -87,11 +93,11 @@ export async function purgeKvAccountData(args: {
 			.filter((key) => containsDeletionIdentifier(key, args.workspaceIds, args.keyIds, args.keyKids));
 		await deleteConcurrently(matching, (key) => args.cache.delete(key));
 		deleted += matching.length;
-		if (result.list_complete) return { complete: true, deleted };
+		if (result.list_complete) return { complete: true, deleted, cursor: null };
 		cursor = "cursor" in result ? result.cursor : undefined;
-		if (!cursor) return { complete: false, deleted };
+		if (!cursor) return { complete: false, deleted, cursor: null };
 	}
-	return { complete: false, deleted };
+	return { complete: false, deleted, cursor: cursor ?? null };
 }
 
 async function assertAuthUserDeleted(userId: string | null): Promise<void> {
@@ -133,10 +139,21 @@ async function purgeJob(job: AccountDeletionJob): Promise<PurgeProgress> {
 		workspaceIds,
 		keyIds,
 		keyKids,
+		cursor: job.kv_scan_cursor,
 	});
-	if (!kvResult.complete) throw new Error("account_deletion_kv_purge_incomplete");
 
-	return { r2ObjectsDeleted, kvKeysDeleted: kvResult.deleted };
+	return {
+		r2ObjectsDeleted,
+		kvKeysDeleted: kvResult.deleted,
+		kvScanComplete: kvResult.complete,
+		kvScanCursor: kvResult.cursor,
+	};
+}
+
+function retryAt(now: Date, attempts: number): string {
+	const normalizedAttempts = Number.isFinite(attempts) ? Math.max(1, Math.floor(attempts)) : 1;
+	const seconds = Math.min(3_600, 30 * (2 ** Math.min(normalizedAttempts - 1, 7)));
+	return new Date(now.getTime() + seconds * 1_000).toISOString();
 }
 
 export async function runAccountDeletionPurgeJob(options?: {
@@ -159,15 +176,41 @@ export async function runAccountDeletionPurgeJob(options?: {
 		claimed: jobs.length,
 		completed: 0,
 		failed: 0,
+		deferred: 0,
 		deadlineMissed: 0,
 		r2ObjectsDeleted: 0,
 		kvKeysDeleted: 0,
 	};
 
 	for (const job of jobs) {
-		let progress: PurgeProgress = { r2ObjectsDeleted: 0, kvKeysDeleted: 0 };
+		let progress: PurgeProgress = {
+			r2ObjectsDeleted: 0,
+			kvKeysDeleted: 0,
+			kvScanComplete: false,
+			kvScanCursor: job.kv_scan_cursor,
+		};
 		try {
 			progress = await purgeJob(job);
+			if (!progress.kvScanComplete) {
+				const { error: updateError } = await supabase
+					.from("account_deletion_jobs")
+					.update({
+						status: "pending",
+						lease_expires_at: null,
+						last_error: null,
+						next_attempt_at: now.toISOString(),
+						kv_scan_cursor: progress.kvScanCursor,
+						updated_at: now.toISOString(),
+						r2_objects_deleted: Number(job.r2_objects_deleted ?? 0) + progress.r2ObjectsDeleted,
+						kv_keys_deleted: Number(job.kv_keys_deleted ?? 0) + progress.kvKeysDeleted,
+					})
+					.eq("id", job.id);
+				if (updateError) throw new Error(updateError.message || "account_deletion_progress_update_failed");
+				summary.deferred += 1;
+				summary.r2ObjectsDeleted += progress.r2ObjectsDeleted;
+				summary.kvKeysDeleted += progress.kvKeysDeleted;
+				continue;
+			}
 			const { error: updateError } = await supabase
 				.from("account_deletion_jobs")
 				.update({
@@ -177,6 +220,8 @@ export async function runAccountDeletionPurgeJob(options?: {
 					key_kids: [],
 					status: "completed",
 					lease_expires_at: null,
+					kv_scan_cursor: null,
+					next_attempt_at: now.toISOString(),
 					last_error: null,
 					completed_at: now.toISOString(),
 					updated_at: now.toISOString(),
@@ -195,6 +240,7 @@ export async function runAccountDeletionPurgeJob(options?: {
 				.update({
 					status: "failed",
 					lease_expires_at: null,
+					next_attempt_at: retryAt(now, job.attempts),
 					last_error: errorMessage(error),
 					updated_at: now.toISOString(),
 					r2_objects_deleted: Number(job.r2_objects_deleted ?? 0) + progress.r2ObjectsDeleted,

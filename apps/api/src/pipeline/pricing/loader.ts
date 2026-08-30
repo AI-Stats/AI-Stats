@@ -16,6 +16,19 @@ type PricingL1Entry = {
 const pricingL1 = new Map<string, PricingL1Entry>();
 const pricingInflight = new Map<string, Promise<PriceCard | null>>();
 
+export function selectPricingRouteRows(
+	exact: Array<Record<string, any>>,
+	canonical: Array<Record<string, any>>,
+	providerSlug: Array<Record<string, any>>,
+): Array<Record<string, any>> {
+	const selected = exact.length > 0 ? exact : [...canonical, ...providerSlug];
+	return [...new Map(
+		selected
+			.filter((row) => row.provider_model_id)
+			.map((row) => [String(row.provider_model_id), row]),
+	).values()];
+}
+
 function pricingCacheKey(provider: string, model: string, endpoint: string): string {
     return `${provider}:${model}:${endpoint}`;
 }
@@ -56,22 +69,20 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
     const loader = (async (): Promise<PriceCard | null> => {
         const nowIso = new Date().toISOString();
         const supabase = getSupabaseAdmin();
-        const [byCanonical, byProviderSlug] = await Promise.all([
-            supabase.from("v2_model_provider_routes")
-                .select("provider_model_id,model_slug,provider_model_slug")
-                .eq("provider_slug", provider).eq("model_slug", model)
-                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
-            supabase.from("v2_model_provider_routes")
-                .select("provider_model_id,model_slug,provider_model_slug")
-                .eq("provider_slug", provider).eq("provider_model_slug", model)
-                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
-        ]);
-        if (byCanonical.error || byProviderSlug.error) return null;
-        const routes = new Map<string, Record<string, any>>();
-        for (const row of [...(byCanonical.data ?? []), ...(byProviderSlug.data ?? [])]) {
-            if (row.provider_model_id) routes.set(String(row.provider_model_id), row);
-        }
-        const routeIds = [...routes.keys()];
+        const routes = await supabase.from("v2_model_provider_routes")
+            .select("provider_model_id,model_slug,provider_model_slug")
+            .eq("provider_slug", provider)
+            .or(`provider_model_id.eq.${model},model_slug.eq.${model},provider_model_slug.eq.${model}`)
+            .in("status", ["active", "degraded"]).eq("routing_enabled", true);
+        if (routes.error) return null;
+        const routeRows = routes.data ?? [];
+        const exactRoutes = routeRows.filter((row) => row.provider_model_id === model);
+        const resolvedRoutes = selectPricingRouteRows(
+			exactRoutes,
+			routeRows.filter((row) => row.model_slug === model),
+			routeRows.filter((row) => row.provider_model_slug === model),
+		);
+        const routeIds = resolvedRoutes.map((row) => String(row.provider_model_id));
         if (!routeIds.length) {
             writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
             return null;

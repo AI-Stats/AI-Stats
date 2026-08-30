@@ -477,10 +477,12 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		} catch (error) {
 			console.error("gateway_io_retention_expiry_scheduled_failed", serializeError(error));
 		}
-		try {
-			await handleAccountDeletionScheduledEvent(env);
-		} catch (error) {
-			console.error("account_deletion_scheduled_failed", serializeError(error));
+		if (env.ENV === "prod" && env.ACCOUNT_DELETION_PURGE_ENABLED === "true") {
+			try {
+				await handleAccountDeletionScheduledEvent(env);
+			} catch (error) {
+				console.error("account_deletion_scheduled_failed", serializeError(error));
+			}
 		}
 		try {
 			await handleDataContributionClassifierScheduledEvent(env);

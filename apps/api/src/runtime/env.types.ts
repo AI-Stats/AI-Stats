@@ -293,6 +293,7 @@ export type GatewayBindings = {
     DISCORD_ROLE_ID?: string;
     DISCORD_USER_ID?: string;
     ENV?: string;
+	ACCOUNT_DELETION_PURGE_ENABLED?: string;
     HF_TOKEN?: string;
     GITHUB_TOKEN?: string;
     GH_TOKEN?: string;

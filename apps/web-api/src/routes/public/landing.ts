@@ -84,7 +84,7 @@ publicLandingRouter.get("/landing/gateway-showcase", async (c) => {
 		const client = getDataClient(c.env);
 		const [rollup, supported, topModels, topApps] = await Promise.all([
 			client.rpc("get_gateway_marketing_rollup", { p_hours: hours }),
-			client.from("v2_model_provider_routes").select("model_slug,provider_slug,effective_from,effective_to").eq("routing_enabled", true).in("status", ["active", "degraded"]),
+			client.from("v2_model_provider_routes").select("model_slug,provider_slug,effective_from,effective_to").eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]),
 			client.rpc("get_public_top_models_with_metadata", { p_time_range: "week", p_limit: topModelsLimit }),
 			client.rpc("get_public_top_apps", { p_time_range: "week", p_limit: topAppsLimit }),
 		]);

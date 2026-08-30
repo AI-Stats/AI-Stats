@@ -112,6 +112,18 @@ function makeIncompleteOpenAIStream(): Response {
 	});
 }
 
+function makeEmptySuccessfulOpenAIStream(): Response {
+	const frame = {
+		id: "chatcmpl_empty_success",
+		object: "chat.completion.chunk",
+		choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+	};
+	return new Response(`data: ${JSON.stringify(frame)}\n\ndata: [DONE]\n\n`, {
+		status: 200,
+		headers: { "Content-Type": "text/event-stream" },
+	});
+}
+
 function baseCtx(): any {
 	return {
 		requestId: "req_local_openai_usage_test",
@@ -218,5 +230,45 @@ describe("handleStreamResponse OpenAI usage finalization", () => {
 		expect(recordUsageAndChargeOnceMock).not.toHaveBeenCalled();
 		expect(auditSuccessMock).not.toHaveBeenCalled();
 		expect(auditFailureMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not classify a successfully completed empty response as provider failure", async () => {
+		auditSuccessMock.mockReset().mockResolvedValue(undefined);
+		auditFailureMock.mockReset().mockResolvedValue(undefined);
+		emitGatewayRequestEventMock.mockReset().mockResolvedValue(undefined);
+		recordUsageAndChargeOnceMock.mockReset().mockResolvedValue(undefined);
+		onCallEndMock.mockReset().mockResolvedValue(undefined);
+		reportProbeResultMock.mockReset().mockResolvedValue(undefined);
+		maybeOpenOnRecentErrorsMock.mockReset().mockResolvedValue(undefined);
+		maybeWriteStickyRoutingFromUsageMock.mockReset().mockResolvedValue(undefined);
+		classifyProviderHealthImpactMock.mockReset().mockReturnValue("success");
+
+		const upstream = makeEmptySuccessfulOpenAIStream();
+		const response = await handleStreamResponse(
+			baseCtx(),
+			{
+				kind: "stream",
+				stream: upstream.body,
+				upstream,
+				provider: "openai",
+				usageFinalizer: async () => null,
+				bill: { cost_cents: 0, currency: "USD", usage: null, finish_reason: null },
+			} as any,
+			null,
+		);
+
+		await response.text();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		expect(classifyProviderHealthImpactMock).toHaveBeenCalledWith(expect.objectContaining({
+			upstreamStatus: 200,
+			finishReason: "stop",
+		}));
+		expect(onCallEndMock).toHaveBeenCalledWith("chat.completions", expect.objectContaining({
+			ok: true,
+			healthImpact: "success",
+		}));
+		expect(auditFailureMock).not.toHaveBeenCalled();
+		expect(maybeOpenOnRecentErrorsMock).not.toHaveBeenCalled();
 	});
 });

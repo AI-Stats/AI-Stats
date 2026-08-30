@@ -208,6 +208,16 @@ export function canonicalServiceTierSlug(value: unknown): string {
     return normalized === "fast" ? "priority" : normalized;
 }
 
+function pricingRulePriority(rule: Record<string, any>): number {
+	if (Number.isFinite(rule.priority)) return Number(rule.priority);
+	const conditions = Array.isArray(rule.match)
+		? rule.match
+		: Array.isArray(rule.conditions)
+			? rule.conditions
+			: [];
+	return conditions.length > 0 ? 300 : 100;
+}
+
 function stableUuid(value: string): string {
     const hash = createHash("sha256").update(value).digest("hex").slice(0, 32).split("");
     hash[12] = "4";
@@ -245,7 +255,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
             match: rule.match ?? rule.conditions ?? [],
             billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
             time_windows: rule.time_windows ?? [],
-            priority: rule.priority ?? 100,
+			priority: pricingRulePriority(rule),
             meter_key: slug(rule.meter, "meter"),
         });
         const comparable = {
@@ -269,7 +279,7 @@ export function v2PricingMeterMetadata(rule: Record<string, any>): Record<string
         source: "json",
         source_key: rule.source_key ?? rule.rule_id,
         note: rule.note ?? null,
-        priority: rule.priority ?? 100,
+		priority: pricingRulePriority(rule),
         billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
         time_windows: rule.time_windows ?? [],
         ...(rule.included_quantity === undefined
@@ -1381,7 +1391,7 @@ export async function syncV2Catalogue(): Promise<void> {
             match: normalizedMatch,
             billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
             time_windows: rule.time_windows ?? [],
-            priority: rule.priority ?? 100,
+			priority: pricingRulePriority(rule),
         });
         const skuCode = `offer-${shortHash(offerIdentity)}`;
         const skuLookupKey = `${providerModelId}:${skuCode}:1`;
@@ -1405,7 +1415,7 @@ export async function syncV2Catalogue(): Promise<void> {
                 match: normalizedMatch,
                 billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
                 time_windows: rule.time_windows ?? [],
-                priority: rule.priority ?? 100,
+				priority: pricingRulePriority(rule),
             },
         });
     }

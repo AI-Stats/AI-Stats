@@ -74,22 +74,6 @@ function getUsageOutputTokens(usage: any): number {
     return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
 }
 
-function hasUsableStreamPayload(payload: any, depth = 0): boolean {
-	if (!payload || depth > 6) return false;
-	if (typeof payload === "string") return payload.trim().length > 0;
-	if (Array.isArray(payload)) return payload.some((entry) => hasUsableStreamPayload(entry, depth + 1));
-	if (typeof payload !== "object") return false;
-	if (typeof payload.text === "string" && payload.text.trim()) return true;
-	if (typeof payload.output_text === "string" && payload.output_text.trim()) return true;
-	if (typeof payload.content === "string" && payload.content.trim()) return true;
-	if (payload.type === "function_call" || payload.type === "tool_call") return true;
-	if (payload.type === "image" || payload.type === "audio" || payload.type === "output_image") return true;
-	for (const key of ["content", "output", "choices", "message", "response", "tool_calls", "toolCalls"]) {
-		if (hasUsableStreamPayload(payload[key], depth + 1)) return true;
-	}
-	return false;
-}
-
 function attachStreamTimingMeta(args: {
     ctx: PipelineContext;
     frame: any;
@@ -184,7 +168,6 @@ export async function handleStreamResponse(
     let cachedFinishReason: string | null = null;
     let latestStreamUsageRaw: any = null;
     let latestGatewaySnapshot: any = null;
-	let sawGeneratedOutput = false;
 	let streamFailed = false;
     let appliedStreamResponsePlugins = false;
     const streamedToolCallKeys = new Set<string>();
@@ -224,17 +207,10 @@ export async function handleStreamResponse(
     }
 
     const onStreamEvent = (event: UnifiedStreamEvent) => {
-		if (event.type === "delta_text" && event.text.trim()) {
-			sawGeneratedOutput = true;
-		}
-		if (event.type === "delta_content_part") {
-			sawGeneratedOutput = true;
-		}
 		if (event.type === "error") {
 			streamFailed = true;
 		}
         if (event.type === "delta_tool") {
-			sawGeneratedOutput = true;
             const key =
                 event.toolCallId ??
                 `choice:${event.choiceIndex ?? 0}:tool:${event.toolIndex ?? streamedToolCallKeys.size}`;
@@ -454,7 +430,6 @@ export async function handleStreamResponse(
 			if (String(payload?.status ?? "").toLowerCase() === "failed") {
 				streamFailed = true;
 			}
-			if (hasUsableStreamPayload(payload)) sawGeneratedOutput = true;
             const finishReason = normalizeFinishReason(
                 extractFinishReason(payload),
                 result.provider
@@ -531,23 +506,14 @@ export async function handleStreamResponse(
                 shapeStreamUsageForClient(usageForShaping),
                 buildToolUsage()
             );
-			const textGenerationEndpoint =
-				ctx.endpoint === "chat.completions" ||
-				ctx.endpoint === "responses" ||
-				ctx.endpoint === "messages";
-			const emptyTextResponse =
-				textGenerationEndpoint &&
-				!sawGeneratedOutput &&
-				getUsageOutputTokens(shapedUsage) === 0 &&
-				Number(cachedOutputToolCallCount ?? 0) === 0;
 			const baseModel = getBaseModel(ctx.model);
 			const healthContext = (result as any).healthContext ?? null;
 			const isProbe = Boolean(healthContext?.isProbe);
-			if (info?.aborted || streamFailed || emptyTextResponse) {
+			if (info?.aborted || streamFailed) {
 				const healthImpact = classifyProviderHealthImpact({
 					upstreamStatus: result.upstream.status,
 					aborted: info?.aborted === true,
-					midStreamError: streamFailed || emptyTextResponse,
+					midStreamError: streamFailed,
 				});
 				await onCallEnd(ctx.endpoint, {
 					provider: result.provider,
@@ -562,21 +528,15 @@ export async function handleStreamResponse(
 				} else if (healthImpact === "failure") {
 					await maybeOpenOnRecentErrors(ctx.endpoint, result.provider, baseModel);
 				}
-				const reason = info?.aborted
-					? "incomplete_stream"
-					: streamFailed
-						? "upstream_failure"
-						: "empty_response";
+				const reason = info?.aborted ? "incomplete_stream" : "upstream_failure";
 				suppressFailedResponseBilling({ ctx, result, usage: shapedUsage, reason });
 				await handleFailureAudit(
 					ctx,
 					result,
 					502,
 					"upstream",
-					reason === "empty_response" ? "upstream_empty_response" : "upstream_stream_failure",
-					reason === "empty_response"
-						? "The upstream completed without generating output."
-						: "The upstream stream failed before successful completion.",
+					"upstream_stream_failure",
+					"The upstream stream failed before successful completion.",
 					result.rawResponse ?? latestGatewaySnapshot,
 				);
 				return;
@@ -862,9 +822,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
-
-
 
 
 

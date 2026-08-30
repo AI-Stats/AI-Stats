@@ -84,11 +84,11 @@ export async function loadProviderPricing(
     ctx: PipelineContext,
     result: RequestResult
 ): Promise<PriceCard | null> {
+    const apiModelId =
+        typeof result.apiModelId === "string" && result.apiModelId.trim().length > 0
+            ? result.apiModelId.trim()
+            : null;
     try {
-        const apiModelId =
-            typeof result.apiModelId === "string" && result.apiModelId.trim().length > 0
-                ? result.apiModelId.trim()
-                : null;
         const pricingKey =
             typeof result.pricingKey === "string" && result.pricingKey.trim().length > 0
                 ? result.pricingKey.trim()
@@ -104,6 +104,11 @@ export async function loadProviderPricing(
                 ctx.capability,
             );
         }
+		if (!card && apiModelId) {
+			// A stable provider-model route was executed. Falling back to the
+			// canonical model can mix sibling SKUs and undercharge the request.
+			throw new Error(`pricing_card_missing_for_executed_route:${result.provider}:${apiModelId}`);
+		}
         if (!card && pricingKey !== result.provider) {
             card = ctx.pricing?.[result.provider] ?? null;
         }
@@ -130,6 +135,7 @@ export async function loadProviderPricing(
         return card;
     } catch (err) {
         console.error("pricing card lookup failed", err);
+        if (apiModelId) throw err;
         return null;
     }
 }
