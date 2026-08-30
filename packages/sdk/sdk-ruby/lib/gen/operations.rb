@@ -243,6 +243,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createWorkspaceScimToken(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/scim/tokens"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -501,9 +507,21 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.getWorkspaceScim(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/scim"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.getWorkspaceSettings(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/settings"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getWorkspaceSso(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/sso"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -747,6 +765,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWorkspaceScimAuditEvents(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/scim/audit"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.openAsyncJobWebSocket(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/async/#{URI.encode_uri_component(path["kind"].to_s)}/#{URI.encode_uri_component(path["id"].to_s)}/ws"
@@ -849,6 +873,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.revokeWorkspaceScimToken(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/scim/tokens/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.rotateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}/rotate"
@@ -945,10 +975,22 @@ module Phaseo
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.updateWorkspaceScim(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/scim"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.updateWorkspaceSettings(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/settings"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceSso(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/sso"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.uploadBatchFile(client, path: nil, query: nil, headers: nil, body: nil)

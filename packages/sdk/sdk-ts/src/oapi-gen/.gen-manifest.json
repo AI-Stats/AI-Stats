@@ -311,9 +311,21 @@
     "models/WorkspaceResponse.ts",
     "models/WorkspaceRole.ts",
     "models/WorkspaceRoutingMode.ts",
+    "models/WorkspaceScimAuditResponse.ts",
+    "models/WorkspaceScimEndpoint.ts",
+    "models/WorkspaceScimEndpointResponse.ts",
+    "models/WorkspaceScimEvent.ts",
+    "models/WorkspaceScimResponse.ts",
+    "models/WorkspaceScimToken.ts",
+    "models/WorkspaceScimTokenCreateRequest.ts",
+    "models/WorkspaceScimTokenCreateResponse.ts",
+    "models/WorkspaceScimUpdateRequest.ts",
     "models/WorkspaceSettings.ts",
     "models/WorkspaceSettingsResponse.ts",
     "models/WorkspaceSettingsUpdateRequest.ts",
+    "models/WorkspaceSsoResponse.ts",
+    "models/WorkspaceSsoSettings.ts",
+    "models/WorkspaceSsoUpdateRequest.ts",
     "models/WorkspaceUpdateRequest.ts"
   ]
 }

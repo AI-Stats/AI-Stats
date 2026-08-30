@@ -30,6 +30,7 @@ import { dataContributionRoutes } from "./data-contribution";
 import { auditEventsRoutes } from "./audit-events";
 import { observabilityRoutes } from "./observability";
 import { routingRoutes } from "./routing";
+import { identityRoutes } from "./identity";
 import {
 	feedbackRoutes,
 	observabilityEventsRoutes,
@@ -66,6 +67,7 @@ platformRouter.route("/settings", settingsRoutes);
 platformRouter.route("/guardrails", guardrailsRoutes);
 platformRouter.route("/management-keys", managementKeysRoutes);
 platformRouter.route("/data-contribution", dataContributionRoutes);
+platformRouter.route("/identity", identityRoutes);
 platformRouter.route("/me", meRoutes);
 platformRouter.route("/", placeholdersRoutes);
 

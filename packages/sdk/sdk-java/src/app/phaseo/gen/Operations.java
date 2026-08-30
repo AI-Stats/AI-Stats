@@ -206,6 +206,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object createWorkspaceScimToken(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/scim/tokens";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object deleteApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
@@ -421,8 +426,18 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object getWorkspaceScim(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/scim";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object getWorkspaceSettings(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/settings";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getWorkspaceSso(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/sso";
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -626,6 +641,11 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listWorkspaceScimAuditEvents(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/scim/audit";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object openAsyncJobWebSocket(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/async/" + (path != null && path.containsKey("kind") ? path.get("kind") : "") + "/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/ws";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -711,6 +731,11 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object revokeWorkspaceScimToken(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/scim/tokens/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
 	public static Object rotateApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/rotate";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -791,9 +816,19 @@ public final class Operations {
 		return client.request("PATCH", resolvedPath, query, headers, body);
 	}
 
+	public static Object updateWorkspaceScim(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/scim";
+		return client.request("PUT", resolvedPath, query, headers, body);
+	}
+
 	public static Object updateWorkspaceSettings(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/settings";
 		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceSso(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/sso";
+		return client.request("PUT", resolvedPath, query, headers, body);
 	}
 
 	public static Object uploadBatchFile(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {

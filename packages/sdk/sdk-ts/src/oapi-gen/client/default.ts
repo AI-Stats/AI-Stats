@@ -5765,6 +5765,56 @@ export async function createWorkspaceInvite(
   });
 }
 
+export type CreateWorkspaceScimTokenParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    expires_at?: string | null;
+    label?: string;
+  };
+};
+
+/**
+ * Creates a provisioning token. The raw token is returned once. Requires the identity add-on and `settings:write`.
+ */
+export async function createWorkspaceScimToken(
+  client: Client,
+  args: CreateWorkspaceScimTokenParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    expires_at?: string | null;
+    id: string;
+    label: string;
+    last_used_at?: string | null;
+    revoked_at?: string | null;
+    token: string;
+    token_prefix: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim/tokens";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      expires_at?: string | null;
+      id: string;
+      label: string;
+      last_used_at?: string | null;
+      revoked_at?: string | null;
+      token: string;
+      token_prefix: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteApiKeyParams = {
   path?: {
     id: string;
@@ -8651,6 +8701,101 @@ export async function getWorkspace(
   });
 }
 
+export type GetWorkspaceScimParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns endpoint status, token metadata, provisioned object counts, and the latest SCIM event.
+ */
+export async function getWorkspaceScim(
+  client: Client,
+  args: GetWorkspaceScimParams = {},
+): Promise<{
+  data: {
+    endpoint: {
+      created_at?: string | null;
+      enabled: boolean;
+      id: string;
+      updated_at?: string | null;
+    } | null;
+    group_count: number;
+    last_event: {
+      action?: string;
+      correlation_id?: string | null;
+      created_at?: string;
+      detail?: {
+        [key: string]: unknown;
+      } | null;
+      http_status?: number;
+      id?: string;
+      outcome?: string;
+      request_id?: string | null;
+      resource_id?: string | null;
+      resource_type?: string | null;
+      scim_type?: string | null;
+    } | null;
+    tokens: {
+      created_at?: string | null;
+      expires_at?: string | null;
+      id: string;
+      label: string;
+      last_used_at?: string | null;
+      revoked_at?: string | null;
+      token_prefix: string;
+    }[];
+    user_count: number;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim";
+  return client.request<{
+    data: {
+      endpoint: {
+        created_at?: string | null;
+        enabled: boolean;
+        id: string;
+        updated_at?: string | null;
+      } | null;
+      group_count: number;
+      last_event: {
+        action?: string;
+        correlation_id?: string | null;
+        created_at?: string;
+        detail?: {
+          [key: string]: unknown;
+        } | null;
+        http_status?: number;
+        id?: string;
+        outcome?: string;
+        request_id?: string | null;
+        resource_id?: string | null;
+        resource_type?: string | null;
+        scim_type?: string | null;
+      } | null;
+      tokens: {
+        created_at?: string | null;
+        expires_at?: string | null;
+        id: string;
+        label: string;
+        last_used_at?: string | null;
+        revoked_at?: string | null;
+        token_prefix: string;
+      }[];
+      user_count: number;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetWorkspaceSettingsParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -8710,6 +8855,47 @@ export async function getWorkspaceSettings(
       routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
       updated_at?: string | null;
       workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceSsoParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns workspace SAML or custom OIDC settings. Requires `settings:read` and an owner or admin identity.
+ */
+export async function getWorkspaceSso(
+  client: Client,
+  args: GetWorkspaceSsoParams = {},
+): Promise<{
+  data: {
+    domains: string[];
+    enabled: boolean;
+    enforced: false;
+    mode: "none" | "saml" | "custom_oidc";
+    provider_identifier: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/sso";
+  return client.request<{
+    data: {
+      domains: string[];
+      enabled: boolean;
+      enforced: false;
+      mode: "none" | "saml" | "custom_oidc";
+      provider_identifier: string | null;
     };
   }>({
     method: "GET",
@@ -13520,6 +13706,66 @@ export async function listWorkspaces(
   });
 }
 
+export type ListWorkspaceScimAuditEventsParams = {
+  path?: Record<string, never>;
+  query?: {
+    before?: string;
+    limit?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists recent SCIM provisioning activity for the workspace.
+ */
+export async function listWorkspaceScimAuditEvents(
+  client: Client,
+  args: ListWorkspaceScimAuditEventsParams = {},
+): Promise<{
+  data: {
+    action?: string;
+    correlation_id?: string | null;
+    created_at?: string;
+    detail?: {
+      [key: string]: unknown;
+    } | null;
+    http_status?: number;
+    id?: string;
+    outcome?: string;
+    request_id?: string | null;
+    resource_id?: string | null;
+    resource_type?: string | null;
+    scim_type?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim/audit";
+  return client.request<{
+    data: {
+      action?: string;
+      correlation_id?: string | null;
+      created_at?: string;
+      detail?: {
+        [key: string]: unknown;
+      } | null;
+      http_status?: number;
+      id?: string;
+      outcome?: string;
+      request_id?: string | null;
+      resource_id?: string | null;
+      resource_type?: string | null;
+      scim_type?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type OpenAsyncJobWebSocketParams = {
   path?: {
     id: string;
@@ -14585,6 +14831,37 @@ export async function retrieveFileContent(
   const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RevokeWorkspaceScimTokenParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Revokes a provisioning token. Requires `settings:write`.
+ */
+export async function revokeWorkspaceScimToken(
+  client: Client,
+  args: RevokeWorkspaceScimTokenParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/scim/tokens/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
     path: resolvedPath,
     query,
     headers,
@@ -15947,6 +16224,47 @@ export async function updateWorkspaceMemberRole(
   });
 }
 
+export type UpdateWorkspaceScimParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    enabled: boolean;
+  };
+};
+
+/**
+ * Updates the workspace SCIM endpoint. Enabling SCIM requires the identity add-on and `settings:write`.
+ */
+export async function updateWorkspaceScim(
+  client: Client,
+  args: UpdateWorkspaceScimParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    enabled: boolean;
+    id: string;
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      enabled: boolean;
+      id: string;
+      updated_at?: string | null;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateWorkspaceSettingsParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -16027,6 +16345,53 @@ export async function updateWorkspaceSettings(
     };
   }>({
     method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceSsoParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    domains?: string[];
+    enabled: boolean;
+    enforced?: false;
+    mode: "none" | "saml" | "custom_oidc";
+    provider_identifier?: string | null;
+  };
+};
+
+/**
+ * Updates SAML or custom OIDC settings. Enabling SSO requires the identity add-on and `settings:write`.
+ */
+export async function updateWorkspaceSso(
+  client: Client,
+  args: UpdateWorkspaceSsoParams = {},
+): Promise<{
+  data: {
+    domains: string[];
+    enabled: boolean;
+    enforced: false;
+    mode: "none" | "saml" | "custom_oidc";
+    provider_identifier: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/sso";
+  return client.request<{
+    data: {
+      domains: string[];
+      enabled: boolean;
+      enforced: false;
+      mode: "none" | "saml" | "custom_oidc";
+      provider_identifier: string | null;
+    };
+  }>({
+    method: "PUT",
     path: resolvedPath,
     query,
     headers,

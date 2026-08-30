@@ -3633,6 +3633,73 @@ module Phaseo
     WorkspaceResponse = Struct.new(:data, keyword_init: true)
     WorkspaceRole = Object
     WorkspaceRoutingMode = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceScimAuditResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceScimEndpoint = Struct.new(:created_at, :enabled, :id, :updated_at, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceScimEndpointResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] action
+    #   @return [String, nil]
+    # @!attribute [rw] correlation_id
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] detail
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] http_status
+    #   @return [Integer, nil]
+    # @!attribute [rw] id
+    #   @return [String, nil]
+    # @!attribute [rw] outcome
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] resource_id
+    #   @return [String, nil]
+    # @!attribute [rw] resource_type
+    #   @return [String, nil]
+    # @!attribute [rw] scim_type
+    #   @return [String, nil]
+    WorkspaceScimEvent = Struct.new(:action, :correlation_id, :created_at, :detail, :http_status, :id, :outcome, :request_id, :resource_id, :resource_type, :scim_type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceScimResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] label
+    #   @return [String]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] revoked_at
+    #   @return [String, nil]
+    # @!attribute [rw] token_prefix
+    #   @return [String]
+    WorkspaceScimToken = Struct.new(:created_at, :expires_at, :id, :label, :last_used_at, :revoked_at, :token_prefix, keyword_init: true)
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] label
+    #   @return [String, nil]
+    WorkspaceScimTokenCreateRequest = Struct.new(:expires_at, :label, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceScimTokenCreateResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    WorkspaceScimUpdateRequest = Struct.new(:enabled, keyword_init: true)
     # @!attribute [rw] alpha_channel_enabled
     #   @return [Boolean, nil]
     # @!attribute [rw] beta_channel_enabled
@@ -3710,6 +3777,31 @@ module Phaseo
     # @!attribute [rw] routing_mode
     #   @return [String, nil]
     WorkspaceSettingsUpdateRequest = Struct.new(:alpha_channel_enabled, :beta_channel_enabled, :byok_fallback_enabled, :io_logging_enabled, :io_logging_include_provider_payloads, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :response_healing_enabled, :response_healing_locked, :response_healing_mode, :routing_mode, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceSsoResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] domains
+    #   @return [Array<String>]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] enforced
+    #   @return [String]
+    # @!attribute [rw] mode
+    #   @return [String]
+    # @!attribute [rw] provider_identifier
+    #   @return [String, nil]
+    WorkspaceSsoSettings = Struct.new(:domains, :enabled, :enforced, :mode, :provider_identifier, keyword_init: true)
+    # @!attribute [rw] domains
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] enforced
+    #   @return [String, nil]
+    # @!attribute [rw] mode
+    #   @return [String]
+    # @!attribute [rw] provider_identifier
+    #   @return [String, nil]
+    WorkspaceSsoUpdateRequest = Struct.new(:domains, :enabled, :enforced, :mode, :provider_identifier, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] slug

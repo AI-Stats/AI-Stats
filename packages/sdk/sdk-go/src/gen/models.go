@@ -3961,6 +3961,62 @@ const (
 )
 
 
+type WorkspaceScimAuditResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimEndpoint struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceScimEndpointResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimEvent struct {
+	Action *string `json:"action,omitempty"`
+	CorrelationId *string `json:"correlation_id,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Detail *map[string]interface{} `json:"detail,omitempty"`
+	HttpStatus *int `json:"http_status,omitempty"`
+	Id *string `json:"id,omitempty"`
+	Outcome *string `json:"outcome,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	ResourceId *string `json:"resource_id,omitempty"`
+	ResourceType *string `json:"resource_type,omitempty"`
+	ScimType *string `json:"scim_type,omitempty"`
+}
+
+type WorkspaceScimResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimToken struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	Label string `json:"label"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	RevokedAt *string `json:"revoked_at,omitempty"`
+	TokenPrefix string `json:"token_prefix"`
+}
+
+type WorkspaceScimTokenCreateRequest struct {
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Label *string `json:"label,omitempty"`
+}
+
+type WorkspaceScimTokenCreateResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimUpdateRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
 type WorkspaceSettings struct {
 	AlphaChannelEnabled *bool `json:"alpha_channel_enabled,omitempty"`
 	BetaChannelEnabled *bool `json:"beta_channel_enabled,omitempty"`
@@ -4005,6 +4061,26 @@ type WorkspaceSettingsUpdateRequest struct {
 	ResponseHealingLocked *bool `json:"response_healing_locked,omitempty"`
 	ResponseHealingMode *string `json:"response_healing_mode,omitempty"`
 	RoutingMode *string `json:"routing_mode,omitempty"`
+}
+
+type WorkspaceSsoResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceSsoSettings struct {
+	Domains []string `json:"domains"`
+	Enabled bool `json:"enabled"`
+	Enforced string `json:"enforced"`
+	Mode string `json:"mode"`
+	ProviderIdentifier *string `json:"provider_identifier"`
+}
+
+type WorkspaceSsoUpdateRequest struct {
+	Domains *[]string `json:"domains,omitempty"`
+	Enabled bool `json:"enabled"`
+	Enforced *string `json:"enforced,omitempty"`
+	Mode string `json:"mode"`
+	ProviderIdentifier *string `json:"provider_identifier,omitempty"`
 }
 
 type WorkspaceUpdateRequest struct {

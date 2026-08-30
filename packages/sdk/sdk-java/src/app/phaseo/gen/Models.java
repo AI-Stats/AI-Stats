@@ -2587,6 +2587,62 @@ public final class Models {
 	public static class WorkspaceRoutingMode {
 	}
 
+	public static class WorkspaceScimAuditResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceScimEndpoint {
+		public String created_at;
+		public Boolean enabled;
+		public String id;
+		public String updated_at;
+	}
+
+	public static class WorkspaceScimEndpointResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceScimEvent {
+		public String action;
+		public String correlation_id;
+		public String created_at;
+		public Object detail;
+		public Integer http_status;
+		public String id;
+		public String outcome;
+		public String request_id;
+		public String resource_id;
+		public String resource_type;
+		public String scim_type;
+	}
+
+	public static class WorkspaceScimResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceScimToken {
+		public String created_at;
+		public String expires_at;
+		public String id;
+		public String label;
+		public String last_used_at;
+		public String revoked_at;
+		public String token_prefix;
+	}
+
+	public static class WorkspaceScimTokenCreateRequest {
+		public String expires_at;
+		public String label;
+	}
+
+	public static class WorkspaceScimTokenCreateResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceScimUpdateRequest {
+		public Boolean enabled;
+	}
+
 	public static class WorkspaceSettings {
 		public Boolean alpha_channel_enabled;
 		public Boolean beta_channel_enabled;
@@ -2631,6 +2687,26 @@ public final class Models {
 		public Boolean response_healing_locked;
 		public Object response_healing_mode;
 		public Object routing_mode;
+	}
+
+	public static class WorkspaceSsoResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceSsoSettings {
+		public java.util.List<String> domains;
+		public Boolean enabled;
+		public Object enforced;
+		public Object mode;
+		public String provider_identifier;
+	}
+
+	public static class WorkspaceSsoUpdateRequest {
+		public java.util.List<String> domains;
+		public Boolean enabled;
+		public Object enforced;
+		public Object mode;
+		public String provider_identifier;
 	}
 
 	public static class WorkspaceUpdateRequest {

@@ -4501,6 +4501,100 @@ class WorkspaceRole { }
 
 class WorkspaceRoutingMode { }
 
+class WorkspaceScimAuditResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceScimEndpoint
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceScimEndpointResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceScimEvent
+{
+	/** @var string|null */
+	public $action;
+	/** @var string|null */
+	public $correlation_id;
+	/** @var string|null */
+	public $created_at;
+	/** @var array<string, mixed>|null */
+	public $detail;
+	/** @var int|null */
+	public $http_status;
+	/** @var string|null */
+	public $id;
+	/** @var string|null */
+	public $outcome;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $resource_id;
+	/** @var string|null */
+	public $resource_type;
+	/** @var string|null */
+	public $scim_type;
+}
+
+class WorkspaceScimResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceScimToken
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $label;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $revoked_at;
+	/** @var string */
+	public $token_prefix;
+}
+
+class WorkspaceScimTokenCreateRequest
+{
+	/** @var string|null */
+	public $expires_at;
+	/** @var string|null */
+	public $label;
+}
+
+class WorkspaceScimTokenCreateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceScimUpdateRequest
+{
+	/** @var bool */
+	public $enabled;
+}
+
 class WorkspaceSettings
 {
 	/** @var bool|null */
@@ -4585,6 +4679,40 @@ class WorkspaceSettingsUpdateRequest
 	public $response_healing_mode;
 	/** @var string|null */
 	public $routing_mode;
+}
+
+class WorkspaceSsoResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceSsoSettings
+{
+	/** @var array */
+	public $domains;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $enforced;
+	/** @var string */
+	public $mode;
+	/** @var string|null */
+	public $provider_identifier;
+}
+
+class WorkspaceSsoUpdateRequest
+{
+	/** @var array|null */
+	public $domains;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $enforced;
+	/** @var string */
+	public $mode;
+	/** @var string|null */
+	public $provider_identifier;
 }
 
 class WorkspaceUpdateRequest

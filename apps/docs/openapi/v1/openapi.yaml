@@ -2457,6 +2457,82 @@ paths:
       responses:
         '200': {description: Cache invalidated, content: {application/json: {schema: {$ref: '#/components/schemas/KeyInvalidateResponse'}}}}
         default: {description: Invalidation failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/sso:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWorkspaceSso
+      summary: Get workspace SSO settings
+      description: Returns workspace SAML or custom OIDC settings. Requires `settings:read` and an owner or admin identity.
+      responses:
+        '200': {description: SSO settings, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceSsoResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceSso
+      summary: Update workspace SSO settings
+      description: Updates SAML or custom OIDC settings. Enabling SSO requires the identity add-on and `settings:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceSsoUpdateRequest'}}}}
+      responses:
+        '200': {description: SSO settings updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceSsoResponse'}}}}
+        default: {description: Request failed or add-on required, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/scim:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWorkspaceScim
+      summary: Get workspace SCIM settings
+      description: Returns endpoint status, token metadata, provisioned object counts, and the latest SCIM event.
+      responses:
+        '200': {description: SCIM settings, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceScim
+      summary: Enable or disable SCIM
+      description: Updates the workspace SCIM endpoint. Enabling SCIM requires the identity add-on and `settings:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimUpdateRequest'}}}}
+      responses:
+        '200': {description: SCIM endpoint updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimEndpointResponse'}}}}
+        default: {description: Request failed or add-on required, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/scim/tokens:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createWorkspaceScimToken
+      summary: Create a SCIM token
+      description: Creates a provisioning token. The raw token is returned once. Requires the identity add-on and `settings:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimTokenCreateRequest'}}}}
+      responses:
+        '201': {description: SCIM token created, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimTokenCreateResponse'}}}}
+        default: {description: Request failed or add-on required, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/scim/tokens/{id}:
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: revokeWorkspaceScimToken
+      summary: Revoke a SCIM token
+      description: Revokes a provisioning token. Requires `settings:write`.
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200': {description: Token revoked, content: {application/json: {schema: {$ref: '#/components/schemas/DeletedResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/scim/audit:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceScimAuditEvents
+      summary: List SCIM audit events
+      description: Lists recent SCIM provisioning activity for the workspace.
+      parameters:
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 50}}
+        - {name: before, in: query, schema: {type: string, format: date-time}}
+      responses:
+        '200': {description: SCIM audit events, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimAuditResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /data-contribution:
     get:
       x-beta: true
@@ -13262,6 +13338,122 @@ components:
         soft_blocked:
           type: boolean
           example: false
+    WorkspaceSsoSettings:
+      type: object
+      required: [enabled, enforced, mode, provider_identifier, domains]
+      properties:
+        enabled: {type: boolean}
+        enforced: {type: boolean, enum: [false]}
+        mode: {type: string, enum: [none, saml, custom_oidc]}
+        provider_identifier: {type: string, nullable: true}
+        domains: {type: array, items: {type: string}}
+      additionalProperties: false
+    WorkspaceSsoUpdateRequest:
+      type: object
+      required: [enabled, mode]
+      properties:
+        enabled: {type: boolean}
+        enforced: {type: boolean, enum: [false]}
+        mode: {type: string, enum: [none, saml, custom_oidc]}
+        provider_identifier: {type: string, nullable: true}
+        domains: {type: array, items: {type: string}}
+      additionalProperties: false
+    WorkspaceSsoResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {$ref: '#/components/schemas/WorkspaceSsoSettings'}
+      additionalProperties: false
+    WorkspaceScimEndpoint:
+      type: object
+      required: [id, enabled]
+      properties:
+        id: {type: string}
+        enabled: {type: boolean}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceScimToken:
+      type: object
+      required: [id, token_prefix, label]
+      properties:
+        id: {type: string}
+        token_prefix: {type: string}
+        label: {type: string}
+        created_at: {type: string, format: date-time, nullable: true}
+        expires_at: {type: string, format: date-time, nullable: true}
+        last_used_at: {type: string, format: date-time, nullable: true}
+        revoked_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceScimEvent:
+      type: object
+      properties:
+        id: {type: string}
+        request_id: {type: string, nullable: true}
+        correlation_id: {type: string, nullable: true}
+        action: {type: string}
+        resource_type: {type: string, nullable: true}
+        resource_id: {type: string, nullable: true}
+        outcome: {type: string}
+        http_status: {type: integer}
+        scim_type: {type: string, nullable: true}
+        detail: {type: object, nullable: true, additionalProperties: true}
+        created_at: {type: string, format: date-time}
+      additionalProperties: false
+    WorkspaceScimResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [endpoint, tokens, user_count, group_count, last_event]
+          properties:
+            endpoint:
+              allOf: [{$ref: '#/components/schemas/WorkspaceScimEndpoint'}]
+              nullable: true
+            tokens: {type: array, items: {$ref: '#/components/schemas/WorkspaceScimToken'}}
+            user_count: {type: integer, minimum: 0}
+            group_count: {type: integer, minimum: 0}
+            last_event:
+              allOf: [{$ref: '#/components/schemas/WorkspaceScimEvent'}]
+              nullable: true
+      additionalProperties: false
+    WorkspaceScimUpdateRequest:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: {type: boolean}
+      additionalProperties: false
+    WorkspaceScimEndpointResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {$ref: '#/components/schemas/WorkspaceScimEndpoint'}
+      additionalProperties: false
+    WorkspaceScimTokenCreateRequest:
+      type: object
+      properties:
+        label: {type: string, minLength: 1, maxLength: 100}
+        expires_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceScimTokenCreateResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/WorkspaceScimToken'
+            - type: object
+              required: [token]
+              properties:
+                token: {type: string, description: Raw SCIM bearer token. Returned only once.}
+      additionalProperties: false
+    WorkspaceScimAuditResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {type: array, items: {$ref: '#/components/schemas/WorkspaceScimEvent'}}
+      additionalProperties: false
     DataContributionCategories:
       type: object
       minProperties: 1

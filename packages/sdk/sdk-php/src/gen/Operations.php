@@ -283,6 +283,13 @@ function createWorkspaceInvite(Client $client, ?array $path = null, ?array $quer
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createWorkspaceScimToken(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/scim/tokens";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -584,10 +591,24 @@ function getWorkspace(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function getWorkspaceScim(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/scim";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function getWorkspaceSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
 	$resolvedPath = "/settings";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getWorkspaceSso(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/sso";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -871,6 +892,13 @@ function listWorkspaces(Client $client, ?array $path = null, ?array $query = nul
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWorkspaceScimAuditEvents(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/scim/audit";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -990,6 +1018,13 @@ function retrieveFileContent(Client $client, ?array $path = null, ?array $query 
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function revokeWorkspaceScimToken(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/scim/tokens/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function rotateApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1102,11 +1137,25 @@ function updateWorkspaceMemberRole(Client $client, ?array $path = null, ?array $
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 
+function updateWorkspaceScim(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/scim";
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
 function updateWorkspaceSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
 	$resolvedPath = "/settings";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceSso(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/sso";
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
 }
 
 function uploadBatchFile(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

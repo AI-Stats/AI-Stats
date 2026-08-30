@@ -2562,6 +2562,62 @@ using WorkspaceRole = std::any;
 
 using WorkspaceRoutingMode = std::any;
 
+struct WorkspaceScimAuditResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceScimEndpoint {
+	std::optional<std::string> created_at;
+	bool enabled;
+	std::string id;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceScimEndpointResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceScimEvent {
+	std::string action;
+	std::optional<std::string> correlation_id;
+	std::string created_at;
+	std::optional<std::map<std::string, std::any>> detail;
+	std::optional<int> http_status;
+	std::string id;
+	std::string outcome;
+	std::optional<std::string> request_id;
+	std::optional<std::string> resource_id;
+	std::optional<std::string> resource_type;
+	std::optional<std::string> scim_type;
+};
+
+struct WorkspaceScimResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceScimToken {
+	std::optional<std::string> created_at;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::string label;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> revoked_at;
+	std::string token_prefix;
+};
+
+struct WorkspaceScimTokenCreateRequest {
+	std::optional<std::string> expires_at;
+	std::string label;
+};
+
+struct WorkspaceScimTokenCreateResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceScimUpdateRequest {
+	bool enabled;
+};
+
 struct WorkspaceSettings {
 	std::optional<bool> alpha_channel_enabled;
 	std::optional<bool> beta_channel_enabled;
@@ -2606,6 +2662,26 @@ struct WorkspaceSettingsUpdateRequest {
 	std::optional<bool> response_healing_locked;
 	std::any response_healing_mode;
 	std::any routing_mode;
+};
+
+struct WorkspaceSsoResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceSsoSettings {
+	std::vector<std::string> domains;
+	bool enabled;
+	std::any enforced;
+	std::any mode;
+	std::optional<std::string> provider_identifier;
+};
+
+struct WorkspaceSsoUpdateRequest {
+	std::vector<std::string> domains;
+	bool enabled;
+	std::any enforced;
+	std::any mode;
+	std::optional<std::string> provider_identifier;
 };
 
 struct WorkspaceUpdateRequest {

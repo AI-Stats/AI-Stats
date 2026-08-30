@@ -6165,6 +6165,129 @@ public sealed class WorkspaceRole { }
 
 public sealed class WorkspaceRoutingMode { }
 
+public sealed class WorkspaceScimAuditResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class WorkspaceScimEndpoint
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+}
+
+public sealed class WorkspaceScimEndpointResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceScimEvent
+{
+	[JsonPropertyName("action")]
+	public string? Action { get; set; }
+
+	[JsonPropertyName("correlation_id")]
+	public string? CorrelationId { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("detail")]
+	public Dictionary<string, object>? Detail { get; set; }
+
+	[JsonPropertyName("http_status")]
+	public int? HttpStatus { get; set; }
+
+	[JsonPropertyName("id")]
+	public string? Id { get; set; }
+
+	[JsonPropertyName("outcome")]
+	public string? Outcome { get; set; }
+
+	[JsonPropertyName("request_id")]
+	public string? RequestId { get; set; }
+
+	[JsonPropertyName("resource_id")]
+	public string? ResourceId { get; set; }
+
+	[JsonPropertyName("resource_type")]
+	public string? ResourceType { get; set; }
+
+	[JsonPropertyName("scim_type")]
+	public string? ScimType { get; set; }
+
+}
+
+public sealed class WorkspaceScimResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceScimToken
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("label")]
+	public string Label { get; set; }
+
+	[JsonPropertyName("last_used_at")]
+	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("revoked_at")]
+	public string? RevokedAt { get; set; }
+
+	[JsonPropertyName("token_prefix")]
+	public string TokenPrefix { get; set; }
+
+}
+
+public sealed class WorkspaceScimTokenCreateRequest
+{
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("label")]
+	public string? Label { get; set; }
+
+}
+
+public sealed class WorkspaceScimTokenCreateResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceScimUpdateRequest
+{
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+}
+
 public sealed class WorkspaceSettings
 {
 	[JsonPropertyName("alpha_channel_enabled")]
@@ -6285,6 +6408,51 @@ public sealed class WorkspaceSettingsUpdateRequest
 
 	[JsonPropertyName("routing_mode")]
 	public string? RoutingMode { get; set; }
+
+}
+
+public sealed class WorkspaceSsoResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceSsoSettings
+{
+	[JsonPropertyName("domains")]
+	public List<string> Domains { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("enforced")]
+	public string Enforced { get; set; }
+
+	[JsonPropertyName("mode")]
+	public string Mode { get; set; }
+
+	[JsonPropertyName("provider_identifier")]
+	public string? ProviderIdentifier { get; set; }
+
+}
+
+public sealed class WorkspaceSsoUpdateRequest
+{
+	[JsonPropertyName("domains")]
+	public List<string>? Domains { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("enforced")]
+	public string? Enforced { get; set; }
+
+	[JsonPropertyName("mode")]
+	public string Mode { get; set; }
+
+	[JsonPropertyName("provider_identifier")]
+	public string? ProviderIdentifier { get; set; }
 
 }
 

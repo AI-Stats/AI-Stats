@@ -2558,6 +2558,62 @@ pub type WorkspaceRole = JsonValue;
 
 pub type WorkspaceRoutingMode = JsonValue;
 
+pub struct WorkspaceScimAuditResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceScimEndpoint {
+	pub created_at: Option<Option<String>>,
+	pub enabled: bool,
+	pub id: String,
+	pub updated_at: Option<Option<String>>,
+}
+
+pub struct WorkspaceScimEndpointResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceScimEvent {
+	pub action: Option<String>,
+	pub correlation_id: Option<Option<String>>,
+	pub created_at: Option<String>,
+	pub detail: Option<Option<HashMap<String, String>>>,
+	pub http_status: Option<i64>,
+	pub id: Option<String>,
+	pub outcome: Option<String>,
+	pub request_id: Option<Option<String>>,
+	pub resource_id: Option<Option<String>>,
+	pub resource_type: Option<Option<String>>,
+	pub scim_type: Option<Option<String>>,
+}
+
+pub struct WorkspaceScimResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceScimToken {
+	pub created_at: Option<Option<String>>,
+	pub expires_at: Option<Option<String>>,
+	pub id: String,
+	pub label: String,
+	pub last_used_at: Option<Option<String>>,
+	pub revoked_at: Option<Option<String>>,
+	pub token_prefix: String,
+}
+
+pub struct WorkspaceScimTokenCreateRequest {
+	pub expires_at: Option<Option<String>>,
+	pub label: Option<String>,
+}
+
+pub struct WorkspaceScimTokenCreateResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceScimUpdateRequest {
+	pub enabled: bool,
+}
+
 pub struct WorkspaceSettings {
 	pub alpha_channel_enabled: Option<Option<bool>>,
 	pub beta_channel_enabled: Option<Option<bool>>,
@@ -2602,6 +2658,26 @@ pub struct WorkspaceSettingsUpdateRequest {
 	pub response_healing_locked: Option<bool>,
 	pub response_healing_mode: Option<String>,
 	pub routing_mode: Option<String>,
+}
+
+pub struct WorkspaceSsoResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceSsoSettings {
+	pub domains: Vec<String>,
+	pub enabled: bool,
+	pub enforced: String,
+	pub mode: String,
+	pub provider_identifier: Option<String>,
+}
+
+pub struct WorkspaceSsoUpdateRequest {
+	pub domains: Option<Vec<String>>,
+	pub enabled: bool,
+	pub enforced: Option<String>,
+	pub mode: String,
+	pub provider_identifier: Option<Option<String>>,
 }
 
 pub struct WorkspaceUpdateRequest {

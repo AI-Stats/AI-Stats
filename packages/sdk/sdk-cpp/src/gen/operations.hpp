@@ -204,6 +204,11 @@ inline Response CreateWorkspaceInvite(Client& client, const std::map<std::string
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateWorkspaceScimToken(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/scim/tokens";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response DeleteApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -419,8 +424,18 @@ inline Response GetWorkspace(Client& client, const std::map<std::string, std::st
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response GetWorkspaceScim(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/scim";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response GetWorkspaceSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/settings";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetWorkspaceSso(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/sso";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -624,6 +639,11 @@ inline Response ListWorkspaces(Client& client, const std::map<std::string, std::
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWorkspaceScimAuditEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/scim/audit";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
 	return client.request("GET", resolved_path, body);
@@ -709,6 +729,11 @@ inline Response RetrieveFileContent(Client& client, const std::map<std::string, 
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response RevokeWorkspaceScimToken(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/scim/tokens/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response RotateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{}) + "/rotate";
 	return client.request("POST", resolved_path, body);
@@ -789,9 +814,19 @@ inline Response UpdateWorkspaceMemberRole(Client& client, const std::map<std::st
 	return client.request("PATCH", resolved_path, body);
 }
 
+inline Response UpdateWorkspaceScim(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/scim";
+	return client.request("PUT", resolved_path, body);
+}
+
 inline Response UpdateWorkspaceSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/settings";
 	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceSso(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/sso";
+	return client.request("PUT", resolved_path, body);
 }
 
 inline Response UploadBatchFile(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {

@@ -220,4 +220,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches identity management authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/identity/sso", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/identity/sso", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

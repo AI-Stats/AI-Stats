@@ -205,6 +205,11 @@ pub fn createWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<St
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createWorkspaceScimToken<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/scim/tokens");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -420,8 +425,18 @@ pub fn getWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn getWorkspaceScim<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/scim");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn getWorkspaceSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/settings");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getWorkspaceSso<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/sso");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -625,6 +640,11 @@ pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, S
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWorkspaceScimAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/scim/audit");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/async/{}/{}/ws", path.get("kind").cloned().unwrap_or_default(), path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -710,6 +730,11 @@ pub fn retrieveFileContent<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn revokeWorkspaceScimToken<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/scim/tokens/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn rotateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}/rotate", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
@@ -790,9 +815,19 @@ pub fn updateWorkspaceMemberRole<T: Transport>(client: &Client<T>, path: &HashMa
 	client.request("PATCH", &resolved_path, body)
 }
 
+pub fn updateWorkspaceScim<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/scim");
+	client.request("PUT", &resolved_path, body)
+}
+
 pub fn updateWorkspaceSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/settings");
 	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceSso<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/sso");
+	client.request("PUT", &resolved_path, body)
 }
 
 pub fn uploadBatchFile<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
