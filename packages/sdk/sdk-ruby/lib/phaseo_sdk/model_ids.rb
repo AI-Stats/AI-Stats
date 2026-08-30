@@ -1041,6 +1041,9 @@ module PhaseoSdk
     # Model ID: perplexity/pplx-embed-v1-4b
     # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
     PERPLEXITY_PPLX_EMBED_V1_4B = "perplexity/pplx-embed-v1-4b"
+    # Model ID: phaseo/auto
+    # Model page: https://phaseo.app/models/phaseo/auto
+    PHASEO_AUTO = "phaseo/auto"
     # Model ID: phaseo/free
     # Model page: https://phaseo.app/models/phaseo/free
     PHASEO_FREE = "phaseo/free"
@@ -2037,6 +2040,7 @@ module PhaseoSdk
     ModelIds::OPENAI_WHISPER_LARGE_V3_TURBO,
     ModelIds::PERPLEXITY_PPLX_EMBED_V1_0_6B,
     ModelIds::PERPLEXITY_PPLX_EMBED_V1_4B,
+    ModelIds::PHASEO_AUTO,
     ModelIds::PHASEO_FREE,
     ModelIds::POOLSIDE_LAGUNA_M_1_FREE,
     ModelIds::POOLSIDE_LAGUNA_S_2_1_FREE,

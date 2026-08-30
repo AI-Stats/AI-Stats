@@ -36,6 +36,7 @@ export default function SettingsSidebar({
 	showBroadcast = true,
 	showWebhooks = true,
 	showEnterprise = false,
+	showAutoRouting = false,
 	showInternal = false,
 }: {
 	/**
@@ -46,12 +47,13 @@ export default function SettingsSidebar({
 	showBroadcast?: boolean;
 	showWebhooks?: boolean;
 	showEnterprise?: boolean;
+	showAutoRouting?: boolean;
 	showInternal?: boolean;
 }) {
 	const pathname = usePathname();
 	const { isMobile, setOpenMobile, state, toggleSidebar } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
-	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks, showEnterprise, showInternal });
+	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks, showEnterprise, showAutoRouting, showInternal });
 
 	function matchScore(item: NavItem) {
 		const path = pathname ?? "";

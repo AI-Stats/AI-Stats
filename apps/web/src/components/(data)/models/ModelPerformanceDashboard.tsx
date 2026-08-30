@@ -2,11 +2,8 @@
 
 import { useRef, useState } from "react";
 import ModelPerformanceCards from "./ModelPerformanceCards";
-import ModelSuccessChart from "./ModelSuccessChart";
-import ModelTokenTrajectoryChart from "./ModelTokenTrajectory";
-import { Activity, Globe2, Loader2 } from "lucide-react";
+import { Activity, CircleAlert, Globe2, Loader2 } from "lucide-react";
 import type { ModelPerformanceMetrics } from "@/lib/fetchers/models/getModelPerformance";
-import type { ModelTokenTrajectory } from "@/lib/fetchers/models/getModelTokenTrajectory";
 import type { ModelPerformanceColo } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import {
 	CLOUDFLARE_COLOS,
@@ -32,12 +29,21 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { buildSingleProviderPercentileSeries } from "@/components/(data)/models/modelPerformancePercentiles";
+import { Badge } from "@/components/ui/badge";
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import {
 	MODEL_PERFORMANCE_REFRESH_INTERVAL_MS,
 	useModelPerformanceMetrics,
 } from "./useModelPerformanceMetrics";
+import {
+	getLatestPerformanceSampleAt,
+	hasPerformanceHistory,
+	isPerformanceDataStale,
+} from "./modelPerformanceFreshness";
 
 import {
 	Empty,
@@ -50,30 +56,29 @@ import {
 interface ModelPerformanceDashboardProps {
 	modelId: string;
 	metrics: ModelPerformanceMetrics;
-	tokenTrajectory: ModelTokenTrajectory | null;
 	availableColos: ModelPerformanceColo[];
 	headerDescription: string;
-	mode?: "overview" | "page";
 }
 
-function formatReleaseDate(date: string | null | undefined): string | null {
-	if (!date) return null;
-	const parsed = new Date(date);
-	if (!Number.isFinite(parsed.getTime())) return null;
-	return parsed.toLocaleDateString("en-GB", {
-		day: "2-digit",
+function formatSampleTime(value: string | null): string {
+	if (!value) return "Unknown";
+	return new Intl.DateTimeFormat("en-GB", {
+		day: "numeric",
 		month: "short",
 		year: "numeric",
-	});
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+		timeZone: "UTC",
+		timeZoneName: "short",
+	}).format(new Date(value));
 }
 
 export default function ModelPerformanceDashboard({
 	modelId,
 	metrics,
-	tokenTrajectory,
 	availableColos,
 	headerDescription,
-	mode = "overview",
 }: ModelPerformanceDashboardProps) {
 	const [initialSelection] = useState<{
 		colo: string | null;
@@ -136,15 +141,9 @@ export default function ModelPerformanceDashboard({
 		setSelectedPercentile(nextPercentile);
 	};
 
-	const hasTelemetry =
-		activeMetrics.summary.totalRequests > 0 ||
-		activeMetrics.hourly.some((point) => point.requests > 0);
-	const showDetailedPanels = mode === "page";
-	const cumulativeTokens =
-		activeMetrics.cumulativeTokens != null
-			? Math.round(activeMetrics.cumulativeTokens).toLocaleString()
-			: "N/A";
-	const cumulativeSince = formatReleaseDate(activeMetrics.releaseDate);
+	const hasTelemetry = hasPerformanceHistory(activeMetrics);
+	const isStale = hasTelemetry && isPerformanceDataStale(activeMetrics);
+	const latestSampleAt = getLatestPerformanceSampleAt(activeMetrics);
 	const regionLabel = selectedColo?.toUpperCase() ?? "All Locations";
 	const usageByColo = new Map(
 		availableColos
@@ -157,22 +156,44 @@ export default function ModelPerformanceDashboard({
 			(colo) => colo.continent === continent && usageByColo.has(colo.code),
 		),
 	})).filter((group) => group.colos.length > 0);
+	const trendProviderPoints = activeMetrics.providerHourly7d?.length
+		? activeMetrics.providerHourly7d
+		: activeMetrics.providerDaily7d;
 	const providerCount = new Set(
-		activeMetrics.providerDaily7d
+		trendProviderPoints
 			.filter((point) => point.requests > 0)
 			.map((point) => point.provider),
 	).size;
 	const showPercentileSelector = providerCount > 1;
-	const singleProviderPercentileSeries = buildSingleProviderPercentileSeries(
-		providerCount,
-		activeMetrics.providerPercentileDaily7d,
-	);
 
 	return (
 		<section className="space-y-6">
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div className="space-y-1">
-					<h2 className="text-xl font-semibold tracking-tight">Performance</h2>
+					<div className="flex flex-wrap items-center gap-2">
+						<h2 className="text-xl font-semibold tracking-tight">Performance</h2>
+						{isStale ? (
+							<HoverCard openDelay={150} closeDelay={100}>
+								<HoverCardTrigger asChild>
+									<button type="button" aria-label="About stale performance data">
+										<Badge
+											variant="outline"
+											className="border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+										>
+											<CircleAlert aria-hidden="true" data-icon="inline-start" />
+											Stale data
+										</Badge>
+									</button>
+								</HoverCardTrigger>
+								<HoverCardContent align="start" className="w-72 rounded-lg p-3">
+									<p className="font-medium text-foreground">Performance data is over 24 hours old</p>
+									<p className="mt-1 text-xs text-muted-foreground">
+										Latest observation: {formatSampleTime(latestSampleAt)}. The charts remain visible for historical context.
+									</p>
+								</HoverCardContent>
+							</HoverCard>
+						) : null}
+					</div>
 					<p className="text-sm text-muted-foreground">{headerDescription}</p>
 				</div>
 				<div className="ml-auto flex items-center gap-2">
@@ -257,50 +278,24 @@ export default function ModelPerformanceDashboard({
 				</div>
 			</div>
 			{hasTelemetry ? (
-				<>
-					<ModelPerformanceCards
-						summary={activeMetrics.summary}
-						prevSummary={activeMetrics.prevSummary}
-						hourly={activeMetrics.hourly}
-						providerDaily7d={activeMetrics.providerDaily7d}
-						chartProviderDaily7d={singleProviderPercentileSeries ?? undefined}
-						qualitySeries={activeMetrics.qualitySeries}
-					/>
-					{showDetailedPanels ? (
-						<>
-							<Card className="px-5 py-4">
-								<div className="flex flex-wrap items-center justify-between gap-2">
-									<div className="space-y-1">
-										<p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-											Cumulative Tokens
-										</p>
-										<p className="text-2xl font-semibold text-foreground">
-											{cumulativeTokens}
-										</p>
-									</div>
-									<p className="text-xs text-muted-foreground">
-										{cumulativeSince
-											? `Since ${cumulativeSince}`
-											: "Since model release"}
-									</p>
-								</div>
-							</Card>
-							<ModelSuccessChart successSeries={activeMetrics.successSeries} />
-							<ModelTokenTrajectoryChart data={tokenTrajectory} />
-						</>
-					) : null}
-				</>
+				<ModelPerformanceCards
+					summary={activeMetrics.summary}
+					prevSummary={activeMetrics.prevSummary}
+					hourly={activeMetrics.hourly}
+					providerDaily7d={activeMetrics.providerDaily7d}
+					providerHourly7d={activeMetrics.providerHourly7d ?? []}
+					qualitySeries={activeMetrics.qualitySeries}
+				/>
 			) : (
 				<Empty className="rounded-lg border p-8">
 					<EmptyHeader>
 						<EmptyMedia variant="icon">
 							<Activity className="size-5" />
 						</EmptyMedia>
-						<EmptyTitle>No gateway telemetry yet</EmptyTitle>
+						<EmptyTitle>No gateway telemetry in the past 7 days</EmptyTitle>
 						<EmptyDescription>
-							This model hasn&apos;t processed any gateway traffic in the
-							selected window. Live charts will appear as soon as requests
-							arrive.
+							Hourly charts will appear when this model processes gateway traffic
+							in the selected location.
 						</EmptyDescription>
 					</EmptyHeader>
 				</Empty>

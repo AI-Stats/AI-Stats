@@ -826,6 +826,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "crofai:glm-5.3",
+    "provider_model_slug": "glm-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q8_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-30T16:18:34",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/v1/models",
+        "accessed_at": "2026-08-30T16:18:34Z",
+        "notes": "CrofAI's live models API lists the glm-5.3 route with Q8_0 quantization, reasoning controls, a 1M-token context window, and a 131,072-token output limit."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-30T16:18:34Z",
+      "notes": "Verified against CrofAI's live first-party models API."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.3-flash",
     "provider_api_model_id": "crofai:glm-5.3-flash",
     "provider_model_slug": "glm-5.3-flash",

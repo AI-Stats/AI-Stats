@@ -1,0 +1,13 @@
+---
+title: "Check Gateway health"
+sidebarTitle: "Health check"
+badge: "Beta"
+openapi: "GET /health"
+description: "Return a minimal health snapshot from the Phaseo Gateway."
+---
+
+Use this unauthenticated endpoint for a lightweight reachability check. For current incidents and incident history, use the [Phaseo status page](https://status.phaseo.app).
+
+<Note>
+A successful health response does not prove that every provider or model route is available. Use the default `GET /v1/models` response to confirm current routability.
+</Note>

@@ -670,36 +670,35 @@ export function computeBillSummary(
         let resolvedPlan = pricingPlan;
         let conservativeCoverageFallback = false;
         if (!candidates.length && pricingPlan !== "standard") {
-            const requestedPlanDefinesMeter = card.rules.some(
-                (rule) => rule.pricing_plan === pricingPlan && rule.meter === dim,
-            );
-            if (requestedPlanDefinesMeter) {
-                candidates = card.rules
+            const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
+            if (fallbackCandidates.length) {
+                candidates = fallbackCandidates;
+                resolvedPlan = "standard";
+                logPricingDebug("meter_plan_fallback", {
+                    meter: dim,
+                    quantity: qty,
+                    requestedPricingPlan: pricingPlan,
+                    fallbackPricingPlan: "standard",
+                    candidateRuleIds: candidates.map((r) => r.id),
+                });
+            } else if (pricingPlan !== "batch") {
+                // Batch reservations/finalization reject unmatched paid usage;
+                // interactive tiers must recover provider cost after output is delivered.
+                const coverageCandidates = card.rules
                     .filter((rule) =>
                         (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
                         rule.meter === dim,
                     )
                     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-                conservativeCoverageFallback = true;
-                resolvedPlan = pricingPlan;
-                logPricingDebug("meter_plan_coverage_fallback", {
-                    meter: dim,
-                    quantity: qty,
-                    requestedPricingPlan: pricingPlan,
-                    candidateRuleIds: candidates.map((rule) => rule.id),
-                });
-            }
-            if (!conservativeCoverageFallback) {
-                const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
-                if (fallbackCandidates.length) {
-                    candidates = fallbackCandidates;
-                    resolvedPlan = "standard";
-                    logPricingDebug("meter_plan_fallback", {
+                if (coverageCandidates.length) {
+                    candidates = coverageCandidates;
+                    conservativeCoverageFallback = true;
+                    resolvedPlan = pricingPlan;
+                    logPricingDebug("meter_plan_coverage_fallback", {
                         meter: dim,
                         quantity: qty,
                         requestedPricingPlan: pricingPlan,
-                        fallbackPricingPlan: "standard",
-                        candidateRuleIds: candidates.map((r) => r.id),
+                        candidateRuleIds: candidates.map((rule) => rule.id),
                     });
                 }
             }

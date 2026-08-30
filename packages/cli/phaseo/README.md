@@ -118,7 +118,7 @@ phaseo api get /v1/models
 
 ## Coding-agent integrations
 
-Install and configure the primary coding harnesses with one command:
+Install and configure a coding harness with one command:
 
 ```bash
 phaseo login
@@ -132,7 +132,7 @@ phaseo dsh
 phaseo openclaw
 ```
 
-`phaseo <harness>` installs a missing harness with its supported installer, creates a dedicated non-expiring gateway key, and writes the harness configuration. Node-distributed harnesses use an available package manager; Prime Agent uses its official macOS/Linux installer. Use `--skip-install` when the harness is managed separately, or `--dry-run` to preview the installer and file changes. The explicit `phaseo setup <harness>` form remains supported.
+`phaseo <harness>` checks whether the harness is installed. When it is missing in an interactive terminal, Phaseo shows the exact supported install command and asks for confirmation before running it. After installation, Phaseo creates a dedicated non-expiring gateway key and writes the harness configuration. Node-distributed harnesses use an available package manager; Hermes Agent and Prime Agent use their official installers only after approval. Non-interactive runs fail with the install command instead of making an unattended system change. Use `--skip-install` when the harness is managed separately, or `--dry-run` to preview the installer and file changes. The explicit `phaseo setup <harness>` form remains supported.
 
 OpenCode, DeepSeek Harness, Pi, and Prime Agent receive every active Phaseo text model compatible with the OpenAI Chat Completions protocol. Select the initial model with `--model`, or use `--catalog default` when only that model should be configured:
 

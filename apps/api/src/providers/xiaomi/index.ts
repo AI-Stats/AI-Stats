@@ -6,6 +6,7 @@ import type { ProviderAdapter, ProviderExecuteArgs, AdapterResult } from "../typ
 import * as chat from "./endpoints/chat";
 import * as responses from "./endpoints/responses";
 import * as audioSpeech from "./endpoints/audio-speech";
+import * as audioTranscription from "./endpoints/audio-transcription";
 
 export const XiaomiAdapter: ProviderAdapter = {
     name: "xiaomi",
@@ -19,7 +20,9 @@ export const XiaomiAdapter: ProviderAdapter = {
         if (args.endpoint === "audio.speech") {
             return audioSpeech.exec(args);
         }
+		if (args.endpoint === "audio.transcription") {
+			return audioTranscription.exec(args);
+		}
         throw new Error(`xiaomi: unsupported endpoint ${args.endpoint}`);
     },
 };
-

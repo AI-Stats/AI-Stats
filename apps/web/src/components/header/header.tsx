@@ -11,17 +11,22 @@ import { Button } from "@/components/ui/button";
 import HeaderShell from "./HeaderShell";
 import SettingsSidebarTrigger from "@/components/(gateway)/settings/SettingsSidebarTrigger";
 import { BrandMenu } from "./BrandMenu";
+import { autoRoutingFlag } from "@/lib/flags";
 
 const releaseMessage = "Introducing Phaseo Gateway";
 const docsLink = "https://phaseo.app/docs/v1";
 const showHeaderAnnouncement = false;
+
+async function GatedSettingsSidebarTrigger() {
+	return <SettingsSidebarTrigger showAutoRouting={await autoRoutingFlag()} />;
+}
 
 export default function Header() {
 	const headerContent = (
 		<div className="flex h-[var(--site-header-height,4rem)] items-center justify-between gap-[var(--site-header-gap,1.5rem)]">
 			<div className="flex min-w-0 flex-1 items-center gap-[var(--site-header-left-gap,1.25rem)] overflow-hidden">
 				<Suspense fallback={null}>
-					<SettingsSidebarTrigger />
+					<GatedSettingsSidebarTrigger />
 				</Suspense>
 				<BrandMenu>
 					<Link
@@ -146,4 +151,3 @@ export default function Header() {
 		</header>
 	);
 }
-

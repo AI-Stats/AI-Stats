@@ -24,6 +24,8 @@ export type GatewaySupportedModel = {
 	previousModelId: string | null;
 	releaseDate: string | null;
 	announcementDate: string | null;
+	inputPricePerMillion?: number | null;
+	outputPricePerMillion?: number | null;
 	isAvailable: boolean;
 	chatBlockedReasons?: Array<{ source: "workspace" | "account" | "guardrail"; label: string; settingsHref: string }>;
 };

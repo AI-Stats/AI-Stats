@@ -5,12 +5,14 @@ import type {
   ImageModelV4,
   TranscriptionModelV4,
   SpeechModelV4,
+  RerankingModelV4,
 } from '@ai-sdk/provider';
 import { PhaseoLanguageModel } from './phaseo-language-model.js';
 import { PhaseoEmbeddingModel } from './phaseo-embedding-model.js';
 import { PhaseoImageModel } from './phaseo-image-model.js';
 import { PhaseoTranscriptionModel } from './phaseo-transcription-model.js';
 import { PhaseoSpeechModel } from './phaseo-speech-model.js';
+import { PhaseoRerankingModel } from './phaseo-reranking-model.js';
 import type { PhaseoSettings, PhaseoModelSettings } from './phaseo-settings.js';
 
 /**
@@ -18,10 +20,24 @@ import type { PhaseoSettings, PhaseoModelSettings } from './phaseo-settings.js';
  */
 const DEFAULT_BASE_URL = 'https://api.phaseo.app/v1';
 
-export type PhaseoProvider = ProviderV4 & ((
-  modelId: string,
-  modelSettings?: PhaseoModelSettings
-) => LanguageModelV4);
+export type PhaseoProvider = Omit<
+  ProviderV4,
+  'rerankingModel' | 'transcriptionModel' | 'speechModel'
+> & {
+  textEmbeddingModel(
+    modelId: string,
+    modelSettings?: PhaseoModelSettings
+  ): EmbeddingModelV4;
+  rerankingModel(modelId: string): RerankingModelV4;
+  transcriptionModel(
+    modelId: string,
+    modelSettings?: PhaseoModelSettings
+  ): TranscriptionModelV4;
+  speechModel(
+    modelId: string,
+    modelSettings?: PhaseoModelSettings
+  ): SpeechModelV4;
+} & ((modelId: string, modelSettings?: PhaseoModelSettings) => LanguageModelV4);
 
 /**
  * Creates a Phaseo provider instance for use with Vercel AI SDK.
@@ -154,6 +170,15 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
       },
       modelSettings
     );
+  };
+
+  provider.rerankingModel = (modelId: string): RerankingModelV4 => {
+    return new PhaseoRerankingModel(modelId, {
+      apiKey,
+      baseURL,
+      headers: settings.headers,
+      fetch: settings.fetch,
+    });
   };
 
   return provider as PhaseoProvider;

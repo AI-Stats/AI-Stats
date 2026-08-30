@@ -128,6 +128,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("voyageai", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("anthropic", "embeddings")).toBeNull();
 		expect(resolveProviderExecutor("cloudflare", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("tensorix", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("tensorx", "embeddings")).toBeTruthy();
 	});
 
 	it("resolves Cloudflare-hosted native media capabilities", () => {
@@ -333,10 +335,10 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("thinking-machines", "audio.transcription")).toBeNull();
 		expect(resolveProviderExecutor("thinking-machines", "video.generation")).toBeNull();
 		expect(resolveProviderExecutor("xiaomi", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("xiaomi", "audio.transcription")).toBeTruthy();
 		for (const capability of [
 			"images.generations",
 			"images.edits",
-			"audio.transcription",
 			"audio.translations",
 			"video.generation",
 		]) {

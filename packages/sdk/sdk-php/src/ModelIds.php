@@ -1046,6 +1046,9 @@ final class ModelIds
     /** Model ID: perplexity/pplx-embed-v1-4b. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b */
     public const PERPLEXITY_PPLX_EMBED_V1_4B = 'perplexity/pplx-embed-v1-4b';
 
+    /** Model ID: phaseo/auto. Model page: https://phaseo.app/models/phaseo/auto */
+    public const PHASEO_AUTO = 'phaseo/auto';
+
     /** Model ID: phaseo/free. Model page: https://phaseo.app/models/phaseo/free */
     public const PHASEO_FREE = 'phaseo/free';
 

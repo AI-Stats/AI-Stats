@@ -5,7 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { fetchFrontendAppDetails } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import EntityStickyHeader from "@/components/(data)/EntityStickyHeader";
 import ModelPageToc, { type ModelPageTocItem } from "@/components/(data)/model/ModelPageToc";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AppLogo from "@/components/(data)/apps/AppLogo";
 
 export default async function AppDetailShell({
 	appId,
@@ -60,10 +60,13 @@ export default async function AppDetailShell({
 			<div className="container mx-auto px-4 py-6 md:py-8">
 				<div id="app-detail-primary-header" className="mb-6 flex w-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 					<div className="flex min-w-0 items-center gap-4">
-						<Avatar className="size-14 shrink-0 rounded-md border border-border/70">
-							<AvatarImage src={appData.image_url ?? undefined} alt={appData.title} className="object-cover" />
-							<AvatarFallback className="rounded-md text-lg font-semibold">{appInitial}</AvatarFallback>
-						</Avatar>
+						<AppLogo
+							src={appData.image_url}
+							alt={appData.title}
+							fallback={appInitial}
+							className="size-14 shrink-0"
+							fallbackClassName="text-lg"
+						/>
 						<div className="min-w-0">
 							<h1 className="truncate text-3xl font-bold tracking-tight">{appData.title}</h1>
 							<p className="mt-1.5 text-sm text-muted-foreground">Public usage trends and model distribution</p>

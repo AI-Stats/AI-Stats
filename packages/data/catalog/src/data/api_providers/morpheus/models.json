@@ -71,7 +71,7 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": ["encoding_format", "dimensions", "user"],
+        "params": ["encoding_format", "user"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -106,12 +106,18 @@
         "url": "https://api.mor.org/api/v1/openapi.json",
         "accessed_at": "2026-08-12T00:00:00Z",
         "notes": "Live v1.45.0 OpenAPI defines the request, response, usage, authentication, and validation contract."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://apidocs.mor.org/api-reference/embeddings/create-embeddings",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Current request reference documents input, model, encoding_format, and user; it does not expose a dimensions override."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Verified provider slug and embeddings capability against current first-party documentation and live OpenAPI."
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Verified provider slug and embeddings request fields against current first-party documentation."
     },
     "rate_limits": [
       {

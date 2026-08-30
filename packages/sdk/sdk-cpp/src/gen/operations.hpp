@@ -84,6 +84,11 @@ inline Response CreateParse(Client& client, const std::map<std::string, std::str
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateRealtimeSession(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateRerank(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/rerank";
 	return client.request("POST", resolved_path, body);
@@ -366,11 +371,6 @@ inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::str
 
 inline Response ListWorkspaces(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
-	return client.request("GET", resolved_path, body);
-}
-
-inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
-	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
 	return client.request("GET", resolved_path, body);
 }
 

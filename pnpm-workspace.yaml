@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*/*"
+  - "examples/ai-sdk-v7-quickstart"
 
 publicHoistPattern:
   - "@electron-forge/*"

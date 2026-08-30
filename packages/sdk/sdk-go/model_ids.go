@@ -1045,6 +1045,9 @@ const (
 	// Model ID: perplexity/pplx-embed-v1-4b
 	// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
 	ModelIDPerplexityPplxEmbedV14b gen.ModelId = "perplexity/pplx-embed-v1-4b"
+	// Model ID: phaseo/auto
+	// Model page: https://phaseo.app/models/phaseo/auto
+	ModelIDPhaseoAuto gen.ModelId = "phaseo/auto"
 	// Model ID: phaseo/free
 	// Model page: https://phaseo.app/models/phaseo/free
 	ModelIDPhaseoFree gen.ModelId = "phaseo/free"
@@ -2041,6 +2044,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiWhisperLargeV3Turbo,
 	ModelIDPerplexityPplxEmbedV106b,
 	ModelIDPerplexityPplxEmbedV14b,
+	ModelIDPhaseoAuto,
 	ModelIDPhaseoFree,
 	ModelIDPoolsideLagunaM1Free,
 	ModelIDPoolsideLagunaS21Free,

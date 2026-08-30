@@ -14,6 +14,8 @@ const pruneExpiredDataContributionsMock = vi.fn();
 const runPaymentMethodExpiryNotificationJobMock = vi.fn();
 const runNotificationDeliveryJobMock = vi.fn();
 const enqueueModelDeprecationNotificationsMock = vi.fn();
+const runAccountDeletionPurgeJobMock = vi.fn();
+const pruneExpiredGatewayIoLogsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	clearRuntime: (...args: unknown[]) => clearRuntimeMock(...args),
@@ -68,6 +70,14 @@ vi.mock("@/pipeline/classification/data-contribution", () => ({
 		pruneExpiredDataContributionsMock(...args),
 }));
 
+vi.mock("@/pipeline/privacy/account-deletion", () => ({
+	runAccountDeletionPurgeJob: (...args: unknown[]) => runAccountDeletionPurgeJobMock(...args),
+}));
+
+vi.mock("@/pipeline/audit/io-retention-expiry", () => ({
+	pruneExpiredGatewayIoLogs: (...args: unknown[]) => pruneExpiredGatewayIoLogsMock(...args),
+}));
+
 import { handleScheduledEvent } from "./index";
 
 function scheduledEventAt(iso: string): ScheduledController {
@@ -94,6 +104,15 @@ describe("handleScheduledEvent", () => {
 		runPaymentMethodExpiryNotificationJobMock.mockReset();
 		runNotificationDeliveryJobMock.mockReset().mockResolvedValue({ queued: 0, sent: 0, failed: 0 });
 		enqueueModelDeprecationNotificationsMock.mockReset().mockResolvedValue({ workspaces: 0, enqueued: 0 });
+		runAccountDeletionPurgeJobMock.mockReset().mockResolvedValue({
+			claimed: 0,
+			completed: 0,
+			failed: 0,
+			deadlineMissed: 0,
+			r2ObjectsDeleted: 0,
+			kvKeysDeleted: 0,
+		});
+		pruneExpiredGatewayIoLogsMock.mockReset().mockResolvedValue({ selected: 0, deleted: 0, failed: 0 });
 		oauthCleanupRpcMock.mockResolvedValue({ error: null });
 		runAsyncWebhookRetriesJobMock.mockResolvedValue({
 			startedAt: "2026-06-10T00:05:00.000Z",
@@ -144,6 +163,10 @@ describe("handleScheduledEvent", () => {
 		});
 		expect(runModelDiscoveryJobMock).not.toHaveBeenCalled();
 		expect(pruneExpiredDataContributionsMock).toHaveBeenCalledWith(1000);
+		expect(pruneExpiredGatewayIoLogsMock).toHaveBeenCalledWith({
+			asOf: new Date("2026-06-10T00:05:00.000Z"),
+			limit: 250,
+		});
 	});
 
 	it("allows the v2 analytics outbox batch size to be configured", async () => {

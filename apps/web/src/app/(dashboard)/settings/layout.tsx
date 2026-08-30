@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Suspense } from "react";
 import NoFooterStyle from "@/components/layout/NoFooterStyle";
-import { batchApiFlag, enterpriseSelfServePreviewEnabled } from "@/lib/flags";
+import { autoRoutingFlag, batchApiFlag, enterpriseSelfServePreviewEnabled } from "@/lib/flags";
 import { connection } from "next/server";
 
 export const metadata = {
@@ -41,9 +41,10 @@ export default async function SettingsLayout({
 	}
 	const showBroadcast = initialData.showBroadcast;
 	let showWebhooks = false;
-	const [webhooksEnabled, showEnterprise] = await Promise.all([
+	const [webhooksEnabled, showEnterprise, showAutoRouting] = await Promise.all([
 		batchApiFlag(),
 		enterpriseSelfServePreviewEnabled(),
+		autoRoutingFlag(),
 	]);
 	showWebhooks = webhooksEnabled;
 
@@ -58,7 +59,7 @@ export default async function SettingsLayout({
 					// Keep desktop sidebar fixed under sticky chrome (notice + header).
 					className="top-[calc(var(--site-header-height,3.75rem)+var(--site-notice-height,0px)+1px)] bottom-0 h-auto bg-white dark:bg-zinc-950"
 				>
-					<SettingsSidebar showBroadcast={showBroadcast} showWebhooks={showWebhooks} showEnterprise={showEnterprise} showInternal={initialData.accountContext?.isInternalAdmin === true} />
+					<SettingsSidebar showBroadcast={showBroadcast} showWebhooks={showWebhooks} showEnterprise={showEnterprise} showAutoRouting={showAutoRouting} showInternal={initialData.accountContext?.isInternalAdmin === true} />
 				</Sidebar>
 				<SidebarInset className="flex w-0 min-w-0 flex-1 flex-col overflow-visible bg-white dark:bg-zinc-950">
 					<div className="container mx-auto flex min-h-full w-full flex-col px-4 sm:px-5 lg:px-6 xl:px-8">

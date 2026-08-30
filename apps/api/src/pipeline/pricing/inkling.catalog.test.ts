@@ -25,7 +25,7 @@ describe("Thinking Machines Inkling promotional billing", () => {
 			},
 			card,
 			{},
-			"standard",
+			"256k",
 		);
 
 		expect(result.cost_usd_str).toBe(expectedCost);

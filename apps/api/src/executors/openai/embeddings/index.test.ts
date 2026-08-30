@@ -177,6 +177,29 @@ describe("openai embeddings executor", () => {
 		}))).rejects.toThrow("perplexity_embeddings_dimensions_out_of_range");
 	});
 
+	it("rejects Morpheus dimension overrides before sending an upstream request", async () => {
+		const mock = installFetchMock([]);
+		const result = await executor(buildArgs({
+			providerId: "morpheus",
+			providerModelSlug: "morpheus-embedding-v1",
+			ir: {
+				model: "morpheus/morpheus-embedding-v1",
+				dimensions: 256,
+			},
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({
+			error: {
+				code: "unsupported_parameter",
+				param: "dimensions",
+			},
+		});
+		expect(mock.calls).toHaveLength(0);
+	});
+
 	it("preserves slash-delimited provider model slugs for OpenAI-compatible providers", async () => {
 		const mock = installFetchMock([
 			{
@@ -587,6 +610,122 @@ describe("openai embeddings executor", () => {
 		expect(mock.calls[0]?.bodyJson?.output_dtype).toBe("float");
 		expect(mock.calls[0]?.bodyJson?.output_dimension).toBe(512);
 		expect(mock.calls[0]?.bodyJson?.provider_options).toBeUndefined();
+	});
+
+	it("routes one-document Voyage contextual embeddings and flattens its native result", async () => {
+		setupRuntimeFromEnv({
+			VOYAGE_API_KEY: "test-voyage-key",
+		} as any);
+
+		const mock = installFetchMock([
+			{
+				match: (url) => url === "https://api.voyage.example/v1/contextualizedembeddings",
+				response: jsonResponse({
+					model: "voyage-context-3",
+					data: [{
+						index: 0,
+						data: [
+							{ index: 0, embedding: [0.11, 0.22], text: "First chunk" },
+							{ index: 1, embedding: [0.33, 0.44], text: "Second chunk" },
+						],
+					}],
+					usage: { total_tokens: 8 },
+				}),
+			},
+		]);
+
+		const result = await executor(buildArgs({
+			providerId: "voyage",
+			ir: {
+				model: "voyage/voyage-context-3",
+				input: ["First chunk", "Second chunk"],
+				encodingFormat: "float",
+				dimensions: 512,
+				providerOptions: {
+					voyage: {
+						inputType: "document",
+						outputDtype: "int8",
+					},
+				},
+			},
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			model: "voyage-context-3",
+			inputs: [["First chunk", "Second chunk"]],
+			input_type: "document",
+			output_dimension: 512,
+			output_dtype: "int8",
+		});
+		expect(mock.calls[0]?.bodyJson?.input).toBeUndefined();
+		expect(mock.calls[0]?.bodyJson?.encoding_format).toBeUndefined();
+		expect((result as any).ir?.data).toEqual([
+			{ index: 0, embedding: [0.11, 0.22] },
+			{ index: 1, embedding: [0.33, 0.44] },
+		]);
+		expect((result as any).bill?.usage?.total_tokens).toBe(8);
+	});
+
+	it("keeps Voyage contextual queries independent and reindexes the flattened response", async () => {
+		setupRuntimeFromEnv({
+			VOYAGE_API_KEY: "test-voyage-key",
+		} as any);
+
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.voyage.example/v1/contextualizedembeddings",
+			response: jsonResponse({
+				model: "voyage-context-3",
+				data: [
+					{ index: 0, data: [{ index: 0, embedding: [0.11, 0.22], text: "First query" }] },
+					{ index: 1, data: [{ index: 0, embedding: [0.33, 0.44], text: "Second query" }] },
+				],
+				usage: { total_tokens: 6 },
+			}),
+		}]);
+
+		const result = await executor(buildArgs({
+			providerId: "voyage",
+			ir: {
+				model: "voyage/voyage-context-3",
+				input: ["First query", "Second query"],
+				providerOptions: { voyage: { inputType: "query" } },
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			inputs: [["First query"], ["Second query"]],
+			input_type: "query",
+		});
+		expect((result as any).ir?.data).toEqual([
+			{ index: 0, embedding: [0.11, 0.22] },
+			{ index: 1, embedding: [0.33, 0.44] },
+		]);
+	});
+
+	it("rejects Voyage contextual shapes that cannot preserve document grouping", async () => {
+		setupRuntimeFromEnv({
+			VOYAGE_API_KEY: "test-voyage-key",
+		} as any);
+
+		await expect(executor(buildArgs({
+			providerId: "voyage",
+			ir: {
+				model: "voyage/voyage-context-3",
+				input: [["document one"], ["document two"]] as any,
+			},
+		}))).rejects.toThrow("voyage_contextualized_embeddings_require_one_text_document");
+
+		await expect(executor(buildArgs({
+			providerId: "voyage",
+			ir: {
+				model: "voyage/voyage-context-3",
+				providerOptions: { voyage: { truncation: false } },
+			},
+		}))).rejects.toThrow("voyage_contextualized_embeddings_truncation_unsupported");
 	});
 
 	it("falls back to total_tokens when embeddings usage omits input tokens", async () => {

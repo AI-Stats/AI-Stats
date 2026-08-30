@@ -1045,6 +1045,9 @@ public final class ModelIds {
     /** Model ID: <code>perplexity/pplx-embed-v1-4b</code>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b */
     public static final String PERPLEXITY_PPLX_EMBED_V1_4B = "perplexity/pplx-embed-v1-4b";
 
+    /** Model ID: <code>phaseo/auto</code>. Model page: https://phaseo.app/models/phaseo/auto */
+    public static final String PHASEO_AUTO = "phaseo/auto";
+
     /** Model ID: <code>phaseo/free</code>. Model page: https://phaseo.app/models/phaseo/free */
     public static final String PHASEO_FREE = "phaseo/free";
 
