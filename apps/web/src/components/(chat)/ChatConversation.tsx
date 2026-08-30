@@ -954,6 +954,7 @@ export function ChatConversation({
 								onSelectPrompt={handleSelectEvaluationPrompt}
 								temporaryMode={temporaryMode}
 								onSelectionAction={handleSelectionAction}
+								onOpenModelPicker={onOpenModelPicker}
 							/>
 						</MessageScroller.Content>
 					</MessageScroller.Viewport>
