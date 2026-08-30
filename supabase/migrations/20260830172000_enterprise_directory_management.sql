@@ -1,4 +1,5 @@
 -- Transactional helpers for management API directory mutations.
+-- phaseo:allow-destructive-migration reason: department deletion is an explicit management API action that atomically removes dependent grants and audit-tracks the change
 
 create or replace function public.management_create_workspace_department(
   p_workspace_id uuid, p_name text, p_description text, p_icon text, p_color text,
