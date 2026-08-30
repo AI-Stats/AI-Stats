@@ -147,6 +147,7 @@ const ISSUE_OPTIONS: IssueOption[] = [
 	},
 ];
 const ISSUE_VALUES = new Set(ISSUE_OPTIONS.map((option) => option.value));
+const TAWK_TICKET_URL = "https://phaseo.tawk.help";
 
 type TawkApi = {
 	hideWidget?: () => void;
@@ -352,10 +353,9 @@ function TawkSupportLauncher({
 		<div className="rounded-md border border-border/60 px-4 py-4">
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<p className="text-sm font-medium">Live chat or email</p>
+					<p className="text-sm font-medium">Live chat, ticket, or email</p>
 					<p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-						Start a live chat from this page, or open a prefilled email with
-						the context we need.
+						Chat now, create a tracked support ticket, or open a prefilled email.
 					</p>
 					{userEmail ? (
 						<p className="mt-2 text-xs text-muted-foreground">
@@ -394,6 +394,12 @@ function TawkSupportLauncher({
 							<ArrowUpRight className="size-4" />
 						</Button>
 					)}
+					<Button asChild type="button" variant="outline" className="w-full">
+						<a href={TAWK_TICKET_URL} target="_blank" rel="noreferrer">
+							Create ticket
+							<ArrowUpRight className="size-4" />
+						</a>
+					</Button>
 					<Button asChild type="button" variant="outline" className="w-full">
 						<a href={emailHref}>
 							Send email
