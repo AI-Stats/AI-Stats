@@ -28,6 +28,7 @@ Release only when all of these are true:
 - Product docs show the unversioned provider as the default AI SDK 7 install.
 - npm `latest` resolves to 2.x after the release PR is merged and published.
 - Using an authorized npm maintainer session, add the `ai-sdk-v6` dist-tag to the newest published 1.x release, then verify `npm view @phaseo/ai-sdk-provider dist-tags --json`. The OIDC-only publishing workflow cannot mutate dist-tags, and npm rejects semver-like tag names such as a bare `v6`.
+- Publish the tested ProviderV2 artifact as `@phaseo/ai-sdk-provider@0.5.0` with the `ai-sdk-v5` tag. Because it is a new version, the OIDC workflow can publish it with a non-default tag without moving `latest`.
 
 After publication, submit a small upstream PR to the [AI SDK community providers directory](https://ai-sdk.dev/providers/community-providers/custom-providers). Include:
 

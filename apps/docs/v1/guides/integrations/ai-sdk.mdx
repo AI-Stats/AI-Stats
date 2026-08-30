@@ -28,27 +28,23 @@ Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SD
 
 ### AI SDK 5 compatibility
 
-AI SDK 5 only accepts the older v2 provider contract. Use Vercel's version-matched OpenAI-compatible provider with Phaseo:
+AI SDK 5 accepts the older ProviderV2 contract. Install Phaseo's dedicated compatibility release:
 
 ```bash
-npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
 ```
 
 ```ts
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { phaseo } from "@phaseo/ai-sdk-provider";
 import { generateText } from "ai";
-
-const phaseo = createOpenAICompatible({
-	name: "phaseo",
-	apiKey: process.env.PHASEO_API_KEY,
-	baseURL: "https://api.phaseo.app/v1",
-});
 
 const result = await generateText({
 	model: phaseo("openai/gpt-4o"),
 	prompt: "Summarize this in one sentence.",
 });
 ```
+
+The v5 line supports text generation and streaming, tools, structured output, embeddings, and image generation. Standardized reranking requires the current AI SDK 7 provider contract.
 
 ## Basic usage
 

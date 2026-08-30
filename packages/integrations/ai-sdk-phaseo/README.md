@@ -30,11 +30,11 @@ npm install @phaseo/ai-sdk-provider ai@^7
 # AI SDK 6 / Provider v3 maintenance line
 npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
 
-# AI SDK 5 compatibility (OpenAI-compatible provider)
-npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
+# AI SDK 5 / Provider v2 compatibility line
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
 ```
 
-The unversioned provider install follows npm's `latest` tag, which points to the active AI SDK 7-compatible line after the 2.x release. Provider 1.x remains maintained for AI SDK 6 while AI SDK 7 is current, and will be marked deprecated when AI SDK 8 becomes stable. See [SUPPORT.md](./SUPPORT.md).
+The unversioned provider install follows npm's `latest` tag, which points to the active AI SDK 7-compatible line after the 2.x release. Provider 1.x remains maintained for AI SDK 6, and the `ai-sdk-v5` dist-tag selects the ProviderV2 compatibility line. See [SUPPORT.md](./SUPPORT.md).
 
 ## Quick Start
 

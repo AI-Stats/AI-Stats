@@ -4,6 +4,7 @@
 | --- | --- | --- | --- |
 | `2.x` | AI SDK 7 | `ProviderV4` | Active |
 | `1.x` | AI SDK 6 | `ProviderV3` | Maintenance |
+| `0.5.x` (`ai-sdk-v5`) | AI SDK 5 | `ProviderV2` | Legacy compatibility |
 
 For new projects, install the active line without a Phaseo package version:
 
@@ -21,6 +22,16 @@ npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
 The intended convenience selector is `@phaseo/ai-sdk-provider@ai-sdk-v6`.
 `@v6` is not used because npm dist-tags share a namespace with semantic
 versions and rejects tags that can be interpreted as version ranges.
+
+AI SDK 5 has a dedicated compatibility release:
+
+```bash
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
+```
+
+It covers the ProviderV2 text, streaming, tool, structured-output, embedding,
+and image surfaces. Capabilities introduced by newer provider contracts,
+including standardized reranking, require the current line.
 
 The current major line receives new features, compatibility work, and fixes. The
 maintenance line receives compatibility, security, and critical bug fixes where
