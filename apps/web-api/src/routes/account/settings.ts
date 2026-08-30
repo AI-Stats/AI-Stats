@@ -406,8 +406,20 @@ accountSettingsRouter.get("/account/danger", async (c) => {
 accountSettingsRouter.delete("/account", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const dataClient = getDataClient(c.env);
+	const identityResult = await dataClient
+		.from("resend_contact_identities")
+		.select("email")
+		.eq("user_id", user.id);
+	if (identityResult.error) {
+		return c.json({ error: "account_contact_cleanup_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
+	const contactEmails = [...new Set([
+		user.email,
+		...(identityResult.data ?? []).map((identity) => identity.email),
+	].map((email) => String(email ?? "").trim().toLowerCase()).filter(Boolean))];
 	try {
-		await deleteResendContact(c.env, user.email);
+		for (const email of contactEmails) await deleteResendContact(c.env, email);
 	} catch (cleanupError) {
 		console.error("account_resend_contact_delete_failed", {
 			userId: user.id,
@@ -415,7 +427,7 @@ accountSettingsRouter.delete("/account", async (c) => {
 		});
 		return c.json({ error: "account_contact_cleanup_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
-	const { error } = await getDataClient(c.env).auth.admin.deleteUser(user.id);
+	const { error } = await dataClient.auth.admin.deleteUser(user.id);
 	if (error) return c.json({ error: "account_delete_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const avatarKey = ownedProfileAvatarKey(c.env, c.req.raw, user.userMetadata.avatar_url, user.id);
 	if (avatarKey && c.env.PROFILE_AVATARS_BUCKET) {

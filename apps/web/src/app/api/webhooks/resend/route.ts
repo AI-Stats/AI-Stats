@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 import {
 	extractResendRecipient,
 	hashRecipientEmail,
@@ -21,7 +22,11 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: "invalid_resend_webhook" }, { status: 400 });
 	}
 
-	const rawBody = await request.text();
+	const bodyResult = await readBoundedTextBody(request, 256 * 1024);
+	if (!bodyResult.ok) {
+		return NextResponse.json({ error: "resend_webhook_body_too_large" }, { status: 413 });
+	}
+	const rawBody = bodyResult.text;
 	let payload: ResendWebhookPayload;
 	try {
 		const resend = new Resend(String(process.env.RESEND_API_KEY ?? "re_webhook_verification"));

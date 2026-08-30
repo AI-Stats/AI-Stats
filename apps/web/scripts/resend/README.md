@@ -30,6 +30,8 @@ Delivery hygiene also requires `RESEND_WEBHOOK_SECRET` in the web runtime. Confi
 Resend webhook endpoint as `https://phaseo.app/api/webhooks/resend` for delivered, bounced,
 complained, failed, and suppressed events. Verified events are deduplicated by their Svix ID;
 bounced, complained, and suppressed recipients are hashed and excluded from future retries.
+Prior sign-in addresses are retained in a service-role-only identity table so account deletion
+can remove every corresponding Resend contact after an email change.
 
 When this flag is on:
 - signup emits `user.created`
