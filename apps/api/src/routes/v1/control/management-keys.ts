@@ -14,6 +14,7 @@ import {
 	normalizeScopeInput,
 } from "@/routes/auth.helpers";
 import { resolveActiveKeyPepper } from "@/lib/security/keyPepper";
+import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 import { enforceWorkspaceKeyLimit } from "./management-helpers";
 import {
 	isResponse,
@@ -35,6 +36,14 @@ type ManagementKeyRow = Record<string, unknown> & {
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 250;
+const LIMIT_FIELDS = [
+	"dailyRequests",
+	"weeklyRequests",
+	"monthlyRequests",
+	"dailyCostNanos",
+	"weeklyCostNanos",
+	"monthlyCostNanos",
+] as const;
 
 function selectColumns(): string {
 	return [
@@ -77,6 +86,21 @@ function normalizeLimitPatch(body: Record<string, unknown>): Record<string, unkn
 	if (body.monthlyCostNanos !== undefined) patch.monthly_limit_cost_nanos = body.monthlyCostNanos;
 	if (body.softBlocked !== undefined) patch.soft_blocked = body.softBlocked;
 	return patch;
+}
+
+function validateManagementKeyFields(body: Record<string, unknown>): string | null {
+	if (body.name !== undefined && (typeof body.name !== "string" || body.name.trim().length === 0)) {
+		return "name must be a non-empty string";
+	}
+	if (body.paused !== undefined && typeof body.paused !== "boolean") return "paused must be a boolean";
+	if (body.softBlocked !== undefined && typeof body.softBlocked !== "boolean") return "softBlocked must be a boolean";
+	for (const field of LIMIT_FIELDS) {
+		const value = body[field];
+		if (value !== undefined && value !== null && (!Number.isSafeInteger(value) || Number(value) < 0)) {
+			return `${field} must be a non-negative integer or null`;
+		}
+	}
+	return null;
 }
 
 function resolveManagementKeyScopes(body: Record<string, unknown>) {
@@ -151,6 +175,24 @@ function formatManagementKey(row: ManagementKeyRow) {
 	};
 }
 
+async function auditManagementKey(
+	auth: { workspaceId: string; userId?: string | null; requestId?: string | null },
+	action: string,
+	key: ManagementKeyRow,
+	metadata?: Record<string, unknown>,
+) {
+	await recordWorkspaceAuditEvent(getSupabaseAdmin(), {
+		workspaceId: auth.workspaceId,
+		actorUserId: auth.userId,
+		action,
+		targetType: "management_key",
+		targetId: key.id,
+		targetName: key.name ?? null,
+		metadata,
+		requestId: auth.requestId,
+	});
+}
+
 async function issueManagementKey(args: {
 	workspaceId: string;
 	name: string;
@@ -223,7 +265,9 @@ async function handleCreateManagementKey(req: Request) {
 	if (roleError) return roleError;
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
-	const name = String(body.name ?? "").trim();
+	const validationMessage = validateManagementKeyFields(body);
+	if (validationMessage) return json({ error: "bad_request", message: validationMessage }, 400, { "Cache-Control": "no-store" });
+	const name = typeof body.name === "string" ? body.name.trim() : "";
 	if (!name) return json({ error: "bad_request", message: "name is required" }, 400, { "Cache-Control": "no-store" });
 
 	try {
@@ -240,6 +284,11 @@ async function handleCreateManagementKey(req: Request) {
 			paused: body.paused === true,
 			createdBy: auth.value.userId ?? null,
 		});
+		await auditManagementKey(auth.value, "management_key.created", data, {
+			template: "template" in scopes ? scopes.template : null,
+			expires_at: expiresAt ?? null,
+			paused: data.status === "paused",
+		});
 		return json({ data }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		if (String(error?.message ?? "").includes("KEY_PEPPER_ACTIVE is not configured")) {
@@ -248,6 +297,9 @@ async function handleCreateManagementKey(req: Request) {
 				503,
 				{ "Cache-Control": "no-store" },
 			);
+		}
+		if (String(error?.message ?? "").startsWith("expires_at")) {
+			return json({ error: "bad_request", message: error.message }, 400, { "Cache-Control": "no-store" });
 		}
 		return internalServerError("management_keys.create", error);
 	}
@@ -294,6 +346,8 @@ async function handleUpdateManagementKey(req: Request) {
 	if (!id) return json({ error: "bad_request", message: "Management key id is required" }, 400, { "Cache-Control": "no-store" });
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
+	const validationMessage = validateManagementKeyFields(body);
+	if (validationMessage) return json({ error: "bad_request", message: validationMessage }, 400, { "Cache-Control": "no-store" });
 
 	try {
 		const patch: Record<string, unknown> = normalizeLimitPatch(body);
@@ -328,8 +382,14 @@ async function handleUpdateManagementKey(req: Request) {
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to update management key");
 		if (!data) return json({ error: "not_found", message: "Management key not found" }, 404, { "Cache-Control": "no-store" });
+		await auditManagementKey(auth.value, "management_key.updated", data as unknown as ManagementKeyRow, {
+			changed_fields: Object.keys(patch),
+		});
 		return json({ data: formatManagementKey(data as unknown as ManagementKeyRow) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
+		if (String(error?.message ?? "").startsWith("expires_at")) {
+			return json({ error: "bad_request", message: error.message }, 400, { "Cache-Control": "no-store" });
+		}
 		return internalServerError("management_keys.update", error);
 	}
 }
@@ -349,10 +409,11 @@ async function handleDeleteManagementKey(req: Request) {
 			.delete()
 			.eq("workspace_id", auth.value.workspaceId)
 			.eq("id", id)
-			.select("id")
+			.select("id, name")
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to delete management key");
 		if (!data) return json({ error: "not_found", message: "Management key not found" }, 404, { "Cache-Control": "no-store" });
+		await auditManagementKey(auth.value, "management_key.deleted", data as unknown as ManagementKeyRow);
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("management_keys.delete", error);

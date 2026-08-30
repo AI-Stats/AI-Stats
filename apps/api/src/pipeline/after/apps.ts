@@ -248,10 +248,10 @@ export async function ensureAppId(params: {
             },
         };
 
-        const findExisting = async (): Promise<{ id: string; category: string | null } | null> => {
+        const findExisting = async (): Promise<{ id: string; category: string | null; managementOverrides: Set<string> } | null> => {
             const { data, error } = await supabase
                 .from("api_apps")
-                .select("id,category")
+                .select("id,category,meta")
                 .eq("workspace_id", workspaceId)
                 .eq("app_key", app_key)
                 .order("last_seen", { ascending: false })
@@ -262,7 +262,15 @@ export async function ensureAppId(params: {
             }
             const first = Array.isArray(data) ? data[0] : null;
             return typeof first?.id === "string"
-                ? { id: first.id, category: typeof first.category === "string" ? first.category : null }
+                ? {
+                    id: first.id,
+                    category: typeof first.category === "string" ? first.category : null,
+                    managementOverrides: new Set(
+                        Array.isArray((first.meta as Record<string, unknown> | null)?.management_overrides)
+                            ? ((first.meta as Record<string, unknown>).management_overrides as unknown[]).map(String)
+                            : [],
+                    ),
+                }
                 : null;
         };
 
@@ -272,13 +280,13 @@ export async function ensureAppId(params: {
             const { error: updateError } = await supabase
                 .from("api_apps")
                 .update({
-                    title: payload.title,
-                    url: payload.url,
-                    is_active: true,
+                    ...(!existing.managementOverrides.has("title") ? { title: payload.title } : {}),
+                    ...(!existing.managementOverrides.has("url") ? { url: payload.url } : {}),
+                    ...(!existing.managementOverrides.has("is_active") ? { is_active: true } : {}),
                     last_seen: nowIso,
                     updated_at: nowIso,
-                    meta: payload.meta,
-                    ...(category ? { category } : {}),
+                    meta: { ...payload.meta, management_overrides: [...existing.managementOverrides] },
+                    ...(category && !existing.managementOverrides.has("category") ? { category } : {}),
                 })
                 .eq("id", existing.id)
                 .eq("workspace_id", workspaceId);
@@ -334,4 +342,3 @@ export async function ensureAppId(params: {
         }
     }
 }
-

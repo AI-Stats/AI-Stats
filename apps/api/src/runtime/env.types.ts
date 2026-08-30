@@ -25,6 +25,9 @@ export type GatewayBindings = {
 	V2_ANALYTICS_OUTBOX_LIMIT?: string;
 	OTEL_EXPORT_ENABLED?: string;
 	OTEL_EXPORT_OUTBOX_LIMIT?: string;
+	INVITE_ENCRYPTION_KEY?: string;
+	HMAC_ENCRYPTION_KEY?: string;
+	SCIM_TOKEN_PEPPER?: string;
     OAUTH_STRICT_RATE_LIMITER?: RateLimit;
     OAUTH_TOKEN_RATE_LIMITER?: RateLimit;
 	REALTIME_RELAY_RATE_LIMITER?: RateLimit;
@@ -362,6 +365,7 @@ export type GatewayBindings = {
     NODE_ENV?: string;
     BYOK_KMS_KEY_V1_B64?: string;
     BYOK_ACTIVE_KEY_VERSION?: string;
+    BYOK_FINGERPRINT_PEPPER?: string;
 };
 
 export type GatewayRuntime = {

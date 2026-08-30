@@ -5,6 +5,7 @@ import { setKeyVersion } from "@/core/kv";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { bumpWorkspacePolicyVersion } from "@/pipeline/before/workspacePolicy";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
+import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 import { json, withRuntime } from "@/routes/utils";
 import {
 	isResponse,
@@ -33,6 +34,17 @@ const WRITABLE_FIELDS = new Set([
 	"provider_restriction_provider_ids",
 	"provider_restriction_enforce_allowed",
 ]);
+
+const SETTINGS_COLUMNS = ["workspace_id", ...WRITABLE_FIELDS, "updated_at"].join(",");
+
+function formatSettings(row: Record<string, unknown> | null | undefined, workspaceId: string) {
+	const source = row ?? {};
+	return Object.fromEntries([
+		["workspace_id", workspaceId],
+		...Array.from(WRITABLE_FIELDS, (field) => [field, source[field] ?? null]),
+		["updated_at", source.updated_at ?? null],
+	]);
+}
 
 const CAMEL_TO_SNAKE: Record<string, string> = {
 	routingMode: "routing_mode",
@@ -77,16 +89,41 @@ const GATEWAY_CONTEXT_FIELDS = new Set([
 	"io_logging_include_provider_payloads",
 ]);
 
-function normalizeSettingsPatch(body: Record<string, unknown>): Record<string, unknown> {
+function normalizeStringList(value: unknown): string[] | null {
+	if (!Array.isArray(value) || value.length > 64) return null;
+	const values = [...new Set(value.map((item) => String(item ?? "").trim()).filter(Boolean))];
+	return values.every((item) => item.length <= 128) ? values : null;
+}
+
+function normalizeSettingsPatch(body: Record<string, unknown>): { data: Record<string, unknown> } | { error: string } {
 	const patch: Record<string, unknown> = {};
 	for (const [rawKey, value] of Object.entries(body)) {
 		const key = CAMEL_TO_SNAKE[rawKey] ?? rawKey;
 		if (WRITABLE_FIELDS.has(key)) patch[key] = value;
 	}
-	if (patch.beta_channel_enabled === false) {
-		patch.alpha_channel_enabled = false;
+	if (patch.routing_mode !== undefined && !["balanced", "price", "latency", "throughput"].includes(String(patch.routing_mode))) {
+		return { error: "routing_mode must be balanced, price, latency, or throughput" };
 	}
-	return patch;
+	if (patch.response_healing_mode !== undefined && !["safe", "strict"].includes(String(patch.response_healing_mode))) {
+		return { error: "response_healing_mode must be safe or strict" };
+	}
+	if (patch.provider_restriction_mode !== undefined && !["none", "allowlist", "blocklist"].includes(String(patch.provider_restriction_mode))) {
+		return { error: "provider_restriction_mode must be none, allowlist, or blocklist" };
+	}
+	for (const [field, value] of Object.entries(patch)) {
+		if (field === "routing_mode" || field === "response_healing_mode" || field === "provider_restriction_mode" || field === "provider_restriction_provider_ids") continue;
+		if (typeof value !== "boolean") return { error: `${field} must be a boolean` };
+	}
+	if (patch.provider_restriction_provider_ids !== undefined) {
+		const providerIds = normalizeStringList(patch.provider_restriction_provider_ids);
+		if (!providerIds) return { error: "provider_restriction_provider_ids must contain at most 64 provider ids" };
+		patch.provider_restriction_provider_ids = providerIds;
+	}
+	if (patch.alpha_channel_enabled === true && patch.beta_channel_enabled === false) {
+		return { error: "alpha_channel_enabled requires beta_channel_enabled" };
+	}
+	if (patch.beta_channel_enabled === false) patch.alpha_channel_enabled = false;
+	return { data: patch };
 }
 
 async function invalidateWorkspaceGatewayContextCache(workspaceId: string): Promise<void> {
@@ -116,11 +153,11 @@ async function handleGetSettings(req: Request) {
 	try {
 		const { data, error } = await getSupabaseAdmin()
 			.from("workspace_settings")
-			.select("*")
+			.select(SETTINGS_COLUMNS)
 			.eq("workspace_id", auth.value.workspaceId)
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to fetch workspace settings");
-		return json({ data: data ?? { workspace_id: auth.value.workspaceId, routing_mode: "balanced" } }, 200, { "Cache-Control": "no-store" });
+		return json({ data: formatSettings(data as unknown as Record<string, unknown> | null, auth.value.workspaceId) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("settings.get", error);
 	}
@@ -136,7 +173,11 @@ async function handleUpdateSettings(req: Request) {
 
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
-	const patch = normalizeSettingsPatch(body);
+	const normalized = normalizeSettingsPatch(body);
+	if ("error" in normalized) {
+		return json({ error: "bad_request", message: normalized.error }, 400, { "Cache-Control": "no-store" });
+	}
+	const patch = normalized.data;
 	if (Object.keys(patch).length === 0) {
 		return json({ error: "bad_request", message: "No supported settings fields were provided" }, 400, { "Cache-Control": "no-store" });
 	}
@@ -150,7 +191,7 @@ async function handleUpdateSettings(req: Request) {
 		const { data, error } = await getSupabaseAdmin()
 			.from("workspace_settings")
 			.upsert(payload, { onConflict: "workspace_id" })
-			.select("*")
+			.select(SETTINGS_COLUMNS)
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to update workspace settings");
 		if (Object.keys(patch).some((field) => WORKSPACE_POLICY_FIELDS.has(field))) {
@@ -159,7 +200,16 @@ async function handleUpdateSettings(req: Request) {
 		if (Object.keys(patch).some((field) => GATEWAY_CONTEXT_FIELDS.has(field))) {
 			await invalidateWorkspaceGatewayContextCache(auth.value.workspaceId);
 		}
-		return json({ data }, 200, { "Cache-Control": "no-store" });
+		await recordWorkspaceAuditEvent(getSupabaseAdmin(), {
+			workspaceId: auth.value.workspaceId,
+			actorUserId: auth.value.userId,
+			action: "routing.policy.updated",
+			targetType: "workspace_routing_policy",
+			targetId: auth.value.workspaceId,
+			metadata: { changed_fields: Object.keys(patch) },
+			requestId: auth.value.requestId,
+		});
+		return json({ data: formatSettings(data as unknown as Record<string, unknown> | null, auth.value.workspaceId) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("settings.update", error);
 	}

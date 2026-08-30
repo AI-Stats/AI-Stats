@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { inferenceRouter } from "@/routes/v1/data";
+import { platformRouter } from "@/routes/v1/control";
 
 const HTTP_METHODS = new Set([
 	"GET",
@@ -34,6 +35,23 @@ const PUBLIC_DATA_ROUTE_PREFIXES = [
 	"/files",
 ] as const;
 
+const MANAGEMENT_ROUTE_PREFIXES = [
+	"/activity", "/analytics", "/apps", "/audit-events", "/budgets", "/byok", "/credits",
+	"/data-contribution", "/events", "/feedback", "/guardrails", "/identity", "/key", "/keys",
+	"/logs", "/management-keys", "/notifications", "/oauth-clients", "/observability", "/presets",
+	"/preset-test-runs", "/routing", "/security", "/settings", "/webhook-endpoints", "/workspaces",
+] as const;
+
+const INTERNAL_DATA_OPERATIONS = new Set([
+	"GET /audio/realtime/sessions/{param}/relay",
+	"POST /audio/realtime/sessions",
+	"POST /audio/realtime/sessions/{param}/connected",
+	"POST /audio/realtime/sessions/{param}/extend",
+	"POST /audio/realtime/sessions/{param}/finalize",
+	"POST /audio/realtime/sessions/{param}/usage",
+	"POST /security/report-leaked-key",
+]);
+
 const SPEC_PATH = path.resolve(
 	path.dirname(fileURLToPath(import.meta.url)),
 	"../../docs/openapi/v1/openapi.yaml",
@@ -47,6 +65,10 @@ function normalizePath(value: string): string {
 
 function isPublicDataRoute(pathName: string): boolean {
 	return PUBLIC_DATA_ROUTE_PREFIXES.some((prefix) => pathName === prefix || pathName.startsWith(prefix));
+}
+
+function isTrackedRoute(pathName: string): boolean {
+	return isPublicDataRoute(pathName) || MANAGEMENT_ROUTE_PREFIXES.some((prefix) => pathName === prefix || pathName.startsWith(`${prefix}/`));
 }
 
 function parseSpecOperations(specText: string): Set<string> {
@@ -73,7 +95,7 @@ function parseSpecOperations(specText: string): Set<string> {
 		const methodMatch = line.match(
 			/^    (get|post|put|patch|delete|head|options|trace):\s*$/i,
 		);
-		if (methodMatch && currentPath && isPublicDataRoute(currentPath)) {
+		if (methodMatch && currentPath && isTrackedRoute(currentPath)) {
 			operations.add(`${methodMatch[1].toUpperCase()} ${normalizePath(currentPath)}`);
 		}
 	}
@@ -83,17 +105,17 @@ function parseSpecOperations(specText: string): Set<string> {
 
 function collectRouteOperations(): Set<string> {
 	const operations = new Set<string>();
-	const routes = [
-		...((inferenceRouter as any).routes ?? []),
-	] as Array<{ method?: string; path?: string }>;
+	const routes = [...((inferenceRouter as any).routes ?? []), ...((platformRouter as any).routes ?? [])] as Array<{ method?: string; path?: string }>;
 
 	for (const route of routes) {
 		const method = String(route.method ?? "").toUpperCase();
 		const routePath = String(route.path ?? "");
 		if (!HTTP_METHODS.has(method) || !routePath) continue;
-		if (!isPublicDataRoute(routePath)) continue;
+		if (!isTrackedRoute(routePath)) continue;
 		if (routePath.startsWith("/async/")) continue;
-		operations.add(`${method} ${normalizePath(routePath)}`);
+		const operation = `${method} ${normalizePath(routePath)}`;
+		if (INTERNAL_DATA_OPERATIONS.has(operation)) continue;
+		operations.add(operation);
 	}
 
 	return operations;

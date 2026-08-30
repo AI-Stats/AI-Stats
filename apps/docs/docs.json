@@ -205,6 +205,7 @@
 								"expanded": false,
 								"pages": [
 									"v1/guides/workspaces",
+									"v1/guides/workspace-audit-log",
 									"v1/developers/management-api-keys"
 								]
 							},
@@ -473,7 +474,8 @@
 										"group": "Activity",
 										"expanded": false,
 										"pages": [
-											"v1/api-reference/endpoint/activity"
+											"v1/api-reference/endpoint/activity",
+											"v1/api-reference/endpoint/audit-events"
 										]
 									},
 									{
@@ -491,6 +493,17 @@
 										]
 									},
 									{
+										"group": "Budgets",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/budgets-list",
+											"v1/api-reference/endpoint/budgets-create",
+											"v1/api-reference/endpoint/budgets-get",
+											"v1/api-reference/endpoint/budgets-update",
+											"v1/api-reference/endpoint/budgets-delete"
+										]
+									},
+									{
 										"group": "API Keys",
 										"expanded": false,
 										"pages": [
@@ -498,8 +511,22 @@
 											"v1/api-reference/endpoint/keys-list",
 											"v1/api-reference/endpoint/keys-create",
 											"v1/api-reference/endpoint/keys-get",
+											"v1/api-reference/endpoint/keys-rotate",
 											"v1/api-reference/endpoint/keys-delete",
-											"v1/api-reference/endpoint/keys-update"
+											"v1/api-reference/endpoint/keys-update",
+											"v1/api-reference/endpoint/keys-rotate",
+											"v1/api-reference/endpoint/keys-invalidate"
+										]
+									},
+									{
+										"group": "Management Keys",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/management-keys-list",
+											"v1/api-reference/endpoint/management-keys-create",
+											"v1/api-reference/endpoint/management-keys-get",
+											"v1/api-reference/endpoint/management-keys-update",
+											"v1/api-reference/endpoint/management-keys-delete"
 										]
 									},
 									{
@@ -510,7 +537,82 @@
 											"v1/api-reference/endpoint/workspaces-create",
 											"v1/api-reference/endpoint/workspaces-get",
 											"v1/api-reference/endpoint/workspaces-delete",
-											"v1/api-reference/endpoint/workspaces-update"
+											"v1/api-reference/endpoint/workspaces-update",
+											"v1/api-reference/endpoint/workspace-members-list",
+											"v1/api-reference/endpoint/workspace-members-add",
+											"v1/api-reference/endpoint/workspace-members-remove",
+											"v1/api-reference/endpoint/workspace-member-role-update",
+											"v1/api-reference/endpoint/workspace-invites-list",
+											"v1/api-reference/endpoint/workspace-invites-create",
+											"v1/api-reference/endpoint/workspace-invites-delete",
+											"v1/api-reference/endpoint/workspace-join-requests-list",
+											"v1/api-reference/endpoint/workspace-join-request-approve",
+											"v1/api-reference/endpoint/workspace-join-request-reject"
+										]
+									},
+									{
+										"group": "Analytics",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/analytics-get",
+											"v1/api-reference/endpoint/analytics-export"
+										]
+									},
+									{
+										"group": "Routing",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/workspace-settings-get",
+											"v1/api-reference/endpoint/workspace-settings-update",
+											"v1/api-reference/endpoint/dynamic-routes-list",
+											"v1/api-reference/endpoint/dynamic-routes-create",
+											"v1/api-reference/endpoint/dynamic-routes-get",
+											"v1/api-reference/endpoint/dynamic-routes-update",
+											"v1/api-reference/endpoint/dynamic-routes-keys-update",
+											"v1/api-reference/endpoint/dynamic-routes-deploy",
+											"v1/api-reference/endpoint/dynamic-routes-delete"
+										]
+									},
+									{
+										"group": "Presets",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/presets-list",
+											"v1/api-reference/endpoint/presets-create",
+											"v1/api-reference/endpoint/presets-get",
+											"v1/api-reference/endpoint/presets-update",
+											"v1/api-reference/endpoint/presets-versions-list",
+											"v1/api-reference/endpoint/presets-version-publish",
+											"v1/api-reference/endpoint/presets-fork",
+											"v1/api-reference/endpoint/presets-upstream-apply",
+											"v1/api-reference/endpoint/presets-publisher-get",
+											"v1/api-reference/endpoint/presets-publisher-update",
+											"v1/api-reference/endpoint/presets-delete"
+										]
+									},
+									{
+										"group": "Observability",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/observability-logging-policy-get",
+											"v1/api-reference/endpoint/observability-logging-policy-update",
+											"v1/api-reference/endpoint/observability-destinations-list",
+											"v1/api-reference/endpoint/observability-destinations-create",
+											"v1/api-reference/endpoint/observability-destinations-get",
+											"v1/api-reference/endpoint/observability-destinations-update",
+											"v1/api-reference/endpoint/observability-destinations-delete"
+										]
+									},
+									{
+										"group": "Provider credentials",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/provider-credentials-list",
+											"v1/api-reference/endpoint/provider-credentials-create",
+											"v1/api-reference/endpoint/provider-credentials-get",
+											"v1/api-reference/endpoint/provider-credentials-update",
+											"v1/api-reference/endpoint/provider-credentials-delete",
+											"v1/api-reference/endpoint/provider-credentials-reorder"
 										]
 									},
 									{
@@ -522,10 +624,136 @@
 									},
 									{
 										"group": "Guardrails",
-										"tag": "Coming soon",
 										"expanded": false,
 										"pages": [
-											"v1/api-reference/endpoint/guardrails"
+											"v1/api-reference/endpoint/guardrails",
+											"v1/api-reference/endpoint/guardrails-list",
+											"v1/api-reference/endpoint/guardrails-create",
+											"v1/api-reference/endpoint/guardrails-get",
+											"v1/api-reference/endpoint/guardrails-update",
+											"v1/api-reference/endpoint/guardrails-delete",
+											"v1/api-reference/endpoint/guardrail-keys-list",
+											"v1/api-reference/endpoint/guardrail-keys-replace",
+											"v1/api-reference/endpoint/guardrail-keys-add",
+											"v1/api-reference/endpoint/guardrail-keys-remove",
+											"v1/api-reference/endpoint/guardrail-members-list",
+											"v1/api-reference/endpoint/guardrail-members-add",
+											"v1/api-reference/endpoint/guardrail-members-remove"
+										]
+									},
+									{
+										"group": "OAuth Applications",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/oauth-clients-list",
+											"v1/api-reference/endpoint/oauth-clients-create",
+											"v1/api-reference/endpoint/oauth-clients-get",
+											"v1/api-reference/endpoint/oauth-clients-update",
+											"v1/api-reference/endpoint/oauth-clients-delete",
+											"v1/api-reference/endpoint/oauth-clients-regenerate-secret"
+										]
+									},
+									{
+										"group": "Webhook Endpoints",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/webhook-endpoints-list",
+											"v1/api-reference/endpoint/webhook-endpoints-create",
+											"v1/api-reference/endpoint/webhook-endpoints-get",
+											"v1/api-reference/endpoint/webhook-endpoints-update",
+											"v1/api-reference/endpoint/webhook-endpoints-delete",
+											"v1/api-reference/endpoint/webhook-endpoints-rotate-secret"
+										]
+									},
+									{
+										"group": "Data Contribution",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/data-contribution-get",
+											"v1/api-reference/endpoint/data-contribution-consent-update",
+											"v1/api-reference/endpoint/data-contribution-classifier-create",
+											"v1/api-reference/endpoint/data-contribution-classifier-update",
+											"v1/api-reference/endpoint/data-contribution-classifier-delete"
+										]
+									},
+									{
+										"group": "Identity & Provisioning",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/identity-sso-get",
+											"v1/api-reference/endpoint/identity-sso-update",
+											"v1/api-reference/endpoint/identity-scim-get",
+											"v1/api-reference/endpoint/identity-scim-update",
+											"v1/api-reference/endpoint/identity-scim-token-create",
+											"v1/api-reference/endpoint/identity-scim-token-revoke",
+											"v1/api-reference/endpoint/identity-scim-audit-list",
+											"v1/api-reference/endpoint/identity-directory-get",
+											"v1/api-reference/endpoint/identity-directory-member-update",
+											"v1/api-reference/endpoint/identity-departments-list",
+											"v1/api-reference/endpoint/identity-department-create",
+											"v1/api-reference/endpoint/identity-department-update",
+											"v1/api-reference/endpoint/identity-department-delete",
+											"v1/api-reference/endpoint/identity-department-member-set",
+											"v1/api-reference/endpoint/identity-department-member-delete",
+											"v1/api-reference/endpoint/identity-group-mappings-list",
+											"v1/api-reference/endpoint/identity-group-mapping-create",
+											"v1/api-reference/endpoint/identity-group-mapping-update",
+											"v1/api-reference/endpoint/identity-group-mapping-delete"
+										]
+									},
+									{
+										"group": "Notifications",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/notifications-settings-get",
+											"v1/api-reference/endpoint/notifications-settings-update",
+											"v1/api-reference/endpoint/notifications-destinations-list",
+											"v1/api-reference/endpoint/notifications-destination-create",
+											"v1/api-reference/endpoint/notifications-destination-delete",
+											"v1/api-reference/endpoint/notifications-destination-config-test",
+											"v1/api-reference/endpoint/notifications-destination-test",
+											"v1/api-reference/endpoint/notifications-routes-list",
+											"v1/api-reference/endpoint/notifications-route-update"
+										]
+									},
+									{
+										"group": "Applications",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/apps-list",
+											"v1/api-reference/endpoint/app-update",
+											"v1/api-reference/endpoint/app-merge"
+										]
+									},
+									{
+										"group": "Logs",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/logs-list",
+											"v1/api-reference/endpoint/logs-get"
+										]
+									},
+									{
+										"group": "Feedback & Evaluations",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/feedback-list",
+											"v1/api-reference/endpoint/feedback-create",
+											"v1/api-reference/endpoint/feedback-summary",
+											"v1/api-reference/endpoint/events-list",
+											"v1/api-reference/endpoint/events-create",
+											"v1/api-reference/endpoint/preset-test-runs-list",
+											"v1/api-reference/endpoint/preset-test-run-create",
+											"v1/api-reference/endpoint/preset-test-run-get",
+											"v1/api-reference/endpoint/preset-test-run-update"
 										]
 									}
 								]

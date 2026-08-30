@@ -8,7 +8,7 @@ import { configureRuntime, setWaitUntil, clearRuntime, getBindings, dispatchBack
 import { safeJsonStringify } from "@/lib/safe-json";
 import { sanitizeRequestHeaders } from "@pipeline/http/sanitize-headers";
 
-type Handler = (req: Request) => Promise<Response>;
+type Handler = (req: Request, context?: Context<{ Bindings: GatewayBindings }>) => Promise<Response>;
 type CacheOptions = {
     scope: string;
     ttlSeconds: number;
@@ -109,7 +109,7 @@ export function withRuntime(handler: Handler) {
         const sanitized = sanitizeRequestHeaders(c.req.raw, { preserve: ["authorization"] });
 
         try {
-            const response = await handler(sanitized);
+            const response = await handler(sanitized, c);
             if (!isSseResponse(response)) {
                 cleanup();
                 return response;

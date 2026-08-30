@@ -22,6 +22,19 @@ The gateway lets developers access models from OpenAI, Anthropic, Google, Mistra
 - Logging: Axiom
 - Monitoring: server timing, structured events, and dashboards
 
+## Workspace invite secrets
+
+Workspace invite management requires `INVITE_ENCRYPTION_KEY` and
+`HMAC_ENCRYPTION_KEY` on both the Gateway Worker and the web API. Use the same
+values in both runtimes so dashboard-created and management-API-created invites
+remain interoperable.
+
+- `INVITE_ENCRYPTION_KEY`: base64-encoded 32 random bytes.
+- `HMAC_ENCRYPTION_KEY`: base64-encoded random key material of at least 32 bytes.
+
+Store both as deployment secrets. Never place their values in `wrangler.toml`,
+logs, API responses, or committed environment files.
+
 ## Useful Links
 
 - API docs: https://phaseo.app/docs/v1/api-reference/introduction

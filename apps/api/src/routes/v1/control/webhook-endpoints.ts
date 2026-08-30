@@ -13,6 +13,7 @@ import {
 } from "@core/webhook-endpoints";
 import { getBatchApiFeatureGateName, isBatchApiAccessEnabled } from "@core/feature-flags";
 import { requireCapability, requireOAuthWorkspaceRole, type ManagementRouteAuth } from "./route-helpers";
+import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 
 const app = new Hono<Env>();
 const PAGE_SIZE = 100;
@@ -34,6 +35,7 @@ type WebhookRouteAuth = ManagementRouteAuth & {
 	workspaceId: string | null;
 	userId: string | null;
 	internal: boolean;
+	requestId: string | null;
 };
 
 function readAuthContext(ctx: Env["Variables"]["ctx"] | undefined): WebhookRouteAuth {
@@ -44,7 +46,23 @@ function readAuthContext(ctx: Env["Variables"]["ctx"] | undefined): WebhookRoute
 		authMethod: ctx?.authMethod === "oauth" ? "oauth" : "api_key",
 		scopes: Array.isArray(ctx?.scopes) ? ctx.scopes.filter((scope): scope is string => typeof scope === "string") : [],
 		oauthScopes: Array.isArray(ctx?.oauthScopes) ? ctx.oauthScopes.filter((scope): scope is string => typeof scope === "string") : [],
+		requestId: typeof ctx?.requestId === "string" ? ctx.requestId : null,
 	};
+}
+
+async function auditWebhookEndpoint(auth: WebhookRouteAuth, action: string, endpoint: Record<string, unknown>) {
+	if (!auth.workspaceId) return;
+	const publicEndpoint = toPublicWebhookEndpoint(endpoint);
+	await recordWorkspaceAuditEvent(getSupabaseAdmin(), {
+		workspaceId: auth.workspaceId,
+		actorUserId: auth.userId,
+		action,
+		targetType: "webhook_endpoint",
+		targetId: publicEndpoint.id,
+		targetName: publicEndpoint.name,
+		metadata: { events: publicEndpoint.events, status: publicEndpoint.status },
+		requestId: auth.requestId,
+	});
 }
 
 async function requireWebhookPermission(
@@ -156,6 +174,7 @@ app.use("*", async (c, next) => {
 			authMethod: auth.value.authMethod,
 			scopes: auth.value.scopes ?? [],
 			oauthScopes: auth.value.oauthScopes ?? [],
+			requestId: auth.value.requestId ?? null,
 		});
 		return await next();
 	} finally {
@@ -215,6 +234,7 @@ app.post("/", async (c) => {
 		.select("*")
 		.single();
 	if (error) throw new Error(error.message ?? "Failed to create webhook endpoint");
+	await auditWebhookEndpoint(auth, "webhook_endpoint.created", data as Record<string, unknown>);
 	return json({
 		...toPublicWebhookEndpoint(data as Record<string, unknown>),
 		signing_secret: signingSecret,
@@ -267,6 +287,7 @@ app.patch("/:id", async (c) => {
 		.maybeSingle();
 	if (error) throw new Error(error.message ?? "Failed to update webhook endpoint");
 	if (!data) return notFound();
+	await auditWebhookEndpoint(auth, "webhook_endpoint.updated", data as Record<string, unknown>);
 	return json(toPublicWebhookEndpoint(data as Record<string, unknown>));
 });
 
@@ -293,6 +314,7 @@ app.post("/:id/rotate-secret", async (c) => {
 		.maybeSingle();
 	if (error) throw new Error(error.message ?? "Failed to rotate webhook endpoint secret");
 	if (!data) return notFound();
+	await auditWebhookEndpoint(auth, "webhook_endpoint.secret_rotated", data as Record<string, unknown>);
 	return json({
 		...toPublicWebhookEndpoint(data as Record<string, unknown>),
 		signing_secret: signingSecret,
@@ -314,10 +336,11 @@ app.delete("/:id", async (c) => {
 		.eq("workspace_id", auth.workspaceId)
 		.eq("id", c.req.param("id"))
 		.neq("status", "deleted")
-		.select("id")
+		.select("id, name, status, events")
 		.maybeSingle();
 	if (error) throw new Error(error.message ?? "Failed to delete webhook endpoint");
 	if (!data) return notFound();
+	await auditWebhookEndpoint(auth, "webhook_endpoint.deleted", data as Record<string, unknown>);
 	return json({ id: c.req.param("id"), object: "webhook_endpoint", deleted: true });
 });
 

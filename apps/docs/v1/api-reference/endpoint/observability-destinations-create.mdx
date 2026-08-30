@@ -1,0 +1,10 @@
+---
+title: "Create observability destination"
+sidebarTitle: "Create destination"
+badge: "Beta"
+openapi: "POST /observability/destinations"
+description: "Create a webhook or OpenTelemetry destination."
+---
+<Note>This endpoint requires a management API key with `settings:write`.</Note>
+
+The `config` object is write-only and encrypted before storage. Endpoints must use public HTTPS addresses.

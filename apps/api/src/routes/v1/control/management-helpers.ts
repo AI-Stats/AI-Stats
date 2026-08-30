@@ -56,7 +56,7 @@ export async function userHasPaidWorkspaceAccess(userId: string): Promise<boolea
 	return (count ?? 0) > 0;
 }
 
-export async function enforceWorkspaceKeyLimit(workspaceId: string): Promise<void> {
+export async function enforceWorkspaceKeyLimit(workspaceId: string, excludeApiKeyId?: string): Promise<void> {
 	const admin = getSupabaseAdmin();
 	const keyLimit = getWorkspaceKeyLimit();
 
@@ -64,12 +64,16 @@ export async function enforceWorkspaceKeyLimit(workspaceId: string): Promise<voi
 		{ count: apiKeyCount, error: apiKeyCountError },
 		{ count: managementKeyCount, error: managementKeyCountError },
 	] = await Promise.all([
-		admin
-			.from("keys")
-			.select("id", { count: "exact", head: true })
-			.eq("workspace_id", workspaceId)
-			.neq("status", "deleted")
-			.neq("name", CHAT_MANAGED_KEY_NAME),
+		(() => {
+			let query = admin
+				.from("keys")
+				.select("id", { count: "exact", head: true })
+				.eq("workspace_id", workspaceId)
+				.neq("status", "deleted")
+				.neq("name", CHAT_MANAGED_KEY_NAME);
+			if (excludeApiKeyId) query = query.neq("id", excludeApiKeyId);
+			return query;
+		})(),
 		admin
 			.from("management_keys")
 			.select("id", { count: "exact", head: true })

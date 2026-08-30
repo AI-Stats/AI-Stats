@@ -12,6 +12,7 @@ import { accountSettingsTeamsRouter } from "./settings-teams";
 import { accountSettingsProfileRouter } from "./settings-profile";
 import { accountSettingsProfileAvatarRouter, ownedProfileAvatarKey } from "./settings-profile-avatar";
 import { accountSettingsKeysRouter } from "./settings-keys";
+import { accountSettingsAuditRouter } from "./settings-audit";
 import { accountSettingsOAuthRouter } from "./settings-oauth";
 import { accountSettingsByokRouter } from "./settings-byok";
 import { accountSettingsGuardrailsRouter } from "./settings-guardrails";
@@ -31,7 +32,8 @@ const PHASEO_CLI_SCOPES = [
 	"pricing:read", "credits:read", "activity:read", "analytics:read", "generations:read",
 	"workspaces:read", "workspaces:write", "workspaces:delete", "keys:read", "keys:write",
 	"keys:delete", "presets:read", "presets:write", "presets:delete", "settings:read",
-	"settings:write", "guardrails:read", "guardrails:write", "guardrails:delete",
+	"settings:write", "provider_credentials:read", "provider_credentials:write", "provider_credentials:delete",
+	"guardrails:read", "guardrails:write", "guardrails:delete",
 	"management_keys:read", "management_keys:write", "management_keys:delete",
 	"oauth_clients:read", "oauth_clients:write", "oauth_clients:delete",
 ] as const;
@@ -109,6 +111,7 @@ accountSettingsRouter.route("/", accountSettingsTeamsRouter);
 accountSettingsRouter.route("/", accountSettingsProfileRouter);
 accountSettingsRouter.route("/", accountSettingsProfileAvatarRouter);
 accountSettingsRouter.route("/", accountSettingsKeysRouter);
+accountSettingsRouter.route("/", accountSettingsAuditRouter);
 accountSettingsRouter.route("/", accountSettingsOAuthRouter);
 accountSettingsRouter.route("/", accountSettingsByokRouter);
 accountSettingsRouter.route("/", accountSettingsGuardrailsRouter);

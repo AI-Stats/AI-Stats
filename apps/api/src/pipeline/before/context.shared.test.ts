@@ -112,6 +112,16 @@ describe("key limit cache policy", () => {
 			},
 		} as any)).toBe(60);
 	});
+
+	it("uses the minimum KV TTL whenever a workspace budget is configured", () => {
+		const keyLimit = { ok: true, budgets: [{ id: "budget_1" }] } as any;
+		expect(hasConfiguredKeyLimits(keyLimit)).toBe(true);
+		expect(computeAdaptiveTtlForDynamic({
+			key: { ok: true },
+			credit: { ok: true, balanceNanos: 500_000_000_000 },
+			keyLimit,
+		} as any)).toBe(60);
+	});
 });
 
 describe("fail-closed rollout status normalization", () => {

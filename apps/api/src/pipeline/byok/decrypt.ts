@@ -289,18 +289,29 @@ export async function decryptBYOK(row: {
 
     const aad = te.encode(`${row.workspace_id}|${row.provider_id}|v${ver}`);
 
-    const ptBuf = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: viewToArrayBuffer(ivBytes), additionalData: viewToArrayBuffer(aad), tagLength: 128 },
-        key,
-        viewToArrayBuffer(ctBytes)
-    );
+    let ptBuf: ArrayBuffer;
+    try {
+        ptBuf = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: viewToArrayBuffer(ivBytes), additionalData: viewToArrayBuffer(aad), tagLength: 128 },
+            key,
+            viewToArrayBuffer(ctBytes)
+        );
+    } catch {
+        // Credentials created before workspace-bound AAD was introduced remain
+        // decryptable during rotation. New writes always bind ciphertext to
+        // workspace, provider, and key version.
+        ptBuf = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: viewToArrayBuffer(ivBytes), tagLength: 128 },
+            key,
+            viewToArrayBuffer(ctBytes)
+        );
+    }
     return new Uint8Array(ptBuf);
 }
 
 export function bytesToString(u8: Uint8Array): string {
     return td.decode(u8);
 }
-
 
 
 

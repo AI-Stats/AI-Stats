@@ -1,0 +1,10 @@
+---
+title: "Delete dynamic route"
+sidebarTitle: "Delete route"
+badge: "Beta"
+openapi: "DELETE /routing/dynamic-routes/{id}"
+description: "Delete a dynamic route and its version history."
+---
+<Note>This endpoint requires a management API key with `settings:write`.</Note>
+
+Pass `confirm_name` for optional exact-name confirmation. Attached key contexts are refreshed after deletion.

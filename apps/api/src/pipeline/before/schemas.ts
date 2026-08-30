@@ -33,6 +33,28 @@ const bucketSchema = z
         costLimitNanos: bucket.cost_limit_nanos ?? 0,
     }));
 
+const workspaceBudgetStatusSchema = z.object({
+    id: z.string(),
+    interval: z.enum(["daily", "weekly", "monthly", "lifetime"]),
+    limit_nanos: z.coerce.number(),
+    usage_nanos: z.coerce.number(),
+    remaining_nanos: z.coerce.number(),
+    projected_usage_nanos: z.coerce.number(),
+    exceeded: z.boolean(),
+    window_start: z.string().nullable().optional(),
+    reset_at: z.string().nullable().optional(),
+}).transform((budget) => ({
+    id: budget.id,
+    interval: budget.interval,
+    limitNanos: budget.limit_nanos,
+    usageNanos: budget.usage_nanos,
+    remainingNanos: budget.remaining_nanos,
+    projectedUsageNanos: budget.projected_usage_nanos,
+    exceeded: budget.exceeded,
+    windowStart: budget.window_start ?? null,
+    resetAt: budget.reset_at ?? null,
+}));
+
 const gateCheckSchema = z
     .union([
         z.boolean(),
@@ -42,7 +64,7 @@ const gateCheckSchema = z
             reset_at: z.string().nullable().optional(),
             now: z.string().nullable().optional(),
             balance_nanos: z.coerce.number().nullable().optional(),
-            limit_window: z.enum(["daily", "weekly", "monthly"]).nullable().optional(),
+            limit_window: z.enum(["daily", "weekly", "monthly", "lifetime"]).nullable().optional(),
             limit_metric: z.enum(["requests", "cost", "soft_blocked"]).nullable().optional(),
             current_value: z.coerce.number().nullable().optional(),
             limit_value: z.coerce.number().nullable().optional(),
@@ -54,6 +76,7 @@ const gateCheckSchema = z
                 })
                 .nullable()
                 .optional(),
+            budgets: z.array(workspaceBudgetStatusSchema).nullable().optional(),
         }),
     ])
     .transform<GateCheck>((value) => {
@@ -71,6 +94,7 @@ const gateCheckSchema = z
             currentValue: value.current_value ?? null,
             limitValue: value.limit_value ?? null,
             buckets: value.buckets ?? null,
+            budgets: value.budgets ?? null,
         };
     });
 
