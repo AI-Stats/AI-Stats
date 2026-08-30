@@ -22,6 +22,22 @@
       "source": "https://api.together.ai/models/Qwen/Qwen3.8-Flash"
     },
     {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.15,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Together does not publish a separate cached-input discount for Qwen3.8 Flash, so cache-read tokens use the standard $0.15 per 1M input-token rate.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://api.together.ai/models/Qwen/Qwen3.8-Flash"
+    },
+    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -47,12 +63,12 @@
       "kind": "pricing",
       "url": "https://api.together.ai/models/Qwen/Qwen3.8-Flash",
       "accessed_at": "2026-08-30T00:00:00Z",
-      "notes": "Together's authenticated model page publishes the serverless input and output token rates for Qwen/Qwen3.8-Flash."
+      "notes": "Together's authenticated model metadata publishes the serverless input and output token rates for Qwen/Qwen3.8-Flash and does not publish a separate cached-input rate."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-30T00:00:00Z",
-    "notes": "Pricing verified against Together's live authenticated model page."
+    "notes": "Pricing verified against Together's live authenticated model metadata; cache reads retain the standard input rate because no separate cached-input discount is published."
   }
 }
