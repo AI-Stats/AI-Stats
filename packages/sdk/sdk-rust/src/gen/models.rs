@@ -1580,6 +1580,53 @@ pub struct WorkspaceActivityResponse {
 	pub total_cost_cents: f64,
 }
 
+pub struct WorkspaceAuditEvent {
+	pub action: String,
+	pub actor: Option<Option<HashMap<String, String>>>,
+	pub actor_user_id: Option<Option<String>>,
+	pub created_at: String,
+	pub id: String,
+	pub metadata: HashMap<String, String>,
+	pub request_id: Option<Option<String>>,
+	pub target_id: String,
+	pub target_name: Option<Option<String>>,
+	pub target_type: String,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceAuditEventActor {
+	pub display_name: Option<Option<String>>,
+	pub email: Option<Option<String>>,
+}
+
+pub struct WorkspaceAuditEventLimits {
+	pub dailyCostNanos: Option<i64>,
+	pub dailyRequests: Option<i64>,
+	pub monthlyCostNanos: Option<i64>,
+	pub monthlyRequests: Option<i64>,
+	pub softBlocked: Option<bool>,
+	pub weeklyCostNanos: Option<i64>,
+	pub weeklyRequests: Option<i64>,
+}
+
+pub struct WorkspaceAuditEventListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub has_more: bool,
+	pub next_cursor: Option<Option<String>>,
+}
+
+pub struct WorkspaceAuditEventMetadata {
+	pub accessTemplate: Option<String>,
+	pub changedFields: Option<Vec<String>>,
+	pub expiresAt: Option<Option<String>>,
+	pub limits: Option<HashMap<String, String>>,
+	pub prefix: Option<Option<String>>,
+	pub previousKeyExpiresAt: Option<Option<String>>,
+	pub replacementKeyId: Option<String>,
+	pub replacementKeyName: Option<String>,
+	pub status: Option<String>,
+}
+
 pub struct WorkspaceCreateRequest {
 	pub name: String,
 	pub slug: Option<String>,

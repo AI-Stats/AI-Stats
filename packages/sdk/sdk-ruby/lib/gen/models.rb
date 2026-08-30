@@ -2311,6 +2311,75 @@ module Phaseo
     # @!attribute [rw] total_cost_cents
     #   @return [Float]
     WorkspaceActivityResponse = Struct.new(:activity, :limit, :offset, :ok, :period_days, :total, :total_cost_cents, keyword_init: true)
+    # @!attribute [rw] action
+    #   @return [String]
+    # @!attribute [rw] actor
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] actor_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] target_id
+    #   @return [String]
+    # @!attribute [rw] target_name
+    #   @return [String, nil]
+    # @!attribute [rw] target_type
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceAuditEvent = Struct.new(:action, :actor, :actor_user_id, :created_at, :id, :metadata, :request_id, :target_id, :target_name, :target_type, :workspace_id, keyword_init: true)
+    # @!attribute [rw] display_name
+    #   @return [String, nil]
+    # @!attribute [rw] email
+    #   @return [String, nil]
+    WorkspaceAuditEventActor = Struct.new(:display_name, :email, keyword_init: true)
+    # @!attribute [rw] dailyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] dailyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] softBlocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] weeklyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyRequests
+    #   @return [Integer, nil]
+    WorkspaceAuditEventLimits = Struct.new(:dailyCostNanos, :dailyRequests, :monthlyCostNanos, :monthlyRequests, :softBlocked, :weeklyCostNanos, :weeklyRequests, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] has_more
+    #   @return [Boolean]
+    # @!attribute [rw] next_cursor
+    #   @return [String, nil]
+    WorkspaceAuditEventListResponse = Struct.new(:data, :has_more, :next_cursor, keyword_init: true)
+    # @!attribute [rw] accessTemplate
+    #   @return [String, nil]
+    # @!attribute [rw] changedFields
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] expiresAt
+    #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] prefix
+    #   @return [String, nil]
+    # @!attribute [rw] previousKeyExpiresAt
+    #   @return [String, nil]
+    # @!attribute [rw] replacementKeyId
+    #   @return [String, nil]
+    # @!attribute [rw] replacementKeyName
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    WorkspaceAuditEventMetadata = Struct.new(:accessTemplate, :changedFields, :expiresAt, :limits, :prefix, :previousKeyExpiresAt, :replacementKeyId, :replacementKeyName, :status, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] slug

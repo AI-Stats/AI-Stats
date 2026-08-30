@@ -2805,6 +2805,90 @@ class WorkspaceActivityResponse
 	public $total_cost_cents;
 }
 
+class WorkspaceAuditEvent
+{
+	/** @var string */
+	public $action;
+	/** @var array<string, mixed>|null */
+	public $actor;
+	/** @var string|null */
+	public $actor_user_id;
+	/** @var string */
+	public $created_at;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed> */
+	public $metadata;
+	/** @var string|null */
+	public $request_id;
+	/** @var string */
+	public $target_id;
+	/** @var string|null */
+	public $target_name;
+	/** @var string */
+	public $target_type;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceAuditEventActor
+{
+	/** @var string|null */
+	public $display_name;
+	/** @var string|null */
+	public $email;
+}
+
+class WorkspaceAuditEventLimits
+{
+	/** @var int|null */
+	public $dailyCostNanos;
+	/** @var int|null */
+	public $dailyRequests;
+	/** @var int|null */
+	public $monthlyCostNanos;
+	/** @var int|null */
+	public $monthlyRequests;
+	/** @var bool|null */
+	public $softBlocked;
+	/** @var int|null */
+	public $weeklyCostNanos;
+	/** @var int|null */
+	public $weeklyRequests;
+}
+
+class WorkspaceAuditEventListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var bool */
+	public $has_more;
+	/** @var string|null */
+	public $next_cursor;
+}
+
+class WorkspaceAuditEventMetadata
+{
+	/** @var string|null */
+	public $accessTemplate;
+	/** @var array|null */
+	public $changedFields;
+	/** @var string|null */
+	public $expiresAt;
+	/** @var array<string, mixed>|null */
+	public $limits;
+	/** @var string|null */
+	public $prefix;
+	/** @var string|null */
+	public $previousKeyExpiresAt;
+	/** @var string|null */
+	public $replacementKeyId;
+	/** @var string|null */
+	public $replacementKeyName;
+	/** @var string|null */
+	public $status;
+}
+
 class WorkspaceCreateRequest
 {
 	/** @var string */

@@ -3873,6 +3873,122 @@ public sealed class WorkspaceActivityResponse
 
 }
 
+public sealed class WorkspaceAuditEvent
+{
+	[JsonPropertyName("action")]
+	public string Action { get; set; }
+
+	[JsonPropertyName("actor")]
+	public Dictionary<string, object>? Actor { get; set; }
+
+	[JsonPropertyName("actor_user_id")]
+	public string? ActorUserId { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string CreatedAt { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("metadata")]
+	public Dictionary<string, object> Metadata { get; set; }
+
+	[JsonPropertyName("request_id")]
+	public string? RequestId { get; set; }
+
+	[JsonPropertyName("target_id")]
+	public string TargetId { get; set; }
+
+	[JsonPropertyName("target_name")]
+	public string? TargetName { get; set; }
+
+	[JsonPropertyName("target_type")]
+	public string TargetType { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WorkspaceAuditEventActor
+{
+	[JsonPropertyName("display_name")]
+	public string? DisplayName { get; set; }
+
+	[JsonPropertyName("email")]
+	public string? Email { get; set; }
+
+}
+
+public sealed class WorkspaceAuditEventLimits
+{
+	[JsonPropertyName("dailyCostNanos")]
+	public int? DailyCostNanos { get; set; }
+
+	[JsonPropertyName("dailyRequests")]
+	public int? DailyRequests { get; set; }
+
+	[JsonPropertyName("monthlyCostNanos")]
+	public int? MonthlyCostNanos { get; set; }
+
+	[JsonPropertyName("monthlyRequests")]
+	public int? MonthlyRequests { get; set; }
+
+	[JsonPropertyName("softBlocked")]
+	public bool? SoftBlocked { get; set; }
+
+	[JsonPropertyName("weeklyCostNanos")]
+	public int? WeeklyCostNanos { get; set; }
+
+	[JsonPropertyName("weeklyRequests")]
+	public int? WeeklyRequests { get; set; }
+
+}
+
+public sealed class WorkspaceAuditEventListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("has_more")]
+	public bool HasMore { get; set; }
+
+	[JsonPropertyName("next_cursor")]
+	public string? NextCursor { get; set; }
+
+}
+
+public sealed class WorkspaceAuditEventMetadata
+{
+	[JsonPropertyName("accessTemplate")]
+	public string? AccessTemplate { get; set; }
+
+	[JsonPropertyName("changedFields")]
+	public List<string>? ChangedFields { get; set; }
+
+	[JsonPropertyName("expiresAt")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("limits")]
+	public Dictionary<string, object>? Limits { get; set; }
+
+	[JsonPropertyName("prefix")]
+	public string? Prefix { get; set; }
+
+	[JsonPropertyName("previousKeyExpiresAt")]
+	public string? PreviousKeyExpiresAt { get; set; }
+
+	[JsonPropertyName("replacementKeyId")]
+	public string? ReplacementKeyId { get; set; }
+
+	[JsonPropertyName("replacementKeyName")]
+	public string? ReplacementKeyName { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
+
+}
+
 public sealed class WorkspaceCreateRequest
 {
 	[JsonPropertyName("name")]

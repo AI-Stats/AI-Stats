@@ -360,6 +360,11 @@ pub fn listVideosAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWorkspaceAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/audit-events");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/workspaces");
 	client.request("GET", &resolved_path, body)

@@ -429,6 +429,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWorkspaceAuditEvents(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/audit-events"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listWorkspaces(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces"

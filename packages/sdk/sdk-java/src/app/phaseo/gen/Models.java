@@ -1601,6 +1601,53 @@ public final class Models {
 		public Double total_cost_cents;
 	}
 
+	public static class WorkspaceAuditEvent {
+		public String action;
+		public Object actor;
+		public String actor_user_id;
+		public String created_at;
+		public String id;
+		public Object metadata;
+		public String request_id;
+		public String target_id;
+		public String target_name;
+		public String target_type;
+		public String workspace_id;
+	}
+
+	public static class WorkspaceAuditEventActor {
+		public String display_name;
+		public String email;
+	}
+
+	public static class WorkspaceAuditEventLimits {
+		public Integer dailyCostNanos;
+		public Integer dailyRequests;
+		public Integer monthlyCostNanos;
+		public Integer monthlyRequests;
+		public Boolean softBlocked;
+		public Integer weeklyCostNanos;
+		public Integer weeklyRequests;
+	}
+
+	public static class WorkspaceAuditEventListResponse {
+		public java.util.List<Object> data;
+		public Boolean has_more;
+		public String next_cursor;
+	}
+
+	public static class WorkspaceAuditEventMetadata {
+		public String accessTemplate;
+		public java.util.List<String> changedFields;
+		public String expiresAt;
+		public Object limits;
+		public String prefix;
+		public String previousKeyExpiresAt;
+		public String replacementKeyId;
+		public String replacementKeyName;
+		public String status;
+	}
+
 	public static class WorkspaceCreateRequest {
 		public String name;
 		public String slug;

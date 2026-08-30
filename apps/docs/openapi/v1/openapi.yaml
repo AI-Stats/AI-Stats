@@ -2369,6 +2369,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /audit-events:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listWorkspaceAuditEvents
+      summary: List workspace audit events
+      description: >-
+        Returns security-sensitive control-plane changes for the authenticated
+        workspace. Requires an owner or admin identity and the activity:read
+        management capability.
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of audit events to return.
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          description: Opaque cursor returned by the previous page.
+          schema:
+            type: string
+        - name: action
+          in: query
+          description: Filter by an exact audit action.
+          schema:
+            type: string
+        - name: target_type
+          in: query
+          description: Filter by an exact audit target type.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workspace audit events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceAuditEventListResponse'
+        '400':
+          description: Invalid cursor or query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing activity scope or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /workspaces:
     get:
       x-beta: true
@@ -9233,6 +9299,131 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WorkspaceActivityEntry'
+      additionalProperties: false
+    WorkspaceAuditEventActor:
+      type: object
+      properties:
+        display_name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+      additionalProperties: false
+    WorkspaceAuditEvent:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - action
+        - target_type
+        - target_id
+        - metadata
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        actor_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        actor:
+          allOf:
+            - $ref: '#/components/schemas/WorkspaceAuditEventActor'
+          nullable: true
+        action:
+          type: string
+          example: api_key.rotated
+        target_type:
+          type: string
+          example: api_key
+        target_id:
+          type: string
+        target_name:
+          type: string
+          nullable: true
+        metadata:
+          $ref: '#/components/schemas/WorkspaceAuditEventMetadata'
+        request_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      additionalProperties: false
+    WorkspaceAuditEventMetadata:
+      type: object
+      properties:
+        prefix:
+          type: string
+          nullable: true
+        status:
+          type: string
+        changedFields:
+          type: array
+          items:
+            type: string
+        limits:
+          $ref: '#/components/schemas/WorkspaceAuditEventLimits'
+        replacementKeyId:
+          type: string
+        replacementKeyName:
+          type: string
+        previousKeyExpiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        accessTemplate:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: true
+    WorkspaceAuditEventLimits:
+      type: object
+      properties:
+        dailyRequests:
+          type: integer
+          minimum: 0
+        weeklyRequests:
+          type: integer
+          minimum: 0
+        monthlyRequests:
+          type: integer
+          minimum: 0
+        dailyCostNanos:
+          type: integer
+          minimum: 0
+        weeklyCostNanos:
+          type: integer
+          minimum: 0
+        monthlyCostNanos:
+          type: integer
+          minimum: 0
+        softBlocked:
+          type: boolean
+      additionalProperties: false
+    WorkspaceAuditEventListResponse:
+      type: object
+      required:
+        - data
+        - has_more
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceAuditEvent'
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
       additionalProperties: false
     GatewayModelsResponse:
       type: object

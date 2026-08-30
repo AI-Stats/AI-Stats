@@ -2928,6 +2928,53 @@ type WorkspaceActivityResponse struct {
 	TotalCostCents float64 `json:"total_cost_cents"`
 }
 
+type WorkspaceAuditEvent struct {
+	Action string `json:"action"`
+	Actor *map[string]interface{} `json:"actor,omitempty"`
+	ActorUserId *string `json:"actor_user_id,omitempty"`
+	CreatedAt string `json:"created_at"`
+	Id string `json:"id"`
+	Metadata map[string]interface{} `json:"metadata"`
+	RequestId *string `json:"request_id,omitempty"`
+	TargetId string `json:"target_id"`
+	TargetName *string `json:"target_name,omitempty"`
+	TargetType string `json:"target_type"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceAuditEventActor struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	Email *string `json:"email,omitempty"`
+}
+
+type WorkspaceAuditEventLimits struct {
+	DailyCostNanos *int `json:"dailyCostNanos,omitempty"`
+	DailyRequests *int `json:"dailyRequests,omitempty"`
+	MonthlyCostNanos *int `json:"monthlyCostNanos,omitempty"`
+	MonthlyRequests *int `json:"monthlyRequests,omitempty"`
+	SoftBlocked *bool `json:"softBlocked,omitempty"`
+	WeeklyCostNanos *int `json:"weeklyCostNanos,omitempty"`
+	WeeklyRequests *int `json:"weeklyRequests,omitempty"`
+}
+
+type WorkspaceAuditEventListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	HasMore bool `json:"has_more"`
+	NextCursor *string `json:"next_cursor,omitempty"`
+}
+
+type WorkspaceAuditEventMetadata struct {
+	AccessTemplate *string `json:"accessTemplate,omitempty"`
+	ChangedFields *[]string `json:"changedFields,omitempty"`
+	ExpiresAt *string `json:"expiresAt,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
+	Prefix *string `json:"prefix,omitempty"`
+	PreviousKeyExpiresAt *string `json:"previousKeyExpiresAt,omitempty"`
+	ReplacementKeyId *string `json:"replacementKeyId,omitempty"`
+	ReplacementKeyName *string `json:"replacementKeyName,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
 type WorkspaceCreateRequest struct {
 	Name string `json:"name"`
 	Slug *string `json:"slug,omitempty"`

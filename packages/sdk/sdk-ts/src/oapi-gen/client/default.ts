@@ -9708,6 +9708,112 @@ export async function listVideosAlias(
   });
 }
 
+export type ListWorkspaceAuditEventsParams = {
+  path?: Record<string, never>;
+  query?: {
+    action?: string;
+    cursor?: string;
+    limit?: number;
+    target_type?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns security-sensitive control-plane changes for the authenticated workspace. Requires an owner or admin identity and the activity:read management capability.
+ */
+export async function listWorkspaceAuditEvents(
+  client: Client,
+  args: ListWorkspaceAuditEventsParams = {},
+): Promise<{
+  data: {
+    action: string;
+    actor?: {
+      display_name?: string | null;
+      email?: string | null;
+    } | null;
+    actor_user_id?: string | null;
+    created_at: string;
+    id: string;
+    metadata: {
+      accessTemplate?: string;
+      changedFields?: string[];
+      expiresAt?: string | null;
+      limits?: {
+        dailyCostNanos?: number;
+        dailyRequests?: number;
+        monthlyCostNanos?: number;
+        monthlyRequests?: number;
+        softBlocked?: boolean;
+        weeklyCostNanos?: number;
+        weeklyRequests?: number;
+      };
+      prefix?: string | null;
+      previousKeyExpiresAt?: string | null;
+      replacementKeyId?: string;
+      replacementKeyName?: string;
+      status?: string;
+      [key: string]: unknown;
+    };
+    request_id?: string | null;
+    target_id: string;
+    target_name?: string | null;
+    target_type: string;
+    workspace_id: string;
+  }[];
+  has_more: boolean;
+  next_cursor?: string | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/audit-events";
+  return client.request<{
+    data: {
+      action: string;
+      actor?: {
+        display_name?: string | null;
+        email?: string | null;
+      } | null;
+      actor_user_id?: string | null;
+      created_at: string;
+      id: string;
+      metadata: {
+        accessTemplate?: string;
+        changedFields?: string[];
+        expiresAt?: string | null;
+        limits?: {
+          dailyCostNanos?: number;
+          dailyRequests?: number;
+          monthlyCostNanos?: number;
+          monthlyRequests?: number;
+          softBlocked?: boolean;
+          weeklyCostNanos?: number;
+          weeklyRequests?: number;
+        };
+        prefix?: string | null;
+        previousKeyExpiresAt?: string | null;
+        replacementKeyId?: string;
+        replacementKeyName?: string;
+        status?: string;
+        [key: string]: unknown;
+      };
+      request_id?: string | null;
+      target_id: string;
+      target_name?: string | null;
+      target_type: string;
+      workspace_id: string;
+    }[];
+    has_more: boolean;
+    next_cursor?: string | null;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspacesParams = {
   path?: Record<string, never>;
   query?: {

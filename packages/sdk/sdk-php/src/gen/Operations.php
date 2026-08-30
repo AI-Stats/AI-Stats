@@ -500,6 +500,13 @@ function listVideosAlias(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWorkspaceAuditEvents(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audit-events";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listWorkspaces(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];

@@ -1584,6 +1584,53 @@ struct WorkspaceActivityResponse {
 	double total_cost_cents;
 };
 
+struct WorkspaceAuditEvent {
+	std::string action;
+	std::optional<std::map<std::string, std::any>> actor;
+	std::optional<std::string> actor_user_id;
+	std::string created_at;
+	std::string id;
+	std::map<std::string, std::any> metadata;
+	std::optional<std::string> request_id;
+	std::string target_id;
+	std::optional<std::string> target_name;
+	std::string target_type;
+	std::string workspace_id;
+};
+
+struct WorkspaceAuditEventActor {
+	std::optional<std::string> display_name;
+	std::optional<std::string> email;
+};
+
+struct WorkspaceAuditEventLimits {
+	std::optional<int> dailyCostNanos;
+	std::optional<int> dailyRequests;
+	std::optional<int> monthlyCostNanos;
+	std::optional<int> monthlyRequests;
+	std::optional<bool> softBlocked;
+	std::optional<int> weeklyCostNanos;
+	std::optional<int> weeklyRequests;
+};
+
+struct WorkspaceAuditEventListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	bool has_more;
+	std::optional<std::string> next_cursor;
+};
+
+struct WorkspaceAuditEventMetadata {
+	std::string accessTemplate;
+	std::vector<std::string> changedFields;
+	std::optional<std::string> expiresAt;
+	std::map<std::string, std::any> limits;
+	std::optional<std::string> prefix;
+	std::optional<std::string> previousKeyExpiresAt;
+	std::string replacementKeyId;
+	std::string replacementKeyName;
+	std::string status;
+};
+
 struct WorkspaceCreateRequest {
 	std::string name;
 	std::string slug;

@@ -359,6 +359,11 @@ inline Response ListVideosAlias(Client& client, const std::map<std::string, std:
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audit-events";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListWorkspaces(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
 	return client.request("GET", resolved_path, body);

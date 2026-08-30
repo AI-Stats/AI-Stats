@@ -14,6 +14,8 @@ Each event includes the actor, action, target, timestamp, and a small set of saf
 
 Audit-log access is limited to workspace owners and admins. Ordinary members cannot read audit events, and the underlying table is not exposed to authenticated database clients.
 
+For automation, call `GET /v1/audit-events` with a management key that has `activity:read`. Use the returned `next_cursor` to retrieve older events without timestamp gaps.
+
 <Note>
   Request and generation logs answer what traffic ran. The workspace audit log answers who changed an administrative control and when.
 </Note>
