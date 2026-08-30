@@ -1991,12 +1991,21 @@ export default function ProviderCard({
 	const infoScope = providerModelsInScope;
 	const tableInfoScope = tableProviderModelsInScope;
 	const providerModelSlugs = infoScope.map((pm) => pm.provider_model_slug);
-	const providerApiModelIds = infoScope.map((pm) => pm.model_id);
-	const canonicalModelId = providerApiModelIds.find(
-		(modelId) => typeof modelId === "string" && modelId.trim().length > 0,
-	)?.trim();
-	const providerQualifiedModelId = canonicalModelId
-		? `${sec.providerId}:${canonicalModelId}`
+	const routableProviderApiModelIds = Array.from(
+		new Set(
+			infoScope
+				.filter(
+					(pm) =>
+						pm.is_active_gateway &&
+						pm.capability_status !== "disabled" &&
+						pm.phaseo_status !== "disabled",
+				)
+				.map((pm) => pm.model_id.trim())
+				.filter(Boolean),
+		),
+	);
+	const providerQualifiedModelId = routableProviderApiModelIds.length === 1
+		? `${sec.providerId}:${routableProviderApiModelIds[0]}`
 		: null;
 	const tableProviderModelSlugs = tableInfoScope.map((pm) => pm.provider_model_slug);
 	const tableProviderApiModelIds = tableInfoScope.map((pm) => pm.model_id);
