@@ -14,6 +14,7 @@ import {
 	estimateOpenAiSpeechToTextUsage,
 	mergeSpeechToTextUsage,
 } from "@providers/openai/endpoints/audio-transcription-usage";
+import { upstreamTestHeaders } from "@providers/shared/testing";
 
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 const SUPPORTED_LANGUAGES = new Set(["auto", "zh", "en"]);
@@ -136,7 +137,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		openAICompatUrl(args.providerId, "/chat/completions"),
 		{
 			method: "POST",
-			headers: openAICompatHeaders(args.providerId, keyInfo.key),
+			headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),
 			body: JSON.stringify(requestBody),
 		},
 	);

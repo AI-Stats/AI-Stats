@@ -9,6 +9,7 @@ afterAll(() => teardownTestRuntime());
 describe("Xiaomi audio.transcription endpoint", () => {
 	it("maps a WAV upload into Xiaomi chat audio input and normalizes the transcript", async () => {
 		let capturedBody: any;
+		let capturedHeaders: Record<string, string> = {};
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/v1/chat/completions"),
 			response: jsonResponse({
@@ -19,7 +20,10 @@ describe("Xiaomi audio.transcription endpoint", () => {
 				}],
 				usage: { prompt_tokens: 8, completion_tokens: 2, total_tokens: 10 },
 			}),
-			onRequest: (call) => { capturedBody = call.bodyJson; },
+			onRequest: (call) => {
+				capturedBody = call.bodyJson;
+				capturedHeaders = call.headers;
+			},
 		}]);
 
 		const result = await exec({
@@ -30,7 +34,11 @@ describe("Xiaomi audio.transcription endpoint", () => {
 				file: new File([new Uint8Array([1, 2, 3, 4])], "sample.wav", { type: "audio/wav" }),
 				language: "en",
 			},
-			meta: { requestId: "req_xiaomi_asr", apiKeyId: "key_test" },
+			meta: {
+				requestId: "req_xiaomi_asr",
+				apiKeyId: "key_test",
+				testId: "aimock-xiaomi-transcription",
+			},
 			workspaceId: "team_test",
 			providerId: "xiaomi",
 			byokMeta: [],
@@ -41,6 +49,7 @@ describe("Xiaomi audio.transcription endpoint", () => {
 		mock.restore();
 
 		expect(result.upstream.status).toBe(200);
+		expect(capturedHeaders["X-Test-Id"]).toBe("aimock-xiaomi-transcription");
 		expect(capturedBody).toEqual({
 			model: "mimo-v2.5-asr",
 			messages: [{
