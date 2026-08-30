@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { PassThrough } from "node:stream";
 import test from "node:test";
 import { parse as parseJsonc } from "jsonc-parser";
 import { codexAdapter, renderCodexProfile } from "../src/integrations/adapters/codex.js";
@@ -19,7 +20,7 @@ import { isPrimarySetupName, runIntegrationCommand } from "../src/integrations/i
 import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
 import { readSession, writeSession } from "../src/session.js";
 import { fetchIntegrationModels, toIntegrationModel } from "../src/integrations/catalog.js";
-import { installInvocationFor } from "../src/integrations/installer.js";
+import { acceptsInstallConfirmation, confirmHarnessInstall, installInvocationFor } from "../src/integrations/installer.js";
 
 test("Codex profile uses the Responses API without embedding a credential", () => {
 	const profile = renderCodexProfile("anthropic/claude-sonnet-4.6");
@@ -367,15 +368,42 @@ test("catalog sync paginates through every compatible model", async () => {
 	}
 });
 
-test("primary harness installers use package commands and reject mutable remote scripts", () => {
+test("primary harness installers use supported package commands and verified installer URLs", () => {
 	assert.deepEqual(installInvocationFor("codex", "pnpm"), { command: "pnpm", args: ["add", "-g", "@openai/codex"] });
 	assert.deepEqual(installInvocationFor("claude-code", "npm"), { command: "npm", args: ["install", "-g", "@anthropic-ai/claude-code"] });
 	assert.deepEqual(installInvocationFor("opencode", "bun"), { command: "bun", args: ["install", "-g", "opencode-ai"] });
 	assert.deepEqual(installInvocationFor("deepseek-harness", "yarn"), { command: "yarn", args: ["global", "add", "@deepseek-ai/dsh"] });
 	assert.deepEqual(installInvocationFor("pi", "npm"), { command: "npm", args: ["install", "-g", "--ignore-scripts", "@earendil-works/pi-coding-agent"] });
-	assert.throws(() => installInvocationFor("prime-agent", "npm"), /installed manually/);
-	assert.throws(() => installInvocationFor("hermes", "npm"), /installed manually/);
 	assert.deepEqual(installInvocationFor("openclaw", "npm"), { command: "npm", args: ["install", "-g", "openclaw@latest"] });
+	assert.deepEqual(installInvocationFor("openclaw", "npm", { allowPackageScripts: true }), {
+		command: "npm",
+		args: ["install", "-g", "openclaw@latest", "--allow-scripts=openclaw"],
+	});
+	assert.deepEqual(installInvocationFor("openclaw", "pnpm"), {
+		command: "pnpm",
+		args: ["add", "-g", "--allow-build=openclaw", "openclaw@latest"],
+	});
+	assert.match(installInvocationFor("prime-agent", "npm").args.join(" "), /app\.primeintellect\.ai\/prime-agent\/install\.sh/);
+	assert.match(installInvocationFor("hermes", "npm").args.join(" "), /hermes-agent\.nousresearch\.com\/install\.(?:ps1|sh)/);
+});
+
+test("harness installation requires an explicit yes confirmation", async () => {
+	assert.equal(acceptsInstallConfirmation("y"), true);
+	assert.equal(acceptsInstallConfirmation(" YES "), true);
+	assert.equal(acceptsInstallConfirmation(""), false);
+	assert.equal(acceptsInstallConfirmation("no"), false);
+
+	const input = new PassThrough();
+	const output = new PassThrough();
+	let rendered = "";
+	output.setEncoding("utf8");
+	output.on("data", (chunk) => { rendered += chunk; });
+	const confirmation = confirmHarnessInstall("OpenCode", { command: "npm", args: ["install", "-g", "opencode-ai"] }, { input, output });
+	input.end("yes\n");
+	assert.equal(await confirmation, true);
+	assert.match(rendered, /OpenCode is not installed/);
+	assert.match(rendered, /npm install -g opencode-ai/);
+	assert.match(rendered, /Install now\? \[y\/N\]/);
 });
 
 test("DeepSeek Harness setup and removal preserve unrelated patches", async () => {
