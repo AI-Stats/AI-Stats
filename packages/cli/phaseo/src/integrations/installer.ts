@@ -1,4 +1,7 @@
 import { spawn } from "node:child_process";
+import { constants } from "node:fs";
+import { access } from "node:fs/promises";
+import { delimiter, join } from "node:path";
 import { createInterface } from "node:readline/promises";
 import type { Readable, Writable } from "node:stream";
 import { detectInstalledPackageManager, type PackageManager } from "../installation.js";
@@ -27,7 +30,7 @@ const COMMANDS: Record<(typeof PRIMARY_HARNESSES)[number], string[]> = {
 	openclaw: ["openclaw", "openclaw.exe", "openclaw.cmd"],
 };
 
-export type InstallInvocation = { command: string; args: string[] };
+export type InstallInvocation = { command: string; args: string[]; executable?: string };
 
 export function isPrimaryHarness(value: IntegrationId): value is (typeof PRIMARY_HARNESSES)[number] {
 	return (PRIMARY_HARNESSES as readonly IntegrationId[]).includes(value);
@@ -66,7 +69,7 @@ export function installInvocationFor(
 
 export function renderInstallInvocation(invocation: InstallInvocation): string {
 	if (invocation.command === "sh" && invocation.args[0] === "-c") return `sh -c ${JSON.stringify(invocation.args[1])}`;
-	return [invocation.command, ...invocation.args].join(" ");
+	return [invocation.command, ...invocation.args.map((value, index) => invocation.args[index - 1] === "-Command" ? JSON.stringify(value) : value)].join(" ");
 }
 
 export function acceptsInstallConfirmation(value: string): boolean {
@@ -91,22 +94,53 @@ export async function confirmHarnessInstall(
 	}
 }
 
-async function availableManager(): Promise<PackageManager> {
+type AvailablePackageManager = { manager: PackageManager; executable: string };
+
+export function packageManagerCandidates(manager: PackageManager, platform: NodeJS.Platform = process.platform): string[] {
+	return platform === "win32" ? [`${manager}.cmd`, `${manager}.exe`, manager] : [manager];
+}
+
+async function findPackageManagerExecutable(manager: PackageManager): Promise<string | null> {
+	const candidates = packageManagerCandidates(manager);
+	for (const directory of (process.env.PATH || "").split(delimiter)) {
+		if (!directory) continue;
+		for (const candidate of candidates) {
+			const path = join(directory, candidate);
+			try {
+				await access(path, constants.F_OK);
+				return candidate;
+			} catch {}
+		}
+	}
+	return null;
+}
+
+async function availableManager(): Promise<AvailablePackageManager> {
 	const detected = detectInstalledPackageManager();
-	if (detected && await isCommandAvailable([detected, `${detected}.cmd`, `${detected}.exe`])) return detected;
+	if (detected) {
+		const executable = await findPackageManagerExecutable(detected);
+		if (executable) return { manager: detected, executable };
+	}
 	for (const manager of ["npm", "pnpm", "yarn", "bun"] as const) {
-		if (await isCommandAvailable([manager, `${manager}.cmd`, `${manager}.exe`])) return manager;
+		const executable = await findPackageManagerExecutable(manager);
+		if (executable) return { manager, executable };
 	}
 	throw new Error("A Node.js package manager is required to install coding harnesses");
 }
 
-function windowsPackageManagerInvocation(command: string, args: string[]): { command: string; args: string[] } {
-	const tokens = [`${command}.cmd`, ...args];
+export function packageManagerChildInvocation(
+	invocation: InstallInvocation,
+	platform: NodeJS.Platform = process.platform,
+	commandInterpreter = process.env.ComSpec || "cmd.exe",
+): { command: string; args: string[] } {
+	const executable = invocation.executable ?? invocation.command;
+	if (platform !== "win32" || !/\.cmd$/i.test(executable)) return { command: executable, args: invocation.args };
+	const tokens = [executable, ...invocation.args];
 	if (tokens.some((value) => !/^[A-Za-z0-9@._/+,:=-]+$/.test(value))) {
 		throw new Error("Package-manager installation contains an unsupported Windows command token");
 	}
 	return {
-		command: process.env.ComSpec || "cmd.exe",
+		command: commandInterpreter,
 		args: ["/d", "/s", "/c", tokens.join(" ")],
 	};
 }
@@ -119,12 +153,10 @@ function supportsNpmAllowScripts(version: string): boolean {
 	return major > 11 || (major === 11 && minor >= 16);
 }
 
-async function commandOutput(command: string, args: string[]): Promise<string> {
+async function commandOutput(invocation: InstallInvocation): Promise<string> {
 	return new Promise((resolve, reject) => {
-		const invocation = process.platform === "win32" && command === "npm"
-			? windowsPackageManagerInvocation(command, args)
-			: { command, args };
-		const child = spawn(invocation.command, invocation.args, {
+		const childInvocation = packageManagerChildInvocation(invocation);
+		const child = spawn(childInvocation.command, childInvocation.args, {
 			shell: false,
 			stdio: "pipe",
 			windowsHide: true,
@@ -136,18 +168,19 @@ async function commandOutput(command: string, args: string[]): Promise<string> {
 		child.stdout.on("data", (value) => { stdout += value; });
 		child.stderr.on("data", (value) => { stderr += value; });
 		child.once("error", reject);
-		child.once("exit", (code) => code === 0 ? resolve(stdout.trim()) : reject(new Error(stderr.trim() || `${command} exited with code ${code ?? "unknown"}`)));
+		child.once("exit", (code) => code === 0 ? resolve(stdout.trim()) : reject(new Error(stderr.trim() || `${invocation.command} exited with code ${code ?? "unknown"}`)));
 	});
 }
 
 async function packageInstallInvocation(integration: (typeof PRIMARY_HARNESSES)[number]): Promise<InstallInvocation> {
-	const manager = integration === "pi" && await isCommandAvailable(["npm", "npm.cmd", "npm.exe"])
-		? "npm"
+	const npmExecutable = integration === "pi" ? await findPackageManagerExecutable("npm") : null;
+	const available = npmExecutable
+		? { manager: "npm" as const, executable: npmExecutable }
 		: await availableManager();
-	const allowPackageScripts = integration === "openclaw" && manager === "npm"
-		? supportsNpmAllowScripts(await commandOutput("npm", ["--version"]))
+	const allowPackageScripts = integration === "openclaw" && available.manager === "npm"
+		? supportsNpmAllowScripts(await commandOutput({ command: "npm", executable: available.executable, args: ["--version"] }))
 		: false;
-	return installInvocationFor(integration, manager, { allowPackageScripts });
+	return { ...installInvocationFor(integration, available.manager, { allowPackageScripts }), executable: available.executable };
 }
 
 export async function harnessInstallPlan(integration: IntegrationId): Promise<InstallInvocation | null> {
@@ -171,8 +204,8 @@ export async function harnessInstallPlan(integration: IntegrationId): Promise<In
 export async function installHarness(invocation: InstallInvocation, options: { quiet?: boolean; capture?: boolean } = {}): Promise<void> {
 	await new Promise<void>((resolve, reject) => {
 		const packageManagers = new Set(["npm", "pnpm", "yarn", "bun"]);
-		const childInvocation = process.platform === "win32" && packageManagers.has(invocation.command)
-			? windowsPackageManagerInvocation(invocation.command, invocation.args)
+		const childInvocation = packageManagers.has(invocation.command)
+			? packageManagerChildInvocation(invocation)
 			: invocation;
 		const child = spawn(childInvocation.command, childInvocation.args, {
 			stdio: options.quiet ? "ignore" : options.capture ? "pipe" : "inherit",

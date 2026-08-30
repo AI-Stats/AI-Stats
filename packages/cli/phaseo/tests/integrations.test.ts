@@ -20,7 +20,7 @@ import { isPrimarySetupName, runIntegrationCommand } from "../src/integrations/i
 import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
 import { readSession, writeSession } from "../src/session.js";
 import { fetchIntegrationModels, toIntegrationModel } from "../src/integrations/catalog.js";
-import { acceptsInstallConfirmation, confirmHarnessInstall, installInvocationFor } from "../src/integrations/installer.js";
+import { acceptsInstallConfirmation, confirmHarnessInstall, installInvocationFor, packageManagerCandidates, packageManagerChildInvocation, renderInstallInvocation } from "../src/integrations/installer.js";
 
 test("Codex profile uses the Responses API without embedding a credential", () => {
 	const profile = renderCodexProfile("anthropic/claude-sonnet-4.6");
@@ -384,7 +384,19 @@ test("primary harness installers use supported package commands and verified ins
 		args: ["add", "-g", "--allow-build=openclaw", "openclaw@latest"],
 	});
 	assert.match(installInvocationFor("prime-agent", "npm").args.join(" "), /app\.primeintellect\.ai\/prime-agent\/install\.sh/);
-	assert.match(installInvocationFor("hermes", "npm").args.join(" "), /hermes-agent\.nousresearch\.com\/install\.(?:ps1|sh)/);
+	const hermes = installInvocationFor("hermes", "npm");
+	assert.match(hermes.args.join(" "), /hermes-agent\.nousresearch\.com\/install\.(?:ps1|sh)/);
+	if (process.platform === "win32") assert.match(renderInstallInvocation(hermes), /-Command "& \(\[scriptblock\]::Create/);
+
+	assert.deepEqual(
+		packageManagerChildInvocation({ command: "bun", executable: "bun.exe", args: ["install", "-g", "opencode-ai"] }, "win32"),
+		{ command: "bun.exe", args: ["install", "-g", "opencode-ai"] },
+	);
+	assert.deepEqual(packageManagerCandidates("bun", "win32"), ["bun.cmd", "bun.exe", "bun"]);
+	assert.deepEqual(
+		packageManagerChildInvocation({ command: "npm", executable: "npm.cmd", args: ["--version"] }, "win32", "cmd.exe"),
+		{ command: "cmd.exe", args: ["/d", "/s", "/c", "npm.cmd --version"] },
+	);
 });
 
 test("harness installation requires an explicit yes confirmation", async () => {
