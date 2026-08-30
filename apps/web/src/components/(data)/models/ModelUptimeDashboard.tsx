@@ -30,6 +30,7 @@ export default function ModelUptimeDashboard({
 		<ModelSuccessChart
 			successSeries={metrics?.successSeries ?? []}
 			showLeastStableProvider={showLeastStableProvider}
+			showTitle={false}
 		/>
 	);
 }
