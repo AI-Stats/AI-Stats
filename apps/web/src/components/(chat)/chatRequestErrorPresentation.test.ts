@@ -45,6 +45,34 @@ describe("getChatRequestErrorPresentation", () => {
 		});
 	});
 
+	it("does not present an upstream provider payment failure as a user balance issue", () => {
+		const presentation = getChatRequestErrorPresentation({
+			...error(502, "provider_payment_required"),
+			description: "The upstream provider requires attention.",
+		});
+
+		expect(presentation).toMatchObject({
+			kind: "service",
+			description: "The upstream provider requires attention.",
+			canRetry: false,
+			canChooseModel: true,
+		});
+	});
+
+	it("preserves workspace limit guidance", () => {
+		const presentation = getChatRequestErrorPresentation({
+			...error(429, "key_limit_exceeded"),
+			description: "Your daily limit resets tomorrow.",
+		});
+
+		expect(presentation).toMatchObject({
+			kind: "usage-limit",
+			description: "Your daily limit resets tomorrow.",
+			canRetry: false,
+			canChooseModel: false,
+		});
+	});
+
 	it("keeps provider detail for validation errors", () => {
 		const presentation = getChatRequestErrorPresentation({
 			...error(422),
