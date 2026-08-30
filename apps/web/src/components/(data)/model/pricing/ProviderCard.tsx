@@ -105,6 +105,8 @@ const PROVIDER_SHEET_DOCS = {
 	pricing: "https://phaseo.app/docs/v1/exploring/pricing-performance",
 	performance: "https://phaseo.app/docs/v1/exploring/pricing-performance",
 	routing: "https://phaseo.app/docs/v1/guides/routing-and-fallbacks",
+	providerQualifiedRouting:
+		"https://phaseo.app/docs/v1/guides/provider-qualified-models",
 	dataRetention:
 		"https://phaseo.app/docs/v1/cookbook/route-only-to-eu-or-zdr-providers",
 } as const;
@@ -1990,6 +1992,12 @@ export default function ProviderCard({
 	const tableInfoScope = tableProviderModelsInScope;
 	const providerModelSlugs = infoScope.map((pm) => pm.provider_model_slug);
 	const providerApiModelIds = infoScope.map((pm) => pm.model_id);
+	const canonicalModelId = providerApiModelIds.find(
+		(modelId) => typeof modelId === "string" && modelId.trim().length > 0,
+	)?.trim();
+	const providerQualifiedModelId = canonicalModelId
+		? `${sec.providerId}:${canonicalModelId}`
+		: null;
 	const tableProviderModelSlugs = tableInfoScope.map((pm) => pm.provider_model_slug);
 	const tableProviderApiModelIds = tableInfoScope.map((pm) => pm.model_id);
 	const videoAudioRuleHints = planRules.flatMap((rule) => {
@@ -3169,29 +3177,50 @@ export default function ProviderCard({
 										</HoverCardContent>
 									</HoverCard>
 								</div>
-								<ProviderInspectorSheetDescription className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px]">
+								<ProviderInspectorSheetDescription className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px]">
 									<button
 										type="button"
-										onClick={() => void copyInspectorValue(sec.providerId)}
-										className="rounded-sm text-left text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-										title="Copy provider ID"
+										onClick={() =>
+											void copyInspectorValue(providerQualifiedModelId ?? sec.providerId)
+										}
+										className="min-w-0 truncate rounded-sm text-left text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+										title={
+											providerQualifiedModelId
+												? "Copy provider-qualified model ID"
+												: "Copy provider ID"
+										}
 									>
-										{copiedInspectorValue === sec.providerId ? "Copied" : sec.providerId}
+										{copiedInspectorValue === (providerQualifiedModelId ?? sec.providerId)
+											? "Copied"
+											: providerQualifiedModelId ?? sec.providerId}
 									</button>
-									{providerApiModelIds[0] ? (
-										<>
-											<span className="text-zinc-300 dark:text-zinc-700">/</span>
-											<button
-												type="button"
-												onClick={() => void copyInspectorValue(providerApiModelIds[0]!)}
-												className="truncate rounded-sm text-left text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-												title="Copy provider model ID"
-											>
-												{copiedInspectorValue === providerApiModelIds[0]
-													? "Copied"
-													: providerApiModelIds[0]}
-											</button>
-										</>
+									{providerQualifiedModelId ? (
+										<HoverCard openDelay={120} closeDelay={80}>
+											<HoverCardTrigger asChild>
+												<button
+													type="button"
+													aria-label="About provider-qualified routing"
+													className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+												>
+													<Info aria-hidden="true" className="size-3" />
+												</button>
+											</HoverCardTrigger>
+											<HoverCardContent align="start" className="w-72 p-3 font-sans">
+												<p className="text-xs font-semibold text-foreground">
+													Provider-qualified routing
+												</p>
+												<p className="mt-1 text-xs leading-5 text-muted-foreground">
+													Use this slug as the model ID to route only to {displayName} for this
+													model. Phaseo will fail instead of falling back to another provider.
+												</p>
+												<ProviderSheetSectionLink
+													href={PROVIDER_SHEET_DOCS.providerQualifiedRouting}
+													className="mt-2 text-xs font-medium"
+												>
+													Read the routing docs
+												</ProviderSheetSectionLink>
+											</HoverCardContent>
+										</HoverCard>
 									) : null}
 									{inlineProviderLabels.map((item) => (
 										<React.Fragment key={item}>
@@ -3432,7 +3461,7 @@ export default function ProviderCard({
 												<span>{statusLabel}</span>
 											</div>
 									</div>
-									<div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+									<div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
 										<div className="text-[11px] text-muted-foreground">Provider model IDs</div>
 										<div className="flex max-w-[18rem] flex-wrap justify-end gap-1.5">
 											{displayProviderModelIds.map((modelId) => (
