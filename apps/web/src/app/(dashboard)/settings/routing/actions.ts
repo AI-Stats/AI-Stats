@@ -6,8 +6,10 @@ import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountCo
 import type {
 	AutoRoutingConfiguration,
 	AutoRoutingObjective,
+	AutoRoutingSpendProfile,
 	DynamicRouteConfig,
 } from "@/lib/fetchers/internal/settingsTypes";
+import { autoRoutingFlag } from "@/lib/flags";
 
 export type RoutingMode = "balanced" | "price" | "latency" | "throughput";
 
@@ -57,12 +59,17 @@ export async function updateRoutingMode(mode: RoutingMode) {
 }
 
 export async function updateAutoRoutingSettings(input: {
-	enabled: boolean;
-	allowedModels: string[];
+	allowedPatterns: string[];
+	spendProfile: AutoRoutingSpendProfile;
+	maxInputPricePerMillion: number | null;
+	maxOutputPricePerMillion: number | null;
 	objective: AutoRoutingObjective;
 	allowFallbacks: boolean;
 }) {
 	try {
+		if (!(await autoRoutingFlag())) {
+			return { ok: false as const, error: "Auto Routing is not enabled for this workspace." };
+		}
 		const context = await getServerAccountContext();
 		if (!context.accessToken || !context.workspaceId) {
 			return { ok: false as const, error: "Select a workspace before changing Auto Routing." };

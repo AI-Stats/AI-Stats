@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { getBindings } from "@/runtime/env";
+import { getAutoRoutingFeatureGateName, isAutoRoutingAccessEnabled } from "@core/feature-flags";
 import { schemaFor } from "@core/schemas";
 import type { Endpoint, RequestBetaOptions, RequestMeta } from "@core/types";
 import type { PipelineContext } from "./types";
@@ -48,10 +49,14 @@ import {
 } from "./dynamic-routes";
 import {
 	buildAutoRouterCandidateEvidence,
+	applyAutoRouterHardRequirements,
+	deterministicAutoRouterClassification,
 	isAutoRouterModel,
 	loadAutoRouterBenchmarks,
+	loadManagedAutoRouterCandidates,
 	loadWorkspaceAutoRouterConfig,
 	selectAutoRouterModel,
+	type AutoRouterClassification,
 	type AutoRouterEvaluation,
 } from "./auto-router";
 
@@ -211,6 +216,11 @@ export async function beforeRequest(
     options?: {
         dynamicRouteModelOverride?: string | null;
 		autoRouterModelOverride?: string | null;
+		autoRouterClassificationOverride?: AutoRouterClassification | null;
+		classifyAutoRouterRequest?: (args: {
+			endpoint: Endpoint;
+			body: unknown;
+		}) => Promise<AutoRouterClassification | null>;
         onObservabilitySnapshot?: (snapshot: BeforeRequestObservabilitySnapshot) => void;
     },
 ): Promise<{ ok: true; ctx: PipelineContext } | { ok: false; response: Response }> {
@@ -386,6 +396,18 @@ export async function beforeRequest(
     const m = await timer.span("guardModel", () => guardModel(body, workspaceId, requestId));
     if (!m.ok) return m as { ok: false; response: Response };
     const { model, stream } = m.value;
+	if (isAutoRouterModel(model) && !(await timer.span("checkAutoRoutingFeatureGate", () => isAutoRoutingAccessEnabled(a.value)))) {
+		return {
+			ok: false,
+			response: err("not_supported", {
+				reason: "auto_routing_feature_flag_disabled",
+				message: "Auto Routing is currently available to selected Alpha workspaces.",
+				feature_gate: getAutoRoutingFeatureGateName(),
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
     options?.onObservabilitySnapshot?.({
         requestPayload: rawBody,
         requestedModel,
@@ -449,7 +471,7 @@ export async function beforeRequest(
 				ok: false,
 				response: err("validation_error", {
 					reason: "auto_router_request_config_not_supported",
-					description: "phaseo/auto uses the workspace Auto Routing configuration and does not accept request-level model pools or objectives",
+					description: "phaseo/auto uses the workspace Auto Routing configuration and does not accept request-level routing constraints",
 					details: [{
 						message: "Remove the request-level auto-router configuration",
 						path: [body?.routing?.auto != null ? "routing" : "provider", "auto"],
@@ -460,6 +482,20 @@ export async function beforeRequest(
 				}),
 			};
 		}
+		const deterministicClassification = deterministicAutoRouterClassification(body);
+		const classifierPromise = options?.autoRouterClassificationOverride
+			? Promise.resolve(options.autoRouterClassificationOverride)
+			: options?.classifyAutoRouterRequest && !options?.autoRouterModelOverride
+				? timer.span("classifyAutoRouterRequest", () => options.classifyAutoRouterRequest!({ endpoint, body }))
+					.catch((error) => {
+						console.warn("[beforeRequest] auto_router_classifier_failed", {
+							workspaceId,
+							requestId,
+							error: error instanceof Error ? error.message : String(error),
+						});
+						return null;
+					})
+				: Promise.resolve(null);
 		let config: Awaited<ReturnType<typeof loadWorkspaceAutoRouterConfig>>;
 		try {
 			config = await timer.span("loadWorkspaceAutoRouterConfig", () => loadWorkspaceAutoRouterConfig(workspaceId));
@@ -471,18 +507,23 @@ export async function beforeRequest(
 			});
 			return { ok: false, response: err("gateway_error", { reason: "auto_router_config_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
 		}
-		if (!config) {
-			return {
-				ok: false,
-				response: err("unsupported_model_or_endpoint", {
-					model,
-					reason: "auto_router_not_configured",
-					description: "Configure and enable Auto Routing in the workspace Routing settings before using phaseo/auto",
-					request_id: requestId,
-					workspace_id: workspaceId,
-				}),
-			};
+		const classification = applyAutoRouterHardRequirements(body, await classifierPromise ?? deterministicClassification);
+		let candidateUniverse: Awaited<ReturnType<typeof loadManagedAutoRouterCandidates>>;
+		try {
+			candidateUniverse = await timer.span("loadManagedAutoRouterCandidates", () => loadManagedAutoRouterCandidates(config, body, classification));
+		} catch (error) {
+			console.error("[beforeRequest] auto_router_candidates_fetch_failed", {
+				workspaceId,
+				requestId,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			return { ok: false, response: err("gateway_error", { reason: "auto_router_candidates_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
 		}
+		const selectionConfig = {
+			...config,
+			allowedModels: candidateUniverse.models,
+			candidateUniverseSize: candidateUniverse.totalEligible,
+		};
 		const policyLoad = await loadWorkspacePolicy();
 		if ("error" in policyLoad) {
 			console.error("[beforeRequest] workspace_policy_fetch_failed", {
@@ -495,7 +536,8 @@ export async function beforeRequest(
 		const selection = await timer.span("selectAutoRouterModel", () => selectAutoRouterModel({
 			endpoint,
 			body,
-			config,
+			config: selectionConfig,
+			classification,
 			modelOverride: options?.autoRouterModelOverride,
 			loadBenchmarks: loadAutoRouterBenchmarks,
 			loadCandidate: async (candidateModel) => {
@@ -551,8 +593,8 @@ export async function beforeRequest(
 					model,
 					reason: selection.reason === "invalid_override" ? "auto_router_invalid_fallback" : "auto_router_no_eligible_models",
 					description: selection.reason === "invalid_override"
-						? "The requested auto-router fallback is outside the configured allow-list"
-						: "No allow-listed auto-router model is currently eligible for this request",
+						? "The requested auto-router fallback is outside the current managed candidate shortlist"
+						: "No managed auto-router model is currently eligible for this request",
 					routing_diagnostics: { autoRouter: { candidates: selection.candidates } },
 					request_id: requestId,
 					workspace_id: workspaceId,

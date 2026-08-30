@@ -13,4 +13,4 @@
 "@phaseo/web-api": patch
 ---
 
-Add the opt-in `phaseo/auto` model router with a workspace-managed model pool, objective-based scoring, routing diagnostics, retryable model fallbacks, and a dedicated Auto Routing settings page.
+Add the Statsig-gated Alpha for the `phaseo/auto` model router with a separately metered low-cost classifier request, complexity-aware capability scoring, a managed text-model universe, workspace spend profiles and pattern restrictions, routing diagnostics, retryable model fallbacks, and a dedicated Auto Routing settings page.

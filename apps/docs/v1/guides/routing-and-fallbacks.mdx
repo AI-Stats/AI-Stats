@@ -41,16 +41,22 @@ Inspect request outcomes through your activity logs and response metadata when d
 
 ## Select a model with the auto-router
 
-Use `phaseo/auto` when the model should change with the workload. A workspace
-owner or administrator must first configure the model pool:
+Auto Routing is currently an Alpha available to selected workspaces.
+
+Use `phaseo/auto` when the model should change with the workload. Phaseo starts
+from every eligible production text model, then applies workspace constraints
+and builds a workload-specific shortlist:
 
 1. Open **Dashboard -> Settings -> Routing -> Auto Routing**.
-2. Add two to eight text-generation models.
-3. Choose whether to optimize for balanced performance, quality, cost, or
+2. Choose whether to optimize for balanced performance, quality, cost, or
    latency.
-4. Choose whether Phaseo may try the remaining ranked models after a retryable
+3. Select an Economy, Standard, Premium, or unrestricted spend profile. These
+   profiles apply fixed input and output price ceilings before scoring.
+4. Optionally narrow eligible models with patterns such as `anthropic/*`,
+   `openai/gpt-5.*`, or an exact model ID.
+5. Choose whether Phaseo may try the remaining ranked models after a retryable
    failure.
-5. Enable Auto Routing and save the configuration.
+6. Save the configuration.
 
 Applications then opt in without copying workspace routing policy into every
 request:
@@ -62,8 +68,8 @@ request:
 }
 ```
 
-The request cannot add models to or change the workspace configuration. Fixed
-model requests continue to bypass the auto-router.
+The request cannot change the workspace objective, spend profile, or model
+patterns. Fixed model requests continue to bypass the auto-router.
 
 The objective changes the relative weight of model quality, provider
 reliability, latency, and price:
@@ -75,14 +81,37 @@ reliability, latency, and price:
 | `cost` | Lower estimated input and output token price matters most. |
 | `latency` | Lower recent provider latency matters most. |
 
-Phaseo classifies text requests as code, reasoning, tool use, structured
-output, translation, summarization, or general work. Classification is local
-and deterministic. Prompt text is not sent to a classifier model, stored in
-the routing trace, or shared with a benchmark provider.
+Spend profiles are hard standard-tier price ceilings in USD per million text
+tokens:
 
-Tool and structured-output signals are language-independent. Other lexical
-signals are strongest in English in this first version; unmatched non-English
-requests use the general workload rather than guessing.
+| Spend profile | Maximum input price | Maximum output price |
+| --- | ---: | ---: |
+| Economy | $0.10 | $0.50 |
+| Standard | $0.30 | $1.50 |
+| Premium | $1 | $5 |
+| Any price | No ceiling | No ceiling |
+
+Custom limits set the input and output ceilings directly. Models without known
+standard text pricing are not included in the managed candidate universe.
+
+For each `phaseo/auto` request, Phaseo creates a normal child gateway request
+to a pinned low-cost classifier model. The child request uses the same
+workspace and billing identity, appears separately in request logs, and is
+labelled with `purpose=auto_routing_classifier` and the parent request ID.
+The classifier returns a structured workload mix, complexity score, and
+confidence value; it never selects a model directly.
+
+Hard request facts such as tools and structured output are included as trusted
+metadata. If the classifier request fails, times out, or returns invalid data,
+Phaseo falls back to the local deterministic code, reasoning, tool use,
+structured output, translation, summarization, or general classifier rather
+than failing the generation request.
+
+Classifier complexity represents the minimum model capability likely to
+produce a reliably acceptable answer. Phaseo applies a capability margin, then
+combines benchmark fit with the workspace objective, price, latency, provider
+health, and reliability. The classifier request and selected generation
+request are metered independently through the normal gateway pipeline.
 
 Before scoring, every allow-listed model must pass the normal endpoint,
 workspace model, provider, privacy, guardrail, and circuit-breaker checks. The
@@ -104,9 +133,8 @@ case, request details record the override and auto-router model fallbacks are
 disabled for the request.
 
 <Warning>
-  Start with a small model pool whose models support the request features you
-  use. Auto Routing does not add models automatically and does not replace
-  application-specific evaluation.
+  Spend profiles and model patterns are eligibility controls, not quality
+  guarantees. Validate the resulting model mix against your own workloads.
 </Warning>
 
 ## Explain a routing decision

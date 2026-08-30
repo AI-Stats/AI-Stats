@@ -102,8 +102,8 @@ describe("account policy settings routes", () => {
 			if (url.includes("/workspaces") && url.includes("owner_user_id")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ id: "workspace-1", name: "Team One" }]), { status: 200 });
 			if (url.includes("workspace_settings")) return new Response(JSON.stringify([{
-				auto_routing_enabled: true,
-				auto_routing_model_ids: ["openai/gpt-test", "anthropic/claude-test"],
+				auto_routing_allowed_patterns: ["anthropic/*", "openai/gpt-*"],
+				auto_routing_spend_profile: "premium",
 				auto_routing_objective: "quality",
 				auto_routing_fallbacks_enabled: false,
 				auto_routing_revision: "revision-1",
@@ -120,8 +120,8 @@ describe("account policy settings routes", () => {
 		expect(response.headers.get("cache-control")).toBe("private, no-store");
 		await expect(response.json()).resolves.toMatchObject({
 			autoRouting: {
-				enabled: true,
-				allowedModels: ["openai/gpt-test", "anthropic/claude-test"],
+				allowedPatterns: ["anthropic/*", "openai/gpt-*"],
+				spendProfile: "premium",
 				objective: "quality",
 				allowFallbacks: false,
 				revision: "revision-1",
@@ -131,7 +131,7 @@ describe("account policy settings routes", () => {
 		});
 	});
 
-	it("validates and saves a workspace Auto Routing model pool", async () => {
+	it("validates and saves managed Auto Routing constraints", async () => {
 		let settingsPayload: Record<string, unknown> | null = null;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const request = input instanceof Request ? input : new Request(input, init);
@@ -160,8 +160,10 @@ describe("account policy settings routes", () => {
 			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
 			body: JSON.stringify({
 				workspaceId: "workspace-1",
-				enabled: true,
-				allowedModels: ["openai/gpt-test", "anthropic/claude-test"],
+				allowedPatterns: ["anthropic/*", "openai/gpt-*"],
+				spendProfile: "premium",
+				maxInputPricePerMillion: null,
+				maxOutputPricePerMillion: null,
 				objective: "latency",
 				allowFallbacks: true,
 			}),
@@ -169,19 +171,19 @@ describe("account policy settings routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(settingsPayload).toMatchObject({
-			auto_routing_enabled: true,
-			auto_routing_model_ids: ["openai/gpt-test", "anthropic/claude-test"],
+			auto_routing_allowed_patterns: ["anthropic/*", "openai/gpt-*"],
+			auto_routing_spend_profile: "premium",
 			auto_routing_objective: "latency",
 			auto_routing_fallbacks_enabled: true,
 		});
 		await expect(response.json()).resolves.toMatchObject({
-			autoRouting: { enabled: true, objective: "latency", revision: "revision-2" },
+			autoRouting: { allowedPatterns: ["anthropic/*", "openai/gpt-*"], spendProfile: "premium", objective: "latency", revision: "revision-2" },
 			gatewayCacheInvalidated: true,
 			ok: true,
 		});
 	});
 
-	it("rejects enabling Auto Routing with fewer than two models", async () => {
+	it("rejects invalid Auto Routing model patterns", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
@@ -193,11 +195,11 @@ describe("account policy settings routes", () => {
 		const response = await app.request("https://phaseo.app/api/account/settings/routing/auto", {
 			method: "PUT",
 			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
-			body: JSON.stringify({ workspaceId: "workspace-1", enabled: true, allowedModels: ["openai/gpt-test"] }),
+			body: JSON.stringify({ workspaceId: "workspace-1", allowedPatterns: ["anthropic/[invalid]"], spendProfile: "standard" }),
 		}, env);
 
 		expect(response.status).toBe(400);
-		await expect(response.json()).resolves.toEqual({ error: "invalid_model_count", minimum: 2, maximum: 8 });
+		await expect(response.json()).resolves.toEqual({ error: "invalid_model_patterns", patterns: ["anthropic/[invalid]"], maximum: 16 });
 	});
 
 	it("does not publish a duplicate preset version without draft changes", async () => {

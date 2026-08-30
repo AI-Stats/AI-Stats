@@ -25,9 +25,14 @@ describe("settings sidebar navigation", () => {
 	});
 
 	it("exposes Auto Routing within the Routing section", () => {
-		const active = getActiveSettingsNav("/settings/routing/auto");
+		const active = getActiveSettingsNav("/settings/routing/auto", { showAutoRouting: true });
 		expect(active?.item.label).toBe("Routing");
-		expect(active?.item.children?.find((child) => isSettingsNavChildActive("/settings/routing/auto", child))?.label).toBe("Auto Routing");
+		expect(active?.item.children?.find((child) => isSettingsNavChildActive("/settings/routing/auto", child))?.label).toBe("Auto routing");
+		expect(getSettingsSidebar({ showAutoRouting: false })
+			.flatMap((group) => group.items)
+			.find((item) => item.href === "/settings/routing")
+			?.children?.some((child) => child.href === "/settings/routing/auto"))
+			.toBe(false);
 	});
 
 	it("orders workspace settings by task", () => {

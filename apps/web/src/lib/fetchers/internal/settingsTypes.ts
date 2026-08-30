@@ -444,9 +444,12 @@ export type SettingsRoutingInitialData = {
 };
 
 export type AutoRoutingObjective = "balanced" | "quality" | "cost" | "latency";
+export type AutoRoutingSpendProfile = "economy" | "standard" | "premium" | "unrestricted" | "custom";
 export type AutoRoutingConfiguration = {
-	enabled: boolean;
-	allowedModels: string[];
+	allowedPatterns: string[];
+	spendProfile: AutoRoutingSpendProfile;
+	maxInputPricePerMillion: number | null;
+	maxOutputPricePerMillion: number | null;
 	objective: AutoRoutingObjective;
 	allowFallbacks: boolean;
 	revision: string | null;

@@ -147,21 +147,30 @@ function restriction(mode: unknown, ids: unknown) {
 }
 
 const AUTO_ROUTING_OBJECTIVES = new Set(["balanced", "quality", "cost", "latency"]);
-const AUTO_ROUTING_TEXT_CAPABILITIES = ["responses", "chat/completions", "chat.completions", "messages", "text.generate"];
+const AUTO_ROUTING_SPEND_PROFILES = new Set(["economy", "standard", "premium", "unrestricted", "custom"]);
 
-function cleanAutoRoutingModels(value: unknown): string[] {
+function cleanAutoRoutingPatterns(value: unknown): string[] {
 	if (!Array.isArray(value)) return [];
 	return [...new Set(value
-		.map((model) => typeof model === "string" ? model.trim() : "")
-		.filter((model) => model && model !== "phaseo/auto"))]
-		.slice(0, 9);
+		.map((pattern) => typeof pattern === "string" ? pattern.trim().toLowerCase() : "")
+		.filter(Boolean))]
+		.slice(0, 16);
+}
+
+function priceLimit(value: unknown): number | null {
+	if (value === null || value === undefined || value === "") return null;
+	const number = Number(value);
+	return Number.isFinite(number) && number >= 0 ? number : null;
 }
 
 function autoRoutingFromRow(row: any) {
 	const objective = String(row?.auto_routing_objective ?? "balanced");
+	const spendProfile = String(row?.auto_routing_spend_profile ?? "standard");
 	return {
-		enabled: row?.auto_routing_enabled === true,
-		allowedModels: cleanAutoRoutingModels(row?.auto_routing_model_ids).slice(0, 8),
+		allowedPatterns: cleanAutoRoutingPatterns(row?.auto_routing_allowed_patterns),
+		spendProfile: AUTO_ROUTING_SPEND_PROFILES.has(spendProfile) ? spendProfile : "standard",
+		maxInputPricePerMillion: priceLimit(row?.auto_routing_max_input_price_per_million),
+		maxOutputPricePerMillion: priceLimit(row?.auto_routing_max_output_price_per_million),
 		objective: AUTO_ROUTING_OBJECTIVES.has(objective) ? objective : "balanced",
 		allowFallbacks: row?.auto_routing_fallbacks_enabled !== false,
 		revision: typeof row?.auto_routing_revision === "string" ? row.auto_routing_revision : null,
@@ -258,7 +267,7 @@ accountSettingsPolicyRouter.get("/routing/auto", async (c) => {
 	const [teamResult, settingsResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client.from("workspace_settings")
-			.select("auto_routing_enabled,auto_routing_model_ids,auto_routing_objective,auto_routing_fallbacks_enabled,auto_routing_revision,auto_routing_updated_at")
+			.select("auto_routing_allowed_patterns,auto_routing_spend_profile,auto_routing_max_input_price_per_million,auto_routing_max_output_price_per_million,auto_routing_objective,auto_routing_fallbacks_enabled,auto_routing_revision,auto_routing_updated_at")
 			.eq("workspace_id", workspaceId)
 			.maybeSingle(),
 	]);
@@ -280,55 +289,36 @@ accountSettingsPolicyRouter.put("/routing/auto", async (c) => {
 		return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	}
 
-	const enabled = body.enabled === true;
-	if (Array.isArray(body.allowedModels) && body.allowedModels.some((model) => String(model ?? "").trim() === "phaseo/auto")) {
-		return c.json({ error: "invalid_models", modelIds: ["phaseo/auto"] }, 400, PRIVATE_NO_STORE_HEADERS);
-	}
-	const allowedModels = cleanAutoRoutingModels(body.allowedModels);
+	const rawPatterns = Array.isArray(body.allowedPatterns) ? body.allowedPatterns : [];
+	const allowedPatterns = cleanAutoRoutingPatterns(rawPatterns);
+	const invalidPatterns = rawPatterns
+		.map((pattern) => String(pattern ?? "").trim().toLowerCase())
+		.filter((pattern) => !pattern || pattern.length > 200 || !/^[a-z0-9*][a-z0-9._:/*-]*$/.test(pattern) || !pattern.includes("/"));
 	const objective = String(body.objective ?? "balanced").trim().toLowerCase();
+	const spendProfile = String(body.spendProfile ?? "standard").trim().toLowerCase();
+	const maxInputPricePerMillion = priceLimit(body.maxInputPricePerMillion);
+	const maxOutputPricePerMillion = priceLimit(body.maxOutputPricePerMillion);
 	const allowFallbacks = body.allowFallbacks !== false;
-	if (allowedModels.length > 8 || (enabled && allowedModels.length < 2)) {
-		return c.json({ error: "invalid_model_count", minimum: 2, maximum: 8 }, 400, PRIVATE_NO_STORE_HEADERS);
+	if (rawPatterns.length > 16 || invalidPatterns.length) {
+		return c.json({ error: "invalid_model_patterns", patterns: invalidPatterns, maximum: 16 }, 400, PRIVATE_NO_STORE_HEADERS);
 	}
 	if (!AUTO_ROUTING_OBJECTIVES.has(objective)) {
 		return c.json({ error: "invalid_objective" }, 400, PRIVATE_NO_STORE_HEADERS);
 	}
-	if (allowedModels.some((model) => !model.includes("/") || model.length > 200)) {
-		return c.json({ error: "invalid_models" }, 400, PRIVATE_NO_STORE_HEADERS);
+	if (!AUTO_ROUTING_SPEND_PROFILES.has(spendProfile)) {
+		return c.json({ error: "invalid_spend_profile" }, 400, PRIVATE_NO_STORE_HEADERS);
 	}
-
-	if (allowedModels.length) {
-		const routesResult = await context.client
-			.from("v2_model_provider_routes")
-			.select("provider_model_id,model_slug")
-			.in("model_slug", allowedModels)
-			.eq("routing_enabled", true)
-			.in("status", ["active", "degraded"]);
-		if (routesResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const providerModelIds = [...new Set((routesResult.data ?? [])
-			.map((route) => String(route.provider_model_id ?? "").trim())
-			.filter(Boolean))];
-		const capabilitiesResult = providerModelIds.length
-			? await context.client.from("v2_route_capabilities")
-				.select("provider_model_id,capability_id")
-				.in("provider_model_id", providerModelIds)
-				.in("capability_id", AUTO_ROUTING_TEXT_CAPABILITIES)
-				.in("status", ["active", "deranked", "deranked_lvl1", "deranked_lvl2", "deranked_lvl3"])
-			: { data: [], error: null };
-		if (capabilitiesResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const textProviderModelIds = new Set((capabilitiesResult.data ?? []).map((capability) => String(capability.provider_model_id)));
-		const validModels = new Set((routesResult.data ?? [])
-			.filter((route) => textProviderModelIds.has(String(route.provider_model_id)))
-			.map((route) => String(route.model_slug)));
-		const invalidModels = allowedModels.filter((model) => !validModels.has(model));
-		if (invalidModels.length) return c.json({ error: "invalid_models", modelIds: invalidModels }, 400, PRIVATE_NO_STORE_HEADERS);
+	if (spendProfile === "custom" && (maxInputPricePerMillion === null || maxOutputPricePerMillion === null)) {
+		return c.json({ error: "custom_price_limits_required" }, 400, PRIVATE_NO_STORE_HEADERS);
 	}
 
 	const now = new Date().toISOString();
 	const payload = {
 		workspace_id: workspaceId,
-		auto_routing_enabled: enabled,
-		auto_routing_model_ids: allowedModels,
+		auto_routing_allowed_patterns: allowedPatterns,
+		auto_routing_spend_profile: spendProfile,
+		auto_routing_max_input_price_per_million: spendProfile === "custom" ? maxInputPricePerMillion : null,
+		auto_routing_max_output_price_per_million: spendProfile === "custom" ? maxOutputPricePerMillion : null,
 		auto_routing_objective: objective,
 		auto_routing_fallbacks_enabled: allowFallbacks,
 		auto_routing_revision: crypto.randomUUID(),
