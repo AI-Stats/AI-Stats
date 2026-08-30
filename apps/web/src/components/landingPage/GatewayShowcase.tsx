@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchFrontendGatewayShowcase } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { formatGatewayMetricWindow } from "@/lib/fetchers/gateway/getMarketingMetrics";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
 
 type TopModelRow = {
@@ -130,8 +131,8 @@ async function GatewayShowcaseData() {
 
 	const stats = [
 		{
-			label: "Monthly tokens",
-			value: `${formatCompact(metrics.summary.tokens24h)}+`,
+			label: `Tokens routed (${formatGatewayMetricWindow(metrics.summary.windowHours)})`,
+			value: `${formatCompact(metrics.summary.tokensInWindow)}+`,
 			icon: Coins,
 		},
 		{
@@ -337,4 +338,3 @@ export default function GatewayShowcase() {
 		</section>
 	);
 }
-

@@ -8,7 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
 	title: "Models",
 	description:
-		"Browse AI models by benchmark scores, providers, modalities and pricing to find the right model for your use case.",
+		"Browse models with an active Phaseo Gateway route by default, then compare providers, modalities, benchmarks, and pricing.",
 	path: "/models",
 	keywords: [
 		"AI models",

@@ -3,6 +3,7 @@ import { ArrowRight, Boxes, Coins, Route } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { fetchFrontendGatewayShowcase } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { formatGatewayMetricWindow } from "@/lib/fetchers/gateway/getMarketingMetrics";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
 
 function formatCompact(value: number) {
@@ -59,8 +60,8 @@ export default async function ExperimentalGatewayShowcase() {
 
 	const stats = [
 		{
-			label: "Monthly tokens",
-			value: `${formatCompact(metrics.summary.tokens24h)}+`,
+			label: `Tokens routed (${formatGatewayMetricWindow(metrics.summary.windowHours)})`,
+			value: `${formatCompact(metrics.summary.tokensInWindow)}+`,
 			icon: Coins,
 		},
 		{
