@@ -1,7 +1,7 @@
 import {
 	getPublicAppPath,
 	getPublicAppRouteSegment,
-} from "./publicAppPath";
+} from "@/lib/apps/publicAppPath";
 
 describe("public app paths", () => {
 	it("uses the app name without exposing its database ID", () => {
@@ -18,6 +18,6 @@ describe("public app paths", () => {
 	});
 
 	it("preserves a collision-safe host suffix returned by the API", () => {
-		expect(getPublicAppPath("my-app--example-com")).toBe("/apps/my-app--example-com");
+		expect(getPublicAppPath("my-app--example.com")).toBe("/apps/my-app--example.com");
 	});
 });

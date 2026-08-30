@@ -122,14 +122,14 @@ function slugify(s?: string | null): string {
 function normalizeAppId(input?: string | null): string | null {
     const value = String(input ?? "").trim().toLowerCase();
     if (!value) return null;
-    if (["app", "unknown", "unknown-app", "untitled", "none", "null", "undefined"].includes(value)) {
-        return null;
-    }
     const normalized = value
         .replace(/[^a-z0-9._:-]+/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 64);
+    if (["app", "unknown", "unknown-app", "untitled", "none", "null", "undefined", "n-a", "na"].includes(normalized)) {
+        return null;
+    }
     return normalized || null;
 }
 
@@ -334,5 +334,4 @@ export async function ensureAppId(params: {
         }
     }
 }
-
 

@@ -12,28 +12,31 @@ immutable
 parallel safe
 set search_path = ''
 as $$
+  with normalized as (
+    select
+      lower(btrim(coalesce(p_url, ''))) as url_value,
+      regexp_replace(lower(btrim(coalesce(p_url, ''))), '^https?://', '') as without_scheme
+  ), authority as (
+    select
+      url_value,
+      split_part(split_part(split_part(without_scheme, '/', 1), '?', 1), '#', 1) as authority_value
+    from normalized
+  ), host_port as (
+    select
+      normalized.url_value,
+      regexp_replace(authority.authority_value, '^.*@', '') as host_port_value
+    from normalized
+    cross join authority
+  )
   select case
-    when lower(btrim(coalesce(p_url, ''))) ~ '^https?://' then
+    when normalized.url_value ~ '^https?://' then
       coalesce(
         nullif(
           regexp_replace(
-            split_part(
-              split_part(
-                split_part(
-                  split_part(
-                    regexp_replace(lower(btrim(p_url)), '^https?://', ''),
-                    '/',
-                    1
-                  ),
-                  '?',
-                  1
-                ),
-                '#',
-                1
-              ),
-              ':',
-              1
-            ),
+            case
+              when host_port.host_port_value ~ '^\[' then substring(host_port.host_port_value from '^(\[[^]]+\])')
+              else split_part(host_port.host_port_value, ':', 1)
+            end,
             '^www\.',
             ''
           ),
@@ -41,11 +44,10 @@ as $$
         ),
         'app-id:' || p_app_id
       )
-    else coalesce(
-      nullif(lower(btrim(p_url)), ''),
-      'app-id:' || p_app_id
-    )
-  end;
+    else coalesce(nullif(normalized.url_value, ''), 'app-id:' || p_app_id)
+  end
+  from normalized
+  cross join host_port;
 $$;
 
 revoke all on function public.api_app_url_group_key(text, text) from public;

@@ -9,6 +9,9 @@ function slugifyAppName(value: string): string {
 
 export function getPublicAppRouteSegment(title: string): string {
 	const existingSlug = title.trim().toLowerCase();
+	if (/^[a-z0-9]+(?:-[a-z0-9]+)*--[a-z0-9.\[\]:-]+$/.test(existingSlug)) {
+		return existingSlug;
+	}
 	if (/^[a-z0-9]+(?:-{1,2}[a-z0-9]+)*$/.test(existingSlug)) {
 		return existingSlug;
 	}

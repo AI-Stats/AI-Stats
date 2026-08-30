@@ -7,10 +7,6 @@ type RangeKey = "1h" | "1d" | "1w" | "4w" | "1m" | "1y";
 const VALID_RANGES = new Set<RangeKey>(["1h", "1d", "1w", "4w", "1m", "1y"]);
 const PAGE_SIZE = 1_000;
 
-function isUuid(value: string): boolean {
-	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
 function sumTokens(value: unknown): number {
 	if (typeof value === "number") return Number.isFinite(value) ? value : 0;
 	if (typeof value === "string") {
@@ -49,106 +45,45 @@ function missingRollup(error: unknown): boolean {
 }
 
 type PublicAppGroup = {
+	reference: string;
 	app: Record<string, unknown>;
 	memberIds: string[];
 	publicSlug: string;
 };
 
-function slugifyPublicApp(value: unknown): string {
-	return String(value ?? "")
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-+|-+$/g, "") || "app";
-}
-
-function publicAppUrlGroupKey(app: Record<string, unknown>): string {
-	const id = String(app.id ?? "").trim();
-	const value = String(app.url ?? "").trim().toLowerCase();
-	if (/^https?:\/\//.test(value)) {
-		try {
-			return new URL(value).hostname.replace(/^www\./, "") || `app-id:${id}`;
-		} catch {
-			// Fall through to the normalized non-web identity.
-		}
-	}
-	return value || `app-id:${id}`;
-}
-
-function compareCanonicalApps(a: Record<string, unknown>, b: Record<string, unknown>): number {
-	const createdComparison = String(a.created_at ?? "").localeCompare(String(b.created_at ?? ""));
-	if (createdComparison !== 0) return createdComparison;
-	return String(a.id ?? "").localeCompare(String(b.id ?? ""));
-}
-
-async function listPublicApps(env: Env): Promise<Array<Record<string, unknown>>> {
-	const rows: Array<Record<string, unknown>> = [];
-	for (let offset = 0; offset < 40 * PAGE_SIZE; offset += PAGE_SIZE) {
-		const { data, error } = await getDataClient(env)
-			.from("api_apps")
-			.select("*")
-			.eq("is_public", true)
-			.eq("is_active", true)
-			.order("created_at", { ascending: true })
-			.range(offset, offset + PAGE_SIZE - 1);
-		if (error) throw error;
-		const page = (data ?? []) as Array<Record<string, unknown>>;
-		rows.push(...page);
-		if (page.length < PAGE_SIZE) break;
-	}
-	return rows;
-}
-
-function buildPublicAppGroups(apps: Array<Record<string, unknown>>): PublicAppGroup[] {
-	const membersByGroup = new Map<string, Array<Record<string, unknown>>>();
-	for (const app of apps) {
-		const groupKey = publicAppUrlGroupKey(app);
-		const members = membersByGroup.get(groupKey) ?? [];
-		members.push(app);
-		membersByGroup.set(groupKey, members);
-	}
-
-	const candidates = Array.from(membersByGroup, ([groupKey, members]) => {
-		const sortedMembers = [...members].sort(compareCanonicalApps);
-		const app = sortedMembers[0];
+async function getPublicAppGroups(env: Env, references: string[]): Promise<PublicAppGroup[]> {
+	if (references.length === 0) return [];
+	const { data, error } = await getDataClient(env).rpc("get_public_app_groups", {
+		p_references: [...new Set(references)],
+	});
+	if (error) throw error;
+	return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
+		const publicSlug = String(row.public_slug ?? "").trim();
 		return {
-			groupKey,
-			app,
-			memberIds: sortedMembers.map((member) => String(member.id ?? "").trim()).filter(Boolean),
-			baseSlug: String(app.slug ?? "").trim() || slugifyPublicApp(app.title),
+			reference: String(row.reference ?? "").trim(),
+			memberIds: Array.isArray(row.member_ids)
+				? row.member_ids.map((id) => String(id).trim()).filter(Boolean)
+				: [],
+			publicSlug,
+			app: {
+				id: String(row.app_id ?? "").trim(),
+				slug: publicSlug,
+				title: String(row.app_name ?? "").trim(),
+				url: typeof row.app_url === "string" ? row.app_url : null,
+				image_url: typeof row.app_image_url === "string" ? row.app_image_url : null,
+				category: typeof row.app_category === "string" ? row.app_category : null,
+				is_active: row.app_is_active === true,
+				is_public: row.app_is_public === true,
+				last_seen: row.app_last_seen,
+				created_at: row.app_created_at,
+				updated_at: row.app_updated_at,
+			},
 		};
 	});
-	const groupsPerBase = new Map<string, number>();
-	for (const candidate of candidates) {
-		groupsPerBase.set(candidate.baseSlug, (groupsPerBase.get(candidate.baseSlug) ?? 0) + 1);
-	}
-
-	const proposed = candidates.map((candidate) => ({
-		...candidate,
-		publicSlug: (groupsPerBase.get(candidate.baseSlug) ?? 0) > 1
-			? `${candidate.baseSlug}--${slugifyPublicApp(candidate.groupKey)}`
-			: candidate.baseSlug,
-	}));
-	const proposedCounts = new Map<string, number>();
-	for (const candidate of proposed) {
-		proposedCounts.set(candidate.publicSlug, (proposedCounts.get(candidate.publicSlug) ?? 0) + 1);
-	}
-
-	return proposed.map((candidate) => ({
-		app: candidate.app,
-		memberIds: candidate.memberIds,
-		publicSlug: (proposedCounts.get(candidate.publicSlug) ?? 0) > 1
-			? `${candidate.publicSlug}--${String(candidate.app.id ?? "").slice(0, 8)}`
-			: candidate.publicSlug,
-	}));
 }
 
 async function getPublicApp(env: Env, reference: string): Promise<PublicAppGroup | null> {
-	const groups = buildPublicAppGroups(await listPublicApps(env));
-	if (isUuid(reference)) {
-		return groups.find((group) => group.memberIds.includes(reference)) ?? null;
-	}
-	return groups.find((group) => group.publicSlug === reference) ?? null;
+	return (await getPublicAppGroups(env, [reference]))[0] ?? null;
 }
 
 async function fetchGatewayUsage(
@@ -222,15 +157,13 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 });
 
 async function resolveAppNames(env: Env, rows: Array<Record<string, unknown>>) {
-	const groups = buildPublicAppGroups(await listPublicApps(env));
-	const groupsByMemberId = new Map<string, PublicAppGroup>();
-	for (const group of groups) {
-		for (const memberId of group.memberIds) groupsByMemberId.set(memberId, group);
-	}
+	const references = rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
+	const groups = await getPublicAppGroups(env, references);
+	const groupsByReference = new Map(groups.map((group) => [group.reference, group]));
 	return rows
-		.filter((row) => groupsByMemberId.has(String(row.app_id ?? "").trim()))
+		.filter((row) => groupsByReference.has(String(row.app_id ?? "").trim()))
 		.map((row) => {
-			const group = groupsByMemberId.get(String(row.app_id).trim())!;
+			const group = groupsByReference.get(String(row.app_id).trim())!;
 			const appId = String(group.app.id ?? "").trim();
 			return {
 				...row,
