@@ -40,8 +40,9 @@ requireText("security", /30 seconds to 24 hours/, "security paper must state the
 requireText("subprocessors", /Customer-selected AI providers/, "schedule must separate customer-selected AI providers");
 requireText("subprocessors", /factual confirmation/, "schedule must expose unverified processing locations");
 requireText("dpa", /It does not bind either party/, "DPA must be presented as a non-binding review draft");
-requireText("dpa", /operational 30-day subprocessor-notice process/, "DPA must disclose the unimplemented notice process");
-requireText("dpa", /Before execution, Phaseo must confirm/, "DPA must retain visible factual-review conditions");
+requireText("dpa", /at least 30 days' notice/, "DPA must retain the advance subprocessor-notice commitment");
+requireText("dpa", /will not offer that deadline in an execution copy until the deletion workflow has been verified/, "DPA must disclose the unimplemented deletion workflow");
+requireText("dpa", /seven days of daily database restore points/, "DPA must state the verified production backup window");
 requireText("dpa", /classify each active Phaseo-managed AI Provider/, "DPA must disclose the incomplete AI Subprocessor annex");
 requireText("privacy", /Last updated: 30 August 2026/, "privacy review date is stale");
 requireText("privacy", /five minutes by/, "privacy policy must disclose the default response cache");

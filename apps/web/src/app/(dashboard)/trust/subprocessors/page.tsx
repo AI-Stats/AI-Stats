@@ -12,9 +12,9 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const coreProcessors = [
-	{ name: "Cloudflare", purpose: "Public edge, DNS, Gateway Worker execution, logs, KV, Durable Objects, and private R2 object storage", data: "Network and request data; gateway content in transit; optional I/O logs and data contributions; operational metadata", location: "Global edge; configured storage and processing locations require factual confirmation before DPA execution", condition: "Core" },
+	{ name: "Cloudflare", purpose: "Public edge, DNS, Gateway Worker execution, logs, KV, Durable Objects, and private R2 object storage", data: "Network and request data; gateway content in transit; optional I/O logs and data contributions; operational metadata", location: "Workers execute on Cloudflare's global network. Phaseo's private R2 buckets are located in Western Europe (WEUR); they do not currently have an EU jurisdictional restriction.", condition: "Core" },
 	{ name: "Vercel", purpose: "Host and deliver the Phaseo web application", data: "Website and dashboard traffic, account-facing requests, device and operational metadata", location: "Global delivery network; deployment processing locations require factual confirmation", condition: "Core" },
-	{ name: "Supabase", purpose: "Authentication and primary relational database", data: "Account, workspace, configuration, billing reference, request, usage, security, and support metadata", location: "Production project region requires factual confirmation", condition: "Core" },
+	{ name: "Supabase", purpose: "Authentication and primary relational database", data: "Account, workspace, configuration, billing reference, request, usage, security, and support metadata", location: "AWS eu-west-2 (London), verified against the production project on 30 August 2026", condition: "Core" },
 	{ name: "Upstash", purpose: "Redis-backed response caching and cache-related routing data", data: "Workspace-scoped cache keys, model outputs, response metadata, and short-lived routing/cache records", location: "Production database region requires factual confirmation", condition: "When the Redis binding is enabled" },
 	{ name: "OpenAI", purpose: "Classify a configured sample of opted-in data contributions", data: "Best-effort-redacted prompt and response content and classifier instructions", location: "According to the Phaseo OpenAI API account and applicable transfer terms; factual confirmation required", condition: "Only when data contribution and upstream classification are enabled" },
 ] as const;
@@ -74,7 +74,7 @@ export default function SubprocessorsPage() {
 			</TrustSection>
 
 			<TrustSection id="changes" title="5. Changes and objections">
-				<p>Phaseo publishes material changes to this page with a new review date. The DPA review draft proposes notice to the Customer's account email at least 30 days before a new Subprocessor begins processing Customer Personal Data, plus a written objection process. Phaseo must operationalise that process before signing or incorporating the DPA.</p>
+				<p>Phaseo publishes material changes to this page with a new review date. Under the DPA review draft, Phaseo will notify the Customer's account email at least 30 days before a new Subprocessor begins processing Customer Personal Data and will accept written objections during that period.</p>
 				<p>The public product does not yet offer a general subprocessor-change subscription. Customers reviewing an execution copy should confirm the notice contact with <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.</p>
 			</TrustSection>
 
