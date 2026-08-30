@@ -738,6 +738,8 @@ function ObservabilityVisual() {
 	);
 }
 
+// Lowest active standard price across provider routes that are both gateway-active
+// and routable. Token prices are USD per 1M input/output tokens.
 const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
 	{
 		providerId: "openai",
@@ -745,8 +747,8 @@ const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
 		model: "openai/gpt-5.6-sol",
 		latencyMs: 472,
 		throughputTps: 92,
-		inputPrice: 12.5,
-		outputPrice: 75.0,
+		inputPrice: 4.0,
+		outputPrice: 20.0,
 	},
 	{
 		providerId: "anthropic",
@@ -772,8 +774,8 @@ const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
 		model: "minimax/minimax-m3",
 		latencyMs: 388,
 		throughputTps: 108,
-		inputPrice: 0.3,
-		outputPrice: 1.2,
+		inputPrice: 0.23,
+		outputPrice: 0.96,
 	},
 	{
 		providerId: "deepseek",
@@ -781,8 +783,8 @@ const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
 		model: "deepseek/deepseek-v4-pro",
 		latencyMs: 405,
 		throughputTps: 94,
-		inputPrice: 1.68,
-		outputPrice: 3.38,
+		inputPrice: 0.35,
+		outputPrice: 0.8,
 	},
 	{
 		providerId: "moonshotai",
@@ -790,8 +792,8 @@ const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
 		model: "moonshotai/kimi-k2.7-code",
 		latencyMs: 423,
 		throughputTps: 89,
-		inputPrice: 0.95,
-		outputPrice: 4.0,
+		inputPrice: 0.55,
+		outputPrice: 2.25,
 	},
 ] as const;
 
@@ -940,7 +942,7 @@ function BetaDatabaseVisual() {
 					</div>
 					<div className="hidden text-right xl:block">
 						<span className="text-[9px] font-medium text-zinc-500 dark:text-zinc-400">
-							Pricing
+							Pricing / 1M tokens
 						</span>
 						<p className="mt-1 whitespace-nowrap text-[12px] font-semibold leading-none text-zinc-950 dark:text-zinc-50">
 							$<HydratedNumberFlow value={currentModel.inputPrice} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
@@ -1071,6 +1073,5 @@ export default function HomeQuickstartSection({
 		</div>
 	);
 }
-
 
 
