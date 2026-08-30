@@ -1,0 +1,81 @@
+import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
+import { buildHomeModelPrices } from "./homeModelIntel";
+
+function route(
+	values: Partial<GatewaySupportedModel> & Pick<GatewaySupportedModel, "modelId">,
+): GatewaySupportedModel {
+	return {
+		modelId: values.modelId,
+		isAvailable: true,
+		inputPricePerMillion: null,
+		outputPricePerMillion: null,
+		...values,
+	} as GatewaySupportedModel;
+}
+
+describe("buildHomeModelPrices", () => {
+	it("selects the lowest complete price from available gateway routes", () => {
+		const prices = buildHomeModelPrices([
+			route({
+				modelId: "openai/gpt-5.6-sol",
+				providerId: "atlascloud",
+				inputPricePerMillion: 5,
+				outputPricePerMillion: 30,
+			}),
+			route({
+				modelId: "openai/gpt-5.6-sol",
+				providerId: "openai",
+				inputPricePerMillion: 4,
+				outputPricePerMillion: 20,
+			}),
+			route({
+				modelId: "openai/gpt-5.6-sol",
+				providerId: "discovery-only",
+				isAvailable: false,
+				inputPricePerMillion: 3.6,
+				outputPricePerMillion: 18,
+			}),
+		]);
+
+		expect(prices["openai/gpt-5.6-sol"]).toEqual({
+			inputPrice: 4,
+			outputPrice: 20,
+		});
+	});
+
+	it("prefers the lower output price when input prices tie", () => {
+		const prices = buildHomeModelPrices([
+			route({
+				modelId: "google/gemini-3.1-pro-preview",
+				inputPricePerMillion: 2,
+				outputPricePerMillion: 18,
+			}),
+			route({
+				modelId: "google/gemini-3.1-pro-preview",
+				inputPricePerMillion: 2,
+				outputPricePerMillion: 12,
+			}),
+		]);
+
+		expect(prices["google/gemini-3.1-pro-preview"]).toEqual({
+			inputPrice: 2,
+			outputPrice: 12,
+		});
+	});
+
+	it("ignores incomplete prices and models outside the homepage set", () => {
+		const prices = buildHomeModelPrices([
+			route({
+				modelId: "minimax/minimax-m3",
+				inputPricePerMillion: 0.23,
+			}),
+			route({
+				modelId: "other/model",
+				inputPricePerMillion: 0.1,
+				outputPricePerMillion: 0.2,
+			}),
+		]);
+
+		expect(prices).toEqual({});
+	});
+});
