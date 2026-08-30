@@ -1188,10 +1188,10 @@ jobs:
                   pnpm --filter @phaseo/agent-sdk run build
                   pnpm --filter @phaseo/sdk run build
                   pnpm --filter @phaseo/ai-sdk-provider run build
-                  npm ci --prefix compat/ai-sdk-provider-v5 --ignore-scripts --audit=false
-                  npm run test:release --prefix compat/ai-sdk-provider-v5
-                  npm ci --prefix compat/ai-sdk-provider-v6 --ignore-scripts --audit=false
-                  npm run test:release --prefix compat/ai-sdk-provider-v6
+                  npm ci --prefix packages/compat-ai-sdk-provider-v5 --ignore-scripts --audit=false
+                  npm run test:release --prefix packages/compat-ai-sdk-provider-v5
+                  npm ci --prefix packages/compat-ai-sdk-provider-v6 --ignore-scripts --audit=false
+                  npm run test:release --prefix packages/compat-ai-sdk-provider-v6
                   pnpm --filter @phaseo/devtools-viewer run build
 
             - name: Ensure SDK auto-release changeset
@@ -1274,8 +1274,8 @@ jobs:
                     )
                   }
 
-                  publish_compatibility_line "compat/ai-sdk-provider-v5" "ai-sdk-v5"
-                  publish_compatibility_line "compat/ai-sdk-provider-v6" "ai-sdk-v6"
+                  publish_compatibility_line "packages/compat-ai-sdk-provider-v5" "ai-sdk-v5"
+                  publish_compatibility_line "packages/compat-ai-sdk-provider-v6" "ai-sdk-v6"
 
             - name: Restore committed CLI release state
               run: git restore --source=HEAD --staged --worktree -- packages/cli/phaseo

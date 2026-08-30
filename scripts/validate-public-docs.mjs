@@ -13,10 +13,10 @@ const ALLOWED_ENGINEERING_DOCS = new Set([
 	"apps/api/docs/executor-capability-matrix.md",
 	"apps/api/docs/params-jsonb-schema.md",
 	"apps/api/docs/provider-executor-architecture.md",
-	"docs/README.md",
-	"docs/architecture/catalogue-status-model.md",
-	"docs/architecture/provider-geographic-availability.md",
-	"docs/architecture/v2-data-model.md",
+	"apps/api/docs/public-documentation-policy.md",
+	"apps/api/docs/catalogue-status-model.md",
+	"apps/api/docs/provider-geographic-availability.md",
+	"apps/api/docs/v2-data-model.md",
 ]);
 
 const PUBLIC_CONTENT_ROOTS = [
@@ -25,7 +25,6 @@ const PUBLIC_CONTENT_ROOTS = [
 	"apps/web/src/content",
 	"apps/web/src/lib/content",
 	"apps/api/docs",
-	"docs",
 ];
 const PUBLIC_DOCUMENT_FILES = [
 	"apps/mcp/README.md",
@@ -133,13 +132,13 @@ for (const path of files) {
 	const repositoryPath = toRepositoryPath(path);
 
 	if (
-		(repositoryPath.startsWith("apps/api/docs/") || repositoryPath.startsWith("docs/")) &&
+		repositoryPath.startsWith("apps/api/docs/") &&
 		!ALLOWED_ENGINEERING_DOCS.has(repositoryPath)
 	) {
 		errors.push(`${repositoryPath}: is not an approved public engineering document`);
 	}
 
-	if (repositoryPath === "docs/README.md") continue;
+	if (repositoryPath === "apps/api/docs/public-documentation-policy.md") continue;
 
 	const content = readFileSync(path, "utf8");
 	for (const [description, pattern] of FORBIDDEN_CONTENT) {

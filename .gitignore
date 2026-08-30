@@ -35,6 +35,14 @@ guides/private/
 .playwright-cli/
 .tools/
 .codex/tmp/
+/.claude/
+/.codex/remote-control*.log
+/design-audit/
+/design-qa*
+/postman/
+/supabase/.temp/
+/apps/web/scripts/importer/*.log
+/apps/web/scripts/importer/reports/
 packages/data/catalog/src/data/monitor-history.json
 packages/sdk/sdk-csharp/bin/
 packages/sdk/sdk-csharp/obj/
