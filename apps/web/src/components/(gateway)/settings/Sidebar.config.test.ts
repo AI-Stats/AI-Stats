@@ -24,6 +24,12 @@ describe("settings sidebar navigation", () => {
 		expect(getActiveSettingsNav("/settings/usage/logs/batches")?.item.label).toBe("Logs");
 	});
 
+	it("includes the workspace activity log under settings", () => {
+		const settings = getActiveSettingsNav("/settings/workspaces/activity")?.item;
+		expect(settings?.label).toBe("Settings");
+		expect(settings?.children?.map((child) => child.label)).toContain("Activity");
+	});
+
 	it("orders workspace settings by task", () => {
 		const workspaceGroups = getSettingsSidebar()
 			.filter((group) => group.scope === "workspace")
