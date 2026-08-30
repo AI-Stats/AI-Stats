@@ -80,6 +80,11 @@ pub fn createChatCompletion<T: Transport>(client: &Client<T>, path: &HashMap<Str
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createDataContributionClassifier<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/data-contribution/classifiers");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/routing/dynamic-routes");
 	client.request("POST", &resolved_path, body)
@@ -205,6 +210,11 @@ pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deleteDataContributionClassifier<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/data-contribution/classifiers/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -307,6 +317,11 @@ pub fn getCredits<T: Transport>(client: &Client<T>, path: &HashMap<String, Strin
 
 pub fn getCurrentApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/key");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getDataContributionSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/data-contribution");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -697,6 +712,16 @@ pub fn rotateWebhookEndpointSecret<T: Transport>(client: &Client<T>, path: &Hash
 
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateDataContributionClassifier<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/data-contribution/classifiers/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateDataContributionConsent<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/data-contribution/consent");
 	client.request("PATCH", &resolved_path, body)
 }
 

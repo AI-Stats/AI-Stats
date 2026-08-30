@@ -527,6 +527,80 @@ pub struct CreditsResponse {
 	pub ok: String,
 }
 
+pub struct DataContributionCategories {
+}
+
+pub struct DataContributionClassifier {
+	pub categories: HashMap<String, String>,
+	pub created_at: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: bool,
+	pub id: String,
+	pub instructions: String,
+	pub kind: String,
+	pub model: String,
+	pub name: String,
+	pub sample_rate_bps: i64,
+	pub service_tier: String,
+	pub slug: String,
+	pub updated_at: Option<Option<String>>,
+}
+
+pub struct DataContributionClassifierCreateRequest {
+	pub categories: HashMap<String, String>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub instructions: String,
+	pub model: Option<String>,
+	pub name: String,
+	pub sampleRateBps: Option<i64>,
+	pub serviceTier: Option<String>,
+	pub slug: Option<String>,
+}
+
+pub struct DataContributionClassifierDeleteResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DataContributionClassifierInput {
+	pub categories: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub instructions: Option<String>,
+	pub model: Option<String>,
+	pub name: Option<String>,
+	pub sampleRateBps: Option<i64>,
+	pub serviceTier: Option<String>,
+}
+
+pub struct DataContributionClassifierResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DataContributionClassifierUpdateRequest {
+	pub categories: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub instructions: Option<String>,
+	pub model: Option<String>,
+	pub name: Option<String>,
+	pub sampleRateBps: Option<i64>,
+	pub serviceTier: Option<String>,
+}
+
+pub struct DataContributionConsentRequest {
+	pub enabled: bool,
+	pub reason: Option<String>,
+}
+
+pub struct DataContributionConsentResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DataContributionOverviewResponse {
+	pub data: HashMap<String, String>,
+}
+
 pub struct DataModel {
 	pub deprecation_date: Option<Option<String>>,
 	pub hidden: Option<bool>,

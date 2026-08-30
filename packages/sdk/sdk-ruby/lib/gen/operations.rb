@@ -93,6 +93,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createDataContributionClassifier(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/data-contribution/classifiers"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes"
@@ -243,6 +249,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deleteDataContributionClassifier(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/data-contribution/classifiers/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -366,6 +378,12 @@ module Phaseo
       def self.getCurrentApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/key"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getDataContributionSettings(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/data-contribution"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -834,6 +852,18 @@ module Phaseo
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateDataContributionClassifier(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/data-contribution/classifiers/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateDataContributionConsent(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/data-contribution/consent"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

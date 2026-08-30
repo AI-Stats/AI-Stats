@@ -42,6 +42,7 @@ OpenAPI schema does not count as complete.
 | Routing policies | Workspace defaults, provider restrictions, versioned dynamic routes, key assignments, and deployments | Contracted | Add new durable routing controls to the same surface as the dashboard evolves. |
 | Presets | CRUD, publisher identity, immutable versions, forks, upstream updates, and archival | Contracted | Add request-derived versions or designated-version changes only when those become durable dashboard actions. |
 | Plugins and tools | Response-healing workspace defaults and lock policy; request-level plugin/tool controls | Contracted where durable | Add assignment APIs when another plugin gains durable dashboard configuration. |
+| Data contribution | Consent, classifier CRUD, sampling configuration, and aggregate analytics | Contracted where feature-enabled | Access remains restricted to the current admin preview segment. |
 | Observability | Logs, workspace I/O logging policy, and webhook/OpenTelemetry destination CRUD with privacy, sampling, key filters, and event rules | Contracted for executable exporters | Add destination types only when their exporters are executable. |
 | Workspace budgets | Guardrail/limit primitives | Missing as a resource | Add daily, weekly, monthly, and lifetime budget CRUD with hierarchy validation and usage/remaining values. |
 | Organisation administration | Workspace-native membership and invitations | Partial | Contract SSO, SCIM, and directory administration; Phaseo currently treats each organisation workspace as the membership boundary. |

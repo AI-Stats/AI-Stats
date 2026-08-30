@@ -7,6 +7,7 @@ import { getSupabaseActor } from "@/lib/oauth/service";
 import type { AuthSuccess } from "@/pipeline/before/auth";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
+import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 import { json, withRuntime } from "@/routes/utils";
 import {
 	DATA_CONTRIBUTION_POLICY_VERSION,
@@ -28,6 +29,26 @@ import {
 const SAMPLE_RATE_BPS = 10000;
 const CLASSIFIER_SAMPLE_RATE_BPS = 1000;
 const DISCOUNT_BPS = 100;
+
+async function auditDataContribution(
+	auth: AuthSuccess,
+	action: string,
+	targetType: string,
+	targetId: string,
+	targetName?: string | null,
+	metadata?: Record<string, unknown>,
+) {
+	await recordWorkspaceAuditEvent(getSupabaseAdmin(), {
+		workspaceId: auth.workspaceId,
+		actorUserId: auth.userId,
+		action,
+		targetType,
+		targetId,
+		targetName,
+		metadata,
+		requestId: (auth as AuthSuccess & { requestId?: string | null }).requestId,
+	});
+}
 
 async function auditConsentDenial(auth: {
 	workspaceId: string;
@@ -287,6 +308,7 @@ async function updateConsent(req: Request) {
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
+		await auditDataContribution(auth, "data_contribution.consent.updated", "workspace_data_contribution", auth.workspaceId, null, { enabled });
 		return json({ data: { enabled, policyVersion: DATA_CONTRIBUTION_POLICY_VERSION, sampleRateBps: SAMPLE_RATE_BPS, classifierSampleRateBps: CLASSIFIER_SAMPLE_RATE_BPS, discountBps: DISCOUNT_BPS } }, 200, { "Cache-Control": "no-store" });
 	} catch (error) {
 		return internalServerError("data-contribution.consent", error);
@@ -310,6 +332,8 @@ async function createClassifier(req: Request) {
 			...classifierPatch(body, true),
 		}).select("*").maybeSingle();
 		if (error) throw error;
+		if (!data) throw new Error("Failed to create classifier");
+		await auditDataContribution(auth, "data_contribution.classifier.created", "workspace_classifier", String(data.id), String(data.name ?? "") || null);
 		return json({ data }, 201, { "Cache-Control": "no-store" });
 	} catch (error) {
 		return json({ error: "classifier_invalid", message: error instanceof Error ? error.message : "Invalid classifier" }, 400, { "Cache-Control": "no-store" });
@@ -327,6 +351,7 @@ async function updateClassifier(req: Request, id: string) {
 			.eq("id", id).eq("workspace_id", auth.workspaceId).eq("kind", "custom").select("*").maybeSingle();
 		if (error) throw error;
 		if (!data) return json({ error: "not_found" }, 404);
+		await auditDataContribution(auth, "data_contribution.classifier.updated", "workspace_classifier", String(data.id), String(data.name ?? "") || null, { changed_fields: Object.keys(patch).filter((field) => field !== "instructions") });
 		return json({ data }, 200, { "Cache-Control": "no-store" });
 	} catch (error) {
 		return json({ error: "classifier_invalid", message: error instanceof Error ? error.message : "Invalid classifier" }, 400, { "Cache-Control": "no-store" });
@@ -337,9 +362,10 @@ async function deleteClassifier(req: Request, id: string) {
 	const auth = await authenticate(req, true);
 	if (auth instanceof Response) return auth;
 	const { data, error } = await getSupabaseAdmin().from("workspace_classifiers").delete()
-		.eq("id", id).eq("workspace_id", auth.workspaceId).eq("kind", "custom").select("id").maybeSingle();
+		.eq("id", id).eq("workspace_id", auth.workspaceId).eq("kind", "custom").select("id,name").maybeSingle();
 	if (error) return internalServerError("data-contribution.classifier.delete", error);
 	if (!data) return json({ error: "not_found" }, 404);
+	await auditDataContribution(auth, "data_contribution.classifier.deleted", "workspace_classifier", String(data.id), String(data.name ?? "") || null);
 	return json({ data: { deleted: true } }, 200, { "Cache-Control": "no-store" });
 }
 

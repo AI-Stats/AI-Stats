@@ -661,6 +661,18 @@
 											"v1/api-reference/endpoint/webhook-endpoints-delete",
 											"v1/api-reference/endpoint/webhook-endpoints-rotate-secret"
 										]
+									},
+									{
+										"group": "Data Contribution",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/data-contribution-get",
+											"v1/api-reference/endpoint/data-contribution-consent-update",
+											"v1/api-reference/endpoint/data-contribution-classifier-create",
+											"v1/api-reference/endpoint/data-contribution-classifier-update",
+											"v1/api-reference/endpoint/data-contribution-classifier-delete"
+										]
 									}
 								]
 							}

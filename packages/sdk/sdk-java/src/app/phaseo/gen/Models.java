@@ -530,6 +530,80 @@ public final class Models {
 		public Object ok;
 	}
 
+	public static class DataContributionCategories {
+	}
+
+	public static class DataContributionClassifier {
+		public Object categories;
+		public String created_at;
+		public String description;
+		public Boolean enabled;
+		public String id;
+		public String instructions;
+		public Object kind;
+		public String model;
+		public String name;
+		public Integer sample_rate_bps;
+		public Object service_tier;
+		public String slug;
+		public String updated_at;
+	}
+
+	public static class DataContributionClassifierCreateRequest {
+		public Object categories;
+		public String description;
+		public Boolean enabled;
+		public String instructions;
+		public String model;
+		public String name;
+		public Integer sampleRateBps;
+		public Object serviceTier;
+		public String slug;
+	}
+
+	public static class DataContributionClassifierDeleteResponse {
+		public Object data;
+	}
+
+	public static class DataContributionClassifierInput {
+		public Object categories;
+		public String description;
+		public Boolean enabled;
+		public String instructions;
+		public String model;
+		public String name;
+		public Integer sampleRateBps;
+		public Object serviceTier;
+	}
+
+	public static class DataContributionClassifierResponse {
+		public Object data;
+	}
+
+	public static class DataContributionClassifierUpdateRequest {
+		public Object categories;
+		public String description;
+		public Boolean enabled;
+		public String instructions;
+		public String model;
+		public String name;
+		public Integer sampleRateBps;
+		public Object serviceTier;
+	}
+
+	public static class DataContributionConsentRequest {
+		public Boolean enabled;
+		public String reason;
+	}
+
+	public static class DataContributionConsentResponse {
+		public Object data;
+	}
+
+	public static class DataContributionOverviewResponse {
+		public Object data;
+	}
+
 	public static class DataModel {
 		public String deprecation_date;
 		public Boolean hidden;

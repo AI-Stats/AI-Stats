@@ -2303,6 +2303,81 @@ export async function createChatCompletion(
   });
 }
 
+export type CreateDataContributionClassifierParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    categories: {
+      [key: string]: string[];
+    };
+    description?: string | null;
+    enabled?: boolean;
+    instructions: string;
+    model?: string;
+    name: string;
+    sampleRateBps?: number;
+    serviceTier?: "standard" | "flex";
+    slug?: string;
+  };
+};
+
+/**
+ * Creates a custom workspace classifier. Requires `settings:write` and feature access.
+ */
+export async function createDataContributionClassifier(
+  client: Client,
+  args: CreateDataContributionClassifierParams = {},
+): Promise<{
+  data: {
+    categories: {
+      [key: string]: string[];
+    };
+    created_at?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    id: string;
+    instructions: string;
+    kind: "starter" | "custom";
+    model: string;
+    name: string;
+    sample_rate_bps: number;
+    service_tier: "standard" | "flex";
+    slug: string;
+    updated_at?: string | null;
+    [key: string]: unknown;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/data-contribution/classifiers";
+  return client.request<{
+    data: {
+      categories: {
+        [key: string]: string[];
+      };
+      created_at?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      id: string;
+      instructions: string;
+      kind: "starter" | "custom";
+      model: string;
+      name: string;
+      sample_rate_bps: number;
+      service_tier: "standard" | "flex";
+      slug: string;
+      updated_at?: string | null;
+      [key: string]: unknown;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateDynamicRouteParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -5715,6 +5790,41 @@ export async function deleteApiKey(
   });
 }
 
+export type DeleteDataContributionClassifierParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a custom classifier. The built-in starter classifier cannot be deleted.
+ */
+export async function deleteDataContributionClassifier(
+  client: Client,
+  args: DeleteDataContributionClassifierParams = {},
+): Promise<{
+  data: {
+    deleted: true;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: true;
+    };
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteDynamicRouteParams = {
   path?: {
     id: string;
@@ -6795,6 +6905,105 @@ export async function getCurrentApiKey(
       status: string | null;
       updated_at: string | null;
       workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetDataContributionSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns workspace consent, classifier configuration, and recent aggregate contribution analytics. Requires `settings:read` and feature access.
+ */
+export async function getDataContributionSettings(
+  client: Client,
+  args: GetDataContributionSettingsParams = {},
+): Promise<{
+  data: {
+    analytics: {
+      [key: string]: unknown;
+    }[];
+    classifiers: {
+      categories: {
+        [key: string]: string[];
+      };
+      created_at?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      id: string;
+      instructions: string;
+      kind: "starter" | "custom";
+      model: string;
+      name: string;
+      sample_rate_bps: number;
+      service_tier: "standard" | "flex";
+      slug: string;
+      updated_at?: string | null;
+      [key: string]: unknown;
+    }[];
+    classifierSampleRateBps: number;
+    consentedAt?: string | null;
+    discountBps: number;
+    enabled: boolean;
+    last30Days: {
+      contributions: number;
+      discountNanos: number;
+    };
+    policyVersion: string;
+    sampleRateBps: number;
+    starterCategories: {
+      [key: string]: string[];
+    };
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/data-contribution";
+  return client.request<{
+    data: {
+      analytics: {
+        [key: string]: unknown;
+      }[];
+      classifiers: {
+        categories: {
+          [key: string]: string[];
+        };
+        created_at?: string | null;
+        description?: string | null;
+        enabled: boolean;
+        id: string;
+        instructions: string;
+        kind: "starter" | "custom";
+        model: string;
+        name: string;
+        sample_rate_bps: number;
+        service_tier: "standard" | "flex";
+        slug: string;
+        updated_at?: string | null;
+        [key: string]: unknown;
+      }[];
+      classifierSampleRateBps: number;
+      consentedAt?: string | null;
+      discountBps: number;
+      enabled: boolean;
+      last30Days: {
+        contributions: number;
+        discountNanos: number;
+      };
+      policyVersion: string;
+      sampleRateBps: number;
+      starterCategories: {
+        [key: string]: string[];
+      };
     };
   }>({
     method: "GET",
@@ -14429,6 +14638,126 @@ export async function updateApiKey(
       status: string | null;
       updated_at: string | null;
       workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateDataContributionClassifierParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    categories?: {
+      [key: string]: string[];
+    };
+    description?: string | null;
+    enabled?: boolean;
+    instructions?: string;
+    model?: string;
+    name?: string;
+    sampleRateBps?: number;
+    serviceTier?: "standard" | "flex";
+  };
+};
+
+/**
+ * Updates a custom workspace classifier. Requires `settings:write` and feature access.
+ */
+export async function updateDataContributionClassifier(
+  client: Client,
+  args: UpdateDataContributionClassifierParams = {},
+): Promise<{
+  data: {
+    categories: {
+      [key: string]: string[];
+    };
+    created_at?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    id: string;
+    instructions: string;
+    kind: "starter" | "custom";
+    model: string;
+    name: string;
+    sample_rate_bps: number;
+    service_tier: "standard" | "flex";
+    slug: string;
+    updated_at?: string | null;
+    [key: string]: unknown;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      categories: {
+        [key: string]: string[];
+      };
+      created_at?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      id: string;
+      instructions: string;
+      kind: "starter" | "custom";
+      model: string;
+      name: string;
+      sample_rate_bps: number;
+      service_tier: "standard" | "flex";
+      slug: string;
+      updated_at?: string | null;
+      [key: string]: unknown;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateDataContributionConsentParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    enabled: boolean;
+    reason?: string;
+  };
+};
+
+/**
+ * Enables or disables workspace data contribution and refreshes gateway policy state. Requires `settings:write` and feature access.
+ */
+export async function updateDataContributionConsent(
+  client: Client,
+  args: UpdateDataContributionConsentParams = {},
+): Promise<{
+  data: {
+    classifierSampleRateBps: number;
+    discountBps: number;
+    enabled: boolean;
+    policyVersion: string;
+    sampleRateBps: number;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/data-contribution/consent";
+  return client.request<{
+    data: {
+      classifierSampleRateBps: number;
+      discountBps: number;
+      enabled: boolean;
+      policyVersion: string;
+      sampleRateBps: number;
     };
   }>({
     method: "PATCH",

@@ -79,6 +79,11 @@ inline Response CreateChatCompletion(Client& client, const std::map<std::string,
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateDataContributionClassifier(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/data-contribution/classifiers";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes";
 	return client.request("POST", resolved_path, body);
@@ -204,6 +209,11 @@ inline Response DeleteApiKey(Client& client, const std::map<std::string, std::st
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeleteDataContributionClassifier(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/data-contribution/classifiers/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -306,6 +316,11 @@ inline Response GetCredits(Client& client, const std::map<std::string, std::stri
 
 inline Response GetCurrentApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/key";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetDataContributionSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/data-contribution";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -696,6 +711,16 @@ inline Response RotateWebhookEndpointSecret(Client& client, const std::map<std::
 
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateDataContributionClassifier(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/data-contribution/classifiers/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateDataContributionConsent(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/data-contribution/consent";
 	return client.request("PATCH", resolved_path, body);
 }
 

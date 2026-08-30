@@ -2422,6 +2422,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /data-contribution:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getDataContributionSettings
+      summary: Get data contribution settings
+      description: Returns workspace consent, classifier configuration, and recent aggregate contribution analytics. Requires `settings:read` and feature access.
+      responses:
+        '200': {description: Data contribution settings, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionOverviewResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /data-contribution/consent:
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateDataContributionConsent
+      summary: Update data contribution consent
+      description: Enables or disables workspace data contribution and refreshes gateway policy state. Requires `settings:write` and feature access.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionConsentRequest'}}}}
+      responses:
+        '200': {description: Consent updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionConsentResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /data-contribution/classifiers:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createDataContributionClassifier
+      summary: Create a data contribution classifier
+      description: Creates a custom workspace classifier. Requires `settings:write` and feature access.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionClassifierCreateRequest'}}}}
+      responses:
+        '201': {description: Classifier created, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionClassifierResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /data-contribution/classifiers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/DataContributionClassifierId'
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateDataContributionClassifier
+      summary: Update a data contribution classifier
+      description: Updates a custom workspace classifier. Requires `settings:write` and feature access.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionClassifierUpdateRequest'}}}}
+      responses:
+        '200': {description: Classifier updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionClassifierResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteDataContributionClassifier
+      summary: Delete a data contribution classifier
+      description: Deletes a custom classifier. The built-in starter classifier cannot be deleted.
+      responses:
+        '200': {description: Classifier deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DataContributionClassifierDeleteResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /oauth-clients:
     get:
       x-beta: true
@@ -5647,6 +5701,11 @@ components:
       schema:
         type: string
   parameters:
+    DataContributionClassifierId:
+      name: id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
     OAuthClientId:
       name: client_id
       in: path
@@ -13134,6 +13193,114 @@ components:
         soft_blocked:
           type: boolean
           example: false
+    DataContributionCategories:
+      type: object
+      minProperties: 1
+      maxProperties: 16
+      additionalProperties:
+        type: array
+        minItems: 1
+        maxItems: 32
+        items: {type: string}
+    DataContributionClassifierInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 80}
+        description: {type: string, nullable: true, maxLength: 500}
+        instructions: {type: string, minLength: 1, maxLength: 4000}
+        categories: {$ref: '#/components/schemas/DataContributionCategories'}
+        model: {type: string}
+        serviceTier: {type: string, enum: [standard, flex]}
+        sampleRateBps: {type: integer, minimum: 0, maximum: 10000}
+        enabled: {type: boolean}
+      additionalProperties: false
+    DataContributionClassifierCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/DataContributionClassifierInput'
+        - type: object
+          required: [name, instructions, categories]
+          properties:
+            slug: {type: string, maxLength: 64}
+    DataContributionClassifierUpdateRequest: {$ref: '#/components/schemas/DataContributionClassifierInput'}
+    DataContributionClassifier:
+      type: object
+      required: [id, slug, name, kind, instructions, categories, model, service_tier, sample_rate_bps, enabled]
+      properties:
+        id: {type: string}
+        slug: {type: string}
+        name: {type: string}
+        description: {type: string, nullable: true}
+        kind: {type: string, enum: [starter, custom]}
+        instructions: {type: string}
+        categories: {$ref: '#/components/schemas/DataContributionCategories'}
+        model: {type: string}
+        service_tier: {type: string, enum: [standard, flex]}
+        sample_rate_bps: {type: integer}
+        enabled: {type: boolean}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: true
+    DataContributionOverviewResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [enabled, policyVersion, sampleRateBps, classifierSampleRateBps, discountBps, last30Days, classifiers, analytics, starterCategories]
+          properties:
+            enabled: {type: boolean}
+            policyVersion: {type: string}
+            consentedAt: {type: string, format: date-time, nullable: true}
+            sampleRateBps: {type: integer}
+            classifierSampleRateBps: {type: integer}
+            discountBps: {type: integer}
+            last30Days:
+              type: object
+              required: [contributions, discountNanos]
+              properties:
+                contributions: {type: integer}
+                discountNanos: {type: integer}
+            classifiers: {type: array, items: {$ref: '#/components/schemas/DataContributionClassifier'}}
+            analytics: {type: array, items: {type: object, additionalProperties: true}}
+            starterCategories: {$ref: '#/components/schemas/DataContributionCategories'}
+      additionalProperties: false
+    DataContributionConsentRequest:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: {type: boolean}
+        reason: {type: string, maxLength: 500}
+      additionalProperties: false
+    DataContributionConsentResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [enabled, policyVersion, sampleRateBps, classifierSampleRateBps, discountBps]
+          properties:
+            enabled: {type: boolean}
+            policyVersion: {type: string}
+            sampleRateBps: {type: integer}
+            classifierSampleRateBps: {type: integer}
+            discountBps: {type: integer}
+      additionalProperties: false
+    DataContributionClassifierResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {$ref: '#/components/schemas/DataContributionClassifier'}
+      additionalProperties: false
+    DataContributionClassifierDeleteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [deleted]
+          properties:
+            deleted: {type: boolean, enum: [true]}
+      additionalProperties: false
     OAuthClientInput:
       type: object
       properties:

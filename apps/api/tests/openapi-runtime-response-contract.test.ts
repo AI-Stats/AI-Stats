@@ -206,4 +206,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		},
 	);
 
+	it("matches /data-contribution unauthenticated responses to its public error schema", async () => {
+		const result = await requestJson("/v1/data-contribution", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/data-contribution", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

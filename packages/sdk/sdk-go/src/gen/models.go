@@ -1196,6 +1196,80 @@ type CreditsResponse struct {
 	Ok string `json:"ok"`
 }
 
+type DataContributionCategories struct {
+}
+
+type DataContributionClassifier struct {
+	Categories map[string]interface{} `json:"categories"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	Instructions string `json:"instructions"`
+	Kind string `json:"kind"`
+	Model string `json:"model"`
+	Name string `json:"name"`
+	SampleRateBps int `json:"sample_rate_bps"`
+	ServiceTier string `json:"service_tier"`
+	Slug string `json:"slug"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type DataContributionClassifierCreateRequest struct {
+	Categories map[string]interface{} `json:"categories"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Instructions string `json:"instructions"`
+	Model *string `json:"model,omitempty"`
+	Name string `json:"name"`
+	SampleRateBps *int `json:"sampleRateBps,omitempty"`
+	ServiceTier *string `json:"serviceTier,omitempty"`
+	Slug *string `json:"slug,omitempty"`
+}
+
+type DataContributionClassifierDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DataContributionClassifierInput struct {
+	Categories *map[string]interface{} `json:"categories,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Instructions *string `json:"instructions,omitempty"`
+	Model *string `json:"model,omitempty"`
+	Name *string `json:"name,omitempty"`
+	SampleRateBps *int `json:"sampleRateBps,omitempty"`
+	ServiceTier *string `json:"serviceTier,omitempty"`
+}
+
+type DataContributionClassifierResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DataContributionClassifierUpdateRequest struct {
+	Categories *map[string]interface{} `json:"categories,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Instructions *string `json:"instructions,omitempty"`
+	Model *string `json:"model,omitempty"`
+	Name *string `json:"name,omitempty"`
+	SampleRateBps *int `json:"sampleRateBps,omitempty"`
+	ServiceTier *string `json:"serviceTier,omitempty"`
+}
+
+type DataContributionConsentRequest struct {
+	Enabled bool `json:"enabled"`
+	Reason *string `json:"reason,omitempty"`
+}
+
+type DataContributionConsentResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DataContributionOverviewResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type DataModel struct {
 	DeprecationDate *string `json:"deprecation_date,omitempty"`
 	Hidden *bool `json:"hidden,omitempty"`

@@ -799,6 +799,104 @@ module Phaseo
     # @!attribute [rw] ok
     #   @return [String]
     CreditsResponse = Struct.new(:credits, :ok, keyword_init: true)
+    DataContributionCategories = Struct.new(:_unused, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] instructions
+    #   @return [String]
+    # @!attribute [rw] kind
+    #   @return [String]
+    # @!attribute [rw] model
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] sample_rate_bps
+    #   @return [Integer]
+    # @!attribute [rw] service_tier
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    DataContributionClassifier = Struct.new(:categories, :created_at, :description, :enabled, :id, :instructions, :kind, :model, :name, :sample_rate_bps, :service_tier, :slug, :updated_at, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] instructions
+    #   @return [String]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] sampleRateBps
+    #   @return [Integer, nil]
+    # @!attribute [rw] serviceTier
+    #   @return [String, nil]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    DataContributionClassifierCreateRequest = Struct.new(:categories, :description, :enabled, :instructions, :model, :name, :sampleRateBps, :serviceTier, :slug, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionClassifierDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] instructions
+    #   @return [String, nil]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] sampleRateBps
+    #   @return [Integer, nil]
+    # @!attribute [rw] serviceTier
+    #   @return [String, nil]
+    DataContributionClassifierInput = Struct.new(:categories, :description, :enabled, :instructions, :model, :name, :sampleRateBps, :serviceTier, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionClassifierResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] instructions
+    #   @return [String, nil]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] sampleRateBps
+    #   @return [Integer, nil]
+    # @!attribute [rw] serviceTier
+    #   @return [String, nil]
+    DataContributionClassifierUpdateRequest = Struct.new(:categories, :description, :enabled, :instructions, :model, :name, :sampleRateBps, :serviceTier, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] reason
+    #   @return [String, nil]
+    DataContributionConsentRequest = Struct.new(:enabled, :reason, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionConsentResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionOverviewResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] deprecation_date
     #   @return [String, nil]
     # @!attribute [rw] hidden

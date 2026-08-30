@@ -531,6 +531,80 @@ struct CreditsResponse {
 	std::any ok;
 };
 
+struct DataContributionCategories {
+};
+
+struct DataContributionClassifier {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	bool enabled;
+	std::string id;
+	std::string instructions;
+	std::any kind;
+	std::string model;
+	std::string name;
+	int sample_rate_bps;
+	std::any service_tier;
+	std::string slug;
+	std::optional<std::string> updated_at;
+};
+
+struct DataContributionClassifierCreateRequest {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string instructions;
+	std::string model;
+	std::string name;
+	std::optional<int> sampleRateBps;
+	std::any serviceTier;
+	std::string slug;
+};
+
+struct DataContributionClassifierDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DataContributionClassifierInput {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string instructions;
+	std::string model;
+	std::string name;
+	std::optional<int> sampleRateBps;
+	std::any serviceTier;
+};
+
+struct DataContributionClassifierResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DataContributionClassifierUpdateRequest {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string instructions;
+	std::string model;
+	std::string name;
+	std::optional<int> sampleRateBps;
+	std::any serviceTier;
+};
+
+struct DataContributionConsentRequest {
+	bool enabled;
+	std::string reason;
+};
+
+struct DataContributionConsentResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DataContributionOverviewResponse {
+	std::map<std::string, std::any> data;
+};
+
 struct DataModel {
 	std::optional<std::string> deprecation_date;
 	std::optional<bool> hidden;

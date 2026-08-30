@@ -951,6 +951,134 @@ class CreditsResponse
 	public $ok;
 }
 
+class DataContributionCategories
+{
+}
+
+class DataContributionClassifier
+{
+	/** @var array<string, mixed> */
+	public $categories;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $instructions;
+	/** @var string */
+	public $kind;
+	/** @var string */
+	public $model;
+	/** @var string */
+	public $name;
+	/** @var int */
+	public $sample_rate_bps;
+	/** @var string */
+	public $service_tier;
+	/** @var string */
+	public $slug;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class DataContributionClassifierCreateRequest
+{
+	/** @var array<string, mixed> */
+	public $categories;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $instructions;
+	/** @var string|null */
+	public $model;
+	/** @var string */
+	public $name;
+	/** @var int|null */
+	public $sampleRateBps;
+	/** @var string|null */
+	public $serviceTier;
+	/** @var string|null */
+	public $slug;
+}
+
+class DataContributionClassifierDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DataContributionClassifierInput
+{
+	/** @var array<string, mixed>|null */
+	public $categories;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $instructions;
+	/** @var string|null */
+	public $model;
+	/** @var string|null */
+	public $name;
+	/** @var int|null */
+	public $sampleRateBps;
+	/** @var string|null */
+	public $serviceTier;
+}
+
+class DataContributionClassifierResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DataContributionClassifierUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $categories;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $instructions;
+	/** @var string|null */
+	public $model;
+	/** @var string|null */
+	public $name;
+	/** @var int|null */
+	public $sampleRateBps;
+	/** @var string|null */
+	public $serviceTier;
+}
+
+class DataContributionConsentRequest
+{
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $reason;
+}
+
+class DataContributionConsentResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DataContributionOverviewResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
 class DataModel
 {
 	/** @var string|null */

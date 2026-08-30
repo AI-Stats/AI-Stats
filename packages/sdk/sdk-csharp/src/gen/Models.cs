@@ -1326,6 +1326,178 @@ public sealed class CreditsResponse
 
 }
 
+public sealed class DataContributionCategories
+{
+}
+
+public sealed class DataContributionClassifier
+{
+	[JsonPropertyName("categories")]
+	public Dictionary<string, object> Categories { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("instructions")]
+	public string Instructions { get; set; }
+
+	[JsonPropertyName("kind")]
+	public string Kind { get; set; }
+
+	[JsonPropertyName("model")]
+	public string Model { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("sample_rate_bps")]
+	public int SampleRateBps { get; set; }
+
+	[JsonPropertyName("service_tier")]
+	public string ServiceTier { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string Slug { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+}
+
+public sealed class DataContributionClassifierCreateRequest
+{
+	[JsonPropertyName("categories")]
+	public Dictionary<string, object> Categories { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("instructions")]
+	public string Instructions { get; set; }
+
+	[JsonPropertyName("model")]
+	public string? Model { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("sampleRateBps")]
+	public int? SampleRateBps { get; set; }
+
+	[JsonPropertyName("serviceTier")]
+	public string? ServiceTier { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string? Slug { get; set; }
+
+}
+
+public sealed class DataContributionClassifierDeleteResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DataContributionClassifierInput
+{
+	[JsonPropertyName("categories")]
+	public Dictionary<string, object>? Categories { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("instructions")]
+	public string? Instructions { get; set; }
+
+	[JsonPropertyName("model")]
+	public string? Model { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("sampleRateBps")]
+	public int? SampleRateBps { get; set; }
+
+	[JsonPropertyName("serviceTier")]
+	public string? ServiceTier { get; set; }
+
+}
+
+public sealed class DataContributionClassifierResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DataContributionClassifierUpdateRequest
+{
+	[JsonPropertyName("categories")]
+	public Dictionary<string, object>? Categories { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("instructions")]
+	public string? Instructions { get; set; }
+
+	[JsonPropertyName("model")]
+	public string? Model { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("sampleRateBps")]
+	public int? SampleRateBps { get; set; }
+
+	[JsonPropertyName("serviceTier")]
+	public string? ServiceTier { get; set; }
+
+}
+
+public sealed class DataContributionConsentRequest
+{
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("reason")]
+	public string? Reason { get; set; }
+
+}
+
+public sealed class DataContributionConsentResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DataContributionOverviewResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
 public sealed class DataModel
 {
 	[JsonPropertyName("deprecation_date")]

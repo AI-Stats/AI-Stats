@@ -108,6 +108,13 @@ function createChatCompletion(Client $client, ?array $path = null, ?array $query
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createDataContributionClassifier(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/data-contribution/classifiers";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createDynamicRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -283,6 +290,13 @@ function deleteApiKey(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deleteDataContributionClassifier(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/data-contribution/classifiers/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteDynamicRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -427,6 +441,13 @@ function getCurrentApiKey(Client $client, ?array $path = null, ?array $query = n
 {
 	$path = $path ?? [];
 	$resolvedPath = "/key";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getDataContributionSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/data-contribution";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -973,6 +994,20 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateDataContributionClassifier(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/data-contribution/classifiers/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateDataContributionConsent(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/data-contribution/consent";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 
