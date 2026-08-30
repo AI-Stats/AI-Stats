@@ -668,6 +668,7 @@ export function computeBillSummary(
         // choose the highest priority rule for this meter that matches plan + conditions
         let candidates = findCandidatesForPlanAndMeter(pricingPlan, dim);
         let resolvedPlan = pricingPlan;
+        let conservativeCoverageFallback = false;
         if (!candidates.length && pricingPlan !== "standard") {
             const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
             if (fallbackCandidates.length) {
@@ -680,6 +681,26 @@ export function computeBillSummary(
                     fallbackPricingPlan: "standard",
                     candidateRuleIds: candidates.map((r) => r.id),
                 });
+            } else if (pricingPlan !== "batch") {
+                // Batch reservations/finalization reject unmatched paid usage;
+                // interactive tiers must recover provider cost after output is delivered.
+                const coverageCandidates = card.rules
+                    .filter((rule) =>
+                        (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
+                        rule.meter === dim,
+                    )
+                    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+                if (coverageCandidates.length) {
+                    candidates = coverageCandidates;
+                    conservativeCoverageFallback = true;
+                    resolvedPlan = pricingPlan;
+                    logPricingDebug("meter_plan_coverage_fallback", {
+                        meter: dim,
+                        quantity: qty,
+                        requestedPricingPlan: pricingPlan,
+                        candidateRuleIds: candidates.map((rule) => rule.id),
+                    });
+                }
             }
         }
         if (!candidates.length) {
@@ -726,7 +747,13 @@ export function computeBillSummary(
         }
 
         // Bill all quantity using the selected rule
-        const rule = selectionSummary.selection?.rule ?? candidates[0];
+        const rule = conservativeCoverageFallback
+            ? candidates.reduce((selected, candidate) => {
+                const selectedPrice = priceWithRule(qty, selected, requestOptions);
+                const candidatePrice = priceWithRule(qty, candidate, requestOptions);
+                return candidatePrice.lineNanos > selectedPrice.lineNanos ? candidate : selected;
+            })
+            : selectionSummary.selection?.rule ?? candidates[0];
         const priced = priceWithRule(qty, rule, requestOptions);
 
         const selectionLog = selectionSummary.selectedScore
