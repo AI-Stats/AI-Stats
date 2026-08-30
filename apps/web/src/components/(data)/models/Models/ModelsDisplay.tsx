@@ -14,6 +14,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { debounce, useQueryState } from "nuqs";
 import { ModelsGrid } from "./ModelsGrid";
 import { ActiveModelFilters, type ActiveModelFilter } from "./ActiveModelFilters";
+import { resolveDefaultGatewayStatuses } from "@/lib/models/defaultGatewayStatuses";
 import { Logo } from "@/components/Logo";
 import { Input } from "@/components/ui/input";
 import {
@@ -959,15 +960,13 @@ function ModelsDisplayContent({
 	const [hasInteractedWithStatuses, setHasInteractedWithStatuses] = useState(
 		selectedStatuses.length > 0,
 	);
-	const hasSearchQuery = deferredSearch.trim().length > 0;
 	const effectiveSelectedStatuses = useMemo<GatewayStatusFilter[]>(
 		() =>
-			!hasInteractedWithStatuses && selectedStatuses.length === 0
-				? hasSearchQuery
-					? []
-					: ["active"]
-				: (selectedStatuses as GatewayStatusFilter[]),
-		[hasInteractedWithStatuses, hasSearchQuery, selectedStatuses],
+			resolveDefaultGatewayStatuses(
+				selectedStatuses as GatewayStatusFilter[],
+				hasInteractedWithStatuses,
+			),
+		[hasInteractedWithStatuses, selectedStatuses],
 	);
 	const [selectedEndpoints, setSelectedEndpoints] = useQueryState("endpoints", {
 		defaultValue: [] as string[],

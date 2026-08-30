@@ -101,7 +101,7 @@ publicLandingRouter.get("/landing/gateway-showcase", async (c) => {
 			points.push({ timestamp, requests: rowRequests, uptimePct: rowRequests > 0 ? rowSuccessful / rowRequests * 100 : null, p50Ms: averageLatency, p95Ms: averageLatency, avgMs: averageLatency, requestsPerMin: rowRequests / 60, tokensPerMin: rowTokens / 60, hoursAgo: offset });
 		}
 		const modelIds = [...new Set(activeSupported.map((row) => row.model_slug).filter(Boolean))]; const providerIds = [...new Set(activeSupported.map((row) => row.provider_slug).filter(Boolean))];
-		const metrics = { summary: { uptimePct: requests > 0 ? successful / requests * 100 : null, latencyP95Ms: percentile(latencyAverages, 0.95), latencyP50Ms: percentile(latencyAverages, 0.5), latencyAvgMs: latencySamples > 0 ? latencySum / latencySamples : null, requests24h: requests, successful24h: successful, tokens24h: tokens, requestsPerMinAvg: requests / (hours * 60), supportedModels: modelIds.length || null, supportedProviders: providerIds.length || null }, timeseries: { uptime: points, latency: points, throughput: points }, supported: { modelIds, providerIds }, fallback: requests <= 0 };
+		const metrics = { summary: { windowHours: hours, uptimePct: requests > 0 ? successful / requests * 100 : null, latencyP95Ms: percentile(latencyAverages, 0.95), latencyP50Ms: percentile(latencyAverages, 0.5), latencyAvgMs: latencySamples > 0 ? latencySum / latencySamples : null, requestsInWindow: requests, successfulInWindow: successful, tokensInWindow: tokens, requests24h: requests, successful24h: successful, tokens24h: tokens, requestsPerMinAvg: requests / (hours * 60), supportedModels: modelIds.length || null, supportedProviders: providerIds.length || null }, timeseries: { uptime: points, latency: points, throughput: points }, supported: { modelIds, providerIds }, fallback: requests <= 0 };
 		const topAppRows = (topApps.data ?? []).filter((row) => Number(row.tokens ?? 0) > 0 && row.app_id).sort((a, b) => Number(b.tokens ?? 0) - Number(a.tokens ?? 0)).slice(0, 6);
 		const appIds = [...new Set(topAppRows.map((row) => row.app_id))]; const appImageUrls: Record<string, string | null> = {};
 		if (appIds.length) { const images = await client.from("api_apps").select("id,image_url").in("id", appIds).eq("is_public", true); if (images.error) throw images.error; for (const row of images.data ?? []) appImageUrls[row.id] = row.image_url ?? null; }
@@ -121,7 +121,7 @@ publicLandingRouter.get("/landing/models/stats", async (c) => {
 			fetchAllRows(
 				c.env,
 				"v2_model_provider_routes",
-				"model_id:model_slug,internal_model_id:model_slug,api_model_id:model_slug",
+				"model_id:model_slug,internal_model_id:model_slug,api_model_id:model_slug,effective_from,effective_to",
 				(query) => query.eq("routing_enabled", true).in("status", ["active", "degraded"]),
 			),
 		]);
@@ -129,12 +129,21 @@ publicLandingRouter.get("/landing/models/stats", async (c) => {
 		const organisationIds = new Set(
 			models.map((model) => String(model.organisation_id ?? "")).filter(Boolean),
 		);
+		const now = Date.now();
 		const activeGatewayModels = new Set(
 			providerModels
+				.filter((model) => {
+					const effectiveFrom = model.effective_from
+						? Date.parse(String(model.effective_from))
+						: Number.NEGATIVE_INFINITY;
+					const effectiveTo = model.effective_to
+						? Date.parse(String(model.effective_to))
+						: Number.POSITIVE_INFINITY;
+					return now >= effectiveFrom && now < effectiveTo;
+				})
 				.map((model) => String(model.model_id ?? model.internal_model_id ?? model.api_model_id ?? ""))
 				.filter((modelId) => modelIds.has(modelId)),
 		);
-		const now = Date.now();
 		const cutoff = now - 90 * 24 * 60 * 60 * 1_000;
 		const recentCount = models.filter((model) =>
 			[model.announcement_date, model.release_date].some((value) => {

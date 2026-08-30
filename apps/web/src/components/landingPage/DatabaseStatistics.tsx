@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { fetchFrontendLandingStats } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import {
+	fetchFrontendLandingStats,
+	fetchFrontendSignInSupportedModelsStats,
+} from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
 function roundDisplayValue(raw: number, bucket: number) {
 	if (bucket <= 0) return raw;
@@ -27,28 +30,36 @@ function formatCompact(value: number) {
 }
 
 export default async function DatabaseStats() {
-	const { db: data, monthlyTokenTotal } = await fetchFrontendLandingStats();
+	const [{ db: data, monthlyTokenTotal }, gatewayStats] = await Promise.all([
+		fetchFrontendLandingStats(),
+		fetchFrontendSignInSupportedModelsStats(),
+	]);
 
 	const stats = [
 		{
-			label: "Models",
+			label: "Catalog models",
 			value: formatStat(roundDisplayValue(data.models ?? 0, 25)),
 			route: "/models",
 		},
 		{
-			label: "Providers",
+			label: "Routable models",
+			value: formatStat(roundDisplayValue(gatewayStats.apiCount ?? 0, 25)),
+			route: "/models",
+		},
+		{
+			label: "Catalog providers",
 			value: formatStat(roundDisplayValue(data.api_providers ?? 0, 5)),
 			route: "/api-providers",
 		},
 		{
-			label: "Monthly Tokens",
+			label: "Monthly tokens routed",
 			value: `${formatCompact(monthlyTokenTotal ?? 0)}+`,
 			route: "/rankings",
 		},
 	] as const;
 
 	return (
-		<div className="grid w-full grid-cols-1 gap-3 md:grid-cols-3">
+		<div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
 			{stats.map((stat) => (
 				<Link
 					key={stat.label}
@@ -69,5 +80,3 @@ export default async function DatabaseStats() {
 		</div>
 	);
 }
-
-

@@ -7,10 +7,6 @@ icon: "arrow-right-left"
 
 Phaseo is an OpenAI-compatible alternative to OpenRouter. If your app already uses OpenRouter through the OpenAI SDK or direct HTTP calls, you can usually migrate at the client boundary without rewriting prompts or application logic.
 
-<Info>
-Stripe confirmed its acquisition of OpenRouter on August 19, 2026. An acquisition does not require an immediate cutover, but it is a useful time to test a second gateway and document a config-only rollback path.
-</Info>
-
 ## What changes
 
 | Setting | OpenRouter | Phaseo |
@@ -102,7 +98,7 @@ curl -s "https://api.phaseo.app/v1/chat/completions" \
 
 ## 3) Validate model IDs and map OpenRouter-only behavior
 
-Do not assume every previous alias is valid. Query `/v1/models` and verify each production model ID.
+Do not assume every previous alias is valid. Query `/v1/models` and verify each production model ID. The default response contains only models that are publicly routable now; use `availability=all` only when you intentionally need to inspect inactive or coming-soon mappings.
 
 <CodeGroup>
 ```bash cURL
