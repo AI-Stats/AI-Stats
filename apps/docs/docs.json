@@ -498,7 +498,17 @@
 											"v1/api-reference/endpoint/workspaces-create",
 											"v1/api-reference/endpoint/workspaces-get",
 											"v1/api-reference/endpoint/workspaces-delete",
-											"v1/api-reference/endpoint/workspaces-update"
+											"v1/api-reference/endpoint/workspaces-update",
+											"v1/api-reference/endpoint/workspace-members-list",
+											"v1/api-reference/endpoint/workspace-members-add",
+											"v1/api-reference/endpoint/workspace-members-remove",
+											"v1/api-reference/endpoint/workspace-member-role-update",
+											"v1/api-reference/endpoint/workspace-invites-list",
+											"v1/api-reference/endpoint/workspace-invites-create",
+											"v1/api-reference/endpoint/workspace-invites-delete",
+											"v1/api-reference/endpoint/workspace-join-requests-list",
+											"v1/api-reference/endpoint/workspace-join-request-approve",
+											"v1/api-reference/endpoint/workspace-join-request-reject"
 										]
 									},
 									{

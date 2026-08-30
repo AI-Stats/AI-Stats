@@ -1584,6 +1584,8 @@ struct WorkspaceActivityResponse {
 	double total_cost_cents;
 };
 
+using WorkspaceAssignableRole = std::any;
+
 struct WorkspaceAuditEvent {
 	std::string action;
 	std::optional<std::map<std::string, std::any>> actor;
@@ -1636,14 +1638,105 @@ struct WorkspaceCreateRequest {
 	std::string slug;
 };
 
+struct WorkspaceInvite {
+	std::string created_at;
+	std::string creator_user_id;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::optional<int> max_uses;
+	std::any role;
+	std::optional<std::string> token_preview;
+	std::optional<int> uses_count;
+	std::string workspace_id;
+};
+
+struct WorkspaceInviteCreateRequest {
+	std::optional<int> expires_in_days;
+	std::optional<int> max_uses;
+	std::any role;
+};
+
+struct WorkspaceInviteCreateResponse {
+	std::map<std::string, std::any> data;
+	std::string token;
+};
+
+struct WorkspaceInviteListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct WorkspaceJoinRequest {
+	std::string created_at;
+	std::optional<std::string> decided_at;
+	std::optional<std::string> decided_by;
+	std::string id;
+	std::optional<std::string> invite_id;
+	std::string requester_user_id;
+	std::any status;
+	std::string workspace_id;
+};
+
+struct WorkspaceJoinRequestListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct WorkspaceJoinRequestResponse {
+	std::map<std::string, std::any> data;
+};
+
+using WorkspaceJoinRequestStatus = std::any;
+
 struct WorkspaceListResponse {
 	std::vector<std::map<std::string, std::any>> data;
 	int total_count;
 };
 
+struct WorkspaceMember {
+	std::optional<std::string> display_name;
+	std::optional<std::string> joined_at;
+	std::any role;
+	std::string user_id;
+	std::string workspace_id;
+};
+
+struct WorkspaceMemberAddResponse {
+	int added_count;
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceMemberBulkRequest {
+	std::any role;
+	std::vector<std::string> user_ids;
+};
+
+struct WorkspaceMemberListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct WorkspaceMemberRemoveRequest {
+	std::vector<std::string> user_ids;
+};
+
+struct WorkspaceMemberRemoveResponse {
+	int removed_count;
+};
+
+struct WorkspaceMemberResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceMemberRoleUpdateRequest {
+	std::any role;
+};
+
 struct WorkspaceResponse {
 	std::map<std::string, std::any> data;
 };
+
+using WorkspaceRole = std::any;
 
 struct WorkspaceUpdateRequest {
 	std::string name;

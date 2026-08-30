@@ -1580,6 +1580,8 @@ pub struct WorkspaceActivityResponse {
 	pub total_cost_cents: f64,
 }
 
+pub type WorkspaceAssignableRole = JsonValue;
+
 pub struct WorkspaceAuditEvent {
 	pub action: String,
 	pub actor: Option<Option<HashMap<String, String>>>,
@@ -1632,14 +1634,105 @@ pub struct WorkspaceCreateRequest {
 	pub slug: Option<String>,
 }
 
+pub struct WorkspaceInvite {
+	pub created_at: Option<String>,
+	pub creator_user_id: String,
+	pub expires_at: Option<Option<String>>,
+	pub id: String,
+	pub max_uses: Option<Option<i64>>,
+	pub role: String,
+	pub token_preview: Option<Option<String>>,
+	pub uses_count: Option<i64>,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceInviteCreateRequest {
+	pub expires_in_days: Option<i64>,
+	pub max_uses: Option<Option<i64>>,
+	pub role: Option<String>,
+}
+
+pub struct WorkspaceInviteCreateResponse {
+	pub data: HashMap<String, String>,
+	pub token: String,
+}
+
+pub struct WorkspaceInviteListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct WorkspaceJoinRequest {
+	pub created_at: Option<String>,
+	pub decided_at: Option<Option<String>>,
+	pub decided_by: Option<Option<String>>,
+	pub id: String,
+	pub invite_id: Option<Option<String>>,
+	pub requester_user_id: String,
+	pub status: String,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceJoinRequestListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct WorkspaceJoinRequestResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub type WorkspaceJoinRequestStatus = JsonValue;
+
 pub struct WorkspaceListResponse {
 	pub data: Vec<HashMap<String, String>>,
 	pub total_count: i64,
 }
 
+pub struct WorkspaceMember {
+	pub display_name: Option<Option<String>>,
+	pub joined_at: Option<Option<String>>,
+	pub role: String,
+	pub user_id: String,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceMemberAddResponse {
+	pub added_count: i64,
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceMemberBulkRequest {
+	pub role: Option<String>,
+	pub user_ids: Vec<String>,
+}
+
+pub struct WorkspaceMemberListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct WorkspaceMemberRemoveRequest {
+	pub user_ids: Vec<String>,
+}
+
+pub struct WorkspaceMemberRemoveResponse {
+	pub removed_count: i64,
+}
+
+pub struct WorkspaceMemberResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceMemberRoleUpdateRequest {
+	pub role: String,
+}
+
 pub struct WorkspaceResponse {
 	pub data: HashMap<String, String>,
 }
+
+pub type WorkspaceRole = JsonValue;
 
 pub struct WorkspaceUpdateRequest {
 	pub name: Option<String>,

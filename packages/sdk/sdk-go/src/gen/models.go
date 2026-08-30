@@ -2928,6 +2928,14 @@ type WorkspaceActivityResponse struct {
 	TotalCostCents float64 `json:"total_cost_cents"`
 }
 
+type WorkspaceAssignableRole string
+
+const (
+	WorkspaceAssignableRoleAdmin WorkspaceAssignableRole = "admin"
+	WorkspaceAssignableRoleMember WorkspaceAssignableRole = "member"
+)
+
+
 type WorkspaceAuditEvent struct {
 	Action string `json:"action"`
 	Actor *map[string]interface{} `json:"actor,omitempty"`
@@ -2980,14 +2988,119 @@ type WorkspaceCreateRequest struct {
 	Slug *string `json:"slug,omitempty"`
 }
 
+type WorkspaceInvite struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatorUserId string `json:"creator_user_id"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	MaxUses *int `json:"max_uses,omitempty"`
+	Role string `json:"role"`
+	TokenPreview *string `json:"token_preview,omitempty"`
+	UsesCount *int `json:"uses_count,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceInviteCreateRequest struct {
+	ExpiresInDays *int `json:"expires_in_days,omitempty"`
+	MaxUses *int `json:"max_uses,omitempty"`
+	Role *string `json:"role,omitempty"`
+}
+
+type WorkspaceInviteCreateResponse struct {
+	Data map[string]interface{} `json:"data"`
+	Token string `json:"token"`
+}
+
+type WorkspaceInviteListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceJoinRequest struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	DecidedAt *string `json:"decided_at,omitempty"`
+	DecidedBy *string `json:"decided_by,omitempty"`
+	Id string `json:"id"`
+	InviteId *string `json:"invite_id,omitempty"`
+	RequesterUserId string `json:"requester_user_id"`
+	Status string `json:"status"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceJoinRequestListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceJoinRequestResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceJoinRequestStatus string
+
+const (
+	WorkspaceJoinRequestStatusPending WorkspaceJoinRequestStatus = "pending"
+	WorkspaceJoinRequestStatusApproved WorkspaceJoinRequestStatus = "approved"
+	WorkspaceJoinRequestStatusDenied WorkspaceJoinRequestStatus = "denied"
+)
+
+
 type WorkspaceListResponse struct {
 	Data []map[string]interface{} `json:"data"`
 	TotalCount int `json:"total_count"`
 }
 
+type WorkspaceMember struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	JoinedAt *string `json:"joined_at,omitempty"`
+	Role string `json:"role"`
+	UserId string `json:"user_id"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceMemberAddResponse struct {
+	AddedCount int `json:"added_count"`
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceMemberBulkRequest struct {
+	Role *string `json:"role,omitempty"`
+	UserIds []string `json:"user_ids"`
+}
+
+type WorkspaceMemberListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceMemberRemoveRequest struct {
+	UserIds []string `json:"user_ids"`
+}
+
+type WorkspaceMemberRemoveResponse struct {
+	RemovedCount int `json:"removed_count"`
+}
+
+type WorkspaceMemberResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceMemberRoleUpdateRequest struct {
+	Role string `json:"role"`
+}
+
 type WorkspaceResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
+
+type WorkspaceRole string
+
+const (
+	WorkspaceRoleOwner WorkspaceRole = "owner"
+	WorkspaceRoleAdmin WorkspaceRole = "admin"
+	WorkspaceRoleMember WorkspaceRole = "member"
+)
+
 
 type WorkspaceUpdateRequest struct {
 	Name *string `json:"name,omitempty"`

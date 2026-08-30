@@ -6,6 +6,16 @@ import java.util.Map;
 public final class Operations {
 	private Operations() {}
 
+	public static Object addWorkspaceMembers(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members/add";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object approveWorkspaceJoinRequest(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/join-requests/" + (path != null && path.containsKey("request_id") ? path.get("request_id") : "") + "/approve";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object calculatePricing(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/pricing/calculate";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -136,6 +146,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object createWorkspaceInvite(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invites";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object deleteApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
@@ -153,6 +168,11 @@ public final class Operations {
 
 	public static Object deleteWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Object deleteWorkspaceInvite(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invites/" + (path != null && path.containsKey("invite_id") ? path.get("invite_id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -366,6 +386,21 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listWorkspaceInvites(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invites";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listWorkspaceJoinRequests(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/join-requests";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listWorkspaceMembers(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object listWorkspaces(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -374,6 +409,16 @@ public final class Operations {
 	public static Object openAsyncJobWebSocket(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/async/" + (path != null && path.containsKey("kind") ? path.get("kind") : "") + "/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/ws";
 		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object rejectWorkspaceJoinRequest(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/join-requests/" + (path != null && path.containsKey("request_id") ? path.get("request_id") : "") + "/reject";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object removeWorkspaceMembers(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members/remove";
+		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Object retrieveBatch(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
@@ -423,6 +468,11 @@ public final class Operations {
 
 	public static Object updateWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceMemberRole(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members/" + (path != null && path.containsKey("user_id") ? path.get("user_id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
 	}
 

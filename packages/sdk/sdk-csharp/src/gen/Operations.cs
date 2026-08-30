@@ -6,6 +6,30 @@ namespace Phaseo.Gen;
 
 public static class Operations
 {
+	public static Task<Dictionary<string, object>?> AddWorkspaceMembersAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members/add";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> ApproveWorkspaceJoinRequestAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/join-requests/" + Uri.EscapeDataString(path != null && path.ContainsKey("request_id") ? path["request_id"] : "") + "/approve";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> CalculatePricingAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -318,6 +342,18 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> CreateWorkspaceInviteAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/invites";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> DeleteApiKeyAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -363,6 +399,18 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
+		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> DeleteWorkspaceInviteAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/invites/" + Uri.EscapeDataString(path != null && path.ContainsKey("invite_id") ? path["invite_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -870,6 +918,42 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> ListWorkspaceInvitesAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/invites";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> ListWorkspaceJoinRequestsAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/join-requests";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> ListWorkspaceMembersAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> ListWorkspacesAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -892,6 +976,30 @@ public static class Operations
 	{
 		var resolvedPath = "/async/" + Uri.EscapeDataString(path != null && path.ContainsKey("kind") ? path["kind"] : "") + "/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/ws";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> RejectWorkspaceJoinRequestAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/join-requests/" + Uri.EscapeDataString(path != null && path.ContainsKey("request_id") ? path["request_id"] : "") + "/reject";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> RemoveWorkspaceMembersAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members/remove";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Task<Dictionary<string, object>?> RetrieveBatchAsync(
@@ -1011,6 +1119,18 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
+		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Task<Dictionary<string, object>?> UpdateWorkspaceMemberRoleAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/members/" + Uri.EscapeDataString(path != null && path.ContainsKey("user_id") ? path["user_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
 	}
 

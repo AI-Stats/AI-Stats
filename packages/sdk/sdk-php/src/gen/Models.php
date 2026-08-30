@@ -2805,6 +2805,8 @@ class WorkspaceActivityResponse
 	public $total_cost_cents;
 }
 
+class WorkspaceAssignableRole { }
+
 class WorkspaceAuditEvent
 {
 	/** @var string */
@@ -2897,6 +2899,90 @@ class WorkspaceCreateRequest
 	public $slug;
 }
 
+class WorkspaceInvite
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $creator_user_id;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var int|null */
+	public $max_uses;
+	/** @var string */
+	public $role;
+	/** @var string|null */
+	public $token_preview;
+	/** @var int|null */
+	public $uses_count;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceInviteCreateRequest
+{
+	/** @var int|null */
+	public $expires_in_days;
+	/** @var int|null */
+	public $max_uses;
+	/** @var string|null */
+	public $role;
+}
+
+class WorkspaceInviteCreateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string */
+	public $token;
+}
+
+class WorkspaceInviteListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceJoinRequest
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $decided_at;
+	/** @var string|null */
+	public $decided_by;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $invite_id;
+	/** @var string */
+	public $requester_user_id;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceJoinRequestListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceJoinRequestResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceJoinRequestStatus { }
+
 class WorkspaceListResponse
 {
 	/** @var array */
@@ -2905,11 +2991,75 @@ class WorkspaceListResponse
 	public $total_count;
 }
 
+class WorkspaceMember
+{
+	/** @var string|null */
+	public $display_name;
+	/** @var string|null */
+	public $joined_at;
+	/** @var string */
+	public $role;
+	/** @var string */
+	public $user_id;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceMemberAddResponse
+{
+	/** @var int */
+	public $added_count;
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceMemberBulkRequest
+{
+	/** @var string|null */
+	public $role;
+	/** @var array */
+	public $user_ids;
+}
+
+class WorkspaceMemberListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceMemberRemoveRequest
+{
+	/** @var array */
+	public $user_ids;
+}
+
+class WorkspaceMemberRemoveResponse
+{
+	/** @var int */
+	public $removed_count;
+}
+
+class WorkspaceMemberResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceMemberRoleUpdateRequest
+{
+	/** @var string */
+	public $role;
+}
+
 class WorkspaceResponse
 {
 	/** @var array<string, mixed> */
 	public $data;
 }
+
+class WorkspaceRole { }
 
 class WorkspaceUpdateRequest
 {

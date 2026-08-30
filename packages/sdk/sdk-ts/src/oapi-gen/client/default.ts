@@ -1,5 +1,103 @@
 import type { Client } from "../../runtime/client.js";
 
+export type AddWorkspaceMembersParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    role?: "admin" | "member";
+    user_ids: string[];
+  };
+};
+
+/**
+ * Adds existing users to a workspace with an admin or member role. Management API key required.
+ */
+export async function addWorkspaceMembers(
+  client: Client,
+  args: AddWorkspaceMembersParams = {},
+): Promise<{
+  added_count: number;
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role: "owner" | "admin" | "member";
+    user_id: string;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/add`;
+  return client.request<{
+    added_count: number;
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role: "owner" | "admin" | "member";
+      user_id: string;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ApproveWorkspaceJoinRequestParams = {
+  path?: {
+    id: string;
+    request_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Atomically approves a pending request and applies its invite role. Management API key required.
+ */
+export async function approveWorkspaceJoinRequest(
+  client: Client,
+  args: ApproveWorkspaceJoinRequestParams = {},
+): Promise<{
+  data: {
+    created_at?: string;
+    decided_at?: string | null;
+    decided_by?: string | null;
+    id: string;
+    invite_id?: string | null;
+    requester_user_id: string;
+    status: "pending" | "approved" | "denied";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/join-requests/${encodeURIComponent(String(path?.["request_id"]))}/approve`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      decided_at?: string | null;
+      decided_by?: string | null;
+      id: string;
+      invite_id?: string | null;
+      requester_user_id: string;
+      status: "pending" | "approved" | "denied";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CalculatePricingParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4562,6 +4660,63 @@ export async function createWorkspace(
   });
 }
 
+export type CreateWorkspaceInviteParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    expires_in_days?: number;
+    max_uses?: number | null;
+    role?: "admin" | "member";
+  };
+};
+
+/**
+ * Creates an encrypted invite and returns its plaintext token once. Management API key required.
+ */
+export async function createWorkspaceInvite(
+  client: Client,
+  args: CreateWorkspaceInviteParams = {},
+): Promise<{
+  data: {
+    created_at?: string;
+    creator_user_id: string;
+    expires_at?: string | null;
+    id: string;
+    max_uses?: number | null;
+    role: "admin" | "member";
+    token_preview?: string | null;
+    uses_count?: number;
+    workspace_id: string;
+  };
+  token: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      creator_user_id: string;
+      expires_at?: string | null;
+      id: string;
+      max_uses?: number | null;
+      role: "admin" | "member";
+      token_preview?: string | null;
+      uses_count?: number;
+      workspace_id: string;
+    };
+    token: string;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteApiKeyParams = {
   path?: {
     id: string;
@@ -4683,6 +4838,38 @@ export async function deleteWorkspace(
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceInviteParams = {
+  path?: {
+    id: string;
+    invite_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently revokes an invite. Management API key required.
+ */
+export async function deleteWorkspaceInvite(
+  client: Client,
+  args: DeleteWorkspaceInviteParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites/${encodeURIComponent(String(path?.["invite_id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -9814,6 +10001,165 @@ export async function listWorkspaceAuditEvents(
   });
 }
 
+export type ListWorkspaceInvitesParams = {
+  path?: {
+    id: string;
+  };
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists invite metadata without returning invite secrets. Management API key required.
+ */
+export async function listWorkspaceInvites(
+  client: Client,
+  args: ListWorkspaceInvitesParams = {},
+): Promise<{
+  data: {
+    created_at?: string;
+    creator_user_id: string;
+    expires_at?: string | null;
+    id: string;
+    max_uses?: number | null;
+    role: "admin" | "member";
+    token_preview?: string | null;
+    uses_count?: number;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      creator_user_id: string;
+      expires_at?: string | null;
+      id: string;
+      max_uses?: number | null;
+      role: "admin" | "member";
+      token_preview?: string | null;
+      uses_count?: number;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceJoinRequestsParams = {
+  path?: {
+    id: string;
+  };
+  query?: {
+    limit?: number;
+    offset?: number;
+    status?: "pending" | "approved" | "denied";
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists recent workspace join requests. Management API key required.
+ */
+export async function listWorkspaceJoinRequests(
+  client: Client,
+  args: ListWorkspaceJoinRequestsParams = {},
+): Promise<{
+  data: {
+    created_at?: string;
+    decided_at?: string | null;
+    decided_by?: string | null;
+    id: string;
+    invite_id?: string | null;
+    requester_user_id: string;
+    status: "pending" | "approved" | "denied";
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/join-requests`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      decided_at?: string | null;
+      decided_by?: string | null;
+      id: string;
+      invite_id?: string | null;
+      requester_user_id: string;
+      status: "pending" | "approved" | "denied";
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceMembersParams = {
+  path?: {
+    id: string;
+  };
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists members and roles for a workspace. Management API key required.
+ */
+export async function listWorkspaceMembers(
+  client: Client,
+  args: ListWorkspaceMembersParams = {},
+): Promise<{
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role: "owner" | "admin" | "member";
+    user_id: string;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members`;
+  return client.request<{
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role: "owner" | "admin" | "member";
+      user_id: string;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspacesParams = {
   path?: Record<string, never>;
   query?: {
@@ -9889,6 +10235,89 @@ export async function openAsyncJobWebSocket(
   const resolvedPath = `/async/${encodeURIComponent(String(path?.["kind"]))}/${encodeURIComponent(String(path?.["id"]))}/ws`;
   return client.request<unknown>({
     method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RejectWorkspaceJoinRequestParams = {
+  path?: {
+    id: string;
+    request_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Atomically rejects a pending request. Management API key required.
+ */
+export async function rejectWorkspaceJoinRequest(
+  client: Client,
+  args: RejectWorkspaceJoinRequestParams = {},
+): Promise<{
+  data: {
+    created_at?: string;
+    decided_at?: string | null;
+    decided_by?: string | null;
+    id: string;
+    invite_id?: string | null;
+    requester_user_id: string;
+    status: "pending" | "approved" | "denied";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/join-requests/${encodeURIComponent(String(path?.["request_id"]))}/reject`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      decided_at?: string | null;
+      decided_by?: string | null;
+      id: string;
+      invite_id?: string | null;
+      requester_user_id: string;
+      status: "pending" | "approved" | "denied";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RemoveWorkspaceMembersParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    user_ids: string[];
+  };
+};
+
+/**
+ * Removes non-owner members from a workspace. Management API key required.
+ */
+export async function removeWorkspaceMembers(
+  client: Client,
+  args: RemoveWorkspaceMembersParams = {},
+): Promise<{
+  removed_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/remove`;
+  return client.request<{
+    removed_count: number;
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -10716,6 +11145,52 @@ export async function updateWorkspace(
       name: string | null;
       slug: string | null;
       updated_at: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceMemberRoleParams = {
+  path?: {
+    id: string;
+    user_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    role: "admin" | "member";
+  };
+};
+
+/**
+ * Changes a non-owner member between admin and member. Workspace owner and management API key required.
+ */
+export async function updateWorkspaceMemberRole(
+  client: Client,
+  args: UpdateWorkspaceMemberRoleParams = {},
+): Promise<{
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role: "owner" | "admin" | "member";
+    user_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/${encodeURIComponent(String(path?.["user_id"]))}`;
+  return client.request<{
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role: "owner" | "admin" | "member";
+      user_id: string;
+      workspace_id: string;
     };
   }>({
     method: "PATCH",

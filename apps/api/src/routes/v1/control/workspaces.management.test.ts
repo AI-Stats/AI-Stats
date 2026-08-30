@@ -20,6 +20,7 @@ const state = vi.hoisted(() => ({
 	workspacesInserted: [] as Array<Record<string, unknown>>,
 	keyCount: 0,
 	deletes: [] as Array<{ table: string; column: string; value: unknown }>,
+	auditEvents: [] as Array<Record<string, unknown>>,
 	userHasPaidWorkspaceAccess: vi.fn(async (_userId: string) => true),
 	ensureWorkspaceWalletProvisioned: vi.fn(async (_args: Record<string, unknown>) => ({ workspaceId: "ws_new", customerId: null })),
 }));
@@ -37,6 +38,14 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 function buildWorkspacesSupabaseMock() {
 	return {
 		from(table: string) {
+			if (table === "workspace_audit_events") {
+				return {
+					insert: async (payload: Record<string, unknown>) => {
+						state.auditEvents.push(payload);
+						return { error: null };
+					},
+				};
+			}
 			if (table === "workspaces") {
 				const query: any = {
 					select: () => query,
@@ -193,6 +202,7 @@ describe("management workspace routes", () => {
 		state.workspacesInserted.length = 0;
 		state.keyCount = 0;
 		state.deletes.length = 0;
+		state.auditEvents.length = 0;
 		state.userHasPaidWorkspaceAccess.mockReset();
 		state.userHasPaidWorkspaceAccess.mockResolvedValue(true);
 		state.ensureWorkspaceWalletProvisioned.mockReset();

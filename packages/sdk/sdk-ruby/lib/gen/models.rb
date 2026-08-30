@@ -2311,6 +2311,7 @@ module Phaseo
     # @!attribute [rw] total_cost_cents
     #   @return [Float]
     WorkspaceActivityResponse = Struct.new(:activity, :limit, :offset, :ok, :period_days, :total, :total_cost_cents, keyword_init: true)
+    WorkspaceAssignableRole = Object
     # @!attribute [rw] action
     #   @return [String]
     # @!attribute [rw] actor
@@ -2385,14 +2386,115 @@ module Phaseo
     # @!attribute [rw] slug
     #   @return [String, nil]
     WorkspaceCreateRequest = Struct.new(:name, :slug, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
+    #   @return [String]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] max_uses
+    #   @return [Integer, nil]
+    # @!attribute [rw] role
+    #   @return [String]
+    # @!attribute [rw] token_preview
+    #   @return [String, nil]
+    # @!attribute [rw] uses_count
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceInvite = Struct.new(:created_at, :creator_user_id, :expires_at, :id, :max_uses, :role, :token_preview, :uses_count, :workspace_id, keyword_init: true)
+    # @!attribute [rw] expires_in_days
+    #   @return [Integer, nil]
+    # @!attribute [rw] max_uses
+    #   @return [Integer, nil]
+    # @!attribute [rw] role
+    #   @return [String, nil]
+    WorkspaceInviteCreateRequest = Struct.new(:expires_in_days, :max_uses, :role, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] token
+    #   @return [String]
+    WorkspaceInviteCreateResponse = Struct.new(:data, :token, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceInviteListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] decided_at
+    #   @return [String, nil]
+    # @!attribute [rw] decided_by
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] invite_id
+    #   @return [String, nil]
+    # @!attribute [rw] requester_user_id
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceJoinRequest = Struct.new(:created_at, :decided_at, :decided_by, :id, :invite_id, :requester_user_id, :status, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceJoinRequestListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceJoinRequestResponse = Struct.new(:data, keyword_init: true)
+    WorkspaceJoinRequestStatus = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
     # @!attribute [rw] total_count
     #   @return [Integer]
     WorkspaceListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] display_name
+    #   @return [String, nil]
+    # @!attribute [rw] joined_at
+    #   @return [String, nil]
+    # @!attribute [rw] role
+    #   @return [String]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceMember = Struct.new(:display_name, :joined_at, :role, :user_id, :workspace_id, keyword_init: true)
+    # @!attribute [rw] added_count
+    #   @return [Integer]
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceMemberAddResponse = Struct.new(:added_count, :data, keyword_init: true)
+    # @!attribute [rw] role
+    #   @return [String, nil]
+    # @!attribute [rw] user_ids
+    #   @return [Array<String>]
+    WorkspaceMemberBulkRequest = Struct.new(:role, :user_ids, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceMemberListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] user_ids
+    #   @return [Array<String>]
+    WorkspaceMemberRemoveRequest = Struct.new(:user_ids, keyword_init: true)
+    # @!attribute [rw] removed_count
+    #   @return [Integer]
+    WorkspaceMemberRemoveResponse = Struct.new(:removed_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceMemberResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] role
+    #   @return [String]
+    WorkspaceMemberRoleUpdateRequest = Struct.new(:role, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     WorkspaceResponse = Struct.new(:data, keyword_init: true)
+    WorkspaceRole = Object
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] slug

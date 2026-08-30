@@ -3873,6 +3873,8 @@ public sealed class WorkspaceActivityResponse
 
 }
 
+public sealed class WorkspaceAssignableRole { }
+
 public sealed class WorkspaceAuditEvent
 {
 	[JsonPropertyName("action")]
@@ -3999,6 +4001,117 @@ public sealed class WorkspaceCreateRequest
 
 }
 
+public sealed class WorkspaceInvite
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("creator_user_id")]
+	public string CreatorUserId { get; set; }
+
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("max_uses")]
+	public int? MaxUses { get; set; }
+
+	[JsonPropertyName("role")]
+	public string Role { get; set; }
+
+	[JsonPropertyName("token_preview")]
+	public string? TokenPreview { get; set; }
+
+	[JsonPropertyName("uses_count")]
+	public int? UsesCount { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WorkspaceInviteCreateRequest
+{
+	[JsonPropertyName("expires_in_days")]
+	public int? ExpiresInDays { get; set; }
+
+	[JsonPropertyName("max_uses")]
+	public int? MaxUses { get; set; }
+
+	[JsonPropertyName("role")]
+	public string? Role { get; set; }
+
+}
+
+public sealed class WorkspaceInviteCreateResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+	[JsonPropertyName("token")]
+	public string Token { get; set; }
+
+}
+
+public sealed class WorkspaceInviteListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class WorkspaceJoinRequest
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("decided_at")]
+	public string? DecidedAt { get; set; }
+
+	[JsonPropertyName("decided_by")]
+	public string? DecidedBy { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("invite_id")]
+	public string? InviteId { get; set; }
+
+	[JsonPropertyName("requester_user_id")]
+	public string RequesterUserId { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WorkspaceJoinRequestListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class WorkspaceJoinRequestResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceJoinRequestStatus { }
+
 public sealed class WorkspaceListResponse
 {
 	[JsonPropertyName("data")]
@@ -4009,12 +4122,91 @@ public sealed class WorkspaceListResponse
 
 }
 
+public sealed class WorkspaceMember
+{
+	[JsonPropertyName("display_name")]
+	public string? DisplayName { get; set; }
+
+	[JsonPropertyName("joined_at")]
+	public string? JoinedAt { get; set; }
+
+	[JsonPropertyName("role")]
+	public string Role { get; set; }
+
+	[JsonPropertyName("user_id")]
+	public string UserId { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WorkspaceMemberAddResponse
+{
+	[JsonPropertyName("added_count")]
+	public int AddedCount { get; set; }
+
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class WorkspaceMemberBulkRequest
+{
+	[JsonPropertyName("role")]
+	public string? Role { get; set; }
+
+	[JsonPropertyName("user_ids")]
+	public List<string> UserIds { get; set; }
+
+}
+
+public sealed class WorkspaceMemberListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class WorkspaceMemberRemoveRequest
+{
+	[JsonPropertyName("user_ids")]
+	public List<string> UserIds { get; set; }
+
+}
+
+public sealed class WorkspaceMemberRemoveResponse
+{
+	[JsonPropertyName("removed_count")]
+	public int RemovedCount { get; set; }
+
+}
+
+public sealed class WorkspaceMemberResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceMemberRoleUpdateRequest
+{
+	[JsonPropertyName("role")]
+	public string Role { get; set; }
+
+}
+
 public sealed class WorkspaceResponse
 {
 	[JsonPropertyName("data")]
 	public Dictionary<string, object> Data { get; set; }
 
 }
+
+public sealed class WorkspaceRole { }
 
 public sealed class WorkspaceUpdateRequest
 {

@@ -3,6 +3,20 @@ declare(strict_types=1);
 
 namespace Phaseo\Gen;
 
+function addWorkspaceMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/members/add";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function approveWorkspaceJoinRequest(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/join-requests/" . rawurlencode((string)($path["request_id"] ?? "")) . "/approve";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function calculatePricing(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -185,6 +199,13 @@ function createWorkspace(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createWorkspaceInvite(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/invites";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -210,6 +231,13 @@ function deleteWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWorkspaceInvite(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/invites/" . rawurlencode((string)($path["invite_id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -507,6 +535,27 @@ function listWorkspaceAuditEvents(Client $client, ?array $path = null, ?array $q
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWorkspaceInvites(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/invites";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listWorkspaceJoinRequests(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/join-requests";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listWorkspaceMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/members";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listWorkspaces(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -519,6 +568,20 @@ function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $quer
 	$path = $path ?? [];
 	$resolvedPath = "/async/" . rawurlencode((string)($path["kind"] ?? "")) . "/" . rawurlencode((string)($path["id"] ?? "")) . "/ws";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function rejectWorkspaceJoinRequest(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/join-requests/" . rawurlencode((string)($path["request_id"] ?? "")) . "/reject";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function removeWorkspaceMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/members/remove";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatch(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
@@ -588,6 +651,13 @@ function updateWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceMemberRole(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/members/" . rawurlencode((string)($path["user_id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

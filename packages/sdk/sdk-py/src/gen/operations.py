@@ -4,6 +4,32 @@ from typing import Any, Dict, Optional
 from .client import Client
 from . import models
 
+def addWorkspaceMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceMemberAddResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/members/add"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def approveWorkspaceJoinRequest(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceJoinRequestResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/join-requests/{path.get('request_id', '')}/approve"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def calculatePricing(
 	client: Client,
 	*,
@@ -342,6 +368,19 @@ def createWorkspace(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createWorkspaceInvite(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceInviteCreateResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/invites"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteApiKey(
 	client: Client,
 	*,
@@ -391,6 +430,19 @@ def deleteWorkspace(
 ) -> DeletedResponse:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWorkspaceInvite(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DeletedResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/invites/{path.get('invite_id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -940,6 +992,45 @@ def listWorkspaceAuditEvents(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listWorkspaceInvites(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceInviteListResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/invites"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listWorkspaceJoinRequests(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceJoinRequestListResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/join-requests"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listWorkspaceMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceMemberListResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/members"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listWorkspaces(
 	client: Client,
 	*,
@@ -964,6 +1055,32 @@ def openAsyncJobWebSocket(
 	path = path or {}
 	resolved_path = f"/async/{path.get('kind', '')}/{path.get('id', '')}/ws"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def rejectWorkspaceJoinRequest(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceJoinRequestResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/join-requests/{path.get('request_id', '')}/reject"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def removeWorkspaceMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceMemberRemoveResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/members/remove"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
 def retrieveBatch(
@@ -1096,6 +1213,19 @@ def updateWorkspace(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateWorkspaceMemberRole(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceMemberResponse:
+	path = path or {}
+	resolved_path = f"/workspaces/{path.get('id', '')}/members/{path.get('user_id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def uploadBatchFile(
 	client: Client,
 	*,
@@ -1135,4 +1265,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addWorkspaceMembers", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "updateWorkspaceMemberRole", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

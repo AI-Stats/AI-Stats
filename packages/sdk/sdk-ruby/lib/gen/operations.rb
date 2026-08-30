@@ -3,6 +3,18 @@ require_relative "client"
 module Phaseo
   module Gen
     module Operations
+      def self.addWorkspaceMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/add"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.approveWorkspaceJoinRequest(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/join-requests/#{URI.encode_uri_component(path["request_id"].to_s)}/approve"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.calculatePricing(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/pricing/calculate"
@@ -159,6 +171,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createWorkspaceInvite(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -180,6 +198,12 @@ module Phaseo
       def self.deleteWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWorkspaceInvite(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites/#{URI.encode_uri_component(path["invite_id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -435,6 +459,24 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWorkspaceInvites(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listWorkspaceJoinRequests(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/join-requests"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listWorkspaceMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listWorkspaces(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces"
@@ -445,6 +487,18 @@ module Phaseo
         path ||= {}
         resolved_path = "/async/#{URI.encode_uri_component(path["kind"].to_s)}/#{URI.encode_uri_component(path["id"].to_s)}/ws"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.rejectWorkspaceJoinRequest(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/join-requests/#{URI.encode_uri_component(path["request_id"].to_s)}/reject"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.removeWorkspaceMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/remove"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatch(client, path: nil, query: nil, headers: nil, body: nil)
@@ -504,6 +558,12 @@ module Phaseo
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceMemberRole(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/#{URI.encode_uri_component(path["user_id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

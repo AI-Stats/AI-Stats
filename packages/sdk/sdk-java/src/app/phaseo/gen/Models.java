@@ -1601,6 +1601,9 @@ public final class Models {
 		public Double total_cost_cents;
 	}
 
+	public static class WorkspaceAssignableRole {
+	}
+
 	public static class WorkspaceAuditEvent {
 		public String action;
 		public Object actor;
@@ -1653,13 +1656,106 @@ public final class Models {
 		public String slug;
 	}
 
+	public static class WorkspaceInvite {
+		public String created_at;
+		public String creator_user_id;
+		public String expires_at;
+		public String id;
+		public Integer max_uses;
+		public Object role;
+		public String token_preview;
+		public Integer uses_count;
+		public String workspace_id;
+	}
+
+	public static class WorkspaceInviteCreateRequest {
+		public Integer expires_in_days;
+		public Integer max_uses;
+		public Object role;
+	}
+
+	public static class WorkspaceInviteCreateResponse {
+		public Object data;
+		public String token;
+	}
+
+	public static class WorkspaceInviteListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class WorkspaceJoinRequest {
+		public String created_at;
+		public String decided_at;
+		public String decided_by;
+		public String id;
+		public String invite_id;
+		public String requester_user_id;
+		public Object status;
+		public String workspace_id;
+	}
+
+	public static class WorkspaceJoinRequestListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class WorkspaceJoinRequestResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceJoinRequestStatus {
+	}
+
 	public static class WorkspaceListResponse {
 		public java.util.List<Object> data;
 		public Integer total_count;
 	}
 
+	public static class WorkspaceMember {
+		public String display_name;
+		public String joined_at;
+		public Object role;
+		public String user_id;
+		public String workspace_id;
+	}
+
+	public static class WorkspaceMemberAddResponse {
+		public Integer added_count;
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceMemberBulkRequest {
+		public Object role;
+		public java.util.List<String> user_ids;
+	}
+
+	public static class WorkspaceMemberListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class WorkspaceMemberRemoveRequest {
+		public java.util.List<String> user_ids;
+	}
+
+	public static class WorkspaceMemberRemoveResponse {
+		public Integer removed_count;
+	}
+
+	public static class WorkspaceMemberResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceMemberRoleUpdateRequest {
+		public Object role;
+	}
+
 	public static class WorkspaceResponse {
 		public Object data;
+	}
+
+	public static class WorkspaceRole {
 	}
 
 	public static class WorkspaceUpdateRequest {

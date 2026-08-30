@@ -4,6 +4,16 @@
 #include "client.hpp"
 
 namespace phaseo::gen {
+inline Response AddWorkspaceMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/add";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response ApproveWorkspaceJoinRequest(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/join-requests/" + (path.count("request_id") ? path.at("request_id") : std::string{}) + "/approve";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CalculatePricing(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/pricing/calculate";
 	return client.request("POST", resolved_path, body);
@@ -134,6 +144,11 @@ inline Response CreateWorkspace(Client& client, const std::map<std::string, std:
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateWorkspaceInvite(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response DeleteApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -151,6 +166,11 @@ inline Response DeleteVideoAlias(Client& client, const std::map<std::string, std
 
 inline Response DeleteWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWorkspaceInvite(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites/" + (path.count("invite_id") ? path.at("invite_id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -364,6 +384,21 @@ inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::str
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWorkspaceInvites(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListWorkspaceJoinRequests(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/join-requests";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListWorkspaceMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListWorkspaces(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
 	return client.request("GET", resolved_path, body);
@@ -372,6 +407,16 @@ inline Response ListWorkspaces(Client& client, const std::map<std::string, std::
 inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
 	return client.request("GET", resolved_path, body);
+}
+
+inline Response RejectWorkspaceJoinRequest(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/join-requests/" + (path.count("request_id") ? path.at("request_id") : std::string{}) + "/reject";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response RemoveWorkspaceMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/remove";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response RetrieveBatch(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
@@ -421,6 +466,11 @@ inline Response UpdateApiKey(Client& client, const std::map<std::string, std::st
 
 inline Response UpdateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceMemberRole(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/" + (path.count("user_id") ? path.at("user_id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

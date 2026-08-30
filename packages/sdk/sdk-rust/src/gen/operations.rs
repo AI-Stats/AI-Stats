@@ -5,6 +5,16 @@ pub fn no_query() -> HashMap<String, String> {
 	HashMap::new()
 }
 
+pub fn addWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/members/add", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn approveWorkspaceJoinRequest<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/join-requests/{}/approve", path.get("id").cloned().unwrap_or_default(), path.get("request_id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn calculatePricing<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/pricing/calculate");
 	client.request("POST", &resolved_path, body)
@@ -135,6 +145,11 @@ pub fn createWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/invites", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -152,6 +167,11 @@ pub fn deleteVideoAlias<T: Transport>(client: &Client<T>, path: &HashMap<String,
 
 pub fn deleteWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/invites/{}", path.get("id").cloned().unwrap_or_default(), path.get("invite_id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -365,6 +385,21 @@ pub fn listWorkspaceAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWorkspaceInvites<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/invites", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listWorkspaceJoinRequests<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/join-requests", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/members", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/workspaces");
 	client.request("GET", &resolved_path, body)
@@ -373,6 +408,16 @@ pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, S
 pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/async/{}/{}/ws", path.get("kind").cloned().unwrap_or_default(), path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
+}
+
+pub fn rejectWorkspaceJoinRequest<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/join-requests/{}/reject", path.get("id").cloned().unwrap_or_default(), path.get("request_id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn removeWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/members/remove", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
 }
 
 pub fn retrieveBatch<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
@@ -422,6 +467,11 @@ pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 
 pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceMemberRole<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/workspaces/{}/members/{}", path.get("id").cloned().unwrap_or_default(), path.get("user_id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

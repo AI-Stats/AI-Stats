@@ -34,7 +34,7 @@ OpenAPI schema does not count as complete.
 | Capability | Runtime | Public contract | Remaining work |
 | --- | --- | --- | --- |
 | Workspaces | CRUD | Contracted | Add description, routing defaults, observability settings, and budget resources. |
-| Workspace members | List/add/remove | Runtime only | Contract endpoints; add invitations, role changes, join-request decisions, and workspace assignments. |
+| Workspace members | List/add/remove, role changes, invitations, and join-request decisions | Contracted | Add cross-workspace directory assignments when a distinct organisation directory is introduced. |
 | API keys | CRUD and invalidation | Partially contracted | Contract invalidation/rotation and expose creator, expiry, resettable limits, current usage, and remaining allowance consistently. |
 | Management keys | CRUD | Runtime only | Add OpenAPI, SDKs, reference docs, contract tests, and complete audit coverage. |
 | Guardrails | CRUD and key/member assignment | Runtime only | Publish the contract and cover default workspace policy, budgets, model/provider restrictions, privacy, and content controls. |
@@ -44,7 +44,7 @@ OpenAPI schema does not count as complete.
 | Plugins and tools | Dashboard/request controls | Missing | Add workspace defaults and assignment APIs for durable plugin configuration. |
 | Observability | Logs plus dashboard destinations | Partial | Contract logs, I/O logging policy, sampling/key filters, broadcast destinations, and destination key assignments. |
 | Workspace budgets | Guardrail/limit primitives | Missing as a resource | Add daily, weekly, monthly, and lifetime budget CRUD with hierarchy validation and usage/remaining values. |
-| Organisation administration | Dashboard controls | Missing or internal | Add members, invitations, roles, workspace assignments, SSO, SCIM, and directory administration. |
+| Organisation administration | Workspace-native membership and invitations | Partial | Contract SSO, SCIM, and directory administration; Phaseo currently treats each organisation workspace as the membership boundary. |
 | Usage, credits, and analytics | Read endpoints | Partially contracted | Close OpenAPI/SDK gaps and provide workspace, member, key, model, and provider filters with stable pagination/export behavior. |
 | Activity and audit events | Read endpoints | Contracted | Expand audit producers as each mutation group becomes public. |
 | OAuth clients and webhook endpoints | CRUD | Runtime only | Publish OpenAPI, SDKs, docs, and contract tests. |
