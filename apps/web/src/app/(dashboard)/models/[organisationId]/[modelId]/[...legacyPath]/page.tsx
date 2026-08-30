@@ -1,8 +1,8 @@
 import type { ModelRouteParams } from "@/components/(data)/model/model-route-helpers";
 import {
-	redirectLegacyModelSection,
+	redirectLegacyModelPath,
 	type LegacySearchParams,
-} from "../redirectLegacyModelSection";
+} from "../redirectLegacyModelPath";
 
 export const instant = false;
 
@@ -10,8 +10,8 @@ export default async function Page({
 	params,
 	searchParams,
 }: {
-	params: Promise<ModelRouteParams>;
+	params: Promise<ModelRouteParams & { legacyPath: string[] }>;
 	searchParams: Promise<LegacySearchParams>;
 }) {
-	return redirectLegacyModelSection(params, "apps", searchParams);
+	return redirectLegacyModelPath(params, searchParams);
 }
