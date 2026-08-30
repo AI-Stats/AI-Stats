@@ -138,7 +138,7 @@ const BENCHMARKS_BY_WORKLOAD: Record<AutoRouterWorkload, string[]> = {
 	code: ["swe-bench", "aider-polyglot", "livecodebench"],
 	reasoning: ["gpqa-diamond", "aime-2025", "math-500"],
 	tool_use: ["bfcl-v4", "bfcl-v3-multiturn", "tau-bench"],
-	structured: ["if-eval", "multi-if", "internal-api-instruction-following--hard-"],
+	structured: ["if-eval", "multi-if", "internal-api-instruction-following-(hard)"],
 	translation: ["mgsm", "mmlu-multilingual", "global-mmlu-lite"],
 	summarization: ["longbench-v2", "govreport", "if-eval"],
 	general: ["lmarena-text", "arena-hard-v2", "if-eval"],
@@ -248,16 +248,18 @@ export async function loadWorkspaceAutoRouterConfig(workspaceId: string): Promis
 }
 
 function appendText(parts: string[], value: unknown) {
-	if (typeof value === "string") parts.push(value);
-	if (!Array.isArray(value)) return;
-	for (const item of value) {
-		if (typeof item === "string") parts.push(item);
-		else if (item && typeof item === "object") {
-			const record = item as Record<string, unknown>;
-			if (typeof record.text === "string") parts.push(record.text);
-			if (typeof record.content === "string") parts.push(record.content);
-		}
+	if (typeof value === "string") {
+		parts.push(value);
+		return;
 	}
+	if (Array.isArray(value)) {
+		for (const item of value) appendText(parts, item);
+		return;
+	}
+	if (!value || typeof value !== "object") return;
+	const record = value as Record<string, unknown>;
+	appendText(parts, record.text);
+	appendText(parts, record.content);
 }
 
 function requestText(body: any): string {

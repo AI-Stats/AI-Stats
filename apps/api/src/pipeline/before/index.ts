@@ -573,15 +573,22 @@ export async function beforeRequest(
 				if (!capabilityResult.ok || !capabilityResult.providers.length) {
 					return { ok: false as const, reason: "request_capabilities_unsupported" };
 				}
+				const quantizationResult = filterQuantizationCandidates(
+					capabilityResult.providers,
+					getEffectiveRoutingHints(body).quantizations,
+				);
+				if (!quantizationResult.ok || !quantizationResult.providers.length) {
+					return { ok: false as const, reason: "request_quantization_unsupported" };
+				}
 				const contextResult = {
 					...candidateContext,
-					value: { ...candidateContext.value, providers: capabilityResult.providers },
+					value: { ...candidateContext.value, providers: quantizationResult.providers },
 				};
 				return buildAutoRouterCandidateEvidence({
 					endpoint,
 					requestedModel: candidateModel,
 					resolvedModel: candidateResolvedModel,
-					providers: capabilityResult.providers,
+					providers: quantizationResult.providers,
 					contextResult,
 				});
 			},
@@ -700,11 +707,7 @@ export async function beforeRequest(
             break;
         }
         if (routedContextFailure) return routedContextFailure;
-		if (
-			autoRouterEvaluation &&
-			dynamicRouteEvaluation.action.model &&
-			dynamicRouteEvaluation.action.model !== autoRouterEvaluation.selectedResolvedModel
-		) {
+		if (autoRouterEvaluation && dynamicRouteEvaluation.action.model) {
 			autoRouterEvaluation = {
 				...autoRouterEvaluation,
 				fallbackModels: [],

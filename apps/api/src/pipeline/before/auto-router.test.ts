@@ -115,6 +115,34 @@ describe("auto router", () => {
 		expect(parseAutoRouterClassifierResponse({ output_text: "not json" })).toBeNull();
 	});
 
+	it("extracts text from nested Responses input items", () => {
+		const request = buildAutoRouterClassifierRequestBody({
+			input: [{
+				role: "user",
+				content: [{ type: "input_text", text: "Refactor this nested TypeScript parser" }],
+			}],
+		}, "responses") as any;
+		expect(request.input[1].content[0].text).toContain("Refactor this nested TypeScript parser");
+		expect(classifyAutoRouterWorkload({
+			input: [{ role: "user", content: [{ type: "input_text", text: "Debug this TypeScript compiler" }] }],
+		}).workload).toBe("code");
+	});
+
+	it("loads the canonical structured-output benchmark IDs", async () => {
+		let requestedBenchmarkIds: string[] = [];
+		await selectAutoRouterModel({
+			endpoint: "responses",
+			body: { input: "Return structured JSON", response_format: { type: "json_object" } },
+			config: config({ allowedModels: ["model/a"] }),
+			loadCandidate: async (model) => ({ ok: true, evidence: evidence(model) }),
+			loadBenchmarks: async (_models, benchmarkIds) => {
+				requestedBenchmarkIds = benchmarkIds;
+				return [];
+			},
+		});
+		expect(requestedBenchmarkIds).toContain("internal-api-instruction-following-(hard)");
+	});
+
 	it("keeps trusted tool and structured-output requirements authoritative", () => {
 		const classified = parseAutoRouterClassifierResponse({
 			output_text: JSON.stringify({
