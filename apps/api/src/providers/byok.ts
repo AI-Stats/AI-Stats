@@ -42,7 +42,7 @@ export async function loadByokKey(options: {
             // console.log(`[DEBUG BYOK] Trying meta ID ${meta.id}, alwaysUse: ${meta.alwaysUse}`);
             const { data, error } = await supabase
                 .from("byok_keys")
-                .select("id, key_version, enc_iv, enc_value, enc_tag, enc_iv_b64, enc_ct_b64, enc_tag_b64, enc_b64")
+                .select("id, key_version, enc_aad_version, enc_iv, enc_value, enc_tag, enc_iv_b64, enc_ct_b64, enc_tag_b64, enc_b64")
                 .eq("id", meta.id)
                 .eq("workspace_id", workspaceId)
                 .eq("provider_id", providerId)
@@ -57,6 +57,7 @@ export async function loadByokKey(options: {
             // console.log(`[DEBUG BYOK] Found and decrypting key for meta ID ${meta.id}`);
             const decrypted = await decryptBYOK({
                 key_version: data.key_version,
+				enc_aad_version: (data as any).enc_aad_version,
                 enc_iv: data.enc_iv,
                 enc_value: data.enc_value,
                 enc_tag: data.enc_tag,
@@ -95,4 +96,3 @@ export async function loadByokKey(options: {
     // console.log(`[DEBUG BYOK] No BYOK keys found for team ${workspaceId}, provider ${providerId}`);
     return null;
 }
-

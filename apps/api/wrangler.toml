@@ -28,6 +28,9 @@ BATCH_PROVIDER_WEBHOOK_REPLAY_ENABLED = "true"
 BATCH_PROVIDER_WEBHOOK_REPLAY_LIMIT = "100"
 OTEL_EXPORT_ENABLED = "true"
 OTEL_EXPORT_OUTBOX_LIMIT = "100"
+AXIOM_SUCCESS_SAMPLE_RATE = "0.1"
+AXIOM_DETAIL_SAMPLE_RATE = "0.01"
+AXIOM_SLOW_REQUEST_MS = "8000"
 STATSIG_BATCH_API_GATE = "gateway_batch_api"
 STATSIG_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging"
 STATSIG_DATA_CONTRIBUTION_GATE = "gateway_data_contribution"
@@ -70,7 +73,7 @@ custom_domain = true
 [observability]
 [observability.logs]
 enabled = true
-head_sampling_rate = 1
+head_sampling_rate = 0.1
 invocation_logs = true
 
 [[kv_namespaces]]

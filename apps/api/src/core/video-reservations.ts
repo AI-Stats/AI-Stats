@@ -156,6 +156,7 @@ export async function reserveVideoGenerationCredits(args: {
 	const byokAdjusted = await applyByokServiceFee({
 		workspaceId: args.workspaceId,
 		isByok: Boolean(args.isByok),
+		countRequest: false,
 		baseCostNanos: baseTotalNanos,
 		pricedUsage: pricedBase,
 		currencyHint: "USD",

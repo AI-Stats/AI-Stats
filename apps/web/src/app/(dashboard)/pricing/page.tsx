@@ -165,7 +165,7 @@ function PlanCell({ cell, label }: { cell: Cell; label: string }) {
 }
 
 const basicTier = getTierByKey("basic");
-const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+const BYOK_MONTHLY_FREE_REQUESTS = 250_000;
 const BYOK_SERVICE_FEE_PERCENT = 2.5;
 
 const COMPETITORS: Competitor[] = [
@@ -578,8 +578,8 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 			},
 			{
 				feature: "BYOK service fee",
-				free: { type: "text", value: "1M requests/month free, then 2.5%" },
-				payg: { type: "text", value: "1M requests/month free, then 2.5%" },
+				free: { type: "text", value: "250K requests/month included, then 2.5% of provider-equivalent cost" },
+				payg: { type: "text", value: "250K requests/month included, then 2.5% of provider-equivalent cost" },
 			},
 			{
 				feature: "Usage limits management",
@@ -766,7 +766,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "what-does-phaseo-charge",
 				question: "What does Phaseo charge?",
 				answer:
-					`For managed usage, Phaseo charges a ${basicTier.feePct.toFixed(0)}% fee, with a $1 minimum, when you purchase credits. For BYOK, the first ${BYOK_MONTHLY_FREE_REQUESTS.toLocaleString("en-US")} requests each UTC calendar month have no Phaseo service fee; after that, the fee is ${BYOK_SERVICE_FEE_PERCENT}% of the provider-equivalent cost.`,
+					`For managed usage, Phaseo charges a ${basicTier.feePct.toFixed(0)}% fee, with a $1 minimum, when you purchase credits. For BYOK, the first ${BYOK_MONTHLY_FREE_REQUESTS.toLocaleString("en-US")} requests each UTC calendar month have no Phaseo service fee. After that, the fee is ${BYOK_SERVICE_FEE_PERCENT}% of provider-equivalent cost.`,
 			},
 			{
 				id: "is-top-up-fee-per-request",
@@ -869,7 +869,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "how-does-byok-work",
 				question: "How is BYOK billed?",
 				answer:
-					`Your provider bills model usage directly to your provider account. Phaseo does not charge a service fee for your first ${BYOK_MONTHLY_FREE_REQUESTS.toLocaleString("en-US")} BYOK requests each UTC calendar month. After that allowance, Phaseo charges ${BYOK_SERVICE_FEE_PERCENT}% of the provider-equivalent cost.`,
+					`Your provider bills model usage directly to your provider account. Phaseo does not charge a service fee for your first ${BYOK_MONTHLY_FREE_REQUESTS.toLocaleString("en-US")} BYOK requests each UTC calendar month. After that allowance, Phaseo charges ${BYOK_SERVICE_FEE_PERCENT}% of provider-equivalent cost.`,
 			},
 			{
 				id: "what-is-included-with-byok",
@@ -1112,8 +1112,8 @@ export default async function PricingPage() {
 							{
 								icon: KeyRound,
 								term: "Bring Your Own Key",
-								value: `${BYOK_MONTHLY_FREE_REQUESTS.toLocaleString("en-US")} requests free, then ${BYOK_SERVICE_FEE_PERCENT}%`,
-								detail: "Your provider bills model usage directly. The allowance resets at the start of each UTC month; the Phaseo fee after that is based on provider-equivalent cost.",
+								value: `${BYOK_MONTHLY_FREE_REQUESTS.toLocaleString("en-US")} requests included, then ${BYOK_SERVICE_FEE_PERCENT}% of provider-equivalent cost`,
+								detail: "Your provider bills model usage directly. The allowance resets at the start of each UTC month.",
 							},
 						].map((item) => {
 							const Icon = item.icon;

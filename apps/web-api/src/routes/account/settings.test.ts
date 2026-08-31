@@ -487,7 +487,7 @@ describe("account settings routes", () => {
 			],
 			legacyHiddenTotal: 0,
 			monthlyRequestCount: 1_000_250,
-			paidTierRequests: 250,
+			paidTierRequests: 900250,
 			workspaceId: "workspace-1",
 		});
 		await expect(keys.json()).resolves.toMatchObject({
