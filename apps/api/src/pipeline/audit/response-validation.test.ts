@@ -84,9 +84,10 @@ describe("validateStructuredOutputResponse", () => {
 
 describe("request-supplied schema patterns", () => {
 	it("rejects backtracking-heavy patterns without evaluating them", () => {
+		const unsafePattern = `^(${String.fromCharCode(97)}+)+$`;
 		const result = validateJsonSchemaValue(
 			"a".repeat(4096) + "!",
-			{ type: "string", pattern: "^(a+)+$" },
+			{ type: "string", pattern: unsafePattern },
 		);
 		expect(result.ok).toBe(false);
 		expect(result.errors[0]).toContain("unsafe pattern");
