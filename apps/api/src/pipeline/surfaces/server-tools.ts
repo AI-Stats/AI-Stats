@@ -44,11 +44,12 @@ const DEFAULT_EXA_BASE_URL = "https://api.exa.ai";
 const DEFAULT_PARALLEL_BASE_URL = "https://api.parallel.ai";
 const DEFAULT_FIRECRAWL_BASE_URL = "https://api.firecrawl.dev";
 const DEFAULT_PERPLEXITY_BASE_URL = "https://api.perplexity.ai";
+const DEFAULT_TINYFISH_SEARCH_BASE_URL = "https://api.search.tinyfish.ai";
 const DEFAULT_WEB_SEARCH_ENGINE = "exa";
 const DEFAULT_WEB_FETCH_ENGINE = "direct";
 const DEFAULT_IMAGE_GENERATION_MODEL = "openai/gpt-image-2";
 
-const WEB_SEARCH_ENGINE_VALUES = ["auto", "native", "exa", "firecrawl", "parallel", "perplexity"] as const;
+const WEB_SEARCH_ENGINE_VALUES = ["auto", "native", "exa", "firecrawl", "parallel", "perplexity", "tinyfish"] as const;
 const WEB_FETCH_ENGINE_VALUES = ["auto", "native", "direct", "exa", "firecrawl", "parallel"] as const;
 
 const DATETIME_TOOL_DESCRIPTION =
@@ -120,6 +121,16 @@ const WEB_SEARCH_TOOL_PARAMETERS = {
 			type: "object",
 			description: "Approximate user location for engines that support localized search.",
 			additionalProperties: true,
+		},
+		language: {
+			type: "string",
+			description: "Preferred result language code for search engines that support localized search.",
+		},
+		page: {
+			type: "integer",
+			minimum: 0,
+			maximum: 10,
+			description: "Result page for search engines that support pagination. TinyFish accepts pages 0 through 10.",
 		},
 	},
 	required: ["query"],
@@ -1746,6 +1757,37 @@ function resolvePerplexitySearchConfig(): { apiKey: string; baseUrl: string } | 
 	}
 }
 
+function resolveTinyfishSearchConfig(): { apiKey: string; baseUrl: string } | null {
+	try {
+		const bindings = getBindings();
+		const apiKey = String(bindings.TINYFISH_API_KEY ?? "").trim();
+		if (!apiKey) return null;
+		const baseUrl = String(bindings.TINYFISH_SEARCH_BASE_URL ?? DEFAULT_TINYFISH_SEARCH_BASE_URL).trim() || DEFAULT_TINYFISH_SEARCH_BASE_URL;
+		return { apiKey, baseUrl: baseUrl.replace(/\/+$/, "") };
+	} catch {
+		return null;
+	}
+}
+
+function readTinyfishPage(value: unknown): number {
+	if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+	return Math.max(0, Math.min(10, Math.floor(value)));
+}
+
+function buildTinyfishSearchQuery(query: string, allowedDomains: string[], excludedDomains: string[]): string {
+	const allowed = allowedDomains
+		.map((domain) => domain.trim().replace(/^\*\./, ""))
+		.filter(Boolean);
+	const excluded = excludedDomains
+		.map((domain) => domain.trim().replace(/^\*\./, ""))
+		.filter(Boolean);
+	const operators = [
+		...(allowed.length > 0 ? [`(${allowed.map((domain) => `site:${domain}`).join(" OR ")})`] : []),
+		...excluded.map((domain) => `-site:${domain}`),
+	];
+	return [query, ...operators].join(" ");
+}
+
 function hostnameMatchesDomain(hostname: string, domain: string): boolean {
 	const normalizedHost = hostname.toLowerCase();
 	const normalizedDomain = domain.trim().toLowerCase().replace(/^\*\./, "");
@@ -2770,6 +2812,116 @@ async function executeWebSearchToolCall(
 	const searchContextSize = readWebSearchContextSize(args.search_context_size ?? config.webSearchContextSize ?? "medium");
 	const maxCharacters = parseWebSearchMaxCharacters(args, config);
 	const { allowedDomains, excludedDomains } = resolveSearchDomains(args, config);
+	if (engine === "tinyfish") {
+		const searchConfig = resolveTinyfishSearchConfig();
+		if (!searchConfig) {
+			return {
+				toolResult: {
+					toolCallId: call.id,
+					isError: true,
+					content: JSON.stringify({
+						error: "search_not_configured",
+						engine,
+						message: "TinyFish Search is not configured",
+					}),
+				},
+				webFetchRequests: 0,
+				webSearchResults: 0,
+				webSearchExtraResults: 0,
+			};
+		}
+
+		const userLocation = args.user_location && typeof args.user_location === "object"
+			? args.user_location as Record<string, unknown>
+			: {};
+		const location = toNonEmptyString(userLocation.country ?? userLocation.country_code);
+		const language = toNonEmptyString(args.language ?? userLocation.language);
+		const page = readTinyfishPage(args.page);
+		const searchQuery = buildTinyfishSearchQuery(query, allowedDomains, excludedDomains);
+		const requestUrl = new URL(searchConfig.baseUrl);
+		requestUrl.searchParams.set("query", searchQuery);
+		if (location) requestUrl.searchParams.set("location", location);
+		if (language) requestUrl.searchParams.set("language", language);
+		requestUrl.searchParams.set("page", String(page));
+
+		try {
+			const response = await fetchWithTimeout(requestUrl.toString(), {
+				method: "GET",
+				headers: {
+					Accept: "application/json",
+					"X-API-Key": searchConfig.apiKey,
+				},
+			});
+			if (!response.ok) {
+				const failureText = await response.text();
+				return {
+					toolResult: {
+						toolCallId: call.id,
+						isError: true,
+						content: JSON.stringify({
+							error: "search_request_failed",
+							engine,
+							status: response.status,
+							message: failureText.slice(0, 1000),
+						}),
+					},
+					webFetchRequests: 0,
+					webSearchResults: 0,
+					webSearchExtraResults: 0,
+				};
+			}
+
+			const json = await response.json() as Record<string, any>;
+			const rawResults = Array.isArray(json.results) ? json.results : [];
+			const normalizedResults = rawResults.slice(0, maxResults).map((result: any) => {
+				const snippet = toNonEmptyString(result?.snippet) ?? null;
+				return {
+					position: typeof result?.position === "number" ? result.position : null,
+					site_name: toNonEmptyString(result?.site_name) ?? null,
+					title: toNonEmptyString(result?.title) ?? null,
+					url: toNonEmptyString(result?.url) ?? null,
+					snippet,
+					highlights: includeHighlights && snippet ? [snippet] : [],
+					text: null,
+				};
+			});
+			const webSearchResults = normalizedResults.length;
+			return {
+				toolResult: {
+					toolCallId: call.id,
+					content: JSON.stringify({
+						provider: "tinyfish",
+						engine,
+						request_id: null,
+						query,
+						search_query: searchQuery,
+						location,
+						language,
+						page,
+						results: normalizedResults,
+					}),
+				},
+				webFetchRequests: 0,
+				webSearchResults,
+				webSearchExtraResults: 0,
+			};
+		} catch (error) {
+			return {
+				toolResult: {
+					toolCallId: call.id,
+					isError: true,
+					content: JSON.stringify({
+						error: "search_request_error",
+						engine,
+						message: error instanceof Error ? error.message : String(error),
+					}),
+				},
+				webFetchRequests: 0,
+				webSearchResults: 0,
+				webSearchExtraResults: 0,
+			};
+		}
+	}
 	if (engine === "perplexity") {
 		const searchConfig = resolvePerplexitySearchConfig();
 		if (!searchConfig) return { toolResult: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "search_not_configured", engine }) }, webFetchRequests: 0, webSearchResults: 0, webSearchExtraResults: 0 };

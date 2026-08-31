@@ -266,6 +266,8 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "FAL_QUEUE_BASE_URL",
     "PERPLEXITY_API_KEY",
     "PERPLEXITY_BASE_URL",
+    "TINYFISH_API_KEY",
+    "TINYFISH_SEARCH_BASE_URL",
     "POOLSIDE_API_KEY",
     "POOLSIDE_BASE_URL",
     "PHALA_API_KEY",

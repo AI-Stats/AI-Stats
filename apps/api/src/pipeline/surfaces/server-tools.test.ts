@@ -1433,6 +1433,98 @@ describe("buildServerToolContinuation", () => {
 		});
 	});
 
+	it("executes configured TinyFish Search calls", async () => {
+		getBindingsMock.mockReturnValue({
+			TINYFISH_API_KEY: "tinyfish_test_key",
+			TINYFISH_SEARCH_BASE_URL: "https://api.search.tinyfish.ai",
+		});
+		const fetchMock = vi.fn(async () =>
+			new Response(JSON.stringify({
+				query: "latest AI policy site:example.com -site:reddit.com",
+				results: [
+					{
+						position: 1,
+						site_name: "Example",
+						title: "Example result",
+						snippet: "A TinyFish search result.",
+						url: "https://example.com/result",
+					},
+				],
+				total_results: 1,
+			}), { status: 200, headers: { "Content-Type": "application/json" } }),
+		);
+		vi.stubGlobal("fetch", fetchMock);
+
+		try {
+			const continuation = await buildServerToolContinuation(
+				{
+					choices: [{
+						message: {
+							role: "assistant",
+							content: [],
+							toolCalls: [{
+								id: "call_tinyfish",
+								name: "phaseo_web_search",
+								arguments: JSON.stringify({
+									query: "latest AI policy",
+									engine: "tinyfish",
+									max_results: 1,
+									allowed_domains: ["example.com"],
+									excluded_domains: ["reddit.com"],
+									user_location: { country: "GB" },
+									language: "en",
+									page: 2,
+								}),
+							}],
+						},
+						finishReason: "tool_calls",
+					}],
+				} as any,
+				{
+					enabled: true,
+					datetimeDefaultTimezones: ["UTC"],
+					webSearchEnabled: true,
+					webSearchMaxResults: 5,
+					webSearchIncludeText: false,
+					webSearchIncludeHighlights: true,
+					webFetchEnabled: false,
+					webFetchMaxChars: 12000,
+				},
+			);
+
+			expect(fetchMock).toHaveBeenCalledWith(
+				expect.stringContaining("https://api.search.tinyfish.ai/"),
+				expect.objectContaining({
+					method: "GET",
+					headers: expect.objectContaining({ "X-API-Key": "tinyfish_test_key" }),
+				}),
+			);
+			const requestUrl = new URL(String(fetchMock.mock.calls[0]?.[0]));
+			expect(requestUrl.searchParams.get("query")).toBe("latest AI policy (site:example.com) -site:reddit.com");
+			expect(requestUrl.searchParams.get("location")).toBe("GB");
+			expect(requestUrl.searchParams.get("language")).toBe("en");
+			expect(requestUrl.searchParams.get("page")).toBe("2");
+			expect(continuation?.usage).toMatchObject({
+				webSearchRequests: 1,
+				webSearchResults: 1,
+				webSearchExtraResults: 0,
+				webFetchRequests: 0,
+			});
+			const parsed = JSON.parse(String(continuation?.toolResults[0]?.content));
+			expect(parsed).toMatchObject({
+				provider: "tinyfish",
+				engine: "tinyfish",
+				results: [{
+					title: "Example result",
+					url: "https://example.com/result",
+					highlights: ["A TinyFish search result."],
+				}],
+			});
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
 	it("executes configured Parallel web search calls", async () => {
 		getBindingsMock.mockReturnValue({
 			PARALLEL_API_KEY: "parallel_test_key",
