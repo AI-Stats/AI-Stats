@@ -454,6 +454,8 @@ export type KnownModelId =
   | "qwen/text-embedding-v3"
   | "qwen/text-embedding-v4"
   | "qwen/wan2.7-t2v"
+  | "qwen/wan3.0-video"
+  | "qwen/wan3.0-video-prime"
   | "reka-edge"
   | "reka-edge-2603"
   | "reka-flash"

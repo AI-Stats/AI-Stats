@@ -253,6 +253,7 @@ describe("video webhook helpers", () => {
 			meta: {
 				resolution: "720p",
 				quality: "standard",
+				inputVideoSeconds: 8,
 				keySource: "gateway",
 			},
 		});
@@ -286,6 +287,7 @@ describe("video webhook helpers", () => {
 			requestOptions: {
 				resolution: "1080p",
 				quality: "high",
+				input_video_seconds: 8,
 			},
 			isByok: false,
 			metaPatch: {
