@@ -3,6 +3,7 @@ import {
 	validateStructuredOutputResponse,
 	validateToolCallResponses,
 } from "./response-validation";
+import { validateJsonSchemaValue } from "@/plugins/response-healing";
 
 const toolRequest = {
 	tools: [{
@@ -79,28 +80,15 @@ describe("validateStructuredOutputResponse", () => {
 			errorReason: null,
 		});
 	});
+});
 
-	it("accepts parsed structured output with an array root", () => {
-		const arrayRequest = {
-			response_format: {
-				type: "json_schema",
-				json_schema: {
-					schema: {
-						type: "array",
-						items: { type: "string" },
-					},
-				},
-			},
-		};
-
-		expect(
-			validateStructuredOutputResponse(arrayRequest, {
-				output_parsed: ["yes"],
-			}),
-		).toMatchObject({
-			succeeded: true,
-			basis: "schema_validation",
-			errorReason: null,
-		});
+describe("request-supplied schema patterns", () => {
+	it("rejects backtracking-heavy patterns without evaluating them", () => {
+		const result = validateJsonSchemaValue(
+			"a".repeat(4096) + "!",
+			{ type: "string", pattern: "^(a+)+$" },
+		);
+		expect(result.ok).toBe(false);
+		expect(result.errors[0]).toContain("unsafe pattern");
 	});
 });

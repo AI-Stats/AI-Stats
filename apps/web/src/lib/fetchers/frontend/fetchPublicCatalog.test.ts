@@ -1,15 +1,33 @@
 const mockFetchPublicWebApi = jest.fn();
+const mockFetchOptionalPublicWebApi = jest.fn();
 
 jest.mock("@/lib/web-api/client", () => ({
-	fetchOptionalPublicWebApi: jest.fn(),
+	fetchOptionalPublicWebApi: (...args: unknown[]) => mockFetchOptionalPublicWebApi(...args),
 	fetchPublicWebApi: (...args: unknown[]) => mockFetchPublicWebApi(...args),
 }));
 
-import { fetchFrontendFamilies } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import {
+	fetchFrontendFamilies,
+	fetchFrontendModelOverview,
+} from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
 describe("fetchFrontendFamilies", () => {
 	beforeEach(() => {
 		mockFetchPublicWebApi.mockReset();
+		mockFetchOptionalPublicWebApi.mockReset();
+	});
+
+	it("retries transient model overview failures", async () => {
+		mockFetchOptionalPublicWebApi
+			.mockRejectedValueOnce({ status: 503 })
+			.mockResolvedValueOnce({
+				model: { model_id: "openai/gpt-test", name: "GPT Test" },
+			});
+
+		await expect(fetchFrontendModelOverview("openai/gpt-test")).resolves.toMatchObject({
+			model_id: "openai/gpt-test",
+		});
+		expect(mockFetchOptionalPublicWebApi).toHaveBeenCalledTimes(2);
 	});
 
 	it("enriches legacy family payloads with organisation display names", async () => {

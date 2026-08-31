@@ -4,16 +4,6 @@ update public.api_apps
 set is_public = false,
     is_active = false,
     updated_at = now()
-where lower(btrim(title)) in (
-    'app',
-    'unknown',
-    'unknown app',
-    'untitled',
-    'n/a',
-    'na',
-    'none',
-    'null',
-    'undefined'
-  )
+where lower(btrim(title)) in ('app', 'unknown app', 'untitled')
   and lower(btrim(app_key)) = 'about:blank'
   and lower(btrim(url)) = 'about:blank';

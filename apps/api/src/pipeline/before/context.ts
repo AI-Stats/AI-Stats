@@ -930,7 +930,7 @@ async function fetchFreeRouterProviderPool(args: {
                     : Number(capability.max_output_tokens),
         });
 
-        const card = await loadPriceCard(providerId, apiModelId, args.endpoint);
+        const card = await loadPriceCard(providerId, apiModelId, args.endpoint, providerModelSlug);
         if (card) {
             pricing[pricingKey] = card;
         }

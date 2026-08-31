@@ -2,9 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense, type ReactNode } from "react";
 import {
-	Activity,
 	ALargeSmall,
-	AppWindow,
 	ArrowLeft,
 	ArrowRight,
 	BadgeAlert,
@@ -61,7 +59,6 @@ import {
 	Empty,
 	EmptyDescription,
 	EmptyHeader,
-	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
 import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/ModelPendingApiReleaseBanner";
@@ -356,9 +353,10 @@ export async function ModelPerformanceSection({
 	]);
 	const shouldShowPendingApiBanner =
 		!performanceMetrics && pendingApiRelease?.isPendingApiRelease;
+	if (!performanceMetrics && !shouldShowPendingApiBanner) return null;
 
 	return (
-		<>
+		<Section id="performance">
 			{performanceMetrics ? (
 				<ModelPerformanceDashboard
 					modelId={modelId}
@@ -375,20 +373,9 @@ export async function ModelPerformanceSection({
 							surface="performance"
 						/>
 					) : null}
-					<Empty className="rounded-lg border p-8">
-						<EmptyHeader>
-							<EmptyMedia variant="icon">
-								<Activity className="size-5" />
-							</EmptyMedia>
-							<EmptyTitle>No performance telemetry in the past 7 days</EmptyTitle>
-							<EmptyDescription>
-								Hourly charts will appear when this model processes gateway traffic.
-							</EmptyDescription>
-						</EmptyHeader>
-					</Empty>
 				</div>
 			)}
-		</>
+		</Section>
 	);
 }
 
@@ -419,13 +406,17 @@ export async function ModelAppsSection({
 		"model apps"
 	);
 	const topApps = modelApps.slice(0, 10);
+	if (topApps.length === 0) return null;
 	const appColumns = [topApps.slice(0, 5), topApps.slice(5, 10)].filter(
 		(column) => column.length > 0,
 	);
 
 	return (
-		<>
-			{topApps.length > 0 ? (
+		<Section id="apps">
+			<SectionHeader
+				title="Apps Using This Model"
+				description="Public apps observed in gateway usage for this model."
+			/>
 				<div className="grid gap-x-16 md:grid-cols-2">
 					{appColumns.map((column, columnIndex) => (
 						<div key={columnIndex}>
@@ -478,20 +469,7 @@ export async function ModelAppsSection({
 						</div>
 					))}
 				</div>
-			) : (
-				<Empty className="rounded-lg border p-8">
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<AppWindow className="size-5" />
-						</EmptyMedia>
-						<EmptyTitle>No app distribution yet</EmptyTitle>
-						<EmptyDescription>
-							No gateway request app data is available for this model yet.
-						</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
-			)}
-		</>
+		</Section>
 	);
 }
 
@@ -510,37 +488,16 @@ export async function ModelActivitySection({
 		[],
 		"model activity"
 	);
+	if (usageRows.length === 0) return null;
 
 	return (
-		<>
-			{usageRows.length > 0 ? (
+		<Section id="activity">
 				<ModelActivityChart
 					rows={usageRows}
 					showHeading={showHeading}
 					description="Token volume and request traffic for this model over time."
 				/>
-			) : (
-				<div className="space-y-4">
-					{showHeading ? (
-						<SectionHeader
-							title="Activity"
-							description="Token volume and request traffic for this model over time."
-						/>
-					) : null}
-					<Empty className="rounded-lg border p-8">
-						<EmptyHeader>
-							<EmptyMedia variant="icon">
-								<Activity className="size-5" />
-							</EmptyMedia>
-							<EmptyTitle>No activity yet</EmptyTitle>
-							<EmptyDescription>
-								Usage breakdowns will appear once this model has enough gateway traffic.
-							</EmptyDescription>
-						</EmptyHeader>
-					</Empty>
-				</div>
-			)}
-		</>
+		</Section>
 	);
 }
 
@@ -1447,15 +1404,19 @@ export default function ModelOverviewSections({
 					/>
 				</Suspense>
 			</Section>
-			<Section id="performance">
-				<Suspense fallback={<PerformanceSectionSkeleton />}>
+			<Suspense
+				fallback={
+					<Section id="performance">
+						<PerformanceSectionSkeleton />
+					</Section>
+				}
+			>
 					<ModelPerformanceSection
 						modelId={modelId}
 						includeHidden={includeHidden}
 						performancePromise={performancePromise}
 					/>
 				</Suspense>
-			</Section>
 			<Section id="pricing">
 				<SectionHeader
 					title="Pricing"
@@ -1480,20 +1441,28 @@ export default function ModelOverviewSections({
 					</Suspense>
 				</Section>
 			) : null}
-			<Section id="activity">
-				<Suspense fallback={<ActivitySectionSkeleton />}>
-					<ModelActivitySection modelId={modelId} includeHidden={includeHidden} />
-				</Suspense>
-			</Section>
-			<Section id="apps">
-				<SectionHeader
-					title="Apps Using This Model"
-					description="Public apps observed in gateway usage for this model."
-				/>
-				<Suspense fallback={<AppsSectionSkeleton />}>
-					<ModelAppsSection modelId={modelId} includeHidden={includeHidden} />
-				</Suspense>
-			</Section>
+			<Suspense
+				fallback={
+					<Section id="activity">
+						<ActivitySectionSkeleton />
+					</Section>
+				}
+			>
+				<ModelActivitySection modelId={modelId} includeHidden={includeHidden} />
+			</Suspense>
+			<Suspense
+				fallback={
+					<Section id="apps">
+						<SectionHeader
+							title="Apps Using This Model"
+							description="Public apps observed in gateway usage for this model."
+						/>
+						<AppsSectionSkeleton />
+					</Section>
+				}
+			>
+				<ModelAppsSection modelId={modelId} includeHidden={includeHidden} />
+			</Suspense>
 			<Section id="uptime">
 				<SectionHeader
 					title="Model Uptime"

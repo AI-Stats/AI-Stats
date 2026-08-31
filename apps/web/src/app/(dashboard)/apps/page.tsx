@@ -26,9 +26,8 @@ const LEADERBOARD_LIMIT = 100;
 type PublicAppUsage = {
 	appId: string;
 	appName: string;
-	appSlug: string | null | undefined;
-	appUrl: string | null | undefined;
-	appCategory: string | null | undefined;
+	appUrl?: string | null;
+	appCategory?: string | null;
 	tokens: number;
 	requests: number;
 	uniqueModels: number;
@@ -93,7 +92,7 @@ function normalizeTopApps(
 			const tokens = Number(row.tokens ?? 0);
 			const requests = Number(row.requests ?? 0);
 			const uniqueModels = Number(row.unique_models ?? 0);
-			return { appId, appName, appSlug: row.app_slug, appUrl: row.app_url, appCategory: row.app_category, tokens, requests, uniqueModels };
+			return { appId, appName, appUrl: row.app_url, appCategory: row.app_category, tokens, requests, uniqueModels };
 		})
 		.filter(
 			(row) =>
@@ -195,7 +194,7 @@ function PopularAppRow({
 }) {
 	return (
 		<Link
-			href={getPublicAppPath(app.appSlug ?? app.appName)}
+			href={getPublicAppPath(app.appName)}
 			className="group flex min-w-0 items-center gap-3 border-b border-border/60 py-4 transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 		>
 			<span className="w-7 shrink-0 text-xs font-medium tabular-nums text-muted-foreground">#{index + 1}</span>
@@ -326,8 +325,8 @@ export default async function AppsPage() {
 						{trendingApps.map((app, index) => (
 							<Link
 								key={app.appId}
-								href={getPublicAppPath(app.appSlug ?? app.appName)}
-								className="group flex min-w-0 items-center justify-between gap-4 border-b border-border/60 py-3.5 transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+								href={getPublicAppPath(app.appName)}
+				className="group flex min-w-0 items-center justify-between gap-4 border-b border-border/60 py-3.5 transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 							>
 								<div className="flex min-w-0 items-center gap-3">
 									<span className="w-8 text-xs text-zinc-500 dark:text-zinc-400">

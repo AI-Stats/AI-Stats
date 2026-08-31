@@ -16,25 +16,8 @@ type PricingL1Entry = {
 const pricingL1 = new Map<string, PricingL1Entry>();
 const pricingInflight = new Map<string, Promise<PriceCard | null>>();
 
-export function isSafePostgrestFilterLiteral(value: string): boolean {
-	return !/[(),"\\]/.test(value);
-}
-
-export function selectPricingRouteRows(
-	exact: Array<Record<string, any>>,
-	canonical: Array<Record<string, any>>,
-	providerSlug: Array<Record<string, any>>,
-): Array<Record<string, any>> {
-	const selected = exact.length > 0 ? exact : [...canonical, ...providerSlug];
-	return [...new Map(
-		selected
-			.filter((row) => row.provider_model_id)
-			.map((row) => [String(row.provider_model_id), row]),
-	).values()];
-}
-
-function pricingCacheKey(provider: string, model: string, endpoint: string): string {
-    return `${provider}:${model}:${endpoint}`;
+function pricingCacheKey(provider: string, model: string, endpoint: string, providerModelSlug?: string | null): string {
+    return `${provider}:${model}:${endpoint}:${providerModelSlug ?? "*"}`;
 }
 
 function readPricingL1(key: string): PriceCard | null | undefined {
@@ -62,9 +45,9 @@ function resolvePricingL1TtlMs(card: PriceCard, nowMs: number = Date.now()): num
     return Math.max(1, Math.min(PRICING_L1_TTL_MS, effectiveToMs - nowMs));
 }
 
-export async function loadPriceCard(provider: string, model: string, endpoint: string): Promise<PriceCard | null> {
-	if (!isSafePostgrestFilterLiteral(model)) return null;
-    const cacheKey = pricingCacheKey(provider, model, endpoint);
+export async function loadPriceCard(provider: string, model: string, endpoint: string, providerModelSlug?: string | null): Promise<PriceCard | null> {
+    const normalizedProviderModelSlug = providerModelSlug?.trim() || null;
+    const cacheKey = pricingCacheKey(provider, model, endpoint, normalizedProviderModelSlug);
     const l1 = readPricingL1(cacheKey);
     if (l1 !== undefined) return l1;
 
@@ -74,20 +57,27 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
     const loader = (async (): Promise<PriceCard | null> => {
         const nowIso = new Date().toISOString();
         const supabase = getSupabaseAdmin();
-        const routes = await supabase.from("v2_model_provider_routes")
-            .select("provider_model_id,model_slug,provider_model_slug")
-            .eq("provider_slug", provider)
-            .or(`provider_model_id.eq.${model},model_slug.eq.${model},provider_model_slug.eq.${model}`)
-            .in("status", ["active", "degraded"]).eq("routing_enabled", true);
-        if (routes.error) return null;
-        const routeRows = routes.data ?? [];
-        const exactRoutes = routeRows.filter((row) => row.provider_model_id === model);
-        const resolvedRoutes = selectPricingRouteRows(
-			exactRoutes,
-			routeRows.filter((row) => row.model_slug === model),
-			routeRows.filter((row) => row.provider_model_slug === model),
-		);
-        const routeIds = resolvedRoutes.map((row) => String(row.provider_model_id));
+        const routeQueries = normalizedProviderModelSlug
+            ? await Promise.all([supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,model_slug,provider_model_slug")
+                .eq("provider_slug", provider).eq("provider_model_slug", normalizedProviderModelSlug)
+                .in("status", ["active", "degraded"]).eq("routing_enabled", true)])
+            : await Promise.all([
+                supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,model_slug,provider_model_slug")
+                .eq("provider_slug", provider).eq("model_slug", model)
+                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
+                supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,model_slug,provider_model_slug")
+                .eq("provider_slug", provider).eq("provider_model_slug", model)
+                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
+            ]);
+        if (routeQueries.some((result) => result.error)) return null;
+        const routes = new Map<string, Record<string, any>>();
+        for (const row of routeQueries.flatMap((result) => result.data ?? [])) {
+            if (row.provider_model_id) routes.set(String(row.provider_model_id), row);
+        }
+        const routeIds = [...routes.keys()];
         if (!routeIds.length) {
             writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
             return null;

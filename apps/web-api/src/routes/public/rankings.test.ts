@@ -111,10 +111,10 @@ describe("public rankings routes", () => {
 		const rpcCall = fetchMock.mock.calls.find(([input]) => String(input).includes("get_public_model_retention_rankings"));
 		expect(String(rpcCall?.[1]?.body)).toContain('"p_weeks":8');
 		expect(String(rpcCall?.[1]?.body)).toContain('"p_min_workspace_weeks":40');
-		expect(String(rpcCall?.[1]?.body)).toContain('"p_min_workspaces":8');
+	 expect(String(rpcCall?.[1]?.body)).toContain('"p_min_workspaces":20');
 		await expect(response.json()).resolves.toMatchObject({
 			data: [{ model_id: "openai/gpt-test", model_name: "GPT Test", organisation_id: "openai", retention_rate: 72.5 }],
-			methodology: { cohortWeeks: 8, minimumWorkspaceWeeks: 40, minimumWorkspaces: 8, minimumWeeks: 3 },
+			methodology: { cohortWeeks: 8, minimumWorkspaceWeeks: 40, minimumWorkspaces: 20, minimumWeeks: 3 },
 		});
 	});
 
@@ -132,7 +132,7 @@ describe("public rankings routes", () => {
 		const rpcCall = fetchMock.mock.calls.find(([input]) => String(input).includes("get_public_model_retention_rankings"));
 		const body = String(rpcCall?.[1]?.body);
 		expect(body).toContain('"p_min_workspace_weeks":25');
-		expect(body).toContain('"p_min_workspaces":5');
+		expect(body).toContain('"p_min_workspaces":20');
 		expect(body).toContain('"p_min_weeks":2');
 	});
 

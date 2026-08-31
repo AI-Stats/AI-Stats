@@ -8,7 +8,7 @@ import {
 import ProviderModelsClient from "./models/ProviderModelsClient";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import Script from "next/script";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { notFound } from "next/navigation";
 
 // Provider metadata comes from an uncached API request. Allow this route to
@@ -149,20 +149,8 @@ export default async function Page({
 		<>
 			{structuredData && (
 				<>
-					<Script
-						id="provider-org-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="provider-breadcrumb-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.breadcrumbSchema),
-						}}
-					/>
+					<JsonLdScript id="provider-org-schema" data={structuredData.organizationSchema} />
+					<JsonLdScript id="provider-breadcrumb-schema" data={structuredData.breadcrumbSchema} />
 				</>
 			)}
 			<APIProviderDetailShell apiProviderId={apiProvider} tocItems={[{ id: "performance", label: "Performance" }, { id: "token-usage", label: "Token Usage" }, { id: "top-models", label: "Top Models" }, { id: "top-apps", label: "Top Apps" }, { id: "models", label: "Models" }]}>

@@ -19,6 +19,7 @@ import {
 
 const providerSlugSchema = z.string().trim().toLowerCase().min(2).max(64).regex(/^[a-z0-9][a-z0-9._-]*$/);
 const MAX_PROVIDER_SOURCES_PER_USER = 5;
+const MAX_PROVIDER_SUBMISSIONS_PER_USER_PER_DAY = 5;
 const httpsUrlSchema = z.string().trim().url().refine((value) => new URL(value).protocol === "https:");
 const profileSchema = z.object({
 	providerSlug: providerSlugSchema,
@@ -98,6 +99,16 @@ async function enforceOnboardingRateLimit(c: any, userId: string) {
 			? c.json({ error: "provider_onboarding_rate_limit_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS)
 			: null;
 	}
+}
+
+async function hasProviderSubmissionCapacity(client: any, userId: string): Promise<boolean> {
+	const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+	const result = await client.from("provider_onboarding_submissions")
+		.select("id", { count: "exact", head: true })
+		.eq("submitted_by", userId)
+		.gte("created_at", since);
+	if (result.error) throw new Error("provider_submission_quota_unavailable");
+	return (result.count ?? 0) < MAX_PROVIDER_SUBMISSIONS_PER_USER_PER_DAY;
 }
 
 async function accessibleWorkspaceIds(client: any, userId: string): Promise<string[]> {
@@ -230,6 +241,13 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", asyn
 	const parsed = profileSchema.safeParse(rawBody);
 	if (!parsed.success) return responseError(c, parsed.error.issues[0]?.message ?? "Complete all provider fields.");
 	const input = parsed.data;
+	try {
+		if (!await hasProviderSubmissionCapacity(getDataClient(c.env), user.id)) {
+			return c.json({ ok: false, error: "rate_limited", message: "Provider onboarding submissions are limited to five per user per day." }, 429, PRIVATE_NO_STORE_HEADERS);
+		}
+	} catch {
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	const websiteHost = hostFromUrl(input.websiteUrl);
 	const catalogHost = hostFromUrl(input.catalogUrl);
 	if (!sameOrSubdomain(catalogHost, websiteHost)) {

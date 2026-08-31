@@ -122,6 +122,9 @@ function slugify(s?: string | null): string {
 function normalizeAppId(input?: string | null): string | null {
     const value = String(input ?? "").trim().toLowerCase();
     if (!value) return null;
+	if (["app", "unknown", "unknown-app", "untitled", "none", "null", "undefined"].includes(value)) {
+		return null;
+	}
     const normalized = value
         .replace(/[^a-z0-9._:-]+/g, "-")
         .replace(/-+/g, "-")
@@ -146,8 +149,8 @@ function deriveIdentityUrl(args: {
     if (normalizedAppId) return `app://id/${normalizedAppId}`;
 
     const titleSlug = slugify(
-        normalizeAppLabel(args.appName) ?? normalizeAppLabel(args.appTitle) ?? "",
-    );
+		normalizeAppLabel(args.appName) ?? normalizeAppLabel(args.appTitle) ?? "",
+	);
     if (titleSlug) return `app://title/${titleSlug}`;
 
     return null;
@@ -196,18 +199,10 @@ export async function ensureAppId(params: {
     appName?: string | null;
     appCategories?: string | null;
 }): Promise<string | null> {
-    const workspaceId = params.workspaceId;
-    const appTitle = normalizeAppAttributionText(params.appTitle, 512);
-    const referer = normalizeAppAttributionText(params.referer);
-    const appId = normalizeAppAttributionText(params.appId, 256);
-    const appName = normalizeAppAttributionText(params.appName, 512);
-    const appCategories = normalizeAppAttributionText(params.appCategories, 1_024);
-    if (![appTitle, referer, appId, appName].some((value) => String(value ?? "").trim().length > 0)) {
-        return null;
-    }
+    const { workspaceId, appTitle, referer, appId, appName, appCategories } = params;
     const normalizedAppId = normalizeAppId(appId);
     const identityUrl = deriveIdentityUrl({ referer, appId, appTitle, appName });
-    if (!identityUrl) return null;
+	if (!identityUrl) return null;
     const app_key = deriveAppKey(identityUrl);
     const cacheKey = ensureAppIdCacheKey(workspaceId, app_key);
     const requestedCategories = normalizeAppCategories(appCategories);
@@ -342,3 +337,10 @@ export async function ensureAppId(params: {
         }
     }
 }
+
+
+
+
+
+
+

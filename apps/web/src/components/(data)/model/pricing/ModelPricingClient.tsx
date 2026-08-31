@@ -467,14 +467,18 @@ function matchesPrivacyFilter(
 }
 
 function getPlanZdrEligibility(
-    provider: ProviderPricing,
-    plan: string,
+	provider: ProviderPricing,
+	plan: string,
 ): boolean | null {
+	// Eligibility metadata describes a possible offer; it is not proof that
+	// this provider route enforces zero retention. A provider-level false must
+	// always win, and an eligible tier is usable only with a verified true flag.
+	const providerZdr = provider.provider.zero_data_retention;
+	if (providerZdr === false) return false;
 	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
 	const tierEligibility = tierPolicy?.zdrEligibility;
-	if (tierEligibility === "eligible" || tierEligibility === "ineligible") {
-		return resolveEnforcedZdr(provider.provider.zero_data_retention, tierEligibility);
-	}
+	if (tierEligibility === "eligible") return providerZdr === true ? true : null;
+	if (tierEligibility === "ineligible") return false;
 
     const providerModels = getProviderModelScopeForPlan(provider, plan);
     const capabilityPolicies = providerModels.map((providerModel) => providerModel.data_policy);
@@ -489,7 +493,9 @@ function getPlanZdrEligibility(
     );
     if (eligibilities.size !== 1) return null;
     const eligibility = policiesWithData[0]?.zdrEligibility;
-	return resolveEnforcedZdr(provider.provider.zero_data_retention, eligibility);
+	if (eligibility === "eligible") return providerZdr === true ? true : null;
+	if (eligibility === "ineligible") return false;
+	return providerZdr ?? null;
 }
 
 function formatServiceTierLabel(plan: string): string {

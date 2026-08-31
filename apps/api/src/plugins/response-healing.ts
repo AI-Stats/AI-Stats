@@ -275,6 +275,16 @@ function validateStringFormat(value: string, format: string): boolean {
 	}
 }
 
+// Request-provided JSON Schema patterns are attacker-controlled. JavaScript's
+// regex engine backtracks, so only evaluate a bounded, non-grouping subset.
+function isSafeSchemaPattern(pattern: string): boolean {
+	if (pattern.length > 512) return false;
+	if (/[()|]/u.test(pattern)) return false;
+	if (/\\(?:\d|k<)/u.test(pattern)) return false;
+	if (/\{\d+,\d*\}\s*[+*?]/u.test(pattern)) return false;
+	return true;
+}
+
 export function validateJsonSchemaValue(
 	value: unknown,
 	schema: Record<string, any>,
@@ -317,8 +327,11 @@ export function validateJsonSchemaValue(
 				if (errors.length >= limit) return;
 			}
 			if (typeof candidateSchema.pattern === "string") {
-				try {
-					const pattern = compileSchemaPattern(candidateSchema.pattern);
+				if (!isSafeSchemaPattern(candidateSchema.pattern)) {
+					errors.push(`${candidatePath} uses an unsupported or unsafe pattern`);
+					if (errors.length >= limit) return;
+				} else try {
+					const pattern = new RegExp(candidateSchema.pattern);
 					if (!pattern.test(candidate)) {
 						errors.push(`${candidatePath} does not match the required pattern`);
 						if (errors.length >= limit) return;

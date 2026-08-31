@@ -82,7 +82,7 @@ describe("logos", () => {
 		});
 	});
 
-	test.each([
+		test.each([
 		["cline", "/logos/cline_light.svg", "/logos/cline_dark.svg"],
 		["helicone", "/logos/helicone_light.svg", "/logos/helicone_dark.svg"],
 		["ollama", "/logos/ollama_light.svg", "/logos/ollama_dark.svg"],

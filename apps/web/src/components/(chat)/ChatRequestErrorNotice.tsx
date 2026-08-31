@@ -130,7 +130,6 @@ export function ChatRequestErrorNotice({
 		"model-unavailable",
 		"timeout",
 		"conflict",
-		"usage-limit",
 		"rate-limit",
 		"service",
 	].includes(presentation.kind);

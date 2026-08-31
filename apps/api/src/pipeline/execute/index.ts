@@ -646,6 +646,7 @@ async function attemptProviderWithIR(
 				candidate.providerId,
 				candidateApiModelId ?? baseModel,
 				ctx.capability,
+				providerModelSlug,
 			),
 		);
 		if (pricingCard) {

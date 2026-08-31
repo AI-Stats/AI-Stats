@@ -129,8 +129,8 @@ function structuredSchema(format: Record<string, any>): Record<string, any> | nu
 function extractStructuredOutput(value: unknown): unknown {
 	const response = asRecord(value);
 	if (!response) return null;
-	if (response.output_parsed != null) return response.output_parsed;
-	if (response.parsed != null) return response.parsed;
+	if (asRecord(response.output_parsed)) return response.output_parsed;
+	if (asRecord(response.parsed)) return response.parsed;
 	if (typeof response.output_text === "string") return response.output_text;
 	if (typeof response.text === "string") return response.text;
 	const choiceContent = response.choices?.[0]?.message?.content;

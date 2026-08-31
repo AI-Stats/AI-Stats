@@ -1121,7 +1121,6 @@ paths:
   /audio/realtime/sessions/{session_id}/finalize:
     post:
       x-beta: true
-      x-internal: true
       tags:
         - Gateway
       operationId: finalizeRealtimeSession

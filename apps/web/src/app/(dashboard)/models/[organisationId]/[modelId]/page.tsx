@@ -30,6 +30,10 @@ import {
 	buildModelOverviewMetadataDescription,
 	buildModelOverviewMetadataTitle,
 } from "@/lib/models/modelDescription";
+import {
+	analyseModelIndexability,
+	robotsForModelIndexability,
+} from "@/lib/seo/modelIndexability";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
@@ -161,17 +165,66 @@ export async function generateMetadata(props: {
 	params: Promise<ModelRouteParams>;
 }): Promise<Metadata> {
 	const params = await props.params;
-	const { modelId, modelName, organisationName } = await getModelMetadataIdentity(
+	const identity = await getModelMetadataIdentity(
 		params,
 		false,
 	);
+	const { modelId, modelName, organisationName, modelDescription } = identity;
+	const model = await fetchFrontendModelOverview(modelId).catch(() => null);
+	const [benchmarks, pricing, gatewayMetadata, subscriptions] = await Promise.all([
+		fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []),
+		fetchFrontendModelPricing(modelId).catch(() => []),
+		fetchFrontendModelGatewayMetadata(modelId).catch(() => null),
+		fetchFrontendModelSubscriptionPlans(modelId).catch(() => []),
+	]);
+	const providerCount = gatewayMetadata?.providers.length ?? 0;
+	const activeProviderCount = gatewayMetadata?.activeProviders.length ?? 0;
+	const analysis = model
+		? analyseModelIndexability({
+				modelId: model.model_id,
+				name: model.name,
+				organisationId: model.organisation_id,
+				organisationName: model.organisation?.name,
+				description: model.description,
+				status: model.status,
+				releaseDate: model.release_date,
+				announcementDate: model.announcement_date,
+				updatedAt: model.updated_at,
+				apiModelIds: gatewayMetadata?.apiModelIds,
+				inputTypes: model.input_types,
+				outputTypes: model.output_types,
+				modelDetails: model.model_details,
+				modelLinks: model.model_links,
+				benchmarkCount: benchmarks.length,
+				providerCount,
+				activeProviderCount,
+				pricingRuleCount: pricing.flatMap((entry) => entry.pricing_rules).length,
+				contextLengths: gatewayMetadata?.providers.map((entry) => entry.context_length),
+				supportedParameters: Object.values(
+					gatewayMetadata?.supportedParametersByEndpoint ?? {},
+				).flatMap((entries) => entries.map((entry) => entry.param_id)),
+				hasSubscriptionPlans: subscriptions.length > 0,
+			})
+		: analyseModelIndexability({ modelId, name: modelName, organisationName });
 	const path = getModelPath(modelId);
 	const imagePath = `/og/models/${modelId}`;
 	return buildMetadata({
-		title: buildModelOverviewMetadataTitle(modelName),
+		title: buildModelOverviewMetadataTitle(modelName, {
+			providerCount,
+			benchmarkCount: benchmarks.length,
+			hasPricing: pricing.length > 0,
+			contextLength: gatewayMetadata?.providers
+				.map((entry) => entry.context_length ?? 0)
+				.filter((value) => value > 0)
+				.sort((left, right) => right - left)[0],
+		}),
 		description: buildModelOverviewMetadataDescription({
 			modelName,
 			organisationName,
+			modelDescription,
+			providerCount,
+			benchmarkCount: benchmarks.length,
+			hasPricing: pricing.length > 0,
 		}),
 		path,
 		keywords: [
@@ -183,10 +236,9 @@ export async function generateMetadata(props: {
 			"AI model comparison",
 		].filter(Boolean) as string[],
 		imagePath,
-		robots: {
-			index: true,
-			follow: true,
-		},
+		robots: isFreeRouterModelId(modelId)
+			? { index: true, follow: true }
+			: robotsForModelIndexability(analysis),
 	});
 }
 
@@ -212,7 +264,7 @@ export default async function Page({
 			</ModelDetailShell>
 		);
 	}
-	const modelPromise = fetchFrontendModelOverview(modelId).catch(() => null);
+	const modelPromise = fetchFrontendModelOverview(modelId);
 	const benchmarkPromise = fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []);
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);

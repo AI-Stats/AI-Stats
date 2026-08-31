@@ -4,7 +4,7 @@ import Image from "next/image";
 import OrganisationDetailShell from "@/components/(data)/organisation/OrganisationDetailShell";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import Script from "next/script";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { notFound } from "next/navigation";
 
 async function fetchOrganisation(organisationId: string) {
@@ -184,20 +184,8 @@ export default async function Page({
 		<>
 			{structuredData && (
 				<>
-					<Script
-						id="organisation-org-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="organisation-breadcrumb-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.breadcrumbSchema),
-						}}
-					/>
+					<JsonLdScript id="organisation-org-schema" data={structuredData.organizationSchema} />
+					<JsonLdScript id="organisation-breadcrumb-schema" data={structuredData.breadcrumbSchema} />
 				</>
 			)}
 			<OrganisationDetailShell

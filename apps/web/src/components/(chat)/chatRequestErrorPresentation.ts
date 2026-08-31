@@ -6,7 +6,6 @@ export type ChatRequestErrorKind =
 	| "model-unavailable"
 	| "timeout"
 	| "conflict"
-	| "usage-limit"
 	| "rate-limit"
 	| "service"
 	| "generic";
@@ -53,20 +52,9 @@ export function getChatRequestErrorPresentation(
 		};
 	}
 
-	if (code === "provider_payment_required") {
-		return {
-			kind: "service",
-			title: "The provider is temporarily unavailable",
-			description: summary,
-			canRetry: false,
-			canChooseModel: true,
-		};
-	}
-
 	if (
 		status === 402 ||
-		code === "payment_required" ||
-		/(insufficient_(funds|credits)|credit_balance)/.test(code)
+		/(insufficient_(funds|credits)|payment_required|credit_balance)/.test(code)
 	) {
 		return {
 			kind: "payment",
@@ -133,16 +121,6 @@ export function getChatRequestErrorPresentation(
 			title: "The request couldn't be completed",
 			description: "The chat state changed while it was running. Try again.",
 			canRetry: true,
-			canChooseModel: false,
-		};
-	}
-
-	if (code === "key_limit_exceeded") {
-		return {
-			kind: "usage-limit",
-			title: "You've reached a usage limit",
-			description: summary,
-			canRetry: false,
 			canChooseModel: false,
 		};
 	}

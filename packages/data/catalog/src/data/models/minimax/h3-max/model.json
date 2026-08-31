@@ -5,8 +5,8 @@
   "status": "Available",
   "previous_model_id": "minimax/h3",
   "description": "MiniMax H3 Max is a fast video-generation variant jointly released by MiniMax and fal.ai and post-trained by fal.ai on MiniMax H3. It supports text-to-video and image-to-video generation at 480P or 768P for 5-15 second videos.",
-  "announced_date": "2026-08-27T00:00:00",
-  "release_date": "2026-08-27T00:00:00",
+  "announced_date": null,
+  "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
@@ -57,7 +57,7 @@
   "benchmarks": [],
   "page_notice": {
     "tone": "info",
-    "markdown": "H3 Max was publicly released by fal on August 27, 2026 as a post-trained MiniMax H3 variant. It is hosted-only: no separate H3 Max weights license is published; API use is governed by the applicable MiniMax/fal service terms. Phaseo routes H3 Max through the native MiniMax V2 video adapter."
+    "markdown": "MiniMax's API offers H3 Max through the V2 video-generation endpoint. The provider route is catalogued, but Phaseo routing remains disabled until the MiniMax adapter supports the V2 payload and task lifecycle."
   },
   "model_type": null,
   "knowledge_cutoff": null,
@@ -111,19 +111,13 @@
       "kind": "announcement",
       "url": "https://fal.ai/learn/devs/introducing-h3-max-by-fal",
       "accessed_at": "2026-08-31T00:00:00Z",
-      "notes": "fal announced H3 Max on August 27, 2026 as a post-trained MiniMax H3 variant developed by fal Research and optimized by fal's inference team."
-    },
-    {
-      "kind": "license",
-      "url": "https://platform.minimax.io/protocol/paid-agreement",
-      "accessed_at": "2026-08-31T00:00:00Z",
-      "notes": "H3 Max has no separately published weights license. Hosted MiniMax API use is governed by the MiniMax Open Platform Paid Services Agreement and applicable platform rules."
+      "notes": "fal describes H3 Max as a post-trained MiniMax H3 variant developed by fal Research."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-31T00:00:00Z",
-    "notes": "Verified against MiniMax's current V2 video-generation and pay-as-you-go documentation plus fal's August 27, 2026 announcement. H3 Max is a hosted post-trained variant; do not infer the MiniMax H3 Community License applies to H3 Max weights."
+    "notes": "Verified against MiniMax's current V2 video-generation, model guide, and pay-as-you-go documentation, with fal's announcement confirming the post-training relationship."
   },
   "last_updated": "2026-08-31T00:00:00Z",
   "removal_date": null,

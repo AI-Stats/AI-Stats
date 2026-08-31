@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ModelCard } from "@/lib/fetchers/models/getAllModels";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -126,8 +127,7 @@ export function analyseModelIndexability(
 	const hasReleaseDate =
 		hasDate(input.releaseDate) ||
 		hasDate(input.announcementDate) ||
-		hasDate(input.primaryDate) ||
-		hasDate(input.updatedAt);
+		hasDate(input.primaryDate);
 	const hasApiIdentifier =
 		text(input.apiModelId).length > 0 || hasListItems(input.apiModelIds);
 	const hasCapabilityMetadata =
@@ -164,7 +164,7 @@ export function analyseModelIndexability(
 	if (coreSignalCount === 0) {
 		reasons.push("missing pricing, providers, benchmarks, dates, and capability metadata");
 	}
-	if (totalSignalCount < 2) {
+	if (coreSignalCount < 2 && totalSignalCount < 3) {
 		reasons.push("not enough unique page data");
 	}
 	if (
@@ -181,6 +181,34 @@ export function analyseModelIndexability(
 		reasons,
 		signals,
 	};
+}
+
+export function analyseModelCardIndexability(
+	model: ModelCard,
+): ModelIndexabilityAnalysis {
+	return analyseModelIndexability({
+		modelId: model.model_id,
+		name: model.name,
+		organisationId: model.organisation_id,
+		organisationName: model.organisation_name,
+		description: model.description,
+		status: model.status,
+		hidden: model.hidden,
+		releaseDate: model.release_date,
+		announcementDate: model.announcement_date,
+		updatedAt: model.updated_at,
+		primaryDate: model.primary_date,
+		apiModelId: model.api_model_id,
+		apiModelIds: model.gateway_api_model_ids,
+		inputTypes: model.input_types ?? model.input_modalities,
+		outputTypes: model.output_types ?? model.output_modalities,
+		providerCount: model.gateway_provider_count,
+		activeProviderCount: model.gateway_active_provider_count,
+		lowestInputPrice: model.lowest_input_price,
+		lowestOutputPrice: model.lowest_output_price,
+		contextLengths: model.context_lengths,
+		supportedParameters: model.supported_parameters,
+	});
 }
 
 export function robotsForModelIndexability(

@@ -9,7 +9,7 @@
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
-  "license": "MIT",
+  "license": null,
   "input_types": ["text", "image"],
   "output_types": ["text"],
   "api_model_id": "ornith/ornith-1.5-35b",
@@ -51,7 +51,7 @@
     "structured_output": true,
     "temperature": null,
     "streaming": true,
-    "web_search": null
+    "web_search": false
   },
   "open_weights": true,
   "sources": [

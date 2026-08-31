@@ -1995,21 +1995,12 @@ export default function ProviderCard({
 	const infoScope = providerModelsInScope;
 	const tableInfoScope = tableProviderModelsInScope;
 	const providerModelSlugs = infoScope.map((pm) => pm.provider_model_slug);
-	const routableProviderApiModelIds = Array.from(
-		new Set(
-			infoScope
-				.filter(
-					(pm) =>
-						pm.is_active_gateway &&
-						pm.capability_status !== "disabled" &&
-						pm.phaseo_status !== "disabled",
-				)
-				.map((pm) => pm.model_id.trim())
-				.filter(Boolean),
-		),
-	);
-	const providerQualifiedModelId = routableProviderApiModelIds.length === 1
-		? `${sec.providerId}:${routableProviderApiModelIds[0]}`
+	const providerApiModelIds = infoScope.map((pm) => pm.model_id);
+	const canonicalModelId = providerApiModelIds.find(
+		(modelId) => typeof modelId === "string" && modelId.trim().length > 0,
+	)?.trim();
+	const providerQualifiedModelId = canonicalModelId
+		? `${sec.providerId}:${canonicalModelId}`
 		: null;
 	const tableProviderModelSlugs = tableInfoScope.map((pm) => pm.provider_model_slug);
 	const tableProviderApiModelIds = tableInfoScope.map((pm) => pm.model_id);
@@ -2426,10 +2417,11 @@ export default function ProviderCard({
 				notes: policy.reason ?? provider.provider.prompt_training_notes ?? null,
 				sourceUrl: policy.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
 				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
-				zeroDataRetention: resolveEnforcedZdr(
-					provider.provider.zero_data_retention,
-					policy.zdrEligibility,
-				),
+				zeroDataRetention: policy.zdrEligibility === "eligible" && provider.provider.zero_data_retention === true
+					? true
+					: policy.zdrEligibility === "ineligible"
+						? false
+						: provider.provider.zero_data_retention ?? null,
 			}));
 		})(),
 		residency: [
@@ -2841,10 +2833,11 @@ export default function ProviderCard({
 		: selectedDataPolicy?.tier ?? provider.provider.data_policy_tier;
 	const selectedZdr = hasMixedCapabilityPolicies
 		? null
-		: resolveEnforcedZdr(
-			provider.provider.zero_data_retention,
-			selectedDataPolicy?.zdrEligibility,
-		);
+		: selectedDataPolicy?.zdrEligibility === "eligible" && provider.provider.zero_data_retention === true
+			? true
+			: selectedDataPolicy?.zdrEligibility === "ineligible"
+				? false
+				: provider.provider.zero_data_retention;
 	const dataPolicySummary = [
 		{
 			label: "Data Policy",
