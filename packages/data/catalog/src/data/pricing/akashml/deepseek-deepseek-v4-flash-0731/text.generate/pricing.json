@@ -11,6 +11,9 @@
   ],
   "regions": [],
   "service_tiers": ["standard"],
-  "sources": [{ "kind": "pricing", "url": "https://api.akashml.com/v1/models", "accessed_at": "2026-08-31T00:00:00Z" }],
-  "verification": { "status": "verified", "checked_at": "2026-08-31", "notes": "Verified against AkashML's live models endpoint at $0.065/M input, $0.02/M cached input, and $0.18/M output." }
+  "sources": [
+    { "kind": "pricing", "url": "https://api.akashml.com/v1/models", "accessed_at": "2026-08-31T00:00:00Z", "notes": "Live endpoint source for the current input and output rates." },
+    { "kind": "pricing", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-31T00:00:00Z", "notes": "Platform documentation source for the $0.02/M cached-input rate." }
+  ],
+  "verification": { "status": "verified", "checked_at": "2026-08-31", "notes": "Input and output rates verified against AkashML's live models endpoint; the cached-input rate is verified against AkashML's platform model documentation." }
 }
