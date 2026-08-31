@@ -49,6 +49,13 @@ const runtime = vi.hoisted(() => {
 	});
 
 	const from = vi.fn((table: string) => {
+		if (table === "v2_providers") {
+			return {
+				select: () => ({
+					in: async () => ({ data: [], error: null }),
+				}),
+			};
+		}
 		if (table === "workspace_settings") {
 			return {
 				select: () => ({

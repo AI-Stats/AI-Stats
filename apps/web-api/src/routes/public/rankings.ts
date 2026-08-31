@@ -388,8 +388,8 @@ publicRankingsRouter.get("/rankings/model-meta", async (c) => {
 		const unresolved = ids.filter((id) => !models[id]);
 		if (unresolved.length) {
 			const [byProviderId, bySlug, byAlias] = await Promise.all([
-				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_id", unresolved),
-				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_slug", unresolved),
+				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_id", unresolved).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]),
+				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_slug", unresolved).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]),
 				client.from("v2_model_aliases").select("alias_slug,model_slug").in("alias_slug", unresolved).eq("enabled", true),
 			]);
 			for (const result of [byProviderId, bySlug, byAlias]) if (result.error) throw result.error;

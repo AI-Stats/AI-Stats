@@ -2,6 +2,7 @@ declare
   credit_status       jsonb;
   key_status          jsonb;
   key_limit_status    jsonb;
+  workspace_budget_status jsonb;
   min_balance_nanos   bigint := 1000000000; -- 1.00 USD
 
   providers           jsonb;
@@ -332,6 +333,18 @@ begin
         )
       )
     );
+
+  -- Workspace budgets share the same gate contract so every inference surface
+  -- receives enforcement without a second application-side policy path.
+  if within_limits then
+    workspace_budget_status := public.gateway_workspace_budget_status(
+      gateway_fetch_request_context.workspace_id,
+      0
+    );
+    if not coalesce((workspace_budget_status->>'ok')::boolean, true) then
+      key_limit_status := workspace_budget_status;
+    end if;
+  end if;
 
   -- ============================================================================
   -- TEAM & KEY ENRICHMENT (Wide Event Context for Observability)

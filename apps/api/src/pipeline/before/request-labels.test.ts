@@ -43,4 +43,15 @@ describe("parseRequestLabels", () => {
             headers: { "x-phaseo-metadata": '{"labels":[{"key":"team/name","value":"support"}]}' },
         })).ok).toBe(false);
     });
+
+    it.each(["hidden\u0000request", "line\nbreak", "tab\tvalue", "delete\u007fvalue"])(
+        "rejects control characters before labels reach JSONB audit storage: %j",
+        (value) => {
+            const result = parseRequestLabels(new Request("https://gateway.local", {
+                headers: { "x-phaseo-metadata": JSON.stringify({ labels: [{ key: "team", value }] }) },
+            }));
+
+            expect(result.ok).toBe(false);
+        },
+    );
 });

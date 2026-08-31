@@ -1580,7 +1580,7 @@ export function ComprehensiveModelEditor({
 										<p className="text-sm text-muted-foreground">
 											View full details on the{" "}
 											<Link
-												href={`/models/${model.modelId}/benchmarks`}
+												href={`/models/${model.modelId}#benchmarks`}
 												className="text-blue-600 underline decoration-transparent hover:decoration-current transition-colors duration-200"
 											>
 												model benchmarks page

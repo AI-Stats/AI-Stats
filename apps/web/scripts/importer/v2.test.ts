@@ -21,6 +21,8 @@ import {
     phaseoRoutingEnabled,
     staleJsonProviderRouteIds,
     staleOwnedModelChildRows,
+    staleSubscriptionPlanChildRows,
+    staleSubscriptionPlanUuids,
     protectedCatalogueIndex,
     staleBenchmarkResultIds,
     staleModelSlugs,
@@ -108,6 +110,46 @@ describe("V2 child reconciliation", () => {
         )).toEqual([
             { model_slug: "lab/model", link_kind: "docs", url: "https://old.example" },
         ]);
+    });
+});
+
+describe("V2 subscription plan reconciliation", () => {
+    it("deletes stale plans while preserving database-owned overrides", () => {
+        expect(staleSubscriptionPlanUuids(
+            [
+                { plan_uuid: "current" },
+                { plan_uuid: "stale" },
+                { plan_uuid: "database-owned" },
+            ],
+            new Set(["current"]),
+            new Set(["database-owned"]),
+        )).toEqual(["stale"]);
+    });
+
+    it("reconciles removed child rows only for repository-owned current plans", () => {
+        expect(staleSubscriptionPlanChildRows(
+            [
+                { plan_uuid: "current", model_slug: "kept" },
+                { plan_uuid: "current", model_slug: "removed" },
+                { plan_uuid: "database-owned", model_slug: "removed" },
+                { plan_uuid: "old-plan", model_slug: "removed" },
+            ],
+            [{ plan_uuid: "current", model_slug: "kept" }],
+            new Set(["current"]),
+            new Set(["database-owned"]),
+            ["plan_uuid", "model_slug"],
+        )).toEqual([{ plan_uuid: "current", model_slug: "removed" }]);
+    });
+
+    it("preserves relations to database-owned models", () => {
+        expect(staleSubscriptionPlanChildRows(
+            [{ plan_uuid: "current", model_slug: "private/model" }],
+            [],
+            new Set(["current"]),
+            new Set(),
+            ["plan_uuid", "model_slug"],
+            new Set(["private/model"]),
+        )).toEqual([]);
     });
 });
 

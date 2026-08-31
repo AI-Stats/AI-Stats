@@ -112,7 +112,7 @@ export type CredentialAttemptPhase = "priority_byok" | "gateway" | "fallback_byo
 
 export function buildCredentialAttemptPlan(
 	rankedProviders: any[],
-	options: { includeFallbackByok?: boolean } = {},
+	options: { includeFallbackByok?: boolean; allowManagedFallback?: boolean } = {},
 ): Array<{
 	routed: any;
 	phase: CredentialAttemptPhase;
@@ -141,13 +141,17 @@ export function buildCredentialAttemptPlan(
 			.flatMap((routed) => keysForMode(routed, "fallback"))
 			.slice(0, remainingByokAttempts);
 
-	return [
-		...limitedPriorityAttempts,
-		...rankedProviders.map((routed) => ({
+	const gatewayAttempts = limitedPriorityAttempts.length === 0 || options.allowManagedFallback === true
+		? rankedProviders.map((routed) => ({
 			routed,
 			phase: "gateway" as const,
 			credential: { kind: "gateway" as const },
-		})),
+		}))
+		: [];
+
+	return [
+		...limitedPriorityAttempts,
+		...gatewayAttempts,
 		...fallbackAttempts,
 	];
 }
@@ -479,6 +483,7 @@ export async function doRequestWithIR(
 	const rankedProviders = ranked.slice(0, maxTries);
 	const credentialPlan = buildCredentialAttemptPlan(rankedProviders, {
 		includeFallbackByok: true,
+		allowManagedFallback: ctx.teamSettings?.byokFallbackEnabled === true,
 	});
 	ctx.credentialPlan = credentialPlan.map((entry, index) => ({
 		attempt_number: index + 1,

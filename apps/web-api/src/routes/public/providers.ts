@@ -306,11 +306,11 @@ function lifecycleDate(model: RecentModel): string | null {
 async function recentModels(env: Env, providerId: string, since: string | null, limit: number): Promise<RecentModel[]> {
 	const client = getDataClient(env);
 	const providerResult = await client.from("v2_model_provider_routes")
-		.select("model_slug,provider_model_slug,created_at,routing_enabled,status").eq("provider_slug", providerId);
+		.select("model_slug,provider_model_slug,created_at,routing_enabled,status").eq("provider_slug", providerId).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]);
 	if (providerResult.error) throw providerResult.error;
 	const modelIds = Array.from(new Set((providerResult.data ?? []).map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
 	const modelResult = modelIds.length
-		? await client.from("v2_models").select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)").in("model_slug", modelIds)
+		? await client.from("v2_models").select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)").in("model_slug", modelIds).eq("hidden", false).neq("status", "disabled")
 		: { data: [], error: null };
 	if (modelResult.error) throw modelResult.error;
 	const details = new Map((modelResult.data ?? []).map((row) => [row.model_slug, {
@@ -347,6 +347,18 @@ async function recentModels(env: Env, providerId: string, since: string | null, 
 }
 
 export const publicProvidersRouter = new Hono<{ Bindings: Env }>();
+
+publicProvidersRouter.use("/:providerId/*", async (c, next) => {
+	const providerId = c.req.param("providerId");
+	const visibility = await getDataClient(c.env).from("v2_model_provider_routes")
+		.select("provider_model_id")
+		.eq("provider_slug", providerId)
+		.eq("is_stealth", false)
+		.limit(1);
+	if (visibility.error) return c.json({ error: "provider_unavailable" }, 503);
+	if (!visibility.data?.length) return c.json({ error: "provider_not_found" }, 404);
+	await next();
+});
 
 publicProvidersRouter.get("/", async (c) => {
 	try { return withPublicCache(c.json({ providers: await providerIndex(c.env) }), TELEMETRY_CACHE); }
@@ -462,6 +474,9 @@ publicProvidersRouter.get("/:providerId/models", async (c) => {
 		const providerResult = await client.from("v2_model_provider_routes")
 			.select("provider_model_id,provider_model_slug,model_slug,routing_enabled,status,input_modalities,output_modalities,created_at")
 			.eq("provider_slug", providerId)
+			.eq("is_stealth", false)
+			.eq("routing_enabled", true)
+			.in("status", ["active", "degraded"])
 			.order("created_at", { ascending: false });
 		if (providerResult.error) throw providerResult.error;
 		const providerRows = providerResult.data ?? [];
@@ -469,7 +484,7 @@ publicProvidersRouter.get("/:providerId/models", async (c) => {
 		const modelIds = Array.from(new Set(providerRows.map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
 		const [capsResult, modelsResult, skusResult] = await Promise.all([
 			providerModelIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
-			modelIds.length ? client.from("v2_models").select("model_slug,name,released_at,announced_at,hidden").in("model_slug", modelIds).eq("hidden", false) : Promise.resolve({ data: [], error: null }),
+			modelIds.length ? client.from("v2_models").select("model_slug,name,released_at,announced_at,hidden").in("model_slug", modelIds).eq("hidden", false).neq("status", "disabled") : Promise.resolve({ data: [], error: null }),
 			providerModelIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,status,effective_from,effective_to").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
 		]);
 		if (capsResult.error || modelsResult.error || skusResult.error) throw capsResult.error ?? modelsResult.error ?? skusResult.error;

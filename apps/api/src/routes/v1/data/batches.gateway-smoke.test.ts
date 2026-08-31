@@ -242,7 +242,12 @@ describe("mounted batch gateway smoke flows", () => {
 					});
 				}
 				if (url === "https://api.openai.example/v1/files/file_input_123/content" && method === "GET") {
-					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
+					return new Response(JSON.stringify({
+						custom_id: "request-1",
+						method: "POST",
+						url: "/v1/responses",
+						body: { model: "gpt-4.1-mini", max_output_tokens: 16 },
+					}), { status: 200 });
 				}
 
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
@@ -474,7 +479,12 @@ describe("mounted batch gateway smoke flows", () => {
 					});
 				}
 				if (url === "https://api.openai.example/v1/files/file_input_fail_123/content" && method === "GET") {
-					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
+					return new Response(JSON.stringify({
+						custom_id: "request-1",
+						method: "POST",
+						url: "/v1/responses",
+						body: { model: "gpt-4.1-mini", max_output_tokens: 16 },
+					}), { status: 200 });
 				}
 
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {

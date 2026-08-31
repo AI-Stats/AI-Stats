@@ -62,6 +62,7 @@ function normalizeUrl(input?: string | null): string | null {
     if (!input) return null;
     try {
         const u = new URL(input);
+        if (u.protocol !== "http:" && u.protocol !== "https:") return null;
         const path = (u.pathname || "/").replace(/\/+$/, "");
         return `${u.protocol}//${u.host}${path}`;
     } catch {
@@ -126,6 +127,9 @@ function normalizeAppId(input?: string | null): string | null {
         .replace(/-+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 64);
+    if (["app", "unknown", "unknown-app", "untitled", "none", "null", "undefined", "n-a", "na"].includes(normalized)) {
+        return null;
+    }
     return normalized || null;
 }
 
@@ -134,17 +138,19 @@ function deriveIdentityUrl(args: {
     appId?: string | null;
     appTitle?: string | null;
     appName?: string | null;
-}): string {
+}): string | null {
     const urlFromReferer = normalizeUrl(args.referer);
     if (urlFromReferer) return urlFromReferer;
 
     const normalizedAppId = normalizeAppId(args.appId);
     if (normalizedAppId) return `app://id/${normalizedAppId}`;
 
-    const titleSlug = slugify(args.appName ?? args.appTitle ?? "");
+    const titleSlug = slugify(
+        normalizeAppLabel(args.appName) ?? normalizeAppLabel(args.appTitle) ?? "",
+    );
     if (titleSlug) return `app://title/${titleSlug}`;
 
-    return "about:blank";
+    return null;
 }
 
 function deriveAppKey(identityUrl: string): string {
@@ -201,6 +207,7 @@ export async function ensureAppId(params: {
     }
     const normalizedAppId = normalizeAppId(appId);
     const identityUrl = deriveIdentityUrl({ referer, appId, appTitle, appName });
+    if (!identityUrl) return null;
     const app_key = deriveAppKey(identityUrl);
     const cacheKey = ensureAppIdCacheKey(workspaceId, app_key);
     const requestedCategories = normalizeAppCategories(appCategories);
@@ -241,10 +248,10 @@ export async function ensureAppId(params: {
             },
         };
 
-        const findExisting = async (): Promise<{ id: string; category: string | null } | null> => {
+        const findExisting = async (): Promise<{ id: string; category: string | null; managementOverrides: Set<string> } | null> => {
             const { data, error } = await supabase
                 .from("api_apps")
-                .select("id,category")
+                .select("id,category,meta")
                 .eq("workspace_id", workspaceId)
                 .eq("app_key", app_key)
                 .order("last_seen", { ascending: false })
@@ -255,7 +262,15 @@ export async function ensureAppId(params: {
             }
             const first = Array.isArray(data) ? data[0] : null;
             return typeof first?.id === "string"
-                ? { id: first.id, category: typeof first.category === "string" ? first.category : null }
+                ? {
+                    id: first.id,
+                    category: typeof first.category === "string" ? first.category : null,
+                    managementOverrides: new Set(
+                        Array.isArray((first.meta as Record<string, unknown> | null)?.management_overrides)
+                            ? ((first.meta as Record<string, unknown>).management_overrides as unknown[]).map(String)
+                            : [],
+                    ),
+                }
                 : null;
         };
 
@@ -265,13 +280,13 @@ export async function ensureAppId(params: {
             const { error: updateError } = await supabase
                 .from("api_apps")
                 .update({
-                    title: payload.title,
-                    url: payload.url,
-                    is_active: true,
+                    ...(!existing.managementOverrides.has("title") ? { title: payload.title } : {}),
+                    ...(!existing.managementOverrides.has("url") ? { url: payload.url } : {}),
+                    ...(!existing.managementOverrides.has("is_active") ? { is_active: true } : {}),
                     last_seen: nowIso,
                     updated_at: nowIso,
-                    meta: payload.meta,
-                    ...(category ? { category } : {}),
+                    meta: { ...payload.meta, management_overrides: [...existing.managementOverrides] },
+                    ...(category && !existing.managementOverrides.has("category") ? { category } : {}),
                 })
                 .eq("id", existing.id)
                 .eq("workspace_id", workspaceId);
@@ -327,10 +342,3 @@ export async function ensureAppId(params: {
         }
     }
 }
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@
     {
       "frequency": "monthly",
       "usd_price": 0,
-      "link": "https://windsurf.com/pricing",
+      "link": "https://devin.ai/pricing",
       "other_info": null
     }
   ],
@@ -32,18 +32,6 @@
     }
   ],
   "models": [
-    {
-      "model_id": "windsurf/swe-1.6",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Light included quota",
-      "other_info": "Exact availability and pricing can vary in the live Cascade model selector."
-    },
-    {
-      "model_id": "windsurf/swe-1.5",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Light included quota",
-      "other_info": null
-    },
     {
       "model_id": "windsurf/swe-1-mini",
       "model_info": "Tab completion model",

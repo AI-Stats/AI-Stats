@@ -181,11 +181,12 @@ function rustType(schema: IRSchema): string {
 		case "object":
 			if (isModelLifecycleObject(schema)) return "ModelLifecycle";
 			return "HashMap<String, String>";
+		case "enum":
+			return schema.values.filter((value) => value !== null).every((value) => typeof value === "boolean") ? "bool" : "String";
 		case "union":
 		case "intersection":
 		case "unknown":
 		case "literal":
-		case "enum":
 			return "String";
 		case "ref":
 			return schema.name;

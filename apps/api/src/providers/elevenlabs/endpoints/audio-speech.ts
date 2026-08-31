@@ -154,6 +154,13 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	if (typeof elevenlabsParams.enable_logging === "boolean") {
 		queryParams.set("enable_logging", elevenlabsParams.enable_logging ? "true" : "false");
 	}
+	if (
+		Number.isInteger(elevenlabsParams.optimize_streaming_latency) &&
+		elevenlabsParams.optimize_streaming_latency >= 0 &&
+		elevenlabsParams.optimize_streaming_latency <= 4
+	) {
+		queryParams.set("optimize_streaming_latency", String(elevenlabsParams.optimize_streaming_latency));
+	}
 	const query = queryParams.toString();
 
 	const requestBody: Record<string, any> = {
@@ -187,6 +194,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	}
 	if (Array.isArray(elevenlabsParams.pronunciation_dictionary_locators)) {
 		requestBody.pronunciation_dictionary_locators = elevenlabsParams.pronunciation_dictionary_locators;
+	}
+	for (const key of [
+		"previous_text",
+		"next_text",
+		"previous_request_ids",
+		"next_request_ids",
+		"apply_text_normalization",
+		"apply_language_text_normalization",
+		"use_pvc_as_ivc",
+	]) {
+		if (elevenlabsParams[key] !== undefined) {
+			requestBody[key] = elevenlabsParams[key];
+		}
 	}
 
 	const res = await (args.upstreamTiming?.fetch ?? fetch)(

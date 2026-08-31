@@ -92,6 +92,18 @@ public sealed class Client
 		return JsonSerializer.Deserialize<T>(raw);
 	}
 
+	public async Task<string> SendTextAsync(string method, string path, Dictionary<string, string>? query = null, Dictionary<string, string>? headers = null, object? body = null)
+	{
+		var request = BuildRequest(method, path, query, headers, body);
+		var response = await _http.SendAsync(request).ConfigureAwait(false);
+		var raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+		if (!response.IsSuccessStatusCode)
+		{
+			throw new ApiErrorException((int)response.StatusCode, raw, BuildErrorMessage((int)response.StatusCode, raw));
+		}
+		return raw;
+	}
+
 	public async Task<byte[]> SendBytesAsync(string method, string path, Dictionary<string, string>? query = null, Dictionary<string, string>? headers = null, object? body = null)
 	{
 		var request = BuildRequest(method, path, query, headers, body);

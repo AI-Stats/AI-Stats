@@ -41,7 +41,13 @@ describe("google shared media mapping", () => {
 			data: "https://cdn.example.com/cat.png",
 		});
 
-		expect(globalThis.fetch).toHaveBeenCalledWith("https://cdn.example.com/cat.png");
+		expect(globalThis.fetch).toHaveBeenCalledWith(
+			"https://cdn.example.com/cat.png",
+			expect.objectContaining({
+				redirect: "manual",
+				signal: expect.any(AbortSignal),
+			}),
+		);
 		expect(part).toEqual({
 			inline_data: {
 				mime_type: "image/png",

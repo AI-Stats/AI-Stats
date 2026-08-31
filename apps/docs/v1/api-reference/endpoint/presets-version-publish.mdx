@@ -1,0 +1,10 @@
+---
+title: "Publish preset version"
+sidebarTitle: "Publish version"
+badge: "Beta"
+openapi: "POST /presets/{id}/versions"
+description: "Publish the current preset draft as an immutable version."
+---
+<Note>This endpoint requires a management API key with `presets:write` and an associated user identity.</Note>
+
+The preset's versioning method determines the default version label. Semver presets can supply `version_label` explicitly.

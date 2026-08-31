@@ -53,6 +53,18 @@ class AnalyticsNotImplementedResponse
 	public $status;
 }
 
+class AnalyticsResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $limit;
+	/** @var int */
+	public $offset;
+	/** @var int */
+	public $total_count;
+}
+
 class AnthropicContentBlock
 {
 	/** @var array<string, mixed>|null */
@@ -171,6 +183,8 @@ class ApiKey
 	public $created_at;
 	/** @var string|null */
 	public $created_by;
+	/** @var string|null */
+	public $creator_user_id;
 	/** @var bool */
 	public $disabled;
 	/** @var string|null */
@@ -179,10 +193,20 @@ class ApiKey
 	public $hash;
 	/** @var string */
 	public $id;
+	/** @var bool */
+	public $include_byok_in_limit;
 	/** @var string|null */
 	public $label;
 	/** @var string|null */
 	public $last_used_at;
+	/** @var float|null */
+	public $limit;
+	/** @var float|null */
+	public $limit_remaining;
+	/** @var string|null */
+	public $limit_reset;
+	/** @var array<string, mixed> */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -195,6 +219,16 @@ class ApiKey
 	public $status;
 	/** @var string|null */
 	public $updated_at;
+	/** @var float */
+	public $usage;
+	/** @var float */
+	public $usage_daily;
+	/** @var array<string, mixed> */
+	public $usage_details;
+	/** @var float */
+	public $usage_monthly;
+	/** @var float */
+	public $usage_weekly;
 	/** @var string */
 	public $workspace_id;
 }
@@ -211,6 +245,8 @@ class ApiKeyCreateRequest
 	public $limit;
 	/** @var string|null */
 	public $limit_reset;
+	/** @var array<string, mixed>|null */
+	public $limits;
 	/** @var string */
 	public $name;
 	/** @var string|array|null */
@@ -219,6 +255,42 @@ class ApiKeyCreateRequest
 	public $soft_blocked;
 	/** @var string|null */
 	public $workspace_id;
+}
+
+class ApiKeyLimitBucket
+{
+	/** @var float|null */
+	public $cost;
+	/** @var int|null */
+	public $requests;
+}
+
+class ApiKeyLimitInputBucket
+{
+	/** @var float|null */
+	public $cost;
+	/** @var int|null */
+	public $requests;
+}
+
+class ApiKeyLimitInputWindows
+{
+	/** @var array<string, mixed>|null */
+	public $daily;
+	/** @var array<string, mixed>|null */
+	public $monthly;
+	/** @var array<string, mixed>|null */
+	public $weekly;
+}
+
+class ApiKeyLimitWindows
+{
+	/** @var array<string, mixed> */
+	public $daily;
+	/** @var array<string, mixed> */
+	public $monthly;
+	/** @var array<string, mixed> */
+	public $weekly;
 }
 
 class ApiKeyListResponse
@@ -235,6 +307,22 @@ class ApiKeyResponse
 	public $data;
 }
 
+class ApiKeyRotateRequest
+{
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $previous_key_expires_at;
+}
+
+class ApiKeyRotateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string|null */
+	public $previous_key_expires_at;
+}
+
 class ApiKeyScopeValue { }
 
 class ApiKeyUpdateRequest
@@ -249,6 +337,8 @@ class ApiKeyUpdateRequest
 	public $limit;
 	/** @var string|null */
 	public $limit_reset;
+	/** @var array<string, mixed>|null */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|array|null */
@@ -257,12 +347,34 @@ class ApiKeyUpdateRequest
 	public $soft_blocked;
 }
 
+class ApiKeyUsageBucket
+{
+	/** @var float */
+	public $cost;
+	/** @var int */
+	public $requests;
+}
+
+class ApiKeyUsageWindows
+{
+	/** @var array<string, mixed> */
+	public $daily;
+	/** @var array<string, mixed> */
+	public $monthly;
+	/** @var array<string, mixed> */
+	public $total;
+	/** @var array<string, mixed> */
+	public $weekly;
+}
+
 class ApiKeyWithValue
 {
 	/** @var string|null */
 	public $created_at;
 	/** @var string|null */
 	public $created_by;
+	/** @var string|null */
+	public $creator_user_id;
 	/** @var bool */
 	public $disabled;
 	/** @var string|null */
@@ -271,12 +383,22 @@ class ApiKeyWithValue
 	public $hash;
 	/** @var string */
 	public $id;
+	/** @var bool */
+	public $include_byok_in_limit;
 	/** @var string */
 	public $key;
 	/** @var string|null */
 	public $label;
 	/** @var string|null */
 	public $last_used_at;
+	/** @var float|null */
+	public $limit;
+	/** @var float|null */
+	public $limit_remaining;
+	/** @var string|null */
+	public $limit_reset;
+	/** @var array<string, mixed> */
+	public $limits;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -289,6 +411,16 @@ class ApiKeyWithValue
 	public $status;
 	/** @var string|null */
 	public $updated_at;
+	/** @var float */
+	public $usage;
+	/** @var float */
+	public $usage_daily;
+	/** @var array<string, mixed> */
+	public $usage_details;
+	/** @var float */
+	public $usage_monthly;
+	/** @var float */
+	public $usage_weekly;
 	/** @var string */
 	public $workspace_id;
 }
@@ -939,6 +1071,134 @@ class CreditsResponse
 	public $ok;
 }
 
+class DataContributionCategories
+{
+}
+
+class DataContributionClassifier
+{
+	/** @var array<string, mixed> */
+	public $categories;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $instructions;
+	/** @var string */
+	public $kind;
+	/** @var string */
+	public $model;
+	/** @var string */
+	public $name;
+	/** @var int */
+	public $sample_rate_bps;
+	/** @var string */
+	public $service_tier;
+	/** @var string */
+	public $slug;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class DataContributionClassifierCreateRequest
+{
+	/** @var array<string, mixed> */
+	public $categories;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $instructions;
+	/** @var string|null */
+	public $model;
+	/** @var string */
+	public $name;
+	/** @var int|null */
+	public $sampleRateBps;
+	/** @var string|null */
+	public $serviceTier;
+	/** @var string|null */
+	public $slug;
+}
+
+class DataContributionClassifierDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DataContributionClassifierInput
+{
+	/** @var array<string, mixed>|null */
+	public $categories;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $instructions;
+	/** @var string|null */
+	public $model;
+	/** @var string|null */
+	public $name;
+	/** @var int|null */
+	public $sampleRateBps;
+	/** @var string|null */
+	public $serviceTier;
+}
+
+class DataContributionClassifierResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DataContributionClassifierUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $categories;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $instructions;
+	/** @var string|null */
+	public $model;
+	/** @var string|null */
+	public $name;
+	/** @var int|null */
+	public $sampleRateBps;
+	/** @var string|null */
+	public $serviceTier;
+}
+
+class DataContributionConsentRequest
+{
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $reason;
+}
+
+class DataContributionConsentResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DataContributionOverviewResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
 class DataModel
 {
 	/** @var string|null */
@@ -985,6 +1245,200 @@ class DeletedResponse
 {
 	/** @var string */
 	public $deleted;
+}
+
+class DynamicRoute
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string|null */
+	public $created_at;
+	/** @var int|null */
+	public $deployed_version;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var array */
+	public $key_ids;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $slug;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int */
+	public $version;
+	/** @var array */
+	public $versions;
+	/** @var string */
+	public $workspace_id;
+}
+
+class DynamicRouteAction
+{
+	/** @var bool|null */
+	public $allowFallbacks;
+	/** @var string|null */
+	public $model;
+	/** @var array|null */
+	public $modelFallbacks;
+	/** @var array|null */
+	public $providerIgnore;
+	/** @var array|null */
+	public $providerOnly;
+	/** @var array|null */
+	public $providerOrder;
+	/** @var string|null */
+	public $routingMode;
+}
+
+class DynamicRouteCondition
+{
+	/** @var string */
+	public $field;
+	/** @var string|null */
+	public $metadataKey;
+	/** @var string */
+	public $operator;
+	/** @var string|null */
+	public $value;
+}
+
+class DynamicRouteConfig
+{
+	/** @var bool|null */
+	public $cacheAwareRouting;
+	/** @var array<string, mixed>|null */
+	public $defaultAction;
+	/** @var array|null */
+	public $edges;
+	/** @var string|null */
+	public $entryNodeId;
+	/** @var array|null */
+	public $nodes;
+	/** @var array|null */
+	public $rules;
+	/** @var string|null */
+	public $schemaVersion;
+	/** @var bool|null */
+	public $sessionAffinity;
+}
+
+class DynamicRouteCreateRequest
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $slug;
+	/** @var string|null */
+	public $status;
+}
+
+class DynamicRouteDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteDeployResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteEdge
+{
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $source;
+	/** @var string|null */
+	public $sourceHandle;
+	/** @var string */
+	public $target;
+}
+
+class DynamicRouteKeysResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteKeysUpdateRequest
+{
+	/** @var array */
+	public $key_ids;
+}
+
+class DynamicRouteListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class DynamicRouteNode
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed>|null */
+	public $position;
+	/** @var string */
+	public $type;
+}
+
+class DynamicRouteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteRule
+{
+	/** @var array<string, mixed> */
+	public $action;
+	/** @var array<string, mixed> */
+	public $condition;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+}
+
+class DynamicRouteUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $status;
+}
+
+class DynamicRouteVersion
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var string */
+	public $status;
+	/** @var int */
+	public $version;
 }
 
 class Embedding
@@ -1253,6 +1707,120 @@ class GatewayDatetimeToolDefinition
 	public $type;
 }
 
+class GatewayFeedback
+{
+	/** @var string|null */
+	public $comment;
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by_user_id;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed> */
+	public $metadata;
+	/** @var array<string, mixed> */
+	public $metadata_dimensions;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $rating;
+	/** @var string|null */
+	public $reason;
+	/** @var array */
+	public $reason_tags;
+	/** @var string|null */
+	public $request_id;
+	/** @var float|null */
+	public $score;
+	/** @var string|null */
+	public $session_id;
+	/** @var string */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+	/** @var string */
+	public $workspace_id;
+}
+
+class GatewayFeedbackCreateRequest
+{
+	/** @var string|null */
+	public $comment;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var array<string, mixed>|null */
+	public $metadata;
+	/** @var array<string, mixed>|null */
+	public $metadata_dimensions;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $rating;
+	/** @var string|null */
+	public $reason;
+	/** @var array|null */
+	public $reason_tags;
+	/** @var string|null */
+	public $request_id;
+	/** @var float|null */
+	public $score;
+	/** @var string|null */
+	public $session_id;
+	/** @var string|null */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+}
+
+class GatewayFeedbackListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class GatewayFeedbackResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GatewayFeedbackSummaryResponse
+{
+	/** @var array */
+	public $data;
+	/** @var string */
+	public $group_by;
+}
+
+class GatewayFeedbackSummaryRow
+{
+	/** @var float|null */
+	public $average_score;
+	/** @var int */
+	public $count;
+	/** @var string|null */
+	public $last_feedback_at;
+	/** @var string|null */
+	public $metadata_key;
+	/** @var string|null */
+	public $metadata_value;
+	/** @var int */
+	public $negative;
+	/** @var int */
+	public $partial;
+	/** @var int */
+	public $positive;
+	/** @var string|null */
+	public $preset_id;
+	/** @var array<string, mixed> */
+	public $ratings;
+	/** @var string|null */
+	public $test_run_id;
+}
+
 class GatewayModalities
 {
 	/** @var array */
@@ -1329,6 +1897,86 @@ class GatewayModelsResponse
 	public $total;
 }
 
+class GatewayObservabilityEvent
+{
+	/** @var string */
+	public $category;
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by_user_id;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var string */
+	public $event_name;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed> */
+	public $metadata;
+	/** @var array<string, mixed> */
+	public $metadata_dimensions;
+	/** @var float|null */
+	public $numeric_value;
+	/** @var string */
+	public $occurred_at;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $session_id;
+	/** @var string */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+	/** @var mixed|null */
+	public $value;
+	/** @var string */
+	public $workspace_id;
+}
+
+class GatewayObservabilityEventCreateRequest
+{
+	/** @var string|null */
+	public $category;
+	/** @var string|null */
+	public $end_user_id;
+	/** @var string */
+	public $event_name;
+	/** @var array<string, mixed>|null */
+	public $metadata;
+	/** @var array<string, mixed>|null */
+	public $metadata_dimensions;
+	/** @var float|null */
+	public $numeric_value;
+	/** @var string|null */
+	public $occurred_at;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $session_id;
+	/** @var string|null */
+	public $source;
+	/** @var string|null */
+	public $test_run_id;
+	/** @var mixed|null */
+	public $value;
+}
+
+class GatewayObservabilityEventListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class GatewayObservabilityEventResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
 class GatewayPricing
 {
 	/** @var array<string, mixed> */
@@ -1340,6 +1988,88 @@ class GatewayPricing
 class GatewayPricingMeter { }
 
 class GatewayProviderAvailabilityReason { }
+
+class GatewayRequestLog
+{
+	/** @var string|null */
+	public $auth_method;
+	/** @var bool|null */
+	public $byok;
+	/** @var string|null */
+	public $canonical_model_id;
+	/** @var int|null */
+	public $cost_nanos;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $currency;
+	/** @var string|null */
+	public $endpoint;
+	/** @var string|null */
+	public $error_code;
+	/** @var string|null */
+	public $finish_reason;
+	/** @var float|null */
+	public $generation_ms;
+	/** @var string|null */
+	public $key_id;
+	/** @var float|null */
+	public $latency_ms;
+	/** @var string|null */
+	public $location;
+	/** @var string|null */
+	public $model_id;
+	/** @var string|null */
+	public $native_response_id;
+	/** @var string|null */
+	public $oauth_client_id;
+	/** @var array|null */
+	public $pricing_lines;
+	/** @var string|null */
+	public $provider;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $requested_model_id;
+	/** @var string|null */
+	public $routed_model_id;
+	/** @var int|null */
+	public $status_code;
+	/** @var bool|null */
+	public $stream;
+	/** @var bool|null */
+	public $success;
+	/** @var float|null */
+	public $throughput;
+	/** @var array<string, mixed>|null */
+	public $usage;
+}
+
+class GatewayRequestLogListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var string */
+	public $from_time;
+	/** @var int */
+	public $limit;
+	/** @var int */
+	public $offset;
+	/** @var string */
+	public $ok;
+	/** @var string|null */
+	public $to_time;
+	/** @var int */
+	public $total;
+}
+
+class GatewayRequestLogResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string */
+	public $ok;
+}
 
 class GatewayRoutingStatus { }
 
@@ -1417,6 +2147,322 @@ class GenerationResponse
 	public $throughput;
 	/** @var array<string, mixed>|null */
 	public $usage;
+}
+
+class Guardrail
+{
+	/** @var array|null */
+	public $allowed_api_model_ids;
+	/** @var string|null */
+	public $created_at;
+	/** @var int|null */
+	public $daily_limit_cost_nanos;
+	/** @var int|null */
+	public $daily_limit_requests;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $model_restriction_mode;
+	/** @var int|null */
+	public $monthly_limit_cost_nanos;
+	/** @var int|null */
+	public $monthly_limit_requests;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $privacy_enable_free_may_publish_prompts;
+	/** @var bool|null */
+	public $privacy_enable_free_may_train;
+	/** @var bool|null */
+	public $privacy_enable_input_output_logging;
+	/** @var bool|null */
+	public $privacy_enable_paid_may_train;
+	/** @var bool|null */
+	public $privacy_zdr_only;
+	/** @var string|null */
+	public $prompt_injection_action;
+	/** @var bool|null */
+	public $prompt_injection_enabled;
+	/** @var bool|null */
+	public $provider_restriction_enforce_allowed;
+	/** @var string|null */
+	public $provider_restriction_mode;
+	/** @var array|null */
+	public $provider_restriction_provider_ids;
+	/** @var string|null */
+	public $sensitive_info_default_action;
+	/** @var bool|null */
+	public $sensitive_info_enabled;
+	/** @var array|null */
+	public $sensitive_info_rules;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int|null */
+	public $weekly_limit_cost_nanos;
+	/** @var int|null */
+	public $weekly_limit_requests;
+	/** @var string */
+	public $workspace_id;
+}
+
+class GuardrailBudgetInput
+{
+	/** @var int|null */
+	public $dailyCostNanos;
+	/** @var int|null */
+	public $dailyRequests;
+	/** @var int|null */
+	public $monthlyCostNanos;
+	/** @var int|null */
+	public $monthlyRequests;
+	/** @var int|null */
+	public $weeklyCostNanos;
+	/** @var int|null */
+	public $weeklyRequests;
+}
+
+class GuardrailCreateRequest
+{
+	/** @var array|null */
+	public $allowedApiModelIds;
+	/** @var array<string, mixed>|null */
+	public $budgets;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $modelRestrictionMode;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $privacyEnableFreeMayPublishPrompts;
+	/** @var bool|null */
+	public $privacyEnableFreeMayTrain;
+	/** @var bool|null */
+	public $privacyEnableInputOutputLogging;
+	/** @var bool|null */
+	public $privacyEnablePaidMayTrain;
+	/** @var bool|null */
+	public $privacyZdrOnly;
+	/** @var string|null */
+	public $promptInjectionAction;
+	/** @var bool|null */
+	public $promptInjectionEnabled;
+	/** @var bool|null */
+	public $providerRestrictionEnforceAllowed;
+	/** @var string|null */
+	public $providerRestrictionMode;
+	/** @var array|null */
+	public $providerRestrictionProviderIds;
+	/** @var string|null */
+	public $sensitiveInfoDefaultAction;
+	/** @var bool|null */
+	public $sensitiveInfoEnabled;
+	/** @var array|null */
+	public $sensitiveInfoRules;
+}
+
+class GuardrailDeleteResponse
+{
+	/** @var string */
+	public $deleted;
+}
+
+class GuardrailDetailResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GuardrailKeyAddResponse
+{
+	/** @var int */
+	public $added_count;
+	/** @var array */
+	public $data;
+}
+
+class GuardrailKeyAssignment
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $key_id;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $prefix;
+	/** @var string|null */
+	public $status;
+}
+
+class GuardrailKeyIdsReplaceRequest
+{
+	/** @var array */
+	public $key_ids;
+}
+
+class GuardrailKeyIdsRequest
+{
+	/** @var array */
+	public $key_ids;
+}
+
+class GuardrailKeyListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class GuardrailKeySetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GuardrailListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class GuardrailMemberAddResponse
+{
+	/** @var int */
+	public $added_count;
+	/** @var array */
+	public $data;
+}
+
+class GuardrailMemberAssignment
+{
+	/** @var string|null */
+	public $display_name;
+	/** @var string|null */
+	public $joined_at;
+	/** @var string|null */
+	public $role;
+	/** @var string */
+	public $user_id;
+}
+
+class GuardrailMemberListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class GuardrailPolicyInput
+{
+	/** @var array|null */
+	public $allowedApiModelIds;
+	/** @var array<string, mixed>|null */
+	public $budgets;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $modelRestrictionMode;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacyEnableFreeMayPublishPrompts;
+	/** @var bool|null */
+	public $privacyEnableFreeMayTrain;
+	/** @var bool|null */
+	public $privacyEnableInputOutputLogging;
+	/** @var bool|null */
+	public $privacyEnablePaidMayTrain;
+	/** @var bool|null */
+	public $privacyZdrOnly;
+	/** @var string|null */
+	public $promptInjectionAction;
+	/** @var bool|null */
+	public $promptInjectionEnabled;
+	/** @var bool|null */
+	public $providerRestrictionEnforceAllowed;
+	/** @var string|null */
+	public $providerRestrictionMode;
+	/** @var array|null */
+	public $providerRestrictionProviderIds;
+	/** @var string|null */
+	public $sensitiveInfoDefaultAction;
+	/** @var bool|null */
+	public $sensitiveInfoEnabled;
+	/** @var array|null */
+	public $sensitiveInfoRules;
+}
+
+class GuardrailRemoveResponse
+{
+	/** @var int */
+	public $removed_count;
+}
+
+class GuardrailResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GuardrailUpdateRequest
+{
+	/** @var array|null */
+	public $allowedApiModelIds;
+	/** @var array<string, mixed>|null */
+	public $budgets;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $modelRestrictionMode;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacyEnableFreeMayPublishPrompts;
+	/** @var bool|null */
+	public $privacyEnableFreeMayTrain;
+	/** @var bool|null */
+	public $privacyEnableInputOutputLogging;
+	/** @var bool|null */
+	public $privacyEnablePaidMayTrain;
+	/** @var bool|null */
+	public $privacyZdrOnly;
+	/** @var string|null */
+	public $promptInjectionAction;
+	/** @var bool|null */
+	public $promptInjectionEnabled;
+	/** @var bool|null */
+	public $providerRestrictionEnforceAllowed;
+	/** @var string|null */
+	public $providerRestrictionMode;
+	/** @var array|null */
+	public $providerRestrictionProviderIds;
+	/** @var string|null */
+	public $sensitiveInfoDefaultAction;
+	/** @var bool|null */
+	public $sensitiveInfoEnabled;
+	/** @var array|null */
+	public $sensitiveInfoRules;
+}
+
+class GuardrailUserIdsRequest
+{
+	/** @var array */
+	public $user_ids;
 }
 
 class Image
@@ -1538,8 +2584,6 @@ class InvalidRequestResponse
 class KeyInvalidateResponse
 {
 	/** @var array<string, mixed> */
-	public $cache_version;
-	/** @var array<string, mixed> */
 	public $key;
 	/** @var string */
 	public $message;
@@ -1555,6 +2599,12 @@ class ListFilesResponse
 	public $data;
 	/** @var string|null */
 	public $object;
+}
+
+class ManagementKeyCollectionResponse
+{
+	/** @var array */
+	public $data;
 }
 
 class ManagementKeyCreateRequest
@@ -1609,6 +2659,148 @@ class ManagementKeyListResponse
 	public $ok;
 	/** @var int */
 	public $total;
+}
+
+class ManagementKeyRuntime
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var int|null */
+	public $daily_limit_cost_nanos;
+	/** @var int|null */
+	public $daily_limit_requests;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var int|null */
+	public $monthly_limit_cost_nanos;
+	/** @var int|null */
+	public $monthly_limit_requests;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $prefix;
+	/** @var array */
+	public $scopes;
+	/** @var bool|null */
+	public $soft_blocked;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int|null */
+	public $weekly_limit_cost_nanos;
+	/** @var int|null */
+	public $weekly_limit_requests;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ManagementKeyRuntimeCreated
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var int|null */
+	public $daily_limit_cost_nanos;
+	/** @var int|null */
+	public $daily_limit_requests;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $key;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var int|null */
+	public $monthly_limit_cost_nanos;
+	/** @var int|null */
+	public $monthly_limit_requests;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $prefix;
+	/** @var array */
+	public $scopes;
+	/** @var bool|null */
+	public $soft_blocked;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int|null */
+	public $weekly_limit_cost_nanos;
+	/** @var int|null */
+	public $weekly_limit_requests;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ManagementKeyRuntimeCreateRequest
+{
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $paused;
+	/** @var string|array|null */
+	public $scopes;
+	/** @var string|null */
+	public $template;
+}
+
+class ManagementKeyRuntimeCreateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ManagementKeyRuntimeDeleteResponse
+{
+	/** @var string */
+	public $deleted;
+}
+
+class ManagementKeyRuntimeResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ManagementKeyRuntimeUpdateRequest
+{
+	/** @var int|null */
+	public $dailyCostNanos;
+	/** @var int|null */
+	public $dailyRequests;
+	/** @var string|null */
+	public $expires_at;
+	/** @var int|null */
+	public $monthlyCostNanos;
+	/** @var int|null */
+	public $monthlyRequests;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $paused;
+	/** @var string|array|null */
+	public $scopes;
+	/** @var bool|null */
+	public $softBlocked;
+	/** @var string|null */
+	public $template;
+	/** @var int|null */
+	public $weeklyCostNanos;
+	/** @var int|null */
+	public $weeklyRequests;
 }
 
 class ManagementKeyUpdateRequest
@@ -1937,6 +3129,376 @@ class NotImplementedResponse
 	public $status_code;
 }
 
+class OAuthClient
+{
+	/** @var int|null */
+	public $active_authorizations;
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string */
+	public $client_id;
+	/** @var string */
+	public $client_type;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array */
+	public $redirect_uris;
+	/** @var int|null */
+	public $requests_last_30d;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $terms_of_service_url;
+	/** @var int|null */
+	public $total_authorizations;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class OAuthClientCreateRequest
+{
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string|null */
+	public $client_type;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array */
+	public $redirect_uris;
+	/** @var string|null */
+	public $terms_of_service_url;
+}
+
+class OAuthClientCreateResponse
+{
+	/** @var int|null */
+	public $active_authorizations;
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string */
+	public $client_id;
+	/** @var string|null */
+	public $client_secret;
+	/** @var string */
+	public $client_type;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array */
+	public $redirect_uris;
+	/** @var int|null */
+	public $requests_last_30d;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $terms_of_service_url;
+	/** @var int|null */
+	public $total_authorizations;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class OAuthClientDeleteResponse
+{
+	/** @var string */
+	public $client_id;
+	/** @var string */
+	public $message;
+}
+
+class OAuthClientInput
+{
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array|null */
+	public $redirect_uris;
+	/** @var string|null */
+	public $terms_of_service_url;
+}
+
+class OAuthClientListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var array<string, mixed> */
+	public $pagination;
+}
+
+class OAuthClientSecretResponse
+{
+	/** @var string */
+	public $client_id;
+	/** @var string */
+	public $client_secret;
+	/** @var string */
+	public $message;
+}
+
+class OAuthClientUpdateRequest
+{
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array|null */
+	public $redirect_uris;
+	/** @var string|null */
+	public $terms_of_service_url;
+}
+
+class ObservabilityDestination
+{
+	/** @var bool */
+	public $configured;
+	/** @var string|null */
+	public $created_at;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $group_join;
+	/** @var string */
+	public $id;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array */
+	public $key_filters;
+	/** @var string */
+	public $name;
+	/** @var bool */
+	public $privacy_mode;
+	/** @var array */
+	public $rule_groups;
+	/** @var float */
+	public $sampling_rate;
+	/** @var string */
+	public $type;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ObservabilityDestinationCreateRequest
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $group_join;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array|null */
+	public $key_filters;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $privacy_mode;
+	/** @var array|null */
+	public $rule_groups;
+	/** @var float|null */
+	public $sampling_rate;
+	/** @var string */
+	public $type;
+}
+
+class ObservabilityDestinationListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class ObservabilityDestinationPolicyInput
+{
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $group_join;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array|null */
+	public $key_filters;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacy_mode;
+	/** @var array|null */
+	public $rule_groups;
+	/** @var float|null */
+	public $sampling_rate;
+}
+
+class ObservabilityDestinationResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ObservabilityDestinationType { }
+
+class ObservabilityDestinationUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $group_join;
+	/** @var bool|null */
+	public $include_cost_metadata;
+	/** @var bool|null */
+	public $include_generation_metadata;
+	/** @var bool|null */
+	public $include_identity_metadata;
+	/** @var bool|null */
+	public $include_request_context;
+	/** @var array|null */
+	public $key_filters;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacy_mode;
+	/** @var array|null */
+	public $rule_groups;
+	/** @var float|null */
+	public $sampling_rate;
+}
+
+class ObservabilityKeyFilter
+{
+	/** @var string */
+	public $key_id;
+	/** @var string */
+	public $mode;
+}
+
+class ObservabilityLoggingPolicy
+{
+	/** @var string */
+	public $billing_status;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $grace_until;
+	/** @var bool */
+	public $include_provider_payloads;
+	/** @var int */
+	public $price_per_million_units_nanos;
+	/** @var int */
+	public $retention_days;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ObservabilityLoggingPolicyResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ObservabilityLoggingPolicyUpdateRequest
+{
+	/** @var bool|null */
+	public $enabled;
+	/** @var bool|null */
+	public $include_provider_payloads;
+	/** @var int|null */
+	public $retention_days;
+}
+
+class ObservabilityRule
+{
+	/** @var string */
+	public $condition;
+	/** @var string */
+	public $field;
+	/** @var string|null */
+	public $value;
+}
+
+class ObservabilityRuleGroup
+{
+	/** @var string */
+	public $match;
+	/** @var array */
+	public $rules;
+}
+
 class OcrRequest
 {
 	/** @var array<string, mixed>|null */
@@ -2027,6 +3589,286 @@ class ParseResponse
 	public $usage;
 }
 
+class Preset
+{
+	/** @var string|null */
+	public $active_version_id;
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $slug;
+	/** @var string|null */
+	public $source_preset_id;
+	/** @var string|null */
+	public $source_preset_version_id;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string|null */
+	public $upstream_version_id;
+	/** @var string */
+	public $versioning_method;
+	/** @var string */
+	public $visibility;
+	/** @var string */
+	public $workspace_id;
+}
+
+class PresetConfig
+{
+}
+
+class PresetCreateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $slug;
+	/** @var string|null */
+	public $versioning_method;
+	/** @var string|null */
+	public $visibility;
+}
+
+class PresetCreateResponse
+{
+	/** @var string */
+	public $canonical_model;
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetForkRequest
+{
+	/** @var string|null */
+	public $source_version_id;
+}
+
+class PresetListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class PresetPublisher
+{
+	/** @var string|null */
+	public $handle;
+	/** @var string */
+	public $workspace_id;
+}
+
+class PresetPublisherResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetPublisherUpdateRequest
+{
+	/** @var string */
+	public $handle;
+}
+
+class PresetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetTestRun
+{
+	/** @var string|null */
+	public $baseline_preset_id;
+	/** @var string|null */
+	public $completed_at;
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by_user_id;
+	/** @var string|null */
+	public $dataset_name;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $started_at;
+	/** @var string */
+	public $status;
+	/** @var array<string, mixed> */
+	public $summary;
+	/** @var string */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class PresetTestRunCreateRequest
+{
+	/** @var string|null */
+	public $baseline_preset_id;
+	/** @var string|null */
+	public $completed_at;
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $dataset_name;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $preset_id;
+	/** @var string|null */
+	public $started_at;
+	/** @var string|null */
+	public $status;
+	/** @var array<string, mixed>|null */
+	public $summary;
+}
+
+class PresetTestRunDetailResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var array<string, mixed>|null */
+	public $feedback_summary;
+}
+
+class PresetTestRunListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class PresetTestRunResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetTestRunUpdateRequest
+{
+	/** @var string|null */
+	public $completed_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $started_at;
+	/** @var string|null */
+	public $status;
+	/** @var array<string, mixed>|null */
+	public $summary;
+}
+
+class PresetUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $replace_config;
+	/** @var string|null */
+	public $slug;
+	/** @var string|null */
+	public $versioning_method;
+	/** @var string|null */
+	public $visibility;
+}
+
+class PresetUpstreamApplyRequest
+{
+	/** @var string */
+	public $version_id;
+}
+
+class PresetUpstreamApplyResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetVersion
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string */
+	public $created_at;
+	/** @var string */
+	public $created_by;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $preset_id;
+	/** @var string|null */
+	public $release_notes;
+	/** @var string */
+	public $slug;
+	/** @var string */
+	public $version_label;
+	/** @var int */
+	public $version_number;
+	/** @var string */
+	public $versioning_method;
+	/** @var string */
+	public $visibility;
+}
+
+class PresetVersioningMethod { }
+
+class PresetVersionListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class PresetVersionPublishRequest
+{
+	/** @var string|null */
+	public $release_notes;
+	/** @var string|null */
+	public $version_label;
+}
+
+class PresetVersionResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetVisibility { }
+
 class Provider
 {
 	/** @var string|null */
@@ -2039,6 +3881,122 @@ class Provider
 	public $description;
 	/** @var string|null */
 	public $link;
+}
+
+class ProviderCredential
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_model_slugs;
+	/** @var bool|null */
+	public $always_use;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var bool */
+	public $disabled;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $error_message;
+	/** @var string */
+	public $id;
+	/** @var bool */
+	public $is_fallback;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $last_verified_at;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $prefix;
+	/** @var string */
+	public $provider_id;
+	/** @var string */
+	public $routing_mode;
+	/** @var int */
+	public $sort_order;
+	/** @var string|null */
+	public $suffix;
+	/** @var string|null */
+	public $verification_status;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ProviderCredentialCreateRequest
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_models;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $key;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $provider;
+	/** @var string|null */
+	public $routing_mode;
+}
+
+class ProviderCredentialDeleteResponse
+{
+	/** @var bool */
+	public $deleted;
+}
+
+class ProviderCredentialListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class ProviderCredentialReorderRequest
+{
+	/** @var array */
+	public $key_ids;
+	/** @var string */
+	public $provider;
+	/** @var string */
+	public $routing_mode;
+}
+
+class ProviderCredentialReorderResponse
+{
+	/** @var bool */
+	public $reordered;
+}
+
+class ProviderCredentialResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ProviderCredentialRoutingMode { }
+
+class ProviderCredentialUpdateRequest
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_models;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $key;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $routing_mode;
 }
 
 class ProviderOptions
@@ -2479,6 +4437,12 @@ class ToolCallContentPart
 	public $type;
 }
 
+class UpdatedResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
 class Usage
 {
 	/** @var int|null */
@@ -2751,6 +4715,110 @@ class VideoOutputConfig
 	public $access;
 }
 
+class WebhookEndpoint
+{
+	/** @var string|null */
+	public $createdAt;
+	/** @var string|null */
+	public $createdBy;
+	/** @var string|null */
+	public $deletedAt;
+	/** @var array */
+	public $events;
+	/** @var bool */
+	public $hasSecret;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updatedAt;
+	/** @var string */
+	public $url;
+	/** @var string */
+	public $workspaceId;
+}
+
+class WebhookEndpointCreateRequest
+{
+	/** @var array|null */
+	public $events;
+	/** @var string|null */
+	public $name;
+	/** @var string */
+	public $url;
+}
+
+class WebhookEndpointDeleteResponse
+{
+	/** @var string */
+	public $deleted;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $object;
+}
+
+class WebhookEndpointInput
+{
+	/** @var array|null */
+	public $events;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $url;
+}
+
+class WebhookEndpointListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var string */
+	public $object;
+}
+
+class WebhookEndpointSecretResponse
+{
+	/** @var string|null */
+	public $createdAt;
+	/** @var string|null */
+	public $createdBy;
+	/** @var string|null */
+	public $deletedAt;
+	/** @var array */
+	public $events;
+	/** @var bool */
+	public $hasSecret;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $signing_secret;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updatedAt;
+	/** @var string */
+	public $url;
+	/** @var string */
+	public $workspaceId;
+}
+
+class WebhookEndpointUpdateRequest
+{
+	/** @var array|null */
+	public $events;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $status;
+	/** @var string|null */
+	public $url;
+}
+
 class Workspace
 {
 	/** @var string|null */
@@ -2805,6 +4873,262 @@ class WorkspaceActivityResponse
 	public $total_cost_cents;
 }
 
+class WorkspaceApp
+{
+	/** @var string */
+	public $app_key;
+	/** @var string|null */
+	public $category;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $docs_url;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $image_url;
+	/** @var bool */
+	public $is_active;
+	/** @var bool */
+	public $is_managed;
+	/** @var bool */
+	public $is_public;
+	/** @var string|null */
+	public $last_seen;
+	/** @var string */
+	public $title;
+	/** @var string|null */
+	public $url;
+}
+
+class WorkspaceAppListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $limit;
+	/** @var int */
+	public $offset;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceAppMergeRequest
+{
+	/** @var string */
+	public $target_app_id;
+}
+
+class WorkspaceAppMergeResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceAppResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceAppUpdateRequest
+{
+	/** @var string|null */
+	public $category;
+	/** @var string|null */
+	public $docs_url;
+	/** @var string|null */
+	public $image_url;
+	/** @var bool|null */
+	public $is_active;
+	/** @var bool|null */
+	public $is_public;
+	/** @var string|null */
+	public $title;
+	/** @var string|null */
+	public $url;
+}
+
+class WorkspaceAssignableRole { }
+
+class WorkspaceAuditEvent
+{
+	/** @var string */
+	public $action;
+	/** @var array<string, mixed>|null */
+	public $actor;
+	/** @var string|null */
+	public $actor_user_id;
+	/** @var string */
+	public $created_at;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed> */
+	public $metadata;
+	/** @var string|null */
+	public $request_id;
+	/** @var string */
+	public $target_id;
+	/** @var string|null */
+	public $target_name;
+	/** @var string */
+	public $target_type;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceAuditEventActor
+{
+	/** @var string|null */
+	public $display_name;
+	/** @var string|null */
+	public $email;
+}
+
+class WorkspaceAuditEventLimits
+{
+	/** @var int|null */
+	public $dailyCostNanos;
+	/** @var int|null */
+	public $dailyRequests;
+	/** @var int|null */
+	public $monthlyCostNanos;
+	/** @var int|null */
+	public $monthlyRequests;
+	/** @var bool|null */
+	public $softBlocked;
+	/** @var int|null */
+	public $weeklyCostNanos;
+	/** @var int|null */
+	public $weeklyRequests;
+}
+
+class WorkspaceAuditEventListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var bool */
+	public $has_more;
+	/** @var string|null */
+	public $next_cursor;
+}
+
+class WorkspaceAuditEventMetadata
+{
+	/** @var string|null */
+	public $accessTemplate;
+	/** @var array|null */
+	public $changedFields;
+	/** @var string|null */
+	public $expiresAt;
+	/** @var array<string, mixed>|null */
+	public $limits;
+	/** @var string|null */
+	public $prefix;
+	/** @var string|null */
+	public $previousKeyExpiresAt;
+	/** @var string|null */
+	public $replacementKeyId;
+	/** @var string|null */
+	public $replacementKeyName;
+	/** @var string|null */
+	public $status;
+}
+
+class WorkspaceAutoTopUpSettings
+{
+	/** @var int */
+	public $amount_nanos;
+	/** @var int */
+	public $balance_threshold_nanos;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $payment_method_id;
+}
+
+class WorkspaceAutoTopUpUpdate
+{
+	/** @var int|null */
+	public $amount_nanos;
+	/** @var int|null */
+	public $balance_threshold_nanos;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $payment_method_id;
+}
+
+class WorkspaceBudget
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var bool */
+	public $exceeded;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $interval;
+	/** @var float */
+	public $limit;
+	/** @var int */
+	public $limit_nanos;
+	/** @var float */
+	public $remaining;
+	/** @var int */
+	public $remaining_nanos;
+	/** @var string|null */
+	public $reset_at;
+	/** @var string */
+	public $updated_at;
+	/** @var float */
+	public $usage;
+	/** @var int */
+	public $usage_nanos;
+	/** @var string|null */
+	public $window_start;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceBudgetDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceBudgetInput
+{
+	/** @var string */
+	public $interval;
+	/** @var float */
+	public $limit;
+}
+
+class WorkspaceBudgetInterval { }
+
+class WorkspaceBudgetListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceBudgetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceBudgetUpdateInput
+{
+	/** @var string|null */
+	public $interval;
+	/** @var float|null */
+	public $limit;
+}
+
 class WorkspaceCreateRequest
 {
 	/** @var string */
@@ -2812,6 +5136,290 @@ class WorkspaceCreateRequest
 	/** @var string|null */
 	public $slug;
 }
+
+class WorkspaceDepartment
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $directory_name;
+	/** @var string|null */
+	public $icon;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $name_overridden;
+	/** @var string|null */
+	public $source_id;
+	/** @var string|null */
+	public $source_type;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceDepartmentCreateRequest
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $icon;
+	/** @var string */
+	public $name;
+}
+
+class WorkspaceDepartmentInput
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $icon;
+	/** @var string|null */
+	public $name;
+}
+
+class WorkspaceDepartmentListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceDepartmentMember
+{
+	/** @var string */
+	public $department_id;
+	/** @var bool */
+	public $is_primary;
+	/** @var string */
+	public $position;
+	/** @var string */
+	public $user_id;
+}
+
+class WorkspaceDepartmentMemberRequest
+{
+	/** @var string|null */
+	public $position;
+	/** @var bool|null */
+	public $primary;
+}
+
+class WorkspaceDepartmentMemberResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceDepartmentResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceDepartmentUpdateRequest
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $icon;
+	/** @var string|null */
+	public $name;
+}
+
+class WorkspaceDirectoryMember
+{
+	/** @var string */
+	public $access_source;
+	/** @var array<string, mixed>|null */
+	public $department;
+	/** @var bool */
+	public $department_override_enabled;
+	/** @var string|null */
+	public $department_override_id;
+	/** @var string */
+	public $department_source;
+	/** @var string|null */
+	public $directory_department;
+	/** @var string */
+	public $display_name;
+	/** @var string */
+	public $effective_role;
+	/** @var string|null */
+	public $email;
+	/** @var string|null */
+	public $joined_at;
+	/** @var string|null */
+	public $role_override;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $user_id;
+	/** @var string */
+	public $workspace_role;
+}
+
+class WorkspaceDirectoryMemberUpdateRequest
+{
+	/** @var string|null */
+	public $access_role;
+	/** @var string|null */
+	public $department_id;
+	/** @var string|null */
+	public $department_mode;
+	/** @var string|null */
+	public $department_position;
+}
+
+class WorkspaceDirectoryResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceGroupMapping
+{
+	/** @var string */
+	public $access_role;
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $department_id;
+	/** @var string */
+	public $department_position;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $scim_group_id;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceGroupMappingCreateRequest
+{
+	/** @var string|null */
+	public $access_role;
+	/** @var string */
+	public $department_id;
+	/** @var string|null */
+	public $department_position;
+	/** @var string */
+	public $scim_group_id;
+}
+
+class WorkspaceGroupMappingListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceGroupMappingResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceGroupMappingUpdateRequest
+{
+	/** @var string|null */
+	public $access_role;
+	/** @var string|null */
+	public $department_position;
+}
+
+class WorkspaceInvite
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $creator_user_id;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var int|null */
+	public $max_uses;
+	/** @var string */
+	public $role;
+	/** @var string|null */
+	public $token_preview;
+	/** @var int|null */
+	public $uses_count;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceInviteCreateRequest
+{
+	/** @var int|null */
+	public $expires_in_days;
+	/** @var int|null */
+	public $max_uses;
+	/** @var string|null */
+	public $role;
+}
+
+class WorkspaceInviteCreateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string */
+	public $token;
+}
+
+class WorkspaceInviteListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceJoinRequest
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $decided_at;
+	/** @var string|null */
+	public $decided_by;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $invite_id;
+	/** @var string */
+	public $requester_user_id;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceJoinRequestListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceJoinRequestResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceJoinRequestStatus { }
 
 class WorkspaceListResponse
 {
@@ -2821,10 +5429,450 @@ class WorkspaceListResponse
 	public $total_count;
 }
 
+class WorkspaceLowBalanceEmailSettings
+{
+	/** @var bool */
+	public $enabled;
+	/** @var float */
+	public $threshold_usd;
+}
+
+class WorkspaceLowBalanceEmailUpdate
+{
+	/** @var bool */
+	public $enabled;
+	/** @var float|null */
+	public $threshold_usd;
+}
+
+class WorkspaceMember
+{
+	/** @var string|null */
+	public $display_name;
+	/** @var string|null */
+	public $joined_at;
+	/** @var string */
+	public $role;
+	/** @var string */
+	public $user_id;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceMemberAddResponse
+{
+	/** @var int */
+	public $added_count;
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceMemberBulkRequest
+{
+	/** @var string|null */
+	public $role;
+	/** @var array */
+	public $user_ids;
+}
+
+class WorkspaceMemberListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class WorkspaceMemberRemoveRequest
+{
+	/** @var array */
+	public $user_ids;
+}
+
+class WorkspaceMemberRemoveResponse
+{
+	/** @var int */
+	public $removed_count;
+}
+
+class WorkspaceMemberResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceMemberRoleUpdateRequest
+{
+	/** @var string */
+	public $role;
+}
+
+class WorkspaceNotificationDestination
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $target_preview;
+	/** @var string */
+	public $type;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceNotificationDestinationCreateRequest
+{
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $target;
+	/** @var string */
+	public $type;
+}
+
+class WorkspaceNotificationDestinationListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceNotificationDestinationResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationDestinationTestRequest
+{
+	/** @var string */
+	public $target;
+	/** @var string */
+	public $type;
+}
+
+class WorkspaceNotificationDestinationType { }
+
+class WorkspaceNotificationEmailPreferences
+{
+	/** @var bool */
+	public $auto_top_up_failure;
+	/** @var bool */
+	public $model_deprecation;
+	/** @var bool */
+	public $payment_method_expiring;
+}
+
+class WorkspaceNotificationEmailPreferencesUpdate
+{
+	/** @var bool|null */
+	public $auto_top_up_failure;
+	/** @var bool|null */
+	public $model_deprecation;
+	/** @var bool|null */
+	public $payment_method_expiring;
+}
+
+class WorkspaceNotificationEventKind { }
+
+class WorkspaceNotificationRoute
+{
+	/** @var array */
+	public $destination_ids;
+	/** @var string */
+	public $event_kind;
+}
+
+class WorkspaceNotificationRouteMap
+{
+	/** @var array */
+	public $auto_top_up_failed;
+	/** @var array */
+	public $low_balance;
+	/** @var array */
+	public $model_deprecation;
+	/** @var array */
+	public $payment_method_expiring;
+}
+
+class WorkspaceNotificationRouteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationRoutesResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationRouteUpdateRequest
+{
+	/** @var array */
+	public $destination_ids;
+}
+
+class WorkspaceNotificationSettings
+{
+	/** @var array<string, mixed> */
+	public $auto_top_up;
+	/** @var array<string, mixed> */
+	public $email_preferences;
+	/** @var array<string, mixed> */
+	public $low_balance_email;
+}
+
+class WorkspaceNotificationSettingsResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceNotificationSettingsUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $auto_top_up;
+	/** @var array<string, mixed>|null */
+	public $email_preferences;
+	/** @var array<string, mixed>|null */
+	public $low_balance_email;
+}
+
+class WorkspaceNotificationTestResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceProviderRestrictionMode { }
+
 class WorkspaceResponse
 {
 	/** @var array<string, mixed> */
 	public $data;
+}
+
+class WorkspaceRole { }
+
+class WorkspaceRoutingMode { }
+
+class WorkspaceScimAuditResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceScimEndpoint
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceScimEndpointResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceScimEvent
+{
+	/** @var string|null */
+	public $action;
+	/** @var string|null */
+	public $correlation_id;
+	/** @var string|null */
+	public $created_at;
+	/** @var array<string, mixed>|null */
+	public $detail;
+	/** @var int|null */
+	public $http_status;
+	/** @var string|null */
+	public $id;
+	/** @var string|null */
+	public $outcome;
+	/** @var string|null */
+	public $request_id;
+	/** @var string|null */
+	public $resource_id;
+	/** @var string|null */
+	public $resource_type;
+	/** @var string|null */
+	public $scim_type;
+}
+
+class WorkspaceScimResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceScimToken
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $label;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $revoked_at;
+	/** @var string */
+	public $token_prefix;
+}
+
+class WorkspaceScimTokenCreateRequest
+{
+	/** @var string|null */
+	public $expires_at;
+	/** @var string|null */
+	public $label;
+}
+
+class WorkspaceScimTokenCreateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceScimUpdateRequest
+{
+	/** @var bool */
+	public $enabled;
+}
+
+class WorkspaceSettings
+{
+	/** @var bool|null */
+	public $alpha_channel_enabled;
+	/** @var bool|null */
+	public $beta_channel_enabled;
+	/** @var bool|null */
+	public $byok_fallback_enabled;
+	/** @var bool|null */
+	public $io_logging_enabled;
+	/** @var bool|null */
+	public $io_logging_include_provider_payloads;
+	/** @var bool|null */
+	public $privacy_enable_free_may_publish_prompts;
+	/** @var bool|null */
+	public $privacy_enable_free_may_train;
+	/** @var bool|null */
+	public $privacy_enable_input_output_logging;
+	/** @var bool|null */
+	public $privacy_enable_paid_may_train;
+	/** @var bool|null */
+	public $privacy_zdr_only;
+	/** @var bool|null */
+	public $provider_restriction_enforce_allowed;
+	/** @var mixed|null */
+	public $provider_restriction_mode;
+	/** @var array|null */
+	public $provider_restriction_provider_ids;
+	/** @var bool|null */
+	public $response_healing_enabled;
+	/** @var bool|null */
+	public $response_healing_locked;
+	/** @var string|null */
+	public $response_healing_mode;
+	/** @var mixed|null */
+	public $routing_mode;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceSettingsResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceSettingsUpdateRequest
+{
+	/** @var bool|null */
+	public $alpha_channel_enabled;
+	/** @var bool|null */
+	public $beta_channel_enabled;
+	/** @var bool|null */
+	public $byok_fallback_enabled;
+	/** @var bool|null */
+	public $io_logging_enabled;
+	/** @var bool|null */
+	public $io_logging_include_provider_payloads;
+	/** @var bool|null */
+	public $privacy_enable_free_may_publish_prompts;
+	/** @var bool|null */
+	public $privacy_enable_free_may_train;
+	/** @var bool|null */
+	public $privacy_enable_input_output_logging;
+	/** @var bool|null */
+	public $privacy_enable_paid_may_train;
+	/** @var bool|null */
+	public $privacy_zdr_only;
+	/** @var bool|null */
+	public $provider_restriction_enforce_allowed;
+	/** @var string|null */
+	public $provider_restriction_mode;
+	/** @var array|null */
+	public $provider_restriction_provider_ids;
+	/** @var bool|null */
+	public $response_healing_enabled;
+	/** @var bool|null */
+	public $response_healing_locked;
+	/** @var string|null */
+	public $response_healing_mode;
+	/** @var string|null */
+	public $routing_mode;
+}
+
+class WorkspaceSsoResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceSsoSettings
+{
+	/** @var array */
+	public $domains;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $enforced;
+	/** @var string */
+	public $mode;
+	/** @var string|null */
+	public $provider_identifier;
+}
+
+class WorkspaceSsoUpdateRequest
+{
+	/** @var array|null */
+	public $domains;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $enforced;
+	/** @var string */
+	public $mode;
+	/** @var string|null */
+	public $provider_identifier;
 }
 
 class WorkspaceUpdateRequest

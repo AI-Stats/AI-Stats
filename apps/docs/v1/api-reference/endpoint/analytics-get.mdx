@@ -1,0 +1,12 @@
+---
+title: "Get workspace analytics"
+sidebarTitle: "Get analytics"
+badge: "Beta"
+openapi: "GET /analytics"
+description: "Get filtered workspace cost, request, and token aggregates."
+---
+<Note>This endpoint requires a management API key with `analytics:read`.</Note>
+
+Filter by date, request label, API key, end user, model, provider, endpoint, credential source, or outcome. Results are grouped by date, model, provider, and endpoint with stable pagination.
+
+Ranges are bounded to the last 30 completed UTC days and at most 10,000 source requests.

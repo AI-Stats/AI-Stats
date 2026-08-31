@@ -173,7 +173,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 		description: "Phaseo CLI",
 		usage: [
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
-			"phaseo <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw> [--model <id>] [--catalog all|default] [--skip-install] [--dry-run] [--json]",
+			"phaseo <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw> [--model <id>] [--catalog all|default] [--dry-run] [--json]",
 			"phaseo logout [--json]",
 			"phaseo whoami [--json]",
 			"phaseo version | v [--json]",
@@ -211,8 +211,8 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 		],
 	},
 	setup: {
-		description: "Install and configure a coding harness with a dedicated Phaseo key and compatible model catalog.",
-		usage: ["phaseo setup <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw> [--model <id>] [--catalog all|default] [--skip-install] [--dry-run] [--json]"],
+		description: "Configure an installed coding harness with a dedicated Phaseo key and compatible model catalog.",
+		usage: ["phaseo setup <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw> [--model <id>] [--catalog all|default] [--dry-run] [--json]"],
 	},
 	login: {
 		usage: [
@@ -2052,8 +2052,8 @@ async function main() {
 		else if (first === "analytics" && second === "get") action = analyticsGet(parsed.flags);
 		else if (first === "generation" && second === "get") action = generationGet(parsed.flags);
 		else if (first === "curie" && second === "run") action = runCurie(third, parsed.flags);
-		else if (first === "setup") action = runIntegrationCommand(["setup", ...parsed.command.slice(1)], parsed.flags, { installMissing: false, primaryOnly: true });
-		else if (isPrimarySetupName(first)) action = runIntegrationCommand(["setup", ...parsed.command], parsed.flags, { installMissing: false, primaryOnly: true });
+		else if (first === "setup") action = runIntegrationCommand(["setup", ...parsed.command.slice(1)], parsed.flags, { installMissing: true, primaryOnly: true });
+		else if (isPrimarySetupName(first)) action = runIntegrationCommand(["setup", ...parsed.command], parsed.flags, { installMissing: true, primaryOnly: true });
 		else if (first === "integrations") action = runIntegrationCommand(parsed.command.slice(1), parsed.flags);
 		else if (first === "webhooks" && second === "list") action = listWebhooks(parsed.flags);
 		else if (first === "webhooks" && second === "create") action = createWebhook(parsed.flags);

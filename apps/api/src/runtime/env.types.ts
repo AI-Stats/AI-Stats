@@ -25,6 +25,9 @@ export type GatewayBindings = {
 	V2_ANALYTICS_OUTBOX_LIMIT?: string;
 	OTEL_EXPORT_ENABLED?: string;
 	OTEL_EXPORT_OUTBOX_LIMIT?: string;
+	INVITE_ENCRYPTION_KEY?: string;
+	HMAC_ENCRYPTION_KEY?: string;
+	SCIM_TOKEN_PEPPER?: string;
     OAUTH_STRICT_RATE_LIMITER?: RateLimit;
     OAUTH_TOKEN_RATE_LIMITER?: RateLimit;
 	REALTIME_RELAY_RATE_LIMITER?: RateLimit;
@@ -287,12 +290,12 @@ export type GatewayBindings = {
     RESEND_API_KEY?: string;
     RESEND_FROM_EMAIL?: string;
     RESEND_ONBOARDING_AUTOMATIONS_ENABLED?: string;
-    RESEND_TEMPLATE_WELCOME_ID?: string;
     RESEND_TEMPLATE_LOW_BALANCE_ID?: string;
     DISCORD_WEBHOOK_URL?: string;
     DISCORD_ROLE_ID?: string;
     DISCORD_USER_ID?: string;
     ENV?: string;
+	ACCOUNT_DELETION_PURGE_ENABLED?: string;
     HF_TOKEN?: string;
     GITHUB_TOKEN?: string;
     GH_TOKEN?: string;
@@ -340,6 +343,7 @@ export type GatewayBindings = {
     STATSIG_REALTIME_VOICE_GATE?: string;
     STATSIG_GATEWAY_IO_LOGGING_GATE?: string;
     STATSIG_DATA_CONTRIBUTION_GATE?: string;
+    STATSIG_AUTO_ROUTING_GATE?: string;
     STATSIG_ENVIRONMENT_TIER?: string;
     REALTIME_SESSION_RECONCILIATION_ENABLED?: string;
     REALTIME_SESSION_RECONCILIATION_LIMIT?: string;
@@ -361,6 +365,7 @@ export type GatewayBindings = {
     NODE_ENV?: string;
     BYOK_KMS_KEY_V1_B64?: string;
     BYOK_ACTIVE_KEY_VERSION?: string;
+    BYOK_FINGERPRINT_PEPPER?: string;
 };
 
 export type GatewayRuntime = {

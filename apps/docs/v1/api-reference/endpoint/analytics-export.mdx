@@ -1,0 +1,10 @@
+---
+title: "Export workspace analytics"
+sidebarTitle: "Export analytics"
+badge: "Beta"
+openapi: "GET /analytics/export"
+description: "Export filtered workspace analytics as CSV."
+---
+<Note>This endpoint requires a management API key with `analytics:read`.</Note>
+
+The export accepts the same filters as the analytics endpoint and returns all matching aggregate rows as spreadsheet-safe CSV.

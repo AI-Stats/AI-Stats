@@ -9,6 +9,8 @@ import {
 	dataPractices,
 	deliberatelyUnclaimed,
 	disclosedServiceProviders,
+	trustDocuments,
+	trustLastReviewed,
 	trustPractices,
 	trustStates,
 	type TrustState,
@@ -57,6 +59,7 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
 }
 
 const sectionLinks = [
+	["documents", "Documents"],
 	["security", "Security"],
 	["data", "Data handling"],
 	["providers", "Service providers"],
@@ -78,7 +81,7 @@ export default function TrustCentrePage() {
 						</div>
 						<dl className="grid grid-cols-2 gap-x-6 gap-y-3 border-l border-border pl-5 text-sm lg:grid-cols-1">
 							<div><dt className="text-xs text-muted-foreground">Assurance</dt><dd className="mt-1"><StateBadge state="self-attested" /></dd></div>
-							<div><dt className="text-xs text-muted-foreground">Last reviewed</dt><dd className="mt-1 font-medium">23 August 2026</dd></div>
+							<div><dt className="text-xs text-muted-foreground">Last reviewed</dt><dd className="mt-1 font-medium">{trustLastReviewed.display}</dd></div>
 						</dl>
 					</div>
 				</header>
@@ -98,6 +101,20 @@ export default function TrustCentrePage() {
 					</aside>
 
 					<div className="min-w-0 space-y-16">
+						<section id="documents" className="scroll-mt-24">
+							<h2 className="text-xl font-semibold tracking-tight">Trust documents</h2>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">Use the detailed material for security review, vendor assessment, or DPA discussion.</p>
+							<div className="mt-6 grid gap-3 sm:grid-cols-3">
+								{trustDocuments.map((document) => (
+									<Link key={document.href} href={document.href} className="group border border-border p-4 transition-colors hover:border-foreground/40">
+										<div className="flex items-start justify-between gap-3"><h3 className="text-sm font-medium text-foreground">{document.title}</h3><ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></div>
+										<p className="mt-2 text-xs leading-5 text-muted-foreground">{document.description}</p>
+										<p className="mt-4 text-xs font-medium text-foreground">{document.status}</p>
+									</Link>
+								))}
+							</div>
+						</section>
+
 						<section id="security" className="scroll-mt-24">
 							<h2 className="text-xl font-semibold tracking-tight">Security</h2>
 							<p className="mt-2 text-sm leading-6 text-muted-foreground">Product and operational safeguards supported by current code and documentation.</p>
@@ -120,7 +137,7 @@ export default function TrustCentrePage() {
 									<tbody>{disclosedServiceProviders.map((provider) => <tr key={provider.name} className="border-b border-border last:border-0"><th scope="row" className="py-4 pr-4 align-top text-sm font-medium">{provider.name}</th><td className="py-4 pr-4 align-top text-sm text-muted-foreground">{provider.purpose}</td><td className="py-4 align-top text-sm leading-6 text-muted-foreground">{provider.data}</td></tr>)}</tbody>
 								</table>
 							</div>
-							<p className="mt-3 text-xs leading-5 text-muted-foreground">This is a public summary, not a contractual subprocessor schedule. Model providers vary by route. See the <Link href="/privacy" className="underline underline-offset-4">Privacy Policy</Link>.</p>
+							<p className="mt-3 text-xs leading-5 text-muted-foreground">See the dated <Link href="/trust/subprocessors" className="underline underline-offset-4">subprocessor schedule</Link> for named vendors, conditions, location gaps, and the separate treatment of customer-selected AI providers.</p>
 						</section>
 
 						<section id="availability" className="scroll-mt-24">
@@ -133,7 +150,7 @@ export default function TrustCentrePage() {
 
 						<section id="compliance" className="scroll-mt-24">
 							<h2 className="text-xl font-semibold tracking-tight">Compliance</h2>
-							<p className="mt-2 text-sm leading-6 text-muted-foreground">Phaseo does not currently hold an independent security certification. A formal assurance programme may be considered when customer need and budget justify it; no framework or date is committed.</p>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">Phaseo does not currently hold an independent security certification. The public DPA is a non-binding first draft and the security whitepaper is self-attested. A formal assurance programme may be considered when customer need and budget justify it; no framework or date is committed.</p>
 							<ul className="mt-6 border-y border-border">{deliberatelyUnclaimed.map((claim) => <li key={claim} className="flex gap-3 border-b border-border py-3 text-sm leading-6 text-muted-foreground last:border-0"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-muted-foreground" />{claim}</li>)}</ul>
 						</section>
 

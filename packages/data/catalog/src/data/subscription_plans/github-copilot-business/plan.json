@@ -13,9 +13,9 @@
   ],
   "features": [
     {
-      "feature_name": "Premium Requests",
-      "feature_value": "500 / Month",
-      "feature_description": "Monthly premium request allowance shown for Copilot Business.",
+      "feature_name": "GitHub AI Credits",
+      "feature_value": "1,900 / User / Month",
+      "feature_description": "Credits are pooled across the organization; additional usage is $0.01 per credit when enabled.",
       "other_info": null
     },
     {

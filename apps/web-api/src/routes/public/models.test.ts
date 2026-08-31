@@ -10,6 +10,7 @@ const env = {
 
 afterEach(() => {
 	vi.unstubAllGlobals();
+	vi.useRealTimers();
 });
 
 describe("stealth provider filters", () => {
@@ -66,6 +67,8 @@ describe("stealth provider filters", () => {
 
 describe("public model routes", () => {
 	it("keeps expired rules and time windows in pricing history", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2026-08-30T12:00:00Z"));
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{
@@ -592,6 +595,64 @@ describe("public model routes", () => {
 	it("suppresses performance and uptime series for a single-request cohort", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_quality_hourly_v1")) {
+				return new Response(JSON.stringify([{
+					bucket: "2026-08-27T09:00:00Z",
+					requests: 1,
+					tool_call_responses: 1,
+					tool_call_errors: 1,
+					tool_invalid_json_errors: 1,
+					tool_schema_mismatch_errors: 0,
+					tool_unknown_name_errors: 0,
+					structured_output_responses: 1,
+					structured_output_errors: 0,
+					structured_invalid_json_errors: 0,
+					structured_schema_mismatch_errors: 0,
+					structured_missing_output_errors: 0,
+					cache_read_pct: 60,
+				}, {
+					bucket: "2026-08-27T10:00:00Z",
+					requests: 2,
+					tool_call_responses: 0,
+					tool_call_errors: 0,
+					structured_output_responses: 0,
+					structured_output_errors: 0,
+					cache_read_pct: null,
+				}]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
+				return new Response(JSON.stringify([{
+					provider_id: "test-provider",
+					provider_name: "Test Provider",
+					health_requests: 1,
+					uptime_pct: 100,
+					percentile_latency_ms: 240,
+					percentile_throughput: 18.5,
+					buckets: [{
+						start: "2026-08-27T09:00:00Z",
+						end: "2026-08-27T10:00:00Z",
+						requests: 1,
+						success_pct: 100,
+					}],
+				}]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_hourly_performance_v2")) {
+				return new Response(JSON.stringify([{
+					bucket: "2026-08-27T09:00:00Z",
+					provider_id: "test-provider",
+					provider_name: "Test Provider",
+					requests: 1,
+					gateway_ttft_ms: 240,
+					gateway_e2e_ms: 680,
+					effective_throughput_tps: 18.5,
+					tool_call_requests: 1,
+					tool_call_errors: 1,
+					structured_output_requests: 1,
+					structured_output_errors: 0,
+					cache_telemetry_requests: 20,
+					cache_hit_requests: 12,
+				}]), { status: 200 });
+			}
 			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
 					last_24h: {
@@ -623,12 +684,76 @@ describe("public model routes", () => {
 		const payload = await response.json() as any;
 
 		expect(response.status).toBe(200);
-		expect(payload).toMatchObject({
-			performance: null,
-			metrics: null,
-			activity: null,
-			minimumSampleSize: 20,
+		expect(payload.minimumSampleSize).toBe(20);
+		expect(payload.metrics.summary).toMatchObject({
+			totalRequests: 0,
 		});
+		expect(payload.metrics.hourly).toEqual([]);
+		expect(payload.metrics.successSeries).toEqual([]);
+		expect(payload.metrics.providerHourly7d).toEqual([]);
+		expect(payload.metrics.qualitySeries).toEqual([]);
+		expect(payload.metrics.providerPerformance).toEqual([]);
+	});
+
+	it("suppresses low-volume execution colos", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_colos")) {
+				return new Response(JSON.stringify([
+					{ cloudflare_colo: "LHR", request_count: 1 },
+					{ cloudflare_colo: "FRA", request_count: 20 },
+				]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance/colos",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({
+			modelId: "openai/gpt-test",
+			colos: [{ colo: "FRA", requests: 20 }],
+		});
+	});
+
+	it("pseudonymizes stealth providers in public performance telemetry", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("v2_model_provider_routes")) {
+				return new Response(JSON.stringify([{ provider_slug: "secret-provider" }]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({
+					last_24h: { total_requests: 20, successful_requests: 20 },
+					hourly_24h: [],
+					provider_uptime_24h: [{ provider: "secret-provider", provider_name: "Secret Provider", requests: 20 }],
+					provider_daily_7d: [{ day: "2026-08-29", provider: "secret-provider", provider_name: "Secret Provider", requests: 20 }],
+				}), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
+				return new Response(JSON.stringify([{ provider_id: "secret-provider", provider_name: "Secret Provider", health_requests: 20, requests: 20, buckets: [] }]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_hourly_performance_v2")) {
+				return new Response(JSON.stringify([{ bucket: "2026-08-29T00:00:00Z", provider_id: "secret-provider", provider_name: "Secret Provider", requests: 20 }]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance",
+			{},
+			env,
+		);
+		const payload = await response.json() as any;
+
+		expect(response.status).toBe(200);
+		expect(JSON.stringify(payload)).not.toContain("secret-provider");
+		expect(payload.metrics.providerPerformance[0]).toMatchObject({ provider: "stealth", providerName: "Stealth" });
+		expect(payload.metrics.providerHourly7d[0]).toMatchObject({ provider: "stealth", providerName: "Stealth" });
 	});
 
 	it("never exposes a synthetic unknown provider in performance data", async () => {
@@ -639,11 +764,17 @@ describe("public model routes", () => {
 					{ provider_slug: "poolside", metadata: { colour: "#12AB78" } },
 				]), { status: 200 });
 			}
+			if (url.includes("/rpc/get_v2_model_provider_hourly_performance_v2")) {
+				return new Response(JSON.stringify([
+					{ bucket: "2026-07-23T12:00:00Z", provider_id: "poolside", provider_name: "Poolside", requests: 20 },
+					{ bucket: "2026-07-23T12:00:00Z", provider_id: "unknown", provider_name: "unknown", requests: 1 },
+				]), { status: 200 });
+			}
 			if (url.includes("/rpc/get_v2_model_cached_input_metrics")) {
 				return new Response(JSON.stringify({
 					hourly_24h: [],
 					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 11 },
+						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 20 },
 					],
 				}), { status: 200 });
 			}
@@ -705,11 +836,14 @@ describe("public model routes", () => {
 				expect.objectContaining({
 					provider: "poolside",
 					providerColor: "#12AB78",
-				cachedInputPct: null,
-				cachedInputTokens: null,
-				effectiveInputTokens: null,
-				cacheTelemetryRequests: 0,
+				cachedInputPct: 62.5,
+				cachedInputTokens: 625,
+				effectiveInputTokens: 1000,
+				cacheTelemetryRequests: 20,
 			}),
+		]);
+		expect(payload.metrics.providerHourly7d).toEqual([
+			expect.objectContaining({ provider: "poolside", requests: 20 }),
 		]);
 		expect(payload.metrics.providerPercentileDaily7d).toHaveLength(5);
 		expect(payload.metrics.providerPercentileDaily7d).toContainEqual(
@@ -732,13 +866,13 @@ describe("public model routes", () => {
 			const url = String(input);
 			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
-					last_24h: { total_requests: 25, successful_requests: 24 },
+					last_24h: { total_requests: 12, successful_requests: 11 },
 					hourly_24h: [],
 					provider_uptime_24h: [
-						{ provider: "poolside", provider_name: "Poolside", requests: 20 },
+						{ provider: "poolside", provider_name: "Poolside", requests: 11 },
 					],
 					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 20 },
+						{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 11 },
 						{ day: "2026-07-20", provider: "openai", provider_name: "OpenAI", requests: 4 },
 					],
 				}), { status: 200 });
@@ -769,9 +903,9 @@ describe("public model routes", () => {
 			const url = String(input);
 			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
-					last_24h: { total_requests: 20, successful_requests: 20 },
+					last_24h: { total_requests: 1, successful_requests: 1 },
 					hourly_24h: [],
-					provider_uptime_24h: [{ provider: "filtered", requests: 20 }],
+					provider_uptime_24h: [{ provider: "filtered", requests: 1 }],
 					provider_daily_7d: [],
 				}), { status: 200 });
 			}
@@ -1016,6 +1150,9 @@ describe("public model routes", () => {
 					markdown: "This model is changing.",
 				}]), { status: 200 });
 			}
+			if (url.includes("v2_models")) {
+				return new Response(JSON.stringify([{ model_slug: "openai/gpt-test" }]), { status: 200 });
+			}
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 
@@ -1050,8 +1187,8 @@ describe("public model routes", () => {
 			}
 			if (url.includes("gateway_requests")) {
 				return new Response(JSON.stringify([
-					...Array.from({ length: 10 }, () => ({ latency_ms: 100, throughput: 20, generation_ms: null, usage: null })),
-					...Array.from({ length: 10 }, () => ({ latency_ms: 300, throughput: null, generation_ms: 2_000, usage: { output_tokens: 80 } })),
+					{ latency_ms: 100, throughput: 20, generation_ms: null, usage: null },
+					{ latency_ms: 300, throughput: null, generation_ms: 2_000, usage: { output_tokens: 80 } },
 				]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -1067,44 +1204,11 @@ describe("public model routes", () => {
 		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=300, stale-while-revalidate=300",
 		);
-		await expect(response.json()).resolves.toEqual({
-			available: true,
-			minimumSampleSize: 20,
-			stats: {
-				requestsInWindow: 20,
-				latencyP50Ms: 200,
-				throughputP50TokPerSec: 30,
-			},
-		});
-	});
-
-	it("suppresses sparse realtime metrics independently of the request cohort", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("data_api_provider_models")) return new Response("[]", { status: 200 });
-			if (url.includes("gateway_requests")) return new Response(JSON.stringify([
-				{ latency_ms: 100, throughput: 12, generation_ms: null, usage: null },
-				...Array.from({ length: 19 }, () => ({ latency_ms: null, throughput: null, generation_ms: null, usage: null })),
-			]), { status: 200 });
-			return new Response("[]", { status: 200 });
-		}));
-
-		const response = await app.request(
-			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/realtime?minutes=15",
-			{},
-			env,
-		);
-
-		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual({
-			available: true,
-			minimumSampleSize: 20,
-			stats: {
-				requestsInWindow: 20,
-				latencyP50Ms: null,
-				throughputP50TokPerSec: null,
-			},
-		});
+		await expect(response.json()).resolves.toEqual({ stats: {
+			requestsInWindow: 2,
+			latencyP50Ms: 200,
+			throughputP50TokPerSec: 30,
+		} });
 	});
 
 	it("maps token trajectory RPC output behind its independent cache", async () => {

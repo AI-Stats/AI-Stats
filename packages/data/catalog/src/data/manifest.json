@@ -637,7 +637,9 @@
       "minimax/minimax-m2.7:free",
       "minimax/minimax-m3:free",
       "minimax/music-3.0:free",
-      "minimax/speech-2.8:free"
+      "minimax/speech-2.8:free",
+      "minimax/h3",
+      "minimax/h3-max"
     ],
     "mistral": [
       "mistral/codestral",
@@ -1164,7 +1166,9 @@
       "qwen/qwen3-omni-30b-a3b",
       "qwen/qwen3.8-27b",
       "qwen/qwen3.6-flash",
-      "qwen/qwen3.8-flash"
+      "qwen/qwen3.8-flash",
+      "qwen/wan3.0-video",
+      "qwen/wan3.0-video-prime"
     ],
     "relace": [
       "relace/relace-apply-3",
@@ -2100,6 +2104,7 @@
     "chatgpt-go",
     "chatgpt-business",
     "chatgpt-business-codex",
+    "chatgpt-business-premium",
     "chatgpt-enterprise",
     "chatgpt-plus",
     "chatgpt-pro",
@@ -2116,6 +2121,7 @@
     "cursor-pro",
     "cursor-pro-plus",
     "cursor-teams",
+    "cursor-teams-premium",
     "cursor-ultra",
     "github-copilot-free",
     "github-copilot-business",
@@ -2146,11 +2152,8 @@
     "supergrok-basic",
     "supergrok-heavy",
     "minimax-token-max",
-    "minimax-token-max-high-speed",
     "minimax-token-plus",
-    "minimax-token-plus-high-speed",
-    "minimax-token-starter",
-    "minimax-token-ultra-high-speed",
+    "minimax-token-ultra",
     "mistral-free",
     "mistral-pro",
     "mistral-team",
@@ -2162,8 +2165,7 @@
     "v0-business",
     "v0-enterprise",
     "v0-free",
-    "v0-premium-legacy",
-    "v0-team",
+    "v0-plus",
     "windsurf-enterprise",
     "windsurf-free",
     "windsurf-max",

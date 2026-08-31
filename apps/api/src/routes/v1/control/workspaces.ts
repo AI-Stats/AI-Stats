@@ -7,6 +7,7 @@ import type { Env } from "@/runtime/types";
 import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
+import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 import { json, withRuntime } from "@/routes/utils";
 import { internalServerError, requireCapability, requireOAuthWorkspaceRole } from "./route-helpers";
 import { ensureWorkspaceWalletProvisioned, userHasPaidWorkspaceAccess } from "./management-helpers";
@@ -116,7 +117,7 @@ async function isDefaultWorkspaceForUser(userId: string, workspaceId: string): P
 	return String((data as { default_workspace_id?: unknown } | null)?.default_workspace_id ?? "").trim() === workspaceId;
 }
 
-async function resolveAuthorizedWorkspace(authWorkspaceId: string, identifier: string): Promise<WorkspaceRow | null> {
+export async function resolveAuthorizedWorkspace(authWorkspaceId: string, identifier: string): Promise<WorkspaceRow | null> {
 	const workspace = await findWorkspaceById(authWorkspaceId);
 	if (!workspace) return null;
 	const normalizedIdentifier = identifier.trim();
@@ -141,13 +142,24 @@ async function cleanupProvisioningFailedWorkspace(workspaceId: string, ownerUser
 	}
 }
 
-async function resolveWorkspaceMembers(workspaceId: string) {
+function parsePagination(url: URL): { offset: number; limit: number } | null {
+	const rawOffset = url.searchParams.get("offset") ?? "0";
+	const rawLimit = url.searchParams.get("limit") ?? "100";
+	const offset = Number(rawOffset);
+	const limit = Number(rawLimit);
+	if (!Number.isInteger(offset) || offset < 0 || !Number.isInteger(limit) || limit < 1 || limit > 100) return null;
+	return { offset, limit };
+}
+
+async function resolveWorkspaceMembers(workspaceId: string, pagination?: { offset: number; limit: number }) {
 	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
+	let query = supabase
 		.from("workspace_members")
-		.select("workspace_id, user_id, role, joined_at")
+		.select("workspace_id, user_id, role, joined_at", { count: "exact" })
 		.eq("workspace_id", workspaceId)
 		.order("joined_at", { ascending: true });
+	if (pagination) query = query.range(pagination.offset, pagination.offset + pagination.limit - 1);
+	const { data, error, count } = await query;
 	if (error) {
 		throw new Error(error.message || "Failed to load workspace members");
 	}
@@ -166,13 +178,14 @@ async function resolveWorkspaceMembers(workspaceId: string) {
 			},
 		]),
 	);
-	return (data ?? []).map((row) => ({
+	const members = (data ?? []).map((row) => ({
 		workspace_id: row.workspace_id,
 		user_id: row.user_id,
 		role: row.role,
 		joined_at: (row as { joined_at?: string | null }).joined_at ?? null,
 		display_name: usersById.get(String(row.user_id))?.display_name ?? null,
 	}));
+	return { members, totalCount: count ?? members.length };
 }
 
 async function handleListWorkspaces(req: Request) {
@@ -324,6 +337,16 @@ async function handleCreateWorkspace(req: Request) {
 			}
 			throw error;
 		}
+		await recordWorkspaceAuditEvent(supabase, {
+			workspaceId,
+			actorUserId: auth.value.userId,
+			action: "workspace.created",
+			targetType: "workspace",
+			targetId: workspaceId,
+			targetName: name,
+			metadata: { slug },
+			requestId: auth.value.requestId,
+		});
 
 		return json({ data: formatWorkspace(data as WorkspaceRow) }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -414,6 +437,16 @@ async function handleUpdateWorkspace(req: Request) {
 		if (!updated) {
 			throw new Error("Workspace update succeeded but refetch failed");
 		}
+		await recordWorkspaceAuditEvent(supabase, {
+			workspaceId: existing.id,
+			actorUserId: auth.value.userId,
+			action: "workspace.updated",
+			targetType: "workspace",
+			targetId: existing.id,
+			targetName: updated.name,
+			metadata: { changed_fields: Object.keys(updatePayload) },
+			requestId: auth.value.requestId,
+		});
 
 		return json({ data: formatWorkspace(updated) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -471,6 +504,15 @@ async function handleDeleteWorkspace(req: Request) {
 			return json({ error: "bad_request", message: "Workspaces with active API keys cannot be deleted" }, 400, { "Cache-Control": "no-store" });
 		}
 
+		await recordWorkspaceAuditEvent(supabase, {
+			workspaceId: workspace.id,
+			actorUserId: auth.value.userId,
+			action: "workspace.deleted",
+			targetType: "workspace",
+			targetId: workspace.id,
+			targetName: workspace.name,
+			requestId: auth.value.requestId,
+		});
 		await supabase.from("workspace_members").delete().eq("workspace_id", workspace.id);
 		await supabase.from("workspace_invites").delete().eq("workspace_id", workspace.id);
 		await supabase.from("workspace_join_requests").delete().eq("workspace_id", workspace.id);
@@ -499,14 +541,18 @@ async function handleListWorkspaceMembers(req: Request) {
 	if (!identifier) {
 		return json({ error: "bad_request", message: "Workspace id or slug is required" }, 400, { "Cache-Control": "no-store" });
 	}
+	const pagination = parsePagination(new URL(req.url));
+	if (!pagination) {
+		return json({ error: "bad_request", message: "offset must be non-negative and limit must be between 1 and 100" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	try {
 		const workspace = await resolveAuthorizedWorkspace(auth.value.workspaceId, identifier);
 		if (!workspace) {
 			return json({ error: "not_found", message: "Workspace not found" }, 404, { "Cache-Control": "no-store" });
 		}
-		const members = await resolveWorkspaceMembers(workspace.id);
-		return json({ data: members, total_count: members.length }, 200, { "Cache-Control": "no-store" });
+		const { members, totalCount } = await resolveWorkspaceMembers(workspace.id, pagination);
+		return json({ data: members, total_count: totalCount }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("workspaces.members.list", error);
 	}
@@ -543,6 +589,9 @@ async function handleAddWorkspaceMembers(req: Request) {
 	if (!userIds.length) {
 		return json({ error: "bad_request", message: "user_ids must contain at least one user id" }, 400, { "Cache-Control": "no-store" });
 	}
+	if (new Set(userIds).size > 100) {
+		return json({ error: "bad_request", message: "user_ids cannot contain more than 100 users" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	const requestedRole = String(body.role ?? "member").trim().toLowerCase();
 	if (!isValidWorkspaceRole(requestedRole) || requestedRole === "owner") {
@@ -573,6 +622,15 @@ async function handleAddWorkspaceMembers(req: Request) {
 			user_id: userId,
 			role: requestedRole,
 		}));
+		const { data: existingMemberships, error: existingMembershipsError } = await supabase
+			.from("workspace_members")
+			.select("user_id")
+			.eq("workspace_id", workspace.id)
+			.in("user_id", payload.map((entry) => entry.user_id));
+		if (existingMembershipsError) {
+			throw new Error(existingMembershipsError.message || "Failed to load existing workspace members");
+		}
+		const existingMemberIds = new Set((existingMemberships ?? []).map((row) => String(row.user_id)));
 		const { error: upsertError } = await supabase
 			.from("workspace_members")
 			.upsert(payload, { onConflict: "workspace_id,user_id", ignoreDuplicates: false });
@@ -580,8 +638,21 @@ async function handleAddWorkspaceMembers(req: Request) {
 			throw new Error(upsertError.message || "Failed to add workspace members");
 		}
 
-		const members = await resolveWorkspaceMembers(workspace.id);
-		const added = members.filter((member) => payload.some((entry) => entry.user_id === member.user_id));
+		const { members } = await resolveWorkspaceMembers(workspace.id);
+		const added = members.filter((member) =>
+			payload.some((entry) => entry.user_id === member.user_id) && !existingMemberIds.has(String(member.user_id)),
+		);
+		for (const member of added) {
+			await recordWorkspaceAuditEvent(supabase, {
+				workspaceId: workspace.id,
+				actorUserId: auth.value.userId,
+				action: "workspace.member.added",
+				targetType: "workspace_member",
+				targetId: String(member.user_id),
+				metadata: { role: member.role },
+				requestId: auth.value.requestId,
+			});
+		}
 		return json({ added_count: added.length, data: added }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("workspaces.members.add", error);
@@ -619,6 +690,9 @@ async function handleRemoveWorkspaceMembers(req: Request) {
 	if (!userIds.length) {
 		return json({ error: "bad_request", message: "user_ids must contain at least one user id" }, 400, { "Cache-Control": "no-store" });
 	}
+	if (userIds.length > 100) {
+		return json({ error: "bad_request", message: "user_ids cannot contain more than 100 users" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	try {
 		const workspace = await resolveAuthorizedWorkspace(auth.value.workspaceId, identifier);
@@ -653,6 +727,16 @@ async function handleRemoveWorkspaceMembers(req: Request) {
 			.in("user_id", userIds);
 		if (deleteError) {
 			throw new Error(deleteError.message || "Failed to remove workspace members");
+		}
+		for (const member of existingMembers ?? []) {
+			await recordWorkspaceAuditEvent(supabase, {
+				workspaceId: workspace.id,
+				actorUserId: auth.value.userId,
+				action: "workspace.member.removed",
+				targetType: "workspace_member",
+				targetId: String(member.user_id),
+				requestId: auth.value.requestId,
+			});
 		}
 
 		return json({ removed_count: count ?? 0 }, 200, { "Cache-Control": "no-store" });

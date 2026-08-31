@@ -15,7 +15,30 @@
     "capabilities": [{
       "capability_id": "embeddings",
       "status": "active",
-      "params": ["dimensions", "encoding_format"],
+      "params": [
+        {
+          "param_id": "input",
+          "provider_min": 1,
+          "provider_max": 512,
+          "provider_default": null,
+          "notes": "Accepts up to 512 non-empty texts; each text is limited to 32K tokens and the request total to 120K tokens."
+        },
+        {
+          "param_id": "dimensions",
+          "provider_min": 128,
+          "provider_max": 1024,
+          "provider_default": 1024,
+          "notes": "Matryoshka output dimension."
+        },
+        {
+          "param_id": "encoding_format",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": "base64_int8",
+          "values": ["base64_int8", "base64_binary"],
+          "notes": null
+        }
+      ],
       "reasoning": false,
       "tool_call": false,
       "structured_output": false,
@@ -30,8 +53,8 @@
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["openai.embeddings"], "endpoint": "https://api.perplexity.ai/v1/embeddings", "deployment": "hosted" },
-    "sources": [{ "kind": "provider_docs", "url": "https://docs.perplexity.ai/api-reference/embeddings-post", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official reference: 1,024 dimensions, 32K per input, MRL dimensions 128-1,024, INT8/BINARY output." }],
-    "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Endpoint, slug, limits, dimensions and encodings verified." },
+    "sources": [{ "kind": "provider_docs", "url": "https://docs.perplexity.ai/docs/embeddings/standard-embeddings", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Official guide: up to 512 texts, 32K tokens per text, 120K tokens per request, 1,024 default dimensions with MRL dimensions 128-1,024, and INT8/BINARY output." }],
+    "verification": { "status": "verified", "checked_at": "2026-08-30T00:00:00Z", "notes": "Endpoint, slug, input limits, dimensions, defaults, and encodings verified." },
     "rate_limits": []
   },
   {
@@ -50,7 +73,30 @@
     "capabilities": [{
       "capability_id": "embeddings",
       "status": "active",
-      "params": ["dimensions", "encoding_format"],
+      "params": [
+        {
+          "param_id": "input",
+          "provider_min": 1,
+          "provider_max": 512,
+          "provider_default": null,
+          "notes": "Accepts up to 512 non-empty texts; each text is limited to 32K tokens and the request total to 120K tokens."
+        },
+        {
+          "param_id": "dimensions",
+          "provider_min": 128,
+          "provider_max": 2560,
+          "provider_default": 2560,
+          "notes": "Matryoshka output dimension."
+        },
+        {
+          "param_id": "encoding_format",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": "base64_int8",
+          "values": ["base64_int8", "base64_binary"],
+          "notes": null
+        }
+      ],
       "reasoning": false,
       "tool_call": false,
       "structured_output": false,
@@ -65,8 +111,8 @@
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["openai.embeddings"], "endpoint": "https://api.perplexity.ai/v1/embeddings", "deployment": "hosted" },
-    "sources": [{ "kind": "provider_docs", "url": "https://docs.perplexity.ai/api-reference/embeddings-post", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official reference: 2,560 dimensions, 32K per input, MRL dimensions 128-2,560, INT8/BINARY output." }],
-    "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Endpoint, slug, limits, dimensions and encodings verified." },
+    "sources": [{ "kind": "provider_docs", "url": "https://docs.perplexity.ai/docs/embeddings/standard-embeddings", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Official guide: up to 512 texts, 32K tokens per text, 120K tokens per request, 2,560 default dimensions with MRL dimensions 128-2,560, and INT8/BINARY output." }],
+    "verification": { "status": "verified", "checked_at": "2026-08-30T00:00:00Z", "notes": "Endpoint, slug, input limits, dimensions, defaults, and encodings verified." },
     "rate_limits": []
   }
 ]

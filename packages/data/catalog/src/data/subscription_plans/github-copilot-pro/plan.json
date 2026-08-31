@@ -13,16 +13,10 @@
   ],
   "features": [
     {
-      "feature_name": "Premium Requests",
-      "feature_value": "300 / Month",
-      "feature_description": "Legacy request allowance shown on the public Copilot plans page.",
-      "other_info": null
-    },
-    {
       "feature_name": "GitHub AI Credits",
       "feature_value": "1,500 / Month",
       "feature_description": "1,000 base credits plus 500 flex allotment.",
-      "other_info": "Usage-based billing begins June 1, 2026"
+      "other_info": null
     },
     {
       "feature_name": "Agent Mode With GPT-5 Mini",

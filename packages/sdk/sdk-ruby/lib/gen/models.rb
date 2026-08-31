@@ -38,6 +38,15 @@ module Phaseo
     # @!attribute [rw] status
     #   @return [String]
     AnalyticsNotImplementedResponse = Struct.new(:message, :ok, :status, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] limit
+    #   @return [Integer]
+    # @!attribute [rw] offset
+    #   @return [Integer]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    AnalyticsResponse = Struct.new(:data, :limit, :offset, :total_count, keyword_init: true)
     # @!attribute [rw] cache_control
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] content
@@ -136,6 +145,8 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] created_by
     #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
+    #   @return [String, nil]
     # @!attribute [rw] disabled
     #   @return [Boolean]
     # @!attribute [rw] expires_at
@@ -144,10 +155,20 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
+    # @!attribute [rw] include_byok_in_limit
+    #   @return [Boolean]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
     #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_remaining
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_reset
+    #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] prefix
@@ -160,9 +181,19 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] updated_at
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Float]
+    # @!attribute [rw] usage_daily
+    #   @return [Float]
+    # @!attribute [rw] usage_details
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] usage_monthly
+    #   @return [Float]
+    # @!attribute [rw] usage_weekly
+    #   @return [Float]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKey = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :label, :last_used_at, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKey = Struct.new(:created_at, :created_by, :creator_user_id, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :label, :last_used_at, :limit, :limit_remaining, :limit_reset, :limits, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :usage, :usage_daily, :usage_details, :usage_monthly, :usage_weekly, :workspace_id, keyword_init: true)
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
     # @!attribute [rw] expires_at
@@ -173,6 +204,8 @@ module Phaseo
     #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] scopes
@@ -181,7 +214,31 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] workspace_id
     #   @return [String, nil]
-    ApiKeyCreateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :name, :scopes, :soft_blocked, :workspace_id, keyword_init: true)
+    ApiKeyCreateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :limits, :name, :scopes, :soft_blocked, :workspace_id, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float, nil]
+    # @!attribute [rw] requests
+    #   @return [Integer, nil]
+    ApiKeyLimitBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float, nil]
+    # @!attribute [rw] requests
+    #   @return [Integer, nil]
+    ApiKeyLimitInputBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}, nil]
+    ApiKeyLimitInputWindows = Struct.new(:daily, :monthly, :weekly, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}]
+    ApiKeyLimitWindows = Struct.new(:daily, :monthly, :weekly, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
     # @!attribute [rw] total_count
@@ -190,6 +247,16 @@ module Phaseo
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] previous_key_expires_at
+    #   @return [String, nil]
+    ApiKeyRotateRequest = Struct.new(:name, :previous_key_expires_at, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] previous_key_expires_at
+    #   @return [String, nil]
+    ApiKeyRotateResponse = Struct.new(:data, :previous_key_expires_at, keyword_init: true)
     ApiKeyScopeValue = Object
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
@@ -201,16 +268,34 @@ module Phaseo
     #   @return [Float, nil]
     # @!attribute [rw] limit_reset
     #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] scopes
     #   @return [String, Array<String>, nil]
     # @!attribute [rw] soft_blocked
     #   @return [Boolean, nil]
-    ApiKeyUpdateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :name, :scopes, :soft_blocked, keyword_init: true)
+    ApiKeyUpdateRequest = Struct.new(:disabled, :expires_at, :include_byok_in_limit, :limit, :limit_reset, :limits, :name, :scopes, :soft_blocked, keyword_init: true)
+    # @!attribute [rw] cost
+    #   @return [Float]
+    # @!attribute [rw] requests
+    #   @return [Integer]
+    ApiKeyUsageBucket = Struct.new(:cost, :requests, keyword_init: true)
+    # @!attribute [rw] daily
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] monthly
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] total
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] weekly
+    #   @return [Hash{String => Object}]
+    ApiKeyUsageWindows = Struct.new(:daily, :monthly, :total, :weekly, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
     #   @return [String, nil]
     # @!attribute [rw] disabled
     #   @return [Boolean]
@@ -220,12 +305,22 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
+    # @!attribute [rw] include_byok_in_limit
+    #   @return [Boolean]
     # @!attribute [rw] key
     #   @return [String]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
     #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_remaining
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_reset
+    #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] prefix
@@ -238,9 +333,19 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] updated_at
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Float]
+    # @!attribute [rw] usage_daily
+    #   @return [Float]
+    # @!attribute [rw] usage_details
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] usage_monthly
+    #   @return [Float]
+    # @!attribute [rw] usage_weekly
+    #   @return [Float]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKeyWithValue = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :key, :label, :last_used_at, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKeyWithValue = Struct.new(:created_at, :created_by, :creator_user_id, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :key, :label, :last_used_at, :limit, :limit_remaining, :limit_reset, :limits, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :usage, :usage_daily, :usage_details, :usage_monthly, :usage_weekly, :workspace_id, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyWithValueResponse = Struct.new(:data, keyword_init: true)
@@ -790,6 +895,104 @@ module Phaseo
     # @!attribute [rw] ok
     #   @return [String]
     CreditsResponse = Struct.new(:credits, :ok, keyword_init: true)
+    DataContributionCategories = Struct.new(:_unused, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] instructions
+    #   @return [String]
+    # @!attribute [rw] kind
+    #   @return [String]
+    # @!attribute [rw] model
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] sample_rate_bps
+    #   @return [Integer]
+    # @!attribute [rw] service_tier
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    DataContributionClassifier = Struct.new(:categories, :created_at, :description, :enabled, :id, :instructions, :kind, :model, :name, :sample_rate_bps, :service_tier, :slug, :updated_at, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] instructions
+    #   @return [String]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] sampleRateBps
+    #   @return [Integer, nil]
+    # @!attribute [rw] serviceTier
+    #   @return [String, nil]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    DataContributionClassifierCreateRequest = Struct.new(:categories, :description, :enabled, :instructions, :model, :name, :sampleRateBps, :serviceTier, :slug, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionClassifierDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] instructions
+    #   @return [String, nil]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] sampleRateBps
+    #   @return [Integer, nil]
+    # @!attribute [rw] serviceTier
+    #   @return [String, nil]
+    DataContributionClassifierInput = Struct.new(:categories, :description, :enabled, :instructions, :model, :name, :sampleRateBps, :serviceTier, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionClassifierResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] categories
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] instructions
+    #   @return [String, nil]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] sampleRateBps
+    #   @return [Integer, nil]
+    # @!attribute [rw] serviceTier
+    #   @return [String, nil]
+    DataContributionClassifierUpdateRequest = Struct.new(:categories, :description, :enabled, :instructions, :model, :name, :sampleRateBps, :serviceTier, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] reason
+    #   @return [String, nil]
+    DataContributionConsentRequest = Struct.new(:enabled, :reason, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionConsentResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DataContributionOverviewResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] deprecation_date
     #   @return [String, nil]
     # @!attribute [rw] hidden
@@ -828,6 +1031,152 @@ module Phaseo
     # @!attribute [rw] deleted
     #   @return [String]
     DeletedResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] deployed_version
+    #   @return [Integer, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] version
+    #   @return [Integer]
+    # @!attribute [rw] versions
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    DynamicRoute = Struct.new(:config, :created_at, :deployed_version, :description, :id, :key_ids, :name, :slug, :status, :updated_at, :version, :versions, :workspace_id, keyword_init: true)
+    # @!attribute [rw] allowFallbacks
+    #   @return [Boolean, nil]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] modelFallbacks
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] providerIgnore
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] providerOnly
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] providerOrder
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] routingMode
+    #   @return [String, nil]
+    DynamicRouteAction = Struct.new(:allowFallbacks, :model, :modelFallbacks, :providerIgnore, :providerOnly, :providerOrder, :routingMode, keyword_init: true)
+    # @!attribute [rw] field
+    #   @return [String]
+    # @!attribute [rw] metadataKey
+    #   @return [String, nil]
+    # @!attribute [rw] operator
+    #   @return [String]
+    # @!attribute [rw] value
+    #   @return [String, nil]
+    DynamicRouteCondition = Struct.new(:field, :metadataKey, :operator, :value, keyword_init: true)
+    # @!attribute [rw] cacheAwareRouting
+    #   @return [Boolean, nil]
+    # @!attribute [rw] defaultAction
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] edges
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] entryNodeId
+    #   @return [String, nil]
+    # @!attribute [rw] nodes
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] rules
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] schemaVersion
+    #   @return [String, nil]
+    # @!attribute [rw] sessionAffinity
+    #   @return [Boolean, nil]
+    DynamicRouteConfig = Struct.new(:cacheAwareRouting, :defaultAction, :edges, :entryNodeId, :nodes, :rules, :schemaVersion, :sessionAffinity, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    DynamicRouteCreateRequest = Struct.new(:config, :description, :name, :slug, :status, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteDeployResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] source
+    #   @return [String]
+    # @!attribute [rw] sourceHandle
+    #   @return [String, nil]
+    # @!attribute [rw] target
+    #   @return [String]
+    DynamicRouteEdge = Struct.new(:id, :source, :sourceHandle, :target, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteKeysResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    DynamicRouteKeysUpdateRequest = Struct.new(:key_ids, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    DynamicRouteListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] position
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    DynamicRouteNode = Struct.new(:data, :id, :position, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] action
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] condition
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    DynamicRouteRule = Struct.new(:action, :condition, :enabled, :id, :name, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    DynamicRouteUpdateRequest = Struct.new(:config, :description, :name, :status, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] version
+    #   @return [Integer]
+    DynamicRouteVersion = Struct.new(:created_at, :created_by, :status, :version, keyword_init: true)
     # @!attribute [rw] embedding
     #   @return [Array<Float>, nil]
     # @!attribute [rw] index
@@ -1036,6 +1385,102 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     GatewayDatetimeToolDefinition = Struct.new(:parameters, :timezone, :type, keyword_init: true)
+    # @!attribute [rw] comment
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] rating
+    #   @return [String, nil]
+    # @!attribute [rw] reason
+    #   @return [String, nil]
+    # @!attribute [rw] reason_tags
+    #   @return [Array<String>]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] score
+    #   @return [Float, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    GatewayFeedback = Struct.new(:comment, :created_at, :created_by_user_id, :end_user_id, :id, :metadata, :metadata_dimensions, :preset_id, :rating, :reason, :reason_tags, :request_id, :score, :session_id, :source, :test_run_id, :workspace_id, keyword_init: true)
+    # @!attribute [rw] comment
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] rating
+    #   @return [String, nil]
+    # @!attribute [rw] reason
+    #   @return [String, nil]
+    # @!attribute [rw] reason_tags
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] score
+    #   @return [Float, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String, nil]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    GatewayFeedbackCreateRequest = Struct.new(:comment, :end_user_id, :metadata, :metadata_dimensions, :preset_id, :rating, :reason, :reason_tags, :request_id, :score, :session_id, :source, :test_run_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GatewayFeedbackListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GatewayFeedbackResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] group_by
+    #   @return [String]
+    GatewayFeedbackSummaryResponse = Struct.new(:data, :group_by, keyword_init: true)
+    # @!attribute [rw] average_score
+    #   @return [Float, nil]
+    # @!attribute [rw] count
+    #   @return [Integer]
+    # @!attribute [rw] last_feedback_at
+    #   @return [String, nil]
+    # @!attribute [rw] metadata_key
+    #   @return [String, nil]
+    # @!attribute [rw] metadata_value
+    #   @return [String, nil]
+    # @!attribute [rw] negative
+    #   @return [Integer]
+    # @!attribute [rw] partial
+    #   @return [Integer]
+    # @!attribute [rw] positive
+    #   @return [Integer]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] ratings
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    GatewayFeedbackSummaryRow = Struct.new(:average_score, :count, :last_feedback_at, :metadata_key, :metadata_value, :negative, :partial, :positive, :preset_id, :ratings, :test_run_id, keyword_init: true)
     # @!attribute [rw] input
     #   @return [Array<String>]
     # @!attribute [rw] output
@@ -1096,6 +1541,74 @@ module Phaseo
     # @!attribute [rw] total
     #   @return [Integer]
     GatewayModelsResponse = Struct.new(:availability_mode, :limit, :models, :offset, :ok, :total, keyword_init: true)
+    # @!attribute [rw] category
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] event_name
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] numeric_value
+    #   @return [Float, nil]
+    # @!attribute [rw] occurred_at
+    #   @return [String]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    # @!attribute [rw] value
+    #   @return [Object, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    GatewayObservabilityEvent = Struct.new(:category, :created_at, :created_by_user_id, :end_user_id, :event_name, :id, :metadata, :metadata_dimensions, :numeric_value, :occurred_at, :preset_id, :request_id, :session_id, :source, :test_run_id, :value, :workspace_id, keyword_init: true)
+    # @!attribute [rw] category
+    #   @return [String, nil]
+    # @!attribute [rw] end_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] event_name
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] metadata_dimensions
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] numeric_value
+    #   @return [Float, nil]
+    # @!attribute [rw] occurred_at
+    #   @return [String, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] session_id
+    #   @return [String, nil]
+    # @!attribute [rw] source
+    #   @return [String, nil]
+    # @!attribute [rw] test_run_id
+    #   @return [String, nil]
+    # @!attribute [rw] value
+    #   @return [Object, nil]
+    GatewayObservabilityEventCreateRequest = Struct.new(:category, :end_user_id, :event_name, :metadata, :metadata_dimensions, :numeric_value, :occurred_at, :preset_id, :request_id, :session_id, :source, :test_run_id, :value, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GatewayObservabilityEventListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GatewayObservabilityEventResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] meters
     #   @return [Hash{String => Object}]
     # @!attribute [rw] pricing_plan
@@ -1103,6 +1616,79 @@ module Phaseo
     GatewayPricing = Struct.new(:meters, :pricing_plan, keyword_init: true)
     GatewayPricingMeter = Object
     GatewayProviderAvailabilityReason = Object
+    # @!attribute [rw] auth_method
+    #   @return [String, nil]
+    # @!attribute [rw] byok
+    #   @return [Boolean, nil]
+    # @!attribute [rw] canonical_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] currency
+    #   @return [String, nil]
+    # @!attribute [rw] endpoint
+    #   @return [String, nil]
+    # @!attribute [rw] error_code
+    #   @return [String, nil]
+    # @!attribute [rw] finish_reason
+    #   @return [String, nil]
+    # @!attribute [rw] generation_ms
+    #   @return [Float, nil]
+    # @!attribute [rw] key_id
+    #   @return [String, nil]
+    # @!attribute [rw] latency_ms
+    #   @return [Float, nil]
+    # @!attribute [rw] location
+    #   @return [String, nil]
+    # @!attribute [rw] model_id
+    #   @return [String, nil]
+    # @!attribute [rw] native_response_id
+    #   @return [String, nil]
+    # @!attribute [rw] oauth_client_id
+    #   @return [String, nil]
+    # @!attribute [rw] pricing_lines
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] provider
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] requested_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] routed_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] status_code
+    #   @return [Integer, nil]
+    # @!attribute [rw] stream
+    #   @return [Boolean, nil]
+    # @!attribute [rw] success
+    #   @return [Boolean, nil]
+    # @!attribute [rw] throughput
+    #   @return [Float, nil]
+    # @!attribute [rw] usage
+    #   @return [Hash{String => Object}, nil]
+    GatewayRequestLog = Struct.new(:auth_method, :byok, :canonical_model_id, :cost_nanos, :created_at, :currency, :endpoint, :error_code, :finish_reason, :generation_ms, :key_id, :latency_ms, :location, :model_id, :native_response_id, :oauth_client_id, :pricing_lines, :provider, :request_id, :requested_model_id, :routed_model_id, :status_code, :stream, :success, :throughput, :usage, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] from_time
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Integer]
+    # @!attribute [rw] offset
+    #   @return [Integer]
+    # @!attribute [rw] ok
+    #   @return [String]
+    # @!attribute [rw] to_time
+    #   @return [String, nil]
+    # @!attribute [rw] total
+    #   @return [Integer]
+    GatewayRequestLogListResponse = Struct.new(:data, :from_time, :limit, :offset, :ok, :to_time, :total, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] ok
+    #   @return [String]
+    GatewayRequestLogResponse = Struct.new(:data, :ok, keyword_init: true)
     GatewayRoutingStatus = Object
     # @!attribute [rw] max_chars
     #   @return [Integer, nil]
@@ -1171,6 +1757,262 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     GenerationResponse = Struct.new(:app_id, :byok, :cost_nanos, :created_at, :currency, :endpoint, :error_code, :error_message, :generation_ms, :key_id, :latency_ms, :model_id, :native_response_id, :pricing_lines, :provider, :replay_request, :replay_supported, :request_id, :status_code, :stream, :success, :team_id, :throughput, :usage, keyword_init: true)
+    # @!attribute [rw] allowed_api_model_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] daily_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] daily_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] model_restriction_mode
+    #   @return [String, nil]
+    # @!attribute [rw] monthly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_enable_free_may_publish_prompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_input_output_logging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_paid_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_zdr_only
+    #   @return [Boolean, nil]
+    # @!attribute [rw] prompt_injection_action
+    #   @return [String, nil]
+    # @!attribute [rw] prompt_injection_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_enforce_allowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_mode
+    #   @return [String, nil]
+    # @!attribute [rw] provider_restriction_provider_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitive_info_default_action
+    #   @return [String, nil]
+    # @!attribute [rw] sensitive_info_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitive_info_rules
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] weekly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weekly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    Guardrail = Struct.new(:allowed_api_model_ids, :created_at, :daily_limit_cost_nanos, :daily_limit_requests, :description, :enabled, :id, :model_restriction_mode, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :prompt_injection_action, :prompt_injection_enabled, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :sensitive_info_default_action, :sensitive_info_enabled, :sensitive_info_rules, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
+    # @!attribute [rw] dailyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] dailyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyRequests
+    #   @return [Integer, nil]
+    GuardrailBudgetInput = Struct.new(:dailyCostNanos, :dailyRequests, :monthlyCostNanos, :monthlyRequests, :weeklyCostNanos, :weeklyRequests, keyword_init: true)
+    # @!attribute [rw] allowedApiModelIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] budgets
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] modelRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacyEnableFreeMayPublishPrompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableFreeMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableInputOutputLogging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnablePaidMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyZdrOnly
+    #   @return [Boolean, nil]
+    # @!attribute [rw] promptInjectionAction
+    #   @return [String, nil]
+    # @!attribute [rw] promptInjectionEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionEnforceAllowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] providerRestrictionProviderIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitiveInfoDefaultAction
+    #   @return [String, nil]
+    # @!attribute [rw] sensitiveInfoEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitiveInfoRules
+    #   @return [Array<Hash{String => Object}>, nil]
+    GuardrailCreateRequest = Struct.new(:allowedApiModelIds, :budgets, :description, :enabled, :modelRestrictionMode, :name, :privacyEnableFreeMayPublishPrompts, :privacyEnableFreeMayTrain, :privacyEnableInputOutputLogging, :privacyEnablePaidMayTrain, :privacyZdrOnly, :promptInjectionAction, :promptInjectionEnabled, :providerRestrictionEnforceAllowed, :providerRestrictionMode, :providerRestrictionProviderIds, :sensitiveInfoDefaultAction, :sensitiveInfoEnabled, :sensitiveInfoRules, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [String]
+    GuardrailDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GuardrailDetailResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] added_count
+    #   @return [Integer]
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GuardrailKeyAddResponse = Struct.new(:added_count, :data, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] key_id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] prefix
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    GuardrailKeyAssignment = Struct.new(:created_at, :key_id, :name, :prefix, :status, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    GuardrailKeyIdsReplaceRequest = Struct.new(:key_ids, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    GuardrailKeyIdsRequest = Struct.new(:key_ids, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    GuardrailKeyListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GuardrailKeySetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    GuardrailListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] added_count
+    #   @return [Integer]
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    GuardrailMemberAddResponse = Struct.new(:added_count, :data, keyword_init: true)
+    # @!attribute [rw] display_name
+    #   @return [String, nil]
+    # @!attribute [rw] joined_at
+    #   @return [String, nil]
+    # @!attribute [rw] role
+    #   @return [String, nil]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    GuardrailMemberAssignment = Struct.new(:display_name, :joined_at, :role, :user_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    GuardrailMemberListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] allowedApiModelIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] budgets
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] modelRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacyEnableFreeMayPublishPrompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableFreeMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableInputOutputLogging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnablePaidMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyZdrOnly
+    #   @return [Boolean, nil]
+    # @!attribute [rw] promptInjectionAction
+    #   @return [String, nil]
+    # @!attribute [rw] promptInjectionEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionEnforceAllowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] providerRestrictionProviderIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitiveInfoDefaultAction
+    #   @return [String, nil]
+    # @!attribute [rw] sensitiveInfoEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitiveInfoRules
+    #   @return [Array<Hash{String => Object}>, nil]
+    GuardrailPolicyInput = Struct.new(:allowedApiModelIds, :budgets, :description, :enabled, :modelRestrictionMode, :name, :privacyEnableFreeMayPublishPrompts, :privacyEnableFreeMayTrain, :privacyEnableInputOutputLogging, :privacyEnablePaidMayTrain, :privacyZdrOnly, :promptInjectionAction, :promptInjectionEnabled, :providerRestrictionEnforceAllowed, :providerRestrictionMode, :providerRestrictionProviderIds, :sensitiveInfoDefaultAction, :sensitiveInfoEnabled, :sensitiveInfoRules, keyword_init: true)
+    # @!attribute [rw] removed_count
+    #   @return [Integer]
+    GuardrailRemoveResponse = Struct.new(:removed_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    GuardrailResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] allowedApiModelIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] budgets
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] modelRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacyEnableFreeMayPublishPrompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableFreeMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnableInputOutputLogging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyEnablePaidMayTrain
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacyZdrOnly
+    #   @return [Boolean, nil]
+    # @!attribute [rw] promptInjectionAction
+    #   @return [String, nil]
+    # @!attribute [rw] promptInjectionEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionEnforceAllowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] providerRestrictionMode
+    #   @return [String, nil]
+    # @!attribute [rw] providerRestrictionProviderIds
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] sensitiveInfoDefaultAction
+    #   @return [String, nil]
+    # @!attribute [rw] sensitiveInfoEnabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] sensitiveInfoRules
+    #   @return [Array<Hash{String => Object}>, nil]
+    GuardrailUpdateRequest = Struct.new(:allowedApiModelIds, :budgets, :description, :enabled, :modelRestrictionMode, :name, :privacyEnableFreeMayPublishPrompts, :privacyEnableFreeMayTrain, :privacyEnableInputOutputLogging, :privacyEnablePaidMayTrain, :privacyZdrOnly, :promptInjectionAction, :promptInjectionEnabled, :providerRestrictionEnforceAllowed, :providerRestrictionMode, :providerRestrictionProviderIds, :sensitiveInfoDefaultAction, :sensitiveInfoEnabled, :sensitiveInfoRules, keyword_init: true)
+    # @!attribute [rw] user_ids
+    #   @return [Array<String>]
+    GuardrailUserIdsRequest = Struct.new(:user_ids, keyword_init: true)
     # @!attribute [rw] b64_json
     #   @return [String, nil]
     # @!attribute [rw] revised_prompt
@@ -1260,21 +2102,22 @@ module Phaseo
     # @!attribute [rw] ok
     #   @return [String]
     InvalidRequestResponse = Struct.new(:error, :max_offset, :message, :ok, keyword_init: true)
-    # @!attribute [rw] cache_version
-    #   @return [Hash{String => Object}]
     # @!attribute [rw] key
     #   @return [Hash{String => Object}]
     # @!attribute [rw] message
     #   @return [String]
     # @!attribute [rw] ok
     #   @return [String]
-    KeyInvalidateResponse = Struct.new(:cache_version, :key, :message, :ok, keyword_init: true)
+    KeyInvalidateResponse = Struct.new(:key, :message, :ok, keyword_init: true)
     KnownModelId = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] object
     #   @return [String, nil]
     ListFilesResponse = Struct.new(:data, :object, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    ManagementKeyCollectionResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] created_by
     #   @return [String, nil]
     # @!attribute [rw] name
@@ -1314,6 +2157,127 @@ module Phaseo
     # @!attribute [rw] total
     #   @return [Integer]
     ManagementKeyListResponse = Struct.new(:keys, :limit, :offset, :ok, :total, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] daily_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] daily_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] monthly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] prefix
+    #   @return [String]
+    # @!attribute [rw] scopes
+    #   @return [Array<String>]
+    # @!attribute [rw] soft_blocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] weekly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weekly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ManagementKeyRuntime = Struct.new(:created_at, :created_by, :daily_limit_cost_nanos, :daily_limit_requests, :expires_at, :id, :last_used_at, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] daily_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] daily_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] key
+    #   @return [String]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] monthly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] prefix
+    #   @return [String]
+    # @!attribute [rw] scopes
+    #   @return [Array<String>]
+    # @!attribute [rw] soft_blocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] weekly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weekly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ManagementKeyRuntimeCreated = Struct.new(:created_at, :created_by, :daily_limit_cost_nanos, :daily_limit_requests, :expires_at, :id, :key, :last_used_at, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] paused
+    #   @return [Boolean, nil]
+    # @!attribute [rw] scopes
+    #   @return [String, Array<String>, nil]
+    # @!attribute [rw] template
+    #   @return [String, nil]
+    ManagementKeyRuntimeCreateRequest = Struct.new(:expires_at, :name, :paused, :scopes, :template, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ManagementKeyRuntimeCreateResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [String]
+    ManagementKeyRuntimeDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ManagementKeyRuntimeResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] dailyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] dailyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] monthlyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] paused
+    #   @return [Boolean, nil]
+    # @!attribute [rw] scopes
+    #   @return [String, Array<String>, nil]
+    # @!attribute [rw] softBlocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] template
+    #   @return [String, nil]
+    # @!attribute [rw] weeklyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyRequests
+    #   @return [Integer, nil]
+    ManagementKeyRuntimeUpdateRequest = Struct.new(:dailyCostNanos, :dailyRequests, :expires_at, :monthlyCostNanos, :monthlyRequests, :name, :paused, :scopes, :softBlocked, :template, :weeklyCostNanos, :weeklyRequests, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] soft_blocked
@@ -1590,6 +2554,315 @@ module Phaseo
     # @!attribute [rw] status_code
     #   @return [Integer]
     NotImplementedResponse = Struct.new(:description, :error, :status_code, keyword_init: true)
+    # @!attribute [rw] active_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] client_type
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>]
+    # @!attribute [rw] requests_last_30d
+    #   @return [Integer, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    # @!attribute [rw] total_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    OAuthClient = Struct.new(:active_authorizations, :allowed_scopes, :client_id, :client_type, :created_at, :description, :homepage_url, :last_used_at, :logo_url, :name, :privacy_policy_url, :redirect_uris, :requests_last_30d, :status, :terms_of_service_url, :total_authorizations, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] client_type
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    OAuthClientCreateRequest = Struct.new(:allowed_scopes, :client_type, :description, :homepage_url, :logo_url, :name, :privacy_policy_url, :redirect_uris, :terms_of_service_url, keyword_init: true)
+    # @!attribute [rw] active_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] client_secret
+    #   @return [String, nil]
+    # @!attribute [rw] client_type
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>]
+    # @!attribute [rw] requests_last_30d
+    #   @return [Integer, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    # @!attribute [rw] total_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    OAuthClientCreateResponse = Struct.new(:active_authorizations, :allowed_scopes, :client_id, :client_secret, :client_type, :created_at, :description, :homepage_url, :last_used_at, :logo_url, :name, :privacy_policy_url, :redirect_uris, :requests_last_30d, :status, :terms_of_service_url, :total_authorizations, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] message
+    #   @return [String]
+    OAuthClientDeleteResponse = Struct.new(:client_id, :message, keyword_init: true)
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    OAuthClientInput = Struct.new(:allowed_scopes, :description, :homepage_url, :logo_url, :name, :privacy_policy_url, :redirect_uris, :terms_of_service_url, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] pagination
+    #   @return [Hash{String => Object}]
+    OAuthClientListResponse = Struct.new(:data, :pagination, keyword_init: true)
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] client_secret
+    #   @return [String]
+    # @!attribute [rw] message
+    #   @return [String]
+    OAuthClientSecretResponse = Struct.new(:client_id, :client_secret, :message, keyword_init: true)
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    OAuthClientUpdateRequest = Struct.new(:allowed_scopes, :description, :homepage_url, :logo_url, :name, :privacy_policy_url, :redirect_uris, :terms_of_service_url, keyword_init: true)
+    # @!attribute [rw] configured
+    #   @return [Boolean]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] group_join
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float]
+    # @!attribute [rw] type
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ObservabilityDestination = Struct.new(:configured, :created_at, :enabled, :group_join, :id, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, :type, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] group_join
+    #   @return [String, nil]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean, nil]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    ObservabilityDestinationCreateRequest = Struct.new(:config, :enabled, :group_join, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    ObservabilityDestinationListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] group_join
+    #   @return [String, nil]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean, nil]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float, nil]
+    ObservabilityDestinationPolicyInput = Struct.new(:enabled, :group_join, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ObservabilityDestinationResponse = Struct.new(:data, keyword_init: true)
+    ObservabilityDestinationType = Object
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] group_join
+    #   @return [String, nil]
+    # @!attribute [rw] include_cost_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_generation_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_identity_metadata
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_request_context
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key_filters
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_mode
+    #   @return [Boolean, nil]
+    # @!attribute [rw] rule_groups
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] sampling_rate
+    #   @return [Float, nil]
+    ObservabilityDestinationUpdateRequest = Struct.new(:config, :enabled, :group_join, :include_cost_metadata, :include_generation_metadata, :include_identity_metadata, :include_request_context, :key_filters, :name, :privacy_mode, :rule_groups, :sampling_rate, keyword_init: true)
+    # @!attribute [rw] key_id
+    #   @return [String]
+    # @!attribute [rw] mode
+    #   @return [String]
+    ObservabilityKeyFilter = Struct.new(:key_id, :mode, keyword_init: true)
+    # @!attribute [rw] billing_status
+    #   @return [String]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] grace_until
+    #   @return [String, nil]
+    # @!attribute [rw] include_provider_payloads
+    #   @return [Boolean]
+    # @!attribute [rw] price_per_million_units_nanos
+    #   @return [Integer]
+    # @!attribute [rw] retention_days
+    #   @return [Integer]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ObservabilityLoggingPolicy = Struct.new(:billing_status, :enabled, :grace_until, :include_provider_payloads, :price_per_million_units_nanos, :retention_days, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ObservabilityLoggingPolicyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] include_provider_payloads
+    #   @return [Boolean, nil]
+    # @!attribute [rw] retention_days
+    #   @return [Integer, nil]
+    ObservabilityLoggingPolicyUpdateRequest = Struct.new(:enabled, :include_provider_payloads, :retention_days, keyword_init: true)
+    # @!attribute [rw] condition
+    #   @return [String]
+    # @!attribute [rw] field
+    #   @return [String]
+    # @!attribute [rw] value
+    #   @return [String, nil]
+    ObservabilityRule = Struct.new(:condition, :field, :value, keyword_init: true)
+    # @!attribute [rw] match
+    #   @return [String]
+    # @!attribute [rw] rules
+    #   @return [Array<Hash{String => Object}>]
+    ObservabilityRuleGroup = Struct.new(:match, :rules, keyword_init: true)
     # @!attribute [rw] debug
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] echo_upstream_request
@@ -1658,6 +2931,215 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     ParseResponse = Struct.new(:id, :meta, :model, :object, :pages, :provider, :usage, keyword_init: true)
+    # @!attribute [rw] active_version_id
+    #   @return [String, nil]
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] source_preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] source_preset_version_id
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] upstream_version_id
+    #   @return [String, nil]
+    # @!attribute [rw] versioning_method
+    #   @return [String]
+    # @!attribute [rw] visibility
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    Preset = Struct.new(:active_version_id, :config, :created_at, :created_by, :description, :id, :name, :slug, :source_preset_id, :source_preset_version_id, :updated_at, :upstream_version_id, :versioning_method, :visibility, :workspace_id, keyword_init: true)
+    PresetConfig = Struct.new(:_unused, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    # @!attribute [rw] versioning_method
+    #   @return [String, nil]
+    # @!attribute [rw] visibility
+    #   @return [String, nil]
+    PresetCreateRequest = Struct.new(:config, :description, :name, :slug, :versioning_method, :visibility, keyword_init: true)
+    # @!attribute [rw] canonical_model
+    #   @return [String]
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetCreateResponse = Struct.new(:canonical_model, :data, keyword_init: true)
+    # @!attribute [rw] source_version_id
+    #   @return [String, nil]
+    PresetForkRequest = Struct.new(:source_version_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    PresetListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] handle
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    PresetPublisher = Struct.new(:handle, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetPublisherResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] handle
+    #   @return [String]
+    PresetPublisherUpdateRequest = Struct.new(:handle, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] baseline_preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] completed_at
+    #   @return [String, nil]
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] dataset_name
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] started_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] summary
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] updated_at
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    PresetTestRun = Struct.new(:baseline_preset_id, :completed_at, :config, :created_at, :created_by_user_id, :dataset_name, :description, :id, :name, :preset_id, :started_at, :status, :summary, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] baseline_preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] completed_at
+    #   @return [String, nil]
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] dataset_name
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] started_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    # @!attribute [rw] summary
+    #   @return [Hash{String => Object}, nil]
+    PresetTestRunCreateRequest = Struct.new(:baseline_preset_id, :completed_at, :config, :dataset_name, :description, :name, :preset_id, :started_at, :status, :summary, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] feedback_summary
+    #   @return [Hash{String => Object}, nil]
+    PresetTestRunDetailResponse = Struct.new(:data, :feedback_summary, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    PresetTestRunListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetTestRunResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] completed_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] started_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    # @!attribute [rw] summary
+    #   @return [Hash{String => Object}, nil]
+    PresetTestRunUpdateRequest = Struct.new(:completed_at, :description, :name, :started_at, :status, :summary, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] replace_config
+    #   @return [Boolean, nil]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    # @!attribute [rw] versioning_method
+    #   @return [String, nil]
+    # @!attribute [rw] visibility
+    #   @return [String, nil]
+    PresetUpdateRequest = Struct.new(:config, :description, :name, :replace_config, :slug, :versioning_method, :visibility, keyword_init: true)
+    # @!attribute [rw] version_id
+    #   @return [String]
+    PresetUpstreamApplyRequest = Struct.new(:version_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetUpstreamApplyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] preset_id
+    #   @return [String]
+    # @!attribute [rw] release_notes
+    #   @return [String, nil]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] version_label
+    #   @return [String]
+    # @!attribute [rw] version_number
+    #   @return [Integer]
+    # @!attribute [rw] versioning_method
+    #   @return [String]
+    # @!attribute [rw] visibility
+    #   @return [String]
+    PresetVersion = Struct.new(:config, :created_at, :created_by, :description, :id, :name, :preset_id, :release_notes, :slug, :version_label, :version_number, :versioning_method, :visibility, keyword_init: true)
+    PresetVersioningMethod = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    PresetVersionListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] release_notes
+    #   @return [String, nil]
+    # @!attribute [rw] version_label
+    #   @return [String, nil]
+    PresetVersionPublishRequest = Struct.new(:release_notes, :version_label, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetVersionResponse = Struct.new(:data, keyword_init: true)
+    PresetVisibility = Object
     # @!attribute [rw] api_provider_id
     #   @return [String, nil]
     # @!attribute [rw] api_provider_name
@@ -1669,6 +3151,97 @@ module Phaseo
     # @!attribute [rw] link
     #   @return [String, nil]
     Provider = Struct.new(:api_provider_id, :api_provider_name, :country_code, :description, :link, keyword_init: true)
+    # @!attribute [rw] allowed_api_key_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] allowed_model_slugs
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] always_use
+    #   @return [Boolean, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] disabled
+    #   @return [Boolean]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] error_message
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] is_fallback
+    #   @return [Boolean]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] last_verified_at
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] prefix
+    #   @return [String, nil]
+    # @!attribute [rw] provider_id
+    #   @return [String]
+    # @!attribute [rw] routing_mode
+    #   @return [String]
+    # @!attribute [rw] sort_order
+    #   @return [Integer]
+    # @!attribute [rw] suffix
+    #   @return [String, nil]
+    # @!attribute [rw] verification_status
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ProviderCredential = Struct.new(:allowed_api_key_ids, :allowed_model_slugs, :always_use, :created_at, :created_by, :disabled, :enabled, :error_message, :id, :is_fallback, :last_used_at, :last_verified_at, :name, :prefix, :provider_id, :routing_mode, :sort_order, :suffix, :verification_status, :workspace_id, keyword_init: true)
+    # @!attribute [rw] allowed_api_key_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] allowed_models
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] provider
+    #   @return [String]
+    # @!attribute [rw] routing_mode
+    #   @return [String, nil]
+    ProviderCredentialCreateRequest = Struct.new(:allowed_api_key_ids, :allowed_models, :enabled, :key, :name, :provider, :routing_mode, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [Boolean]
+    ProviderCredentialDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    ProviderCredentialListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    # @!attribute [rw] provider
+    #   @return [String]
+    # @!attribute [rw] routing_mode
+    #   @return [String]
+    ProviderCredentialReorderRequest = Struct.new(:key_ids, :provider, :routing_mode, keyword_init: true)
+    # @!attribute [rw] reordered
+    #   @return [Boolean]
+    ProviderCredentialReorderResponse = Struct.new(:reordered, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ProviderCredentialResponse = Struct.new(:data, keyword_init: true)
+    ProviderCredentialRoutingMode = Object
+    # @!attribute [rw] allowed_api_key_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] allowed_models
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] routing_mode
+    #   @return [String, nil]
+    ProviderCredentialUpdateRequest = Struct.new(:allowed_api_key_ids, :allowed_models, :enabled, :key, :name, :routing_mode, keyword_init: true)
     # @!attribute [rw] anthropic
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] google
@@ -2031,6 +3604,9 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     ToolCallContentPart = Struct.new(:function, :id, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    UpdatedResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] completion_tokens
     #   @return [Integer, nil]
     # @!attribute [rw] prompt_tokens
@@ -2266,6 +3842,89 @@ module Phaseo
     # @!attribute [rw] access
     #   @return [String, nil]
     VideoOutputConfig = Struct.new(:access, keyword_init: true)
+    # @!attribute [rw] createdAt
+    #   @return [String, nil]
+    # @!attribute [rw] createdBy
+    #   @return [String, nil]
+    # @!attribute [rw] deletedAt
+    #   @return [String, nil]
+    # @!attribute [rw] events
+    #   @return [Array<String>]
+    # @!attribute [rw] hasSecret
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updatedAt
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String]
+    # @!attribute [rw] workspaceId
+    #   @return [String]
+    WebhookEndpoint = Struct.new(:createdAt, :createdBy, :deletedAt, :events, :hasSecret, :id, :name, :status, :updatedAt, :url, :workspaceId, keyword_init: true)
+    # @!attribute [rw] events
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String]
+    WebhookEndpointCreateRequest = Struct.new(:events, :name, :url, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] object
+    #   @return [String]
+    WebhookEndpointDeleteResponse = Struct.new(:deleted, :id, :object, keyword_init: true)
+    # @!attribute [rw] events
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WebhookEndpointInput = Struct.new(:events, :name, :url, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] object
+    #   @return [String]
+    WebhookEndpointListResponse = Struct.new(:data, :object, keyword_init: true)
+    # @!attribute [rw] createdAt
+    #   @return [String, nil]
+    # @!attribute [rw] createdBy
+    #   @return [String, nil]
+    # @!attribute [rw] deletedAt
+    #   @return [String, nil]
+    # @!attribute [rw] events
+    #   @return [Array<String>]
+    # @!attribute [rw] hasSecret
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] signing_secret
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updatedAt
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String]
+    # @!attribute [rw] workspaceId
+    #   @return [String]
+    WebhookEndpointSecretResponse = Struct.new(:createdAt, :createdBy, :deletedAt, :events, :hasSecret, :id, :name, :signing_secret, :status, :updatedAt, :url, :workspaceId, keyword_init: true)
+    # @!attribute [rw] events
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WebhookEndpointUpdateRequest = Struct.new(:events, :name, :status, :url, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] created_by
@@ -2311,19 +3970,739 @@ module Phaseo
     # @!attribute [rw] total_cost_cents
     #   @return [Float]
     WorkspaceActivityResponse = Struct.new(:activity, :limit, :offset, :ok, :period_days, :total, :total_cost_cents, keyword_init: true)
+    # @!attribute [rw] app_key
+    #   @return [String]
+    # @!attribute [rw] category
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] docs_url
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] image_url
+    #   @return [String, nil]
+    # @!attribute [rw] is_active
+    #   @return [Boolean]
+    # @!attribute [rw] is_managed
+    #   @return [Boolean]
+    # @!attribute [rw] is_public
+    #   @return [Boolean]
+    # @!attribute [rw] last_seen
+    #   @return [String, nil]
+    # @!attribute [rw] title
+    #   @return [String]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WorkspaceApp = Struct.new(:app_key, :category, :created_at, :docs_url, :id, :image_url, :is_active, :is_managed, :is_public, :last_seen, :title, :url, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] limit
+    #   @return [Integer]
+    # @!attribute [rw] offset
+    #   @return [Integer]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceAppListResponse = Struct.new(:data, :limit, :offset, :total_count, keyword_init: true)
+    # @!attribute [rw] target_app_id
+    #   @return [String]
+    WorkspaceAppMergeRequest = Struct.new(:target_app_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceAppMergeResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceAppResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] category
+    #   @return [String, nil]
+    # @!attribute [rw] docs_url
+    #   @return [String, nil]
+    # @!attribute [rw] image_url
+    #   @return [String, nil]
+    # @!attribute [rw] is_active
+    #   @return [Boolean, nil]
+    # @!attribute [rw] is_public
+    #   @return [Boolean, nil]
+    # @!attribute [rw] title
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WorkspaceAppUpdateRequest = Struct.new(:category, :docs_url, :image_url, :is_active, :is_public, :title, :url, keyword_init: true)
+    WorkspaceAssignableRole = Object
+    # @!attribute [rw] action
+    #   @return [String]
+    # @!attribute [rw] actor
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] actor_user_id
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] metadata
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] target_id
+    #   @return [String]
+    # @!attribute [rw] target_name
+    #   @return [String, nil]
+    # @!attribute [rw] target_type
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceAuditEvent = Struct.new(:action, :actor, :actor_user_id, :created_at, :id, :metadata, :request_id, :target_id, :target_name, :target_type, :workspace_id, keyword_init: true)
+    # @!attribute [rw] display_name
+    #   @return [String, nil]
+    # @!attribute [rw] email
+    #   @return [String, nil]
+    WorkspaceAuditEventActor = Struct.new(:display_name, :email, keyword_init: true)
+    # @!attribute [rw] dailyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] dailyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] softBlocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] weeklyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyRequests
+    #   @return [Integer, nil]
+    WorkspaceAuditEventLimits = Struct.new(:dailyCostNanos, :dailyRequests, :monthlyCostNanos, :monthlyRequests, :softBlocked, :weeklyCostNanos, :weeklyRequests, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] has_more
+    #   @return [Boolean]
+    # @!attribute [rw] next_cursor
+    #   @return [String, nil]
+    WorkspaceAuditEventListResponse = Struct.new(:data, :has_more, :next_cursor, keyword_init: true)
+    # @!attribute [rw] accessTemplate
+    #   @return [String, nil]
+    # @!attribute [rw] changedFields
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] expiresAt
+    #   @return [String, nil]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] prefix
+    #   @return [String, nil]
+    # @!attribute [rw] previousKeyExpiresAt
+    #   @return [String, nil]
+    # @!attribute [rw] replacementKeyId
+    #   @return [String, nil]
+    # @!attribute [rw] replacementKeyName
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    WorkspaceAuditEventMetadata = Struct.new(:accessTemplate, :changedFields, :expiresAt, :limits, :prefix, :previousKeyExpiresAt, :replacementKeyId, :replacementKeyName, :status, keyword_init: true)
+    # @!attribute [rw] amount_nanos
+    #   @return [Integer]
+    # @!attribute [rw] balance_threshold_nanos
+    #   @return [Integer]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] payment_method_id
+    #   @return [String, nil]
+    WorkspaceAutoTopUpSettings = Struct.new(:amount_nanos, :balance_threshold_nanos, :enabled, :payment_method_id, keyword_init: true)
+    # @!attribute [rw] amount_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] balance_threshold_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] payment_method_id
+    #   @return [String, nil]
+    WorkspaceAutoTopUpUpdate = Struct.new(:amount_nanos, :balance_threshold_nanos, :enabled, :payment_method_id, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] exceeded
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] interval
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Float]
+    # @!attribute [rw] limit_nanos
+    #   @return [Integer]
+    # @!attribute [rw] remaining
+    #   @return [Float]
+    # @!attribute [rw] remaining_nanos
+    #   @return [Integer]
+    # @!attribute [rw] reset_at
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String]
+    # @!attribute [rw] usage
+    #   @return [Float]
+    # @!attribute [rw] usage_nanos
+    #   @return [Integer]
+    # @!attribute [rw] window_start
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceBudget = Struct.new(:created_at, :created_by, :exceeded, :id, :interval, :limit, :limit_nanos, :remaining, :remaining_nanos, :reset_at, :updated_at, :usage, :usage_nanos, :window_start, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceBudgetDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] interval
+    #   @return [String]
+    # @!attribute [rw] limit
+    #   @return [Float]
+    WorkspaceBudgetInput = Struct.new(:interval, :limit, keyword_init: true)
+    WorkspaceBudgetInterval = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceBudgetListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceBudgetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] interval
+    #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    WorkspaceBudgetUpdateInput = Struct.new(:interval, :limit, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String]
     # @!attribute [rw] slug
     #   @return [String, nil]
     WorkspaceCreateRequest = Struct.new(:name, :slug, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] directory_name
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] name_overridden
+    #   @return [Boolean, nil]
+    # @!attribute [rw] source_id
+    #   @return [String, nil]
+    # @!attribute [rw] source_type
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceDepartment = Struct.new(:color, :created_at, :description, :directory_name, :icon, :id, :name, :name_overridden, :source_id, :source_type, :updated_at, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    WorkspaceDepartmentCreateRequest = Struct.new(:color, :description, :icon, :name, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    WorkspaceDepartmentInput = Struct.new(:color, :description, :icon, :name, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceDepartmentListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] department_id
+    #   @return [String]
+    # @!attribute [rw] is_primary
+    #   @return [Boolean]
+    # @!attribute [rw] position
+    #   @return [String]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    WorkspaceDepartmentMember = Struct.new(:department_id, :is_primary, :position, :user_id, keyword_init: true)
+    # @!attribute [rw] position
+    #   @return [String, nil]
+    # @!attribute [rw] primary
+    #   @return [Boolean, nil]
+    WorkspaceDepartmentMemberRequest = Struct.new(:position, :primary, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceDepartmentMemberResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceDepartmentResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    WorkspaceDepartmentUpdateRequest = Struct.new(:color, :description, :icon, :name, keyword_init: true)
+    # @!attribute [rw] access_source
+    #   @return [String]
+    # @!attribute [rw] department
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] department_override_enabled
+    #   @return [Boolean]
+    # @!attribute [rw] department_override_id
+    #   @return [String, nil]
+    # @!attribute [rw] department_source
+    #   @return [String]
+    # @!attribute [rw] directory_department
+    #   @return [String, nil]
+    # @!attribute [rw] display_name
+    #   @return [String]
+    # @!attribute [rw] effective_role
+    #   @return [String]
+    # @!attribute [rw] email
+    #   @return [String, nil]
+    # @!attribute [rw] joined_at
+    #   @return [String, nil]
+    # @!attribute [rw] role_override
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    # @!attribute [rw] workspace_role
+    #   @return [String]
+    WorkspaceDirectoryMember = Struct.new(:access_source, :department, :department_override_enabled, :department_override_id, :department_source, :directory_department, :display_name, :effective_role, :email, :joined_at, :role_override, :status, :user_id, :workspace_role, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String, nil]
+    # @!attribute [rw] department_id
+    #   @return [String, nil]
+    # @!attribute [rw] department_mode
+    #   @return [String, nil]
+    # @!attribute [rw] department_position
+    #   @return [String, nil]
+    WorkspaceDirectoryMemberUpdateRequest = Struct.new(:access_role, :department_id, :department_mode, :department_position, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceDirectoryResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] department_id
+    #   @return [String]
+    # @!attribute [rw] department_position
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] scim_group_id
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceGroupMapping = Struct.new(:access_role, :created_at, :department_id, :department_position, :id, :scim_group_id, :updated_at, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String, nil]
+    # @!attribute [rw] department_id
+    #   @return [String]
+    # @!attribute [rw] department_position
+    #   @return [String, nil]
+    # @!attribute [rw] scim_group_id
+    #   @return [String]
+    WorkspaceGroupMappingCreateRequest = Struct.new(:access_role, :department_id, :department_position, :scim_group_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceGroupMappingListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceGroupMappingResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String, nil]
+    # @!attribute [rw] department_position
+    #   @return [String, nil]
+    WorkspaceGroupMappingUpdateRequest = Struct.new(:access_role, :department_position, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] creator_user_id
+    #   @return [String]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] max_uses
+    #   @return [Integer, nil]
+    # @!attribute [rw] role
+    #   @return [String]
+    # @!attribute [rw] token_preview
+    #   @return [String, nil]
+    # @!attribute [rw] uses_count
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceInvite = Struct.new(:created_at, :creator_user_id, :expires_at, :id, :max_uses, :role, :token_preview, :uses_count, :workspace_id, keyword_init: true)
+    # @!attribute [rw] expires_in_days
+    #   @return [Integer, nil]
+    # @!attribute [rw] max_uses
+    #   @return [Integer, nil]
+    # @!attribute [rw] role
+    #   @return [String, nil]
+    WorkspaceInviteCreateRequest = Struct.new(:expires_in_days, :max_uses, :role, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] token
+    #   @return [String]
+    WorkspaceInviteCreateResponse = Struct.new(:data, :token, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceInviteListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] decided_at
+    #   @return [String, nil]
+    # @!attribute [rw] decided_by
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] invite_id
+    #   @return [String, nil]
+    # @!attribute [rw] requester_user_id
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceJoinRequest = Struct.new(:created_at, :decided_at, :decided_by, :id, :invite_id, :requester_user_id, :status, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceJoinRequestListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceJoinRequestResponse = Struct.new(:data, keyword_init: true)
+    WorkspaceJoinRequestStatus = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
     # @!attribute [rw] total_count
     #   @return [Integer]
     WorkspaceListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] threshold_usd
+    #   @return [Float]
+    WorkspaceLowBalanceEmailSettings = Struct.new(:enabled, :threshold_usd, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] threshold_usd
+    #   @return [Float, nil]
+    WorkspaceLowBalanceEmailUpdate = Struct.new(:enabled, :threshold_usd, keyword_init: true)
+    # @!attribute [rw] display_name
+    #   @return [String, nil]
+    # @!attribute [rw] joined_at
+    #   @return [String, nil]
+    # @!attribute [rw] role
+    #   @return [String]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceMember = Struct.new(:display_name, :joined_at, :role, :user_id, :workspace_id, keyword_init: true)
+    # @!attribute [rw] added_count
+    #   @return [Integer]
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceMemberAddResponse = Struct.new(:added_count, :data, keyword_init: true)
+    # @!attribute [rw] role
+    #   @return [String, nil]
+    # @!attribute [rw] user_ids
+    #   @return [Array<String>]
+    WorkspaceMemberBulkRequest = Struct.new(:role, :user_ids, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceMemberListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] user_ids
+    #   @return [Array<String>]
+    WorkspaceMemberRemoveRequest = Struct.new(:user_ids, keyword_init: true)
+    # @!attribute [rw] removed_count
+    #   @return [Integer]
+    WorkspaceMemberRemoveResponse = Struct.new(:removed_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceMemberResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] role
+    #   @return [String]
+    WorkspaceMemberRoleUpdateRequest = Struct.new(:role, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] target_preview
+    #   @return [String]
+    # @!attribute [rw] type
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceNotificationDestination = Struct.new(:created_at, :id, :name, :status, :target_preview, :type, :updated_at, keyword_init: true)
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] target
+    #   @return [String]
+    # @!attribute [rw] type
+    #   @return [String]
+    WorkspaceNotificationDestinationCreateRequest = Struct.new(:name, :target, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceNotificationDestinationListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationDestinationResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] target
+    #   @return [String]
+    # @!attribute [rw] type
+    #   @return [String]
+    WorkspaceNotificationDestinationTestRequest = Struct.new(:target, :type, keyword_init: true)
+    WorkspaceNotificationDestinationType = Object
+    # @!attribute [rw] auto_top_up_failure
+    #   @return [Boolean]
+    # @!attribute [rw] model_deprecation
+    #   @return [Boolean]
+    # @!attribute [rw] payment_method_expiring
+    #   @return [Boolean]
+    WorkspaceNotificationEmailPreferences = Struct.new(:auto_top_up_failure, :model_deprecation, :payment_method_expiring, keyword_init: true)
+    # @!attribute [rw] auto_top_up_failure
+    #   @return [Boolean, nil]
+    # @!attribute [rw] model_deprecation
+    #   @return [Boolean, nil]
+    # @!attribute [rw] payment_method_expiring
+    #   @return [Boolean, nil]
+    WorkspaceNotificationEmailPreferencesUpdate = Struct.new(:auto_top_up_failure, :model_deprecation, :payment_method_expiring, keyword_init: true)
+    WorkspaceNotificationEventKind = Object
+    # @!attribute [rw] destination_ids
+    #   @return [Array<String>]
+    # @!attribute [rw] event_kind
+    #   @return [String]
+    WorkspaceNotificationRoute = Struct.new(:destination_ids, :event_kind, keyword_init: true)
+    # @!attribute [rw] auto_top_up_failed
+    #   @return [Array<String>]
+    # @!attribute [rw] low_balance
+    #   @return [Array<String>]
+    # @!attribute [rw] model_deprecation
+    #   @return [Array<String>]
+    # @!attribute [rw] payment_method_expiring
+    #   @return [Array<String>]
+    WorkspaceNotificationRouteMap = Struct.new(:auto_top_up_failed, :low_balance, :model_deprecation, :payment_method_expiring, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationRouteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationRoutesResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] destination_ids
+    #   @return [Array<String>]
+    WorkspaceNotificationRouteUpdateRequest = Struct.new(:destination_ids, keyword_init: true)
+    # @!attribute [rw] auto_top_up
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] email_preferences
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] low_balance_email
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationSettings = Struct.new(:auto_top_up, :email_preferences, :low_balance_email, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationSettingsResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] auto_top_up
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] email_preferences
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] low_balance_email
+    #   @return [Hash{String => Object}, nil]
+    WorkspaceNotificationSettingsUpdateRequest = Struct.new(:auto_top_up, :email_preferences, :low_balance_email, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceNotificationTestResponse = Struct.new(:data, keyword_init: true)
+    WorkspaceProviderRestrictionMode = Object
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     WorkspaceResponse = Struct.new(:data, keyword_init: true)
+    WorkspaceRole = Object
+    WorkspaceRoutingMode = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceScimAuditResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceScimEndpoint = Struct.new(:created_at, :enabled, :id, :updated_at, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceScimEndpointResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] action
+    #   @return [String, nil]
+    # @!attribute [rw] correlation_id
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] detail
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] http_status
+    #   @return [Integer, nil]
+    # @!attribute [rw] id
+    #   @return [String, nil]
+    # @!attribute [rw] outcome
+    #   @return [String, nil]
+    # @!attribute [rw] request_id
+    #   @return [String, nil]
+    # @!attribute [rw] resource_id
+    #   @return [String, nil]
+    # @!attribute [rw] resource_type
+    #   @return [String, nil]
+    # @!attribute [rw] scim_type
+    #   @return [String, nil]
+    WorkspaceScimEvent = Struct.new(:action, :correlation_id, :created_at, :detail, :http_status, :id, :outcome, :request_id, :resource_id, :resource_type, :scim_type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceScimResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] label
+    #   @return [String]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] revoked_at
+    #   @return [String, nil]
+    # @!attribute [rw] token_prefix
+    #   @return [String]
+    WorkspaceScimToken = Struct.new(:created_at, :expires_at, :id, :label, :last_used_at, :revoked_at, :token_prefix, keyword_init: true)
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] label
+    #   @return [String, nil]
+    WorkspaceScimTokenCreateRequest = Struct.new(:expires_at, :label, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceScimTokenCreateResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    WorkspaceScimUpdateRequest = Struct.new(:enabled, keyword_init: true)
+    # @!attribute [rw] alpha_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] beta_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] byok_fallback_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_include_provider_payloads
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_publish_prompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_input_output_logging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_paid_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_zdr_only
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_enforce_allowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_mode
+    #   @return [Object, nil]
+    # @!attribute [rw] provider_restriction_provider_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] response_healing_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_locked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_mode
+    #   @return [String, nil]
+    # @!attribute [rw] routing_mode
+    #   @return [Object, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceSettings = Struct.new(:alpha_channel_enabled, :beta_channel_enabled, :byok_fallback_enabled, :io_logging_enabled, :io_logging_include_provider_payloads, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :response_healing_enabled, :response_healing_locked, :response_healing_mode, :routing_mode, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceSettingsResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] alpha_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] beta_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] byok_fallback_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_include_provider_payloads
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_publish_prompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_input_output_logging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_paid_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_zdr_only
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_enforce_allowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_mode
+    #   @return [String, nil]
+    # @!attribute [rw] provider_restriction_provider_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] response_healing_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_locked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_mode
+    #   @return [String, nil]
+    # @!attribute [rw] routing_mode
+    #   @return [String, nil]
+    WorkspaceSettingsUpdateRequest = Struct.new(:alpha_channel_enabled, :beta_channel_enabled, :byok_fallback_enabled, :io_logging_enabled, :io_logging_include_provider_payloads, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :response_healing_enabled, :response_healing_locked, :response_healing_mode, :routing_mode, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceSsoResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] domains
+    #   @return [Array<String>]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] enforced
+    #   @return [String]
+    # @!attribute [rw] mode
+    #   @return [String]
+    # @!attribute [rw] provider_identifier
+    #   @return [String, nil]
+    WorkspaceSsoSettings = Struct.new(:domains, :enabled, :enforced, :mode, :provider_identifier, keyword_init: true)
+    # @!attribute [rw] domains
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] enforced
+    #   @return [String, nil]
+    # @!attribute [rw] mode
+    #   @return [String]
+    # @!attribute [rw] provider_identifier
+    #   @return [String, nil]
+    WorkspaceSsoUpdateRequest = Struct.new(:domains, :enabled, :enforced, :mode, :provider_identifier, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] slug

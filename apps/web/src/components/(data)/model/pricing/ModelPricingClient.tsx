@@ -8,6 +8,7 @@ import React, {
     useRef,
     useState,
 } from "react";
+import { resolveEnforcedZdr } from "@/components/(data)/model/pricing/zdr";
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -98,6 +99,7 @@ import ModelPercentileSelect, {
 } from "@/components/(data)/models/ModelPercentileSelect";
 import { publishProviderView } from "@/components/(data)/model/pricing/providerViewSync";
 import {
+	clearProviderInspector,
     dispatchProviderInspectorOpen,
     subscribeProviderInspectorSelection,
     type ProviderInspectorSelection,
@@ -105,6 +107,7 @@ import {
 import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
+const PROVIDER_QUERY_KEY = "provider";
 const LEGACY_PROVIDER_VIEW_QUERY_KEY = "provider_view";
 const RUNTIME_STATS_ERROR_RETRY_COUNT = 2;
 
@@ -467,10 +470,11 @@ function getPlanZdrEligibility(
     provider: ProviderPricing,
     plan: string,
 ): boolean | null {
-    const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
-    const tierEligibility = tierPolicy?.zdrEligibility;
-    if (tierEligibility === "eligible") return true;
-    if (tierEligibility === "ineligible") return false;
+	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+	const tierEligibility = tierPolicy?.zdrEligibility;
+	if (tierEligibility === "eligible" || tierEligibility === "ineligible") {
+		return resolveEnforcedZdr(provider.provider.zero_data_retention, tierEligibility);
+	}
 
     const providerModels = getProviderModelScopeForPlan(provider, plan);
     const capabilityPolicies = providerModels.map((providerModel) => providerModel.data_policy);
@@ -485,9 +489,7 @@ function getPlanZdrEligibility(
     );
     if (eligibilities.size !== 1) return null;
     const eligibility = policiesWithData[0]?.zdrEligibility;
-    if (eligibility === "eligible") return true;
-    if (eligibility === "ineligible") return false;
-    return provider.provider.zero_data_retention ?? null;
+	return resolveEnforcedZdr(provider.provider.zero_data_retention, eligibility);
 }
 
 function formatServiceTierLabel(plan: string): string {
@@ -547,12 +549,10 @@ function ProviderServiceTierInfoIcons({
 		notes: policy?.reason ?? provider.provider.prompt_training_notes ?? null,
 		sourceUrl: policy?.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
 		promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
-		zeroDataRetention:
-			policy?.zdrEligibility === "eligible"
-				? true
-				: policy?.zdrEligibility === "ineligible"
-					? false
-					: provider.provider.zero_data_retention ?? null,
+		zeroDataRetention: resolveEnforcedZdr(
+			provider.provider.zero_data_retention,
+			policy?.zdrEligibility,
+		),
 	}));
 
 	return (
@@ -705,6 +705,8 @@ export default function ModelPricingClient({
         () => searchParams ?? new URLSearchParams(),
         [searchParams]
     );
+	const requestedProviderId =
+		effectiveSearchParams.get(PROVIDER_QUERY_KEY)?.trim() || null;
     const [selectedPercentile, setSelectedPercentile] = useState<ModelPercentile>(
         DEFAULT_MODEL_PERCENTILE,
     );
@@ -824,9 +826,17 @@ export default function ModelPricingClient({
     );
     const [activeInspectorSelection, setActiveInspectorSelection] =
         useState<ProviderInspectorSelection | null>(null);
+	const inspectorProviderIdRef = useRef<string | null>(null);
+	const lastAppliedUrlProviderIdRef = useRef<string | null | undefined>(undefined);
+	const urlProviderIdRef = useRef<string | null>(
+		effectiveSearchParams.get(PROVIDER_QUERY_KEY)?.trim() || null,
+	);
 
     useEffect(
-        () => subscribeProviderInspectorSelection(setActiveInspectorSelection),
+        () => subscribeProviderInspectorSelection((selection) => {
+			inspectorProviderIdRef.current = selection?.providerId ?? null;
+			setActiveInspectorSelection(selection);
+		}),
         [],
     );
 
@@ -840,12 +850,16 @@ export default function ModelPricingClient({
     };
 
     const sortedProviders = useMemo(() => {
-        const list = displayProviders.filter((provider) =>
-            (provider.pricing_rules.length > 0 || provider.provider_models.length > 0) &&
-            providerStatusFilters.includes(
-                providerStatusFilterKey(resolveProviderGatewayStatus(provider)),
-            )
-        );
+        const list = displayProviders.filter((provider) => {
+			if (
+				provider.pricing_rules.length === 0 &&
+				provider.provider_models.length === 0
+			) return false;
+			if (provider.provider.api_provider_id === requestedProviderId) return true;
+			return providerStatusFilters.includes(
+				providerStatusFilterKey(resolveProviderGatewayStatus(provider)),
+			);
+		});
         const sectionCache = new Map<string, ReturnType<typeof buildProviderSections>>();
         const getCachedSections = (provider: ProviderPricing) => {
             const providerId = provider.provider.api_provider_id;
@@ -1067,7 +1081,7 @@ export default function ModelPricingClient({
         }
 
         return list.sort(withCreatorBias);
-    }, [displayProviders, creatorOrgId, liveRuntimeStats, pricingTimeMs, providerStatusFilters, routingHealth, sort, sortDirection]);
+    }, [displayProviders, creatorOrgId, liveRuntimeStats, pricingTimeMs, providerStatusFilters, requestedProviderId, routingHealth, sort, sortDirection]);
 
     const { filteredProviders, ignoredProviderReasons } = useMemo(() => {
         const ignoredReasonMap = new Map<string, string[]>();
@@ -1085,6 +1099,7 @@ export default function ModelPricingClient({
         }
 
 		const filteredProviders = sortedProviders.filter((provider) =>
+			provider.provider.api_provider_id === requestedProviderId ||
 			matchesPrivacyFilter(
 				provider,
 				privacyFilter,
@@ -1101,7 +1116,7 @@ export default function ModelPricingClient({
 			filteredProviders,
             ignoredProviderReasons: ignoredReasonMap,
         };
-    }, [privacyFilter, sortedProviders, workspacePrivacySettings]);
+	}, [privacyFilter, requestedProviderId, sortedProviders, workspacePrivacySettings]);
     const ignoredProviderCount = ignoredProviderReasons.size;
     const allProvidersHiddenByPrivacy =
         sortedProviders.length > 0 &&
@@ -1184,6 +1199,53 @@ export default function ModelPricingClient({
         },
         [effectiveSearchParams, pathname, router]
     );
+
+	useEffect(() => {
+		return subscribeProviderInspectorSelection((selection) => {
+			const providerId = selection?.providerId ?? null;
+			inspectorProviderIdRef.current = providerId;
+			if (providerId === urlProviderIdRef.current) return;
+			lastAppliedUrlProviderIdRef.current = providerId;
+			urlProviderIdRef.current = providerId;
+			updateUrlState({ [PROVIDER_QUERY_KEY]: providerId });
+		}, false);
+	}, [updateUrlState]);
+
+	useEffect(() => {
+		const requestedProvider = requestedProviderId
+			? displayProviders.find(
+					(provider) =>
+						provider.provider.api_provider_id === requestedProviderId,
+				)
+			: null;
+
+		if (requestedProviderId && !requestedProvider) {
+			lastAppliedUrlProviderIdRef.current = null;
+			urlProviderIdRef.current = null;
+			if (inspectorProviderIdRef.current) clearProviderInspector();
+			updateUrlState({ [PROVIDER_QUERY_KEY]: null });
+			return;
+		}
+
+		if (
+			lastAppliedUrlProviderIdRef.current === requestedProviderId &&
+			inspectorProviderIdRef.current === requestedProviderId
+		) return;
+		lastAppliedUrlProviderIdRef.current = requestedProviderId;
+		urlProviderIdRef.current = requestedProviderId;
+		if (!requestedProviderId) {
+			if (inspectorProviderIdRef.current) clearProviderInspector();
+			return;
+		}
+
+		dispatchProviderInspectorOpen(
+			requestedProviderId,
+			true,
+			visibleProviders.map(
+				(provider) => provider.provider.api_provider_id,
+			),
+		);
+	}, [displayProviders, requestedProviderId, updateUrlState, visibleProviders]);
 
     useLayoutEffect(() => {
 		publishProviderView(modelId, activeFilterCount > 0

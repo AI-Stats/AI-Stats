@@ -1,25 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-type PricingRuleRow = {
-	rule_id: string;
-	model_key: string;
-	capability_id: string;
-	pricing_plan: string;
-	meter: string;
-	unit: string;
-	unit_size: number;
-	price_per_unit: string;
-	currency: string;
-	note: string | null;
-	match: unknown[];
-	priority: number;
-	effective_from: string | null;
-	effective_to: string | null;
-	updated_at: string;
-};
-
 type QueryResult = {
-	data: PricingRuleRow[] | null;
+	data: Record<string, unknown>[] | null;
 	error: unknown;
 };
 
@@ -29,57 +11,61 @@ function percentile(values: number[], p: number): number {
 	return sorted[Math.max(0, index)];
 }
 
-function createPricingRuleRows(): PricingRuleRow[] {
-	return [
-		{
-			rule_id: "rule_input",
-			model_key: "openai:openai/gpt-5-nano:text.generate",
-			capability_id: "text.generate",
-			pricing_plan: "standard",
-			meter: "input_text_tokens",
-			unit: "token",
-			unit_size: 1,
-			price_per_unit: "0.000001",
-			currency: "USD",
-			note: null,
-			match: [],
-			priority: 100,
-			effective_from: null,
-			effective_to: null,
-			updated_at: "2026-01-01T00:00:00.000Z",
-		},
-		{
-			rule_id: "rule_output",
-			model_key: "openai:openai/gpt-5-nano:text.generate",
-			capability_id: "text.generate",
-			pricing_plan: "standard",
-			meter: "output_text_tokens",
-			unit: "token",
-			unit_size: 1,
-			price_per_unit: "0.000002",
-			currency: "USD",
-			note: null,
-			match: [],
-			priority: 90,
-			effective_from: null,
-			effective_to: null,
-			updated_at: "2026-01-01T00:00:05.000Z",
-		},
-	];
-}
-
-function createQueryResult(rows: PricingRuleRow[], onExecute: () => void): {
+function createQueryResult(hasRoute: boolean, onExecute: () => void): {
 	from: (table: string) => any;
 } {
 	return {
 		from(table: string) {
-			expect(table).toBe("data_api_pricing_rules");
+			const dataByTable: Record<string, Record<string, unknown>[]> = {
+				v2_model_provider_routes: hasRoute ? [{
+					provider_model_id: "pm_openai_gpt5_nano",
+					model_slug: "openai/gpt-5-nano",
+					provider_model_slug: "gpt-5-nano",
+				}] : [],
+				v2_pricing_skus: [{
+					sku_id: "sku_standard",
+					provider_model_id: "pm_openai_gpt5_nano",
+					service_tier_slug: "standard",
+					operation: "text.generate",
+					status: "active",
+					currency: "USD",
+					effective_from: "2026-01-01T00:00:00.000Z",
+					effective_to: null,
+					metadata: {},
+					updated_at: "2026-01-01T00:00:00.000Z",
+				}],
+				v2_pricing_sku_meters: [
+					{
+						sku_meter_id: "meter_input",
+						sku_id: "sku_standard",
+						meter_key: "input_text_tokens",
+						unit: "token",
+						unit_quantity: 1,
+						price_nanos: 1_000,
+						meter_order: 100,
+						metadata: {},
+						updated_at: "2026-01-01T00:00:00.000Z",
+					},
+					{
+						sku_meter_id: "meter_output",
+						sku_id: "sku_standard",
+						meter_key: "output_text_tokens",
+						unit: "token",
+						unit_quantity: 1,
+						price_nanos: 2_000,
+						meter_order: 90,
+						metadata: {},
+						updated_at: "2026-01-01T00:00:05.000Z",
+					},
+				],
+			};
+			if (!(table in dataByTable)) throw new Error(`Unexpected table: ${table}`);
 			const state = {
 				then(resolve: (value: QueryResult) => unknown) {
 					onExecute();
 					return Promise.resolve(
 						resolve({
-							data: rows,
+							data: dataByTable[table] ?? [],
 							error: null,
 						}),
 					);
@@ -88,6 +74,12 @@ function createQueryResult(rows: PricingRuleRow[], onExecute: () => void): {
 					return state;
 				},
 				eq() {
+					return state;
+				},
+				in() {
+					return state;
+				},
+				lte() {
 					return state;
 				},
 				or() {
@@ -123,10 +115,9 @@ describe("pricing loader performance", () => {
 	});
 
 	it("deduplicates concurrent inflight loads to one backing query", async () => {
-		const rows = createPricingRuleRows();
 		let executeCount = 0;
 		getSupabaseAdminMock.mockReturnValue(
-			createQueryResult(rows, () => {
+			createQueryResult(true, () => {
 				executeCount += 1;
 			}),
 		);
@@ -140,15 +131,14 @@ describe("pricing loader performance", () => {
 		expect(a).not.toBeNull();
 		expect(b).not.toBeNull();
 		expect(c).not.toBeNull();
-		expect(executeCount).toBe(1);
+		expect(executeCount).toBe(3);
 		expect(getSupabaseAdminMock).toHaveBeenCalledTimes(1);
 	});
 
 	it("reuses warm L1 cache across repeated loads", async () => {
-		const rows = createPricingRuleRows();
 		let executeCount = 0;
 		getSupabaseAdminMock.mockReturnValue(
-			createQueryResult(rows, () => {
+			createQueryResult(true, () => {
 				executeCount += 1;
 			}),
 		);
@@ -172,14 +162,14 @@ describe("pricing loader performance", () => {
 		expect(first).not.toBeNull();
 		expect(second).toBe(first);
 		expect(third).toBe(first);
-		expect(executeCount).toBe(1);
+		expect(executeCount).toBe(3);
 		expect(getSupabaseAdminMock).toHaveBeenCalledTimes(1);
 	});
 
 	it("reuses negative cache across repeated misses", async () => {
 		let executeCount = 0;
 		getSupabaseAdminMock.mockReturnValue(
-			createQueryResult([], () => {
+			createQueryResult(false, () => {
 				executeCount += 1;
 			}),
 		);
@@ -208,9 +198,8 @@ describe("pricing loader performance", () => {
 	});
 
 	it("keeps warm-cache price-card loads under 2ms p95 in test runtime", async () => {
-		const rows = createPricingRuleRows();
 		getSupabaseAdminMock.mockReturnValue(
-			createQueryResult(rows, () => {}),
+			createQueryResult(true, () => {}),
 		);
 
 		await loadPriceCard("openai", "openai/gpt-5-nano", "text.generate");

@@ -40,3 +40,25 @@ describe("LTX audio-to-video request mapping", () => {
 			.toThrow("does not support LTX audio-to-video");
 	});
 });
+
+describe("LTX documented model constraints", () => {
+	it("maps camera motion for LTX-2.5 Pro", () => {
+		const mapped = buildLtxVideoRequest(request({
+			rawRequest: { config: { ltx: { camera_motion: "dolly_in" } } },
+		}), "ltx-2-5-pro");
+
+		expect(mapped.body.camera_motion).toBe("dolly_in");
+	});
+
+	it("rejects camera motion on LTX-2.3", () => {
+		expect(() => buildLtxVideoRequest(request({
+			rawRequest: { config: { ltx: { camera_motion: "dolly_in" } } },
+		}), "ltx-2-3-pro")).toThrow("only supported by LTX-2.5");
+	});
+
+	it("rejects 48 fps on LTX-2.5 Pro", () => {
+		expect(() => buildLtxVideoRequest(request({
+			rawRequest: { config: { ltx: { fps: 48 } } },
+		}), "ltx-2-5-pro")).toThrow("supports 24, 25, or 50 fps");
+	});
+});

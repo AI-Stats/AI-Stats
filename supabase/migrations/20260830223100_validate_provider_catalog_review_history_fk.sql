@@ -1,0 +1,2 @@
+alter table public.provider_catalog_review_events
+  validate constraint provider_catalog_review_events_run_id_fkey;

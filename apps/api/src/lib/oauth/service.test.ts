@@ -99,7 +99,10 @@ describe("OAuth service helpers", () => {
 	});
 
 	it("grants the first-party CLI its supported control-plane scopes by default", () => {
-		expect(CLI_DEFAULT_SCOPES).toHaveLength(31);
+		expect(CLI_DEFAULT_SCOPES).toHaveLength(34);
+		expect(CLI_DEFAULT_SCOPES).toContain("budgets:read");
+		expect(CLI_DEFAULT_SCOPES).toContain("budgets:write");
+		expect(CLI_DEFAULT_SCOPES).toContain("budgets:delete");
 		expect(CLI_DEFAULT_SCOPES).toContain("keys:write");
 		expect(CLI_DEFAULT_SCOPES).toContain("keys:delete");
 		expect(CLI_DEFAULT_SCOPES).toContain("workspaces:write");

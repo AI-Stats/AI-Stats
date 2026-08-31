@@ -182,4 +182,84 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches /management-keys 401 response schema when authorization is missing", async () => {
+		const result = await requestJson("/v1/management-keys", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/management-keys", "get", "401");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it("matches /guardrails 401 response schema when authorization is missing", async () => {
+		const result = await requestJson("/v1/guardrails", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/guardrails", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it.each(["/oauth-clients", "/webhook-endpoints"])(
+		"matches %s unauthenticated responses to its public error schema",
+		async (pathName) => {
+			const result = await requestJson(`/v1${pathName}`, { method: "GET" });
+			expect(result.status).toBe(401);
+			const schema = schemaForResponse(pathName, "get", "default");
+			expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+		},
+	);
+
+	it("matches /data-contribution unauthenticated responses to its public error schema", async () => {
+		const result = await requestJson("/v1/data-contribution", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/data-contribution", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it("matches API-key rotation authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/keys/key_1/rotate", { method: "POST" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/keys/{id}/rotate", "post", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it("matches identity management authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/identity/sso", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/identity/sso", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it("matches enterprise directory authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/identity/directory", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/identity/directory", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it("matches notification management authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/notifications/settings", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/notifications/settings", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it("matches workspace application authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/apps", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/apps", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it.each(["/byok", "/budgets"])("matches %s authorization errors to its public schema", async (pathName) => {
+		const result = await requestJson(`/v1${pathName}`, { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse(pathName, "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
+	it.each(["/logs", "/feedback", "/events", "/preset-test-runs"])("matches %s authorization errors to its public schema", async (pathName) => {
+		const result = await requestJson(`/v1${pathName}`, { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse(pathName, "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

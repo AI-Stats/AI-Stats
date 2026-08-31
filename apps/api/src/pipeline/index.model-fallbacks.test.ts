@@ -25,6 +25,27 @@ function context(model: string, modelFallbacks: string[] = []) {
 	};
 }
 
+function autoRouterContext(model: string, fallbackModels: string[] = []) {
+	return {
+		meta: {},
+		model,
+		routingDiagnostics: {
+			autoRouter: {
+				fallbackModels,
+				classification: {
+					primaryWorkload: "code",
+					workloads: [{ workload: "code", weight: 1 }],
+					complexity: 0.7,
+					confidence: 0.9,
+					signals: ["llm_classifier"],
+					source: "llm",
+					classifierModel: "google/gemini-2.5-flash-lite",
+				},
+			},
+		},
+	};
+}
+
 describe("dynamic route model fallbacks", () => {
 	beforeEach(() => {
 		beforeRequestMock.mockReset();
@@ -68,6 +89,43 @@ describe("dynamic route model fallbacks", () => {
 		}));
 	});
 
+	it("executes auto-router classification as a normal pipeline request", async () => {
+		beforeRequestMock
+			.mockImplementationOnce(async (...args: any[]) => {
+				const classification = await args[4]?.classifyAutoRouterRequest?.({
+					endpoint: "responses",
+					body: { model: "phaseo/auto", input: "Refactor this parser" },
+				});
+				expect(classification).toMatchObject({ primaryWorkload: "code", complexity: 0.7, source: "llm" });
+				return { ok: true, ctx: autoRouterContext("model/selected") };
+			})
+			.mockImplementationOnce(async (childRequest: Request) => {
+				expect(childRequest.headers.get("authorization")).toBe("Bearer phaseo_test_key");
+				expect(childRequest.headers.has("x-phaseo-metadata")).toBe(false);
+				return { ok: true, ctx: context("google/gemini-2.5-flash-lite") };
+			});
+		runnerMock
+			.mockResolvedValueOnce(new Response(JSON.stringify({
+				output_text: JSON.stringify({
+					primary_workload: "code",
+					workloads: [{ workload: "code", weight: 1 }],
+					complexity: 0.7,
+					confidence: 0.9,
+				}),
+			}), { status: 200, headers: { "content-type": "application/json" } }))
+			.mockResolvedValueOnce(new Response("ok", { status: 200 }));
+
+		const response = await makeEndpointHandler({ endpoint: "responses", schema: null })(new Request("https://api.phaseo.app/v1/responses", {
+			method: "POST",
+			headers: { authorization: "Bearer phaseo_test_key", "content-type": "application/json" },
+			body: JSON.stringify({ model: "phaseo/auto", input: "Refactor this parser" }),
+		}));
+
+		expect(response.status).toBe(200);
+		expect(beforeRequestMock).toHaveBeenCalledTimes(2);
+		expect(runnerMock).toHaveBeenCalledTimes(2);
+	});
+
 	it("reruns the full pipeline with the next model after a retryable failure", async () => {
 		beforeRequestMock
 			.mockResolvedValueOnce({ ok: true, ctx: context("primary/model", ["fallback/model"]) })
@@ -104,5 +162,26 @@ describe("dynamic route model fallbacks", () => {
 		expect(response.status).toBe(400);
 		expect(runnerMock).toHaveBeenCalledTimes(1);
 		expect(beforeRequestMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("reruns phaseo/auto with the next ranked allow-listed model", async () => {
+		beforeRequestMock
+			.mockResolvedValueOnce({ ok: true, ctx: autoRouterContext("model/primary", ["model/fallback"]) })
+			.mockResolvedValueOnce({ ok: true, ctx: autoRouterContext("model/fallback") });
+		runnerMock
+			.mockResolvedValueOnce(new Response("rate limited", { status: 429 }))
+			.mockResolvedValueOnce(new Response("ok", { status: 200 }));
+
+		const response = await makeEndpointHandler({ endpoint: "responses", schema: null })(new Request("https://api.phaseo.app/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ model: "phaseo/auto", input: "hello" }),
+		}));
+
+		expect(response.status).toBe(200);
+		expect(beforeRequestMock.mock.calls[1]?.[4]).toEqual(expect.objectContaining({
+			autoRouterModelOverride: "model/fallback",
+			autoRouterClassificationOverride: expect.objectContaining({ primaryWorkload: "code", complexity: 0.7 }),
+		}));
 	});
 });

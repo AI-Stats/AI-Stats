@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/audit/workspaceAudit", () => ({ recordWorkspaceAuditEvent: vi.fn(async () => true) }));
+
 type GuardOk = {
 	ok: true;
 	value: {
@@ -15,6 +17,7 @@ const state = vi.hoisted(() => ({
 	guardAuthResult: null as GuardOk | { ok: false; response: Response } | null,
 	guardManagementAuthResult: null as GuardOk | { ok: false; response: Response } | null,
 	keyRows: [] as KeyRow[],
+	keyUsageRows: [] as Array<Record<string, unknown>>,
 	workspaceRows: [] as Array<Record<string, unknown> | null>,
 	updatePayloads: [] as Array<Record<string, unknown>>,
 	insertPayloads: [] as Array<Record<string, unknown>>,
@@ -38,6 +41,7 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 
 function buildKeysSupabaseMock() {
 	return {
+		rpc: async () => ({ data: state.keyUsageRows, error: null }),
 		from(table: string) {
 			if (table !== "keys" && table !== "workspaces" && table !== "workspace_members" && table !== "key_guardrails" && table !== "broadcast_destination_keys") {
 				throw new Error(`Unexpected table: ${table}`);
@@ -159,6 +163,10 @@ vi.mock("@/lib/security/keyPepper", () => ({
 	resolveActiveKeyPepper: vi.fn(() => "pepper"),
 }));
 
+vi.mock("@/lib/audit/workspaceAudit", () => ({
+	recordWorkspaceAuditEvent: vi.fn(async () => true),
+}));
+
 vi.mock("./management-helpers", () => ({
 	CHAT_MANAGED_KEY_NAME: "__chat_route_managed_key__",
 	enforceWorkspaceKeyLimit: state.enforceWorkspaceKeyLimit,
@@ -175,6 +183,7 @@ describe("management key routes", () => {
 			value: { workspaceId: "ws_1", apiKeyId: "mgmt_1", internal: false },
 		};
 		state.keyRows.length = 0;
+		state.keyUsageRows.length = 0;
 		state.workspaceRows.length = 0;
 		state.membershipRows.length = 0;
 		state.updatePayloads.length = 0;
@@ -207,6 +216,17 @@ describe("management key routes", () => {
 			weekly_limit_cost_nanos: 0,
 			monthly_limit_cost_nanos: 25_000_000_000,
 		});
+		state.keyUsageRows.push({
+			key_id: "key_1",
+			total_request_count: 120,
+			daily_request_count: 4,
+			weekly_request_count: 30,
+			monthly_request_count: 90,
+			total_cost_nanos: 12_000_000_000,
+			daily_cost_nanos: 500_000_000,
+			weekly_cost_nanos: 3_000_000_000,
+			monthly_cost_nanos: 8_000_000_000,
+		});
 
 		const { currentKeyRoutes } = await import("./keys");
 		const response = await currentKeyRoutes.request("https://example.com/");
@@ -220,6 +240,10 @@ describe("management key routes", () => {
 			limit: 25,
 			limit_reset: "monthly",
 			include_byok_in_limit: false,
+			usage: 12,
+			usage_monthly: 8,
+			limit_remaining: 17,
+			usage_details: { monthly: { requests: 90, cost: 8 } },
 		});
 	});
 
@@ -252,6 +276,7 @@ describe("management key routes", () => {
 				name: "Analytics Key",
 				limit: 5,
 				limit_reset: "weekly",
+				limits: { daily: { requests: 100 } },
 				expires_at: "2027-12-31T23:59:59Z",
 			}),
 		});
@@ -266,6 +291,7 @@ describe("management key routes", () => {
 			weekly_limit_cost_nanos: 5_000_000_000,
 			daily_limit_cost_nanos: 0,
 			monthly_limit_cost_nanos: 0,
+			daily_limit_requests: 100,
 		});
 		expect(body.data).toMatchObject({
 			hash: "hash_new",
@@ -462,6 +488,56 @@ describe("management key routes", () => {
 			{ table: "key_guardrails", column: "key_id", value: "key_1" },
 			{ table: "broadcast_destination_keys", column: "key_id", value: "key_1" },
 		]);
+	});
+
+	it("rotates a key while preserving limits and expiring the previous key", async () => {
+		state.workspaceRows.push({ owner_user_id: "user_1" });
+		state.keyRows.push(
+			{
+				id: "key_old",
+				workspace_id: "ws_1",
+				kid: "kid_old",
+				name: "Primary Key",
+				prefix: "old_prefix",
+				status: "active",
+				scopes: "[]",
+				soft_blocked: false,
+				daily_limit_requests: 10,
+				monthly_limit_cost_nanos: 5_000_000_000,
+			},
+			{
+				id: "key_new",
+				hash: "hash_new",
+				workspace_id: "ws_1",
+				name: "Replacement",
+				prefix: "phaseo_v1_sk_kid_123",
+				status: "active",
+				scopes: "[]",
+				soft_blocked: false,
+				monthly_limit_cost_nanos: 5_000_000_000,
+			},
+		);
+
+		const { keysRoutes } = await import("./keys");
+		const response = await keysRoutes.request("https://example.com/key_old/rotate", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ name: "Replacement", previous_key_expires_at: "2026-09-01T00:00:00Z" }),
+		});
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(state.insertPayloads[0]).toMatchObject({
+			workspace_id: "ws_1",
+			name: "Replacement",
+			daily_limit_requests: 10,
+			monthly_limit_cost_nanos: 5_000_000_000,
+		});
+		expect(state.updatePayloads[0]).toEqual({ expires_at: "2026-09-01T00:00:00.000Z" });
+		expect(body).toMatchObject({
+			data: { id: "key_new", key: "phaseo_v1_sk_kid_123_secret_123", limit: 5 },
+			previous_key_expires_at: "2026-09-01T00:00:00.000Z",
+		});
 	});
 
 	it("accepts legacy control bindings while invalidating a cached key", async () => {

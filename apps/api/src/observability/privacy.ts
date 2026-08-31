@@ -149,6 +149,7 @@ function shouldRedactByKey(
 
 	if (isSecretKey(normalized)) return true;
 	if (PROMPT_COMPLETION_KEYS.has(normalized)) return true;
+	if (normalized === "pages") return true;
 	if (shouldRedactTextValue(normalized, value, parent)) return true;
 
 	return false;

@@ -183,6 +183,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 		moderations: openaiModerations,
 		"image.generate": nonTextAdapterExecutor,
 		"image.edit": nonTextAdapterExecutor,
+		"audio.speech": nonTextAdapterExecutor,
 		"audio.transcription": nonTextAdapterExecutor,
 		"audio.translations": nonTextAdapterExecutor,
 		"video.generate": openaiVideo,
@@ -311,8 +312,9 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	tensorix: {
 		"text.generate": tensorixText,
+		embeddings: openaiEmbeddings,
 	},
-	tensorx: { "text.generate": tensorixText },
+	tensorx: { "text.generate": tensorixText, embeddings: openaiEmbeddings },
 	crusoe: {
 		"text.generate": crusoeText,
 	},
@@ -366,7 +368,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	ltx: { "video.generate": ltxVideo },
 	"z-ai": { "text.generate": zAiText },
 	zai: { "text.generate": zaiText },
-	xiaomi: { "text.generate": xiaomiText, "audio.speech": nonTextAdapterExecutor },
+	xiaomi: { "text.generate": xiaomiText, "audio.speech": nonTextAdapterExecutor, "audio.transcription": nonTextAdapterExecutor },
 	mistral: { "text.generate": mistralText, embeddings: openaiEmbeddings, moderations: openaiModerations, "audio.speech": nonTextAdapterExecutor, ocr: nonTextAdapterExecutor, "audio.transcription": nonTextAdapterExecutor },
 	"mistral-eu": { "text.generate": mistralText, embeddings: openaiEmbeddings },
 	"moonshot-ai": { "text.generate": moonshotText },

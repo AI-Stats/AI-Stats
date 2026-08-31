@@ -36,6 +36,35 @@ describe("account auth routes", () => {
 		expect(response.headers.get("cloudflare-cdn-cache-control")).toBeNull();
 	});
 
+	it("returns workspace names for the activation selector", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/auth/v1/user")) {
+				return new Response(JSON.stringify({ id: "user-1", email: "user@example.com" }), { status: 200 });
+			}
+			return new Response(JSON.stringify([{
+				role: "owner",
+				workspace_id: "workspace-uuid",
+				workspaces: {
+					id: "workspace-uuid",
+					name: "Acme Platform",
+					slug: "acme-platform",
+				},
+			}]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/auth/workspaces",
+			{ headers: { authorization: "Bearer session-token" } },
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({
+			workspaces: [{ id: "workspace-uuid", name: "Acme Platform", role: "owner" }],
+		});
+	});
+
 	it("builds authenticated header data from verified workspace access", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);

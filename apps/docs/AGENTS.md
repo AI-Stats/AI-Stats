@@ -11,7 +11,7 @@ These instructions apply to `apps/docs` and extend the repository-level `AGENTS.
 
 ## Public Contract and Generated Surfaces
 
-- `openapi/v1/openapi.yaml` is the canonical documentation input for the v1 API reference. Keep endpoint descriptions, schemas, examples, authentication, and error behavior aligned with the gateway implementation.
+- `openapi/v1/openapi.yaml` is the canonical v1 contract used for SDK generation. Mintlify reads the generated `openapi/v1/openapi.public.yaml`; run `pnpm docs:openapi` after contract changes and never edit the generated file directly.
 - SDK reference pages must match the current handwritten wrappers and generated operations for their language. Do not claim convenience helpers or parity that the package does not provide.
 - When an API contract changes, update the OpenAPI document, affected guides/examples, generated SDKs, and language reference pages together.
 - Do not manually patch generated SDK source to make a documentation example true; fix the specification or handwritten wrapper and regenerate.

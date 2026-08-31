@@ -1,0 +1,21 @@
+---
+title: "Workspace audit log"
+description: "Review security-sensitive workspace administration changes."
+---
+
+Workspace owners and admins can review key lifecycle changes in **Settings → Workspace → Activity**. Events are scoped to the active workspace and ordered from newest to oldest.
+
+The first release records these operations:
+
+- API key creation, rename, pause, resume, limit changes, rotation, and deletion
+- management key creation, rename, pause, resume, access-template changes, limit changes, expiry changes, and deletion
+
+Each event includes the actor, action, target, timestamp, and a small set of safe change metadata. Audit events are append-only. Phaseo does not store plaintext keys, credential hashes, authorization headers, full scope lists, or request bodies in this log.
+
+Audit-log access is limited to workspace owners and admins. Ordinary members cannot read audit events, and the underlying table is not exposed to authenticated database clients.
+
+For automation, call `GET /v1/audit-events` with a management key that has `activity:read`. Use the returned `next_cursor` to retrieve older events without timestamp gaps.
+
+<Note>
+  Request and generation logs answer what traffic ran. The workspace audit log answers who changed an administrative control and when.
+</Note>

@@ -74,7 +74,7 @@ async function v2Overview(env: Env): Promise<FreeRouterOverview> {
 	const client = getDataClient(env);
 	const [modelsResult, providerModelsResult] = await Promise.all([
 		client.from("v2_models").select("model_slug,name,lab_slug,input_modalities,output_modalities,lab:v2_labs!v2_models_lab_slug_fkey(name)").eq("variant_kind", "free").eq("hidden", false),
-		client.from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug,input_modalities,output_modalities,routing_enabled,status,effective_from,effective_to").eq("routing_enabled", true),
+		client.from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug,input_modalities,output_modalities,routing_enabled,status,effective_from,effective_to").eq("is_stealth", false).eq("routing_enabled", true),
 	]);
 	if (modelsResult.error) throw modelsResult.error;
 	if (providerModelsResult.error) throw providerModelsResult.error;

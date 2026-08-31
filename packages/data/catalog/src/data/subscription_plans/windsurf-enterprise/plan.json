@@ -7,7 +7,7 @@
     {
       "frequency": "custom",
       "usd_price": 0,
-      "link": "https://windsurf.com/pricing",
+      "link": "https://devin.ai/pricing",
       "other_info": "Custom pricing; contact Windsurf sales"
     }
   ],
@@ -26,18 +26,6 @@
     }
   ],
   "models": [
-    {
-      "model_id": "windsurf/swe-1.6",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Contract-specific ACUs",
-      "other_info": null
-    },
-    {
-      "model_id": "windsurf/swe-1.5",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Contract-specific ACUs",
-      "other_info": null
-    },
     {
       "model_id": "windsurf/swe-1-mini",
       "model_info": "Tab completion model",

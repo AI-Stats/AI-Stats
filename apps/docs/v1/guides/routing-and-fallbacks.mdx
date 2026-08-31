@@ -39,6 +39,104 @@ For example, `openai/gpt-5-mini:nitro` uses throughput-first routing. A recogniz
 
 Inspect request outcomes through your activity logs and response metadata when debugging routing behavior.
 
+## Select a model with the auto-router
+
+Auto Routing is currently an Alpha available to selected workspaces.
+
+Use `phaseo/auto` when the model should change with the workload. Phaseo starts
+from every eligible production text model, then applies workspace constraints
+and builds a workload-specific shortlist:
+
+1. Open **Dashboard -> Settings -> Routing -> Auto Routing**.
+2. Choose whether to optimize for balanced performance, quality, cost, or
+   latency.
+3. Select an Economy, Standard, Premium, or unrestricted spend profile. These
+   profiles apply fixed input and output price ceilings before scoring.
+4. Optionally narrow eligible models with patterns such as `anthropic/*`,
+   `openai/gpt-5.*`, or an exact model ID.
+5. Choose whether Phaseo may try the remaining ranked models after a retryable
+   failure.
+6. Save the configuration.
+
+Applications then opt in without copying workspace routing policy into every
+request:
+
+```json
+{
+  "model": "phaseo/auto",
+  "input": "Review this TypeScript function for correctness."
+}
+```
+
+The request cannot change the workspace objective, spend profile, or model
+patterns. Fixed model requests continue to bypass the auto-router.
+
+The objective changes the relative weight of model quality, provider
+reliability, latency, and price:
+
+| Objective | Use it when |
+| --- | --- |
+| `balanced` | You want a practical default across all four signals. |
+| `quality` | Relevant benchmark performance matters most. |
+| `cost` | Lower estimated input and output token price matters most. |
+| `latency` | Lower recent provider latency matters most. |
+
+Spend profiles are hard standard-tier price ceilings in USD per million text
+tokens:
+
+| Spend profile | Maximum input price | Maximum output price |
+| --- | ---: | ---: |
+| Economy | $0.10 | $0.50 |
+| Standard | $0.30 | $1.50 |
+| Premium | $1 | $5 |
+| Any price | No ceiling | No ceiling |
+
+Custom limits set the input and output ceilings directly. Models without known
+standard text pricing are not included in the managed candidate universe.
+
+For each `phaseo/auto` request, Phaseo creates a normal child gateway request
+to a pinned low-cost classifier model. The child request uses the same
+workspace and billing identity, appears separately in request logs, and is
+labelled with `purpose=auto_routing_classifier` and the parent request ID.
+The classifier returns a structured workload mix, complexity score, and
+confidence value; it never selects a model directly.
+
+Hard request facts such as tools and structured output are included as trusted
+metadata. If the classifier request fails, times out, or returns invalid data,
+Phaseo falls back to the local deterministic code, reasoning, tool use,
+structured output, translation, summarization, or general classifier rather
+than failing the generation request.
+
+Classifier complexity represents the minimum model capability likely to
+produce a reliably acceptable answer. Phaseo applies a capability margin, then
+combines benchmark fit with the workspace objective, price, latency, provider
+health, and reliability. The classifier request and selected generation
+request are metered independently through the normal gateway pipeline.
+
+Before scoring, every allow-listed model must pass the normal endpoint,
+workspace model, provider, privacy, guardrail, and circuit-breaker checks. The
+router then combines relevant non-self-reported Phaseo catalogue benchmarks
+with current Phaseo provider health, latency, and pricing. Missing benchmark or
+operational data is neutral; it does not widen the allow-list.
+
+The response `model` field identifies the selected model. Request details show
+the workload, objective, selected model, fallback order, candidate scores,
+factor scores, benchmark IDs, exclusions, and algorithm version. Routing traces
+contain no prompt or response content.
+
+If model fallbacks are enabled in the workspace, Phaseo retries the remaining ranked models on
+`429`, `500`, `502`, `503`, or `504`. Each fallback passes the complete policy
+and provider-selection pipeline again. Client errors do not switch models.
+
+A fixed model selected by an attached dynamic route takes precedence. In that
+case, request details record the override and auto-router model fallbacks are
+disabled for the request.
+
+<Warning>
+  Spend profiles and model patterns are eligibility controls, not quality
+  guarantees. Validate the resulting model mix against your own workloads.
+</Warning>
+
 ## Explain a routing decision
 
 Open **Dashboard -> Settings -> Usage -> Request logs**, select a request, then expand **Routing observability** under **Provider Responses**.
