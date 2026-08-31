@@ -80,7 +80,7 @@
 		"fast-xml-parser": "^5.8.0",
 		"flags": "^4.1.0",
 		"fuse.js": "^7.5.0",
-		"glicko2": "^1.2.1",
+		"glicko2": "^1.2.2",
 		"google-play-scraper": "^10.0.1",
 		"i18n-iso-countries": "^7.14.0",
 		"input-otp": "^1.4.2",
