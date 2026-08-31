@@ -732,65 +732,6 @@ function ObservabilityVisual() {
 	);
 }
 
-// Lowest active standard price across provider routes that are both gateway-active
-// and routable. Token prices are USD per 1M input/output tokens.
-const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
-	{
-		providerId: "openai",
-		name: "GPT-5.6 Sol",
-		model: "openai/gpt-5.6-sol",
-		latencyMs: 472,
-		throughputTps: 92,
-		inputPrice: 4.0,
-		outputPrice: 20.0,
-	},
-	{
-		providerId: "anthropic",
-		name: "Claude Fable 5",
-		model: "anthropic/claude-fable-5",
-		latencyMs: 548,
-		throughputTps: 79,
-		inputPrice: 10.0,
-		outputPrice: 50.0,
-	},
-	{
-		providerId: "google",
-		name: "Gemini 3.1 Pro",
-		model: "google/gemini-3.1-pro-preview",
-		latencyMs: 441,
-		throughputTps: 101,
-		inputPrice: 2.0,
-		outputPrice: 12.0,
-	},
-	{
-		providerId: "minimax",
-		name: "MiniMax M3",
-		model: "minimax/minimax-m3",
-		latencyMs: 388,
-		throughputTps: 108,
-		inputPrice: 0.23,
-		outputPrice: 0.96,
-	},
-	{
-		providerId: "deepseek",
-		name: "DeepSeek V4 Pro",
-		model: "deepseek/deepseek-v4-pro",
-		latencyMs: 405,
-		throughputTps: 94,
-		inputPrice: 0.35,
-		outputPrice: 0.8,
-	},
-	{
-		providerId: "moonshotai",
-		name: "Kimi K2.7 Code",
-		model: "moonshotai/kimi-k2.7-code",
-		latencyMs: 423,
-		throughputTps: 89,
-		inputPrice: 0.55,
-		outputPrice: 2.25,
-	},
-] as const;
-
 function BetaModelHeader({
 	providerId,
 	providerLabel,

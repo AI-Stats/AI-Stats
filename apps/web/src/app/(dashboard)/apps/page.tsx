@@ -37,7 +37,6 @@ type PublicAppUsage = {
 type TrendingPublicApp = {
 	appId: string;
 	appName: string;
-	appSlug: string | null | undefined;
 	appUrl: string | null | undefined;
 	appCategory: string | null | undefined;
 	currentWeekTokens: number;
@@ -124,7 +123,6 @@ function normalizeTrendingApps(
 			return {
 				appId,
 				appName,
-				appSlug: row.app_slug,
 				appUrl: row.app_url,
 				appCategory: row.app_category,
 				currentWeekTokens,
@@ -167,7 +165,6 @@ function deriveTrendingFallbackApps(
 			return {
 				appId: row.appId,
 				appName: row.appName,
-				appSlug: currentWeek.appSlug ?? row.appSlug,
 				appUrl: currentWeek.appUrl ?? row.appUrl,
 				appCategory: currentWeek.appCategory ?? row.appCategory,
 				currentWeekTokens: currentWeek.tokens,
