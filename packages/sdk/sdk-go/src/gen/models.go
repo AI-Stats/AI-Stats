@@ -2630,6 +2630,8 @@ const (
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
 	KnownModelIdQwenTextEmbeddingV4 KnownModelId = "qwen/text-embedding-v4"
 	KnownModelIdQwenWan27T2v KnownModelId = "qwen/wan2.7-t2v"
+	KnownModelIdQwenWan30Video KnownModelId = "qwen/wan3.0-video"
+	KnownModelIdQwenWan30VideoPrime KnownModelId = "qwen/wan3.0-video-prime"
 	KnownModelIdRekaEdge KnownModelId = "reka-edge"
 	KnownModelIdRekaEdge2603 KnownModelId = "reka-edge-2603"
 	KnownModelIdRekaFlash KnownModelId = "reka-flash"
