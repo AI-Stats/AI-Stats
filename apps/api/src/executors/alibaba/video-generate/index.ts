@@ -908,7 +908,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				quality,
 				inputImageCount,
 				inputVideoCount,
-				inputVideoSeconds: happyHorse?.inputVideoSeconds ?? null,
+				inputVideoSeconds: inputVideoSeconds ?? null,
 				outputAccess: ir.outputAccess ?? "both",
 				webhook: ir.webhook as Record<string, unknown> | null,
 				reservationId,

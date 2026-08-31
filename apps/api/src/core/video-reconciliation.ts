@@ -683,6 +683,7 @@ async function fetchAlibabaVideoStatus(job: VideoJobRecord): Promise<VideoProvid
 		requestOptions: buildVideoPricingRequestOptions({
 			resolution: (json as any)?.output?.resolution ?? (json as any)?.output?.size ?? job.meta?.resolution,
 			quality: (json as any)?.output?.quality ?? job.meta?.quality,
+			input_video_seconds: job.meta?.inputVideoSeconds,
 		}),
 		raw: json,
 	};

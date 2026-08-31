@@ -262,6 +262,13 @@ describe("alibaba wan video executor", () => {
 			},
 			parameters: { resolution: "1080P", duration: 10 },
 		});
+		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
+			"team_test",
+			"req_wan_video_test",
+			expect.objectContaining({ model: "qwen/wan3.0-video-prime", inputVideoSeconds: 8 }),
+			"wan30_prime_task_123",
+			"queued",
+		);
 	});
 
 	it("rejects Wan 3.0 reference video without its billing duration", async () => {

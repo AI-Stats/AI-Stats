@@ -442,6 +442,7 @@ export async function processAlibabaVideoWebhook(args: {
 		requestOptions: buildVideoPricingRequestOptions({
 			resolution: requestOptions.resolution ?? job.meta?.resolution,
 			quality: requestOptions.quality ?? job.meta?.quality,
+			input_video_seconds: job.meta?.inputVideoSeconds,
 		}),
 		isByok: job.meta?.keySource === "byok",
 		metaPatch: {
