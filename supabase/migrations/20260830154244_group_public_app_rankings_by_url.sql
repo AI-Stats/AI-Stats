@@ -1,7 +1,6 @@
--- Public rankings must keep app identities tenant-safe. A Referer is
--- caller-controlled, so host-wide grouping could merge unrelated public apps
--- from different workspaces. Normalize only a trailing slash and preserve the
--- rest of the URL identity.
+-- Public rankings represent websites. Normalize HTTP(S) URLs to their host so
+-- scheme, path, query, port, and a leading www do not split the same site.
+-- Non-web app identifiers remain distinct by their full normalized URL.
 
 create or replace function public.api_app_url_group_key(
   p_url text,
@@ -13,10 +12,42 @@ immutable
 parallel safe
 set search_path = ''
 as $$
-  select coalesce(
-    nullif(lower(regexp_replace(btrim(coalesce(p_url, '')), '/+$', '')), ''),
-    'app-id:' || p_app_id
-  );
+  with normalized as (
+    select
+      lower(btrim(coalesce(p_url, ''))) as url_value,
+      regexp_replace(lower(btrim(coalesce(p_url, ''))), '^https?://', '') as without_scheme
+  ), authority as (
+    select
+      url_value,
+      split_part(split_part(split_part(without_scheme, '/', 1), '?', 1), '#', 1) as authority_value
+    from normalized
+  ), host_port as (
+    select
+      normalized.url_value,
+      regexp_replace(authority.authority_value, '^.*@', '') as host_port_value
+    from normalized
+    cross join authority
+  )
+  select case
+    when normalized.url_value ~ '^https?://' then
+      coalesce(
+        nullif(
+          regexp_replace(
+            case
+              when host_port.host_port_value ~ '^\[' then substring(host_port.host_port_value from '^(\[[^]]+\])')
+              else split_part(host_port.host_port_value, ':', 1)
+            end,
+            '^www\.',
+            ''
+          ),
+          ''
+        ),
+        'app-id:' || p_app_id
+      )
+    else coalesce(nullif(normalized.url_value, ''), 'app-id:' || p_app_id)
+  end
+  from normalized
+  cross join host_port;
 $$;
 
 revoke all on function public.api_app_url_group_key(text, text) from public;
@@ -120,7 +151,7 @@ grant execute on function public.get_public_top_apps(integer, text)
   to anon, authenticated, service_role;
 
 comment on function public.get_public_top_apps(integer, text) is
-  'Ranks active public apps by combined usage for each normalized public app URL.';
+  'Ranks active public apps by combined usage for each normalized URL host.';
 
 create or replace function public.get_public_trending_apps(
   p_limit integer default 20,

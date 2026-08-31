@@ -1,6 +1,32 @@
--- Provider-level hourly performance for model detail charts. The existing
--- performance payload keeps its daily rollup for comparisons and summaries;
--- this focused RPC supplies the seven-day hourly series used by the UI.
+-- Preserve today's public-data revisions as additive migrations so the
+-- historical migration files remain immutable.
+
+create or replace function public.api_app_url_group_key(
+  p_url text,
+  p_app_id text
+)
+returns text
+language sql
+immutable
+parallel safe
+set search_path = ''
+as $$
+  select coalesce(
+    nullif(lower(regexp_replace(btrim(coalesce(p_url, '')), '/+$', '')), ''),
+    'app-id:' || p_app_id
+  );
+$$;
+
+revoke all on function public.api_app_url_group_key(text, text) from public;
+grant execute on function public.api_app_url_group_key(text, text)
+  to anon, authenticated, service_role;
+
+comment on function public.get_public_top_apps(integer, text) is
+  'Ranks active public apps by combined usage for each normalized public app URL.';
+
+comment on function public.get_public_trending_apps(integer, bigint) is
+  'Ranks active public apps by combined token growth for each normalized public app URL.';
+
 create or replace function public.get_v2_model_provider_hourly_performance_v2(
   p_model_slug text,
   p_cloudflare_colo text default null,
@@ -88,17 +114,8 @@ scoped_facts as (
 usage_by_request as (
   select
     usage.request_event_id,
-    coalesce(
-      sum(usage.quantity) filter (where usage.meter_key = 'input_tokens'),
-      sum(usage.quantity) filter (where usage.meter_key = 'prompt_tokens'),
-      sum(usage.quantity) filter (
-        where usage.meter_key in (
-          'input_text_tokens',
-          'input_image_tokens',
-          'input_audio_tokens',
-          'input_video_tokens'
-        )
-      )
+    sum(usage.quantity) filter (
+      where usage.meter_key in ('input_tokens', 'input_text_tokens', 'prompt_tokens')
     )::numeric input_tokens,
     sum(usage.quantity) filter (
       where usage.meter_key in ('cached_input_tokens', 'cached_read_tokens')
@@ -109,9 +126,6 @@ usage_by_request as (
   where usage.meter_key in (
     'input_tokens',
     'input_text_tokens',
-    'input_image_tokens',
-    'input_audio_tokens',
-    'input_video_tokens',
     'prompt_tokens',
     'cached_input_tokens',
     'cached_read_tokens'

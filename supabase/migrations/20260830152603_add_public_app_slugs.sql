@@ -1,6 +1,7 @@
 -- Public app URLs represent a logical app name, not a workspace-scoped row.
 -- Multiple rows may therefore share the same slug (for example, Phaseo Chat
 -- used by several workspaces).
+-- phaseo:allow-destructive-migration reason: Rebuild the unused UUID-based slug column as deterministic name-based public routing metadata.
 
 drop trigger if exists assign_api_app_slug on public.api_apps;
 drop index if exists public.api_apps_slug_key;
