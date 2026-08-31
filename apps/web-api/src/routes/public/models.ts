@@ -787,9 +787,12 @@ async function fetchTargetedModelOverview(
 	if (labResult.error) throw labResult.error;
 	const lab = labResult.data as Record<string, unknown> | null;
 	const catalogueStatus = String(model.catalogue_status ?? model.status ?? "unknown");
-	const gatewayStatus = ["draft", "announced"].includes(catalogueStatus.toLowerCase())
+	const normalizedCatalogueStatus = catalogueStatus.toLowerCase();
+	const gatewayStatus = ["draft", "announced"].includes(normalizedCatalogueStatus)
 		? "coming_soon"
-		: "not_active";
+		: ["active", "available"].includes(normalizedCatalogueStatus)
+			? "active"
+			: "not_active";
 
 	return {
 		model_id: model.model_slug,
@@ -1788,11 +1791,12 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		});
 		const providerHourly7d = providerHourlyRows.map((value) => {
 			const cacheRequests = Number(value.cache_telemetry_requests ?? 0);
+			const provider = publicProviderId(value.provider_id, stealthProviderIds);
 			return {
 				bucket: value.bucket ?? "",
-				provider: value.provider_id ?? "",
-				providerName: value.provider_name ?? value.provider_id ?? "",
-				providerColor: providerColor(value.provider_id),
+				provider,
+				providerName: provider === "stealth" ? "Stealth" : value.provider_name ?? value.provider_id ?? "",
+				providerColor: providerColor(provider),
 				avgThroughput: number(value.effective_throughput_tps),
 				avgOutputSpeed: number(value.output_speed_tps),
 				avgLatencyMs: number(value.gateway_ttft_ms),

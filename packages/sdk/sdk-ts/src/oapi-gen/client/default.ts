@@ -1,7 +1,7 @@
 import type { Client } from "../../runtime/client.js";
 
 export type AddGuardrailKeysParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16,7 +16,7 @@ export type AddGuardrailKeysParams = {
  */
 export async function addGuardrailKeys(
   client: Client,
-  args: AddGuardrailKeysParams = {},
+  args: AddGuardrailKeysParams,
 ): Promise<{
   added_count: number;
   data: {
@@ -28,7 +28,7 @@ export async function addGuardrailKeys(
   }[];
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys/add`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys/add`;
   return client.request<{
     added_count: number;
     data: {
@@ -48,7 +48,7 @@ export async function addGuardrailKeys(
 }
 
 export type AddGuardrailMembersParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -63,7 +63,7 @@ export type AddGuardrailMembersParams = {
  */
 export async function addGuardrailMembers(
   client: Client,
-  args: AddGuardrailMembersParams = {},
+  args: AddGuardrailMembersParams,
 ): Promise<{
   added_count: number;
   data: {
@@ -74,7 +74,7 @@ export async function addGuardrailMembers(
   }[];
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/members/add`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/members/add`;
   return client.request<{
     added_count: number;
     data: {
@@ -93,7 +93,7 @@ export async function addGuardrailMembers(
 }
 
 export type AddWorkspaceMembersParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -109,7 +109,7 @@ export type AddWorkspaceMembersParams = {
  */
 export async function addWorkspaceMembers(
   client: Client,
-  args: AddWorkspaceMembersParams = {},
+  args: AddWorkspaceMembersParams,
 ): Promise<{
   added_count: number;
   data: {
@@ -121,7 +121,7 @@ export async function addWorkspaceMembers(
   }[];
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/add`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members/add`;
   return client.request<{
     added_count: number;
     data: {
@@ -141,7 +141,7 @@ export async function addWorkspaceMembers(
 }
 
 export type ApplyPresetUpstreamVersionParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -156,7 +156,7 @@ export type ApplyPresetUpstreamVersionParams = {
  */
 export async function applyPresetUpstreamVersion(
   client: Client,
-  args: ApplyPresetUpstreamVersionParams = {},
+  args: ApplyPresetUpstreamVersionParams,
 ): Promise<{
   data: {
     applied_to_draft: true;
@@ -165,7 +165,7 @@ export async function applyPresetUpstreamVersion(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/upstream`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/upstream`;
   return client.request<{
     data: {
       applied_to_draft: true;
@@ -182,7 +182,7 @@ export async function applyPresetUpstreamVersion(
 }
 
 export type ApproveWorkspaceJoinRequestParams = {
-  path?: {
+  path: {
     id: string;
     request_id: string;
   };
@@ -196,7 +196,7 @@ export type ApproveWorkspaceJoinRequestParams = {
  */
 export async function approveWorkspaceJoinRequest(
   client: Client,
-  args: ApproveWorkspaceJoinRequestParams = {},
+  args: ApproveWorkspaceJoinRequestParams,
 ): Promise<{
   data: {
     created_at?: string;
@@ -210,7 +210,7 @@ export async function approveWorkspaceJoinRequest(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/join-requests/${encodeURIComponent(String(path?.["request_id"]))}/approve`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/join-requests/${encodeURIComponent(String(path["request_id"]))}/approve`;
   return client.request<{
     data: {
       created_at?: string;
@@ -274,7 +274,7 @@ export async function calculatePricing(
 }
 
 export type CancelBatchParams = {
-  path?: {
+  path: {
     batch_id: string;
   };
   query?: Record<string, never>;
@@ -287,7 +287,7 @@ export type CancelBatchParams = {
  */
 export async function cancelBatch(
   client: Client,
-  args: CancelBatchParams = {},
+  args: CancelBatchParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -400,7 +400,7 @@ export async function cancelBatch(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}/cancel`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}/cancel`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -521,7 +521,7 @@ export async function cancelBatch(
 }
 
 export type CancelBatchAliasParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -534,7 +534,7 @@ export type CancelBatchAliasParams = {
  */
 export async function cancelBatchAlias(
   client: Client,
-  args: CancelBatchAliasParams = {},
+  args: CancelBatchAliasParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -647,7 +647,7 @@ export async function cancelBatchAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}/cancel`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}/cancel`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -768,7 +768,7 @@ export async function cancelBatchAlias(
 }
 
 export type CancelVideoParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -781,10 +781,10 @@ export type CancelVideoParams = {
  */
 export async function cancelVideo(
   client: Client,
-  args: CancelVideoParams = {},
+  args: CancelVideoParams,
 ): Promise<unknown> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}/cancel`;
   return client.request<unknown>({
     method: "POST",
     path: resolvedPath,
@@ -795,7 +795,7 @@ export async function cancelVideo(
 }
 
 export type CancelVideoAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -808,10 +808,10 @@ export type CancelVideoAliasParams = {
  */
 export async function cancelVideoAlias(
   client: Client,
-  args: CancelVideoAliasParams = {},
+  args: CancelVideoAliasParams,
 ): Promise<unknown> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}/cancel`;
   return client.request<unknown>({
     method: "POST",
     path: resolvedPath,
@@ -6008,7 +6008,7 @@ export async function createVideoAlias(
 }
 
 export type CreateVideoDownloadUrlParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -6025,13 +6025,13 @@ export type CreateVideoDownloadUrlParams = {
  */
 export async function createVideoDownloadUrl(
   client: Client,
-  args: CreateVideoDownloadUrlParams = {},
+  args: CreateVideoDownloadUrlParams,
 ): Promise<{
   download_url?: string;
   expires_at?: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/download_url`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}/download_url`;
   return client.request<{
     download_url?: string;
     expires_at?: number;
@@ -6045,7 +6045,7 @@ export async function createVideoDownloadUrl(
 }
 
 export type CreateVideoDownloadUrlAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -6062,13 +6062,13 @@ export type CreateVideoDownloadUrlAliasParams = {
  */
 export async function createVideoDownloadUrlAlias(
   client: Client,
-  args: CreateVideoDownloadUrlAliasParams = {},
+  args: CreateVideoDownloadUrlAliasParams,
 ): Promise<{
   download_url?: string;
   expires_at?: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/download_url`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}/download_url`;
   return client.request<{
     download_url?: string;
     expires_at?: number;
@@ -6391,7 +6391,7 @@ export async function createWorkspaceGroupMapping(
 }
 
 export type CreateWorkspaceInviteParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6408,7 +6408,7 @@ export type CreateWorkspaceInviteParams = {
  */
 export async function createWorkspaceInvite(
   client: Client,
-  args: CreateWorkspaceInviteParams = {},
+  args: CreateWorkspaceInviteParams,
 ): Promise<{
   data: {
     created_at?: string;
@@ -6424,7 +6424,7 @@ export async function createWorkspaceInvite(
   token: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/invites`;
   return client.request<{
     data: {
       created_at?: string;
@@ -6565,7 +6565,7 @@ export async function createWorkspaceScimToken(
 }
 
 export type DeleteApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6578,12 +6578,12 @@ export type DeleteApiKeyParams = {
  */
 export async function deleteApiKey(
   client: Client,
-  args: DeleteApiKeyParams = {},
+  args: DeleteApiKeyParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -6596,7 +6596,7 @@ export async function deleteApiKey(
 }
 
 export type DeleteDataContributionClassifierParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6609,14 +6609,14 @@ export type DeleteDataContributionClassifierParams = {
  */
 export async function deleteDataContributionClassifier(
   client: Client,
-  args: DeleteDataContributionClassifierParams = {},
+  args: DeleteDataContributionClassifierParams,
 ): Promise<{
   data: {
     deleted: true;
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       deleted: true;
@@ -6631,7 +6631,7 @@ export async function deleteDataContributionClassifier(
 }
 
 export type DeleteDynamicRouteParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -6646,7 +6646,7 @@ export type DeleteDynamicRouteParams = {
  */
 export async function deleteDynamicRoute(
   client: Client,
-  args: DeleteDynamicRouteParams = {},
+  args: DeleteDynamicRouteParams,
 ): Promise<{
   data: {
     deleted: true;
@@ -6654,7 +6654,7 @@ export async function deleteDynamicRoute(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       deleted: true;
@@ -6670,7 +6670,7 @@ export async function deleteDynamicRoute(
 }
 
 export type DeleteGuardrailParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6683,12 +6683,12 @@ export type DeleteGuardrailParams = {
  */
 export async function deleteGuardrail(
   client: Client,
-  args: DeleteGuardrailParams = {},
+  args: DeleteGuardrailParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -6701,7 +6701,7 @@ export async function deleteGuardrail(
 }
 
 export type DeleteManagementKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6714,12 +6714,12 @@ export type DeleteManagementKeyParams = {
  */
 export async function deleteManagementKey(
   client: Client,
-  args: DeleteManagementKeyParams = {},
+  args: DeleteManagementKeyParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/management-keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -6732,7 +6732,7 @@ export async function deleteManagementKey(
 }
 
 export type DeleteOAuthClientParams = {
-  path?: {
+  path: {
     client_id: string;
   };
   query?: Record<string, never>;
@@ -6745,13 +6745,13 @@ export type DeleteOAuthClientParams = {
  */
 export async function deleteOAuthClient(
   client: Client,
-  args: DeleteOAuthClientParams = {},
+  args: DeleteOAuthClientParams,
 ): Promise<{
   client_id: string;
   message: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}`;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}`;
   return client.request<{
     client_id: string;
     message: string;
@@ -6765,7 +6765,7 @@ export async function deleteOAuthClient(
 }
 
 export type DeleteObservabilityDestinationParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6778,12 +6778,12 @@ export type DeleteObservabilityDestinationParams = {
  */
 export async function deleteObservabilityDestination(
   client: Client,
-  args: DeleteObservabilityDestinationParams = {},
+  args: DeleteObservabilityDestinationParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -6796,7 +6796,7 @@ export async function deleteObservabilityDestination(
 }
 
 export type DeletePresetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -6811,12 +6811,12 @@ export type DeletePresetParams = {
  */
 export async function deletePreset(
   client: Client,
-  args: DeletePresetParams = {},
+  args: DeletePresetParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -6829,7 +6829,7 @@ export async function deletePreset(
 }
 
 export type DeleteProviderCredentialParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6842,12 +6842,12 @@ export type DeleteProviderCredentialParams = {
  */
 export async function deleteProviderCredential(
   client: Client,
-  args: DeleteProviderCredentialParams = {},
+  args: DeleteProviderCredentialParams,
 ): Promise<{
   deleted: boolean;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: boolean;
   }>({
@@ -6860,7 +6860,7 @@ export async function deleteProviderCredential(
 }
 
 export type DeleteVideoParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -6873,14 +6873,14 @@ export type DeleteVideoParams = {
  */
 export async function deleteVideo(
   client: Client,
-  args: DeleteVideoParams = {},
+  args: DeleteVideoParams,
 ): Promise<{
   deleted?: boolean;
   id?: string;
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     deleted?: boolean;
     id?: string;
@@ -6895,7 +6895,7 @@ export async function deleteVideo(
 }
 
 export type DeleteVideoAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -6908,14 +6908,14 @@ export type DeleteVideoAliasParams = {
  */
 export async function deleteVideoAlias(
   client: Client,
-  args: DeleteVideoAliasParams = {},
+  args: DeleteVideoAliasParams,
 ): Promise<{
   deleted?: boolean;
   id?: string;
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     deleted?: boolean;
     id?: string;
@@ -6930,7 +6930,7 @@ export async function deleteVideoAlias(
 }
 
 export type DeleteWebhookEndpointParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6943,14 +6943,14 @@ export type DeleteWebhookEndpointParams = {
  */
 export async function deleteWebhookEndpoint(
   client: Client,
-  args: DeleteWebhookEndpointParams = {},
+  args: DeleteWebhookEndpointParams,
 ): Promise<{
   deleted: true;
   id: string;
   object: "webhook_endpoint";
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
     id: string;
@@ -6965,7 +6965,7 @@ export async function deleteWebhookEndpoint(
 }
 
 export type DeleteWorkspaceParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -6978,12 +6978,12 @@ export type DeleteWorkspaceParams = {
  */
 export async function deleteWorkspace(
   client: Client,
-  args: DeleteWorkspaceParams = {},
+  args: DeleteWorkspaceParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -6996,7 +6996,7 @@ export async function deleteWorkspace(
 }
 
 export type DeleteWorkspaceBudgetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -7009,7 +7009,7 @@ export type DeleteWorkspaceBudgetParams = {
  */
 export async function deleteWorkspaceBudget(
   client: Client,
-  args: DeleteWorkspaceBudgetParams = {},
+  args: DeleteWorkspaceBudgetParams,
 ): Promise<{
   data: {
     deleted: boolean;
@@ -7017,7 +7017,7 @@ export async function deleteWorkspaceBudget(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       deleted: boolean;
@@ -7033,7 +7033,7 @@ export async function deleteWorkspaceBudget(
 }
 
 export type DeleteWorkspaceDepartmentParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -7046,12 +7046,12 @@ export type DeleteWorkspaceDepartmentParams = {
  */
 export async function deleteWorkspaceDepartment(
   client: Client,
-  args: DeleteWorkspaceDepartmentParams = {},
+  args: DeleteWorkspaceDepartmentParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -7064,7 +7064,7 @@ export async function deleteWorkspaceDepartment(
 }
 
 export type DeleteWorkspaceDepartmentMemberParams = {
-  path?: {
+  path: {
     departmentId: string;
     userId: string;
   };
@@ -7078,12 +7078,12 @@ export type DeleteWorkspaceDepartmentMemberParams = {
  */
 export async function deleteWorkspaceDepartmentMember(
   client: Client,
-  args: DeleteWorkspaceDepartmentMemberParams = {},
+  args: DeleteWorkspaceDepartmentMemberParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["departmentId"]))}/members/${encodeURIComponent(String(path?.["userId"]))}`;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["departmentId"]))}/members/${encodeURIComponent(String(path["userId"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -7096,7 +7096,7 @@ export async function deleteWorkspaceDepartmentMember(
 }
 
 export type DeleteWorkspaceGroupMappingParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -7109,12 +7109,12 @@ export type DeleteWorkspaceGroupMappingParams = {
  */
 export async function deleteWorkspaceGroupMapping(
   client: Client,
-  args: DeleteWorkspaceGroupMappingParams = {},
+  args: DeleteWorkspaceGroupMappingParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -7127,7 +7127,7 @@ export async function deleteWorkspaceGroupMapping(
 }
 
 export type DeleteWorkspaceInviteParams = {
-  path?: {
+  path: {
     id: string;
     invite_id: string;
   };
@@ -7141,12 +7141,12 @@ export type DeleteWorkspaceInviteParams = {
  */
 export async function deleteWorkspaceInvite(
   client: Client,
-  args: DeleteWorkspaceInviteParams = {},
+  args: DeleteWorkspaceInviteParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites/${encodeURIComponent(String(path?.["invite_id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/invites/${encodeURIComponent(String(path["invite_id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -7159,7 +7159,7 @@ export async function deleteWorkspaceInvite(
 }
 
 export type DeleteWorkspaceNotificationDestinationParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -7172,12 +7172,12 @@ export type DeleteWorkspaceNotificationDestinationParams = {
  */
 export async function deleteWorkspaceNotificationDestination(
   client: Client,
-  args: DeleteWorkspaceNotificationDestinationParams = {},
+  args: DeleteWorkspaceNotificationDestinationParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -7190,7 +7190,7 @@ export async function deleteWorkspaceNotificationDestination(
 }
 
 export type DeployDynamicRouteVersionParams = {
-  path?: {
+  path: {
     id: string;
     version: number;
   };
@@ -7204,7 +7204,7 @@ export type DeployDynamicRouteVersionParams = {
  */
 export async function deployDynamicRouteVersion(
   client: Client,
-  args: DeployDynamicRouteVersionParams = {},
+  args: DeployDynamicRouteVersionParams,
 ): Promise<{
   data: {
     deployed_version: number;
@@ -7212,7 +7212,7 @@ export async function deployDynamicRouteVersion(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}/versions/${encodeURIComponent(String(path?.["version"]))}/deploy`;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}/versions/${encodeURIComponent(String(path["version"]))}/deploy`;
   return client.request<{
     data: {
       deployed_version: number;
@@ -7264,7 +7264,7 @@ export async function exportAnalyticsCsv(
 }
 
 export type FinalizeRealtimeSessionParams = {
-  path?: {
+  path: {
     session_id: string;
   };
   query?: Record<string, never>;
@@ -7285,13 +7285,49 @@ export type FinalizeRealtimeSessionParams = {
  */
 export async function finalizeRealtimeSession(
   client: Client,
-  args: FinalizeRealtimeSessionParams = {},
+  args: FinalizeRealtimeSessionParams,
 ): Promise<{
+  billing: {
+    [key: string]: unknown;
+  };
+  expires_at?: string | null;
+  expiresAt?: string | null;
+  id: string;
+  model: string;
+  model_id: string;
+  provider: string;
+  session_id: string;
+  settlement: {
+    [key: string]: unknown;
+  };
+  status: string;
+  usage: {
+    [key: string]: unknown;
+  };
+  voice?: string | null;
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/finalize`;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path["session_id"]))}/finalize`;
   return client.request<{
+    billing: {
+      [key: string]: unknown;
+    };
+    expires_at?: string | null;
+    expiresAt?: string | null;
+    id: string;
+    model: string;
+    model_id: string;
+    provider: string;
+    session_id: string;
+    settlement: {
+      [key: string]: unknown;
+    };
+    status: string;
+    usage: {
+      [key: string]: unknown;
+    };
+    voice?: string | null;
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -7303,7 +7339,7 @@ export async function finalizeRealtimeSession(
 }
 
 export type ForkPresetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -7318,7 +7354,7 @@ export type ForkPresetParams = {
  */
 export async function forkPreset(
   client: Client,
-  args: ForkPresetParams = {},
+  args: ForkPresetParams,
 ): Promise<{
   data: {
     active_version_id?: string | null;
@@ -7341,7 +7377,7 @@ export async function forkPreset(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/fork`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/fork`;
   return client.request<{
     data: {
       active_version_id?: string | null;
@@ -7782,7 +7818,7 @@ export async function getActivityAlias(
 }
 
 export type GetApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -7795,7 +7831,7 @@ export type GetApiKeyParams = {
  */
 export async function getApiKey(
   client: Client,
-  args: GetApiKeyParams = {},
+  args: GetApiKeyParams,
 ): Promise<{
   data: {
     created_at: string | null;
@@ -7857,7 +7893,7 @@ export async function getApiKey(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -8216,7 +8252,7 @@ export async function getDataContributionSettings(
 }
 
 export type GetDynamicRouteParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -8229,7 +8265,7 @@ export type GetDynamicRouteParams = {
  */
 export async function getDynamicRoute(
   client: Client,
-  args: GetDynamicRouteParams = {},
+  args: GetDynamicRouteParams,
 ): Promise<{
   data: {
     config: {
@@ -8312,7 +8348,7 @@ export async function getDynamicRoute(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       config: {
@@ -8403,7 +8439,7 @@ export async function getDynamicRoute(
 }
 
 export type GetGatewayRequestLogParams = {
-  path?: {
+  path: {
     requestId: string;
   };
   query?: Record<string, never>;
@@ -8416,7 +8452,7 @@ export type GetGatewayRequestLogParams = {
  */
 export async function getGatewayRequestLog(
   client: Client,
-  args: GetGatewayRequestLogParams = {},
+  args: GetGatewayRequestLogParams,
 ): Promise<{
   data: {
     auth_method?: string | null;
@@ -8455,7 +8491,7 @@ export async function getGatewayRequestLog(
   ok: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/logs/${encodeURIComponent(String(path?.["requestId"]))}`;
+  const resolvedPath = `/logs/${encodeURIComponent(String(path["requestId"]))}`;
   return client.request<{
     data: {
       auth_method?: string | null;
@@ -8591,7 +8627,7 @@ export async function getGeneration(
 }
 
 export type GetGuardrailParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -8604,7 +8640,7 @@ export type GetGuardrailParams = {
  */
 export async function getGuardrail(
   client: Client,
-  args: GetGuardrailParams = {},
+  args: GetGuardrailParams,
 ): Promise<{
   data: {
     allowed_api_model_ids?: string[] | null;
@@ -8643,7 +8679,7 @@ export async function getGuardrail(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       allowed_api_model_ids?: string[] | null;
@@ -8719,7 +8755,7 @@ export async function getHealth(
 }
 
 export type GetManagementKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -8732,7 +8768,7 @@ export type GetManagementKeyParams = {
  */
 export async function getManagementKey(
   client: Client,
-  args: GetManagementKeyParams = {},
+  args: GetManagementKeyParams,
 ): Promise<{
   data: {
     created_at: string;
@@ -8756,7 +8792,7 @@ export async function getManagementKey(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/management-keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string;
@@ -8788,7 +8824,7 @@ export async function getManagementKey(
 }
 
 export type GetMusicGenerationParams = {
-  path?: {
+  path: {
     music_id: string;
   };
   query?: Record<string, never>;
@@ -8801,7 +8837,7 @@ export type GetMusicGenerationParams = {
  */
 export async function getMusicGeneration(
   client: Client,
-  args: GetMusicGenerationParams = {},
+  args: GetMusicGenerationParams,
 ): Promise<{
   audio_base64?: string;
   audio_url?: string;
@@ -8821,7 +8857,7 @@ export async function getMusicGeneration(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/music/generate/${encodeURIComponent(String(path?.["music_id"]))}`;
+  const resolvedPath = `/music/generate/${encodeURIComponent(String(path["music_id"]))}`;
   return client.request<{
     audio_base64?: string;
     audio_url?: string;
@@ -8849,7 +8885,7 @@ export async function getMusicGeneration(
 }
 
 export type GetMusicGenerationAliasParams = {
-  path?: {
+  path: {
     music_id: string;
   };
   query?: Record<string, never>;
@@ -8862,7 +8898,7 @@ export type GetMusicGenerationAliasParams = {
  */
 export async function getMusicGenerationAlias(
   client: Client,
-  args: GetMusicGenerationAliasParams = {},
+  args: GetMusicGenerationAliasParams,
 ): Promise<{
   audio_base64?: string;
   audio_url?: string;
@@ -8882,7 +8918,7 @@ export async function getMusicGenerationAlias(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/music/generations/${encodeURIComponent(String(path?.["music_id"]))}`;
+  const resolvedPath = `/music/generations/${encodeURIComponent(String(path["music_id"]))}`;
   return client.request<{
     audio_base64?: string;
     audio_url?: string;
@@ -8910,7 +8946,7 @@ export async function getMusicGenerationAlias(
 }
 
 export type GetOAuthClientParams = {
-  path?: {
+  path: {
     client_id: string;
   };
   query?: Record<string, never>;
@@ -8923,7 +8959,7 @@ export type GetOAuthClientParams = {
  */
 export async function getOAuthClient(
   client: Client,
-  args: GetOAuthClientParams = {},
+  args: GetOAuthClientParams,
 ): Promise<{
   active_authorizations?: number;
   allowed_scopes?: string[];
@@ -8946,7 +8982,7 @@ export async function getOAuthClient(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}`;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}`;
   return client.request<{
     active_authorizations?: number;
     allowed_scopes?: string[];
@@ -8977,7 +9013,7 @@ export async function getOAuthClient(
 }
 
 export type GetObservabilityDestinationParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -8990,7 +9026,7 @@ export type GetObservabilityDestinationParams = {
  */
 export async function getObservabilityDestination(
   client: Client,
-  args: GetObservabilityDestinationParams = {},
+  args: GetObservabilityDestinationParams,
 ): Promise<{
   data: {
     configured: boolean;
@@ -9045,7 +9081,7 @@ export async function getObservabilityDestination(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       configured: boolean;
@@ -9155,7 +9191,7 @@ export async function getObservabilityLoggingPolicy(
 }
 
 export type GetPresetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -9168,7 +9204,7 @@ export type GetPresetParams = {
  */
 export async function getPreset(
   client: Client,
-  args: GetPresetParams = {},
+  args: GetPresetParams,
 ): Promise<{
   data: {
     active_version_id?: string | null;
@@ -9191,7 +9227,7 @@ export async function getPreset(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       active_version_id?: string | null;
@@ -9257,7 +9293,7 @@ export async function getPresetPublisher(
 }
 
 export type GetPresetTestRunParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -9270,7 +9306,7 @@ export type GetPresetTestRunParams = {
  */
 export async function getPresetTestRun(
   client: Client,
-  args: GetPresetTestRunParams = {},
+  args: GetPresetTestRunParams,
 ): Promise<{
   data: {
     baseline_preset_id: string | null;
@@ -9310,7 +9346,7 @@ export async function getPresetTestRun(
   } | null;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       baseline_preset_id: string | null;
@@ -9358,7 +9394,7 @@ export async function getPresetTestRun(
 }
 
 export type GetProviderCredentialParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -9371,7 +9407,7 @@ export type GetProviderCredentialParams = {
  */
 export async function getProviderCredential(
   client: Client,
-  args: GetProviderCredentialParams = {},
+  args: GetProviderCredentialParams,
 ): Promise<{
   data: {
     allowed_api_key_ids?: string[];
@@ -9397,7 +9433,7 @@ export async function getProviderCredential(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       allowed_api_key_ids?: string[];
@@ -9431,7 +9467,7 @@ export async function getProviderCredential(
 }
 
 export type GetProviderDerankStatusParams = {
-  path?: {
+  path: {
     provider_id: string;
   };
   query?: {
@@ -9448,12 +9484,12 @@ export type GetProviderDerankStatusParams = {
  */
 export async function getProviderDerankStatus(
   client: Client,
-  args: GetProviderDerankStatusParams = {},
+  args: GetProviderDerankStatusParams,
 ): Promise<{
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/health/providers/${encodeURIComponent(String(path?.["provider_id"]))}/derank`;
+  const resolvedPath = `/health/providers/${encodeURIComponent(String(path["provider_id"]))}/derank`;
   return client.request<{
     [key: string]: unknown;
   }>({
@@ -9466,7 +9502,7 @@ export async function getProviderDerankStatus(
 }
 
 export type GetVideoParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -9479,7 +9515,7 @@ export type GetVideoParams = {
  */
 export async function getVideo(
   client: Client,
-  args: GetVideoParams = {},
+  args: GetVideoParams,
 ): Promise<{
   asset?: {
     bytes?: number;
@@ -9589,7 +9625,7 @@ export async function getVideo(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -9712,7 +9748,7 @@ export async function getVideo(
 }
 
 export type GetVideoAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -9725,7 +9761,7 @@ export type GetVideoAliasParams = {
  */
 export async function getVideoAlias(
   client: Client,
-  args: GetVideoAliasParams = {},
+  args: GetVideoAliasParams,
 ): Promise<{
   asset?: {
     bytes?: number;
@@ -9835,7 +9871,7 @@ export async function getVideoAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -9958,7 +9994,7 @@ export async function getVideoAlias(
 }
 
 export type GetVideoContentParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -9971,10 +10007,10 @@ export type GetVideoContentParams = {
  */
 export async function getVideoContent(
   client: Client,
-  args: GetVideoContentParams = {},
+  args: GetVideoContentParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/content`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -9985,7 +10021,7 @@ export async function getVideoContent(
 }
 
 export type GetVideoContentAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -9998,10 +10034,10 @@ export type GetVideoContentAliasParams = {
  */
 export async function getVideoContentAlias(
   client: Client,
-  args: GetVideoContentAliasParams = {},
+  args: GetVideoContentAliasParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/content`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -10012,7 +10048,7 @@ export async function getVideoContentAlias(
 }
 
 export type GetWebhookEndpointParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -10025,7 +10061,7 @@ export type GetWebhookEndpointParams = {
  */
 export async function getWebhookEndpoint(
   client: Client,
-  args: GetWebhookEndpointParams = {},
+  args: GetWebhookEndpointParams,
 ): Promise<{
   createdAt?: string | null;
   createdBy?: string | null;
@@ -10040,7 +10076,7 @@ export async function getWebhookEndpoint(
   workspaceId: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     createdAt?: string | null;
     createdBy?: string | null;
@@ -10063,7 +10099,7 @@ export async function getWebhookEndpoint(
 }
 
 export type GetWorkspaceParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -10076,7 +10112,7 @@ export type GetWorkspaceParams = {
  */
 export async function getWorkspace(
   client: Client,
-  args: GetWorkspaceParams = {},
+  args: GetWorkspaceParams,
 ): Promise<{
   data: {
     created_at: string | null;
@@ -10088,7 +10124,7 @@ export async function getWorkspace(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -10108,7 +10144,7 @@ export async function getWorkspace(
 }
 
 export type GetWorkspaceBudgetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -10121,7 +10157,7 @@ export type GetWorkspaceBudgetParams = {
  */
 export async function getWorkspaceBudget(
   client: Client,
-  args: GetWorkspaceBudgetParams = {},
+  args: GetWorkspaceBudgetParams,
 ): Promise<{
   data: {
     created_at: string;
@@ -10142,7 +10178,7 @@ export async function getWorkspaceBudget(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string;
@@ -10550,7 +10586,7 @@ export async function getWorkspaceSso(
 }
 
 export type InvalidateApiKeyCacheParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -10563,7 +10599,7 @@ export type InvalidateApiKeyCacheParams = {
  */
 export async function invalidateApiKeyCache(
   client: Client,
-  args: InvalidateApiKeyCacheParams = {},
+  args: InvalidateApiKeyCacheParams,
 ): Promise<{
   key: {
     id: string;
@@ -10575,7 +10611,7 @@ export async function invalidateApiKeyCache(
   ok: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}/invalidate`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}/invalidate`;
   return client.request<{
     key: {
       id: string;
@@ -11645,7 +11681,7 @@ export async function listBatchModelsAlias(
 }
 
 export type ListBatchRequestsParams = {
-  path?: {
+  path: {
     batch_id: string;
   };
   query?: {
@@ -11662,7 +11698,7 @@ export type ListBatchRequestsParams = {
  */
 export async function listBatchRequests(
   client: Client,
-  args: ListBatchRequestsParams = {},
+  args: ListBatchRequestsParams,
 ): Promise<{
   batch_id?: string;
   data?: {
@@ -11698,7 +11734,7 @@ export async function listBatchRequests(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}/requests`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}/requests`;
   return client.request<{
     batch_id?: string;
     data?: {
@@ -11742,7 +11778,7 @@ export async function listBatchRequests(
 }
 
 export type ListBatchRequestsAliasParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -11759,7 +11795,7 @@ export type ListBatchRequestsAliasParams = {
  */
 export async function listBatchRequestsAlias(
   client: Client,
-  args: ListBatchRequestsAliasParams = {},
+  args: ListBatchRequestsAliasParams,
 ): Promise<{
   batch_id?: string;
   data?: {
@@ -11795,7 +11831,7 @@ export async function listBatchRequestsAlias(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}/requests`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}/requests`;
   return client.request<{
     batch_id?: string;
     data?: {
@@ -12618,7 +12654,7 @@ export async function listGatewayRequestLogs(
 }
 
 export type ListGuardrailKeysParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -12631,7 +12667,7 @@ export type ListGuardrailKeysParams = {
  */
 export async function listGuardrailKeys(
   client: Client,
-  args: ListGuardrailKeysParams = {},
+  args: ListGuardrailKeysParams,
 ): Promise<{
   data: {
     created_at?: string | null;
@@ -12643,7 +12679,7 @@ export async function listGuardrailKeys(
   total_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys`;
   return client.request<{
     data: {
       created_at?: string | null;
@@ -12663,7 +12699,7 @@ export async function listGuardrailKeys(
 }
 
 export type ListGuardrailMembersParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -12676,7 +12712,7 @@ export type ListGuardrailMembersParams = {
  */
 export async function listGuardrailMembers(
   client: Client,
-  args: ListGuardrailMembersParams = {},
+  args: ListGuardrailMembersParams,
 ): Promise<{
   data: {
     display_name?: string | null;
@@ -12687,7 +12723,7 @@ export async function listGuardrailMembers(
   total_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/members`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/members`;
   return client.request<{
     data: {
       display_name?: string | null;
@@ -12876,7 +12912,7 @@ export async function listManagementKeys(
 }
 
 export type ListModelEndpointsParams = {
-  path?: {
+  path: {
     author: string;
     slug: string;
   };
@@ -12901,7 +12937,7 @@ export type ListModelEndpointsParams = {
  */
 export async function listModelEndpoints(
   client: Client,
-  args: ListModelEndpointsParams = {},
+  args: ListModelEndpointsParams,
 ): Promise<{
   availability_mode: "active" | "all";
   description: string;
@@ -13017,7 +13053,7 @@ export async function listModelEndpoints(
   } | null;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/models/${encodeURIComponent(String(path?.["author"]))}/${encodeURIComponent(String(path?.["slug"]))}/endpoints`;
+  const resolvedPath = `/models/${encodeURIComponent(String(path["author"]))}/${encodeURIComponent(String(path["slug"]))}/endpoints`;
   return client.request<{
     availability_mode: "active" | "all";
     description: string;
@@ -14035,7 +14071,7 @@ export async function listPresetTestRuns(
 }
 
 export type ListPresetVersionsParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -14048,7 +14084,7 @@ export type ListPresetVersionsParams = {
  */
 export async function listPresetVersions(
   client: Client,
-  args: ListPresetVersionsParams = {},
+  args: ListPresetVersionsParams,
 ): Promise<{
   data: {
     config: {
@@ -14069,7 +14105,7 @@ export async function listPresetVersions(
   }[];
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/versions`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/versions`;
   return client.request<{
     data: {
       config: {
@@ -15878,7 +15914,7 @@ export async function listWorkspaceGroupMappings(
 }
 
 export type ListWorkspaceInvitesParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -15894,7 +15930,7 @@ export type ListWorkspaceInvitesParams = {
  */
 export async function listWorkspaceInvites(
   client: Client,
-  args: ListWorkspaceInvitesParams = {},
+  args: ListWorkspaceInvitesParams,
 ): Promise<{
   data: {
     created_at?: string;
@@ -15910,7 +15946,7 @@ export async function listWorkspaceInvites(
   total_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/invites`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/invites`;
   return client.request<{
     data: {
       created_at?: string;
@@ -15934,7 +15970,7 @@ export async function listWorkspaceInvites(
 }
 
 export type ListWorkspaceJoinRequestsParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -15951,7 +15987,7 @@ export type ListWorkspaceJoinRequestsParams = {
  */
 export async function listWorkspaceJoinRequests(
   client: Client,
-  args: ListWorkspaceJoinRequestsParams = {},
+  args: ListWorkspaceJoinRequestsParams,
 ): Promise<{
   data: {
     created_at?: string;
@@ -15966,7 +16002,7 @@ export async function listWorkspaceJoinRequests(
   total_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/join-requests`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/join-requests`;
   return client.request<{
     data: {
       created_at?: string;
@@ -15989,7 +16025,7 @@ export async function listWorkspaceJoinRequests(
 }
 
 export type ListWorkspaceMembersParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -16005,7 +16041,7 @@ export type ListWorkspaceMembersParams = {
  */
 export async function listWorkspaceMembers(
   client: Client,
-  args: ListWorkspaceMembersParams = {},
+  args: ListWorkspaceMembersParams,
 ): Promise<{
   data: {
     display_name?: string | null;
@@ -16017,7 +16053,7 @@ export async function listWorkspaceMembers(
   total_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members`;
   return client.request<{
     data: {
       display_name?: string | null;
@@ -16241,7 +16277,7 @@ export async function listWorkspaceScimAuditEvents(
 }
 
 export type MergeWorkspaceAppParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16256,7 +16292,7 @@ export type MergeWorkspaceAppParams = {
  */
 export async function mergeWorkspaceApp(
   client: Client,
-  args: MergeWorkspaceAppParams = {},
+  args: MergeWorkspaceAppParams,
 ): Promise<{
   data: {
     merged: true;
@@ -16265,7 +16301,7 @@ export async function mergeWorkspaceApp(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/apps/${encodeURIComponent(String(path?.["id"]))}/merge`;
+  const resolvedPath = `/apps/${encodeURIComponent(String(path["id"]))}/merge`;
   return client.request<{
     data: {
       merged: true;
@@ -16282,7 +16318,7 @@ export async function mergeWorkspaceApp(
 }
 
 export type PublishPresetVersionParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16298,7 +16334,7 @@ export type PublishPresetVersionParams = {
  */
 export async function publishPresetVersion(
   client: Client,
-  args: PublishPresetVersionParams = {},
+  args: PublishPresetVersionParams,
 ): Promise<{
   data: {
     config: {
@@ -16319,7 +16355,7 @@ export async function publishPresetVersion(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/versions`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/versions`;
   return client.request<{
     data: {
       config: {
@@ -16348,7 +16384,7 @@ export async function publishPresetVersion(
 }
 
 export type RegenerateOAuthClientSecretParams = {
-  path?: {
+  path: {
     client_id: string;
   };
   query?: Record<string, never>;
@@ -16361,14 +16397,14 @@ export type RegenerateOAuthClientSecretParams = {
  */
 export async function regenerateOAuthClientSecret(
   client: Client,
-  args: RegenerateOAuthClientSecretParams = {},
+  args: RegenerateOAuthClientSecretParams,
 ): Promise<{
   client_id: string;
   client_secret: string;
   message: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}/regenerate-secret`;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}/regenerate-secret`;
   return client.request<{
     client_id: string;
     client_secret: string;
@@ -16383,7 +16419,7 @@ export async function regenerateOAuthClientSecret(
 }
 
 export type RejectWorkspaceJoinRequestParams = {
-  path?: {
+  path: {
     id: string;
     request_id: string;
   };
@@ -16397,7 +16433,7 @@ export type RejectWorkspaceJoinRequestParams = {
  */
 export async function rejectWorkspaceJoinRequest(
   client: Client,
-  args: RejectWorkspaceJoinRequestParams = {},
+  args: RejectWorkspaceJoinRequestParams,
 ): Promise<{
   data: {
     created_at?: string;
@@ -16411,7 +16447,7 @@ export async function rejectWorkspaceJoinRequest(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/join-requests/${encodeURIComponent(String(path?.["request_id"]))}/reject`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/join-requests/${encodeURIComponent(String(path["request_id"]))}/reject`;
   return client.request<{
     data: {
       created_at?: string;
@@ -16433,7 +16469,7 @@ export async function rejectWorkspaceJoinRequest(
 }
 
 export type RemoveGuardrailKeysParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16448,12 +16484,12 @@ export type RemoveGuardrailKeysParams = {
  */
 export async function removeGuardrailKeys(
   client: Client,
-  args: RemoveGuardrailKeysParams = {},
+  args: RemoveGuardrailKeysParams,
 ): Promise<{
   removed_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys/remove`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys/remove`;
   return client.request<{
     removed_count: number;
   }>({
@@ -16466,7 +16502,7 @@ export async function removeGuardrailKeys(
 }
 
 export type RemoveGuardrailMembersParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16481,12 +16517,12 @@ export type RemoveGuardrailMembersParams = {
  */
 export async function removeGuardrailMembers(
   client: Client,
-  args: RemoveGuardrailMembersParams = {},
+  args: RemoveGuardrailMembersParams,
 ): Promise<{
   removed_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/members/remove`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/members/remove`;
   return client.request<{
     removed_count: number;
   }>({
@@ -16499,7 +16535,7 @@ export async function removeGuardrailMembers(
 }
 
 export type RemoveWorkspaceMembersParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16514,12 +16550,12 @@ export type RemoveWorkspaceMembersParams = {
  */
 export async function removeWorkspaceMembers(
   client: Client,
-  args: RemoveWorkspaceMembersParams = {},
+  args: RemoveWorkspaceMembersParams,
 ): Promise<{
   removed_count: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/remove`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members/remove`;
   return client.request<{
     removed_count: number;
   }>({
@@ -16565,7 +16601,7 @@ export async function reorderProviderCredentials(
 }
 
 export type ReplaceDynamicRouteKeysParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16580,7 +16616,7 @@ export type ReplaceDynamicRouteKeysParams = {
  */
 export async function replaceDynamicRouteKeys(
   client: Client,
-  args: ReplaceDynamicRouteKeysParams = {},
+  args: ReplaceDynamicRouteKeysParams,
 ): Promise<{
   data: {
     id: string;
@@ -16588,7 +16624,7 @@ export async function replaceDynamicRouteKeys(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}/keys`;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}/keys`;
   return client.request<{
     data: {
       id: string;
@@ -16604,7 +16640,7 @@ export async function replaceDynamicRouteKeys(
 }
 
 export type ReplaceGuardrailKeysParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16619,7 +16655,7 @@ export type ReplaceGuardrailKeysParams = {
  */
 export async function replaceGuardrailKeys(
   client: Client,
-  args: ReplaceGuardrailKeysParams = {},
+  args: ReplaceGuardrailKeysParams,
 ): Promise<{
   data: {
     guardrail_id: string;
@@ -16627,7 +16663,7 @@ export async function replaceGuardrailKeys(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys`;
   return client.request<{
     data: {
       guardrail_id: string;
@@ -16643,7 +16679,7 @@ export async function replaceGuardrailKeys(
 }
 
 export type RetrieveBatchParams = {
-  path?: {
+  path: {
     batch_id: string;
   };
   query?: Record<string, never>;
@@ -16656,7 +16692,7 @@ export type RetrieveBatchParams = {
  */
 export async function retrieveBatch(
   client: Client,
-  args: RetrieveBatchParams = {},
+  args: RetrieveBatchParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -16769,7 +16805,7 @@ export async function retrieveBatch(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -16890,7 +16926,7 @@ export async function retrieveBatch(
 }
 
 export type RetrieveBatchAliasParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -16903,7 +16939,7 @@ export type RetrieveBatchAliasParams = {
  */
 export async function retrieveBatchAlias(
   client: Client,
-  args: RetrieveBatchAliasParams = {},
+  args: RetrieveBatchAliasParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -17016,7 +17052,7 @@ export async function retrieveBatchAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -17137,7 +17173,7 @@ export async function retrieveBatchAlias(
 }
 
 export type RetrieveBatchFileParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -17150,7 +17186,7 @@ export type RetrieveBatchFileParams = {
  */
 export async function retrieveBatchFile(
   client: Client,
-  args: RetrieveBatchFileParams = {},
+  args: RetrieveBatchFileParams,
 ): Promise<{
   bytes?: number;
   created_at?: number;
@@ -17162,7 +17198,7 @@ export async function retrieveBatchFile(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.["file_id"]))}`;
+  const resolvedPath = `/batches/files/${encodeURIComponent(String(path["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -17182,7 +17218,7 @@ export async function retrieveBatchFile(
 }
 
 export type RetrieveBatchFileAliasParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -17195,7 +17231,7 @@ export type RetrieveBatchFileAliasParams = {
  */
 export async function retrieveBatchFileAlias(
   client: Client,
-  args: RetrieveBatchFileAliasParams = {},
+  args: RetrieveBatchFileAliasParams,
 ): Promise<{
   bytes?: number;
   created_at?: number;
@@ -17207,7 +17243,7 @@ export async function retrieveBatchFileAlias(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.["file_id"]))}`;
+  const resolvedPath = `/batch/files/${encodeURIComponent(String(path["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -17227,7 +17263,7 @@ export async function retrieveBatchFileAlias(
 }
 
 export type RetrieveBatchFileContentParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -17240,10 +17276,10 @@ export type RetrieveBatchFileContentParams = {
  */
 export async function retrieveBatchFileContent(
   client: Client,
-  args: RetrieveBatchFileContentParams = {},
+  args: RetrieveBatchFileContentParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
+  const resolvedPath = `/batches/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -17254,7 +17290,7 @@ export async function retrieveBatchFileContent(
 }
 
 export type RetrieveBatchFileContentAliasParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -17267,10 +17303,10 @@ export type RetrieveBatchFileContentAliasParams = {
  */
 export async function retrieveBatchFileContentAlias(
   client: Client,
-  args: RetrieveBatchFileContentAliasParams = {},
+  args: RetrieveBatchFileContentAliasParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
+  const resolvedPath = `/batch/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -17281,7 +17317,7 @@ export async function retrieveBatchFileContentAlias(
 }
 
 export type RetrieveFileParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -17294,7 +17330,7 @@ export type RetrieveFileParams = {
  */
 export async function retrieveFile(
   client: Client,
-  args: RetrieveFileParams = {},
+  args: RetrieveFileParams,
 ): Promise<{
   bytes?: number;
   created_at?: number;
@@ -17306,7 +17342,7 @@ export async function retrieveFile(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}`;
+  const resolvedPath = `/files/${encodeURIComponent(String(path["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -17326,7 +17362,7 @@ export async function retrieveFile(
 }
 
 export type RetrieveFileContentParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -17339,10 +17375,10 @@ export type RetrieveFileContentParams = {
  */
 export async function retrieveFileContent(
   client: Client,
-  args: RetrieveFileContentParams = {},
+  args: RetrieveFileContentParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
+  const resolvedPath = `/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -17353,7 +17389,7 @@ export async function retrieveFileContent(
 }
 
 export type RevokeWorkspaceScimTokenParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -17366,12 +17402,12 @@ export type RevokeWorkspaceScimTokenParams = {
  */
 export async function revokeWorkspaceScimToken(
   client: Client,
-  args: RevokeWorkspaceScimTokenParams = {},
+  args: RevokeWorkspaceScimTokenParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/scim/tokens/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/identity/scim/tokens/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -17384,7 +17420,7 @@ export async function revokeWorkspaceScimToken(
 }
 
 export type RotateApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -17400,7 +17436,7 @@ export type RotateApiKeyParams = {
  */
 export async function rotateApiKey(
   client: Client,
-  args: RotateApiKeyParams = {},
+  args: RotateApiKeyParams,
 ): Promise<{
   data: {
     created_at: string | null;
@@ -17464,7 +17500,7 @@ export async function rotateApiKey(
   previous_key_expires_at: string | null;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}/rotate`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}/rotate`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -17536,7 +17572,7 @@ export async function rotateApiKey(
 }
 
 export type RotateWebhookEndpointSecretParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -17549,7 +17585,7 @@ export type RotateWebhookEndpointSecretParams = {
  */
 export async function rotateWebhookEndpointSecret(
   client: Client,
-  args: RotateWebhookEndpointSecretParams = {},
+  args: RotateWebhookEndpointSecretParams,
 ): Promise<{
   createdAt?: string | null;
   createdBy?: string | null;
@@ -17565,7 +17601,7 @@ export async function rotateWebhookEndpointSecret(
   workspaceId: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}/rotate-secret`;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}/rotate-secret`;
   return client.request<{
     createdAt?: string | null;
     createdBy?: string | null;
@@ -17589,7 +17625,7 @@ export async function rotateWebhookEndpointSecret(
 }
 
 export type SetWorkspaceDepartmentMemberParams = {
-  path?: {
+  path: {
     departmentId: string;
     userId: string;
   };
@@ -17606,7 +17642,7 @@ export type SetWorkspaceDepartmentMemberParams = {
  */
 export async function setWorkspaceDepartmentMember(
   client: Client,
-  args: SetWorkspaceDepartmentMemberParams = {},
+  args: SetWorkspaceDepartmentMemberParams,
 ): Promise<{
   data: {
     department_id: string;
@@ -17616,7 +17652,7 @@ export async function setWorkspaceDepartmentMember(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["departmentId"]))}/members/${encodeURIComponent(String(path?.["userId"]))}`;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["departmentId"]))}/members/${encodeURIComponent(String(path["userId"]))}`;
   return client.request<{
     data: {
       department_id: string;
@@ -17700,7 +17736,7 @@ export async function summarizeGatewayFeedback(
 }
 
 export type TestWorkspaceNotificationDestinationParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -17713,7 +17749,7 @@ export type TestWorkspaceNotificationDestinationParams = {
  */
 export async function testWorkspaceNotificationDestination(
   client: Client,
-  args: TestWorkspaceNotificationDestinationParams = {},
+  args: TestWorkspaceNotificationDestinationParams,
 ): Promise<{
   data: {
     delivered: true;
@@ -17721,7 +17757,7 @@ export async function testWorkspaceNotificationDestination(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path?.["id"]))}/test`;
+  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path["id"]))}/test`;
   return client.request<{
     data: {
       delivered: true;
@@ -17781,7 +17817,7 @@ export async function testWorkspaceNotificationDestinationConfig(
 }
 
 export type UpdateApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -17817,7 +17853,7 @@ export type UpdateApiKeyParams = {
  */
 export async function updateApiKey(
   client: Client,
-  args: UpdateApiKeyParams = {},
+  args: UpdateApiKeyParams,
 ): Promise<{
   data: {
     created_at: string | null;
@@ -17879,7 +17915,7 @@ export async function updateApiKey(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -17949,7 +17985,7 @@ export async function updateApiKey(
 }
 
 export type UpdateDataContributionClassifierParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -17973,7 +18009,7 @@ export type UpdateDataContributionClassifierParams = {
  */
 export async function updateDataContributionClassifier(
   client: Client,
-  args: UpdateDataContributionClassifierParams = {},
+  args: UpdateDataContributionClassifierParams,
 ): Promise<{
   data: {
     categories: {
@@ -17995,7 +18031,7 @@ export async function updateDataContributionClassifier(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       categories: {
@@ -18069,7 +18105,7 @@ export async function updateDataContributionConsent(
 }
 
 export type UpdateDynamicRouteParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -18146,7 +18182,7 @@ export type UpdateDynamicRouteParams = {
  */
 export async function updateDynamicRoute(
   client: Client,
-  args: UpdateDynamicRouteParams = {},
+  args: UpdateDynamicRouteParams,
 ): Promise<{
   data: {
     config: {
@@ -18229,7 +18265,7 @@ export async function updateDynamicRoute(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       config: {
@@ -18320,7 +18356,7 @@ export async function updateDynamicRoute(
 }
 
 export type UpdateGuardrailParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -18362,7 +18398,7 @@ export type UpdateGuardrailParams = {
  */
 export async function updateGuardrail(
   client: Client,
-  args: UpdateGuardrailParams = {},
+  args: UpdateGuardrailParams,
 ): Promise<{
   data: {
     allowed_api_model_ids?: string[] | null;
@@ -18400,7 +18436,7 @@ export async function updateGuardrail(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       allowed_api_model_ids?: string[] | null;
@@ -18446,7 +18482,7 @@ export async function updateGuardrail(
 }
 
 export type UpdateManagementKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -18472,7 +18508,7 @@ export type UpdateManagementKeyParams = {
  */
 export async function updateManagementKey(
   client: Client,
-  args: UpdateManagementKeyParams = {},
+  args: UpdateManagementKeyParams,
 ): Promise<{
   data: {
     created_at: string;
@@ -18496,7 +18532,7 @@ export async function updateManagementKey(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/management-keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string;
@@ -18528,7 +18564,7 @@ export async function updateManagementKey(
 }
 
 export type UpdateOAuthClientParams = {
-  path?: {
+  path: {
     client_id: string;
   };
   query?: Record<string, never>;
@@ -18550,7 +18586,7 @@ export type UpdateOAuthClientParams = {
  */
 export async function updateOAuthClient(
   client: Client,
-  args: UpdateOAuthClientParams = {},
+  args: UpdateOAuthClientParams,
 ): Promise<{
   active_authorizations?: number;
   allowed_scopes?: string[];
@@ -18573,7 +18609,7 @@ export async function updateOAuthClient(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}`;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}`;
   return client.request<{
     active_authorizations?: number;
     allowed_scopes?: string[];
@@ -18604,7 +18640,7 @@ export async function updateOAuthClient(
 }
 
 export type UpdateObservabilityDestinationParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -18664,7 +18700,7 @@ export type UpdateObservabilityDestinationParams = {
  */
 export async function updateObservabilityDestination(
   client: Client,
-  args: UpdateObservabilityDestinationParams = {},
+  args: UpdateObservabilityDestinationParams,
 ): Promise<{
   data: {
     configured: boolean;
@@ -18719,7 +18755,7 @@ export async function updateObservabilityDestination(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       configured: boolean;
@@ -18833,7 +18869,7 @@ export async function updateObservabilityLoggingPolicy(
 }
 
 export type UpdatePresetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -18856,7 +18892,7 @@ export type UpdatePresetParams = {
  */
 export async function updatePreset(
   client: Client,
-  args: UpdatePresetParams = {},
+  args: UpdatePresetParams,
 ): Promise<{
   data: {
     active_version_id?: string | null;
@@ -18879,7 +18915,7 @@ export async function updatePreset(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       active_version_id?: string | null;
@@ -18947,7 +18983,7 @@ export async function updatePresetPublisher(
 }
 
 export type UpdatePresetTestRunParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -18969,7 +19005,7 @@ export type UpdatePresetTestRunParams = {
  */
 export async function updatePresetTestRun(
   client: Client,
-  args: UpdatePresetTestRunParams = {},
+  args: UpdatePresetTestRunParams,
 ): Promise<{
   data: {
     baseline_preset_id: string | null;
@@ -18994,7 +19030,7 @@ export async function updatePresetTestRun(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       baseline_preset_id: string | null;
@@ -19027,7 +19063,7 @@ export async function updatePresetTestRun(
 }
 
 export type UpdateProviderCredentialParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19047,7 +19083,7 @@ export type UpdateProviderCredentialParams = {
  */
 export async function updateProviderCredential(
   client: Client,
-  args: UpdateProviderCredentialParams = {},
+  args: UpdateProviderCredentialParams,
 ): Promise<{
   data: {
     allowed_api_key_ids?: string[];
@@ -19073,7 +19109,7 @@ export async function updateProviderCredential(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       allowed_api_key_ids?: string[];
@@ -19107,7 +19143,7 @@ export async function updateProviderCredential(
 }
 
 export type UpdateWebhookEndpointParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19125,7 +19161,7 @@ export type UpdateWebhookEndpointParams = {
  */
 export async function updateWebhookEndpoint(
   client: Client,
-  args: UpdateWebhookEndpointParams = {},
+  args: UpdateWebhookEndpointParams,
 ): Promise<{
   createdAt?: string | null;
   createdBy?: string | null;
@@ -19140,7 +19176,7 @@ export async function updateWebhookEndpoint(
   workspaceId: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     createdAt?: string | null;
     createdBy?: string | null;
@@ -19163,7 +19199,7 @@ export async function updateWebhookEndpoint(
 }
 
 export type UpdateWorkspaceParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19179,7 +19215,7 @@ export type UpdateWorkspaceParams = {
  */
 export async function updateWorkspace(
   client: Client,
-  args: UpdateWorkspaceParams = {},
+  args: UpdateWorkspaceParams,
 ): Promise<{
   data: {
     created_at: string | null;
@@ -19191,7 +19227,7 @@ export async function updateWorkspace(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -19211,7 +19247,7 @@ export async function updateWorkspace(
 }
 
 export type UpdateWorkspaceAppParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19232,7 +19268,7 @@ export type UpdateWorkspaceAppParams = {
  */
 export async function updateWorkspaceApp(
   client: Client,
-  args: UpdateWorkspaceAppParams = {},
+  args: UpdateWorkspaceAppParams,
 ): Promise<{
   data: {
     app_key: string;
@@ -19250,7 +19286,7 @@ export async function updateWorkspaceApp(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/apps/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/apps/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       app_key: string;
@@ -19276,7 +19312,7 @@ export async function updateWorkspaceApp(
 }
 
 export type UpdateWorkspaceBudgetParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19292,7 +19328,7 @@ export type UpdateWorkspaceBudgetParams = {
  */
 export async function updateWorkspaceBudget(
   client: Client,
-  args: UpdateWorkspaceBudgetParams = {},
+  args: UpdateWorkspaceBudgetParams,
 ): Promise<{
   data: {
     created_at: string;
@@ -19313,7 +19349,7 @@ export async function updateWorkspaceBudget(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/budgets/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string;
@@ -19342,7 +19378,7 @@ export async function updateWorkspaceBudget(
 }
 
 export type UpdateWorkspaceDepartmentParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19396,7 +19432,7 @@ export type UpdateWorkspaceDepartmentParams = {
  */
 export async function updateWorkspaceDepartment(
   client: Client,
-  args: UpdateWorkspaceDepartmentParams = {},
+  args: UpdateWorkspaceDepartmentParams,
 ): Promise<{
   data: {
     color?: string;
@@ -19413,7 +19449,7 @@ export async function updateWorkspaceDepartment(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       color?: string;
@@ -19438,7 +19474,7 @@ export async function updateWorkspaceDepartment(
 }
 
 export type UpdateWorkspaceDirectoryMemberParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19456,14 +19492,14 @@ export type UpdateWorkspaceDirectoryMemberParams = {
  */
 export async function updateWorkspaceDirectoryMember(
   client: Client,
-  args: UpdateWorkspaceDirectoryMemberParams = {},
+  args: UpdateWorkspaceDirectoryMemberParams,
 ): Promise<{
   data: {
     updated: boolean;
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/directory/members/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/identity/directory/members/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       updated: boolean;
@@ -19478,7 +19514,7 @@ export async function updateWorkspaceDirectoryMember(
 }
 
 export type UpdateWorkspaceGroupMappingParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -19494,7 +19530,7 @@ export type UpdateWorkspaceGroupMappingParams = {
  */
 export async function updateWorkspaceGroupMapping(
   client: Client,
-  args: UpdateWorkspaceGroupMappingParams = {},
+  args: UpdateWorkspaceGroupMappingParams,
 ): Promise<{
   data: {
     access_role: "member" | "admin";
@@ -19507,7 +19543,7 @@ export async function updateWorkspaceGroupMapping(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       access_role: "member" | "admin";
@@ -19528,7 +19564,7 @@ export async function updateWorkspaceGroupMapping(
 }
 
 export type UpdateWorkspaceMemberRoleParams = {
-  path?: {
+  path: {
     id: string;
     user_id: string;
   };
@@ -19544,7 +19580,7 @@ export type UpdateWorkspaceMemberRoleParams = {
  */
 export async function updateWorkspaceMemberRole(
   client: Client,
-  args: UpdateWorkspaceMemberRoleParams = {},
+  args: UpdateWorkspaceMemberRoleParams,
 ): Promise<{
   data: {
     display_name?: string | null;
@@ -19555,7 +19591,7 @@ export async function updateWorkspaceMemberRole(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}/members/${encodeURIComponent(String(path?.["user_id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members/${encodeURIComponent(String(path["user_id"]))}`;
   return client.request<{
     data: {
       display_name?: string | null;
@@ -19574,7 +19610,7 @@ export async function updateWorkspaceMemberRole(
 }
 
 export type UpdateWorkspaceNotificationRouteParams = {
-  path?: {
+  path: {
     eventKind:
       | "low_balance"
       | "auto_top_up_failed"
@@ -19593,7 +19629,7 @@ export type UpdateWorkspaceNotificationRouteParams = {
  */
 export async function updateWorkspaceNotificationRoute(
   client: Client,
-  args: UpdateWorkspaceNotificationRouteParams = {},
+  args: UpdateWorkspaceNotificationRouteParams,
 ): Promise<{
   data: {
     destination_ids: string[];
@@ -19605,7 +19641,7 @@ export async function updateWorkspaceNotificationRoute(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/notifications/routes/${encodeURIComponent(String(path?.["eventKind"]))}`;
+  const resolvedPath = `/notifications/routes/${encodeURIComponent(String(path["eventKind"]))}`;
   return client.request<{
     data: {
       destination_ids: string[];
