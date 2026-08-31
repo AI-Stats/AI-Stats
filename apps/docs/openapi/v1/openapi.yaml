@@ -19900,7 +19900,6 @@ components:
         - moonshotai/kimi-k2.7-code
         - moonshotai/kimi-k3
         - moonshotai/kimi-k3-fast
-        - moonshotai/moonshot-v1-8k-vision-preview
         - morph/morph-compactor
         - morph/morph-v3-fast
         - morph/morph-v3-large
