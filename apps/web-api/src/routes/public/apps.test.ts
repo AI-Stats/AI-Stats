@@ -46,11 +46,13 @@ describe("public app routes", () => {
 			}
 			if (url.includes("rpc/get_public_app_groups")) {
 				return new Response(JSON.stringify([{
-					id: appId,
-					slug: "my-app",
-					title: "My App",
-					is_active: true,
-					is_public: true,
+					reference: "my-app",
+					app_id: appId,
+					app_name: "My App",
+					app_is_active: true,
+					app_is_public: true,
+					member_ids: [appId],
+					public_slug: "my-app",
 				}]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -70,7 +72,8 @@ describe("public app routes", () => {
 		expect(detail.headers.get("cloudflare-cdn-cache-control")).toBe(
 			"public, max-age=900, stale-while-revalidate=3600",
 		);
-		await expect(detail.json()).resolves.toMatchObject({
+		const detailPayload = await detail.json() as any;
+		expect(detailPayload).toMatchObject({
 			app: { id: appId, slug: "my-app", total_tokens: 1_000, total_requests: 9 },
 		});
 		expect(detailPayload.app.member_ids).toBeUndefined();
