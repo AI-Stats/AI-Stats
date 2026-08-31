@@ -176,6 +176,115 @@ describe("alibaba wan video executor", () => {
 		);
 	});
 
+	it("maps Wan 3.0 parameters to the native async API", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/api/v1/services/aigc/video-generation/video-synthesis"),
+				response: jsonResponse({ output: { task_id: "wan30_task_123", task_status: "PENDING" } }),
+				onRequest: (call) => {
+					capturedBody = call.bodyJson;
+				},
+			},
+		]);
+
+		const result = await execute(buildArgs({
+			model: "qwen/wan3.0-video",
+			prompt: "A cinematic sunrise over a quiet ocean",
+			duration: 8,
+			resolution: "720p",
+			aspectRatio: "16:9",
+			generateAudio: false,
+			enhancePrompt: false,
+			providerParams: { watermark: true },
+		}));
+
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody).toEqual({
+			model: "wan3.0-video",
+			input: { prompt: "A cinematic sunrise over a quiet ocean" },
+			parameters: {
+				resolution: "720P",
+				ratio: "16:9",
+				duration: 8,
+				audio: false,
+				prompt_extend: false,
+				watermark: true,
+			},
+		});
+		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
+			"team_test",
+			"req_wan_video_test",
+			expect.objectContaining({ model: "qwen/wan3.0-video", seconds: 8, resolution: "720P" }),
+			"wan30_task_123",
+			"queued",
+		);
+	});
+
+	it("maps Wan 3.0 Prime multimodal references and bills input video duration", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/api/v1/services/aigc/video-generation/video-synthesis"),
+				response: jsonResponse({ output: { task_id: "wan30_prime_task_123", task_status: "PENDING" } }),
+				onRequest: (call) => {
+					capturedBody = call.bodyJson;
+				},
+			},
+		]);
+
+		await execute(buildArgs({
+			model: "qwen/wan3.0-video-prime",
+			prompt: "Use Image 1 and Video 1 to create a product launch scene with Audio 1",
+			duration: 10,
+			resolution: "1080P",
+			inputVideoDurationSeconds: 8,
+			inputReferences: [
+				{ type: "image", role: "reference", url: "https://example.com/product.png" },
+				{ type: "video", role: "reference", url: "https://example.com/motion.mp4" },
+				{ type: "audio", role: "reference", url: "https://example.com/music.mp3" },
+			],
+		}));
+
+		mock.restore();
+
+		expect(capturedBody).toEqual({
+			model: "wan3.0-video-prime",
+			input: {
+				prompt: "Use Image 1 and Video 1 to create a product launch scene with Audio 1",
+				media: [
+					{ type: "reference_image", url: "https://example.com/product.png" },
+					{ type: "reference_video", url: "https://example.com/motion.mp4" },
+					{ type: "reference_audio", url: "https://example.com/music.mp3" },
+				],
+			},
+			parameters: { resolution: "1080P", duration: 10 },
+		});
+	});
+
+	it("rejects Wan 3.0 reference video without its billing duration", async () => {
+		const mock = installFetchMock([]);
+
+		const result = await execute(buildArgs({
+			model: "qwen/wan3.0-video",
+			prompt: "Edit the reference video",
+			duration: 10,
+			inputReferences: [
+				{ type: "video", role: "reference", url: "https://example.com/source.mp4" },
+			],
+		}));
+
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.clone().json()).toMatchObject({
+			error: { type: "invalid_request", message: expect.stringContaining("input_video_duration") },
+		});
+		expect(mock.calls).toEqual([]);
+	});
+
 	it("maps the HappyHorse 1.1 family to text-to-video with provider defaults", async () => {
 		let capturedBody: any = null;
 		const mock = installFetchMock([

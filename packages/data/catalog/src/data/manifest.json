@@ -1164,7 +1164,9 @@
       "qwen/qwen3-omni-30b-a3b",
       "qwen/qwen3.8-27b",
       "qwen/qwen3.6-flash",
-      "qwen/qwen3.8-flash"
+      "qwen/qwen3.8-flash",
+      "qwen/wan3.0-video",
+      "qwen/wan3.0-video-prime"
     ],
     "relace": [
       "relace/relace-apply-3",

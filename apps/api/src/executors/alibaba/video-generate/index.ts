@@ -83,6 +83,10 @@ function isWan27Model(model: string): boolean {
 	return /^wan2\.7(?:-|$)/i.test(model);
 }
 
+function isWan30Model(model: string): boolean {
+	return /^wan3\.0-video(?:-prime)?$/i.test(model);
+}
+
 type HappyHorseMode = "t2v" | "i2v" | "r2v" | "video-edit";
 
 type AlibabaVideoAsset = {
@@ -353,6 +357,138 @@ function buildWan27Media(ir: IRVideoGenerationRequest, inputImage?: string): Arr
 	return media;
 }
 
+type Wan30MediaType = "first_frame" | "last_frame" | "reference_image" | "reference_video" | "reference_audio";
+
+function addWan30Media(
+	media: Array<Record<string, string>>,
+	seen: Set<string>,
+	type: Wan30MediaType,
+	value: unknown,
+): void {
+	const url = normalizeInputSource(value);
+	if (!url) return;
+	const key = `${type}:${url}`;
+	if (seen.has(key)) return;
+	seen.add(key);
+	media.push({ type, url });
+}
+
+function buildWan30Media(ir: IRVideoGenerationRequest, inputImage?: string): Array<Record<string, string>> {
+	const media: Array<Record<string, string>> = [];
+	const seen = new Set<string>();
+	for (const reference of ir.inputReferences ?? []) {
+		if (reference.type === "audio") {
+			addWan30Media(media, seen, "reference_audio", reference.url ?? reference.raw);
+			continue;
+		}
+		if (reference.type === "video") {
+			addWan30Media(media, seen, "reference_video", reference.url ?? reference.raw);
+			continue;
+		}
+		if (reference.type !== "image") continue;
+		const type = reference.role === "first_frame"
+			? "first_frame"
+			: reference.role === "last_frame"
+				? "last_frame"
+				: "reference_image";
+		addWan30Media(media, seen, type, reference.url ?? reference.raw);
+	}
+	addWan30Media(media, seen, "first_frame", inputImage);
+	addWan30Media(media, seen, "last_frame", ir.lastFrame ?? ir.input?.lastFrame);
+	addWan30Media(media, seen, "reference_video", ir.inputVideo ?? ir.input?.video);
+	for (const reference of ir.referenceImages ?? []) {
+		addWan30Media(media, seen, "reference_image", reference.image ?? reference.url ?? reference.uri ?? reference);
+	}
+	return media;
+}
+
+function wan30Request(
+	ir: IRVideoGenerationRequest,
+	model: string,
+	config: Record<string, any>,
+): { request: Record<string, unknown>; seconds: number; resolution: "480P" | "720P" | "1080P"; inputVideoSeconds?: number } {
+	const inputImage = normalizeInputSource(
+		config.img_url ?? config.image_url ?? ir.inputReference ?? ir.inputImage ?? ir.input?.image,
+	);
+	const media = buildWan30Media(ir, inputImage);
+	const firstFrames = media.filter((entry) => entry.type === "first_frame");
+	const lastFrames = media.filter((entry) => entry.type === "last_frame");
+	const referenceImages = media.filter((entry) => entry.type === "reference_image");
+	const referenceVideos = media.filter((entry) => entry.type === "reference_video");
+	const referenceAudio = media.filter((entry) => entry.type === "reference_audio");
+	const hasFrameConditioning = firstFrames.length > 0 || lastFrames.length > 0;
+	const hasReferenceConditioning = referenceImages.length > 0 || referenceVideos.length > 0 || referenceAudio.length > 0;
+
+	if (firstFrames.length > 1 || lastFrames.length > 1) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 accepts at most one first_frame and one last_frame image.");
+	}
+	if (hasFrameConditioning && hasReferenceConditioning) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 first/last-frame inputs cannot be combined with reference media.");
+	}
+	if (referenceImages.length > 10 || referenceVideos.length > 5 || referenceAudio.length > 5 || media.length > 20) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 supports at most 10 reference images, 5 reference videos, 5 reference audios, and 20 total media items.");
+	}
+	if (ir.negativePrompt) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 does not document support for negative_prompt.");
+	}
+
+	const requestedSeconds = toDurationSeconds(ir);
+	const seconds = requestedSeconds ?? 5;
+	if (!Number.isInteger(seconds) || seconds < 2 || seconds > 30) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 duration must be an integer from 2 to 30 seconds.");
+	}
+	const resolutionInput = config.resolution ?? ir.resolution ?? ir.size;
+	const resolution = resolutionInput == null ? "1080P" : normalizeWanResolution(resolutionInput);
+	if (!resolution) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 resolution must be 480P, 720P, or 1080P.");
+	}
+	const ratio = toNonEmptyString(config.ratio) ?? ir.aspectRatio ?? ir.ratio;
+	const allowedRatios = new Set(["adaptive", "16:9", "4:3", "1:1", "3:4", "9:16"]);
+	if (ratio && !allowedRatios.has(ratio)) {
+		throw new InvalidAlibabaVideoRequestError(`Unsupported Wan 3.0 aspect ratio: ${ratio}.`);
+	}
+	const inputVideoSeconds = ir.inputVideoDurationSeconds;
+	if (referenceVideos.length > 0) {
+		if (inputVideoSeconds == null || !Number.isFinite(inputVideoSeconds) || inputVideoSeconds <= 0 || inputVideoSeconds > 15) {
+			throw new InvalidAlibabaVideoRequestError("input_video_duration is required for Wan 3.0 reference video input and must be at most 15 seconds.");
+		}
+		if (inputVideoSeconds + seconds > 30) {
+			throw new InvalidAlibabaVideoRequestError("Wan 3.0 input and output video duration cannot exceed 30 seconds in total.");
+		}
+	}
+	if (ir.seed != null && (ir.seed < 0 || ir.seed > 2_147_483_647)) {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 seed must be between 0 and 2147483647.");
+	}
+	const audio = typeof config.audio === "boolean" ? config.audio : ir.generateAudio;
+	const promptExtend = typeof config.prompt_extend === "boolean" ? config.prompt_extend : ir.enhancePrompt;
+	const watermark = config.watermark;
+	if (watermark != null && typeof watermark !== "boolean") {
+		throw new InvalidAlibabaVideoRequestError("Wan 3.0 watermark must be a boolean.");
+	}
+	return {
+		seconds,
+		resolution,
+		...(inputVideoSeconds != null ? { inputVideoSeconds } : {}),
+		request: {
+			model,
+			input: {
+				...(ir.prompt ? { prompt: ir.prompt } : {}),
+				...(media.length > 0 ? { media } : {}),
+			},
+			parameters: {
+				resolution,
+				...(ratio ? { ratio } : {}),
+				duration: seconds,
+				...(typeof audio === "boolean" ? { audio } : {}),
+				...(typeof promptExtend === "boolean" ? { prompt_extend: promptExtend } : {}),
+				...(typeof watermark === "boolean" ? { watermark } : {}),
+				...(typeof ir.seed === "number" ? { seed: ir.seed } : {}),
+				...(toNonEmptyString(config.callback_url) ? { callback_url: config.callback_url } : {}),
+			},
+		},
+	};
+}
+
 function firstAudioReference(ir: IRVideoGenerationRequest): string | undefined {
 	const reference = ir.inputReferences?.find((entry) => entry.type === "audio");
 	return normalizeInputSource(reference?.url ?? reference?.raw);
@@ -407,6 +543,7 @@ function irToAlibabaVideoRequest(ir: IRVideoGenerationRequest, model: string): a
 	const rawRequest = (ir.rawRequest ?? {}) as Record<string, any>;
 	const alibabaConfig = extractAlibabaConfig(rawRequest, ir.providerParams);
 	if (happyHorseFamily(model)) return happyHorseRequest(ir, model, alibabaConfig).request;
+	if (isWan30Model(model)) return wan30Request(ir, model, alibabaConfig).request;
 	const seconds = toDurationSeconds(ir);
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const ratio = toNonEmptyString(alibabaConfig.ratio) ?? ir.aspectRatio ?? ir.ratio;
@@ -493,6 +630,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const baseUrl = (bindings.ALIBABA_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
 	let requestObject: Record<string, unknown>;
 	let happyHorse: ReturnType<typeof happyHorseRequest> | null = null;
+	let wan30: ReturnType<typeof wan30Request> | null = null;
 	try {
 		if (happyHorseFamily(model)) {
 			happyHorse = happyHorseRequest(
@@ -501,6 +639,13 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				extractAlibabaConfig((ir.rawRequest ?? {}) as Record<string, any>, ir.providerParams),
 			);
 			requestObject = happyHorse.request;
+		} else if (isWan30Model(model)) {
+			wan30 = wan30Request(
+				ir,
+				model,
+				extractAlibabaConfig((ir.rawRequest ?? {}) as Record<string, any>, ir.providerParams),
+			);
+			requestObject = wan30.request;
 		} else {
 			requestObject = irToAlibabaVideoRequest(ir, model);
 		}
@@ -531,8 +676,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		: 0;
 	const requestBody = JSON.stringify(requestObject);
 	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestBody : undefined;
-	const requestedSeconds = happyHorse?.seconds ?? toDurationSeconds(ir) ?? null;
-	const size = happyHorse?.resolution ?? resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const requestedSeconds = happyHorse?.seconds ?? wan30?.seconds ?? toDurationSeconds(ir) ?? null;
+	const size = happyHorse?.resolution ?? wan30?.resolution ?? resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const inputVideoSeconds = happyHorse?.inputVideoSeconds ?? wan30?.inputVideoSeconds;
 	const quality = ir.quality ?? null;
 	let reservationId: string | null = null;
 	let reservationStatus: string | null = null;
@@ -552,7 +698,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				quality,
 				input_image_count: inputImageCount,
 				input_video_count: inputVideoCount,
-				input_video_seconds: happyHorse?.inputVideoSeconds,
+				input_video_seconds: inputVideoSeconds,
 			}),
 			isByok: keyInfo.source === "byok",
 		});
@@ -716,7 +862,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		...(requestedSeconds != null ? { output_video_seconds: requestedSeconds } : {}),
 		...(inputImageCount > 0 ? { input_image_count: inputImageCount } : {}),
 		...(inputVideoCount > 0 ? { input_video_count: inputVideoCount } : {}),
-		...(happyHorse?.inputVideoSeconds != null ? { input_video_seconds: happyHorse.inputVideoSeconds } : {}),
+		...(inputVideoSeconds != null ? { input_video_seconds: inputVideoSeconds } : {}),
 	} as any;
 	if (!irResponse.nativeId) {
 		await releaseReservationOnFailure();
