@@ -1062,6 +1062,21 @@ func ExportAnalyticsCsv(client *Client, path map[string]string, query map[string
 	return string(data), nil
 }
 
+func FinalizeRealtimeSession(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions/" + url.PathEscape(path["session_id"]) + "/finalize"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero map[string]interface{}
+		return zero, err
+	}
+	var out map[string]interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero map[string]interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
 func ForkPreset(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
 	resolvedPath := "/presets/" + url.PathEscape(path["id"]) + "/fork"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)

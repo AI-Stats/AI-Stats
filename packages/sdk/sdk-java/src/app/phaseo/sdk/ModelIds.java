@@ -565,9 +565,6 @@ public final class ModelIds {
     /** Model ID: <code>minimax/h3</code>. Model page: https://phaseo.app/models/minimax/h3 */
     public static final String MINIMAX_H3 = "minimax/h3";
 
-    /** Model ID: <code>minimax/h3-max</code>. Model page: https://phaseo.app/models/minimax/h3-max */
-    public static final String MINIMAX_H3_MAX = "minimax/h3-max";
-
     /** Model ID: <code>minimax/hailuo-02</code>. Model page: https://phaseo.app/models/minimax/hailuo-02 */
     public static final String MINIMAX_HAILUO_02 = "minimax/hailuo-02";
 
@@ -1368,6 +1365,12 @@ public final class ModelIds {
 
     /** Model ID: <code>qwen/wan2.7-t2v</code>. Model page: https://phaseo.app/models/qwen/wan2.7-t2v */
     public static final String QWEN_WAN2_7_T2V = "qwen/wan2.7-t2v";
+
+    /** Model ID: <code>qwen/wan3.0-video</code>. Model page: https://phaseo.app/models/qwen/wan3.0-video */
+    public static final String QWEN_WAN3_0_VIDEO = "qwen/wan3.0-video";
+
+    /** Model ID: <code>qwen/wan3.0-video-prime</code>. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime */
+    public static final String QWEN_WAN3_0_VIDEO_PRIME = "qwen/wan3.0-video-prime";
 
     /** Model ID: <code>reka-edge</code>. Model page: https://phaseo.app/models/reka-edge */
     public static final String REKA_EDGE = "reka-edge";

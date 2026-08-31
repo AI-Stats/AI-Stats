@@ -360,6 +360,11 @@ pub fn exportAnalyticsCsv<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn finalizeRealtimeSession<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/audio/realtime/sessions/{}/finalize", path.get("session_id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn forkPreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/presets/{}/fork", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)

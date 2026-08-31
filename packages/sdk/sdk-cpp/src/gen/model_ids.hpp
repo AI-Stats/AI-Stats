@@ -564,9 +564,6 @@ inline constexpr std::string_view MINDAI_MACARON_V1_VENTI = "mindai/macaron-v1-v
 // Model ID: minimax/h3
 // Model page: https://phaseo.app/models/minimax/h3
 inline constexpr std::string_view MINIMAX_H3 = "minimax/h3";
-// Model ID: minimax/h3-max
-// Model page: https://phaseo.app/models/minimax/h3-max
-inline constexpr std::string_view MINIMAX_H3_MAX = "minimax/h3-max";
 // Model ID: minimax/hailuo-02
 // Model page: https://phaseo.app/models/minimax/hailuo-02
 inline constexpr std::string_view MINIMAX_HAILUO_02 = "minimax/hailuo-02";
@@ -1368,6 +1365,12 @@ inline constexpr std::string_view QWEN_TEXT_EMBEDDING_V4 = "qwen/text-embedding-
 // Model ID: qwen/wan2.7-t2v
 // Model page: https://phaseo.app/models/qwen/wan2.7-t2v
 inline constexpr std::string_view QWEN_WAN2_7_T2V = "qwen/wan2.7-t2v";
+// Model ID: qwen/wan3.0-video
+// Model page: https://phaseo.app/models/qwen/wan3.0-video
+inline constexpr std::string_view QWEN_WAN3_0_VIDEO = "qwen/wan3.0-video";
+// Model ID: qwen/wan3.0-video-prime
+// Model page: https://phaseo.app/models/qwen/wan3.0-video-prime
+inline constexpr std::string_view QWEN_WAN3_0_VIDEO_PRIME = "qwen/wan3.0-video-prime";
 // Model ID: reka-edge
 // Model page: https://phaseo.app/models/reka-edge
 inline constexpr std::string_view REKA_EDGE = "reka-edge";
@@ -1668,7 +1671,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 553> ALL = {
+inline constexpr std::array<std::string_view, 554> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1855,7 +1858,6 @@ inline constexpr std::array<std::string_view, 553> ALL = {
 	MINDAI_MACARON_V1_TALL,
 	MINDAI_MACARON_V1_VENTI,
 	MINIMAX_H3,
-	MINIMAX_H3_MAX,
 	MINIMAX_HAILUO_02,
 	MINIMAX_HAILUO_2_3,
 	MINIMAX_HAILUO_2_3_FAST,
@@ -2123,6 +2125,8 @@ inline constexpr std::array<std::string_view, 553> ALL = {
 	QWEN_TEXT_EMBEDDING_V3,
 	QWEN_TEXT_EMBEDDING_V4,
 	QWEN_WAN2_7_T2V,
+	QWEN_WAN3_0_VIDEO,
+	QWEN_WAN3_0_VIDEO_PRIME,
 	REKA_EDGE,
 	REKA_EDGE_2603,
 	REKA_FLASH,

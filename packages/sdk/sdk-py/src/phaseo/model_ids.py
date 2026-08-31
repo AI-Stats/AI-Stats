@@ -754,10 +754,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/minimax/h3
     MINIMAX_H3: Final[str] = "minimax/h3"
 
-    # Model ID: minimax/h3-max
-    # Model page: https://phaseo.app/models/minimax/h3-max
-    MINIMAX_H3_MAX: Final[str] = "minimax/h3-max"
-
     # Model ID: minimax/hailuo-02
     # Model page: https://phaseo.app/models/minimax/hailuo-02
     MINIMAX_HAILUO_02: Final[str] = "minimax/hailuo-02"
@@ -1826,6 +1822,14 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/wan2.7-t2v
     QWEN_WAN2_7_T2V: Final[str] = "qwen/wan2.7-t2v"
 
+    # Model ID: qwen/wan3.0-video
+    # Model page: https://phaseo.app/models/qwen/wan3.0-video
+    QWEN_WAN3_0_VIDEO: Final[str] = "qwen/wan3.0-video"
+
+    # Model ID: qwen/wan3.0-video-prime
+    # Model page: https://phaseo.app/models/qwen/wan3.0-video-prime
+    QWEN_WAN3_0_VIDEO_PRIME: Final[str] = "qwen/wan3.0-video-prime"
+
     # Model ID: reka-edge
     # Model page: https://phaseo.app/models/reka-edge
     REKA_EDGE: Final[str] = "reka-edge"
@@ -2414,7 +2418,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MINDAI_MACARON_V1_TALL,
         ModelIds.MINDAI_MACARON_V1_VENTI,
         ModelIds.MINIMAX_H3,
-        ModelIds.MINIMAX_H3_MAX,
         ModelIds.MINIMAX_HAILUO_02,
         ModelIds.MINIMAX_HAILUO_2_3,
         ModelIds.MINIMAX_HAILUO_2_3_FAST,
@@ -2682,6 +2685,8 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_TEXT_EMBEDDING_V3,
         ModelIds.QWEN_TEXT_EMBEDDING_V4,
         ModelIds.QWEN_WAN2_7_T2V,
+        ModelIds.QWEN_WAN3_0_VIDEO,
+        ModelIds.QWEN_WAN3_0_VIDEO_PRIME,
         ModelIds.REKA_EDGE,
         ModelIds.REKA_EDGE_2603,
         ModelIds.REKA_FLASH,

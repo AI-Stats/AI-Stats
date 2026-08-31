@@ -375,8 +375,6 @@ export const ModelIds = {
   MINDAI_MACARON_V1_VENTI: "mindai/macaron-v1-venti",
   /** Model ID: `minimax/h3`. Model page: https://phaseo.app/models/minimax/h3 */
   MINIMAX_H3: "minimax/h3",
-  /** Model ID: `minimax/h3-max`. Model page: https://phaseo.app/models/minimax/h3-max */
-  MINIMAX_H3_MAX: "minimax/h3-max",
   /** Model ID: `minimax/hailuo-02`. Model page: https://phaseo.app/models/minimax/hailuo-02 */
   MINIMAX_HAILUO_02: "minimax/hailuo-02",
   /** Model ID: `minimax/hailuo-2.3`. Model page: https://phaseo.app/models/minimax/hailuo-2.3 */
@@ -911,6 +909,10 @@ export const ModelIds = {
   QWEN_TEXT_EMBEDDING_V4: "qwen/text-embedding-v4",
   /** Model ID: `qwen/wan2.7-t2v`. Model page: https://phaseo.app/models/qwen/wan2.7-t2v */
   QWEN_WAN2_7_T2V: "qwen/wan2.7-t2v",
+  /** Model ID: `qwen/wan3.0-video`. Model page: https://phaseo.app/models/qwen/wan3.0-video */
+  QWEN_WAN3_0_VIDEO: "qwen/wan3.0-video",
+  /** Model ID: `qwen/wan3.0-video-prime`. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime */
+  QWEN_WAN3_0_VIDEO_PRIME: "qwen/wan3.0-video-prime",
   /** Model ID: `reka-edge`. Model page: https://phaseo.app/models/reka-edge */
   REKA_EDGE: "reka-edge",
   /** Model ID: `reka-edge-2603`. Model page: https://phaseo.app/models/reka-edge-2603 */

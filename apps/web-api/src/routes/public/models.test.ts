@@ -592,6 +592,25 @@ describe("public model routes", () => {
 		expect(performance.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
 	});
 
+	it("keeps the model page healthy when the optional performance rollup fails", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({ code: "57014", message: "canceling statement due to statement timeout" }), { status: 503 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({ modelId: "openai/gpt-test", metrics: null, performance: null });
+	});
+
 	it("suppresses performance and uptime series for a single-request cohort", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
@@ -950,10 +969,12 @@ describe("public model routes", () => {
 	it("returns the overview shape used by the model page", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_model_overview")) return new Response(JSON.stringify({
-				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
-				organisation_name: "OpenAI", organisation_country_code: "US", model_details: [], model_links: [],
-			}), { status: 200 });
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", description: null, lab_slug: "openai",
+				status: "active", catalogue_status: "active", released_at: "2026-07-01T00:00:00Z",
+				announced_at: null, input_modalities: ["text"], output_modalities: ["text"], metadata: {}, hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
 			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ model_slug: "openai/gpt-test", license: "MIT", license_url: null, limits: { context: 128000 } }), { status: 200 });
 			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify([]), { status: 200 });
 			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify([
@@ -989,10 +1010,12 @@ describe("public model routes", () => {
 	it("renders the overview when optional enrichments are unavailable", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_model_overview")) return new Response(JSON.stringify({
-				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
-				organisation_name: "OpenAI", gateway_input_modalities: ["text"], gateway_output_modalities: ["text"],
-			}), { status: 200 });
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", description: null, lab_slug: "openai",
+				status: "active", catalogue_status: "active", released_at: "2026-07-01T00:00:00Z",
+				announced_at: null, input_modalities: ["text"], output_modalities: ["text"], metadata: {}, hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
 			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ error: "identity temporarily unavailable" }), { status: 503 });
 			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify({ error: "aliases temporarily unavailable" }), { status: 503 });
 			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify({ error: "variants temporarily unavailable" }), { status: 503 });
@@ -1015,6 +1038,47 @@ describe("public model routes", () => {
 				variants: [],
 			},
 		});
+	});
+
+	it("uses a targeted model lookup without calling the wide overview RPC", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test",
+				name: "GPT Test",
+				description: "A test model",
+				lab_slug: "openai",
+				status: "active",
+				catalogue_status: "active",
+				released_at: "2026-07-01T00:00:00Z",
+				announced_at: null,
+				input_modalities: ["text"],
+				output_modalities: ["text"],
+				metadata: { limits: { context: 128000 } },
+				hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			model: {
+				model_id: "openai/gpt-test",
+				name: "GPT Test",
+				description: "A test model",
+				organisation: { name: "OpenAI" },
+				model_details: [{ detail_name: "input_context_length", detail_value: 128000 }],
+			},
+		});
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_model_overview"))).toBe(false);
 	});
 
 	it("returns public model app usage from the rollup RPC", async () => {

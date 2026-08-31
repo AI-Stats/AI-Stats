@@ -565,9 +565,6 @@ const (
 	// Model ID: minimax/h3
 	// Model page: https://phaseo.app/models/minimax/h3
 	ModelIDMinimaxH3 gen.ModelId = "minimax/h3"
-	// Model ID: minimax/h3-max
-	// Model page: https://phaseo.app/models/minimax/h3-max
-	ModelIDMinimaxH3Max gen.ModelId = "minimax/h3-max"
 	// Model ID: minimax/hailuo-02
 	// Model page: https://phaseo.app/models/minimax/hailuo-02
 	ModelIDMinimaxHailuo02 gen.ModelId = "minimax/hailuo-02"
@@ -1369,6 +1366,12 @@ const (
 	// Model ID: qwen/wan2.7-t2v
 	// Model page: https://phaseo.app/models/qwen/wan2.7-t2v
 	ModelIDQwenWan27T2v gen.ModelId = "qwen/wan2.7-t2v"
+	// Model ID: qwen/wan3.0-video
+	// Model page: https://phaseo.app/models/qwen/wan3.0-video
+	ModelIDQwenWan30Video gen.ModelId = "qwen/wan3.0-video"
+	// Model ID: qwen/wan3.0-video-prime
+	// Model page: https://phaseo.app/models/qwen/wan3.0-video-prime
+	ModelIDQwenWan30VideoPrime gen.ModelId = "qwen/wan3.0-video-prime"
 	// Model ID: reka-edge
 	// Model page: https://phaseo.app/models/reka-edge
 	ModelIDRekaEdge gen.ModelId = "reka-edge"
@@ -1857,7 +1860,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMindaiMacaronV1Tall,
 	ModelIDMindaiMacaronV1Venti,
 	ModelIDMinimaxH3,
-	ModelIDMinimaxH3Max,
 	ModelIDMinimaxHailuo02,
 	ModelIDMinimaxHailuo23,
 	ModelIDMinimaxHailuo23Fast,
@@ -2125,6 +2127,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenTextEmbeddingV3,
 	ModelIDQwenTextEmbeddingV4,
 	ModelIDQwenWan27T2v,
+	ModelIDQwenWan30Video,
+	ModelIDQwenWan30VideoPrime,
 	ModelIDRekaEdge,
 	ModelIDRekaEdge2603,
 	ModelIDRekaFlash,

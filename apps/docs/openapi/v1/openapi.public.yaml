@@ -1009,6 +1009,54 @@ paths:
       responses:
         '101':
           description: WebSocket connection established
+  /audio/realtime/sessions/{session_id}/finalize:
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: finalizeRealtimeSession
+      summary: Finalize realtime audio session
+      description: Finalizes metering and releases any remaining credit reservation for a realtime session.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - completed
+                    - failed
+                    - cancelled
+                    - expired
+                usage:
+                  type: object
+                  additionalProperties: true
+                disconnect_reason:
+                  type: string
+                  maxLength: 240
+                error_code:
+                  type: string
+                  maxLength: 120
+                error_message:
+                  type: string
+                  maxLength: 1000
+      responses:
+        '200':
+          description: Finalized realtime session and settlement
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /images/generations:
     post:
       x-beta: true

@@ -378,8 +378,6 @@ namespace PhaseoSdk
         public const string MindaiMacaronV1Venti = "mindai/macaron-v1-venti";
         /// <summary>Model ID: <c>minimax/h3</c>. Model page: https://phaseo.app/models/minimax/h3</summary>
         public const string MinimaxH3 = "minimax/h3";
-        /// <summary>Model ID: <c>minimax/h3-max</c>. Model page: https://phaseo.app/models/minimax/h3-max</summary>
-        public const string MinimaxH3Max = "minimax/h3-max";
         /// <summary>Model ID: <c>minimax/hailuo-02</c>. Model page: https://phaseo.app/models/minimax/hailuo-02</summary>
         public const string MinimaxHailuo02 = "minimax/hailuo-02";
         /// <summary>Model ID: <c>minimax/hailuo-2.3</c>. Model page: https://phaseo.app/models/minimax/hailuo-2.3</summary>
@@ -914,6 +912,10 @@ namespace PhaseoSdk
         public const string QwenTextEmbeddingV4 = "qwen/text-embedding-v4";
         /// <summary>Model ID: <c>qwen/wan2.7-t2v</c>. Model page: https://phaseo.app/models/qwen/wan2.7-t2v</summary>
         public const string QwenWan27T2v = "qwen/wan2.7-t2v";
+        /// <summary>Model ID: <c>qwen/wan3.0-video</c>. Model page: https://phaseo.app/models/qwen/wan3.0-video</summary>
+        public const string QwenWan30Video = "qwen/wan3.0-video";
+        /// <summary>Model ID: <c>qwen/wan3.0-video-prime</c>. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime</summary>
+        public const string QwenWan30VideoPrime = "qwen/wan3.0-video-prime";
         /// <summary>Model ID: <c>reka-edge</c>. Model page: https://phaseo.app/models/reka-edge</summary>
         public const string RekaEdge = "reka-edge";
         /// <summary>Model ID: <c>reka-edge-2603</c>. Model page: https://phaseo.app/models/reka-edge-2603</summary>

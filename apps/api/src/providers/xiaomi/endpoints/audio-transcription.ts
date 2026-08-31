@@ -14,13 +14,43 @@ import {
 	estimateOpenAiSpeechToTextUsage,
 	mergeSpeechToTextUsage,
 } from "@providers/openai/endpoints/audio-transcription-usage";
+import { upstreamTestHeaders } from "@providers/shared/testing";
 
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 const SUPPORTED_LANGUAGES = new Set(["auto", "zh", "en"]);
+const UNSUPPORTED_PARAMETERS = [
+	"file_url",
+	"s3_presigned_url",
+	"file_id",
+	"prompt",
+	"temperature",
+	"response_format",
+	"timestamp_granularities",
+	"diarize",
+	"enable_diarization",
+	"output_content",
+	"session_id",
+	"context_bias",
+	"include",
+	"chunking_strategy",
+	"config",
+] as const satisfies readonly (keyof AudioTranscriptionRequest)[];
 
 function invalidParameterResponse(param: string, message: string): Response {
 	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
 		status: 400,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
+function insecureEndpointResponse(): Response {
+	return new Response(JSON.stringify({
+		error: {
+			type: "configuration_error",
+			message: "Xiaomi speech recognition requires an HTTPS upstream endpoint.",
+		},
+	}), {
+		status: 500,
 		headers: { "Content-Type": "application/json" },
 	});
 }
@@ -72,6 +102,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		...adapterPayload,
 		model: args.providerModelSlug || adapterPayload.model,
 	};
+	const unsupportedParameter = UNSUPPORTED_PARAMETERS.find((parameter) => body[parameter] != null);
+	if (unsupportedParameter) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				unsupportedParameter,
+				`Xiaomi speech recognition does not support ${unsupportedParameter}.`,
+			),
+			bill: emptyBill(),
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
 	if (!body.file) {
 		return {
@@ -132,11 +175,36 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		}],
 		...(body.language ? { asr_options: { language: body.language.toLowerCase() } } : {}),
 	};
+	const upstreamUrl = openAICompatUrl(args.providerId, "/chat/completions");
+	try {
+		const parsedUpstreamUrl = new URL(upstreamUrl);
+		const isLoopback = parsedUpstreamUrl.hostname === "localhost" ||
+			parsedUpstreamUrl.hostname === "127.0.0.1" ||
+			parsedUpstreamUrl.hostname === "[::1]";
+		if (parsedUpstreamUrl.protocol !== "https:" && !isLoopback) {
+			return {
+				kind: "completed",
+				upstream: insecureEndpointResponse(),
+				bill: emptyBill(),
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+			};
+		}
+	} catch {
+		return {
+			kind: "completed",
+			upstream: insecureEndpointResponse(),
+			bill: emptyBill(),
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+
 	const res = await (args.upstreamTiming?.fetch ?? fetch)(
-		openAICompatUrl(args.providerId, "/chat/completions"),
+		upstreamUrl,
 		{
 			method: "POST",
-			headers: openAICompatHeaders(args.providerId, keyInfo.key),
+			headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),
 			body: JSON.stringify(requestBody),
 		},
 	);

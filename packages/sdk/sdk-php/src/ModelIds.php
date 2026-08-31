@@ -566,9 +566,6 @@ final class ModelIds
     /** Model ID: minimax/h3. Model page: https://phaseo.app/models/minimax/h3 */
     public const MINIMAX_H3 = 'minimax/h3';
 
-    /** Model ID: minimax/h3-max. Model page: https://phaseo.app/models/minimax/h3-max */
-    public const MINIMAX_H3_MAX = 'minimax/h3-max';
-
     /** Model ID: minimax/hailuo-02. Model page: https://phaseo.app/models/minimax/hailuo-02 */
     public const MINIMAX_HAILUO_02 = 'minimax/hailuo-02';
 
@@ -1369,6 +1366,12 @@ final class ModelIds
 
     /** Model ID: qwen/wan2.7-t2v. Model page: https://phaseo.app/models/qwen/wan2.7-t2v */
     public const QWEN_WAN2_7_T2V = 'qwen/wan2.7-t2v';
+
+    /** Model ID: qwen/wan3.0-video. Model page: https://phaseo.app/models/qwen/wan3.0-video */
+    public const QWEN_WAN3_0_VIDEO = 'qwen/wan3.0-video';
+
+    /** Model ID: qwen/wan3.0-video-prime. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime */
+    public const QWEN_WAN3_0_VIDEO_PRIME = 'qwen/wan3.0-video-prime';
 
     /** Model ID: reka-edge. Model page: https://phaseo.app/models/reka-edge */
     public const REKA_EDGE = 'reka-edge';

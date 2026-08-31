@@ -7263,6 +7263,45 @@ export async function exportAnalyticsCsv(
   });
 }
 
+export type FinalizeRealtimeSessionParams = {
+  path?: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    disconnect_reason?: string;
+    error_code?: string;
+    error_message?: string;
+    status?: "completed" | "failed" | "cancelled" | "expired";
+    usage?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Finalizes metering and releases any remaining credit reservation for a realtime session.
+ */
+export async function finalizeRealtimeSession(
+  client: Client,
+  args: FinalizeRealtimeSessionParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/finalize`;
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ForkPresetParams = {
   path?: {
     id: string;

@@ -745,6 +745,61 @@ type ModelVariantSummary = {
 	variant_kind: string;
 };
 
+function modelContextLengths(metadata: unknown): number[] {
+	if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return [];
+	const limits = (metadata as Record<string, unknown>).limits;
+	if (!limits || typeof limits !== "object" || Array.isArray(limits)) return [];
+	const context = Number((limits as Record<string, unknown>).context);
+	return Number.isFinite(context) && context > 0 ? [Math.trunc(context)] : [];
+}
+
+/**
+ * The catalogue RPC intentionally composes a wide page projection. Keep the
+ * model detail page available if that projection is slow or unavailable by
+ * reading only the requested model and its lab.
+ */
+async function fetchTargetedModelOverview(
+	env: Env,
+	modelId: string,
+): Promise<Record<string, unknown> | null> {
+	const client = getDataClient(env);
+	const modelResult = await client
+		.from("v2_models")
+		.select("model_slug,name,description,lab_slug,status,catalogue_status,released_at,announced_at,input_modalities,output_modalities,metadata,hidden")
+		.eq("model_slug", modelId.trim().toLowerCase())
+		.eq("hidden", false)
+		.neq("status", "disabled")
+		.maybeSingle();
+	if (modelResult.error) throw modelResult.error;
+	const model = modelResult.data as Record<string, unknown> | null;
+	if (!model) return null;
+
+	const labResult = await client
+		.from("v2_labs")
+		.select("lab_slug,name,country_code")
+		.eq("lab_slug", String(model.lab_slug ?? ""))
+		.maybeSingle();
+	if (labResult.error) throw labResult.error;
+	const lab = labResult.data as Record<string, unknown> | null;
+	const catalogueStatus = String(model.catalogue_status ?? model.status ?? "unknown");
+	const gatewayStatus = ["draft", "announced"].includes(catalogueStatus.toLowerCase())
+		? "coming_soon"
+		: "not_active";
+
+	return {
+		model_id: model.model_slug,
+		name: model.name,
+		description: model.description,
+		organisation_id: model.lab_slug,
+		organisation_name: lab?.name ?? model.lab_slug,
+		primary_date: model.released_at ?? model.announced_at ?? null,
+		gateway_status: gatewayStatus,
+		gateway_input_modalities: Array.isArray(model.input_modalities) ? model.input_modalities : [],
+		gateway_output_modalities: Array.isArray(model.output_modalities) ? model.output_modalities : [],
+		context_lengths: modelContextLengths(model.metadata),
+	};
+}
+
 async function fetchModelVariants(
 	env: Env,
 	modelId: string,
@@ -1036,13 +1091,11 @@ publicModelsRouter.get("/:modelId", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
 		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_overview", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
-		});
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		const v2Overview = v2Result.data as Record<string, unknown> | null;
+		// The old overview RPC expands the entire public catalogue before it
+		// filters to one model. Model pages only need stable model facts here;
+		// fetch those facts directly so one slow catalogue row cannot take down
+		// every detail page.
+		const v2Overview = await fetchTargetedModelOverview(c.env, modelId);
 		if (v2Overview?.model_id) {
 			const canonicalModelId = String(v2Overview.model_id);
 			const [identityResult, aliasesResult, variantsResult] = await Promise.allSettled([
@@ -1316,7 +1369,10 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 			return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
 		}
 		throw v2.error ?? new Error("V2 provider health query returned an invalid payload");
-	} catch (error) { console.error("[web-api/models] provider health failed", { modelId, error }); return c.json({ error: "model_provider_health_unavailable" }, 503); }
+	} catch (error) {
+		console.error("[web-api/models] provider health failed", { modelId, error });
+		return withPublicCache(c.json({ rows: [], source: "unavailable" }), sectionPolicy("providerHealth", modelId));
+	}
 });
 
 publicModelsRouter.get("/:modelId/pricing-history", async (c) => {
@@ -1835,6 +1891,8 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		}), sectionPolicy("performance", modelId));
 	} catch (error) {
 		console.error("[web-api/models] performance failed", { modelId, error });
-		return c.json({ error: "performance_unavailable" }, 503);
+		// Performance is an optional section of the model page. A delayed or
+		// unavailable rollup must not turn the whole page into a failed request.
+		return withPublicCache(c.json({ modelId, performance: null, metrics: null, activity: null }), sectionPolicy("performance", modelId));
 	}
 });
