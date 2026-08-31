@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, Copy, MoreHorizontal, Plus, RotateCw, Trash2, Webhook } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -65,16 +66,8 @@ function parseEvents(value: string): string[] {
 	return [...new Set(events.length > 0 ? events : DEFAULT_EVENTS)];
 }
 
-async function copyToClipboard(value: string, label: string) {
-	try {
-		await navigator.clipboard.writeText(value);
-		toast.success(`${label} copied`);
-	} catch {
-		toast.error(`Unable to copy ${label.toLowerCase()}`);
-	}
-}
-
 export default function WebhooksSettingsClient({ endpoints }: Props) {
+	const t = useTranslations("SettingsUI");
 	const router = useRouter();
 	const [name, setName] = useState("Async webhooks");
 	const [url, setUrl] = useState("");
@@ -84,6 +77,15 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 	const [isPending, startTransition] = useTransition();
 
 	const eventPreview = useMemo(() => parseEvents(events), [events]);
+
+	async function copyToClipboard(value: string, label: string) {
+		try {
+			await navigator.clipboard.writeText(value);
+			toast.success(`${label} ${t("strings.copied" as never)}`);
+		} catch {
+			toast.error(`${t("strings.Unable to copy" as never)} ${label.toLowerCase()}`);
+		}
+	}
 
 	function submit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -96,10 +98,10 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 				});
 				setRevealedSecret({ id: result.id, secret: result.signingSecret });
 				setUrl("");
-				toast.success("Webhook endpoint created");
+				toast.success(t("strings.Webhook endpoint created" as never));
 				router.refresh();
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : "Failed to create webhook");
+				toast.error(error instanceof Error ? error.message : t("strings.Failed to create webhook" as never));
 			}
 		});
 	}
@@ -111,13 +113,13 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 				const result = await action();
 				if (result.signingSecret) {
 					setRevealedSecret({ id, secret: result.signingSecret });
-					toast.success("Signing secret rotated");
+					toast.success(t("strings.Signing secret rotated" as never));
 				} else {
-					toast.success("Webhook endpoint updated");
+					toast.success(t("strings.Webhook endpoint updated" as never));
 				}
 				router.refresh();
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : "Action failed");
+				toast.error(error instanceof Error ? error.message : t("strings.Action failed" as never));
 			} finally {
 				setPendingEndpointId(null);
 			}
@@ -133,15 +135,15 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 				<Input
 					value={name}
 					onChange={(event) => setName(event.target.value)}
-					placeholder="Name"
-					aria-label="Webhook name"
+					placeholder={t("strings.Name" as never)}
+					aria-label={t("strings.Webhook name" as never)}
 					maxLength={120}
 				/>
 				<Input
 					value={url}
 					onChange={(event) => setUrl(event.target.value)}
 					placeholder="https://example.com/api/webhooks/aistats"
-					aria-label="Webhook URL"
+					aria-label={t("strings.Webhook URL" as never)}
 					type="url"
 					required
 				/>
@@ -149,11 +151,11 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 					value={events}
 					onChange={(event) => setEvents(event.target.value)}
 					placeholder="batch.completed, batch.failed"
-					aria-label="Webhook events"
+					aria-label={t("strings.Webhook events" as never)}
 				/>
 				<Button type="submit" disabled={isPending}>
 					<Plus className="mr-2 h-4 w-4" />
-					Create
+					{t("strings.Create" as never)}
 				</Button>
 			</form>
 
@@ -161,7 +163,7 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 				<div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-100">
 					<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 						<div className="min-w-0">
-							<p className="font-medium">Signing secret</p>
+					<p className="font-medium">{t("strings.Signing secret" as never)}</p>
 							<code className="mt-1 block truncate rounded bg-background/70 px-2 py-1 font-mono text-xs">
 								{revealedSecret.secret}
 							</code>
@@ -170,10 +172,10 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => copyToClipboard(revealedSecret.secret, "Signing secret")}
+							onClick={() => copyToClipboard(revealedSecret.secret, t("strings.Signing secret" as never))}
 						>
 							<Copy className="mr-2 h-4 w-4" />
-							Copy
+							{t("strings.Copy" as never)}
 						</Button>
 					</div>
 				</div>
@@ -212,7 +214,7 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 									</div>
 								</div>
 								<div className="text-xs text-muted-foreground">
-									Updated {formatDate(endpoint.updatedAt ?? endpoint.createdAt)}
+					{t("strings.Updated" as never)} {formatDate(endpoint.updatedAt ?? endpoint.createdAt)}
 								</div>
 								<div>
 									<Badge variant={endpoint.status === "active" ? "default" : "outline"}>
@@ -238,13 +240,13 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 												}
 											>
 												<RotateCw className="mr-2 h-4 w-4" />
-												Rotate signing secret
+															{t("strings.Rotate signing secret" as never)}
 											</DropdownMenuItem>
 											<DropdownMenuItem
-												onClick={() => copyToClipboard(endpoint.id, "Endpoint ID")}
+														onClick={() => copyToClipboard(endpoint.id, t("strings.Endpoint ID" as never))}
 											>
 												<Copy className="mr-2 h-4 w-4" />
-												Copy endpoint ID
+														{t("strings.Copy endpoint ID" as never)}
 											</DropdownMenuItem>
 											<DropdownMenuItem
 												onClick={() =>
@@ -256,7 +258,7 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 													)
 												}
 											>
-												{endpoint.status === "active" ? "Disable" : "Enable"}
+													{endpoint.status === "active" ? t("strings.Disable" as never) : t("strings.Enable" as never)}
 											</DropdownMenuItem>
 											<DropdownMenuSeparator />
 											<DropdownMenuItem
@@ -268,7 +270,7 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 												}
 											>
 												<Trash2 className="mr-2 h-4 w-4" />
-												Delete
+														{t("strings.Delete" as never)}
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>
@@ -278,7 +280,7 @@ export default function WebhooksSettingsClient({ endpoints }: Props) {
 					})
 				) : (
 					<div className="p-6 text-sm text-muted-foreground">
-						No webhook endpoints configured.
+							{t("strings.No webhook endpoints configured." as never)}
 					</div>
 				)}
 			</div>

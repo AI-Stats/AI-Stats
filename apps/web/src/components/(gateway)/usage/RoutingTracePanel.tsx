@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, CircleHelp, CircleSlash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/Logo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -112,11 +113,12 @@ const METRIC_DESCRIPTIONS: Record<string, string> = {
 };
 
 function MetricInfo({ metric }: { metric: string }) {
+	const t = useTranslations("SettingsUI");
 	const description = METRIC_DESCRIPTIONS[metric] ?? "A value recorded during routing.";
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<button type="button" aria-label={`About ${label(metric)}`} onClick={(event) => event.stopPropagation()} className="inline-flex size-3.5 shrink-0 items-center justify-center text-muted-foreground/60 hover:text-muted-foreground">
+				<button type="button" aria-label={`${t("strings.About" as never)} ${label(metric)}`} onClick={(event) => event.stopPropagation()} className="inline-flex size-3.5 shrink-0 items-center justify-center text-muted-foreground/60 hover:text-muted-foreground">
 					<CircleHelp className="size-3" />
 				</button>
 			</TooltipTrigger>
@@ -154,6 +156,7 @@ function CandidateCard({
 	providerNames?: Map<string, string>;
 	routingMode: string;
 }) {
+	const t = useTranslations("SettingsUI");
 	const providerId = decision.provider_slug ?? "unknown";
 	const parsedScore = number(decision.score);
 	const score = parsedScore ?? 0;
@@ -211,18 +214,18 @@ function CandidateCard({
 							<span className="truncate text-sm font-semibold">{providerLabel(providerId, providerNames)}</span>
 							{decision.selected ? (
 								<span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
-									<Check className="size-3" /> Selected
+										<Check className="size-3" /> {t("strings.Selected" as never)}
 								</span>
 							) : decision.attempted ? (
-								<span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">Attempted</span>
+								<span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">{t("strings.Attempted" as never)}</span>
 							) : isExcluded ? (
 								<span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-									<CircleSlash2 className="size-3" /> Excluded
+										<CircleSlash2 className="size-3" /> {t("strings.Excluded" as never)}
 								</span>
 							) : null}
 							{derankLevel > 0 ? (
 								<span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
-									Deranked L{derankLevel}
+					{t("strings.Deranked" as never)} L{derankLevel}
 								</span>
 							) : null}
 						</div>
@@ -232,7 +235,7 @@ function CandidateCard({
 					</div>
 					<div className="text-right">
 						<div className="font-mono text-sm font-semibold tabular-nums">{parsedScore === null ? "—" : formatNumber(score, 6)}</div>
-						<div className="text-[10px] text-muted-foreground">Score</div>
+						<div className="text-[10px] text-muted-foreground">{t("strings.Score" as never)}</div>
 					</div>
 					<ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
 				</div>
@@ -262,9 +265,10 @@ function CandidateCard({
 }
 
 function TraceGroup({ title, values }: { title: string; values: Record<string, unknown> }) {
+	const t = useTranslations("SettingsUI");
 	return (
 		<div>
-			<div className="mb-1.5 text-[10px] font-semibold text-muted-foreground">{title}</div>
+			<div className="mb-1.5 text-[10px] font-semibold text-muted-foreground">{t(`strings.${title}` as never)}</div>
 			<MetricGrid values={values} />
 		</div>
 	);
@@ -279,6 +283,7 @@ export function RoutingTracePanel({
 	decisions?: RoutingDecision[] | null;
 	providerNames?: Map<string, string>;
 }) {
+	const t = useTranslations("SettingsUI");
 	const ranked = (decisions ?? []).filter((decision) => decision.decision === "ranked");
 	const excluded = (decisions ?? []).filter((decision) => decision.decision === "excluded");
 	if (!trace && ranked.length === 0 && excluded.length === 0) return null;
@@ -293,7 +298,7 @@ export function RoutingTracePanel({
 			<summary className="list-none cursor-pointer py-2 marker:hidden">
 				<div className="flex items-center justify-between gap-4">
 					<div className="min-w-0">
-						<div className="text-xs font-medium text-foreground">Routing observability</div>
+						<div className="text-xs font-medium text-foreground">{t("strings.Routing observability" as never)}</div>
 						<div className="mt-0.5 truncate text-[11px] text-muted-foreground">
 							{selected ? `${providerLabel(selected.provider_slug ?? "unknown", providerNames)} selected from ${ranked.length} scored candidate${ranked.length === 1 ? "" : "s"}${excluded.length > 0 ? ` · ${excluded.length} excluded` : ""}` : "No candidate was selected"}
 						</div>
@@ -316,7 +321,7 @@ export function RoutingTracePanel({
 				) : null}
 				{trace?.selection_method ? (
 					<div className="mt-2 text-[11px] text-muted-foreground">
-						Selection method <code className="text-foreground">{label(String(trace.selection_method))}</code>
+						{t("strings.Selection method" as never)} <code className="text-foreground">{label(String(trace.selection_method))}</code>
 					</div>
 				) : null}
 			</div>

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { BellRing, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { setNotificationRoute } from "@/app/(dashboard)/settings/credits/actions";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,8 @@ function NotificationRouteSelectorState({ destinations, eventKind, initialDestin
 	eventKind: NotificationEventKind;
 	initialDestinationIds: string[];
 }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const availableIds = React.useMemo(() => new Set(destinations.map((destination) => destination.id)), [destinations]);
 	const [selectedIds, setSelectedIds] = React.useState(() => initialDestinationIds.filter((id) => availableIds.has(id)));
 	const [saving, startSaving] = React.useTransition();
@@ -35,7 +38,7 @@ function NotificationRouteSelectorState({ destinations, eventKind, initialDestin
 		setSelectedIds(next);
 		startSaving(async () => {
 			try { await setNotificationRoute(eventKind, next); }
-			catch (error) { setSelectedIds(previous); toast.error(error instanceof Error ? error.message : "Could not update destinations"); }
+			catch (error) { setSelectedIds(previous); toast.error(error instanceof Error ? error.message : s("Could not update destinations")); }
 		});
 	}
 
@@ -43,12 +46,12 @@ function NotificationRouteSelectorState({ destinations, eventKind, initialDestin
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button type="button" variant="outline" size="sm" className="min-w-32 justify-between rounded-md" disabled={saving || destinations.length === 0}>
-					<span className="flex min-w-0 items-center gap-1.5"><BellRing className="size-3.5" /><span>{selectedCount === 0 ? "No destinations" : `${selectedCount} destination${selectedCount === 1 ? "" : "s"}`}</span></span>
+					<span className="flex min-w-0 items-center gap-1.5"><BellRing className="size-3.5" /><span>{selectedCount === 0 ? s("No destinations") : `${selectedCount} ${s(selectedCount === 1 ? "destination" : "destinations")}`}</span></span>
 					<ChevronDown className="size-3.5 text-muted-foreground" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-72">
-				<DropdownMenuLabel>Deliver this alert to</DropdownMenuLabel>
+				<DropdownMenuLabel>{s("Deliver this alert to")}</DropdownMenuLabel>
 				{destinations.map((destination) => (
 					<DropdownMenuCheckboxItem key={destination.id} disabled={saving} checked={effectiveSelectedIds.includes(destination.id)} onCheckedChange={(checked) => update(destination.id, Boolean(checked))} onSelect={(event) => event.preventDefault()}>
 						<span className="min-w-0"><span className="block truncate text-sm">{destination.name}</span><span className="block truncate text-xs text-muted-foreground">{destination.targetPreview}</span></span>

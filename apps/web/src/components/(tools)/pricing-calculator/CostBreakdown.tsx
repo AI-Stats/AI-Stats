@@ -20,6 +20,7 @@ import {
 	type PricingMeter,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import { sanitizeRequestMultiplier } from "./calculatorState";
+import { useTranslations } from "next-intl";
 import {
 	MeterLabel,
 	PricingModelHeader,
@@ -56,6 +57,7 @@ export function CostBreakdown({
 	pricingTimeUtc,
 	comparisonModels,
 }: CostBreakdownProps) {
+	const t = useTranslations("Product.tools.pricing");
 	const safeRequestMultiplier = sanitizeRequestMultiplier(requestMultiplier);
 	const activeModels = useMemo<ComparisonPricingModel[]>(
 		() =>
@@ -90,7 +92,7 @@ export function CostBreakdown({
 		<Card>
 			<CardHeader className="border-b bg-muted/10">
 				<CardTitle className="flex items-center justify-between gap-3">
-					<span>Cost estimate</span>
+					<span>{t("estimatedCost")}</span>
 					<span className="text-xs font-normal text-muted-foreground">
 						{activeModels.length} model{activeModels.length === 1 ? "" : "s"}
 					</span>
@@ -112,7 +114,7 @@ export function CostBreakdown({
 						<TableBody>
 							<TableRow className="bg-primary/5 hover:bg-primary/5">
 								<TableCell className="sticky left-0 z-10 bg-primary/5">
-									<MeterLabel meterName="total_cost" label="Estimated total" description="Across entered usage" />
+									<MeterLabel meterName="total_cost" label={t("estimatedCost")} description={t("description")} />
 								</TableCell>
 								{activeModels.map((model) => (
 									<TableCell key={`estimate-total-${model.key}`}>

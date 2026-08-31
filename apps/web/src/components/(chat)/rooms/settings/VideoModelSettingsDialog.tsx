@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useEffect, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import {
@@ -58,6 +60,7 @@ export function VideoModelSettingsDialog({
 	onAutoAdjustParams,
 	onReset,
 }: VideoModelSettingsDialogProps) {
+	const t = useTranslations("Product.chatRooms");
 	const schema = getVideoModelSchema(selectedModelId ?? "");
 	const normalizedSize = useMemo(
 		() =>
@@ -102,8 +105,8 @@ export function VideoModelSettingsDialog({
 		<RoomModelSettingsShell
 			open={open}
 			onOpenChange={onOpenChange}
-			title="Video model settings"
-			description="Configure video generation options for the selected model."
+			title={t("videoSettings")}
+			description={t("videoSettingsDescription")}
 			settings={settings}
 			modelChoices={modelChoices}
 			selectedModelId={selectedModelId}
@@ -115,13 +118,13 @@ export function VideoModelSettingsDialog({
 		>
 			<div className="grid gap-3">
 				<div className="grid gap-1.5">
-					<Label>Resolution</Label>
+					<Label>{t("resolution")}</Label>
 					<Select
 						value={normalizedParams.size}
 						onValueChange={(value) => onUpdateParams({ size: value })}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select resolution" />
+							<SelectValue placeholder={t("selectResolution")} />
 						</SelectTrigger>
 						<SelectContent>
 							{schema.sizeOptions.map((size) => (
@@ -133,7 +136,7 @@ export function VideoModelSettingsDialog({
 					</Select>
 				</div>
 				<div className="grid gap-1.5">
-					<Label>Duration (seconds)</Label>
+					<Label>{t("durationSeconds")}</Label>
 					<Select
 						value={String(normalizedParams.duration)}
 						onValueChange={(value) =>
@@ -141,7 +144,7 @@ export function VideoModelSettingsDialog({
 						}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select duration" />
+							<SelectValue placeholder={t("selectDuration")} />
 						</SelectTrigger>
 						<SelectContent>
 							{durationOptions.map((duration) => (

@@ -1,0 +1,96 @@
+{
+  "help": {
+    "title": "Centre d’aide",
+    "description": "Parcourez les articles d’assistance sur l’accès au compte, la configuration de l’A2F, la facturation, la sécurité et le dépannage des intégrations API.",
+    "supportResources": "Ressources d’assistance",
+    "articleCount": "{count, plural, =0 {Aucun article} one {# article} other {# articles}}",
+    "viewAll": "Voir tous les articles de {category}",
+    "updated": "Mis à jour le {date}",
+    "moreIn": "Plus d’articles dans {category}"
+  },
+  "blog": {
+    "title": "Blog Phaseo",
+    "categories": { "all": "Tous les articles", "announcements": "Annonces", "guides": "Guides", "data": "Données" },
+    "preview": "Aperçu",
+    "pinned": "Articles épinglés",
+    "recent": "Articles les plus récents",
+    "showAll": "Voir tous les articles",
+    "emptyTitle": "Aucun article pour le moment.",
+    "emptyDescription": "Les nouvelles mises à jour apparaîtront ici dès leur publication.",
+    "emptyCategory": "Aucun article dans cette catégorie pour le moment.",
+    "back": "Retour au blog",
+    "englishBodyNotice": "Ce contenu éditorial est actuellement disponible en anglais. L’interface est traduite ; l’article original est affiché afin d’en préserver le sens."
+  },
+  "roadmap": {
+    "title": "Feuille de route Phaseo",
+    "description": "Découvrez en toute transparence ce que nous construisons. Suivez les fonctionnalités à venir et les étapes livrées pour la base de données de modèles d’IA, la passerelle et les outils d’analyse.",
+    "intro": "Découvrez en toute transparence ce que nous construisons. Les échéances sont indicatives et peuvent évoluer au fil de nos livraisons ou de vos retours.",
+    "feedback": "Une idée, une erreur à signaler ou une fonctionnalité à prioriser ? Nous lisons tous les retours et avançons rapidement.",
+    "comingSoon": "Bientôt disponible",
+    "activeDevelopment": "Cette page est en cours de développement.",
+    "shippingFast": "Nous avançons rapidement. Revenez bientôt ou consultez la feuille de route complète.",
+    "viewRoadmap": "Voir la feuille de route",
+    "continuousImprovements": "Des améliorations continues à venir",
+    "currentlyBuilt": "En cours de développement",
+    "availableBeta": "Disponible en bêta",
+    "plannedFeature": "Fonctionnalité prévue",
+    "seeRoadmapItem": "Voir l'élément de la feuille de route",
+    "goHome": "Retour à l'accueil",
+    "giveFeedback": "Donner votre avis",
+    "upcoming": "À venir",
+    "shipped": "Livré",
+    "latestShipped": "Dernières fonctionnalités livrées",
+    "target": "Objectif : {date}",
+    "continuous": "Continu",
+    "learnMore": "En savoir plus",
+    "nothingShipped": "Rien n’a encore été livré — revenez bientôt.",
+    "shippedDate": "Livré le : {date}",
+    "view": "Voir",
+    "status": { "Planned": "Planifié", "In Progress": "En cours", "Beta": "Bêta", "Shipped": "Livré", "Ongoing": "En continu" },
+    "milestones": {
+      "gateway": { "title": "Extension de la couverture de la passerelle", "description": "Extension continue des fournisseurs, modèles et modalités pris en charge, avec des règles de routage par défaut plus intelligentes." },
+      "expanded-database": { "title": "Couverture de la base de données", "description": "Importation et validation continues des données de modèles, fournisseurs, tarifs et versions dans le catalogue." },
+      "usage-limits": { "title": "Limites d’utilisation", "description": "Contrôles des dépenses et de l’utilisation par clé pour limiter les dépassements accidentels et faire respecter les budgets des équipes." },
+      "guardrails": { "title": "Garde-fous", "description": "Contrôles étendus de sécurité, de conformité aux règles et de modération sur le trafic de la passerelle." },
+      "privacy-settings": { "title": "Paramètres de confidentialité", "description": "Contrôles plus précis de la confidentialité et de la conservation pour les équipes utilisant la passerelle Phaseo." },
+      "provisioning-keys": { "title": "Clés API de gestion", "description": "Création automatisée et gestion du cycle de vie des identifiants de gestion à privilèges élevés." },
+      "presets": { "title": "Marché des préréglages", "description": "Partage, découverte et adoption en un clic améliorés des configurations de préréglages prêtes pour la production." },
+      "anthropic-compatibility": { "title": "Compatibilité Anthropic", "description": "Compatibilité avec l’API Anthropic Messages livrée via le point de terminaison /messages de la passerelle." },
+      "organisation-page": { "title": "Pages d’organisation", "description": "Pages dédiées aux organisations avec modèles associés et métadonnées." },
+      "model-page": { "title": "Pages de modèles", "description": "Pages dédiées aux modèles avec tarifs, disponibilité et informations de démarrage rapide." },
+      "benchmarks": { "title": "Pages de benchmarks", "description": "Pages de benchmarks avec évolution du classement et comparaisons des performances par modèle." },
+      "api-providers": { "title": "Pages des fournisseurs d’API", "description": "Pages des fournisseurs présentant les modèles pris en charge, les références tarifaires et la couverture des fonctionnalités." },
+      "latest-updates": { "title": "Dernières mises à jour", "description": "Un flux unique consacré aux versions, annonces et mises à jour du catalogue." },
+      "countries-pages": { "title": "Pages par pays", "description": "Vues par pays reliant les organisations et l’activité des modèles." },
+      "revamped-pricing-page": { "title": "Actualisation de la référence tarifaire", "description": "Une expérience de référence tarifaire plus claire, avec une navigation centrée sur les modèles et les fournisseurs." },
+      "database-updates": { "title": "Fil des mises à jour de la base de données", "description": "Un fil de mises à jour enrichi qui présente les changements continus au niveau de la base de données." },
+      "sources": { "title": "Sources intégrées", "description": "Les sources sont affichées directement à côté des données pertinentes sur les modèles et les fournisseurs." },
+      "compare": { "title": "Comparaisons de modèles", "description": "Comparez côte à côte les modèles selon leurs tarifs, fonctionnalités et principales métadonnées." }
+    }
+  },
+  "migrate": {
+    "title": "Migrer",
+    "description": "Guide de migration interactif pour passer d’OpenRouter, Vercel AI Gateway, Requesty, LLMGateway et des bibliothèques compatibles OpenAI à la passerelle Phaseo.",
+    "heading": "Assistant de migration",
+    "intro": "Sélectionnez votre configuration actuelle pour obtenir un guide de migration personnalisé.",
+    "englishBodyNotice": "Ce guide de migration est actuellement disponible en anglais. L’interface est traduite ; le guide original est affiché afin de préserver la précision technique."
+  },
+  "worksWith": {
+    "title": "Fonctionne avec Phaseo",
+    "description": "Découvrez les applications et intégrations développées avec la passerelle Phaseo : outils de production, projets open source et lancements communautaires pour différents usages et équipes.",
+    "intro": "Découvrez les applications, outils et intégrations qui utilisent la passerelle Phaseo. Les équipes peuvent s’appuyer sur Phaseo pour le routage, les tarifs et l’accès aux modèles, tandis que les utilisateurs apportent leurs propres clés API Phaseo.",
+    "community": "Communauté", "submitApp": "Proposer votre application", "contribute": "Contribuer à Phaseo",
+    "emptyTitle": "Aucune application pour le moment", "emptyDescription": "Cette liste est ouverte aux contributions de la communauté. Ajoutez la vôtre en premier.", "addApp": "Ajouter votre application",
+    "added": "Ajoutée le {date}", "visitSite": "Visiter le site", "setupDocs": "Documentation de configuration", "openSource": "Open source",
+    "contributing": "Contribuer", "contributingDescription": "Ajoutez votre application à la liste Fonctionne avec Phaseo en suivant les étapes ci-dessous.", "requirements": "Prérequis",
+    "tags": { "chat": "Chat", "coding": "Programmation", "productivity": "Productivité", "creative": "Créatif", "research": "Recherche", "other": "Autre" }
+  },
+  "acknowledgements": {
+    "title": "Remerciements", "description": "Les projets open source, plateformes et travaux de conception sur lesquels Phaseo s’appuie et dont nous nous inspirons.",
+    "heading": "Construit grâce au travail de nombreuses personnes.", "intro": "Phaseo repose sur des logiciels open source, un travail de conception réfléchi et une infrastructure fiable. Cette page rend hommage aux projets et aux équipes qui façonnent concrètement ce que nous construisons.",
+    "thanks": "Merci à chaque responsable de maintenance, contributeur, chercheur et designer dont le travail rend Phaseo possible.", "howUsed": "Comment Phaseo l’utilise.", "disclaimer": "Il s’agit d’une page de remerciements produit tenue à jour, et non d’une liste exhaustive des composants logiciels ni d’un avis de licence. Les mentions de droits d’auteur et conditions de licence au niveau des paquets restent celles de leurs projets respectifs.", "continue": "Continuer", "review": "Examiner", "accessibleStates": "États accessibles", "streamingResponse": "Réponse en streaming", "searchExample": "Exemple de recherche"
+  },
+  "contribute": {
+    "title": "Contribuer", "description": "Découvrez les contributeurs et sponsors qui soutiennent Phaseo, parcourez les profils et l’historique des contributions de la communauté, et trouvez des moyens concrets de participer, de sponsoriser le projet ou d’améliorer la plateforme.", "heading": "Contributeurs et sponsors", "intro": "Nous construisons au grand jour. Ces listes présentent toutes les personnes ayant contribué au dépôt Phaseo ainsi que celles qui financent son développement via GitHub Sponsors. Ce sont des personnes formidables !", "contributors": "Contributeurs du dépôt", "contributorCount": "{count} contributeurs", "sponsors": "Sponsors", "listed": "{count} répertoriés"
+  }
+}

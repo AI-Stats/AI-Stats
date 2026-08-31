@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AppWindow, Bot, Braces, Copy, Database, GraduationCap, Info, ListFilter, LoaderCircle, Package, ShieldCheck, ShieldQuestion, Terminal, XCircle } from "lucide-react";
@@ -694,7 +695,7 @@ function getAttemptStatusTone(
 			badgeClass:
 				"border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300",
 			barClass: "bg-emerald-500",
-			label: "OK",
+					label: "OK",
 		};
 	}
 	return {
@@ -782,6 +783,7 @@ function RequestHeader({
 	request: RequestRow;
 	headerNavigation?: React.ReactNode;
 }) {
+	const t = useTranslations("SettingsUI");
 	const timestamp = formatWordyDateTime(request.created_at, { includeTime: true });
 	return (
 		<div className="relative">
@@ -790,11 +792,11 @@ function RequestHeader({
 			) : null}
 			<div className="px-5 py-4 sm:px-6 sm:py-5">
 				<div className={cn("pr-10", headerNavigation && "pr-36")}>
-					<DialogTitle className="text-base font-semibold">Generation details</DialogTitle>
+					<DialogTitle className="text-base font-semibold">{t("strings.Job details")}</DialogTitle>
 					<div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
 						<span>{timestamp}</span>
 						<span aria-hidden="true">·</span>
-						<CopyableText value={request.request_id} ariaLabel="Copy generation ID" />
+						<CopyableText value={request.request_id} ariaLabel={t("strings.Copy generation id" as never)} />
 					</div>
 				</div>
 			</div>
@@ -819,6 +821,8 @@ export default function RequestDetailDialog({
 	disablePointerDismissal = false,
 	loading = false,
 }: RequestDetailDialogProps) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const searchParams = useSearchParams();
 
 	if (!request) return null;
@@ -832,8 +836,8 @@ export default function RequestDetailDialog({
 						<LoaderCircle className="size-5 animate-spin" />
 					</div>
 					<div>
-						<p className="text-sm font-medium text-foreground">Loading request details</p>
-						<p className="mt-1 text-xs text-muted-foreground">Fetching routing, attempts, pricing, and stored payloads.</p>
+						<p className="text-sm font-medium text-foreground">{s("Loading...")}</p>
+						<p className="mt-1 text-xs text-muted-foreground">{s("Fetching routing, attempts, pricing, and stored payloads.")}</p>
 					</div>
 				</div>
 			</>
@@ -850,7 +854,7 @@ export default function RequestDetailDialog({
 		return (
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
-					<DialogHeader className="sr-only"><DialogTitle>Loading request details</DialogTitle></DialogHeader>
+					<DialogHeader className="sr-only"><DialogTitle>{s("Loading...")}</DialogTitle></DialogHeader>
 					{loadingContent}
 				</DialogContent>
 			</Dialog>
@@ -956,7 +960,7 @@ export default function RequestDetailDialog({
 									>
 										<div className="border-b border-border/70 px-3 py-2.5">
 											<div className="flex items-center justify-between gap-3">
-												<span className="text-sm font-semibold">Provider response</span>
+										<span className="text-sm font-semibold">{s("Provider response")}</span>
 												<span className={cn("rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-medium", statusTone.badgeClass)}>
 													{statusTone.label}
 												</span>
@@ -966,7 +970,7 @@ export default function RequestDetailDialog({
 											) : null}
 										</div>
 										<dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-3 gap-y-2 px-3 py-2.5 text-xs">
-											<dt className="text-muted-foreground">Provider</dt>
+											<dt className="text-muted-foreground">{s("Provider")}</dt>
 											<dd className="min-w-0 truncate text-right font-medium">
 												{attemptProviderId ? (
 													<Link
@@ -979,7 +983,7 @@ export default function RequestDetailDialog({
 											</dd>
 											{attemptModelParts.length > 0 ? (
 												<>
-													<dt className="text-muted-foreground">Model</dt>
+													<dt className="text-muted-foreground">{s("Model")}</dt>
 													<dd
 														className="min-w-0 truncate text-right font-mono text-[11px]"
 														title={attemptModelParts[0]}
@@ -990,13 +994,13 @@ export default function RequestDetailDialog({
 											) : null}
 											{attemptFinishReason ? (
 												<>
-													<dt className="text-muted-foreground">Finish reason</dt>
+													<dt className="text-muted-foreground">{s("Finish Reason")}</dt>
 													<dd className="text-right font-medium">{attemptFinishReason}</dd>
 												</>
 											) : null}
 											{attemptCostNanos > 0 ? (
 												<>
-													<dt className="text-muted-foreground">Cost</dt>
+													<dt className="text-muted-foreground">{s("Cost")}</dt>
 													<dd className="text-right font-mono">{formatCost(attemptCostNanos)}</dd>
 												</>
 											) : null}
@@ -1023,7 +1027,7 @@ export default function RequestDetailDialog({
 								key: `generation-${attempt.attempt_number ?? index}`,
 								label: (
 									<div className="flex min-w-0 items-center gap-2">
-										<span className="truncate">Generation</span>
+														<span className="truncate">{s("Generation")}</span>
 									</div>
 								),
 								duration: timingGeneration,
@@ -1050,7 +1054,7 @@ export default function RequestDetailDialog({
 												>
 													{providerName ?? request.provider}
 												</Link>
-											) : "Provider"}
+															) : s("Provider")}
 										</span>
 									</div>
 									),
@@ -1065,7 +1069,7 @@ export default function RequestDetailDialog({
 								key: "generation",
 								label: (
 									<div className="flex min-w-0 items-center gap-2">
-										<span className="min-w-0 break-words">Generation</span>
+																<span className="min-w-0 break-words">{s("Generation")}</span>
 									</div>
 								),
 									duration: timingGeneration,
@@ -1090,7 +1094,7 @@ export default function RequestDetailDialog({
 		? formatRoomError(
 				JSON.stringify({
 					error: "routing_details",
-					description: "Routing details",
+														description: s("Routing details"),
 					provider_candidate_diagnostics:
 						request.detail_metadata.provider_candidate_diagnostics,
 					provider_enablement:
@@ -1125,8 +1129,8 @@ export default function RequestDetailDialog({
 	);
 	const requestDetailItems = [
 		{
-			label: "Routed model",
-			description: "The canonical Phaseo model selected after aliases, presets, and router expansion are resolved.",
+			label: s("Routed model"),
+			description: s("The canonical Phaseo model selected after aliases, presets, and router expansion are resolved."),
 			value: modelHref ? (
 				<UsageEntityHoverCard
 					title={modelName || routedModelId || "-"}
@@ -1144,7 +1148,7 @@ export default function RequestDetailDialog({
 					}
 					rows={[
 						{
-							label: "Model ID",
+							label: s("Model ID"),
 							value: (
 								<code className="font-mono text-[11px]">
 									{routedModelId ?? "-"}
@@ -1154,7 +1158,7 @@ export default function RequestDetailDialog({
 						...(modelMeta?.organisationName
 							? [
 									{
-										label: "Organisation",
+									label: s("Organisation"),
 										value: modelMeta.organisationName,
 									},
 							  ]
@@ -1194,7 +1198,7 @@ export default function RequestDetailDialog({
 					}
 					rows={[
 						{
-							label: "Model ID",
+											label: s("Model ID"),
 							value: (
 								<code className="font-mono text-[11px]">
 									{routedModelId ?? "-"}
@@ -1204,7 +1208,7 @@ export default function RequestDetailDialog({
 						...(modelMeta?.organisationName
 							? [
 									{
-										label: "Organisation",
+									label: s("Organisation"),
 										value: modelMeta.organisationName,
 									},
 							  ]
@@ -1228,14 +1232,14 @@ export default function RequestDetailDialog({
 			),
 		},
 		{
-			label: "Requested model",
-			description: "The exact model ID or alias supplied by the client in the original request.",
+			label: s("Requested model"),
+			description: s("The exact model ID or alias supplied by the client in the original request."),
 			value: requestedModelId ? (
 				<UsageEntityHoverCard
 					title={requestedModelName || requestedModelId}
 					href={requestedModelHref ?? undefined}
 					visual={requestedModelMeta ? <Logo id={requestedModelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
-					rows={[{ label: "Model ID", value: <code className="font-mono text-[11px]">{requestedModelId}</code> }]}
+					rows={[{ label: s("Model ID"), value: <code className="font-mono text-[11px]">{requestedModelId}</code> }]}
 				>
 					{requestedModelHref ? (
 						<Link href={requestedModelHref} className="inline-flex min-w-0 items-center justify-end gap-2 text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70">
@@ -1251,23 +1255,23 @@ export default function RequestDetailDialog({
 			),
 		},
 		{
-			label: "Request ID",
+			label: s("Request ID"),
 			value: request.request_id ? (
-				<CopyableText value={request.request_id} ariaLabel="Copy request ID" />
+				<CopyableText value={request.request_id} ariaLabel={s("Copy request id")} />
 			) : (
 				"-"
 			),
 		},
 		{
-			label: "Native request ID",
+			label: s("Native request ID"),
 			value: request.native_response_id ? (
-				<CopyableText value={request.native_response_id} ariaLabel="Copy native request ID" />
+				<CopyableText value={request.native_response_id} ariaLabel={s("Copy native request id")} />
 			) : (
 				"-"
 			),
 		},
 		{
-			label: "Provider",
+			label: s("Provider"),
 			value: request.provider ? (
 				<UsageEntityHoverCard
 					title={providerName ?? request.provider}
@@ -1282,7 +1286,7 @@ export default function RequestDetailDialog({
 					}
 					rows={[
 						{
-							label: "Provider ID",
+							label: s("Provider ID"),
 							value: (
 								<code className="font-mono text-[11px]">
 									{request.provider}
@@ -1292,7 +1296,7 @@ export default function RequestDetailDialog({
 						...(providerPolicyLabel
 							? [
 									{
-										label: "Data policy",
+									label: s("Data policy"),
 										value: providerPolicyLabel,
 									},
 							  ]
@@ -1319,8 +1323,8 @@ export default function RequestDetailDialog({
 		...(concreteSuccessModelParts.length > 0
 			? [
 					{
-						label: "Upstream model ID",
-						description: "The provider-facing model identifier sent upstream for the successful attempt.",
+						label: s("Upstream model ID"),
+						description: s("The provider-facing model identifier sent upstream for the successful attempt."),
 						value: (
 							<div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
 								{modelMeta ? <Logo id={modelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
@@ -1338,7 +1342,7 @@ export default function RequestDetailDialog({
 			  ]
 			: []),
 		{
-			label: "Endpoint",
+			label: s("Endpoint"),
 			value: request.endpoint ? (
 				<span>{humanizeEndpoint(request.endpoint)}</span>
 			) : (
@@ -1346,7 +1350,7 @@ export default function RequestDetailDialog({
 			),
 		},
 		{
-			label: "Data policy",
+			label: s("Data policy"),
 			value: providerPolicyLabel ? (
 				<span className="inline-flex items-center justify-end gap-2">
 					<DataPolicyIcon policy={providerMeta?.promptTrainingPolicy} />
@@ -1355,7 +1359,7 @@ export default function RequestDetailDialog({
 			) : "-",
 		},
 		{
-			label: "App where used",
+			label: s("App where used"),
 			value:
 				request.app_id && appName ? (
 					<UsageEntityHoverCard
@@ -1364,7 +1368,7 @@ export default function RequestDetailDialog({
 						visual={<AppWindow className="h-4 w-4 text-muted-foreground" />}
 						rows={[
 							{
-								label: "App ID",
+								label: s("App ID"),
 								value: (
 									<code className="font-mono text-[11px]">
 										{request.app_id}
@@ -1372,8 +1376,8 @@ export default function RequestDetailDialog({
 								),
 							},
 							{
-								label: "Type",
-								value: "Workspace app",
+								label: s("Type"),
+								value: s("Workspace app"),
 							},
 						]}
 					>
@@ -1389,22 +1393,22 @@ export default function RequestDetailDialog({
 				),
 		},
 		{
-			label: "Session ID",
+			label: s("Session ID"),
 			value: request.session_id ? (
 				<ContextMenu>
 					<ContextMenuTrigger asChild>
-						<CopyableText value={request.session_id} ariaLabel="Copy session ID" />
+						<CopyableText value={request.session_id} ariaLabel={s("Copy session id")} />
 					</ContextMenuTrigger>
 					<ContextMenuContent className="w-48 rounded-md">
 						<ContextMenuItem onClick={() => void navigator.clipboard.writeText(request.session_id!)}>
 							<Copy />
-							Copy Session ID
+							{s("Copy Session ID")}
 						</ContextMenuItem>
 						{sessionFilterHref ? (
 							<ContextMenuItem asChild>
 								<Link href={sessionFilterHref}>
 									<ListFilter />
-									Filter by Session
+									{s("Filter by Session")}
 								</Link>
 							</ContextMenuItem>
 						) : null}
@@ -1415,21 +1419,21 @@ export default function RequestDetailDialog({
 			),
 		},
 		{
-			label: "Finish reason",
+			label: s("Finish Reason"),
 			value: request.finish_reason ? humanizeValue(request.finish_reason) : "-",
 		},
 		{
-			label: "Streaming",
-			value: request.stream ? "True" : "False",
+			label: s("Streaming"),
+			value: request.stream ? s("True") : s("False"),
 		},
 		{
-			label: "Status code",
+			label: s("Status code"),
 			value: request.status_code ?? "-",
 		},
 		...(request.error_code
 			? [
 					{
-						label: "Error code",
+						label: s("Error code"),
 						value: request.error_code,
 					},
 			  ]
@@ -1437,7 +1441,7 @@ export default function RequestDetailDialog({
 		...(request.error_message
 			? [
 					{
-						label: "Error message",
+						label: s("Error message"),
 						value: formattedGatewayError?.message ?? request.error_message,
 						className: "sm:col-span-2",
 					},
@@ -1446,7 +1450,7 @@ export default function RequestDetailDialog({
 	];
 	const selectDetailItems = (labels: string[]) =>
 		labels.flatMap((label) => {
-			const item = requestDetailItems.find((candidate) => candidate.label === label);
+			const item = requestDetailItems.find((candidate) => candidate.label === s(label));
 			return item ? [item] : [];
 		});
 	const routingDetailItems = selectDetailItems([
@@ -1457,24 +1461,24 @@ export default function RequestDetailDialog({
 		"Endpoint",
 		"App where used",
 	]);
-	const trainingPolicyItem = requestDetailItems.find((item) => item.label === "Data policy");
+	const trainingPolicyItem = requestDetailItems.find((item) => item.label === s("Data policy"));
 	const dataPolicyItems = [
 		...(trainingPolicyItem
 			? [{
 				...trainingPolicyItem,
-				label: "Data training",
-				description: "Whether the upstream provider may use prompts or completions for model training.",
+				label: s("Data training"),
+				description: s("Whether the upstream provider may use prompts or completions for model training."),
 			}]
 			: []),
 		{
-			label: "Phaseo data retention",
-			description: "Whether Phaseo retained the gateway request and response payload for this generation.",
+			label: s("Phaseo data retention"),
+			description: s("Whether Phaseo retained the gateway request and response payload for this generation."),
 			value: (
 				<span className="inline-flex items-center justify-end gap-2">
 					<Database className="size-3.5 shrink-0 text-muted-foreground" />
 					{ioLog?.retention_until
-						? `Retained Until ${formatWordyDateTime(ioLog.retention_until)}`
-						: "No Retained Payload"}
+						? s("Retained Until").replace("{date}", formatWordyDateTime(ioLog.retention_until))
+						: s("No Retained Payload")}
 				</span>
 			),
 		},
@@ -1499,7 +1503,7 @@ export default function RequestDetailDialog({
 			: null;
 	technicalDetailItems.push(
 		{
-			label: "Client",
+			label: s("Client"),
 			value: (
 				<span className="inline-flex items-center justify-end gap-2">
 					<ClientSourceIcon kind={request.client_source_kind ?? "api"} />
@@ -1507,10 +1511,10 @@ export default function RequestDetailDialog({
 				</span>
 			),
 		},
-		...(request.client_source_version ? [{ label: "Client version", value: request.client_source_version }] : []),
-		...(request.client_source_kind ? [{ label: "Client type", value: request.client_source_kind.replace(/_/g, " ") }] : []),
-		...(request.client_source_detection ? [{ label: "Detected from", value: request.client_source_detection.replace(/_/g, " ") }] : []),
-		...(rawUserAgent ? [{ label: "User agent", value: <code className="font-mono text-[11px]">{rawUserAgent}</code> }] : []),
+		...(request.client_source_version ? [{ label: s("Client version"), value: request.client_source_version }] : []),
+		...(request.client_source_kind ? [{ label: s("Client type"), value: request.client_source_kind.replace(/_/g, " ") }] : []),
+		...(request.client_source_detection ? [{ label: s("Detected from"), value: request.client_source_detection.replace(/_/g, " ") }] : []),
+		...(rawUserAgent ? [{ label: s("User agent"), value: <code className="font-mono text-[11px]">{rawUserAgent}</code> }] : []),
 	);
 
 	const detailContent = (
@@ -1546,7 +1550,7 @@ export default function RequestDetailDialog({
 								<div className="space-y-1 text-rose-900/90">
 									{request.error_code ? (
 										<div>
-											<span className="font-medium">Code:</span>{" "}
+										<span className="font-medium">{s("Code:")}</span>{" "}
 											<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 												{request.error_code}
 											</code>
@@ -1554,20 +1558,20 @@ export default function RequestDetailDialog({
 									) : null}
 									{request.error_message ? (
 										<div>
-											<span className="font-medium">Message:</span>{" "}
+										<span className="font-medium">{s("Message:")}</span>{" "}
 											{formattedGatewayError?.message ?? request.error_message}
 										</div>
 									) : null}
 								</div>
 								{formattedGatewayError?.hint ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-1 font-medium">Hint:</div>
+										<div className="mb-1 font-medium">{s("Hint:")}</div>
 										<div>{formattedGatewayError.hint}</div>
 									</div>
 								) : null}
 								{formattedGatewayError?.generationId ? (
 									<div className="mt-3 flex items-center gap-2 text-rose-950/90">
-										<span className="font-medium">Generation ID:</span>
+										<span className="font-medium">{s("Generation ID:")}</span>
 										<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 											{formattedGatewayError.generationId}
 										</code>
@@ -1576,7 +1580,7 @@ export default function RequestDetailDialog({
 											variant="ghost"
 											className="text-rose-900/80 hover:text-rose-950"
 											content={formattedGatewayError.generationId}
-											aria-label="Copy generation id"
+										aria-label={s("Copy generation id")}
 										/>
 									</div>
 								) : null}
@@ -1585,11 +1589,11 @@ export default function RequestDetailDialog({
 								failedProviders.length > 0 ||
 								failedStatuses.length > 0 ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Routing failure summary</div>
+									<div className="mb-2 font-medium">{s("Routing failure summary")}</div>
 										<div className="space-y-1 text-sm">
 											{formattedGatewayError?.reason ? (
 												<div>
-													<span className="font-medium">Reason:</span>{" "}
+										<span className="font-medium">{s("Reason:")}</span>{" "}
 													<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 														{formattedGatewayError.reason}
 													</code>
@@ -1600,19 +1604,19 @@ export default function RequestDetailDialog({
 											) : null}
 											{formattedGatewayError?.attemptCount != null ? (
 												<div>
-													<span className="font-medium">Attempts:</span>{" "}
+										<span className="font-medium">{s("Attempts:")}</span>{" "}
 													{formattedGatewayError.attemptCount}
 												</div>
 											) : null}
 											{failedProviders.length > 0 ? (
 												<div>
-													<span className="font-medium">Failed providers:</span>{" "}
+										<span className="font-medium">{s("Failed providers:")}</span>{" "}
 													{failedProviders.join(", ")}
 												</div>
 											) : null}
 											{failedStatuses.length > 0 ? (
 												<div>
-													<span className="font-medium">Failed statuses:</span>{" "}
+										<span className="font-medium">{s("Failed statuses:")}</span>{" "}
 													{failedStatuses.join(", ")}
 												</div>
 											) : null}
@@ -1622,11 +1626,11 @@ export default function RequestDetailDialog({
 								{formattedGatewayError?.providerFailureCategory ||
 								formattedGatewayError?.providerFailureProvider ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Provider diagnostics</div>
+									<div className="mb-2 font-medium">{s("Provider diagnostics")}</div>
 										<div className="space-y-1 text-sm">
 											{formattedGatewayError.providerFailureCategory ? (
 												<div>
-													<span className="font-medium">Category:</span>{" "}
+										<span className="font-medium">{s("Category:")}</span>{" "}
 													<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 														{formattedGatewayError.providerFailureCategory}
 													</code>
@@ -1639,7 +1643,7 @@ export default function RequestDetailDialog({
 											) : null}
 											{formattedGatewayError.providerFailureProvider ? (
 												<div className="flex items-center gap-2">
-													<span className="font-medium">Provider:</span>
+										<span className="font-medium">{s("Provider")}:</span>
 													<Logo
 														id={formattedGatewayError.providerFailureProvider}
 														width={14}
@@ -1659,11 +1663,11 @@ export default function RequestDetailDialog({
 								) : null}
 								{formattedGatewayError?.upstreamError ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Upstream error</div>
+									<div className="mb-2 font-medium">{s("Upstream error")}</div>
 										<div className="space-y-1 text-sm">
 											{formattedGatewayError.upstreamError.code ? (
 												<div>
-													<span className="font-medium">Code:</span>{" "}
+														<span className="font-medium">{s("Code:")}</span>{" "}
 													<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 														{formattedGatewayError.upstreamError.code}
 													</code>
@@ -1671,19 +1675,19 @@ export default function RequestDetailDialog({
 											) : null}
 											{formattedGatewayError.upstreamError.message ? (
 												<div>
-													<span className="font-medium">Message:</span>{" "}
+														<span className="font-medium">{s("Message:")}</span>{" "}
 													{formattedGatewayError.upstreamError.message}
 												</div>
 											) : null}
 											{formattedGatewayError.upstreamError.description ? (
 												<div>
-													<span className="font-medium">Detail:</span>{" "}
+										<span className="font-medium">{s("Detail:")}</span>{" "}
 													{formattedGatewayError.upstreamError.description}
 												</div>
 											) : null}
 											{formattedGatewayError.upstreamError.param ? (
 												<div>
-													<span className="font-medium">Param:</span>{" "}
+										<span className="font-medium">{s("Param:")}</span>{" "}
 													<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 														{formattedGatewayError.upstreamError.param}
 													</code>
@@ -1694,7 +1698,7 @@ export default function RequestDetailDialog({
 								) : null}
 								{formattedFailureSample.length > 0 ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Failure sample</div>
+									<div className="mb-2 font-medium">{s("Failure sample")}</div>
 										<div className="space-y-2">
 											{formattedFailureSample.map((sample, index) => (
 												<div
@@ -1706,7 +1710,7 @@ export default function RequestDetailDialog({
 															{sample.provider
 																? providerNames?.get(sample.provider) ??
 																	sample.provider
-																: "Unknown provider"}
+														: s("Unknown provider")}
 														</span>
 														{sample.status != null ? (
 															<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
@@ -1721,7 +1725,7 @@ export default function RequestDetailDialog({
 													</div>
 													{sample.upstreamErrorMessage ? (
 														<div className="mt-2">
-															<span className="font-medium">Message:</span>{" "}
+													<span className="font-medium">{s("Message:")}</span>{" "}
 															{sample.upstreamErrorMessage}
 														</div>
 													) : null}
@@ -1729,7 +1733,7 @@ export default function RequestDetailDialog({
 													sample.upstreamErrorDescription !==
 														sample.upstreamErrorMessage ? (
 														<div className="mt-1 text-rose-950/80">
-															<span className="font-medium">Detail:</span>{" "}
+													<span className="font-medium">{s("Detail:")}</span>{" "}
 															{sample.upstreamErrorDescription}
 														</div>
 													) : null}
@@ -1740,7 +1744,7 @@ export default function RequestDetailDialog({
 								) : null}
 								{providerCandidateDiagnostics ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Provider candidates</div>
+									<div className="mb-2 font-medium">{s("Provider candidates")}</div>
 										<div className="grid gap-2 sm:grid-cols-3">
 											<div>
 												<div className="text-xs font-medium uppercase tracking-wide text-rose-950/70">
@@ -1802,7 +1806,7 @@ export default function RequestDetailDialog({
 																{entry.providerId
 																	? providerNames?.get(entry.providerId) ??
 																		entry.providerId
-																	: "Unknown provider"}
+														: s("Unknown provider")}
 															</span>
 															{entry.endpoint ? (
 																<>
@@ -1822,10 +1826,10 @@ export default function RequestDetailDialog({
 								) : null}
 								{providerEnablement ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Provider enablement</div>
+									<div className="mb-2 font-medium">{s("Provider enablement")}</div>
 										{providerEnablement.capability ? (
 											<div className="mb-2">
-												<span className="font-medium">Capability:</span>{" "}
+										<span className="font-medium">{s("Capability:")}</span>{" "}
 												<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 													{providerEnablement.capability}
 												</code>
@@ -1885,7 +1889,7 @@ export default function RequestDetailDialog({
 															{entry.providerId
 																? providerNames?.get(entry.providerId) ??
 																	entry.providerId
-																: "Unknown provider"}
+														: s("Unknown provider")}
 														</div>
 														{entry.reason ? (
 															<div className="mt-1 text-rose-950/80">
@@ -1905,10 +1909,10 @@ export default function RequestDetailDialog({
 								) : null}
 								{workspacePolicyDiagnostics ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Workspace policy</div>
+									<div className="mb-2 font-medium">{s("Workspace policy")}</div>
 										<div className="grid gap-2 sm:grid-cols-2">
 											<div>
-												<span className="font-medium">Resolved model:</span>{" "}
+												<span className="font-medium">{s("Resolved model:")}</span>{" "}
 												{workspacePolicyDiagnostics.resolvedModel ? (
 													<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 														{workspacePolicyDiagnostics.resolvedModel}
@@ -1918,7 +1922,7 @@ export default function RequestDetailDialog({
 												)}
 											</div>
 											<div>
-												<span className="font-medium">Candidate count:</span>{" "}
+												<span className="font-medium">{s("Candidate count:")}</span>{" "}
 												<span className="font-mono text-sm">
 													{workspacePolicyDiagnostics.beforeCount ?? "-"} →{" "}
 													{workspacePolicyDiagnostics.afterCount ?? "-"}
@@ -1950,7 +1954,7 @@ export default function RequestDetailDialog({
 															(modelId) => renderCodeBadge(modelId),
 														)
 													) : (
-														<span className="text-sm text-rose-950/70">All models</span>
+										<span className="text-sm text-rose-950/70">{s("All models")}</span>
 													)}
 												</div>
 											</div>
@@ -1965,7 +1969,7 @@ export default function RequestDetailDialog({
 																renderProviderBadge(providerId, providerNames),
 														)
 													) : (
-														<span className="text-sm text-rose-950/70">All providers</span>
+										<span className="text-sm text-rose-950/70">{s("All providers")}</span>
 													)}
 												</div>
 											</div>
@@ -2022,7 +2026,7 @@ export default function RequestDetailDialog({
 									consideredProviders.length > 0 ||
 									rankedProviders.length > 0) ? (
 									<div className="mt-3 rounded-xl border border-rose-300/60 bg-white/50 p-3 text-rose-950">
-										<div className="mb-2 font-medium">Routing diagnostics</div>
+									<div className="mb-2 font-medium">{s("Routing diagnostics")}</div>
 										{consideredProviders.length > 0 ? (
 											<div className="mb-3">
 												<div className="mb-1 text-xs font-medium uppercase tracking-wide text-rose-950/70">
@@ -2038,7 +2042,7 @@ export default function RequestDetailDialog({
 																{provider.providerId
 																	? providerNames?.get(provider.providerId) ??
 																		provider.providerId
-																	: "Unknown provider"}
+														: s("Unknown provider")}
 															</div>
 															<div className="text-rose-950/80">
 																{[
@@ -2072,7 +2076,7 @@ export default function RequestDetailDialog({
 																	{provider.providerId
 																		? providerNames?.get(provider.providerId) ??
 																			provider.providerId
-																		: "Unknown provider"}
+														: s("Unknown provider")}
 																</div>
 																<code className="rounded bg-rose-100 px-1.5 py-0.5 text-xs">
 																	score {formatScoreValue(provider.score)}
@@ -2162,7 +2166,7 @@ export default function RequestDetailDialog({
 																		{entry.providerId
 																			? providerNames?.get(entry.providerId) ??
 																				entry.providerId
-																			: "Unknown provider"}
+															: s("Unknown provider")}
 																	</div>
 																	{entry.reason ? (
 																		<div className="mt-1 text-rose-950/80">
@@ -2196,7 +2200,7 @@ export default function RequestDetailDialog({
 									<div className="space-y-1">
 										{guardrailEnforcement.action ? (
 											<div>
-												<span className="font-medium">Action:</span>{" "}
+									<span className="font-medium">{s("Action:")}</span>{" "}
 												<code className="rounded bg-amber-100 px-1.5 py-0.5 text-xs">
 													{guardrailEnforcement.action}
 												</code>
@@ -2204,19 +2208,19 @@ export default function RequestDetailDialog({
 										) : null}
 										{guardrailEnforcement.source ? (
 											<div>
-												<span className="font-medium">Source:</span>{" "}
+									<span className="font-medium">{s("Source:")}</span>{" "}
 												{formatDiagnosticLabel(guardrailEnforcement.source)}
 											</div>
 										) : null}
 										{guardrailEnforcement.detectionCount != null ? (
 											<div>
-												<span className="font-medium">Detections:</span>{" "}
+									<span className="font-medium">{s("Detections:")}</span>{" "}
 												{guardrailEnforcement.detectionCount}
 											</div>
 										) : null}
 										{guardrailEnforcement.redactionCount != null ? (
 											<div>
-												<span className="font-medium">Redactions:</span>{" "}
+									<span className="font-medium">{s("Redactions:")}</span>{" "}
 												{guardrailEnforcement.redactionCount}
 											</div>
 										) : null}
@@ -2300,30 +2304,30 @@ export default function RequestDetailDialog({
 											</div>
 											<div className="mt-2 grid gap-2 sm:grid-cols-2">
 												<div>
-													<span className="font-medium">Changed:</span>{" "}
-													{execution.changed ? "Yes" : "No"}
+									<span className="font-medium">{s("Changed:")}</span>{" "}
+									{execution.changed ? s("Yes") : s("No")}
 												</div>
 												{execution.attempted != null ? (
 													<div>
-														<span className="font-medium">Attempted:</span>{" "}
-														{execution.attempted ? "Yes" : "No"}
+										<span className="font-medium">{s("Attempted:")}</span>{" "}
+										{execution.attempted ? s("Yes") : s("No")}
 													</div>
 												) : null}
 												{execution.healed != null ? (
 													<div>
-														<span className="font-medium">Healed:</span>{" "}
-														{execution.healed ? "Yes" : "No"}
+										<span className="font-medium">{s("Healed:")}</span>{" "}
+										{execution.healed ? s("Yes") : s("No")}
 													</div>
 												) : null}
 												{execution.mode ? (
 													<div>
-														<span className="font-medium">Mode:</span>{" "}
+										<span className="font-medium">{s("Mode:")}</span>{" "}
 														{formatDiagnosticLabel(execution.mode)}
 													</div>
 												) : null}
 												{execution.failureReason ? (
 													<div>
-														<span className="font-medium">Failure reason:</span>{" "}
+										<span className="font-medium">{s("Failure reason:")}</span>{" "}
 													{formatDiagnosticLabel(execution.failureReason)}
 												</div>
 											) : null}
@@ -2339,7 +2343,7 @@ export default function RequestDetailDialog({
 												) : null}
 												{execution.errorMessage ? (
 													<div className="sm:col-span-2">
-														<span className="font-medium">Error:</span>{" "}
+									<span className="font-medium">{s("Error:")}</span>{" "}
 														<span className="break-words text-violet-950/90">
 															{execution.errorMessage}
 														</span>
@@ -2394,19 +2398,19 @@ export default function RequestDetailDialog({
 								</div>
 								<div className="grid gap-2 sm:grid-cols-4">
 									<div>
-										<span className="font-medium">Native search:</span>{" "}
-										{searchObservability.usedNativeWebSearch ? "Yes" : "No"}
+										<span className="font-medium">{s("Native search:")}</span>{" "}
+										{searchObservability.usedNativeWebSearch ? s("Yes") : s("No")}
 									</div>
 									<div>
-										<span className="font-medium">Managed search:</span>{" "}
-										{searchObservability.usedManagedWebSearch ? "Yes" : "No"}
+										<span className="font-medium">{s("Managed search:")}</span>{" "}
+										{searchObservability.usedManagedWebSearch ? s("Yes") : s("No")}
 									</div>
 									<div>
-										<span className="font-medium">Results:</span>{" "}
+										<span className="font-medium">{s("Results:")}</span>{" "}
 										{searchObservability.resultCount}
 									</div>
 									<div>
-										<span className="font-medium">Citations:</span>{" "}
+										<span className="font-medium">{s("Citations:")}</span>{" "}
 										{searchObservability.citationCount}
 									</div>
 								</div>
@@ -2568,11 +2572,11 @@ export default function RequestDetailDialog({
 								</div>
 								<div className="grid gap-2 sm:grid-cols-2">
 									<div>
-										<span className="font-medium">Fetches:</span>{" "}
+										<span className="font-medium">{s("Fetches:")}</span>{" "}
 										{webFetchObservability.requestCount}
 									</div>
 									<div>
-										<span className="font-medium">Truncated:</span>{" "}
+										<span className="font-medium">{s("Truncated:")}</span>{" "}
 										{
 											webFetchObservability.fetches.filter((entry) => entry.truncated)
 												.length
@@ -2630,25 +2634,25 @@ export default function RequestDetailDialog({
 							</div>
 						) : null}
 
-						<GenerationSection title="Routing details">
+						<GenerationSection title={s("Routing details")}>
 							<DetailRows items={routingDetailItems} />
 						</GenerationSection>
 
-						<GenerationSection title="Performance">
+						<GenerationSection title={s("Performance")}>
 							<DetailKeyValueGrid
 								columns={3}
 								items={[
-									{ label: "Provider latency", value: <span className="font-mono">{timingLatency > 0 ? `${timingLatency} ms` : "-"}</span> },
-									{ label: "Generation time", value: <span className="font-mono">{timingGeneration > 0 ? `${timingGeneration} ms` : "-"}</span> },
-									{ label: "Throughput", value: <span className="font-mono">{formatThroughput(request.throughput)}</span> },
-									{ label: "Cost", value: <span className="font-mono">{formatCost(request.cost_nanos)}</span> },
-									{ label: "Tokens", value: <span className="font-mono">{usageSummary.input != null || usageSummary.output != null ? `${formatUsageNumber(usageSummary.input ?? 0)} → ${formatUsageNumber(usageSummary.output ?? 0)}` : "-"}</span> },
-									{ label: "Stop reason", value: request.finish_reason || "-" },
+					{ label: s("Provider latency"), value: <span className="font-mono">{timingLatency > 0 ? `${timingLatency} ms` : "-"}</span> },
+					{ label: s("Generation time"), value: <span className="font-mono">{timingGeneration > 0 ? `${timingGeneration} ms` : "-"}</span> },
+					{ label: s("Throughput"), value: <span className="font-mono">{formatThroughput(request.throughput)}</span> },
+					{ label: s("Cost"), value: <span className="font-mono">{formatCost(request.cost_nanos)}</span> },
+					{ label: s("Tokens"), value: <span className="font-mono">{usageSummary.input != null || usageSummary.output != null ? `${formatUsageNumber(usageSummary.input ?? 0)} → ${formatUsageNumber(usageSummary.output ?? 0)}` : "-"}</span> },
+					{ label: s("Stop reason"), value: request.finish_reason || "-" },
 								]}
 							/>
 						</GenerationSection>
 
-						<GenerationSection title="Provider Responses">
+						<GenerationSection title={s("Provider Responses")}>
 							<DetailTimingBar items={responseTimelineItems} />
 							<RoutingTracePanel
 								trace={request.routing_trace ?? null}
@@ -2657,11 +2661,11 @@ export default function RequestDetailDialog({
 							/>
 						</GenerationSection>
 
-						<GenerationSection title="Usage">
+						<GenerationSection title={s("Usage")}>
 							{usageMeters.length > 0 ? (
 								<div className="space-y-4">
-									{nativeUsageMeters.length > 0 ? <UsageGroup title="Native" meters={nativeUsageMeters} /> : null}
-									{internalUsageMeters.length > 0 ? <UsageGroup title="Internal measures" meters={internalUsageMeters} /> : null}
+									{nativeUsageMeters.length > 0 ? <UsageGroup title={s("Native")} meters={nativeUsageMeters} /> : null}
+									{internalUsageMeters.length > 0 ? <UsageGroup title={s("Internal measures")} meters={internalUsageMeters} /> : null}
 								</div>
 							) : (
 								<div className="text-sm text-muted-foreground">
@@ -2670,34 +2674,34 @@ export default function RequestDetailDialog({
 							)}
 						</GenerationSection>
 
-						<GenerationSection title="Data Policy">
+						<GenerationSection title={s("Data Policy")}>
 							<DetailRows items={dataPolicyItems} />
 						</GenerationSection>
 
 						{ioLog ? (
-							<GenerationSection title="Gateway I/O">
+							<GenerationSection title={s("Gateway I/O")}>
 								<div className="space-y-4 text-sm">
 									<div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
-										<span>Status: <span className="font-medium text-foreground">{ioLog.status}</span></span>
+										<span>{s("Status:")} <span className="font-medium text-foreground">{ioLog.status}</span></span>
 										{ioLog.bytes ? <span>{ioLog.bytes.toLocaleString()} bytes</span> : null}
 										{ioLog.retention_until ? <span>Retained until {formatWordyDateTime(ioLog.retention_until)}</span> : null}
 									</div>
 									{ioLog.payload ? (
 										<div className="grid gap-4 xl:grid-cols-2">
-											<div className="min-w-0"><p className="mb-2 font-medium">Prompt</p><pre className="max-h-96 overflow-auto rounded-md border bg-muted/30 p-3 text-xs leading-5 whitespace-pre-wrap break-words">{JSON.stringify(ioLog.payload.request_payload ?? ioLog.payload.provider_request ?? null, null, 2)}</pre></div>
-											<div className="min-w-0"><p className="mb-2 font-medium">Completion</p><pre className="max-h-96 overflow-auto rounded-md border bg-muted/30 p-3 text-xs leading-5 whitespace-pre-wrap break-words">{JSON.stringify(ioLog.payload.gateway_response ?? ioLog.payload.provider_response ?? null, null, 2)}</pre></div>
+											<div className="min-w-0"><p className="mb-2 font-medium">{s("Prompt")}</p><pre className="max-h-96 overflow-auto rounded-md border bg-muted/30 p-3 text-xs leading-5 whitespace-pre-wrap break-words">{JSON.stringify(ioLog.payload.request_payload ?? ioLog.payload.provider_request ?? null, null, 2)}</pre></div>
+											<div className="min-w-0"><p className="mb-2 font-medium">{s("Completion")}</p><pre className="max-h-96 overflow-auto rounded-md border bg-muted/30 p-3 text-xs leading-5 whitespace-pre-wrap break-words">{JSON.stringify(ioLog.payload.gateway_response ?? ioLog.payload.provider_response ?? null, null, 2)}</pre></div>
 										</div>
-									) : <p className="text-muted-foreground">{ioLog.error ?? "No I/O payload is available for this request."}</p>}
+									) : <p className="text-muted-foreground">{ioLog.error ?? s("No I/O payload is available for this request.")}</p>}
 								</div>
 							</GenerationSection>
 						) : null}
 
-						<GenerationSection title="Technical Details">
+						<GenerationSection title={s("Technical Details")}>
 							<DetailRows items={technicalDetailItems} />
 						</GenerationSection>
 
 						{pricingLines.length > 0 ? (
-							<GenerationSection title="Pricing">
+							<GenerationSection title={s("Pricing")}>
 								<div className="space-y-2">
 									{pricingLines.map((line, index) => (
 										<div
@@ -2737,7 +2741,7 @@ export default function RequestDetailDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
 				<DialogHeader className="sr-only">
-					<DialogTitle>Request details</DialogTitle>
+					<DialogTitle>{s("Request details")}</DialogTitle>
 				</DialogHeader>
 				{detailContent}
 			</DialogContent>
@@ -2826,6 +2830,7 @@ function DataPolicyIcon({ policy }: { policy: unknown }) {
 }
 
 function CopyableText({ value, ariaLabel }: { value: string; ariaLabel: string }) {
+	const t = useTranslations("SettingsUI");
 	const [copied, setCopied] = React.useState(false);
 	const copy = React.useCallback(() => {
 		void navigator.clipboard
@@ -2845,11 +2850,11 @@ function CopyableText({ value, ariaLabel }: { value: string; ariaLabel: string }
 				"min-w-0 max-w-full truncate font-mono text-xs underline decoration-dotted underline-offset-4 transition-colors hover:text-foreground",
 				copied ? "text-emerald-500" : "text-foreground",
 			)}
-			title={copied ? "Copied" : "Click to copy"}
+			title={copied ? t("strings.copied" as never) : t("strings.Click to copy" as never)}
 			aria-label={ariaLabel}
 		>
 			{value}
-			<span className="sr-only" aria-live="polite">{copied ? "Copied" : ""}</span>
+			<span className="sr-only" aria-live="polite">{copied ? t("strings.copied" as never) : ""}</span>
 		</button>
 	);
 }

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { debounce, parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import {
 	Activity,
@@ -237,6 +238,7 @@ function ProviderFilterList({ options, selected, onToggle, showFlags = false }: 
 }
 
 export default function APIProvidersDisplay({ providers, showPrimaryHeader = true }: APIProvidersDisplayProps) {
+	const t = useTranslations("Catalogue.providers");
 	const pathname = usePathname();
 	const isTable = pathname.endsWith("/table");
 	const [search, setSearch] = useQueryState("search", { defaultValue: "", shallow: true });
@@ -464,17 +466,17 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			void setTableSort(null);
 			void setTableSortDirection(null);
 		}}>
-			<SelectTrigger className={cn("rounded-md border-border", className)} aria-label="Sort providers"><span className="flex min-w-0 items-center gap-2"><ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground" /><span className="truncate">{SORT_OPTION_LABELS[sortOption]}</span></span></SelectTrigger>
+		<SelectTrigger className={cn("rounded-md border-border", className)} aria-label={t("sort")}><span className="flex min-w-0 items-center gap-2"><ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground" /><span className="truncate">{SORT_OPTION_LABELS[sortOption]}</span></span></SelectTrigger>
 			<SelectContent align="end">{(Object.keys(SORT_OPTION_LABELS) as ProviderSortOption[]).map((option) => <SelectItem key={option} value={option}>{SORT_OPTION_LABELS[option]}</SelectItem>)}</SelectContent>
 		</Select>
 	);
 	const filterButton = () => (
-		<Button variant="outline" size="sm" className="relative h-8 rounded-md px-2 lg:hidden" onClick={() => setMobileFiltersOpen(true)} aria-label="Open filters"><SlidersHorizontal className="size-3.5" /><span className="sr-only">Filters</span>{activeFilterCount ? <span className="absolute -right-1 -top-1 min-w-4 rounded-sm bg-primary px-1 text-[10px] text-primary-foreground">{activeFilterCount}</span> : null}</Button>
+		<Button variant="outline" size="sm" className="relative h-8 rounded-md px-2 lg:hidden" onClick={() => setMobileFiltersOpen(true)} aria-label={t("filters")}><SlidersHorizontal className="size-3.5" /><span className="sr-only">{t("filters")}</span>{activeFilterCount ? <span className="absolute -right-1 -top-1 min-w-4 rounded-sm bg-primary px-1 text-[10px] text-primary-foreground">{activeFilterCount}</span> : null}</Button>
 	);
 	const viewSwitcher = (
 		<div className="inline-flex h-8 shrink-0 overflow-hidden rounded-md border border-border/70 bg-background shadow-xs">
-			<Link href="/api-providers" prefetch={false} aria-label="Card view" aria-current={!isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", !isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><LayoutGrid className="size-4" /></Link>
-			<Link href="/api-providers/table" prefetch={false} aria-label="Table view" aria-current={isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center border-l border-border/70 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><Table2 className="size-4" /></Link>
+			<Link href="/api-providers" prefetch={false} aria-label={t("cardView")} aria-current={!isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", !isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><LayoutGrid className="size-4" /></Link>
+			<Link href="/api-providers/table" prefetch={false} aria-label={t("tableView")} aria-current={isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center border-l border-border/70 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><Table2 className="size-4" /></Link>
 		</div>
 	);
 	const handleTableSort = (field: ProviderTableSortField) => {
@@ -533,7 +535,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			<section className="min-w-0 flex flex-1 flex-col">
 				<div ref={toolbarRef} className="z-40 shrink-0 border-b border-border/70 bg-background/95 px-4 pb-1 pt-2.5 backdrop-blur md:sticky lg:px-8" style={{ top: `${stickyOffsets.toolbarTop}px` }}>
 					<div className="space-y-2 md:hidden">
-						{showPrimaryHeader ? <div className="flex items-center gap-2"><h1 className="font-bold text-xl leading-8">Providers</h1></div> : null}
+						{showPrimaryHeader ? <div className="flex items-center gap-2"><h1 className="font-bold text-xl leading-8">{t("title")}</h1></div> : null}
 						<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
 							{sortSelect("h-8 min-w-0 bg-background text-sm")}
 							{filterButton()}
@@ -541,18 +543,18 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 						</div>
 						<div className="relative w-full">
 							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-							<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
+							<Input placeholder={t("searchPlaceholder")} value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
 						</div>
 					</div>
 
 					<div className="hidden md:block">
 						<div className="hidden lg:block">
 							<div className="flex flex-wrap items-center justify-between gap-2">
-								<div className="flex h-8 shrink-0 items-center">{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">Providers</h1> : null}</div>
+								<div className="flex h-8 shrink-0 items-center">{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">{t("title")}</h1> : null}</div>
 								<div className="flex min-w-[min(100%,30rem)] flex-1 items-center justify-end gap-3">
 									<div className="relative min-w-32 max-w-[22rem] flex-1 2xl:max-w-[28rem]">
 										<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-										<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
+										<Input placeholder={t("searchPlaceholder")} value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
 									</div>
 									{sortSelect("h-8 w-[12.5rem] bg-background text-sm 2xl:w-[13.5rem]")}
 									{showPrimaryHeader ? viewSwitcher : null}
@@ -563,14 +565,14 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 
 						<div className="lg:hidden">
 							<div className="flex h-8 items-center justify-between gap-3">
-								{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">Providers</h1> : <div />}
+								{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">{t("title")}</h1> : <div />}
 								<div className="flex shrink-0 items-center justify-end gap-2">{filterButton()}{showPrimaryHeader ? viewSwitcher : null}</div>
 							</div>
 							<div className="mt-2 grid grid-cols-[minmax(9rem,12rem)_minmax(0,1fr)] items-center gap-2">
 								{sortSelect("h-8 min-w-0 bg-background text-sm")}
 								<div className="relative min-w-0">
 									<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-									<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
+									<Input placeholder={t("searchPlaceholder")} value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
 								</div>
 							</div>
 						</div>
@@ -616,14 +618,14 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 							{filteredProviders.map((provider) => <APIProviderCard key={provider.api_provider_id} api_provider={provider} />)}
 							{Array.from({ length: mdFillers }).map((_, index) => <div key={`md-filler-${index}`} aria-hidden className="hidden bg-background md:block 2xl:hidden" />)}
 							{Array.from({ length: twoXlFillers }).map((_, index) => <div key={`2xl-filler-${index}`} aria-hidden className="hidden bg-background 2xl:block" />)}
-						</div> : <div className="flex min-h-64 flex-col items-center justify-center gap-2 bg-background px-4 text-center"><Search className="size-5 text-muted-foreground" /><p className="text-sm font-medium">No providers found</p><p className="text-xs text-muted-foreground">Try changing your search or filters.</p>{activeFilterCount ? <Button variant="outline" size="sm" className="mt-2 rounded-md" onClick={resetFilters}>Reset Filters</Button> : null}</div>}
+						</div> : <div className="flex min-h-64 flex-col items-center justify-center gap-2 bg-background px-4 text-center"><Search className="size-5 text-muted-foreground" /><p className="text-sm font-medium">{t("noResults")}</p><p className="text-xs text-muted-foreground">{t("tryDifferent")}</p>{activeFilterCount ? <Button variant="outline" size="sm" className="mt-2 rounded-md" onClick={resetFilters}>{t("reset")}</Button> : null}</div>}
 					</div>
 				</div>
 			</section>
 
 			<Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
 				<SheetContent side="right" className="w-[86vw] max-w-sm gap-0 p-0 lg:hidden">
-					<SheetHeader className="border-b border-border/70 px-4 py-3 text-left"><div className="flex items-start justify-between gap-3 pr-8"><div><SheetTitle>Filters</SheetTitle><SheetDescription>Refine the providers list.</SheetDescription></div>{activeFilterCount ? <Button variant="ghost" size="sm" className="h-8 px-2" onClick={resetFilters}>Reset</Button> : null}</div></SheetHeader>
+					<SheetHeader className="border-b border-border/70 px-4 py-3 text-left"><div className="flex items-start justify-between gap-3 pr-8"><div><SheetTitle>{t("filters")}</SheetTitle><SheetDescription>{t("refine")}</SheetDescription></div>{activeFilterCount ? <Button variant="ghost" size="sm" className="h-8 px-2" onClick={resetFilters}>{t("reset")}</Button> : null}</div></SheetHeader>
 					<ScrollArea className="min-h-0 flex-1 overscroll-y-contain px-4 py-2"><div className="space-y-4 pb-6">{filtersContent}</div></ScrollArea>
 				</SheetContent>
 			</Sheet>

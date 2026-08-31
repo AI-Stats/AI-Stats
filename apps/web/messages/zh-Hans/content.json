@@ -1,0 +1,97 @@
+{
+  "help": {
+    "title": "帮助中心",
+    "description": "浏览有关账户访问、多重身份验证设置、账单、安全性和 API 集成故障排除的支持文章。",
+    "supportResources": "支持资源",
+    "articleCount": "{count, plural, =0 {暂无文章} other {# 篇文章}}",
+    "viewAll": "查看 {category} 中的全部内容",
+    "updated": "更新于 {date}",
+    "moreIn": "{category} 中的更多内容"
+  },
+  "blog": {
+    "title": "Phaseo 博客",
+    "categories": { "all": "全部文章", "announcements": "公告", "guides": "指南", "data": "数据" },
+    "preview": "预览",
+    "pinned": "置顶文章",
+    "recent": "最新文章",
+    "showAll": "显示全部文章",
+    "emptyTitle": "暂无文章。",
+    "emptyDescription": "新更新发布后会显示在这里。",
+    "emptyCategory": "此分类暂无文章。",
+    "back": "返回博客",
+    "englishBodyNotice": "此编辑内容目前仅提供英文版本。周边界面已翻译；为保留原意，文章正文仍显示原文。"
+  },
+  "roadmap": {
+    "title": "Phaseo 路线图",
+    "description": "透明了解我们接下来要构建的内容。跟踪 AI 模型数据库、网关和分析工具即将推出的功能及已发布的里程碑。",
+    "intro": "透明了解我们接下来要构建的内容。时间线仅供参考，随着我们加快发布或吸收反馈，可能会有所调整。",
+    "feedback": "有想法、发现错误，或想为某项功能排定优先级？我们会阅读每一条反馈并快速交付。",
+    "giveFeedback": "提供反馈",
+    "upcoming": "即将推出",
+    "shipped": "已发布",
+    "latestShipped": "最新发布",
+    "target": "目标：{date}",
+    "continuous": "持续进行",
+    "learnMore": "了解更多",
+    "nothingShipped": "尚未发布任何内容——请稍后再来。",
+    "shippedDate": "发布于：{date}",
+    "view": "查看",
+    "comingSoon": "即将推出",
+    "activeDevelopment": "此页面正在积极开发中。",
+    "shippingFast": "我们正在快速交付。请稍后再来，或查看完整路线图。",
+    "viewRoadmap": "查看路线图",
+    "continuousImprovements": "持续改进即将到来",
+    "currentlyBuilt": "正在构建",
+    "availableBeta": "测试版可用",
+    "plannedFeature": "计划中的功能",
+    "seeRoadmapItem": "查看路线图条目",
+    "goHome": "返回首页",
+    "status": { "Planned": "计划中", "In Progress": "进行中", "Beta": "测试版", "Shipped": "已发布", "Ongoing": "持续进行" },
+    "milestones": {
+      "gateway": { "title": "网关覆盖范围扩展", "description": "持续扩展支持的提供商、模型和模态，并提供更智能的默认路由。" },
+      "expanded-database": { "title": "数据库覆盖范围", "description": "持续摄取并验证目录中的模型、提供商、定价和发布数据。" },
+      "usage-limits": { "title": "使用限额", "description": "按密钥设置支出和使用控制，减少意外超支并执行团队预算。" },
+      "guardrails": { "title": "安全护栏", "description": "扩展网关流量中的安全、策略和内容审核控制。" },
+      "privacy-settings": { "title": "隐私设置", "description": "为使用 Phaseo Gateway 的团队提供更细粒度的隐私和数据保留控制。" },
+      "provisioning-keys": { "title": "管理 API 密钥", "description": "自动创建和管理高级管理凭据的生命周期。" },
+      "presets": { "title": "预设市场", "description": "改进生产就绪预设配置的分享、发现和一键采用体验。" },
+      "anthropic-compatibility": { "title": "Anthropic 兼容性", "description": "已通过网关的 /messages 端点提供 Anthropic Messages API 兼容性。" },
+      "organisation-page": { "title": "组织页面", "description": "提供包含关联模型和元数据的专属组织页面。" },
+      "model-page": { "title": "模型页面", "description": "提供包含定价、可用性和快速入门详情的专属模型页面。" },
+      "benchmarks": { "title": "基准测试页面", "description": "提供包含排名变化和按模型划分的性能比较的基准测试页面。" },
+      "api-providers": { "title": "API 提供商页面", "description": "提供包含支持的模型、定价参考和能力覆盖范围的提供商页面。" },
+      "latest-updates": { "title": "最新更新", "description": "为发布、公告和数据库更新提供统一的信息流。" },
+      "countries-pages": { "title": "国家/地区页面", "description": "提供连接组织和模型活动的国家/地区级视图。" },
+      "revamped-pricing-page": { "title": "定价参考页面更新", "description": "提供更清晰的定价参考体验，支持按模型和提供商导航。" },
+      "database-updates": { "title": "数据库更新信息流", "description": "扩展更新信息流，展示数据库层面的持续变更。" },
+      "sources": { "title": "内嵌来源", "description": "在相关模型和提供商数据旁直接显示来源归属。" },
+      "compare": { "title": "模型比较", "description": "从定价、能力和关键元数据等方面并排比较模型。" }
+    }
+  },
+  "migrate": {
+    "title": "迁移",
+    "description": "交互式迁移指南，帮助你从 OpenRouter、Vercel AI Gateway、Requesty、LLMGateway 和 OpenAI 兼容库迁移到 Phaseo Gateway。",
+    "heading": "迁移助手",
+    "intro": "选择你当前的设置，获取定制的迁移指南。",
+    "englishBodyNotice": "此迁移指南目前仅提供英文版本。周边界面已翻译；为确保技术准确性，指南正文仍显示原文。"
+  },
+  "worksWith": {
+    "title": "与 Phaseo 配合使用",
+    "description": "探索使用 Phaseo Gateway 构建的应用和集成，包括生产工具、开源项目，以及适用于不同工作流程和团队的社区发布项目。",
+    "intro": "探索使用 Phaseo Gateway 的应用、工具和集成。团队可以基于 Phaseo 构建路由、定价和模型访问能力，用户则可以使用自己的 Phaseo API 密钥。",
+    "community": "社区", "submitApp": "提交你的应用", "contribute": "为 Phaseo 做贡献",
+    "emptyTitle": "暂无应用", "emptyDescription": "此列表已准备好接收社区提交。成为第一个添加应用的人。", "addApp": "添加你的应用",
+    "added": "添加于 {date}", "visitSite": "访问网站", "setupDocs": "设置文档", "openSource": "开源",
+    "contributing": "参与贡献", "contributingDescription": "按照以下步骤将你的应用添加到“与 Phaseo 配合使用”列表。", "requirements": "要求",
+    "tags": { "chat": "聊天", "coding": "编程", "productivity": "效率", "creative": "创意", "research": "研究", "other": "其他" }
+  },
+  "acknowledgements": {
+    "title": "致谢", "description": "Phaseo 所依赖并从中汲取灵感的开源项目、平台和设计工作。",
+    "heading": "由众多人的工作共同成就。", "intro": "Phaseo 建立在开源软件、周到的设计工作和可靠的基础设施之上。本页面致谢那些实质性影响我们构建工作的项目和团队。",
+    "thanks": "感谢每一位维护者、贡献者、研究人员和设计师，是你们的工作让 Phaseo 成为可能。", "howUsed": "Phaseo 的使用方式。", "disclaimer": "这是一份持续维护的产品致谢，不是完整的软件物料清单或许可证声明。软件包级别的版权和许可证条款仍归各自项目所有。", "continue": "继续", "review": "查看", "accessibleStates": "可访问状态", "streamingResponse": "流式响应", "searchExample": "搜索示例"
+  },
+  "contribute": {
+    "title": "参与贡献", "description": "认识支持 Phaseo 的贡献者和赞助者，浏览社区资料和贡献记录，并了解参与、赞助或帮助改进平台的明确方式。",
+    "heading": "贡献者与赞助者", "intro": "我们公开构建。这里列出了所有为 Phaseo 代码仓库做出贡献的人，以及通过 GitHub Sponsors 赞助其开发的人。他们都是很棒的人！", "contributors": "代码仓库贡献者", "contributorCount": "{count} 位贡献者", "sponsors": "赞助者", "listed": "已列出 {count} 位"
+  }
+}

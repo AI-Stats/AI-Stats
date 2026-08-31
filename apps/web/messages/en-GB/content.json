@@ -1,0 +1,97 @@
+{
+  "help": {
+    "title": "Help Center",
+    "description": "Browse support articles for account access, MFA setup, billing, security, and API integration troubleshooting.",
+    "supportResources": "Support Resources",
+    "articleCount": "{count, plural, =0 {No articles} one {# article} other {# articles}}",
+    "viewAll": "View all in {category}",
+    "updated": "Updated {date}",
+    "moreIn": "More in {category}"
+  },
+  "blog": {
+    "title": "Phaseo Blog",
+    "categories": { "all": "All posts", "announcements": "Announcements", "guides": "Guides", "data": "Data" },
+    "preview": "Preview",
+    "pinned": "Pinned posts",
+    "recent": "Most recent",
+    "showAll": "Show all posts",
+    "emptyTitle": "No posts yet.",
+    "emptyDescription": "New updates will appear here as they are published.",
+    "emptyCategory": "No posts in this category yet.",
+    "back": "Back to blog",
+    "englishBodyNotice": "This editorial content is currently available in English. The surrounding interface is translated; the original article is shown to preserve its meaning."
+  },
+  "roadmap": {
+    "title": "Phaseo Roadmap",
+    "description": "A transparent look at what we're building next. Track upcoming features and shipped milestones for the AI model database, gateway, and analytics tools.",
+    "intro": "A transparent look at what we're building next. Timelines are indicative and may shift as we ship faster or incorporate feedback.",
+    "feedback": "Got an idea, found an error, or want to prioritise a feature? We read everything and ship fast.",
+    "giveFeedback": "Give feedback",
+    "upcoming": "Upcoming",
+    "shipped": "Shipped",
+    "latestShipped": "Latest shipped",
+    "target": "Target: {date}",
+    "continuous": "Continuous",
+    "learnMore": "Learn more",
+    "nothingShipped": "Nothing shipped yet - check back soon.",
+    "shippedDate": "Shipped: {date}",
+    "view": "View",
+    "comingSoon": "Coming soon",
+    "activeDevelopment": "This page is under active development.",
+    "shippingFast": "We’re shipping fast. Check back shortly or see the full roadmap.",
+    "viewRoadmap": "View roadmap",
+    "continuousImprovements": "Continuous improvements ahead",
+    "currentlyBuilt": "Currently being built",
+    "availableBeta": "Available in beta",
+    "plannedFeature": "Planned feature",
+    "seeRoadmapItem": "See roadmap item",
+    "goHome": "Go Home",
+    "status": { "Planned": "Planned", "In Progress": "In Progress", "Beta": "Beta", "Shipped": "Shipped", "Ongoing": "Ongoing" },
+    "milestones": {
+      "gateway": { "title": "Gateway Coverage Expansion", "description": "Continuous expansion of supported providers, models, and modalities with smarter routing defaults." },
+      "expanded-database": { "title": "Database Coverage", "description": "Continuous ingestion and validation of model, provider, pricing, and release data across the catalog." },
+      "usage-limits": { "title": "Usage Limits", "description": "Per-key spend and usage controls to reduce accidental overspend and enforce team budgets." },
+      "guardrails": { "title": "Guardrails", "description": "Expanded safety, policy, and moderation controls across gateway traffic." },
+      "privacy-settings": { "title": "Privacy Settings", "description": "More granular privacy and retention controls for teams using Phaseo Gateway." },
+      "provisioning-keys": { "title": "Management API Keys", "description": "Automated creation and lifecycle management for elevated management credentials." },
+      "presets": { "title": "Preset Marketplace", "description": "Improved sharing, discovery, and one-click adoption of production-ready preset configurations." },
+      "anthropic-compatibility": { "title": "Anthropic Compatibility", "description": "Anthropic Messages API compatibility shipped via the gateway /messages endpoint." },
+      "organisation-page": { "title": "Organisation Pages", "description": "Dedicated organisation pages with linked models and metadata." },
+      "model-page": { "title": "Model Pages", "description": "Dedicated model pages with pricing, availability, and quickstart details." },
+      "benchmarks": { "title": "Benchmark Pages", "description": "Benchmark pages with rank deltas and per-model performance comparisons." },
+      "api-providers": { "title": "API Provider Pages", "description": "Provider pages with supported models, pricing references, and capability coverage." },
+      "latest-updates": { "title": "Latest Updates", "description": "A single stream for releases, announcements, and database updates." },
+      "countries-pages": { "title": "Countries Pages", "description": "Country-level views that connect organisations and model activity." },
+      "revamped-pricing-page": { "title": "Pricing Reference Refresh", "description": "A cleaner pricing reference experience with model and provider-focused navigation." },
+      "database-updates": { "title": "Database Update Feed", "description": "Expanded update feed that surfaces ongoing database-level changes." },
+      "sources": { "title": "Inline Sources", "description": "Source attribution surfaced directly alongside relevant model and provider data." },
+      "compare": { "title": "Model Comparisons", "description": "Side-by-side model comparison across pricing, capabilities, and key metadata." }
+    }
+  },
+  "migrate": {
+    "title": "Migrate",
+    "description": "Interactive migration guide for moving from OpenRouter, Vercel AI Gateway, Requesty, LLMGateway, and OpenAI-compatible libraries to Phaseo Gateway.",
+    "heading": "Migration Assistant",
+    "intro": "Pick your current setup and get a tailored migration guide.",
+    "englishBodyNotice": "This migration guide is currently available in English. The surrounding interface is translated; the original guide is shown to preserve technical accuracy."
+  },
+  "worksWith": {
+    "title": "Works with Phaseo",
+    "description": "Discover apps and integrations built with the Phaseo Gateway, including production tools, open-source projects, and community launches across different workflows and teams.",
+    "intro": "Discover apps, tools, and integrations that use the Phaseo Gateway. Teams can build on top of Phaseo for routing, pricing, and model access, while users bring their own Phaseo API keys.",
+    "community": "Community", "submitApp": "Submit your app", "contribute": "Contribute to Phaseo",
+    "emptyTitle": "No apps yet", "emptyDescription": "This list is ready for community submissions. Be the first to add yours.", "addApp": "Add your app",
+    "added": "Added {date}", "visitSite": "Visit site", "setupDocs": "Setup docs", "openSource": "Open source",
+    "contributing": "Contributing", "contributingDescription": "Add your app to the Works with Phaseo list by following the steps below.", "requirements": "Requirements",
+    "tags": { "chat": "Chat", "coding": "Coding", "productivity": "Productivity", "creative": "Creative", "research": "Research", "other": "Other" }
+  },
+  "acknowledgements": {
+    "title": "Acknowledgements", "description": "The open-source projects, platforms, and design work that Phaseo relies on and learns from.",
+    "heading": "Built with the work of many.", "intro": "Phaseo stands on open-source software, thoughtful design work, and dependable infrastructure. This page recognizes the projects and teams that materially shape what we build.",
+    "thanks": "Thank you to every maintainer, contributor, researcher, and designer whose work makes Phaseo possible.", "howUsed": "How Phaseo uses it.", "disclaimer": "This is a maintained product acknowledgement, not an exhaustive software bill of materials or license notice. Package-level copyright and license terms remain with their respective projects.", "continue": "Continue", "review": "Review", "accessibleStates": "Accessible states", "streamingResponse": "Streaming response", "searchExample": "Search example"
+  },
+  "contribute": {
+    "title": "Contribute", "description": "Meet the contributors and sponsors supporting Phaseo, browse community profiles and contribution history, and find clear ways to participate, sponsor, or help improve the platform.",
+    "heading": "Contributors & Sponsors", "intro": "We build in public. These lists show everyone who has contributed to the Phaseo repository and those who sponsor its development via GitHub Sponsors. These are great people!", "contributors": "Repository contributors", "contributorCount": "{count} contributors", "sponsors": "Sponsors", "listed": "{count} listed"
+  }
+}

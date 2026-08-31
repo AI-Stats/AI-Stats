@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
 	HoverCard,
@@ -60,6 +61,8 @@ type ResetWindowHoverProps = {
 };
 
 export default function ResetWindowHover({ iso, triggerText }: ResetWindowHoverProps) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [relativeNowMs, setRelativeNowMs] = useState<number | null>(null);
 	const userTimeZone = useMemo(
 		() =>
@@ -92,11 +95,11 @@ export default function ResetWindowHover({ iso, triggerText }: ResetWindowHoverP
 						<div className="font-mono">{formatDateTime(date, userTimeZone)}</div>
 					</div>
 					<div className="grid grid-cols-[120px_1fr] gap-2">
-						<div className="text-muted-foreground">UTC</div>
+						<div className="text-muted-foreground">{s("UTC")}</div>
 						<div className="font-mono">{formatDateTime(date, "UTC")}</div>
 					</div>
 					<div className="grid grid-cols-[120px_1fr] gap-2">
-						<div className="text-muted-foreground">Relative</div>
+						<div className="text-muted-foreground">{s("Relative")}</div>
 						<div className="font-mono">
 							{relativeNowMs ? formatRelativeFromNow(date, relativeNowMs) : "-"}
 						</div>

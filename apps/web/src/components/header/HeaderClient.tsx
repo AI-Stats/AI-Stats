@@ -1,8 +1,8 @@
 // components/header/HeaderClient.tsx  (CLIENT)
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
 	Activity,
@@ -68,15 +68,18 @@ export default function HeaderClient({
 }: HeaderProps) {
 	const router = useRouter();
 	const pathname = usePathname() ?? "/";
+	const t = useTranslations("Common.nav");
+	const tSearch = useTranslations("Common.search");
+	const tTheme = useTranslations("Common.theme");
 	const { theme, setTheme } = useTheme();
 	const currentTheme =
 		theme === "light" || theme === "dark" || theme === "system"
 			? theme
 			: "system";
 	const themeMeta = {
-		light: { label: "Light", icon: Sun },
-		dark: { label: "Dark", icon: Moon },
-		system: { label: "System", icon: Monitor },
+		light: { label: tTheme("light"), icon: Sun },
+		dark: { label: tTheme("dark"), icon: Moon },
+		system: { label: tTheme("system"), icon: Monitor },
 	} as const;
 	const { isOpen: supportIsOpen } = getSupportAvailability();
 	const supportDotClasses = supportIsOpen
@@ -117,26 +120,26 @@ export default function HeaderClient({
 		const result = await SwapTeam(nextTeamId);
 		if (!result?.ok) {
 			setActiveTeamId(previousTeamId);
-			toast.error(`Failed to switch to ${teamName} workspace`, {
+			toast.error(tSearch("failedSwitchWorkspace", { workspace: teamName }), {
 				position: "bottom-right",
 			});
 			return false;
 		}
 
 		router.refresh();
-		toast.success(`Switched to ${teamName} workspace`, {
+		toast.success(tSearch("switchedWorkspace", { workspace: teamName }), {
 			position: "bottom-right",
 		});
 		return true;
 	}
 
 	const navLinks = [
-		{ href: "/models", label: "Models", icon: Boxes },
-		{ href: "/chat", label: "Chat", icon: MessageSquare },
-		{ href: "/compare", label: "Compare", icon: Scale },
-		{ href: "/api-providers", label: "Providers", icon: Server },
-		{ href: "/apps", label: "Apps", icon: AppWindow },
-		{ href: "/rankings", label: "Rankings", icon: Trophy },
+		{ href: "/models", label: t("models"), icon: Boxes },
+		{ href: "/chat", label: t("chat"), icon: MessageSquare },
+		{ href: "/compare", label: t("compare"), icon: Scale },
+		{ href: "/api-providers", label: t("providers"), icon: Server },
+		{ href: "/apps", label: t("apps"), icon: AppWindow },
+		{ href: "/rankings", label: t("rankings"), icon: Trophy },
 	];
 	const docsHref = "https://phaseo.app/docs/v1";
 
@@ -150,13 +153,13 @@ export default function HeaderClient({
 					<ButtonGroup className="h-8 items-stretch overflow-hidden rounded-lg shadow-xs">
 						<Button asChild className="h-8 rounded-r-none px-4">
 							<Link href="/sign-up">
-								Sign Up
+								{t("signUp")}
 							</Link>
 						</Button>
 						<DropdownMenuTrigger asChild>
 							<Button
 								className="h-8 w-8 rounded-l-none border-l border-primary-foreground/25 px-0"
-								aria-label="Open navigation menu"
+								aria-label={t("openNavigation")}
 							>
 								<ChevronDown
 									className={cn(
@@ -196,14 +199,14 @@ export default function HeaderClient({
 								className="flex items-center gap-2"
 							>
 								<BookOpenText className="h-4 w-4" />
-								Docs
+														{t("documentation")}
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<div className="px-1 py-1">
 							<div
 								role="radiogroup"
-								aria-label="Theme mode"
+								aria-label={tTheme("mode")}
 								className="inline-flex w-full items-center justify-center gap-1 rounded-md bg-zinc-100 p-0.5 dark:bg-zinc-900"
 							>
 								{(["light", "dark", "system"] as const).map((mode) => {
@@ -215,7 +218,7 @@ export default function HeaderClient({
 											type="button"
 											role="radio"
 											aria-checked={selected}
-											aria-label={`Set theme: ${themeMeta[mode].label}`}
+											aria-label={tTheme("set", { theme: themeMeta[mode].label })}
 											onClick={() => setTheme(mode)}
 											className={cn(
 												"relative flex h-8 flex-1 items-center justify-center rounded-md text-zinc-500 transition-colors",
@@ -257,7 +260,7 @@ export default function HeaderClient({
 							"focus-visible:ring-2 focus-visible:ring-zinc-400/50 dark:focus-visible:ring-zinc-600/50",
 							isMobileNavOpen && "bg-zinc-100/70 dark:bg-zinc-900/60",
 						)}
-						aria-label="Open profile menu"
+						aria-label={t("openProfile")}
 						aria-expanded={isMobileNavOpen}
 					>
 						<CurrentUserAvatar user={user} />
@@ -269,7 +272,7 @@ export default function HeaderClient({
 								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href="/internal" prefetch={false}>
 										<Lock className="h-4 w-4" />
-										<span>Internal</span>
+										<span>{t("internal")}</span>
 									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
@@ -351,7 +354,7 @@ export default function HeaderClient({
 											onClick={() => setIsMobileTeamDialogOpen(false)}
 										>
 											<Users className="h-4 w-4" />
-											<span>Manage Workspaces</span>
+										<span>{t("manageWorkspaces")}</span>
 										</Link>
 									</PopoverContent>
 								</Popover>
@@ -386,21 +389,21 @@ export default function HeaderClient({
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/experiments" prefetch={false}>
 									<FlaskConical className="h-4 w-4" />
-									<span>Experiments</span>
+									<span>{t("experiments")}</span>
 								</Link>
 							</DropdownMenuItem>
 
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/settings/workspaces/settings" prefetch={false}>
 									<Users className="h-4 w-4" />
-									<span>Workspaces</span>
+									<span>{t("workspaces")}</span>
 								</Link>
 							</DropdownMenuItem>
 
 								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href="/settings/account" prefetch={false}>
 										<Settings className="h-4 w-4" />
-									<span>Settings</span>
+									<span>{t("settings")}</span>
 								</Link>
 							</DropdownMenuItem>
 
@@ -414,7 +417,7 @@ export default function HeaderClient({
 									prefetch={false}
 								>
 									<Activity className="h-4 w-4" />
-									<span>Activity</span>
+									<span>{t("activity")}</span>
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
@@ -425,26 +428,26 @@ export default function HeaderClient({
 									prefetch={false}
 								>
 									<ScrollText className="h-4 w-4" />
-									<span>Logs</span>
+									<span>{t("logs")}</span>
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/settings/credits" prefetch={false}>
 									<CreditCard className="h-4 w-4" />
-									<span>Credits</span>
+									<span>{t("credits")}</span>
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/settings/keys" prefetch={false}>
 									<KeyIcon className="h-4 w-4" />
-									<span>Keys</span>
+									<span>{t("keys")}</span>
 								</Link>
 							</DropdownMenuItem>
 								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href="/contact" prefetch={false}>
 										<LifeBuoy className="h-4 w-4" />
 										<span className="flex min-w-0 flex-1 items-center justify-between gap-3">
-											<span>Support</span>
+													<span>{t("support")}</span>
 											<span
 												className="relative flex h-2.5 w-2.5 shrink-0"
 												aria-hidden="true"
@@ -473,12 +476,12 @@ export default function HeaderClient({
 									}}
 								>
 									<MessageSquareMore className="h-4 w-4" />
-									<span>Send Feedback</span>
+									<span>{t("sendFeedback")}</span>
 								</DropdownMenuItem>
 								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href={docsHref} target="_blank" rel="noreferrer">
 										<BookOpenText className="h-4 w-4" />
-										<span>Docs</span>
+										<span>{t("documentation")}</span>
 									</Link>
 								</DropdownMenuItem>
 
@@ -487,7 +490,7 @@ export default function HeaderClient({
 								<div className="px-1 py-1">
 									<div
 										role="radiogroup"
-										aria-label="Theme mode"
+										aria-label={tTheme("mode")}
 										className="inline-flex w-full items-center justify-center gap-1 rounded-lg bg-muted/60 p-0.5"
 									>
 										{(["light", "dark", "system"] as const).map((mode) => {
@@ -499,7 +502,7 @@ export default function HeaderClient({
 													type="button"
 													role="radio"
 													aria-checked={selected}
-													aria-label={`Set theme: ${themeMeta[mode].label}`}
+													aria-label={tTheme("set", { theme: themeMeta[mode].label })}
 													onClick={() => setTheme(mode)}
 													className={cn(
 														"relative flex h-7 flex-1 items-center justify-center rounded-md text-muted-foreground transition-colors",
@@ -527,21 +530,21 @@ export default function HeaderClient({
 								}}
 							>
 								<LogOut className="h-4 w-4" />
-								<span>Sign out</span>
+								<span>{t("signOut")}</span>
 							</DropdownMenuItem>
 						</>
 					) : (
 						<>
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/sign-up">
-									Sign Up
+									{t("signUp")}
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<div className="px-1 py-1">
 								<div
 									role="radiogroup"
-									aria-label="Theme mode"
+									aria-label={tTheme("mode")}
 									className="inline-flex w-full items-center justify-center gap-1 rounded-lg bg-muted/60 p-0.5"
 								>
 									{(["light", "dark", "system"] as const).map((mode) => {
@@ -553,7 +556,7 @@ export default function HeaderClient({
 												type="button"
 												role="radio"
 												aria-checked={selected}
-												aria-label={`Set theme: ${themeMeta[mode].label}`}
+											aria-label={tTheme("set", { theme: themeMeta[mode].label })}
 												onClick={() => setTheme(mode)}
 												className={cn(
 													"relative flex h-7 flex-1 items-center justify-center rounded-md text-muted-foreground transition-colors",
@@ -602,7 +605,7 @@ export default function HeaderClient({
 						variant="default"
 						className="rounded-lg px-4 py-2 text-xs font-semibold"
 					>
-						Sign Up
+						{t("signUp")}
 					</Button>
 				</Link>
 			)}

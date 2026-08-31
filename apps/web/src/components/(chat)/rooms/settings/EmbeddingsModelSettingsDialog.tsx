@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -53,14 +55,15 @@ export function EmbeddingsModelSettingsDialog({
 	onUpdateParams,
 	onReset,
 }: EmbeddingsModelSettingsDialogProps) {
+	const t = useTranslations("Product.chatRooms");
 	const schema = getEmbeddingsModelSchema(selectedModelId ?? "");
 
 	return (
 		<RoomModelSettingsShell
 			open={open}
 			onOpenChange={onOpenChange}
-			title="Embeddings model settings"
-			description="Configure vector output settings for this embeddings model."
+			title={t("embeddingsSettings")}
+			description={t("embeddingsSettingsDescription")}
 			settings={settings}
 			modelChoices={modelChoices}
 			selectedModelId={selectedModelId}
@@ -72,7 +75,7 @@ export function EmbeddingsModelSettingsDialog({
 		>
 			<div className="grid gap-3">
 				<div className="grid gap-1.5">
-					<Label>Encoding format</Label>
+					<Label>{t("encodingFormat")}</Label>
 					<Select
 						value={settings.params.encodingFormat}
 						onValueChange={(value) =>

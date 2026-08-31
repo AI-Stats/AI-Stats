@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ const TABS: Tab[] = [
 ];
 
 export default function AccountTopTabs() {
+	const t = useTranslations("SettingsUI");
 	const pathname = usePathname() ?? "";
 
 	const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -61,7 +63,7 @@ export default function AccountTopTabs() {
 			ref={containerRef}
 			className="relative flex gap-4 border-b border-border"
 			onMouseLeave={() => setIndicatorToHref(activeHref)}
-			aria-label="Account navigation"
+			aria-label={t("strings.Account navigation" as never)}
 		>
 			<div
 				aria-hidden="true"
@@ -90,7 +92,7 @@ export default function AccountTopTabs() {
 							active ? "text-primary" : "text-muted-foreground hover:text-primary",
 						)}
 					>
-						{tab.label}
+						{t(`strings.${tab.label}` as never)}
 					</Link>
 				);
 			})}

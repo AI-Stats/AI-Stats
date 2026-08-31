@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
 	revealTeamInviteAction,
@@ -75,6 +76,7 @@ export default function TeamInviteDialog({
 	canManageInvite = false,
 	appBaseUrl,
 }: Props) {
+	const t = useTranslations("SettingsUI");
 	const router = useRouter();
 	const isCreator = !!currentUserId && currentUserId === invite.creator_user_id;
 	const canManage = canManageInvite || isCreator;
@@ -244,12 +246,12 @@ export default function TeamInviteDialog({
 						<Stat label="Max uses">
 							{invite.max_uses === null ? (
 								<span className="inline-flex items-center gap-1 align-baseline leading-none">
-									<span className="sr-only">Unlimited</span>
+									<span className="sr-only">{t("teams.unlimited")}</span>
 									<Infinity
 										className="h-4 w-4"
 										aria-hidden="true"
 									/>{" "}
-									<span>Unlimited</span>
+										<span>{t("teams.unlimited")}</span>
 								</span>
 							) : (
 								<span className="text-sm">
@@ -264,7 +266,7 @@ export default function TeamInviteDialog({
 
 					{/* Token / Reveal */}
 					<div className="space-y-2">
-						<Label htmlFor="invite-token">Invite code</Label>
+						<Label htmlFor="invite-token">{t("teams.inviteCode")}</Label>
 						<div className="flex flex-col gap-2 sm:flex-row sm:items-start">
 							<div
 								id="invite-token"
@@ -395,7 +397,7 @@ export default function TeamInviteDialog({
 
 					{revokeError && (
 						<Alert variant="destructive">
-							<AlertTitle>Delete failed</AlertTitle>
+							<AlertTitle>{t("teams.deleteFailed")}</AlertTitle>
 							<AlertDescription>{revokeError}</AlertDescription>
 						</Alert>
 					)}

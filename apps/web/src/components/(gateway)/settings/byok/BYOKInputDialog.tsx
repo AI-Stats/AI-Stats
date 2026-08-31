@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
 	getProviderCredentialFormKind,
@@ -106,6 +107,7 @@ export default function BYOKInputDialog({
 	onSaved,
 	initial = null,
 }: Props) {
+	const t = useTranslations("SettingsUI");
 	const activeProviderId = providerId ?? initial?.providerId ?? null;
 	const credentialFormKind = useMemo(
 		() => getProviderCredentialFormKind(activeProviderId),
@@ -264,15 +266,15 @@ export default function BYOKInputDialog({
 		}
 		const normalizedName = keyName.trim();
 		if (!normalizedName) {
-			toast.error("Key name is required");
+			toast.error(t("strings.Key name is required" as never));
 			return;
 		}
 		if (!initial && !submission.value) {
-			toast.error("Please provide a key value");
+			toast.error(t("strings.Please provide a key value" as never));
 			return;
 		}
 		if (!initial && !providerId) {
-			toast.error("Missing provider id");
+			toast.error(t("strings.Missing provider id" as never));
 			return;
 		}
 		if (submission.value && formatCheck && !formatCheck.ok) {
@@ -291,7 +293,7 @@ export default function BYOKInputDialog({
 					allowedModelSlugs,
 					allowedApiKeyIds,
 				});
-				toast.success(submission.value ? "Key updated and replaced" : "Key updated");
+			toast.success(submission.value ? t("strings.Key updated and replaced" as never) : t("strings.Key updated" as never));
 			} else {
 				await createByokKeyAction(
 					normalizedName,
@@ -302,14 +304,14 @@ export default function BYOKInputDialog({
 					allowedModelSlugs,
 					allowedApiKeyIds,
 				);
-				toast.success("Key saved");
+		toast.success(t("strings.Key saved" as never));
 			}
 			setOpen(false);
 			resetForm();
 			onSaved?.();
 		} catch (err: any) {
 			console.error(err);
-			toast.error(err?.message || "Failed to save key");
+			toast.error(err?.message || t("strings.Failed to save key" as never));
 		} finally {
 			setLoading(false);
 		}
@@ -323,12 +325,12 @@ export default function BYOKInputDialog({
 
 				<form onSubmit={onSave} className="grid gap-4">
 					<div className="grid gap-2">
-						<Label htmlFor={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}>Key name</Label>
+					<Label htmlFor={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}>{t("keys.keyName")}</Label>
 						<Input
 							id={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}
 							value={keyName}
 							onChange={(event) => setKeyName(event.target.value)}
-							placeholder="Production key"
+							placeholder={t("strings.Production key" as never)}
 						/>
 					</div>
 					{providerModelsHref ? (
@@ -351,10 +353,10 @@ export default function BYOKInputDialog({
 								<HoverCardTrigger asChild>
 									<span
 										className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground cursor-help select-none"
-										aria-label="Credential setup info"
+										aria-label={t("strings.Credential setup info" as never)}
 									>
 										<Info className="h-3.5 w-3.5" />
-										<span>Info</span>
+					<span>{t("strings.Info" as never)}</span>
 									</span>
 								</HoverCardTrigger>
 								<HoverCardContent align="end" className="max-w-sm">
@@ -391,7 +393,7 @@ export default function BYOKInputDialog({
 						{credentialFormKind === "bedrock" ? (
 							<div className="space-y-3 rounded-md border p-3">
 								<div className="flex items-center justify-between gap-4">
-									<div className="text-sm font-medium">Use IAM credentials</div>
+					<div className="text-sm font-medium">{t("strings.Use IAM credentials" as never)}</div>
 									<Switch
 										checked={bedrockUseIam}
 										onCheckedChange={(checked: any) => setBedrockUseIam(Boolean(checked))}
@@ -402,17 +404,17 @@ export default function BYOKInputDialog({
 										<Input
 											value={bedrockAccessKeyId}
 											onChange={(e) => setBedrockAccessKeyId(e.target.value)}
-											placeholder="Access Key ID"
+										placeholder={t("strings.Access Key ID" as never)}
 										/>
 										<Input
 											value={bedrockSecretAccessKey}
 											onChange={(e) => setBedrockSecretAccessKey(e.target.value)}
-											placeholder="Secret Access Key"
+										placeholder={t("strings.Secret Access Key" as never)}
 										/>
 										<Input
 											value={bedrockRegion}
 											onChange={(e) => setBedrockRegion(e.target.value)}
-											placeholder="AWS Region (for example us-east-1)"
+										placeholder={t("strings.AWS Region (for example us-east-1)" as never)}
 										/>
 									</div>
 								) : (
@@ -420,7 +422,7 @@ export default function BYOKInputDialog({
 										type="password"
 										value={bedrockApiKey}
 										onChange={(e) => setBedrockApiKey(e.target.value)}
-										placeholder="Bedrock API key"
+									placeholder={t("strings.Bedrock API key" as never)}
 									/>
 								)}
 								{initial ? (
@@ -434,13 +436,13 @@ export default function BYOKInputDialog({
 								<Input
 									value={cloudflareAccountId}
 									onChange={(e) => setCloudflareAccountId(e.target.value)}
-									placeholder="Cloudflare Account ID"
+									placeholder={t("strings.Cloudflare Account ID" as never)}
 								/>
 								<Input
 									type="password"
 									value={cloudflareApiToken}
 									onChange={(e) => setCloudflareApiToken(e.target.value)}
-									placeholder="Cloudflare API Token"
+									placeholder={t("strings.Cloudflare API Token" as never)}
 								/>
 								{initial ? (
 									<p className="text-xs text-muted-foreground">
@@ -482,7 +484,7 @@ export default function BYOKInputDialog({
 													),
 												)
 											}
-											placeholder="Phaseo model slug (for example openai/gpt-4o-mini)"
+											placeholder={t("strings.Phaseo model slug (for example openai/gpt-4o-mini)" as never)}
 										/>
 										<Input
 											value={deployment.endpointUrl}
@@ -495,7 +497,7 @@ export default function BYOKInputDialog({
 													),
 												)
 											}
-											placeholder="Azure Foundry endpoint URL"
+											placeholder={t("strings.Azure Foundry endpoint URL" as never)}
 										/>
 										<Input
 											type="password"
@@ -509,7 +511,7 @@ export default function BYOKInputDialog({
 													),
 												)
 											}
-											placeholder="Azure endpoint API key"
+										placeholder={t("strings.Azure endpoint API key" as never)}
 										/>
 										<Input
 											value={deployment.modelId}
@@ -522,7 +524,7 @@ export default function BYOKInputDialog({
 													),
 												)
 											}
-											placeholder="Model ID for this endpoint"
+										placeholder={t("strings.Model ID for this endpoint" as never)}
 										/>
 									</div>
 								))}
@@ -569,19 +571,19 @@ export default function BYOKInputDialog({
 					</div>
 
 					<div className="flex items-center justify-between gap-4 rounded-md border p-3">
-						<div className="text-sm font-medium">Enabled</div>
+					<div className="text-sm font-medium">{t("labels.enabled")}</div>
 						<Switch checked={enabled} onCheckedChange={(checked: any) => setEnabled(Boolean(checked))} />
 					</div>
 
 					{initial ? <div className="space-y-4 rounded-md border p-3">
 						<div>
-							<div className="text-sm font-medium">Key scope</div>
-							<p className="mt-0.5 text-xs text-muted-foreground">Leave a list empty to allow every option.</p>
+					<div className="text-sm font-medium">{t("strings.Key scope" as never)}</div>
+					<p className="mt-0.5 text-xs text-muted-foreground">{t("strings.Leave a list empty to allow every option." as never)}</p>
 						</div>
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div className="space-y-2">
 								<div className="flex items-center justify-between text-xs font-medium">
-									<span>Models</span>
+						<span>{t("strings.Models" as never)}</span>
 									<span className="text-muted-foreground">{allowedModelSlugs.length ? `${allowedModelSlugs.length} selected` : "All"}</span>
 								</div>
 								<ScrollArea className="h-36 rounded-md border p-2">
@@ -597,7 +599,7 @@ export default function BYOKInputDialog({
 							</div>
 							<div className="space-y-2">
 								<div className="flex items-center justify-between text-xs font-medium">
-									<span>Phaseo API keys</span>
+						<span>{t("strings.Phaseo API keys" as never)}</span>
 									<span className="text-muted-foreground">{allowedApiKeyIds.length ? `${allowedApiKeyIds.length} selected` : "All"}</span>
 								</div>
 								<ScrollArea className="h-36 rounded-md border p-2">
@@ -607,7 +609,7 @@ export default function BYOKInputDialog({
 												<Checkbox checked={allowedApiKeyIds.includes(option.value)} onCheckedChange={(checked) => setAllowedApiKeyIds((current) => checked ? [...current, option.value] : current.filter((value) => value !== option.value))} />
 												<span className="truncate">{option.label}</span>
 											</label>
-										)) : <p className="text-xs text-muted-foreground">No API keys available.</p>}
+						)) : <p className="text-xs text-muted-foreground">{t("strings.No API keys available" as never)}.</p>}
 									</div>
 								</ScrollArea>
 							</div>

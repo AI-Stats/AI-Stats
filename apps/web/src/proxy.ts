@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import createMiddleware from "next-intl/middleware";
+import { isPublicLocale, routing } from "@/i18n/routing";
 import { updateSession } from "@/utils/supabase/middleware";
+
+const handleI18nRouting = createMiddleware(routing);
+const LOCALIZED_AUTH_ROUTE_ROOTS = new Set(["sign-in", "sign-up", "error"]);
 
 const RETIRED_BLOG_SLUGS = new Set([
 	"security-notice-key-rotation-vercel-2026-04-19",
@@ -11,8 +16,16 @@ function wantsMarkdown(request: NextRequest): boolean {
 	return request.method === "GET" && accept.includes("text/markdown");
 }
 
+function withoutLocalePrefix(pathname: string): string {
+	const segments = pathname.split("/").filter(Boolean);
+	if (isPublicLocale(segments[0])) {
+		segments.shift();
+	}
+	return `/${segments.join("/")}`;
+}
+
 function getBlogSlugDate(pathname: string): Date | null {
-	const slug = pathname.replace(/^\/blog\//, "").split("/")[0];
+	const slug = withoutLocalePrefix(pathname).replace(/^\/blog\//, "").split("/")[0];
 	const match = slug.match(/-(\d{4})-(\d{2})-(\d{2})$/);
 	if (!match) {
 		return null;
@@ -23,8 +36,57 @@ function getBlogSlugDate(pathname: string): Date | null {
 }
 
 function isRetiredBlogPath(pathname: string): boolean {
-	const slug = pathname.replace(/^\/blog\//, "").split("/")[0];
+	const slug = withoutLocalePrefix(pathname).replace(/^\/blog\//, "").split("/")[0];
 	return RETIRED_BLOG_SLUGS.has(slug);
+}
+
+function isRouteHandlerPath(pathname: string): boolean {
+	return (
+		pathname === "/robots.txt" ||
+		pathname === "/indexnow-key.txt" ||
+		pathname.startsWith("/api/") ||
+		pathname.startsWith("/.well-known/") ||
+		pathname.startsWith("/og/") ||
+		pathname.startsWith("/__markdown") ||
+		pathname === "/auth/callback" ||
+		pathname === "/oauth/consent/submit" ||
+		pathname === "/status" ||
+		pathname === "/docs" ||
+		pathname.startsWith("/docs/") ||
+		pathname.startsWith("/ingest/") ||
+		/\/[^/]*\.[^/]+$/.test(pathname)
+	);
+}
+
+function needsSessionMiddleware(pathname: string): boolean {
+	const pagePath = withoutLocalePrefix(pathname);
+	return (
+		pagePath === "/settings" ||
+		pagePath.startsWith("/settings/") ||
+		pagePath === "/internal" ||
+		pagePath.startsWith("/internal/") ||
+		pagePath === "/onboarding" ||
+		pagePath.startsWith("/onboarding/")
+	);
+}
+
+export function isLocalizedAuthPath(pathname: string): boolean {
+	const segments = pathname.split("/").filter(Boolean);
+	if (isPublicLocale(segments[0])) {
+		segments.shift();
+	}
+
+	return (
+		segments.length === 1 && LOCALIZED_AUTH_ROUTE_ROOTS.has(segments[0])
+	);
+}
+
+/**
+ * Every React page is rooted at [locale]. next-intl owns negotiation for the
+ * complete page tree, while route handlers remain stable and unprefixed.
+ */
+export function isLocalizedPagePath(pathname: string): boolean {
+	return !isRouteHandlerPath(pathname) && !pathname.startsWith("/_next/");
 }
 
 async function canPreviewFutureBlogPost(request: NextRequest): Promise<boolean> {
@@ -100,6 +162,25 @@ export async function proxy(request: NextRequest) {
 		}
 	}
 
+	if (isLocalizedPagePath(request.nextUrl.pathname)) {
+		const i18nResponse = handleI18nRouting(request);
+		if (!needsSessionMiddleware(request.nextUrl.pathname)) {
+			return i18nResponse;
+		}
+		const sessionResponse = await updateSession(request);
+
+		// Auth gates and MFA redirects must win over locale negotiation. For
+		// normal pages, preserve any refreshed Supabase cookies on the i18n
+		// response so both middlewares compose safely.
+		if (sessionResponse.status >= 300 && sessionResponse.status < 400) {
+			return sessionResponse;
+		}
+		for (const cookie of sessionResponse.cookies.getAll()) {
+			i18nResponse.cookies.set(cookie);
+		}
+		return i18nResponse;
+	}
+
 	return await updateSession(request);
 }
 
@@ -109,15 +190,6 @@ export const config = {
 			source: "/",
 			has: [{ type: "header", key: "accept", value: ".*text/markdown.*" }],
 		},
-		"/blog/:path*",
-		"/settings/:path*",
-		"/apps/:path*",
-		"/gateway/:path*",
-		"/onboarding/:path*",
-		"/internal/:path*",
-		"/chat/:path*",
-		"/api/account/:path*",
-		"/api/internal/:path*",
-		"/api/chat/:path*",
+		"/((?!api/|_next/|\\.well-known/|og/|.*\\..*).*)",
 	],
 };

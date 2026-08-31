@@ -12,6 +12,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 export type PresetFeedbackDetail = {
 	id: string;
@@ -53,6 +54,7 @@ export function PresetFeedbackDetailDialog({
 }: {
 	feedback: PresetFeedbackDetail;
 }) {
+	const t = useTranslations("SettingsUI");
 	const metadataEntries = Object.entries(feedback.metadataDimensions);
 
 	return (
@@ -60,12 +62,12 @@ export function PresetFeedbackDetailDialog({
 			<DialogTrigger asChild>
 				<Button variant="ghost" size="sm">
 					<Eye className="h-4 w-4" />
-					View
+					{t("strings.View" as never)}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Feedback detail</DialogTitle>
+				<DialogTitle>{t("strings.Feedback detail" as never)}</DialogTitle>
 					<DialogDescription>
 						{feedback.presetName} feedback captured {feedback.createdAtLabel}.
 					</DialogDescription>
@@ -77,12 +79,12 @@ export function PresetFeedbackDetailDialog({
 							<Badge variant="outline">{feedback.rating}</Badge>
 							{feedback.scoreRaw !== null ? (
 								<span className="text-muted-foreground">
-									optional score {feedback.scoreLabel}
+								{t("strings.optional score" as never)} {feedback.scoreLabel}
 								</span>
 							) : null}
 							{feedback.scoreRaw !== null ? (
 								<span className="text-muted-foreground">
-									raw {feedback.scoreRaw.toFixed(3)}
+									{t("strings.raw" as never)} {feedback.scoreRaw.toFixed(3)}
 								</span>
 							) : null}
 						</div>
@@ -99,7 +101,7 @@ export function PresetFeedbackDetailDialog({
 					</DetailRow>
 					<DetailRow label="Comment">
 						<p className="whitespace-pre-wrap">
-							{feedback.comment ?? feedback.reason ?? "No comment provided"}
+							{feedback.comment ?? feedback.reason ?? t("strings.No comment provided" as never)}
 						</p>
 					</DetailRow>
 					<DetailRow label="Reason tags">
@@ -112,28 +114,28 @@ export function PresetFeedbackDetailDialog({
 								))}
 							</div>
 						) : (
-							<span className="text-muted-foreground">None</span>
+							<span className="text-muted-foreground">{t("strings.None" as never)}</span>
 						)}
 					</DetailRow>
 					<DetailRow label="Request">
 						{feedback.requestId ? (
 							<code className="break-all text-xs">{feedback.requestId}</code>
 						) : (
-							<span className="text-muted-foreground">No request id</span>
+							<span className="text-muted-foreground">{t("strings.No request id" as never)}</span>
 						)}
 					</DetailRow>
 					<DetailRow label="Session">
 						{feedback.sessionId ? (
 							<code className="break-all text-xs">{feedback.sessionId}</code>
 						) : (
-							<span className="text-muted-foreground">No session id</span>
+							<span className="text-muted-foreground">{t("strings.No session id" as never)}</span>
 						)}
 					</DetailRow>
 					<DetailRow label="End user">
 						{feedback.endUserId ? (
 							<code className="break-all text-xs">{feedback.endUserId}</code>
 						) : (
-							<span className="text-muted-foreground">Not supplied</span>
+							<span className="text-muted-foreground">{t("strings.Not supplied" as never)}</span>
 						)}
 					</DetailRow>
 					<DetailRow label="Metadata">
@@ -150,7 +152,7 @@ export function PresetFeedbackDetailDialog({
 								))}
 							</div>
 						) : (
-							<span className="text-muted-foreground">No metadata</span>
+							<span className="text-muted-foreground">{t("strings.No metadata" as never)}</span>
 						)}
 					</DetailRow>
 					<DetailRow label="Created">

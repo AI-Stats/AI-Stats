@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/Logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -134,6 +135,8 @@ function SelectionDialog(props: {
 	renderLeading?: (opt: { value: string; label: string }) => React.ReactNode;
 	trigger: React.ReactNode;
 }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 	const [draft, setDraft] = useState<string[]>(props.selected);
@@ -168,7 +171,7 @@ function SelectionDialog(props: {
 				</DialogHeader>
 				<div className="space-y-3">
 					<Input
-						placeholder="Search..."
+						placeholder={s("Search...")}
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
 					/>
@@ -209,21 +212,21 @@ function SelectionDialog(props: {
 													});
 												}}
 											>
-												{checked ? "Selected" : "Select"}
+										{checked ? s("Selected") : s("Select")}
 											</button>
 										</li>
 									);
 								})}
 							</ul>
 						) : (
-							<div className="p-6 text-sm text-muted-foreground">No matches.</div>
+							<div className="p-6 text-sm text-muted-foreground">{s("No matches.")}</div>
 						)}
 					</div>
 				</div>
 				<DialogFooter className="gap-2 sm:gap-0">
 					<DialogClose asChild>
 						<Button type="button" variant="outline">
-							Cancel
+							{s("Cancel")}
 						</Button>
 					</DialogClose>
 					<Button
@@ -233,7 +236,7 @@ function SelectionDialog(props: {
 							setOpen(false);
 						}}
 					>
-						Save ({draft.length})
+						{s("Save")} ({draft.length})
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -452,6 +455,8 @@ export default function PrivacySettingsClient(props: {
 	ioLoggingFeatureEnabled: boolean;
 	dataContribution: DataContributionSettings;
 }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const providerLabelById = useMemo(() => {
 		const map = new Map<string, string>();
 		for (const p of props.providers) map.set(p.id, p.name);
@@ -549,9 +554,9 @@ export default function PrivacySettingsClient(props: {
 							global.providerRestrictionEnforceAllowed,
 					}),
 					{
-						loading: "Saving privacy settings...",
-						success: "Privacy settings updated",
-						error: "Failed to update privacy settings",
+						loading: s("Saving privacy settings..."),
+						success: s("Privacy settings updated"),
+						error: s("Failed to update privacy settings"),
 					},
 				);
 				if (saveSeq === globalSaveSeqRef.current) {
@@ -625,10 +630,10 @@ export default function PrivacySettingsClient(props: {
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div className="space-y-1">
 						<h2 className="text-sm font-semibold tracking-tight">
-							Privacy defaults
+							{s("Privacy defaults")}
 						</h2>
 						<p className="text-sm text-muted-foreground">
-							Global defaults applied to all requests.
+							{s("Global defaults applied to all requests.")}
 						</p>
 					</div>
 					<span className="text-xs text-muted-foreground">{globalStateText}</span>
@@ -636,24 +641,24 @@ export default function PrivacySettingsClient(props: {
 
 				<div className="grid gap-2">
 					<ToggleRow
-						label="Enable paid endpoints that may train on inputs"
-						description="When disabled, paid endpoints flagged as training-on-inputs become ineligible."
+						label={s("Enable paid endpoints that may train on inputs")}
+						description={s("When disabled, paid endpoints flagged as training-on-inputs become ineligible.")}
 						checked={global.privacyEnablePaidMayTrain}
 						onCheckedChange={(checked) =>
 							setGlobal((prev) => ({ ...prev, privacyEnablePaidMayTrain: checked }))
 						}
 					/>
 					<ToggleRow
-						label="Enable free models that may train on inputs"
-						description="When disabled, free models flagged as training-on-inputs become ineligible."
+						label={s("Enable free models that may train on inputs")}
+						description={s("When disabled, free models flagged as training-on-inputs become ineligible.")}
 						checked={global.privacyEnableFreeMayTrain}
 						onCheckedChange={(checked) =>
 							setGlobal((prev) => ({ ...prev, privacyEnableFreeMayTrain: checked }))
 						}
 					/>
 					<ToggleRow
-						label="Enable free endpoints that may publish prompts"
-						description="When disabled, free endpoints flagged as publishing prompts become ineligible."
+						label={s("Enable free endpoints that may publish prompts")}
+						description={s("When disabled, free endpoints flagged as publishing prompts become ineligible.")}
 						checked={global.privacyEnableFreeMayPublishPrompts}
 						onCheckedChange={(checked) =>
 							setGlobal((prev) => ({
@@ -665,8 +670,8 @@ export default function PrivacySettingsClient(props: {
 					{props.ioLoggingFeatureEnabled ? (
 						<>
 							<ToggleRow
-								label="Store Gateway I/O logs"
-								description="Store request prompts and completions in private R2 storage for the Logs detail view."
+								label={s("Store Gateway I/O logs")}
+								description={s("Store request prompts and completions in private R2 storage for the Logs detail view.")}
 								checked={global.ioLoggingEnabled}
 								onCheckedChange={(checked) =>
 									setGlobal((prev) => ({ ...prev, privacyEnableInputOutputLogging: checked, ioLoggingEnabled: checked }))
@@ -675,7 +680,7 @@ export default function PrivacySettingsClient(props: {
 							{global.ioLoggingEnabled ? (
 								<div className="grid gap-3 rounded-lg border bg-muted/10 p-3 md:grid-cols-2">
 									<label className="space-y-1 text-sm">
-										<span className="font-medium">Retention</span>
+										<span className="font-medium">{s("Retention")}</span>
 										<select
 											className="flex h-9 w-full rounded-md border bg-background px-3 text-sm"
 											value={String(global.ioLoggingRetentionDays)}
@@ -683,14 +688,14 @@ export default function PrivacySettingsClient(props: {
 												setGlobal((prev) => ({ ...prev, ioLoggingRetentionDays: Number(event.target.value) }))
 											}
 										>
-											<option value="90">90 days</option>
-											<option value="180">180 days</option>
-											<option value="365">365 days</option>
+										<option value="90">{s("90 days")}</option>
+										<option value="180">{s("180 days")}</option>
+										<option value="365">{s("365 days")}</option>
 										</select>
 									</label>
 									<ToggleRow
-										label="Include provider payloads"
-										description="Also retain the upstream provider request and response."
+										label={s("Include provider payloads")}
+										description={s("Also retain the upstream provider request and response.")}
 										checked={global.ioLoggingIncludeProviderPayloads}
 										onCheckedChange={(checked) =>
 											setGlobal((prev) => ({ ...prev, ioLoggingIncludeProviderPayloads: checked }))
@@ -701,8 +706,8 @@ export default function PrivacySettingsClient(props: {
 						</>
 					) : null}
 					<ToggleRow
-						label="Enable ZDR endpoints only"
-						description="Restrict routing to endpoints that meet ZDR requirements (may reduce availability)."
+						label={s("Enable ZDR endpoints only")}
+						description={s("Restrict routing to endpoints that meet ZDR requirements (may reduce availability).")}
 						checked={global.privacyZdrOnly}
 						onCheckedChange={(checked) =>
 							setGlobal((prev) => ({ ...prev, privacyZdrOnly: checked }))
@@ -714,10 +719,10 @@ export default function PrivacySettingsClient(props: {
 			<section className="space-y-3">
 				<div className="space-y-1">
 					<h2 className="text-sm font-semibold tracking-tight">
-						Provider restrictions
+						{s("Provider restrictions")}
 					</h2>
 					<p className="text-sm text-muted-foreground">
-						Globally allow or exclude providers for all requests.
+						{s("Globally allow or exclude providers for all requests.")}
 					</p>
 				</div>
 
@@ -725,41 +730,41 @@ export default function PrivacySettingsClient(props: {
 					<div className="grid gap-3 md:grid-cols-3">
 						<div className="rounded-xl border bg-background/80 px-3 py-3">
 							<div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-								Rule
+								{s("Rule")}
 							</div>
 							<div className="mt-2 text-sm font-semibold">
 								{global.providerRestrictionMode === "none"
-									? "Allow all providers"
+									? s("Allow all providers")
 									: global.providerRestrictionMode === "allowlist"
-										? "Allow only selected"
-										: "Block selected"}
+										? s("Allow only selected")
+										: s("Block selected")}
 							</div>
 						</div>
 						<div className="rounded-xl border bg-background/80 px-3 py-3">
 							<div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-								Selected providers
+								{s("Selected providers")}
 							</div>
 							<div className="mt-2 text-sm font-semibold">
 								{global.providerRestrictionMode === "none"
-									? "Not used"
-									: `${selectedProviderOptions.length} selected`}
+									? s("Not used")
+									: `${selectedProviderOptions.length} ${s("selected")}`}
 							</div>
 						</div>
 						<div className="rounded-xl border bg-background/80 px-3 py-3">
 							<div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-								Enforcement
+								{s("Enforcement")}
 							</div>
 							<div className="mt-2 text-sm font-semibold">
 								{global.providerRestrictionMode === "allowlist" &&
 								global.providerRestrictionEnforceAllowed
-									? "Strict"
-									: "Flexible"}
+									? s("Strict")
+									: s("Flexible")}
 							</div>
 						</div>
 					</div>
 
 					<div className="grid gap-3 md:grid-cols-[220px_1fr] md:items-center">
-						<Label className="text-sm font-medium">Mode</Label>
+						<Label className="text-sm font-medium">{s("Mode")}</Label>
 						<Select
 							value={global.providerRestrictionMode}
 							onValueChange={(value) =>
@@ -923,4 +928,3 @@ export default function PrivacySettingsClient(props: {
 		</div>
 	);
 }
-

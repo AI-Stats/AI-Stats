@@ -34,6 +34,7 @@ import type { ModelCard } from "@/lib/fetchers/models/getAllModels";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SortablePresetList } from "./SortablePresetList";
+import { useTranslations } from "next-intl";
 
 interface APIProviderCard {
 	api_provider_id: string;
@@ -210,6 +211,7 @@ export default function PresetForm({
 	workspacePublisher,
 	initialPreset,
 }: PresetFormProps) {
+	const t = useTranslations("SettingsUI");
 	const initialConfig = initialPreset?.config ?? {};
 	const initialProvider = initialConfig.provider ?? {};
 	const initialParameters = initialConfig.parameters ?? {};
@@ -398,7 +400,7 @@ export default function PresetForm({
 		if (requiredDataRegion) parts.push(`data ${requiredDataRegion.toUpperCase()}`);
 		if (requireZeroDataRetention) parts.push("ZDR");
 		if (performanceHintCount > 0) parts.push(`${performanceHintCount} performance rules`);
-		return parts.length > 0 ? parts.join(", ") : "Any eligible provider";
+		return parts.length > 0 ? parts.join(", ") : t("strings.Any eligible provider" as never);
 	}, [
 		performanceHintCount,
 		providerIgnore.length,
@@ -406,11 +408,12 @@ export default function PresetForm({
 		requiredExecutionRegion,
 		requiredDataRegion,
 		requireZeroDataRetention,
+		t,
 	]);
 
 	const pluginsSummary = responseHealingEnabled
-		? `Response healing (${responseHealingMode})`
-		: "No preset plugins enabled";
+		? `${t("strings.Response healing" as never)} (${t(`strings.${responseHealingMode === "safe" ? "Safe" : "Strict"}` as never)})`
+		: t("strings.No preset plugins enabled" as never);
 
 	const requestDefaultsSummary = [
 		`${routingMode} routing`,
@@ -459,19 +462,19 @@ export default function PresetForm({
 		const trimmedName = name.trim();
 		const slugPreview = buildPresetSlugPreview(slug || trimmedName);
 		if (!trimmedName) {
-			toast.error("Preset name is required");
+			toast.error(t("strings.Preset name is required" as never));
 			return;
 		}
 		if (!slugPreview) {
-			toast.error("Preset slug is required");
+			toast.error(t("strings.Preset slug is required" as never));
 			return;
 		}
 		if (selectedModels.length === 0) {
-			toast.error("Select at least one model for this preset.");
+			toast.error(t("strings.Select at least one model for this preset." as never));
 			return;
 		}
 		if (!currentUserId || !currentTeamId) {
-			toast.error("You must be signed in and in a workspace to save a preset.");
+			toast.error(t("strings.You must be signed in and in a workspace to save a preset." as never));
 			return;
 		}
 
@@ -590,7 +593,7 @@ export default function PresetForm({
 					visibility,
 					config,
 				});
-				toast.success("Draft saved");
+			toast.success(t("strings.Draft saved" as never));
 			} else {
 				await createPresetAction({
 					name: trimmedName,
@@ -601,12 +604,12 @@ export default function PresetForm({
 					creatorUserId: currentUserId,
 					workspaceId: currentTeamId,
 				});
-				toast.success("Preset created");
+			toast.success(t("strings.Preset created" as never));
 			}
 			router.push("/settings/presets");
 			router.refresh();
 		} catch (error) {
-			toast.error(error instanceof Error ? error.message : "Failed to save preset");
+			toast.error(error instanceof Error ? error.message : t("strings.Failed to save preset" as never));
 		} finally {
 			setLoading(false);
 		}
@@ -622,29 +625,29 @@ export default function PresetForm({
 					<div className="space-y-6">
 						<div className="flex flex-wrap items-start justify-between gap-4">
 							<div className="min-w-0 flex-1 space-y-1">
-								<Label htmlFor="preset-name" className="sr-only">Preset Name</Label>
+				<Label htmlFor="preset-name" className="sr-only">{t("strings.Preset Name" as never)}</Label>
 								<input
 									id="preset-name"
 									value={name}
 									onChange={handleNameChange}
-									placeholder="Concise Support Assistant"
+				placeholder={t("strings.Concise Support Assistant" as never)}
 									className="block w-full min-w-0 bg-transparent py-1 text-3xl font-semibold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/70"
 								/>
 								<div className="flex min-w-0 items-center gap-1 font-mono text-sm text-muted-foreground focus-within:text-foreground">
 									<span aria-hidden="true">@</span>
-									<Label htmlFor="preset-slug" className="sr-only">Invocation Slug</Label>
+				<Label htmlFor="preset-slug" className="sr-only">{t("strings.Invocation Slug" as never)}</Label>
 									<input
 										id="preset-slug"
 										value={slug}
 										onChange={handleSlugChange}
-										placeholder="concise-support-assistant"
+				placeholder={t("strings.concise-support-assistant" as never)}
 										className="min-w-0 flex-1 bg-transparent py-1 font-mono text-sm outline-none placeholder:text-muted-foreground/60"
 									/>
 								</div>
 							</div>
 							<div className="flex flex-wrap items-center gap-2">
 								<Button type="button" variant="outline" asChild disabled={loading}>
-									<Link href="/settings/presets">Cancel</Link>
+				<Link href="/settings/presets">{t("labels.cancel")}</Link>
 								</Button>
 								<Button type="submit" disabled={loading || !name.trim()}>
 									{loading ? "Saving..." : initialPreset ? "Save Draft" : "Create"}
@@ -656,7 +659,7 @@ export default function PresetForm({
 							<Textarea
 								value={description}
 								onChange={(e) => setDescription(e.target.value)}
-								placeholder="When should this preset be used?"
+				placeholder={t("strings.When should this preset be used?" as never)}
 								className="min-h-0 h-10 resize-none overflow-hidden border-0 bg-transparent px-0 py-2 text-base text-muted-foreground shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0"
 							/>
 						</div>
@@ -666,20 +669,20 @@ export default function PresetForm({
 
 					<section className="space-y-3">
 						<div>
-							<h2 className="text-sm font-semibold">Visibility</h2>
-							<p className="mt-1 text-sm text-muted-foreground">Control who can discover and use this preset.</p>
+			<h2 className="text-sm font-semibold">{t("strings.Visibility" as never)}</h2>
+			<p className="mt-1 text-sm text-muted-foreground">{t("strings.Control who can discover and use this preset." as never)}</p>
 						</div>
 						<div className="flex flex-col gap-3 border-y py-4 sm:flex-row sm:items-center sm:justify-between">
 							<div>
-								<div className="text-sm font-medium">Preset Access</div>
-								<p className="mt-1 text-xs text-muted-foreground">Private presets are only visible to you. Workspace presets can be used by members. Public presets appear in the marketplace.</p>
+			<div className="text-sm font-medium">{t("strings.Preset Access" as never)}</div>
+			<p className="mt-1 text-xs text-muted-foreground">{t("strings.Private presets are only visible to you. Workspace presets can be used by members. Public presets appear in the marketplace." as never)}</p>
 							</div>
 							<Select value={visibility} onValueChange={(value: PresetVisibility) => setVisibility(value)}>
 								<SelectTrigger className="w-full sm:w-56"><SelectValue>{VISIBILITY_LABELS[visibility]}</SelectValue></SelectTrigger>
 								<SelectContent className="rounded-md">
-									<SelectItem value="private">Only Me</SelectItem>
-									<SelectItem value="team">Share With Workspace</SelectItem>
-									<SelectItem value="public">Publish to Marketplace</SelectItem>
+			<SelectItem value="private">{t("strings.Only Me" as never)}</SelectItem>
+			<SelectItem value="team">{t("strings.Share With Workspace" as never)}</SelectItem>
+			<SelectItem value="public">{t("strings.Publish to Marketplace" as never)}</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -694,14 +697,14 @@ export default function PresetForm({
 					<section className="space-y-4">
 						<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 							<div>
-								<h2 className="text-sm font-semibold">Models</h2>
-								<p className="mt-1 text-sm text-muted-foreground">Drag to set the default model and fallback order.</p>
+			<h2 className="text-sm font-semibold">{t("strings.Models" as never)}</h2>
+			<p className="mt-1 text-sm text-muted-foreground">{t("strings.Drag to set the default model and fallback order." as never)}</p>
 							</div>
 							<div className="flex items-center gap-2">
 								<Popover open={showModelPicker} onOpenChange={setShowModelPicker}>
-									<PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />Add Model</Button></PopoverTrigger>
+									<PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />{t("strings.Add Model" as never)}</Button></PopoverTrigger>
 									<PopoverContent align="end" className="w-[min(92vw,440px)] gap-0 overflow-hidden rounded-md p-0">
-										<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={modelSearch} onChange={(event) => setModelSearch(event.target.value)} placeholder="Search models..." className="rounded-md pl-9" /></div>
+										<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={modelSearch} onChange={(event) => setModelSearch(event.target.value)} placeholder={t("strings.Search models..." as never)} className="rounded-md pl-9" /></div>
 										<ScrollArea className="h-80">
 											{filteredModels.length ? filteredModels.map((model) => {
 												const orgInfo = getModelOrgInfo(model.model_id);
@@ -712,11 +715,11 @@ export default function PresetForm({
 									<span className="truncate text-sm font-medium">{model.name}</span>
 									<span className="max-w-32 truncate text-right text-xs text-muted-foreground">{orgInfo.name}</span>
 												</button>;
-											}) : <p className="px-4 py-8 text-center text-sm text-muted-foreground">No matching models</p>}
+																											}) : <p className="px-4 py-8 text-center text-sm text-muted-foreground">{t("strings.No matching models" as never)}</p>}
 										</ScrollArea>
 									</PopoverContent>
 								</Popover>
-								{selectedModels.length ? <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedModels([])}>Clear</Button> : null}
+								{selectedModels.length ? <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedModels([])}>{t("strings.Clear" as never)}</Button> : null}
 							</div>
 						</div>
 						<SortablePresetList items={selectedModelOptions} onChange={setSelectedModels} defaultFirst emptyLabel="No models selected yet." />
@@ -725,40 +728,40 @@ export default function PresetForm({
 					<Separator />
 
 					<div>
-						<div className="text-sm font-medium">Configuration groups</div>
+						<div className="text-sm font-medium">{t("strings.Configuration groups" as never)}</div>
 					</div>
 					<div className="border-y border-border/70">
 						<SectionLinkRow
-							title="Provider Routing"
-							description="Choose provider fallback order, exclusions, and routing performance thresholds."
+							title={t("strings.Provider Routing" as never)}
+							description={t("strings.Choose provider fallback order, exclusions, and routing performance thresholds." as never)}
 							summary={providerRoutingSummary}
 							onClick={() => setActiveView("providers")}
 						/>
 						<SectionLinkRow
-							title="Request Defaults"
-							description="Set routing behavior, response caching, and prompt defaults."
+							title={t("strings.Request Defaults" as never)}
+							description={t("strings.Set routing behavior, response caching, and prompt defaults." as never)}
 							summary={requestDefaultsSummary}
 							onClick={() => setActiveView("defaults")}
 						/>
 						<SectionLinkRow
-							title="Plugins"
-							description="Enable deterministic gateway plugins for this preset."
+							title={t("strings.Plugins" as never)}
+							description={t("strings.Enable deterministic gateway plugins for this preset." as never)}
 							summary={pluginsSummary}
 							onClick={() => setActiveView("plugins")}
 						/>
 						<SectionLinkRow
-							title="Generation Parameters"
-							description="Set sampling and deterministic defaults."
+							title={t("strings.Generation Parameters" as never)}
+							description={t("strings.Set sampling and deterministic defaults." as never)}
 							summary={
 								parameterOverrideCount > 0
 									? `${parameterOverrideCount} overrides`
-									: "Model defaults"
+									: t("strings.Model defaults" as never)
 							}
 							onClick={() => setActiveView("parameters")}
 						/>
 						<SectionLinkRow
-							title="Reasoning Configuration"
-							description="Configure reasoning-specific behavior when supported."
+								title={t("strings.Reasoning Configuration" as never)}
+								description={t("strings.Configure reasoning-specific behavior when supported." as never)}
 							summary={reasoningSummary}
 							onClick={() => setActiveView("reasoning")}
 						/>
@@ -774,7 +777,7 @@ export default function PresetForm({
 						className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
 						<ChevronLeft className="h-4 w-4" />
-						<span>Overview / Request Defaults</span>
+						<span>{t("strings.Overview / Request Defaults" as never)}</span>
 					</button>
 					<FormSection
 						icon={<Sliders className="h-4 w-4" />}
@@ -783,7 +786,7 @@ export default function PresetForm({
 						stacked
 					>
 						<div className="space-y-2">
-							<Label>Preferred Routing Profile</Label>
+						<Label>{t("strings.Preferred Routing Profile" as never)}</Label>
 							<Select
 								value={routingMode}
 								onValueChange={(value: PresetRoutingMode) => setRoutingMode(value)}
@@ -792,10 +795,10 @@ export default function PresetForm({
 									<SelectValue>{ROUTING_LABELS[routingMode]}</SelectValue>
 								</SelectTrigger>
 								<SelectContent className="rounded-md">
-									<SelectItem value="balanced">Balanced</SelectItem>
-									<SelectItem value="price">Lowest cost</SelectItem>
-									<SelectItem value="latency">Lowest latency</SelectItem>
-									<SelectItem value="throughput">Highest throughput</SelectItem>
+									<SelectItem value="balanced">{t("strings.Balanced" as never)}</SelectItem>
+									<SelectItem value="price">{t("strings.Lowest cost" as never)}</SelectItem>
+									<SelectItem value="latency">{t("strings.Lowest latency" as never)}</SelectItem>
+									<SelectItem value="throughput">{t("strings.Highest throughput" as never)}</SelectItem>
 								</SelectContent>
 							</Select>
 							<p className="text-xs text-muted-foreground">
@@ -806,7 +809,7 @@ export default function PresetForm({
 						<div className="space-y-3 rounded-lg border p-4">
 							<div className="flex items-center justify-between">
 								<div className="space-y-0.5">
-									<Label>Enable Response Caching</Label>
+						<Label>{t("strings.Enable Response Caching" as never)}</Label>
 									<p className="text-xs text-muted-foreground">
 										Cache exact-match non-stream text responses for requests using this preset.
 									</p>
@@ -818,7 +821,7 @@ export default function PresetForm({
 							</div>
 							{responseCachingEnabled && (
 								<div className="space-y-2">
-									<Label>Cache TTL (seconds)</Label>
+						<Label>{t("strings.Cache TTL (seconds)" as never)}</Label>
 									<Input
 										type="number"
 										min="30"
@@ -835,7 +838,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>System Prompt</Label>
+						<Label>{t("strings.System Prompt" as never)}</Label>
 							<Textarea
 								value={systemPrompt}
 								onChange={(e) => setSystemPrompt(e.target.value)}
@@ -892,14 +895,14 @@ export default function PresetForm({
 										<SelectValue>{HEALING_LABELS[responseHealingMode]}</SelectValue>
 									</SelectTrigger>
 									<SelectContent className="rounded-md">
-										<SelectItem value="safe">Safe</SelectItem>
-										<SelectItem value="strict">Strict</SelectItem>
+										<SelectItem value="safe">{t("strings.Safe" as never)}</SelectItem>
+										<SelectItem value="strict">{t("strings.Strict" as never)}</SelectItem>
 									</SelectContent>
 								</Select>
 								<p className="text-xs text-muted-foreground">
 									{responseHealingMode === "strict"
-										? "Strict mode only unwraps already-valid JSON from fences or surrounding text."
-										: "Safe mode enables the full bounded JSON repair path for structured-output workflows."}
+										? t("strings.Strict mode only unwraps already-valid JSON from fences or surrounding text." as never)
+										: t("strings.Safe mode enables the full bounded JSON repair path for structured-output workflows." as never)}
 								</p>
 							</div>
 							<p className="text-xs text-muted-foreground">
@@ -919,29 +922,29 @@ export default function PresetForm({
 						className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
 						<ChevronLeft className="h-4 w-4" />
-						<span>Overview / Provider Routing</span>
+						<span>{t("strings.Overview / Provider Routing" as never)}</span>
 					</button>
 					<FormSection
 						icon={<Settings2 className="h-4 w-4" />}
-						title="Provider Routing"
-						description="Choose provider fallback order, block providers you never want used, and set price or performance routing thresholds."
+						title={t("strings.Provider Routing" as never)}
+						description={t("strings.Choose provider fallback order, block providers you never want used, and set price or performance routing thresholds." as never)}
 						stacked
 					>
 						<div className="space-y-3">
 							<div className="flex items-center justify-between gap-3">
 								<div>
-									<div className="text-sm font-medium">Provider order</div>
+									<div className="text-sm font-medium">{t("strings.Provider order" as never)}</div>
 									<p className="text-xs text-muted-foreground">
-										Select providers in order. The router will prefer the first available provider from this ordered subset.
+										{t("strings.Select providers in order. The router will prefer the first available provider from this ordered subset." as never)}
 									</p>
 								</div>
 								<div className="flex items-center gap-2">
 									<Popover open={showProviderPicker} onOpenChange={setShowProviderPicker}>
 										<PopoverTrigger asChild>
-											<Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />Select Providers</Button>
+													<Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />{t("strings.Select Providers" as never)}</Button>
 										</PopoverTrigger>
 										<PopoverContent align="end" className="w-[min(92vw,400px)] gap-0 overflow-hidden rounded-md p-0">
-											<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={providerSearch} onChange={(event) => setProviderSearch(event.target.value)} placeholder="Search providers..." className="rounded-md pl-9" /></div>
+													<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={providerSearch} onChange={(event) => setProviderSearch(event.target.value)} placeholder={t("strings.Search providers..." as never)} className="rounded-md pl-9" /></div>
 											<ScrollArea className="h-72">
 												{filteredProviders.length ? filteredProviders.map((provider) => {
 													const isSelected = providerOrder.includes(provider.id);
@@ -950,7 +953,7 @@ export default function PresetForm({
 												<Logo id={provider.logoId} className="h-5 w-5 rounded-sm object-contain" alt={provider.name} width={20} height={20} />
 														<span className="truncate text-sm font-medium">{provider.name}</span>
 													</button>;
-												}) : <p className="px-4 py-8 text-center text-sm text-muted-foreground">No matching routable providers</p>}
+													}) : <p className="px-4 py-8 text-center text-sm text-muted-foreground">{t("strings.No matching routable providers" as never)}</p>}
 											</ScrollArea>
 										</PopoverContent>
 									</Popover>
@@ -961,21 +964,21 @@ export default function PresetForm({
 											size="sm"
 											onClick={() => setProviderOrder([])}
 										>
-											Clear
+																	{t("strings.Clear" as never)}
 										</Button>
 									) : null}
 								</div>
 							</div>
-							<SortablePresetList items={selectedProviderOptions} onChange={setProviderOrder} emptyLabel="No provider order configured. Any eligible provider may be used." />
+							<SortablePresetList items={selectedProviderOptions} onChange={setProviderOrder} emptyLabel={t("strings.No provider order configured. Any eligible provider may be used." as never)} />
 						</div>
 
 						<div className="space-y-3">
 							<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-								<div><div className="text-sm font-medium">Blocked Providers</div><p className="mt-1 text-xs text-muted-foreground">These providers will never be used, even if they support the selected model.</p></div>
+								<div><div className="text-sm font-medium">{t("strings.Blocked Providers" as never)}</div><p className="mt-1 text-xs text-muted-foreground">{t("strings.These providers will never be used, even if they support the selected model." as never)}</p></div>
 								<Popover open={showBlockedProviderPicker} onOpenChange={setShowBlockedProviderPicker}>
-								<PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />Select Providers</Button></PopoverTrigger>
+								<PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />{t("strings.Select Providers" as never)}</Button></PopoverTrigger>
 									<PopoverContent align="end" className="w-[min(92vw,400px)] gap-0 overflow-hidden rounded-md p-0">
-										<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={blockedProviderSearch} onChange={(event) => setBlockedProviderSearch(event.target.value)} placeholder="Search providers..." className="rounded-md pl-9" /></div>
+										<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={blockedProviderSearch} onChange={(event) => setBlockedProviderSearch(event.target.value)} placeholder={t("strings.Search providers..." as never)} className="rounded-md pl-9" /></div>
 										<ScrollArea className="h-72">
 											{filteredBlockedProviders.map((provider) => {
 												const isBlocked = providerIgnore.includes(provider.id);
@@ -996,20 +999,20 @@ export default function PresetForm({
 									<span className="text-sm font-medium">{provider?.name ?? providerId}</span>
 									<button type="button" className="rounded-md p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => setProviderIgnore((current) => current.filter((id) => id !== providerId))} aria-label={`Remove ${provider?.name ?? providerId}`}><X className="h-3.5 w-3.5" /></button>
 								</div>;
-							})}</div> : <p className="text-sm text-muted-foreground">No providers blocked.</p>}
+							})}</div> : <p className="text-sm text-muted-foreground">{t("strings.No providers blocked." as never)}</p>}
 						</div>
 
 						<div className="space-y-5">
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>Residency requirements</Label>
+									<Label>{t("strings.Residency requirements" as never)}</Label>
 									<p className="text-xs text-muted-foreground">
-										Restrict routing to providers that advertise matching execution or data residency metadata.
+										{t("strings.Restrict routing to providers that advertise matching execution or data residency metadata." as never)}
 									</p>
 								</div>
 								<div className="grid gap-4 sm:grid-cols-2">
 									<div className="space-y-2">
-										<Label>Required execution region</Label>
+										<Label>{t("strings.Required execution region" as never)}</Label>
 										<Select
 											value={requiredExecutionRegion || "any"}
 											onValueChange={(value) =>
@@ -1017,17 +1020,17 @@ export default function PresetForm({
 											}
 										>
 											<SelectTrigger>
-											<SelectValue>{requiredExecutionRegion === "eu" ? "EU" : requiredExecutionRegion === "us" ? "US" : "Any Region"}</SelectValue>
+											<SelectValue>{requiredExecutionRegion === "eu" ? "EU" : requiredExecutionRegion === "us" ? "US" : t("strings.Any Region" as never)}</SelectValue>
 											</SelectTrigger>
 											<SelectContent className="rounded-md">
-												<SelectItem value="any">Any region</SelectItem>
+													<SelectItem value="any">{t("strings.Any region" as never)}</SelectItem>
 												<SelectItem value="eu">EU</SelectItem>
 												<SelectItem value="us">US</SelectItem>
 											</SelectContent>
 										</Select>
 									</div>
 									<div className="space-y-2">
-										<Label>Required data region</Label>
+										<Label>{t("strings.Required data region" as never)}</Label>
 										<Select
 											value={requiredDataRegion || "any"}
 											onValueChange={(value) =>
@@ -1035,10 +1038,10 @@ export default function PresetForm({
 											}
 										>
 											<SelectTrigger>
-											<SelectValue>{requiredDataRegion === "eu" ? "EU" : requiredDataRegion === "us" ? "US" : "Any Region"}</SelectValue>
+											<SelectValue>{requiredDataRegion === "eu" ? "EU" : requiredDataRegion === "us" ? "US" : t("strings.Any Region" as never)}</SelectValue>
 											</SelectTrigger>
 											<SelectContent className="rounded-md">
-												<SelectItem value="any">Any region</SelectItem>
+													<SelectItem value="any">{t("strings.Any region" as never)}</SelectItem>
 												<SelectItem value="eu">EU</SelectItem>
 												<SelectItem value="us">US</SelectItem>
 											</SelectContent>
@@ -1048,10 +1051,10 @@ export default function PresetForm({
 								<div className="flex items-center justify-between gap-4 rounded-md border border-border/70 px-3 py-3">
 									<div className="space-y-1">
 										<div className="text-sm font-medium">
-											Require zero data retention support
+													{t("strings.Require zero data retention support" as never)}
 										</div>
 										<p className="text-xs text-muted-foreground">
-											Only route to providers that advertise default or optional zero-retention support.
+													{t("strings.Only route to providers that advertise default or optional zero-retention support." as never)}
 										</p>
 									</div>
 									<Switch
@@ -1060,17 +1063,17 @@ export default function PresetForm({
 									/>
 								</div>
 							</div>
-							<div className="text-sm font-medium">Performance routing</div>
+							<div className="text-sm font-medium">{t("strings.Performance routing" as never)}</div>
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>Maximum Price</Label>
+									<Label>{t("strings.Maximum Price" as never)}</Label>
 									<p className="text-xs text-muted-foreground">
-										Maximum price per million tokens for prompt and completion before the provider is deprioritized.
+										{t("strings.Maximum price per million tokens for prompt and completion before the provider is deprioritized." as never)}
 									</p>
 								</div>
 								<div className="grid gap-4 sm:grid-cols-2">
 									<div className="space-y-2">
-										<Label>Prompt</Label>
+										<Label>{t("strings.Prompt" as never)}</Label>
 										<Input
 											type="number"
 											step="0.01"
@@ -1081,7 +1084,7 @@ export default function PresetForm({
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label>Completion</Label>
+										<Label>{t("strings.Completion" as never)}</Label>
 										<Input
 											type="number"
 											step="0.01"
@@ -1096,9 +1099,9 @@ export default function PresetForm({
 
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>Preferred Minimum Throughput</Label>
+									<Label>{t("strings.Preferred Minimum Throughput" as never)}</Label>
 									<p className="text-xs text-muted-foreground">
-										Preferred minimum throughput in tokens per second. Endpoints below these thresholds may still be used, but are deprioritized in routing.
+										{t("strings.Preferred minimum throughput in tokens per second. Endpoints below these thresholds may still be used, but are deprioritized in routing." as never)}
 									</p>
 								</div>
 								<div className="grid gap-4 sm:grid-cols-2">
@@ -1123,9 +1126,9 @@ export default function PresetForm({
 
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>Preferred Maximum Latency</Label>
+									<Label>{t("strings.Preferred Maximum Latency" as never)}</Label>
 									<p className="text-xs text-muted-foreground">
-										Preferred maximum latency in seconds. Endpoints above these thresholds may still be used, but are deprioritized in routing.
+										{t("strings.Preferred maximum latency in seconds. Endpoints above these thresholds may still be used, but are deprioritized in routing." as never)}
 									</p>
 								</div>
 								<div className="grid gap-4 sm:grid-cols-2">
@@ -1160,17 +1163,17 @@ export default function PresetForm({
 						className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
 						<ChevronLeft className="h-4 w-4" />
-						<span>Overview / Generation Parameters</span>
+						<span>{t("strings.Overview / Generation Parameters" as never)}</span>
 					</button>
 					<FormSection
 						icon={<Sliders className="h-4 w-4" />}
-						title="Generation Parameters"
-						description="Set deterministic and sampling defaults that apply to requests using this preset."
+						title={t("strings.Generation Parameters" as never)}
+						description={t("strings.Set deterministic and sampling defaults that apply to requests using this preset." as never)}
 						stacked
 					>
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 						<div className="space-y-2">
-							<Label>Temperature</Label>
+							<Label>{t("strings.Temperature" as never)}</Label>
 							<Input
 								type="number"
 								step="0.01"
@@ -1186,7 +1189,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Top P</Label>
+							<Label>{t("strings.Top P" as never)}</Label>
 							<Input
 								type="number"
 								step="0.01"
@@ -1202,7 +1205,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Top K</Label>
+							<Label>{t("strings.Top K" as never)}</Label>
 							<Input
 								type="number"
 								min="0"
@@ -1216,7 +1219,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Max Tokens</Label>
+							<Label>{t("strings.Max Tokens" as never)}</Label>
 							<Input
 								type="number"
 								min="1"
@@ -1230,7 +1233,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Frequency Penalty</Label>
+							<Label>{t("strings.Frequency Penalty" as never)}</Label>
 							<Input
 								type="number"
 								step="0.01"
@@ -1246,7 +1249,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Presence Penalty</Label>
+							<Label>{t("strings.Presence Penalty" as never)}</Label>
 							<Input
 								type="number"
 								step="0.01"
@@ -1262,7 +1265,7 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Repetition Penalty</Label>
+							<Label>{t("strings.Repetition Penalty" as never)}</Label>
 							<Input
 								type="number"
 								step="0.01"
@@ -1278,12 +1281,12 @@ export default function PresetForm({
 						</div>
 
 						<div className="space-y-2">
-							<Label>Seed</Label>
+							<Label>{t("strings.Seed" as never)}</Label>
 							<Input
 								type="number"
 								value={seed}
 								onChange={(e) => setSeed(e.target.value)}
-								placeholder="Random"
+								placeholder={t("strings.Random" as never)}
 							/>
 							<p className="text-xs text-muted-foreground">
 								Deterministic output when specified
@@ -1302,17 +1305,17 @@ export default function PresetForm({
 						className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
 						<ChevronLeft className="h-4 w-4" />
-						<span>Overview / Reasoning Configuration</span>
+						<span>{t("strings.Overview / Reasoning Configuration" as never)}</span>
 					</button>
 					<FormSection
 						icon={<Shield className="h-4 w-4" />}
-						title="Reasoning Configuration"
-						description="Configure reasoning settings for models that expose reasoning-specific controls."
+						title={t("strings.Reasoning Configuration" as never)}
+						description={t("strings.Configure reasoning settings for models that expose reasoning-specific controls." as never)}
 						stacked
 					>
 					<div className="flex items-center justify-between">
 						<div className="space-y-0.5">
-							<Label>Enable Reasoning</Label>
+							<Label>{t("strings.Enable Reasoning" as never)}</Label>
 							<p className="text-xs text-muted-foreground">
 								Enable chain-of-thought reasoning for supported models
 							</p>
@@ -1327,7 +1330,7 @@ export default function PresetForm({
 						<>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 								<div className="space-y-2">
-									<Label>Reasoning Effort</Label>
+									<Label>{t("strings.Reasoning Effort" as never)}</Label>
 									<Select
 										value={reasoningEffort}
 										onValueChange={(v) =>
@@ -1335,16 +1338,16 @@ export default function PresetForm({
 										}
 									>
 										<SelectTrigger>
-										<SelectValue>{REASONING_LABELS[reasoningEffort]}</SelectValue>
+										<SelectValue>{t(`strings.${REASONING_LABELS[reasoningEffort]}` as never)}</SelectValue>
 										</SelectTrigger>
 									<SelectContent className="rounded-md">
-											<SelectItem value="none">None</SelectItem>
-											<SelectItem value="minimal">Minimal</SelectItem>
-											<SelectItem value="low">Low</SelectItem>
-											<SelectItem value="medium">Medium</SelectItem>
-											<SelectItem value="high">High</SelectItem>
-											<SelectItem value="xhigh">Extra High</SelectItem>
-											<SelectItem value="max">Maximum</SelectItem>
+											<SelectItem value="none">{t("strings.None" as never)}</SelectItem>
+											<SelectItem value="minimal">{t("strings.Minimal" as never)}</SelectItem>
+											<SelectItem value="low">{t("strings.Low" as never)}</SelectItem>
+											<SelectItem value="medium">{t("strings.Medium" as never)}</SelectItem>
+											<SelectItem value="high">{t("strings.High" as never)}</SelectItem>
+											<SelectItem value="xhigh">{t("strings.Extra High" as never)}</SelectItem>
+											<SelectItem value="max">{t("strings.Maximum" as never)}</SelectItem>
 										</SelectContent>
 									</Select>
 									<p className="text-xs text-muted-foreground">
@@ -1353,7 +1356,7 @@ export default function PresetForm({
 								</div>
 
 								<div className="space-y-2">
-									<Label>Reasoning Max Tokens</Label>
+									<Label>{t("strings.Reasoning Max Tokens" as never)}</Label>
 									<Input
 										type="number"
 										min="1"
@@ -1361,7 +1364,7 @@ export default function PresetForm({
 										onChange={(e) =>
 											setReasoningMaxTokens(e.target.value)
 										}
-										placeholder="Leave empty for model default"
+										placeholder={t("strings.Leave empty for model default" as never)}
 									/>
 									<p className="text-xs text-muted-foreground">
 										Maximum tokens for reasoning process
@@ -1371,7 +1374,7 @@ export default function PresetForm({
 
 							<div className="flex items-center justify-between pt-2">
 								<div className="space-y-0.5">
-									<Label>Exclude Reasoning from Output</Label>
+									<Label>{t("strings.Exclude Reasoning from Output" as never)}</Label>
 									<p className="text-xs text-muted-foreground">
 										Don&apos;t include reasoning tokens in final response
 									</p>

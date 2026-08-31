@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
 	updateAccount,
@@ -66,11 +67,14 @@ function WorkspaceCombobox({
 	teams,
 	value,
 	onValueChange,
+	translate,
 }: {
 	teams: TeamOption[];
 	value: string | null;
 	onValueChange: (value: string) => void;
+	translate: (key: string) => string;
 }) {
+	const s = translate;
 	const [open, setOpen] = React.useState(false);
 	const selectedTeam = teams.find((team) => team.id === value) ?? null;
 
@@ -83,7 +87,7 @@ function WorkspaceCombobox({
 					variant="outline"
 					role="combobox"
 					aria-expanded={open}
-					aria-label="Default workspace"
+				aria-label={s("Default workspace")}
 					className="w-full justify-between rounded-md font-normal"
 				>
 					<span className="truncate">
@@ -94,9 +98,9 @@ function WorkspaceCombobox({
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-[var(--anchor-width)] min-w-64 gap-0 p-0">
 				<Command>
-					<CommandInput placeholder="Search workspaces…" />
+				<CommandInput placeholder={s("Search workspaces…")} />
 					<CommandList className="max-h-64 overscroll-contain pr-1" style={{ scrollbarWidth: "thin" }}>
-						<CommandEmpty>No workspace found.</CommandEmpty>
+					<CommandEmpty>{s("No workspace found.")}</CommandEmpty>
 						<CommandGroup>
 							{teams.map((team) => (
 								<CommandItem
@@ -162,6 +166,8 @@ export default function AccountSettingsClient({
 	teams,
 	hasPassword = true,
 }: Props) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [displayName, setDisplayName] = React.useState<string | null>(
 		user.displayName ?? null
 	);
@@ -304,7 +310,7 @@ export default function AccountSettingsClient({
 				return;
 			}
 			setChatNotifyOnComplete(true);
-			toast.success("Chat completion notifications enabled");
+			toast.success(s("Chat completion notifications enabled"));
 		} finally {
 			setUpdatingChatNotifications(false);
 		}
@@ -403,14 +409,14 @@ export default function AccountSettingsClient({
 
 	/* async function handleDisableMFA() {
 		if (!mfaFactorId) {
-			toast.error("No MFA factor found");
+		toast.error(s("No MFA factor found"));
 			return;
 		}
 
 		// For email/password users, require password confirmation
 		// For OAuth users, skip password requirement
 		if (hasPassword && !mfaDisablePassword) {
-			toast.error("Password is required");
+		toast.error(s("Password is required"));
 			return;
 		}
 
@@ -435,7 +441,7 @@ export default function AccountSettingsClient({
 	}
 
 	function handleMFASuccess() {
-		toast.success("MFA enabled successfully!");
+		toast.success(s("MFA enabled successfully!"));
 		// Refresh server component data to show updated MFA status
 		setTimeout(() => {
 			router.refresh();
@@ -457,7 +463,7 @@ export default function AccountSettingsClient({
 
 	return (
 		<div className="space-y-8">
-			<section aria-label="Account details">
+			<section aria-label={s("Account details")}>
 				<form
 					onSubmit={handleSave}
 					className="overflow-hidden rounded-xl border bg-background/40"
@@ -476,7 +482,7 @@ export default function AccountSettingsClient({
 									id="displayName"
 									value={displayName ?? ""}
 									maxLength={60}
-									placeholder="e.g. Daniel"
+									placeholder={s("e.g. Daniel")}
 									onChange={(e) =>
 										setDisplayName(e.target.value ? e.target.value : null)
 									}
@@ -487,7 +493,7 @@ export default function AccountSettingsClient({
 					{user.email ? (
 						<div className="flex flex-col gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
 							<div className="min-w-0">
-								<Label className="text-sm font-medium">Email</Label>
+								<Label className="text-sm font-medium">{s("Email")}</Label>
 								<p className="mt-0.5 text-sm text-muted-foreground">
 									Contact support to change your sign-in email.
 								</p>
@@ -534,6 +540,7 @@ export default function AccountSettingsClient({
 										teams={teams}
 										value={defaultWorkspaceId}
 										onValueChange={setDefaultTeamId}
+										translate={s}
 									/>
 								) : (
 									<Input id="defaultTeam" value={"Personal"} readOnly disabled />
@@ -543,7 +550,7 @@ export default function AccountSettingsClient({
 
 					<div className="flex items-center justify-between gap-4 border-t px-4 py-3.5">
 						<div className="min-w-0">
-							<Label className="text-sm font-medium">Analytics Cookies</Label>
+							<Label className="text-sm font-medium">{s("Analytics Cookies")}</Label>
 							<p className="mt-0.5 text-sm text-muted-foreground">
 								Allow analytics cookies to improve the product.
 							</p>
@@ -557,13 +564,13 @@ export default function AccountSettingsClient({
 										persistAnalyticsConsent(next);
 										setAnalyticsConsent(next);
 									}}
-									aria-label="Toggle analytics cookies"
+									aria-label={s("Toggle analytics cookies")}
 								/>
 						</div>
 
 					<div className="flex items-center justify-between gap-4 border-t px-4 py-3.5">
 						<div className="min-w-0">
-							<Label className="text-sm font-medium">Obfuscate Info</Label>
+							<Label className="text-sm font-medium">{s("Obfuscate Info")}</Label>
 							<p className="mt-0.5 text-sm text-muted-foreground">
 								Blur sensitive information across the website.
 							</p>
@@ -571,7 +578,7 @@ export default function AccountSettingsClient({
 								<Switch
 									checked={obfuscateInfo}
 									onCheckedChange={setObfuscateInfo}
-									aria-label="Toggle obfuscation"
+									aria-label={s("Toggle obfuscation")}
 								/>
 					</div>
 
@@ -580,7 +587,7 @@ export default function AccountSettingsClient({
 							<p className="text-xs text-muted-foreground">
 								Member since {new Date(user.createdAt).toLocaleDateString()}.
 							</p>
-							{hasChanges ? <Badge variant="secondary">Unsaved changes</Badge> : null}
+							{hasChanges ? <Badge variant="secondary">{s("Unsaved changes")}</Badge> : null}
 						</div>
 						<div className="flex items-center justify-end gap-2">
 							<Button
@@ -621,7 +628,7 @@ export default function AccountSettingsClient({
 				<div className="overflow-hidden rounded-xl border bg-background/40">
 					<div className="flex items-center justify-between gap-4 px-4 py-3.5">
 						<div className="min-w-0">
-							<h4 className="text-sm font-medium">Chat Completion</h4>
+							<h4 className="text-sm font-medium">{s("Chat Completion")}</h4>
 							<p className="mt-0.5 text-sm text-muted-foreground">
 								{chatNotificationsSupported
 									? "Show a browser notification when a text chat response finishes while this tab is unfocused."
@@ -632,7 +639,7 @@ export default function AccountSettingsClient({
 							checked={chatNotifyOnComplete}
 							disabled={!chatNotificationsSupported || updatingChatNotifications}
 							onCheckedChange={(checked) => void handleChatNotificationsChange(Boolean(checked))}
-							aria-label="Enable chat completion browser notifications"
+							aria-label={s("Enable chat completion browser notifications")}
 						/>
 					</div>
 				</div>
@@ -662,7 +669,7 @@ export default function AccountSettingsClient({
 										type="password"
 										value={currentPassword}
 										onChange={(e) => setCurrentPassword(e.target.value)}
-										placeholder="Enter your current password"
+										placeholder={s("Enter your current password")}
 									/>
 								</div>
 							</div>
@@ -677,7 +684,7 @@ export default function AccountSettingsClient({
 										type="password"
 										value={newPassword}
 										onChange={(e) => setNewPassword(e.target.value)}
-										placeholder="Enter your new password"
+										placeholder={s("Enter your new password")}
 									/>
 									{newPassword ? (
 										<PasswordStrengthIndicator password={newPassword} />
@@ -695,7 +702,7 @@ export default function AccountSettingsClient({
 										type="password"
 										value={confirmPassword}
 										onChange={(e) => setConfirmPassword(e.target.value)}
-										placeholder="Confirm your new password"
+										placeholder={s("Confirm your new password")}
 									/>
 								</div>
 							</div>
@@ -752,7 +759,7 @@ export default function AccountSettingsClient({
 					<form onSubmit={handleChangeEmail} className="mt-3">
 						<div className="grid gap-3">
 							<div className="grid gap-2 sm:grid-cols-[160px_1fr] sm:items-start">
-								<Label className="sm:pt-2">Current email</Label>
+								<Label className="sm:pt-2">{s("Current email")}</Label>
 								<div className="max-w-lg">
 									<Input value={user.email ?? ""} readOnly data-pii="true" />
 								</div>
@@ -769,7 +776,7 @@ export default function AccountSettingsClient({
 										value={newEmail}
 										data-pii="true"
 										onChange={(e) => setNewEmail(e.target.value)}
-										placeholder="Enter your new email address"
+										placeholder={s("Enter your new email address")}
 									/>
 								</div>
 							</div>
@@ -784,7 +791,7 @@ export default function AccountSettingsClient({
 										type="password"
 										value={emailPassword}
 										onChange={(e) => setEmailPassword(e.target.value)}
-										placeholder="Enter your password to confirm"
+									placeholder={s("Enter your password to confirm")}
 									/>
 									<p className="text-xs text-muted-foreground">
 										For security, we need your password to change your email.

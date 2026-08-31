@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	ChartContainer,
@@ -46,6 +47,7 @@ export default function CostChart({
 	colorMap,
 	onBarClick,
 }: CostChartProps) {
+	const t = useTranslations("SettingsUI");
 	// Extract model IDs from data (excluding 'bucket' key)
 	const modelIds = React.useMemo(() => {
 		const ids = new Set<string>();
@@ -80,7 +82,7 @@ export default function CostChart({
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle className="text-sm font-medium">Cost</CardTitle>
+				<CardTitle className="text-sm font-medium">{t("strings.Cost" as never)}</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<ChartContainer config={chartConfig} className="h-[300px] w-full">

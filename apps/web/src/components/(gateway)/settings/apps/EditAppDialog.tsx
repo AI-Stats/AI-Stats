@@ -22,6 +22,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
 	APP_CATEGORY_OPTIONS,
 	MAX_APP_CATEGORIES,
@@ -57,12 +58,14 @@ function normalizeUrl(value: string) {
 	return trimmed.length > 0 ? trimmed : "about:blank";
 }
 
-function formatCategorySummary(categories: AppCategory[]) {
-	if (categories.length === 0) return "Choose up to 3 categories";
+function formatCategorySummary(categories: AppCategory[], translate: (key: string) => string) {
+	if (categories.length === 0) return translate("Choose up to 3 categories");
 	return categories
 		.map(
-			(category) =>
-				APP_CATEGORY_OPTIONS.find((option) => option.value === category)?.label
+			(category) => {
+				const label = APP_CATEGORY_OPTIONS.find((option) => option.value === category)?.label;
+				return label ? translate(label) : null;
+			}
 		)
 		.filter(Boolean)
 		.join(", ");
@@ -77,6 +80,8 @@ export default function EditAppDialog({
 	hideTrigger,
 	trigger,
 }: EditAppDialogProps) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [internalOpen, setInternalOpen] = useState(false);
 	const [title, setTitle] = useState(app.title);
 	const [url, setUrl] = useState(app.url && app.url !== "about:blank" ? app.url : "");
@@ -215,13 +220,13 @@ export default function EditAppDialog({
 				);
 				if (!response.ok) {
 					const payload = await response.json().catch(() => ({})) as { error?: string };
-					throw new Error(payload.error ?? "Unable to update app");
+					throw new Error(payload.error ?? s("Unable to update app"));
 				}
 			})();
 			toast.promise(updatePromise, {
-				loading: "Saving changes...",
-				success: "App updated",
-				error: (err) => err?.message ?? "Failed to update app",
+				loading: s("Saving changes..."),
+				success: s("App updated"),
+				error: (err) => err?.message ?? s("Failed to update app"),
 			});
 			await updatePromise;
 			onUpdated({
@@ -249,21 +254,21 @@ export default function EditAppDialog({
 							className="rounded-md"
 							disabled={disabled}
 						>
-							Edit
+							{s("Edit")}
 						</Button>
 					)}
 				</DialogTrigger>
 			) : null}
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Edit app</DialogTitle>
+					<DialogTitle>{s("Edit app")}</DialogTitle>
 					<DialogDescription>
-						Update the metadata shown on your app profile.
+						{s("Update the metadata shown on your app profile.")}
 					</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={onSave} className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="app-title">App name</Label>
+						<Label htmlFor="app-title">{s("App name")}</Label>
 						<Input
 							id="app-title"
 							className="rounded-md"
@@ -273,7 +278,7 @@ export default function EditAppDialog({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="app-url">App URL</Label>
+						<Label htmlFor="app-url">{s("App URL")}</Label>
 						<Input
 							id="app-url"
 							className="rounded-md"
@@ -283,7 +288,7 @@ export default function EditAppDialog({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="app-docs-url">Docs URL</Label>
+						<Label htmlFor="app-docs-url">{s("Docs URL")}</Label>
 						<div className="relative">
 							<BookOpen className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 							<Input
@@ -296,7 +301,7 @@ export default function EditAppDialog({
 						</div>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="app-image">Image URL</Label>
+						<Label htmlFor="app-image">{s("Image URL")}</Label>
 						<Input
 							id="app-image"
 							className="rounded-md"
@@ -309,36 +314,36 @@ export default function EditAppDialog({
 							{imageValidation === "validating" ? (
 								<div className="flex items-center gap-2 text-xs text-muted-foreground">
 									<LoaderCircle className="size-4 animate-spin" />
-									Checking image…
+									{s("Checking image…")}
 								</div>
 							) : imageValidation === "invalid" ? (
 								<div className="flex items-center gap-2 text-xs text-destructive">
 									<ImageOff className="size-4" />
-									This URL did not load a valid image.
+									{s("This URL did not load a valid image.")}
 								</div>
 							) : imageValidation === "valid" && validatedImageUrl ? (
 								<div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
 									<NextImage
 										src={validatedImageUrl}
-										alt="App logo preview"
+										alt={s("App logo preview")}
 										width={32}
 										height={32}
 										unoptimized
 										className="size-8 rounded-lg border border-border/70 bg-muted/40 object-cover"
 									/>
 									<CheckCircle2 className="size-4" />
-									Image loaded
+									{s("Image loaded")}
 								</div>
 							) : (
 								<p className="text-xs text-muted-foreground">
-									Leave empty to use the app initial.
+									{s("Leave empty to use the app initial.")}
 								</p>
 							)}
 						</div>
 					</div>
 					<div className="space-y-2">
 						<div className="flex items-center justify-between gap-3">
-							<Label htmlFor="app-category">Categories</Label>
+							<Label htmlFor="app-category">{s("Categories")}</Label>
 							<span className="text-xs text-muted-foreground">
 								{categories.length}/{MAX_APP_CATEGORIES}
 							</span>
@@ -354,7 +359,7 @@ export default function EditAppDialog({
 										<span className="flex min-w-0 items-center gap-2">
 											<Folder className="size-4 shrink-0 text-muted-foreground" />
 											<span className="truncate text-sm">
-												{formatCategorySummary(categories)}
+													{formatCategorySummary(categories, s)}
 											</span>
 										</span>
 										<ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -397,7 +402,7 @@ export default function EditAppDialog({
 							className="rounded-md"
 							onClick={() => setOpen(false)}
 						>
-							Cancel
+							{s("Cancel")}
 						</Button>
 						<Button
 							type="submit"
@@ -408,7 +413,7 @@ export default function EditAppDialog({
 								imageValidation === "invalid"
 							}
 						>
-							{loading ? "Saving..." : "Save"}
+							{loading ? s("Saving...") : s("Save")}
 						</Button>
 					</DialogFooter>
 				</form>

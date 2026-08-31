@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { formatRoomError } from "@/lib/chat/formatRoomError";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,7 @@ type RoomErrorNoticeProps = {
 };
 
 export function RoomErrorNotice({ error, className }: RoomErrorNoticeProps) {
+	const t = useTranslations("Product.chatRooms");
 	const formatted = formatRoomError(error);
 	return (
 		<div
@@ -33,9 +35,9 @@ export function RoomErrorNotice({ error, className }: RoomErrorNoticeProps) {
 					) : null}
 					{formatted.statusCode || formatted.generationId ? (
 						<p className="text-[11px] text-muted-foreground">
-							{formatted.statusCode ? `Status ${formatted.statusCode}` : null}
+							{formatted.statusCode ? `${t("status")} ${formatted.statusCode}` : null}
 							{formatted.statusCode && formatted.generationId ? " · " : null}
-							{formatted.generationId ? `ID ${formatted.generationId}` : null}
+							{formatted.generationId ? `${t("identifier")} ${formatted.generationId}` : null}
 						</p>
 					) : null}
 				</div>

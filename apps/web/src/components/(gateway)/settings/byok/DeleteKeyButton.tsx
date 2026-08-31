@@ -14,9 +14,11 @@ import {
 	AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { deleteByokKeyAction } from "@/app/(dashboard)/settings/byok/actions";
 
 export default function DeleteKeyButton({ id }: { id: string }) {
+	const t = useTranslations("SettingsUI");
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 
@@ -24,11 +26,11 @@ export default function DeleteKeyButton({ id }: { id: string }) {
 		try {
 			setLoading(true);
 			await deleteByokKeyAction(id);
-			toast.success("Key deleted");
+		toast.success(t("strings.Key deleted" as never));
 			setOpen(false);
 		} catch (err: any) {
 			console.error(err);
-			toast.error(err?.message || "Failed to delete key");
+		toast.error(err?.message || t("keys.failedDelete"));
 		} finally {
 			setLoading(false);
 		}
@@ -48,7 +50,7 @@ export default function DeleteKeyButton({ id }: { id: string }) {
 
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Delete key?</AlertDialogTitle>
+				<AlertDialogTitle>{t("strings.Delete key?" as never)}</AlertDialogTitle>
 					<AlertDialogDescription>
 						Deleting this key cannot be undone. Are you sure you
 						want to delete it?
@@ -56,7 +58,7 @@ export default function DeleteKeyButton({ id }: { id: string }) {
 				</AlertDialogHeader>
 
 				<div className="flex gap-2 justify-end mt-4">
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+			<AlertDialogCancel>{t("labels.cancel")}</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={() => onConfirmDelete()}
 						disabled={loading}

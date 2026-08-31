@@ -1,11 +1,13 @@
 import { fetchFrontendRankingContextLengths } from "@/lib/fetchers/frontend/fetchRankingSections";
 import { VerticalRankingChart } from "@/components/(rankings)/VerticalRankingChart";
+import { getTranslations } from "next-intl/server";
 
 function formatRequests(value: number) {
 	return new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
 export async function ContextLengthSection() {
+	const t = await getTranslations("Catalogue.rankings");
 	const result = await fetchFrontendRankingContextLengths(30).catch(() => ({ data: [], days: 30 }));
 	const rows = result.data
 		.map((row) => ({
@@ -22,7 +24,7 @@ export async function ContextLengthSection() {
 	return (
 		<section id="context-length" className="scroll-mt-32 space-y-6 border-t border-border pt-12">
 			<div className="space-y-0.5">
-				<h2 className="text-2xl font-semibold leading-8">Context Length</h2>
+				<h2 className="text-2xl font-semibold leading-8">{t("contextLength")}</h2>
 				<p className="max-w-3xl text-sm text-muted-foreground">
 					Observed input-token length across gateway requests over the last {result.days} days.
 				</p>

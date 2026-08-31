@@ -2,7 +2,8 @@
 
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -400,6 +401,7 @@ function SearchBrowseRow({
 	isPinned?: boolean;
 	onTogglePin?: (item: SearchableItem) => void;
 }) {
+	const t = useTranslations("Common.search");
 	return (
 		<div
 			data-search-row-key={rowKey}
@@ -430,9 +432,9 @@ function SearchBrowseRow({
 					<KeyboardShortcut
 						keys={item.shortcut}
 						type="sequence"
-						label={`Press ${item.shortcut[0]}, then ${item.shortcut[1]}`}
+						label={t("pressShortcut", { first: item.shortcut[0], second: item.shortcut[1] })}
 						className="hidden shrink-0 items-center gap-1 sm:flex"
-						title={`Press ${item.shortcut[0]}, then ${item.shortcut[1]}`}
+						title={t("pressShortcut", { first: item.shortcut[0], second: item.shortcut[1] })}
 					/>
 				) : null}
 				{onTogglePin ? <span aria-hidden="true" className="size-6 shrink-0" /> : null}
@@ -446,7 +448,7 @@ function SearchBrowseRow({
 				<button
 					type="button"
 					onClick={() => onTogglePin(item)}
-					aria-label={isPinned ? `Unpin ${item.title}` : `Pin ${item.title}`}
+				aria-label={isPinned ? t("unpin", { title: item.title }) : t("pin", { title: item.title })}
 					className={cn(
 						"absolute right-7 top-1/2 z-10 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground opacity-0 outline-hidden transition hover:bg-background hover:text-foreground focus-visible:opacity-100 group-hover/search-row:opacity-100",
 						isPinned && "opacity-100 text-foreground",
@@ -466,6 +468,7 @@ function SearchFooter({
 	count: number;
 	label: string;
 }) {
+	const t = useTranslations("Common.search");
 	return (
 		<div className="-mx-2 -mb-2 mt-1 flex h-8 items-center justify-between rounded-b-[1.35rem] border-t border-border/60 bg-popover px-3 text-[11px] text-muted-foreground">
 			<div className="flex min-w-0 items-center gap-2">
@@ -476,13 +479,13 @@ function SearchFooter({
 					<Kbd className="size-4 rounded p-0">
 						<ArrowDown className="size-3" />
 					</Kbd>
-					<span>move</span>
+					<span>{t("move")}</span>
 				</span>
 				<span className="inline-flex items-center gap-1">
 					<Kbd className="size-4 rounded p-0">
 						<CornerDownLeft className="size-3" />
 					</Kbd>
-					<span>select</span>
+					<span>{t("select")}</span>
 				</span>
 			</div>
 			<span className="shrink-0 tabular-nums">
@@ -582,6 +585,7 @@ function SearchEmptyState({
 	isLoading: boolean;
 	error: string | null;
 }) {
+	const t = useTranslations("Common.search");
 	return (
 		<div className="flex flex-col items-center gap-3 py-12">
 			<div className="flex size-12 items-center justify-center rounded-lg bg-muted">
@@ -591,10 +595,10 @@ function SearchEmptyState({
 				{isLoading ? (
 					<>
 						<p className="text-sm font-medium text-foreground">
-							Loading search index...
+							{t("loadingIndex")}
 						</p>
 						<p className="mt-1 text-xs text-muted-foreground">
-							This only loads once per session.
+							{t("loadsOnce")}
 						</p>
 					</>
 				) : error ? (
@@ -603,16 +607,16 @@ function SearchEmptyState({
 							{error}
 						</p>
 						<p className="mt-1 text-xs text-muted-foreground">
-							Close and reopen search to retry.
+							{t("retry")}
 						</p>
 					</>
 				) : (
 					<>
 						<p className="text-sm font-medium text-foreground">
-							No results found
+							{t("noResults")}
 						</p>
 						<p className="mt-1 text-xs text-muted-foreground">
-							Try different keywords or check your spelling.
+							{t("tryDifferent")}
 						</p>
 					</>
 				)}
@@ -626,6 +630,7 @@ export default function Search({
 	mobileGhost = false,
 	initiallyOpen = false,
 }: Props) {
+	const t = useTranslations("Common.search");
 	const router = useRouter();
 	const pathname = usePathname() ?? "/";
 	const { resolvedTheme, setTheme } = useTheme();
@@ -810,12 +815,12 @@ export default function Search({
 					}
 					router.push("/settings/workspaces/settings");
 					router.refresh();
-					toast.success(`Switched to ${item.title} workspace`, {
+						toast.success(t("switchedWorkspace", { workspace: item.title }), {
 						position: "bottom-right",
 					});
 				})
 				.catch(() => {
-					toast.error(`Failed to switch to ${item.title} workspace`, {
+						toast.error(t("failedSwitchWorkspace", { workspace: item.title }), {
 						position: "bottom-right",
 					});
 				});
@@ -829,7 +834,7 @@ export default function Search({
 			return;
 		}
 		router.push(item.href);
-	}, [resolvedTheme, router, setTheme]);
+	}, [resolvedTheme, router, setTheme, t]);
 
 	const handleTogglePin = useCallback((item: SearchableItem) => {
 		setPinnedItems((currentItems) => {
@@ -1029,47 +1034,47 @@ export default function Search({
 		return [
 			{
 				key: "models",
-				heading: "Models",
+				heading: t("models"),
 				items: searchData?.models ?? [],
 				showSubtitle: false,
 			},
 			{
 				key: "pinned",
-				heading: "Pinned",
+				heading: t("pinned"),
 				items: pinnedItems,
 			},
 			{
 				key: "context",
-				heading: "On this page",
+				heading: t("onThisPage"),
 				items: contextItems,
 				type: "context" as const,
 			},
 			{
 				key: "quick-actions",
-				heading: "Quick actions",
+				heading: t("quickActions"),
 				items: GLOBAL_ACTION_ITEMS.slice(0, 7),
 				type: "action" as const,
 			},
 			{
 				key: "workspaces",
-				heading: "Workspaces",
+				heading: t("workspaces"),
 				items: workspaceItems,
 				type: "workspace" as const,
 				showSubtitle: true,
 			},
 			{
 				key: "resources",
-				heading: "Resources",
+				heading: t("resources"),
 				items: EXTERNAL_RESOURCE_ITEMS.slice(0, 4),
 				type: "resource" as const,
 			},
 			{
 				key: "apiProviders",
-				heading: "API Providers",
+				heading: t("apiProviders"),
 				items: searchData?.apiProviders ?? [],
 			},
 		].filter((category) => category.items.length > 0);
-	}, [contextItems, hasQuery, pinnedItems, searchData, workspaceItems]);
+	}, [contextItems, hasQuery, pinnedItems, searchData, t, workspaceItems]);
 
 	const defaultBrowseRows = useMemo<DefaultBrowseRow[]>(() => {
 		if (hasQuery) return [];
@@ -1148,9 +1153,9 @@ export default function Search({
 		: selectableRows.length;
 	const footerLabel = hasQuery
 		? footerCount === 1
-			? "result"
-			: "results"
-		: "items";
+			? t("result")
+			: t("results")
+		: t("items");
 
 	useEffect(() => {
 		setActiveRowIndex(0);
@@ -1233,10 +1238,10 @@ export default function Search({
 					mobileGhost &&
 						"border-transparent bg-transparent hover:border-transparent hover:bg-accent xl:border-border xl:bg-background xl:hover:border-border",
 				)}
-				aria-label="Open command palette"
+																		aria-label={t("openPalette")}
 			>
 				<SearchIcon className="pointer-events-none absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-muted-foreground xl:left-3 xl:translate-x-0" />
-				<span className="hidden truncate font-medium xl:inline">Search</span>
+								<span className="hidden truncate font-medium xl:inline">{t("search")}</span>
 				<span className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground xl:inline-flex">
 					Ctrl K
 				</span>
@@ -1250,7 +1255,7 @@ export default function Search({
 					showCloseButton={false}
 					className="top-1/2 flex w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)]! -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-3xl! border-border bg-popover p-2 text-popover-foreground sm:top-1/2 sm:w-[34rem] sm:max-w-[34rem]!"
 				>
-					<DialogTitle className="sr-only">Search</DialogTitle>
+					<DialogTitle className="sr-only">{t("dialogTitle")}</DialogTitle>
 					<div className="mb-1">
 						<InputGroup className="h-9! border-border bg-muted/50">
 							<InputGroupAddon>
@@ -1260,8 +1265,8 @@ export default function Search({
 								key={open ? "global-search-open" : "global-search-closed"}
 								onChange={(event) => handleQueryChange(event.currentTarget.value)}
 								onKeyDown={handleSearchKeyDown}
-								placeholder="Search, or use > / @ ? ..."
-								aria-label="Search Phaseo and run commands"
+								placeholder={t("placeholder")}
+								aria-label={t("ariaLabel")}
 								autoFocus
 								className="text-sm"
 							/>
@@ -1272,12 +1277,12 @@ export default function Search({
 					</div>
 					<div
 						className="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-1 text-[11px] text-muted-foreground"
-						aria-label="Command prefixes"
+						aria-label={t("prefixes")}
 					>
-						<span className="inline-flex items-center gap-1"><Kbd>&gt;</Kbd> actions</span>
-						<span className="inline-flex items-center gap-1"><Kbd>/</Kbd> pages</span>
-						<span className="inline-flex items-center gap-1"><Kbd>@</Kbd> models</span>
-						<span className="inline-flex items-center gap-1"><Kbd>?</Kbd> resources</span>
+						<span className="inline-flex items-center gap-1"><Kbd>&gt;</Kbd> {t("actions")}</span>
+						<span className="inline-flex items-center gap-1"><Kbd>/</Kbd> {t("pages")}</span>
+						<span className="inline-flex items-center gap-1"><Kbd>@</Kbd> {t("models")}</span>
+						<span className="inline-flex items-center gap-1"><Kbd>?</Kbd> {t("resources")}</span>
 					</div>
 					<div ref={listRef} className="overflow-hidden outline-none">
 						<ScrollArea
@@ -1295,15 +1300,15 @@ export default function Search({
 								) : (
 									orderedCategories.map((category, index) => {
 										const categoryConfig = {
-											actions: { heading: "Actions", type: "action" as const, showSubtitle: true },
-											context: { heading: "On this page", type: "context" as const, showSubtitle: true },
-											navigation: { heading: "Navigation", type: "navigation" as const, showSubtitle: true },
-											resources: { heading: "External resources", type: "resource" as const, showSubtitle: true },
-											workspaces: { heading: "Workspaces", type: "workspace" as const, showSubtitle: true },
-											models: { heading: "Models", type: undefined, showSubtitle: false },
-											apiProviders: { heading: "API Providers", type: undefined, showSubtitle: true },
-											organisations: { heading: "Labs", type: undefined, showSubtitle: true },
-											benchmarks: { heading: "Benchmarks", type: "benchmark" as const, showSubtitle: true },
+											actions: { heading: t("actions"), type: "action" as const, showSubtitle: true },
+											context: { heading: t("onThisPage"), type: "context" as const, showSubtitle: true },
+											navigation: { heading: t("navigation"), type: "navigation" as const, showSubtitle: true },
+											resources: { heading: t("resources"), type: "resource" as const, showSubtitle: true },
+											workspaces: { heading: t("workspaces"), type: "workspace" as const, showSubtitle: true },
+											models: { heading: t("models"), type: undefined, showSubtitle: false },
+											apiProviders: { heading: t("apiProviders"), type: undefined, showSubtitle: true },
+											organisations: { heading: t("labs"), type: undefined, showSubtitle: true },
+											benchmarks: { heading: t("benchmarks"), type: "benchmark" as const, showSubtitle: true },
 										}[category.name];
 
 										const isLast = index === orderedCategories.length - 1;

@@ -4,6 +4,7 @@
 import ComingSoon, { type ComingSoonProps } from "./ComingSoon";
 import { getMilestone } from "@/lib/roadmap";
 import { Infinity as InfinityIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type RoadmapComingSoonProps = {
 	milestoneKey: string;
@@ -14,16 +15,17 @@ export default function RoadmapComingSoon({
 	milestoneKey,
 	overrides,
 }: RoadmapComingSoonProps) {
+	const t = useTranslations("Content.roadmap");
 	const m = getMilestone(milestoneKey);
 
 	if (!m) {
 		// Fallback if unknown key (keeps page from breaking)
 		return (
 			<ComingSoon
-				title="Coming soon"
-				subtitle="This page is under active development."
-				description="We’re shipping fast. Check back shortly or see the full roadmap."
-				primaryAction={{ label: "View roadmap", href: "/roadmap" }}
+				title={t("comingSoon")}
+				subtitle={t("activeDevelopment")}
+				description={t("shippingFast")}
+				primaryAction={{ label: t("viewRoadmap"), href: "/roadmap" }}
 				align="center"
 				{...overrides}
 			/>
@@ -35,12 +37,12 @@ export default function RoadmapComingSoon({
 		title: m.title,
 		subtitle:
 			m.status === "Ongoing"
-				? "Continuous improvements ahead"
+				? t("continuousImprovements")
 				: m.status === "In Progress"
-				? "Currently being built"
+				? t("currentlyBuilt")
 				: m.status === "Beta"
-				? "Available in beta"
-				: "Planned feature",
+				? t("availableBeta")
+				: t("plannedFeature"),
 		description: m.description,
 		eta: m.due, // strings like "Nov 2025" render nicely in ComingSoon
 		icon:
@@ -52,14 +54,14 @@ export default function RoadmapComingSoon({
 		// tags: m.tags,
 		breadcrumb: [
 			{ label: "Phaseo", href: "/" },
-			{ label: "Roadmap", href: "/roadmap" },
+			{ label: t("title"), href: "/roadmap" },
 			{ label: m.title },
 		],
 		primaryAction: {
-			label: "See roadmap item",
+			label: t("seeRoadmapItem"),
 			href: `/roadmap#milestone-${m.key}`,
 		},
-		secondaryAction: { label: "Go Home", href: "/" },
+		secondaryAction: { label: t("goHome"), href: "/" },
 		align: "center",
 		variant: "minimal",
 	};

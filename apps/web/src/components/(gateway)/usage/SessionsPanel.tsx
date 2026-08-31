@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -471,6 +472,7 @@ function SessionDetailSheet({
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }) {
+	const t = useTranslations("SettingsUI");
 	const userTimeZone =
 		typeof Intl !== "undefined"
 			? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
@@ -647,7 +649,7 @@ function SessionDetailSheet({
 											))}
 										</div>
 									) : (
-										<div className="text-sm text-muted-foreground">No app metadata recorded.</div>
+										<div className="text-sm text-muted-foreground">{t("strings.No app metadata recorded." as never)}</div>
 									)}
 								</DetailSection>
 								<DetailSection
@@ -680,14 +682,14 @@ function SessionDetailSheet({
 										<Table wrapInContainer={false} className="min-w-[860px] text-xs">
 									<TableHeader>
 										<TableRow className="h-9">
-											<TableHead>Time</TableHead>
-											<TableHead>Source</TableHead>
-											<TableHead>Model</TableHead>
-											<TableHead>Provider</TableHead>
-											<TableHead className="text-right">In</TableHead>
-											<TableHead className="text-right">Out</TableHead>
-											<TableHead className="text-right">Cost</TableHead>
-											<TableHead>Status</TableHead>
+										<TableHead>{t("strings.Time" as never)}</TableHead>
+										<TableHead>{t("strings.Source" as never)}</TableHead>
+										<TableHead>{t("strings.Model" as never)}</TableHead>
+										<TableHead>{t("strings.Provider" as never)}</TableHead>
+										<TableHead className="text-right">{t("strings.In" as never)}</TableHead>
+										<TableHead className="text-right">{t("strings.Out" as never)}</TableHead>
+										<TableHead className="text-right">{t("strings.Cost" as never)}</TableHead>
+										<TableHead>{t("strings.Status" as never)}</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
@@ -880,6 +882,7 @@ export default function SessionsPanel({
 	providerFilter?: string | null;
 	sessionFilter?: string | null;
 }) {
+	const t = useTranslations("SettingsUI");
 	const userTimeZone =
 		typeof Intl !== "undefined"
 			? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
@@ -1284,7 +1287,7 @@ export default function SessionsPanel({
 							size="icon"
 							onClick={refresh}
 							disabled={isRefreshing}
-							aria-label="Refresh sessions"
+							aria-label={t("strings.Refresh sessions" as never)}
 						>
 							<RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
 						</Button>
@@ -1312,7 +1315,7 @@ export default function SessionsPanel({
 			/>
 
 			{isLoadingDetail ? (
-				<div className="sr-only">Loading session details...</div>
+				<div className="sr-only">{t("strings.Loading session details..." as never)}</div>
 			) : null}
 		</>
 	);

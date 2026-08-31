@@ -1,0 +1,1914 @@
+{
+  "headers": {
+    "settings": "Settings",
+    "apiKeys": "API Keys",
+    "apiKeysDescription": "Create and manage gateway API keys for this workspace.",
+    "managementApiKeys": "Management API Keys",
+    "managementApiKeysDescription": "Manage elevated keys for automated workspace and key management.",
+    "apps": "Apps",
+    "appsDescription": "Manage application metadata and public visibility for your workspace.",
+    "oauthIntegrations": "OAuth Integrations",
+    "oauthApps": "OAuth Apps",
+    "oauthAppsDescription": "Create OAuth applications to enable third-party integrations with your Phaseo account.",
+    "oauthApplication": "OAuth Application",
+    "oauthApplicationDetails": "OAuth Application Details",
+    "oauthComingSoon": "OAuth apps are coming soon",
+    "oauthDisabled": "OAuth client management is disabled for this deployment.",
+    "notifications": "Notifications",
+    "notificationsDescription": "Choose what your workspace hears about and where alerts are delivered.",
+    "guardrails": "Guardrails",
+    "guardrailsDescription": "Set workspace policies for members and API keys.",
+    "guardrail": "Guardrail",
+    "guardrailDescription": "Edit an existing guardrail policy.",
+    "byok": "Bring Your Own Key",
+    "byokWorkspaceRequired": "Select a workspace to manage BYOK settings.",
+    "byokDescription": "Connect provider credentials and control how Phaseo routes requests.",
+    "routing": "Routing",
+    "routingDescription": "Set the workspace defaults used when a request does not match a dynamic route.",
+    "dynamicRouting": "Dynamic routing",
+    "dynamicRoutingDescription": "Build request flows and attach them to specific API keys.",
+    "broadcast": "Broadcast",
+    "broadcastWorkspaceRequired": "Select a workspace to manage broadcast settings.",
+    "dynamicRoutingPreview": "Local preview mode — changes stay in this browser and do not touch the database.",
+    "autoRouting": "Auto routing",
+    "autoRoutingDescription": "Control how phaseo/auto balances model quality, cost, and speed for this workspace.",
+    "presets": "Presets",
+    "presetsDescription": "Manage reusable request configurations for your API calls.",
+    "newPreset": "New Preset",
+    "createNewPreset": "Create a new preset",
+    "newPresetDescription": "Configure your preset with models, parameters, and preferences",
+    "presetIntro": "Presets are named configurations starting with @ that you can reference in your API calls. Save your preferred model, system prompt, and parameters to create reusable request templates.",
+    "editPreset": "Edit Preset",
+    "presetDraftDescription": "Changes remain a draft until you publish a new version.",
+    "presetFeedback": "Preset Feedback",
+    "presetFeedbackCompareDescription": "Compare preset quality from feedback API events, date windows, and metadata cohorts.",
+    "presetFeedbackMeasureDescription": "Measure how each preset performs using ratings and outcome signals from your application.",
+    "privacy": "Privacy",
+    "privacyDescription": "Set data handling, log storage, and route access for every request in this workspace.",
+    "dangerZone": "Danger Zone",
+    "dangerZoneDescription": "Destructive actions for your user.",
+    "mfa": "MFA",
+    "mfaDescription": "Manage two-factor authentication for your user.",
+    "providerOnboarding": "Provider onboarding",
+    "providerOnboardingDescription": "Connect your provider catalog and keep your account linked to the public provider profile.",
+    "workspaces": "Workspaces",
+    "workspacesDescription": "Create workspaces and choose which ones you want to manage.",
+    "billingOnboarding": "Billing onboarding",
+    "billingOnboardingSignIn": "Sign in to continue setting up workspace billing.",
+    "billingOnboardingWorkspace": "Select a workspace to continue setup.",
+    "billingOnboardingError": "Could not load the active workspace.",
+    "invoices": "Invoices",
+    "invoicesDescription": "Enterprise billing records and invoice documents.",
+    "transactions": "Transactions",
+    "lifecycleAlerts": "Lifecycle Alerts",
+    "lifecycleAlertsDescription": "Models you used recently that are deprecated or retired, and what to swap to.",
+    "geography": "Geography",
+    "geographyDescription": "See where workspace requests originate without storing raw IP addresses.",
+    "observability": "Observability",
+    "logsUnavailable": "Logs unavailable",
+    "logsUnavailableDescription": "We couldn't load request logs. Try again in a moment.",
+    "workspaceAccessChanged": "Workspace access changed",
+    "workspaceAccessChangedDescription": "You no longer have access to this workspace. Select another workspace to view its logs.",
+    "noWorkspaceAvailable": "No workspace available",
+    "asyncJobs": "Async jobs",
+    "asyncJobsDescription": "Recent long-running video and batch jobs, including status, billing, and webhook delivery history.",
+    "webhooks": "Webhooks",
+    "webhooksDescription": "Webhook settings",
+    "enterprise": "Enterprise",
+    "directory": "Directory",
+    "departments": "Departments",
+    "singleSignOn": "Single Sign-On",
+    "scim": "SCIM",
+    "enterpriseOverviewDescription": "Subscription, allowance and workspace identity overview.",
+    "directoryDescription": "Manage workspace access, roles and department assignments.",
+    "departmentsDescription": "Organise members and map groups from your identity provider.",
+    "ssoDescription": "Connect and enforce a SAML identity provider for this workspace.",
+    "scimDescription": "Provision users and groups from your identity provider.",
+    "chooseSharedWorkspace": "Choose a shared workspace",
+    "sharedWorkspaceRequired": "Enterprise identity is configured per shared workspace, not on your personal workspace.",
+    "membersCount": "{count} members"
+  },
+  "labels": {
+    "save": "Save", "saving": "Saving…", "cancel": "Cancel", "close": "Close", "create": "Create", "creating": "Creating…", "update": "Update", "updating": "Updating…", "delete": "Delete", "deleting": "Deleting…", "edit": "Edit", "details": "Details", "actions": "Actions", "done": "Done", "loading": "Loading…", "active": "Active", "disabled": "Disabled", "expired": "Expired", "never": "Never", "noExpiry": "No expiry", "default": "Default", "personal": "Personal", "workspace": "Workspace", "member": "Member", "admin": "Admin", "owner": "Owner", "read": "Read", "write": "Write", "off": "Off", "on": "On", "enabled": "Enabled", "used": "Used", "limit": "Limit", "remaining": "Remaining", "reset": "Reset", "today": "Today", "thisWeek": "This week", "thisMonth": "This month", "noResults": "No results found", "selectWorkspace": "Select a workspace", "noWorkspaceSelected": "No workspace selected", "viewDetails": "View details", "testConnection": "Test Connection", "tryAgain": "Try again"
+  },
+  "keys": {
+    "keyName": "Key name", "newKeyName": "New key name", "rotate": "Rotate", "rotateApiKey": "Rotate API key", "rotating": "Rotating…", "deleteApiKey": "Delete API Key", "deleteSelectedQuestion": "Delete selected API keys?", "deleteSelected": "Delete selected", "typeKeyName": "Type key name to confirm", "selectExpiry": "Select expiry timing", "expireImmediately": "Expire immediately", "expireOneHour": "Expire in 1 hour", "expireOneDay": "Expire in 24 hours", "expireSevenDays": "Expire in 7 days", "customDateTime": "Custom date/time", "neverExpire": "Do not expire automatically", "noGuardrails": "No guardrails", "readOnlyDescription": "View all control-plane resources without changing them.", "readWriteDescription": "Read and change resources, without delete access.", "fullControlDescription": "All management API capabilities.", "keyShownOnce": "This key will be shown only once", "optionalExpiry": "Optional expiry", "createKey": "Create Key", "deleteKey": "Delete Key", "creatingKey": "Creating…", "deletingKey": "Deleting…", "failedDelete": "Failed to delete key", "failedRotate": "Failed to rotate key", "rotated": "Key rotated", "deleted": "Management API key deleted"
+  },
+  "teams": {
+    "createInvite": "Create Workspace Invite", "createInviteDescription": "Create an invite code to share with your workspace.", "createInviteButton": "Create Invite", "selectedWorkspace": "Selected workspace", "selectWorkspace": "Select a workspace", "workspace": "Workspace", "inviteCode": "Invite code", "copyInviteCode": "Copy invite code", "shareCode": "Share this code:", "roleForInvitees": "Role for invitees", "adminRole": "Admin", "memberRole": "Member", "expiresDays": "Expires (days)", "maxUsesOptional": "Max uses (optional)", "creatingInvite": "Creating…", "unlimited": "Unlimited", "createdBy": "Created by", "created": "Created", "expiry": "Expiry", "uses": "Uses", "maxUses": "Max uses", "deleteFailed": "Delete failed", "approve": "Approve", "reject": "Reject", "approveRequest": "Approve request", "rejectRequest": "Reject request", "requestApproved": "Request approved", "requestRejected": "Request rejected", "joinRequest": "Join request", "leaveWorkspace": "Leave workspace", "revokeAccess": "Revoke access", "invites": "Invites", "invitesDescription": "View and manage invites for this workspace.", "total": "{count} total", "active": "{count} active", "noWorkspaces": "No workspaces available.", "noInvites": "No invites for {workspace} yet.", "statusActive": "Active", "statusExpired": "Expired", "failedCreateInvite": "Failed to create invite", "requestJoinTitle": "Request to Join a Workspace", "requestJoinDescription": "Enter an invite code to request to join a workspace.", "requestSubmitted": "Request submitted.", "requestSubmittedId": "Request submitted. ID: {id}", "failedSubmitRequest": "Failed to submit request", "couldNotSubmitRequest": "Could not submit request", "accept": "Accept", "accepting": "Accepting…", "gotInviteCode": "Got an invite code?", "createWorkspace": "Create Workspace", "createWorkspaceDescription": "Enter a name for your new workspace.", "workspaceName": "Workspace Name", "couldNotCreateWorkspace": "Could not create workspace right now. Please try again.", "activeMembers": "Active members", "changeAnswers": "Change answers", "monthlyEnterpriseSubscription": "Your monthly Enterprise subscription", "selfServeEnterprise": "Self Serve Enterprise", "month": "month", "subscribe": "Subscribe", "quoteValidUntil": "Quote valid until {date}. USD billing only.", "buildEnterprisePlan": "Build your Enterprise plan", "enterprisePlanDescription": "Tell us the shape of your workspace. You will get a fixed USD price immediately—no sales call and no custom contract.", "volumeDiscounts": "Volume discounts are applied automatically. Credit funding is billed separately.", "whatWillYouUse": "What will you use?", "singleSignOn": "Single sign-on", "scimProvisioning": "SCIM provisioning", "slackConnect": "Slack Connect support", "allFeaturesIncluded": "All Enterprise features are included in one subscription.", "calculatePrice": "Calculate my price", "couldNotCalculatePricing": "Could not calculate pricing", "couldNotStartCheckout": "Could not start checkout", "samlScimFeature": "SAML SSO and SCIM provisioning", "activeMembersIncluded": "{count} active members included", "additionalMembers": "Estimated {count} additional members at ${price}/member/month", "estimatedMonthlyTotal": "Estimated monthly total: ${total}", "departmentsGovernance": "Departments, roles and governance", "creditTopUpFee": "Standard 5% credit top-up fee", "memberActions": "Member actions", "userRole": "User Role", "approveRequestAria": "Approve request", "rejectRequestAria": "Reject request", "sortSpend": "Sort by 30-day spend", "actionsFor": "Actions for {name}", "ownerAccessError": "You can't revoke the owner's access.", "unableRevokeAccess": "Unable to revoke access right now.", "copiedUserId": "Copied user ID", "unableCopyUserId": "Unable to copy user ID"
+  },
+  "apps": {
+    "appName": "App name", "appId": "App ID", "unknownApp": "Unknown app", "viewApp": "View app", "appUpdated": "App updated", "updatingApp": "Updating app…", "unableToUpdate": "Unable to update app"
+  },
+  "oauth": {
+    "unknownUser": "Unknown User", "unknownWorkspace": "Unknown Workspace", "redirectUri": "Redirect URI", "addRedirectUri": "Add redirect URI", "removeRedirectUri": "Remove redirect URI", "invalidRedirectUri": "At least one redirect URI is required", "regenerateSecret": "Regenerate secret", "clientSecret": "Client secret", "copySecret": "Copy secret"
+  },
+  "workspace": {
+    "name": "Workspace name", "namePlaceholder": "e.g. Engineering", "publisherHandle": "Publisher Handle", "handlePlaceholder": "workspace-handle", "deleteWorkspace": "Delete Workspace", "deleteWorkspaceQuestion": "Delete workspace?", "personalCannotDelete": "Personal workspace cannot be deleted.", "confirmation": "Confirmation", "typeDeleteWorkspace": "Type \"DELETE WORKSPACE\" to confirm"
+  },
+  "byok": {
+    "monthlyUsage": "BYOK monthly usage", "usedRequests": "Used requests", "freeRemaining": "Free remaining", "paidTierRequests": "Paid-tier requests", "providerKeys": "Provider keys", "providerKeysDescription": "These credentials take over only when the managed route cannot complete the request."
+  },
+  "enterpriseIdentity": {
+    "enterprise": "Enterprise", "active": "Active", "preview": "Preview", "activeDescription": "Manage identity, provisioning and Enterprise billing.", "previewDescription": "Add SSO, SCIM, directory roles and governance to this workspace.", "readOnlyDescription": "Explore the setup before subscribing. Controls are read-only.", "manageEnterprise": "Manage Enterprise", "configure": "Configure Enterprise", "subscription": "Subscription", "plan": "Plan", "selfServePlan": "Self Serve Enterprise", "membersIncluded": "Members included", "creditTopUpFee": "Credit top-up fee", "includedAllowance": "Included allowance", "renewal": "Renewal", "administration": "Administration", "viewDirectory": "View directory", "manageDepartments": "Manage departments", "manageSubscription": "Manage subscription", "singleSignOn": "Single sign-on", "singleSignOnDetail": "SAML for your identity provider", "provisioning": "Provisioning", "provisioningDetail": "SCIM users, groups and bulk sync", "directoryDetail": "Departments, roles and leads", "includedWorkspace": "Included for this workspace", "subscriptionActive": "Subscription active"
+  },
+  "directory": {
+    "follow": "Follow directory", "accessRole": "Access role", "department": "Department", "noDepartment": "No department", "createDepartment": "Create department", "createDepartmentTitle": "Create department", "createDepartmentDescription": "Add a manually managed department. SCIM-provisioned departments appear automatically.", "name": "Name", "departmentCreated": "Department created", "departmentCreateFailed": "Department could not be created", "manualMappingNote": "Renaming or styling a department does not remove its SCIM group mapping.", "member": "Member", "access": "Access", "directoryOverrideNote": "A manual selection overrides the effective value while retaining the latest directory assignment underneath.", "icon": { "users": "People", "briefcase": "Briefcase", "megaphone": "Megaphone", "code": "Code", "palette": "Palette", "headphones": "Headphones", "landmark": "Finance", "scale": "Legal", "heart-pulse": "Healthcare", "globe": "Global", "flask": "Research", "graduation-cap": "Education", "shield-check": "Security", "shopping-bag": "Sales", "wrench": "IT & operations", "truck": "Logistics", "handshake": "Partnerships", "chart": "Analytics" }
+  },
+  "scim": {
+    "settingsUnavailable": "SCIM settings are unavailable", "enabled": "SCIM provisioning enabled", "disabled": "SCIM provisioning disabled", "updateFailed": "Could not update SCIM", "tokenCreated": "SCIM token created", "tokenCreateFailed": "Could not create SCIM token", "tokenRevoked": "SCIM token revoked", "tokenRevokeFailed": "Could not revoke SCIM token", "baseUrl": "Base URL", "enableProvisioning": "Enable provisioning", "usersGroups": "{users} users · {groups} groups", "copyNow": "Copy this token now", "notShownAgain": "It will not be shown again.", "tokenLabel": "SCIM token label", "createToken": "Create token", "activeTokensEmpty": "No active provisioning tokens", "ready": "Ready to receive SCIM requests"
+  },
+  "saml": {
+    "metadataUrl": "Phaseo metadata URL", "enabled": "Enabled", "ready": "Ready", "notConfigured": "Not configured", "copyMetadata": "Copy SAML metadata URL", "metadataHelp": "Add this service-provider metadata URL to your identity provider.", "verifiedDomains": "Verified domains", "domainsPlaceholder": "example.com, example.org", "domainsHelp": "Comma-separated domains used to discover this connection at sign-in.", "providerId": "Supabase SSO provider ID", "providerIdHelp": "The provider identifier returned when the SAML connection is created.", "enableSignIn": "Enable SAML sign-in", "enableHelp": "A provider ID and at least one verified domain are required.", "availableRollout": "Available to every workspace during rollout.", "save": "Save SAML settings", "urlCopied": "Metadata URL copied", "saved": "SAML settings saved", "saveFailed": "Could not save SAML settings", "unavailable": "Unavailable in this environment"
+  },
+  "routingStudioLegacy": {
+   "start": "Start", "startDescription": "Incoming request", "condition": "If / else", "conditionDescription": "Body, header or metadata", "percentage": "Traffic split", "percentageDescription": "A/B or gradual rollout", "model": "Call model", "modelDescription": "Model and provider policy", "rateLimit": "Rate limit", "rateLimitDescription": "Requests per key and period", "budgetLimit": "Budget limit", "budgetLimitDescription": "Spend per key and period", "end": "End", "endDescription": "Return the model response", "requestReceived": "Request received", "checkRequestValue": "Check a request value", "splitTraffic": "Split traffic", "primary": "Primary", "experiment": "Experiment", "callModel": "Call a model", "limitRequests": "Limit requests", "limitSpend": "Limit spend", "returnResponse": "Return response", "chooseModel": "Choose a model", "earlierModels": "Earlier models", "true": "True", "false": "False", "withinLimit": "Within limit", "exceeded": "Exceeded", "label": "Label", "readFrom": "Read from", "customMetadata": "Custom metadata", "requestBody": "Request body", "requestHeader": "Request header", "endpoint": "Endpoint", "requestedModel": "Requested model", "sessionId": "Session ID", "headerName": "Header name", "fieldPath": "Field path", "operator": "Operator", "equals": "Equals", "doesNotEqual": "Does not equal", "contains": "Contains", "startsWith": "Starts with", "exists": "Exists", "greaterThan": "Greater than", "lessThan": "Less than", "isOneOf": "Is one of", "value": "Value", "trafficAllocation": "Traffic allocation", "allocationsTotal": "Allocations must total 100%.", "primaryModel": "Primary model", "routingStrategy": "Routing strategy", "balanced": "Balanced", "lowestLatency": "Lowest latency", "lowestPrice": "Lowest price", "highestThroughput": "Highest throughput", "preferredProvider": "Preferred provider", "anyProvider": "Any eligible provider", "providerFallbacks": "Provider fallbacks", "providerFallbacksDescription": "Try another eligible provider for this model.", "modelFallbacks": "Model fallbacks", "modelFallbacksDescription": "Tried in order when the primary model cannot complete the request.", "compatibleCapability": "Compatible capability: {capabilities}", "fallbackModel": "Fallback model {index}", "removeFallbackModel": "Remove fallback model {index}", "addFallbackModel": "Add fallback model", "window": "Window", "perDay": "Per day", "perWeek": "Per week", "perMonth": "Per month", "maximumRequests": "Maximum requests", "maximumSpend": "Maximum spend (USD)", "selectNode": "Select a node to configure it.", "dragHint": "Drag onto the canvas or click to append", "addStep": "Add a step", "canvasHint": "Drag a step onto the canvas to place it freely, then connect its handles. Click to append it to the selected branch.", "dragToPan": "Drag to pan", "zoomHint": "Scroll to zoom · Connect node handles", "closeInspector": "Close inspector", "openInspector": "Open inspector", "editingRoute": "Editing route", "noDescription": "No route description", "apiKeys": "{count} API key{suffix}", "version": "Version {version}", "deployed": "deployed", "draft": "draft", "newRoute": "New route", "save": "Save", "saveVersion": "Save version", "routeSections": "Route sections", "flow": "Flow", "versions": "Versions", "configuration": "Configuration", "versionHistory": "Version history", "versionHistoryDescription": "Every save creates an immutable draft. Deploy or roll back without rebuilding the flow.", "deployVersion": "Deploy v{version}", "deploy": "Deploy", "live": "Live", "routeDetails": "Route details", "routeDetailsDescription": "Name, lifecycle and request affinity.", "name": "Name", "description": "Description", "cacheAwareRouting": "Cache-aware routing", "cacheAwareRoutingDescription": "Keep cache-producing requests on one provider for 15 minutes.", "sessionAffinity": "Session affinity", "sessionAffinityDescription": "Preserve provider affinity for cached sessions.", "attachApiKeys": "Attach API keys", "attachApiKeysDescription": "Requests authenticated with these keys enter this route.", "deleteRoute": "Delete route", "createFirstTitle": "Create your first dynamic route", "createFirstDescription": "Branch on request context, split traffic and call the right model.", "titleNewRoute": "Untitled route {number}", "draftCreated": "Draft route created", "draftSaved": "Draft version saved", "routeDeleted": "Route deleted", "versionDeployed": "Version {version} deployed", "versionDeployedLocally": "Version {version} deployed locally", "couldNotCreate": "Could not create route", "couldNotSave": "Could not save route", "couldNotDelete": "Could not delete route", "couldNotDeploy": "Could not deploy route", "searchModels": "Search models, providers or IDs…", "loadingModels": "Loading gateway models…", "modelCatalogueError": "Could not load the model catalogue.", "noCompatibleModels": "No compatible models found.", "unconnected": "Unconnected"
+  },
+  "routingStudio": {"start":"Start","startDescription":"Incoming request","condition":"If / else","conditionDescription":"Body, header or metadata","percentage":"Traffic split","percentageDescription":"A/B or gradual rollout","model":"Call model","modelDescription":"Model and provider policy","rateLimit":"Rate limit","rateLimitDescription":"Requests per key and period","budgetLimit":"Budget limit","budgetLimitDescription":"Spend per key and period","end":"End","endDescription":"Return the model response","requestReceived":"Request received","checkRequestValue":"Check a request value","splitTraffic":"Split traffic","primary":"Primary","experiment":"Experiment","callModel":"Call a model","limitRequests":"Limit requests","limitSpend":"Limit spend","returnResponse":"Return response","chooseModel":"Choose a model","earlierModels":"Earlier models","true":"True","false":"False","withinLimit":"Within limit","exceeded":"Exceeded","label":"Label","readFrom":"Read from","customMetadata":"Custom metadata","requestBody":"Request body","requestHeader":"Request header","endpoint":"Endpoint","requestedModel":"Requested model","sessionId":"Session ID","headerName":"Header name","fieldPath":"Field path","operator":"Operator","equals":"Equals","doesNotEqual":"Does not equal","contains":"Contains","startsWith":"Starts with","exists":"Exists","greaterThan":"Greater than","lessThan":"Less than","isOneOf":"Is one of","value":"Value","trafficAllocation":"Traffic allocation","allocationsTotal":"Allocations must total 100%.","primaryModel":"Primary model","routingStrategy":"Routing strategy","balanced":"Balanced","lowestLatency":"Lowest latency","lowestPrice":"Lowest price","highestThroughput":"Highest throughput","preferredProvider":"Preferred provider","anyProvider":"Any eligible provider","providerFallbacks":"Provider fallbacks","providerFallbacksDescription":"Try another eligible provider for this model.","modelFallbacks":"Model fallbacks","modelFallbacksDescription":"Tried in order when the primary model cannot complete the request.","compatibleCapability":"Compatible capability: {capabilities}","fallbackModel":"Fallback model {index}","removeFallbackModel":"Remove fallback model {index}","addFallbackModel":"Add fallback model","window":"Window","perDay":"Per day","perWeek":"Per week","perMonth":"Per month","maximumRequests":"Maximum requests","maximumSpend":"Maximum spend (USD)","selectNode":"Select a node to configure it.","dragHint":"Drag onto the canvas or click to append","addStep":"Add a step","canvasHint":"Drag a step onto the canvas to place it freely, then connect its handles. Click to append it to the selected branch.","dragToPan":"Drag to pan","zoomHint":"Scroll to zoom · Connect node handles","closeInspector":"Close inspector","openInspector":"Open inspector","editingRoute":"Editing route","noDescription":"No route description","apiKeys":"{count} API key{suffix}","version":"Version {version}","deployed":"deployed","draft":"draft","newRoute":"New route","save":"Save","saveVersion":"Save version","routeSections":"Route sections","flow":"Flow","versions":"Versions","configuration":"Configuration","versionHistory":"Version history","versionHistoryDescription":"Every save creates an immutable draft. Deploy or roll back without rebuilding the flow.","deployVersion":"Deploy v{version}","deploy":"Deploy","live":"Live","routeDetails":"Route details","routeDetailsDescription":"Name, lifecycle and request affinity.","name":"Name","description":"Description","cacheAwareRouting":"Cache-aware routing","cacheAwareRoutingDescription":"Keep cache-producing requests on one provider for 15 minutes.","sessionAffinity":"Session affinity","sessionAffinityDescription":"Preserve provider affinity for cached sessions.","attachApiKeys":"Attach API keys","attachApiKeysDescription":"Requests authenticated with these keys enter this route.","deleteRoute":"Delete route","createFirstTitle":"Create your first dynamic route","createFirstDescription":"Branch on request context, split traffic and call the right model.","titleNewRoute":"Untitled route {number}","draftCreated":"Draft route created","draftSaved":"Draft version saved","routeDeleted":"Route deleted","versionDeployed":"Version {version} deployed","versionDeployedLocally":"Version {version} deployed locally","couldNotCreate":"Could not create route","couldNotSave":"Could not save route","couldNotDelete":"Could not delete route","couldNotDeploy":"Could not deploy route","searchModels":"Search models, providers or IDs…","loadingModels":"Loading gateway models…","modelCatalogueError":"Could not load the model catalogue.","noCompatibleModels":"No compatible models found.","unconnected":"Unconnected","deleteNode":"Delete node","triggerBranch":"How to trigger this branch","copyRequestExample":"Copy request example","limitBranchHelp":"Use the within output for normal traffic and the exceeded output for fallback or rejection."},
+ "byokControls": {
+   "neverUsed": "Never used", "lastUsed": "Last used {date}", "disabled": "Disabled", "needsAttention": "Needs attention", "sample": "Sample", "models": "{count} models", "allModels": "All models", "apiKeys": "{count} API keys", "allApiKeys": "All API keys", "dragKey": "Drag {name} to reorder", "moveUp": "Move key up", "moveDown": "Move key down", "collapseKey": "Collapse key", "expandKey": "Expand key", "testKey": "Test this key", "testKeyDescription": "Open a model covered by this key in Chat.", "test": "Test", "sampleReadOnly": "Sample keys are read-only. Add a real key to manage its settings and routing scopes here.", "prioritized": "Prioritized", "fallback": "Fallback", "prioritizedDescription": "Phaseo tries these credentials first, from top to bottom.", "fallbackDescription": "These credentials take over only when the managed route cannot complete the request.", "keyLimitReached": "Key limit reached", "addKey": "Add key", "noKeys": "No {mode} keys", "dropOrAdd": "Drop a key here or add a new credential.", "newKey": "New", "key": "{mode} key", "failedReorder": "Failed to reorder key"
+  },
+  "guardrailsControls": {
+    "all": "All", "search": "Search…", "select": "Select", "selected": "Selected", "noMatches": "No matches.", "allowAll": "Allow all", "noRestrictions": "No restrictions", "allowlist": "Allowlist", "blocklist": "Blocklist", "untitled": "Untitled", "noDescription": "No description.", "zdr": "ZDR", "members": "Members", "keys": "Keys", "models": "Models", "providers": "Providers", "promptInjection": "Prompt injection: {action}", "sensitiveInfo": "Sensitive info: {count} rules", "allowed": "{count} allowed", "blocked": "{count} blocked", "rules": "rules", "flag": "Flag", "redact": "Redact", "block": "Block"
+  },
+  "broadcastControls": {
+    "optional": "(optional)", "noMatchingOptions": "No matching options.", "selectedKeys": "{count} key{suffix} selected", "selectApiKeys": "Select API keys", "searchApiKeys": "Search API keys...", "noApiKeys": "No API keys found.", "selectedOpposite": "Selected opposite", "remove": "Remove {label}", "destinationSaved": "Destination saved", "failedSave": "Failed to save destination", "connected": "Connected", "connectionCheckFailed": "Connection check failed", "destinationName": "Destination Name", "save": "Save Destination", "saving": "Saving...", "test": "Test Connection", "testing": "Testing...", "saveBeforeSample": "Save destination before sending a sample trace.", "selectMethod": "Select method", "privacyMode": "Privacy Mode", "rate": "Rate", "samplingRateError": "Sampling rate must be between 0 and 1.", "noKeysWorkspace": "No API keys found for this workspace.", "betweenGroups": "Between Groups", "allGroups": "All Groups (AND)", "anyGroup": "Any Group (OR)", "allRules": "All Rules Must Match (AND)", "anyRule": "Any Rule Can Match (OR)", "selectField": "Select field", "searchFields": "Search fields...", "selectValue": "Select value", "searchProviders": "Search providers...", "searchModels": "Search models...", "value": "Value", "and": "AND", "or": "OR", "generationMetadata": "Generation Metadata", "generationMetadataDescription": "Model, provider, routing outcome, token usage and generation timing.", "cost": "Cost", "costDescription": "Calculated request cost and billing currency.", "identity": "Identity", "identityDescription": "Application, API key, user origin and request identity fields.", "requestContext": "Request Context", "requestContextDescription": "Correlation, endpoint, model, routing and request context fields.", "connection": "Connection", "additionalMetadata": "Additional Metadata", "metadataDescription": "Choose which structured context accompanies each trace.", "privacy": "Privacy", "privacyDescription": "Control what data is sent to this destination.", "excludeSensitive": "When enabled, excludes prompt and completion data from traces.", "sampling": "Sampling", "samplingDescription": "Set the probability that an eligible trace is sent to this destination.", "apiKeyFilter": "API Key Filter", "apiKeyFilterDescription": "Optionally filter traces by API key.", "filterRules": "Filter Rules", "filterRulesDescription": "Only traces matching these rule groups will be sent.", "noRuleGroups": "No rule groups yet. Add a rule group to start filtering traces.", "ruleGroup": "Rule Group {index}", "noValueRequired": "No value required", "addRule": "Add Rule", "addRuleGroup": "Add Rule Group", "sendSample": "Send Sample Trace"
+  },
+  "oauthDetail": {
+    "never": "Never", "active": "Active", "suspended": "Suspended", "deleted": "Deleted", "unknown": "Unknown", "saving": "Saving...", "saveScopes": "Save scopes", "unknownUser": "Unknown User", "unknownWorkspace": "Unknown Workspace", "neverUsed": "Never used", "user": "User", "requests": "Requests", "success": "Success", "errors": "Errors", "spend": "Spend", "lastUsed": "Last Used", "noLogs": "No request logs yet", "time": "Time", "endpoint": "Endpoint", "model": "Model", "provider": "Provider", "status": "Status", "cost": "Cost", "latency": "Latency", "errorStatus": "ERR", "deleteApp": "Delete OAuth App", "clientIdCopied": "Client ID copied to clipboard", "scopesUpdated": "OAuth scopes updated", "scopesUpdateFailed": "Failed to update OAuth scopes"
+  },
+  "oauthDetailCopy": {
+    "credentials": "Credentials",
+    "credentialsDescription": "Use these credentials to connect your OAuth client.",
+    "secretWarning": "Keep the client secret secure. It is only shown when generated.",
+    "hiddenSecret": "The client secret is hidden for security.",
+    "authorizedCallbacks": "Authorized callback URLs",
+    "scopesDescription": "Choose the permissions this application can request.",
+    "scopeWarning": "Changing scopes may require users to authorize the application again.",
+    "authorizedUsers": "Authorized users",
+    "noAuthorizations": "No authorized users",
+    "authorizationEmpty": "Users who authorize this application will appear here.",
+    "activityDescription": "Recent authorization and usage activity.",
+    "noActivity": "No activity yet",
+    "activityEmpty": "Activity will appear after the application is used.",
+    "you": "You",
+    "requestLogs": "Request logs",
+    "latestRequests": "Latest requests made through this OAuth application.",
+    "logsEmpty": "No request logs yet",
+    "logsEmptyDescription": "Requests will appear here after the application starts using Phaseo.",
+    "deleteDescription": "Permanently delete this OAuth application and revoke its credentials.",
+    "validRedirect": "Enter a valid redirect URI.",
+    "duplicateRedirect": "This redirect URI is already configured.",
+    "redirectAdded": "Redirect URI added",
+    "oneRedirect": "At least one redirect URI is required.",
+    "redirectRemoved": "Redirect URI removed",
+    "add": "Add",
+    "noRedirects": "No redirect URIs",
+    "redirectEmpty": "Add the callback URLs your OAuth client is allowed to use.",
+    "redirectHelp": "Redirect URIs must match exactly, including scheme, host, path, and port."
+  },
+  "strings": {
+    "Usage Dashboard": "Usage Dashboard",
+    "Last 1 Hour": "Last 1 Hour",
+    "Last 1 Day": "Last 1 Day",
+    "Last 1 Week": "Last 1 Week",
+    "Last 1 Month": "Last 1 Month",
+    "Last 1 Year": "Last 1 Year",
+    "By model": "By model",
+    "By API key": "By API key",
+    "By Key": "By Key",
+    "By Model": "By Model",
+    "Breakdown view": "Breakdown view",
+    "All keys": "All keys",
+    "No API keys available": "No API keys available",
+    "Range": "Range",
+    "Refresh": "Refresh",
+    "Refresh Successful": "Refresh Successful",
+    "Refresh Failed": "Refresh Failed",
+    "Export": "Export",
+    "Clear filters": "Clear filters",
+    "Model filter": "Model filter",
+    "Model (all)": "Model (all)",
+    "Provider filter": "Provider filter",
+    "Provider (all)": "Provider (all)",
+    "API key filter": "API key filter",
+    "Key (all)": "Key (all)",
+    "Status filter": "Status filter",
+    "Webhook endpoint created": "Webhook endpoint created",
+    "Signing secret rotated": "Signing secret rotated",
+    "Webhook endpoint updated": "Webhook endpoint updated",
+    "Failed to create webhook": "Failed to create webhook",
+    "Name": "Name",
+    "Could not open the Stripe portal": "Could not open the Stripe portal",
+    "Please try again.": "Please try again.",
+    "Failed to refresh": "Failed to refresh",
+    "Default payment method updated": "Default payment method updated",
+    "Payment method removed": "Payment method removed",
+    "Unable to add card": "Unable to add card",
+    "Update failed": "Update failed",
+    "Removal failed": "Removal failed",
+    "Copy job id": "Copy job ID",
+    "Copy request id": "Copy request ID",
+    "Copy session id": "Copy session ID",
+    "Copy app id": "Copy app ID",
+    "Copy generation id": "Copy generation ID",
+    "Copy content url": "Copy content URL",
+    "Job details": "Job details",
+    "Batch settlement": "Batch settlement",
+    "Create request execution": "Create request execution",
+    "Job failure diagnostics": "Job failure diagnostics",
+    "Artifacts and actions": "Artifacts and actions",
+    "Webhook configuration": "Webhook configuration",
+    "Webhook summary": "Webhook summary",
+    "Webhook attempts": "Webhook attempts",
+    "Refresh jobs": "Refresh jobs",
+    "Request ID": "Request ID",
+    "Please enter a request ID": "Please enter a request ID",
+    "Failed to fetch request": "Failed to fetch request",
+    "Failed to load generation": "Failed to load generation",
+    "All requests": "All requests",
+    "Successful only": "Successful only",
+    "Errors only": "Errors only",
+    "Other": "Other",
+    "All models": "All models",
+    "All providers": "All providers",
+    "Status": "Status"
+    ,"copied": "copied"
+    ,"Unable to copy": "Unable to copy"
+    ,"Webhook name": "Webhook name"
+    ,"Webhook URL": "Webhook URL"
+    ,"Signing secret": "Signing secret"
+    ,"Copy": "Copy"
+    ,"Updated": "Updated"
+    ,"Rotate signing secret": "Rotate signing secret"
+    ,"Endpoint ID": "Endpoint ID"
+    ,"Copy endpoint ID": "Copy endpoint ID"
+    ,"Disable": "Disable"
+    ,"Enable": "Enable"
+    ,"No webhook endpoints configured.": "No webhook endpoints configured."
+    ,"Failed to refresh payment methods": "Failed to refresh payment methods"
+    ,"Default payment method updated": "Default payment method updated"
+    ,"Payment method removed": "Payment method removed"
+    ,"Removal failed": "Removal failed"
+    ,"Add Card": "Add Card"
+    ,"No cards yet. Add one to use it for credits and auto top-ups.": "No cards yet. Add one to use it for credits and auto top-ups."
+    ,"Added": "Added"
+    ,"Set default": "Set default"
+    ,"Cards are stored securely by Stripe. Use Customer Portal for billing details and other advanced changes.": "Cards are stored securely by Stripe. Use Customer Portal for billing details and other advanced changes."
+    ,"ending": "ending"
+    ,"unknown": "unknown"
+    ,"This payment method will no longer be available for credits and auto top-ups.": "This payment method will no longer be available for credits and auto top-ups."
+    ,"will no longer be available for credits and auto top-ups.": "will no longer be available for credits and auto top-ups."
+    ,"Removing...": "Removing..."
+    ,"Opening portal…": "Opening portal…"
+    ,"Export as CSV": "Export as CSV"
+    ,"Export as PDF": "Export as PDF"
+    ,"Please enter a request ID": "Please enter a request ID"
+    ,"Investigate": "Investigate"
+    ,"Investigate generation": "Investigate generation"
+    ,"Enter a request ID to inspect its generation details.": "Enter a request ID to inspect its generation details."
+    ,"Loading...": "Loading..."
+    ,"Lookup": "Lookup"
+    ,"Breakdown for": "Breakdown for"
+    ,"Export CSV": "Export CSV"
+    ,"Export PDF": "Export PDF"
+    ,"Model": "Model"
+    ,"Requests": "Requests"
+    ,"Tokens": "Tokens"
+    ,"Cost": "Cost"
+    ,"Total": "Total"
+    ,"Time": "Time"
+    ,"Share": "Share"
+    ,"Spend": "Spend"
+    ,"Average latency": "Average latency"
+    ,"Country": "Country"
+    ,"requests": "requests"
+    ,"tokens": "tokens"
+    ,"No geographic usage yet": "No geographic usage yet"
+    ,"Countries will appear after requests in the selected period include geographic metadata.": "Countries will appear after requests in the selected period include geographic metadata."
+    ,"Country usage will appear after gateway requests include sufficient geographic metadata.": "Country usage will appear after gateway requests include sufficient geographic metadata."
+    ,"Top Model": "Top Model"
+    ,"Top Provider": "Top Provider"
+    ,"Most Expensive": "Most Expensive"
+    ,"Fastest Model": "Fastest Model"
+    ,"No data": "No data"
+    ,"vs. direct provider pricing": "vs. direct provider pricing"
+    ,"days": "days"
+    ,"Insights & Trends": "Insights & Trends"
+    ,"Top Models by Spend": "Top Models by Spend"
+    ,"No data available": "No data available"
+    ,"total spend": "total spend"
+    ,"Top Models": "Top Models"
+    ,"Unlimited": "Unlimited"
+    ,"Key name is required.": "Key name is required."
+    ,"Saving key...": "Saving key..."
+    ,"Key updated": "Key updated"
+    ,"Failed to update key": "Failed to update key"
+    ,"Edit API Key": "Edit API Key"
+    ,"Manage the key name, availability, and usage limits.": "Manage the key name, availability, and usage limits."
+    ,"General": "General"
+    ,"Key Name": "Key Name"
+    ,"Disabled keys cannot make gateway requests.": "Disabled keys cannot make gateway requests."
+    ,"Key enabled": "Key enabled"
+    ,"Limits": "Limits"
+    ,"Leave a field blank for unlimited.": "Leave a field blank for unlimited."
+    ,"Saving...": "Saving..."
+    ,"Save Changes": "Save Changes"
+    ,"Create Key": "Create Key"
+    ,"Create a new API key for a workspace.": "Create a new API key for a workspace."
+    ,"The key will be shown only once - copy it and store it somewhere safe.": "The key will be shown only once - copy it and store it somewhere safe."
+    ,"Personal": "Personal"
+    ,"Preset": "Preset"
+    ,"This key will not be shown again and gives anyone access to your credits for your workspace. Keep this code secret at all times.": "This key will not be shown again and gives anyone access to your credits for your workspace. Keep this code secret at all times."
+    ,"Could not copy to clipboard": "Could not copy to clipboard"
+    ,"Copied": "Copied"
+    ,"The key could not be verified right now.": "The key could not be verified right now."
+    ,"Key works": "Key works"
+    ,"Could not test API key": "Could not test API key"
+    ,"Copied key": "Copied key"
+    ,"Copy key": "Copy key"
+    ,"Copied .env": "Copied .env"
+    ,"Copy .env": "Copy .env"
+    ,"Copy config": "Copy config"
+    ,"Could not copy config": "Could not copy config"
+    ,"Downloaded": "Downloaded"
+    ,"collection": "collection"
+    ,"Testing...": "Testing..."
+    ,"Test key": "Test key"
+    ,"Exports use placeholders so downloaded collections do not contain the secret.": "Exports use placeholders so downloaded collections do not contain the secret."
+    ,"No usage yet.": "No usage yet."
+    ,"Change label filter": "Change label filter"
+    ,"Filter requests by label": "Filter requests by label"
+    ,"Label": "Label"
+    ,"Search labels…": "Search labels…"
+    ,"No matching labels.": "No matching labels."
+    ,"No request labels in this time range.": "No request labels in this time range."
+    ,"Request labels": "Request labels"
+    ,"Clear label filter": "Clear label filter"
+    ,"Request details unavailable": "Request details unavailable"
+    ,"We couldn't load this request. Try again or return to the request logs.": "We couldn't load this request. Try again or return to the request logs."
+    ,"Back to request logs": "Back to request logs"
+    ,"Open previous request": "Open previous request"
+    ,"No previous request": "No previous request"
+    ,"Open next request": "Open next request"
+    ,"No next request": "No next request"
+    ,"Your timezone": "Your timezone"
+    ,"Top Models (by spend)": "Top Models (by spend)"
+    ,"Top API Keys (by spend)": "Top API Keys (by spend)"
+    ,"API Key": "API Key"
+    ,"Avg Latency (ms)": "Avg Latency (ms)"
+    ,"Observability": "Observability"
+    ,"Unable to load observability": "Unable to load observability"
+    ,"Upstream Requests": "Upstream Requests"
+    ,"Videos": "Videos"
+    ,"Batches": "Batches"
+    ,"Jobs": "Jobs"
+    ,"Sessions": "Sessions"
+    ,"Inspect gateway requests, routing decisions, usage, and errors.": "Inspect gateway requests, routing decisions, usage, and errors."
+    ,"Inspect each provider attempt made while serving gateway requests.": "Inspect each provider attempt made while serving gateway requests."
+    ,"Inspect asynchronous video generation jobs.": "Inspect asynchronous video generation jobs."
+    ,"Inspect asynchronous batch processing jobs.": "Inspect asynchronous batch processing jobs."
+    ,"Inspect asynchronous video and batch jobs.": "Inspect asynchronous video and batch jobs."
+    ,"Inspect grouped request activity across apps and models.": "Inspect grouped request activity across apps and models."
+    ,"API key": "API key"
+    ,"Is": "is"
+    ,"Is not": "is not"
+    ,"Equals": "equals"
+    ,"At least": "at least"
+    ,"At most": "at most"
+    ,"Between": "between"
+    ,"and": "and"
+    ,"Apply Filter": "Apply Filter"
+    ,"No matching options.": "No matching options."
+    ,"Search": "Search"
+    ,"Clear": "Clear"
+    ,"filter": "filter"
+    ,"Add Filter": "Add Filter"
+    ,"Search filters…": "Search filters…"
+    ,"Add another filter": "Add another filter"
+    ,"Updating requests…": "Updating requests…"
+    ,"Source": "Source"
+    ,"Provider": "Provider"
+    ,"App": "App"
+    ,"Endpoint": "Endpoint"
+    ,"Finish Reason": "Finish Reason"
+    ,"Stream": "Stream"
+    ,"Error Code": "Error Code"
+    ,"HTTP Status": "HTTP Status"
+    ,"API Key": "API Key"
+    ,"Input Tokens": "Input Tokens"
+    ,"Output Tokens": "Output Tokens"
+    ,"Total Tokens": "Total Tokens"
+    ,"Kind": "Kind"
+    ,"Is": "is"
+    ,"Is not": "is not"
+    ,"Equals": "equals"
+    ,"At least": "at least"
+    ,"At most": "at most"
+    ,"Between": "between"
+    ,"and": "and"
+    ,"Apply Filter": "Apply Filter"
+    ,"No matching options.": "No matching options."
+    ,"Search": "Search"
+    ,"Clear": "Clear"
+    ,"filter": "filter"
+    ,"Add Filter": "Add Filter"
+    ,"Search filters…": "Search filters…"
+    ,"Add another filter": "Add another filter"
+    ,"Updating requests…": "Updating requests…"
+    ,"Source": "Source"
+    ,"Provider": "Provider"
+    ,"App": "App"
+    ,"Endpoint": "Endpoint"
+    ,"Finish Reason": "Finish Reason"
+    ,"Stream": "Stream"
+    ,"Error Code": "Error Code"
+    ,"HTTP Status": "HTTP Status"
+    ,"Input Tokens": "Input Tokens"
+    ,"Output Tokens": "Output Tokens"
+    ,"Total Tokens": "Total Tokens"
+    ,"Kind": "Kind"
+    ,"Use shorthand like 2mo, 4w, 36h, or a range like 2026-05-11 09:00 -> 2026-05-12 18:30.": "Use shorthand like 2mo, 4w, 36h, or a range like 2026-05-11 09:00 -> 2026-05-12 18:30."
+    ,"Failed to revalidate usage data.": "Failed to revalidate usage data."
+    ,"Refreshing usage data...": "Refreshing usage data..."
+    ,"Usage data refreshed.": "Usage data refreshed."
+    ,"Refresh current view": "Refresh current view"
+    ,"Usage time range": "Usage time range"
+    ,"YYYY-MM-DD HH:mm – YYYY-MM-DD HH:mm": "YYYY-MM-DD HH:mm – YYYY-MM-DD HH:mm"
+    ,"Open range presets": "Open range presets"
+    ,"Back": "Back"
+    ,"Custom Range": "Custom Range"
+    ,"Min": "Min"
+    ,"Max": "Max"
+    ,"Avg": "Avg"
+    ,"Sum": "Sum"
+    ,"Date": "Date"
+    ,"Generation ID": "Generation ID"
+    ,"Attempts": "Attempts"
+    ,"Key used": "Key used"
+    ,"Throughput": "Throughput"
+    ,"Latency": "Latency"
+    ,"Request payload": "Request payload"
+    ,"Response payload": "Response payload"
+    ,"Usage": "Usage"
+    ,"Metadata": "Metadata"
+    ,"About": "About"
+    ,"Selected": "Selected"
+    ,"Attempted": "Attempted"
+    ,"Excluded": "Excluded"
+    ,"Deranked": "Deranked"
+    ,"Score": "Score"
+    ,"Routing observability": "Routing observability"
+    ,"Selection method": "Selection method"
+    ,"Exclusion Reason": "Exclusion Reason"
+    ,"Routing Status": "Routing Status"
+    ,"Calculation": "Calculation"
+    ,"Weighted Contributions": "Weighted Contributions"
+    ,"Score Factors": "Score Factors"
+    ,"Recorded Context": "Recorded Context"
+    ,"Recorded Inputs": "Recorded Inputs"
+    ,"Weights": "Weights"
+    ,"Model Lifecycle Alerts": "Model Lifecycle Alerts"
+    ,"Retired": "Retired"
+    ,"Last used": "Last used"
+    ,"This model is retired and no longer usable.": "This model is retired and no longer usable."
+    ,"Recommended replacement:": "Recommended replacement:"
+    ,"No recommended replacement yet.": "No recommended replacement yet."
+    ,"Models You Use": "Models You Use"
+    ,"Models You Don't Use": "Models You Don't Use"
+    ,"Recent Retirements": "Recent Retirements"
+    ,"No app metadata recorded.": "No app metadata recorded."
+    ,"In": "In"
+    ,"Out": "Out"
+    ,"Refresh sessions": "Refresh sessions"
+    ,"Loading session details...": "Loading session details..."
+    ,"Filtered spend": "Filtered spend"
+    ,"Spend is calculated from a 5,000-request sample.": "Spend is calculated from a 5,000-request sample."
+    ,"Req": "Req"
+    ,"Session": "Session"
+    ,"Guardrail enforcement": "Guardrail enforcement"
+    ,"Tracks requests blocked, redacted, or flagged by workspace policy and guardrail enforcement signals.": "Tracks requests blocked, redacted, or flagged by workspace policy and guardrail enforcement signals."
+    ,"Blocked": "Blocked"
+    ,"Redacted": "Redacted"
+    ,"Flagged": "Flagged"
+    ,"Trend": "Trend"
+    ,"No guardrail enforcement events were recorded in this window.": "No guardrail enforcement events were recorded in this window."
+    ,"Most active guardrails": "Most active guardrails"
+    ,"No guardrail IDs were attached to the current enforcement events.": "No guardrail IDs were attached to the current enforcement events."
+    ,"Alerts": "Alerts"
+    ,"You need to be signed in and have a team selected to view alerts.": "You need to be signed in and have a team selected to view alerts."
+    ,"No lifecycle alerts": "No lifecycle alerts"
+    ,"You have no upcoming deprecations or recent retirements for models used by this workspace.": "You have no upcoming deprecations or recent retirements for models used by this workspace."
+    ,"Logs unavailable": "Logs unavailable"
+    ,"We couldn't load request logs. Try again in a moment.": "We couldn't load request logs. Try again in a moment."
+    ,"You no longer have access to this workspace. Select another workspace to view its logs.": "You no longer have access to this workspace. Select another workspace to view its logs."
+    ,"Join or create a workspace to view request logs.": "Join or create a workspace to view request logs.",
+    "Fetching routing, attempts, pricing, and stored payloads.": "Fetching routing, attempts, pricing, and stored payloads.",
+    "Generation details": "Generation details",
+    "Provider response": "Provider response",
+    "Generation": "Generation",
+    "Routing details": "Routing details",
+    "Routed model": "Routed model",
+    "Requested model": "Requested model",
+    "Model ID": "Model ID",
+    "Organisation": "Organisation",
+    "Native request ID": "Native request ID",
+    "Provider ID": "Provider ID",
+    "Upstream model ID": "Upstream model ID",
+    "App where used": "App where used",
+    "App ID": "App ID",
+    "Type": "Type",
+    "Workspace app": "Workspace app",
+    "Session ID": "Session ID",
+    "Copy Session ID": "Copy Session ID",
+    "Filter by Session": "Filter by Session",
+    "Streaming": "Streaming",
+    "True": "True",
+    "False": "False",
+    "Status code": "Status code",
+    "Error code": "Error code",
+    "Error message": "Error message",
+    "Data training": "Data training",
+    "Phaseo data retention": "Phaseo data retention",
+    "Retained Until": "Retained until {date}",
+    "No Retained Payload": "No retained payload",
+    "Client": "Client",
+    "Client version": "Client version",
+    "Client type": "Client type",
+    "Detected from": "Detected from",
+    "User agent": "User agent",
+    "Code:": "Code:",
+    "Message:": "Message:",
+    "Hint:": "Hint:",
+    "Reason:": "Reason:",
+    "Attempts:": "Attempts:",
+    "Failed providers:": "Failed providers:",
+    "Failed statuses:": "Failed statuses:",
+    "Category:": "Category:",
+    "Detail:": "Detail:",
+    "Param:": "Param:",
+    "Routing failure summary": "Routing failure summary",
+    "Provider diagnostics": "Provider diagnostics",
+    "Provider candidates": "Provider candidates",
+    "Providers considered": "Providers considered",
+    "Ranked providers": "Ranked providers",
+    "Workspace policy": "Workspace policy",
+    "Resolved model:": "Resolved model:",
+    "Candidate count:": "Candidate count:",
+    "Request provider only": "Request provider only",
+    "Request provider ignore": "Request provider ignore",
+    "Guardrail enforcement": "Guardrail enforcement",
+    "Action:": "Action:",
+    "Source:": "Source:",
+    "Detections:": "Detections:",
+    "Redactions:": "Redactions:",
+    "Guardrails": "Guardrails",
+    "Detectors": "Detectors",
+    "Plugin execution": "Plugin execution",
+    "Changed:": "Changed:",
+    "Attempted:": "Attempted:",
+    "Healed:": "Healed:",
+    "Mode:": "Mode:",
+    "Failure reason:": "Failure reason:",
+    "Execution reason:": "Execution reason:",
+    "Skip reason:": "Skip reason:",
+    "Transforms applied": "Transforms applied",
+    "Validation errors": "Validation errors",
+    "Web search observability": "Web search observability",
+    "Native search:": "Native search:",
+    "Managed search:": "Managed search:",
+    "Results:": "Results:",
+    "Citations:": "Citations:",
+    "Native searches": "Native searches",
+    "Fetches:": "Fetches:",
+    "Truncated:": "Truncated:",
+    "Performance": "Performance",
+    "Provider latency": "Provider latency",
+    "Generation time": "Generation time",
+    "Stop reason": "Stop reason",
+    "Provider Responses": "Provider responses",
+    "Native": "Native",
+    "Internal measures": "Internal measures",
+    "No usage metrics available.": "No usage metrics available.",
+    "Data Policy": "Data policy",
+    "Gateway I/O": "Gateway I/O",
+    "Status:": "Status:",
+    "Retained until": "Retained until {date}",
+    "Prompt": "Prompt",
+    "Completion": "Completion",
+    "No I/O payload is available for this request.": "No I/O payload is available for this request.",
+    "Technical Details": "Technical details",
+    "Pricing": "Pricing",
+    "Direct HTTP": "Direct HTTP",
+    "Data policy": "Data policy",
+    "The canonical Phaseo model selected after aliases, presets, and router expansion are resolved.": "The canonical Phaseo model selected after aliases, presets, and router expansion are resolved.",
+    "The exact model ID or alias supplied by the client in the original request.": "The exact model ID or alias supplied by the client in the original request.",
+    "The provider-facing model identifier sent upstream for the successful attempt.": "The provider-facing model identifier sent upstream for the successful attempt.",
+    "Capability:": "Capability:",
+    "Failure sample": "Failure sample",
+    "Provider enablement": "Provider enablement",
+    "Routing diagnostics": "Routing diagnostics",
+    "All models": "All models",
+    "All providers": "All providers",
+    "Generation ID:": "Generation ID:",
+    "Upstream error": "Upstream error",
+    "Request details": "Request details",
+    "Error:": "Error:",
+    "Loading request details": "Loading request details",
+    "Async job webhooks": "Async job webhooks",
+    "Recent video and batch jobs with webhook delivery history, pending retries, and failures.": "Recent video and batch jobs with webhook delivery history, pending retries, and failures.",
+    "No async jobs with webhook activity yet.": "No async jobs with webhook activity yet.",
+    "Job ID": "Job ID",
+    "Native ID": "Native ID",
+    "Source": "Source",
+    "Lifecycle state": "Lifecycle state",
+    "Job type": "Job type",
+    "Total duration": "Total duration",
+    "Output access": "Output access",
+    "Key source": "Key source",
+    "BYOK key ID": "BYOK key ID",
+    "Reservation ID": "Reservation ID",
+    "Reservation status": "Reservation status",
+    "Finalized": "Finalized",
+    "Last polled": "Last polled",
+    "Polled status": "Polled status",
+    "Last reconciled": "Last reconciled",
+    "Created": "Created",
+    "Updated": "Updated",
+    "Billed": "Billed",
+    "Billing reason": "Billing reason",
+    "Charged": "Charged",
+    "Settled cost": "Settled cost",
+    "Request created": "Request created",
+    "Batch request counts": "Batch request counts",
+    "Pricing total nanos": "Pricing total nanos",
+    "Completed requests": "Completed requests",
+    "Failed requests": "Failed requests",
+    "Total requests": "Total requests",
+    "Pricing total USD": "Pricing total USD",
+    "Pricing lines": "Pricing lines",
+    "Batch pricing lines": "Batch pricing lines",
+    "Request endpoint": "Request endpoint",
+    "Request model ID": "Request model ID",
+    "Request success": "Request success",
+    "Request latency": "Request latency",
+    "Request generation": "Request generation",
+    "Provider attempts": "Provider attempts",
+    "Request pricing lines": "Request pricing lines",
+    "Attempt": "Attempt",
+    "Outcome": "Outcome",
+    "Duration": "Duration",
+    "Upstream error": "Upstream error",
+    "Failure category": "Failure category",
+    "Failure provider": "Failure provider",
+    "Failure hint": "Failure hint",
+    "Failure samples": "Failure samples",
+    "Candidate diagnostics": "Candidate diagnostics",
+    "Output file ID": "Output file ID",
+    "Output content endpoint": "Output content endpoint",
+    "Error file ID": "Error file ID",
+    "Error content endpoint": "Error content endpoint",
+    "Content URL": "Content URL",
+    "Cancel endpoint": "Cancel endpoint",
+    "Subscribed events": "Subscribed events",
+    "Signing": "Signing",
+    "Last attempt": "Last attempt",
+    "Last attempt status": "Last attempt status",
+    "Last response status": "Last response status",
+    "Last delivered": "Last delivered",
+    "Last failure": "Last failure",
+    "Last dispatched": "Last dispatched",
+    "Last progress": "Last progress",
+    "Last progress update": "Last progress update",
+    "Delivered events": "Delivered events",
+    "Delivered event types": "Delivered event types",
+    "Pending retries": "Pending retries",
+    "Attempts recorded": "Attempts recorded",
+    "Event": "Event",
+    "Tried": "Tried",
+    "Response": "Response",
+    "Error": "Error",
+    "Timestamp": "Timestamp",
+    "Job": "Job",
+    "Webhook": "Webhook",
+    "No webhook configured": "No webhook configured",
+    "No pending retries": "No pending retries",
+    "Loading async job details...": "Loading async job details...",
+    "Loading request details...": "Loading request details...",
+    "Click to copy": "Click to copy",
+    "Unknown provider": "Unknown provider",
+    "Yes": "Yes",
+    "No": "No",
+    "Save destination before sending a sample trace.": "Save destination before sending a sample trace.",
+    "Included API Keys": "Included API Keys",
+    "When selected, only these keys send traces.": "When selected, only these keys send traces.",
+    "Excluded API Keys": "Excluded API Keys",
+    "These keys never send traces to this destination.": "These keys never send traces to this destination.",
+    "Provider mode": "Provider mode",
+    "Allow all providers": "Allow all providers",
+    "Only allow selected providers": "Only allow selected providers",
+    "Allow all except selected providers": "Allow all except selected providers",
+    "Providers": "Providers",
+    "Choose the providers this guardrail allows or blocks.": "Choose the providers this guardrail allows or blocks.",
+    "Model mode": "Model mode",
+    "Allow all models": "Allow all models",
+    "Only allow selected models": "Only allow selected models",
+    "Models": "Models",
+    "Choose the models this guardrail allows or blocks after provider filtering.": "Choose the models this guardrail allows or blocks after provider filtering.",
+    "Model coverage": "Model coverage",
+    "Prompt Injection": "Prompt Injection",
+    "Scan request content before routing.": "Scan request content before routing.",
+    "Prompt injection": "Prompt injection",
+    "Scan user-supplied request content for common prompt injection patterns before it reaches the model.": "Scan user-supplied request content for common prompt injection patterns before it reaches the model.",
+    "Handling": "Handling",
+    "Disabled": "Disabled",
+    "Flag": "Flag",
+    "Redact": "Redact",
+    "Block": "Block",
+    "Sensitive Info Detection": "Sensitive Info Detection",
+    "Detect and handle sensitive data before requests leave Phaseo.": "Detect and handle sensitive data before requests leave Phaseo.",
+    "Sensitive info": "Sensitive info",
+    "Detect and handle common sensitive data before the request reaches the model.": "Detect and handle common sensitive data before the request reaches the model.",
+    "Default handling": "Default handling",
+    "Patterns": "Patterns",
+    "Adds latency": "Adds latency",
+    "Custom patterns": "Custom patterns",
+    "e.g. Internal ticket ID": "e.g. Internal ticket ID",
+    "e.g. i": "e.g. i",
+    "e.g. ACCT-[0-9]{6}": "e.g. ACCT-[0-9]{6}",
+    "Action": "Action",
+    "Preview": "Preview",
+    "e.g. My email is test@example.com and my card is 4242 4242 4242 4242": "e.g. My email is test@example.com and my card is 4242 4242 4242 4242",
+    "Budget Policies": "Budget Policies",
+    "Set request and spend ceilings by time window.": "Set request and spend ceilings by time window.",
+    "Budgets": "Budgets",
+    "Leave a field blank for unlimited.": "Leave a field blank for unlimited.",
+    "Aggregate guardrail budgets are not yet enforced": "Aggregate guardrail budgets are not yet enforced",
+    "Daily requests": "Daily requests",
+    "Weekly requests": "Weekly requests",
+    "Monthly requests": "Monthly requests",
+    "Daily spend (USD)": "Daily spend (USD)",
+    "Weekly spend (USD)": "Weekly spend (USD)",
+    "Monthly spend (USD)": "Monthly spend (USD)",
+    "Unlimited": "Unlimited",
+    "must be a positive number.": "must be a positive number.",
+    "Failed to save guardrail.": "Failed to save guardrail.",
+    "Failed to delete guardrail.": "Failed to delete guardrail.",
+    "Overview": "Overview",
+    "Guardrail name": "Guardrail name",
+    "New Guardrail": "New Guardrail",
+    "Who is this for? What does it restrict?": "Who is this for? What does it restrict?",
+    "Status & Assignments": "Status & Assignments",
+    "Enable this guardrail and choose who it protects.": "Enable this guardrail and choose who it protects.",
+    "Disabled guardrails remain configured but are not enforced.": "Disabled guardrails remain configured but are not enforced.",
+    "Apply to members": "Apply to members",
+    "Enforce this policy on API keys created for selected members.": "Enforce this policy on API keys created for selected members.",
+    "Select members": "Select members",
+    "Members cannot edit or remove policies assigned by workspace owners or admins.": "Members cannot edit or remove policies assigned by workspace owners or admins.",
+    "No members selected yet.": "No members selected yet.",
+    "Apply to keys": "Apply to keys",
+    "Attach this guardrail during creation instead of after the fact.": "Attach this guardrail during creation instead of after the fact.",
+    "Select keys": "Select keys",
+    "Apply this guardrail to one or more keys.": "Apply this guardrail to one or more keys.",
+    "No keys selected yet.": "No keys selected yet.",
+    "Configuration Groups": "Configuration Groups",
+    "Configure access, safety, and spending policies.": "Configure access, safety, and spending policies.",
+    "Access": "Access",
+    "Control privacy, provider access, and model access.": "Control privacy, provider access, and model access.",
+    "Data handling": "Data handling",
+    "Set the minimum privacy requirements every routed request must meet.": "Set the minimum privacy requirements every routed request must meet.",
+    "Allow input/output logging": "Allow input/output logging",
+    "Disabling indicates this guardrail should avoid body logging where supported.": "Disabling indicates this guardrail should avoid body logging where supported.",
+    "ZDR only": "ZDR only",
+    "Further restrict routing to endpoints that meet ZDR requirements.": "Further restrict routing to endpoints that meet ZDR requirements.",
+    "Route access": "Route access",
+    "Narrow eligible routes by provider or model.": "Narrow eligible routes by provider or model.",
+    "Account Privacy applies first; blocked routes remain unavailable here.": "Account Privacy applies first; blocked routes remain unavailable here.",
+    "Review workspace privacy": "Review workspace privacy",
+    "Could not load passkeys": "Could not load passkeys",
+    "Data Handling": "Data Handling",
+    "Add your catalog URL first.": "Add your catalog URL first.",
+    "Catalog checked": "Catalog checked",
+    "models found": "models found",
+    "catalog issue found": "catalog issue found",
+    "catalog issues found": "catalog issues found",
+    "Could not check catalog": "Could not check catalog",
+    "Check a valid catalog before submitting.": "Check a valid catalog before submitting.",
+    "Provider profile submitted": "Provider profile submitted",
+    "Could not submit provider": "Could not submit provider",
+    "Enter the provider slug and website first.": "Enter the provider slug and website first.",
+    "Ownership proof created": "Ownership proof created",
+    "Could not create ownership proof": "Could not create ownership proof",
+    "Webhook signing secret rotated": "Webhook signing secret rotated",
+    "Could not rotate webhook secret": "Could not rotate webhook secret",
+    "Classifiers": "Classifiers",
+    "Run asynchronously on a deterministic upstream sample, using Flex by default.": "Run asynchronously on a deterministic upstream sample, using Flex by default.",
+    "Custom classifier": "Custom classifier",
+    "Create classifier": "Create classifier",
+    "Define private labels for your own domain. The built-in task classifier remains the recommended baseline.": "Define private labels for your own domain. The built-in task classifier remains the recommended baseline.",
+    "Classifier deleted": "Classifier deleted",
+    "Enable contribution to install the starter taxonomy.": "Enable contribution to install the starter taxonomy.",
+    "Top tasks": "Top tasks",
+    "Private classification rollups retained after raw I/O expires.": "Private classification rollups retained after raw I/O expires.",
+    "Classifications will appear after sampled requests are processed.": "Classifications will appear after sampled requests are processed.",
+    "Product alerts": "Product alerts",
+    "Model Deprecation Alerts": "Model Deprecation Alerts",
+    "Get notice before a model your workspace uses is retired.": "Get notice before a model your workspace uses is retired.",
+    "Destinations": "Destinations",
+    "Create reusable channels, then choose them on each alert above.": "Create reusable channels, then choose them on each alert above.",
+    "Add destination": "Add destination",
+    "No destinations yet": "No destinations yet",
+    "Add a destination to route alerts to the tools your team already watches.": "Add a destination to route alerts to the tools your team already watches.",
+    "Add notifier": "Add notifier",
+    "Ping user IDs": "Ping user IDs",
+    "Ping role IDs": "Ping role IDs",
+    "Ping user group IDs": "Ping user group IDs",
+    "Ping users": "Ping users",
+    "optional": "optional",
+    "Use Microsoft 365 email addresses or Entra object IDs. Teams webhooks cannot mention roles or everyone.": "Use Microsoft 365 email addresses or Entra object IDs. Teams webhooks cannot mention roles or everyone.",
+    "Sending": "Sending",
+    "channel": "channel",
+    "test": "test",
+    "Test notification delivered": "Test notification delivered",
+    "Could not send test": "Could not send test",
+    "Enter a valid email address": "Enter a valid email address",
+    "Destination removed": "Destination removed",
+    "Could not remove destination": "Could not remove destination",
+    "Destination created": "Destination created",
+    "destinations created": "destinations created",
+    "Could not create destination": "Could not create destination",
+    "Channels": "Channels",
+    "UTC": "UTC",
+    "Relative": "Relative",
+    "Saving fallback setting...": "Saving fallback setting...",
+    "Fallback setting updated": "Fallback setting updated",
+    "Failed to update setting": "Failed to update setting",
+    "Try fallback BYOK keys after managed providers": "Try fallback BYOK keys after managed providers",
+    "Draft route created": "Draft route created",
+    "Could not create route": "Could not create route",
+    "Production key": "Production key",
+    "Credential setup info": "Credential setup info",
+    "Access Key ID": "Access Key ID",
+    "Secret Access Key": "Secret Access Key",
+    "AWS Region (for example us-east-1)": "AWS Region (for example us-east-1)",
+    "Bedrock API key": "Bedrock API key",
+    "Cloudflare Account ID": "Cloudflare Account ID",
+    "Cloudflare API Token": "Cloudflare API Token",
+    "Phaseo model slug (for example openai/gpt-4o-mini)": "Phaseo model slug (for example openai/gpt-4o-mini)",
+    "Azure Foundry endpoint URL": "Azure Foundry endpoint URL",
+    "Azure endpoint API key": "Azure endpoint API key",
+    "Model ID for this endpoint": "Model ID for this endpoint",
+    "Connect one or more channels to workspace alerts.": "Connect one or more channels to workspace alerts.",
+    "Set the minimum privacy standard for every request in this workspace.": "Set the minimum privacy standard for every request in this workspace.",
+    "Set the minimum privacy standard for interactive requests made as you, including Phaseo Chat.": "Set the minimum privacy standard for interactive requests made as you, including Phaseo Chat.",
+    "Allow paid routes that may train": "Allow paid routes that may train",
+    "Permit paid routes whose provider may use prompts or completions for training.": "Permit paid routes whose provider may use prompts or completions for training.",
+    "Allow free routes that may train": "Allow free routes that may train",
+    "Permit free routes whose provider may use prompts or completions for training.": "Permit free routes whose provider may use prompts or completions for training.",
+    "Allow prompt logging": "Allow prompt logging",
+    "Permit providers that may retain prompts but do not use them for training.": "Permit providers that may retain prompts but do not use them for training.",
+    "Require zero data retention": "Require zero data retention",
+    "Only route requests where the selected capability is eligible for ZDR.": "Only route requests where the selected capability is eligible for ZDR.",
+    "Gateway Log Storage": "Gateway Log Storage",
+    "Control private request and response payload storage for this workspace.": "Control private request and response payload storage for this workspace.",
+    "Store request and response payloads": "Store request and response payloads",
+    "Keep private payload copies for request details and replay.": "Keep private payload copies for request details and replay.",
+    "Could not save the": "Could not save the",
+    "data policy": "data policy",
+    "Could not save workspace log storage settings": "Could not save workspace log storage settings",
+    "Allow": "Allow",
+    "Additional permissions available": "Additional permissions available",
+    "Authorized": "Authorized",
+    "Last Used": "Last Used",
+    "Permissions updated": "Permissions updated",
+    "group": "group",
+    "groups": "groups",
+    "permissions": "permissions",
+    "Deselect permissions to reduce this app's access. New access requires authorization through the app.": "Deselect permissions to reduce this app's access. New access requires authorization through the app.",
+    "You can reduce this app's access without revoking it entirely.": "You can reduce this app's access without revoking it entirely.",
+    "Copied phaseo login": "Copied phaseo login",
+    "CLI permissions restored": "CLI permissions restored",
+    "Reauthorize": "Reauthorize",
+    "Reauthorize app": "Reauthorize",
+    "Restore removed permissions on the web, or start a genuinely fresh session from the CLI.": "Restore removed permissions on the web, or start a genuinely fresh session from the CLI.",
+    "OAuth must be restarted by the application so it can create a fresh, secure PKCE request.": "OAuth must be restarted by the application so it can create a fresh, secure PKCE request.",
+    "CLI permissions": "CLI permissions",
+    "Select permissions you previously removed. Restored access applies when the CLI next refreshes its session.": "Select permissions you previously removed. Restored access applies when the CLI next refreshes its session.",
+    "Restoring...": "Restoring...",
+    "Restore selected permissions": "Restore selected permissions",
+    "All available CLI permissions are currently authorized.": "All available CLI permissions are currently authorized.",
+    "Open the application and sign in with Phaseo again to review its requested permissions.": "Open the application and sign in with Phaseo again to review its requested permissions.",
+    "Open this application where you originally connected it, then choose its Phaseo sign-in or reconnect option.": "Open this application where you originally connected it, then choose its Phaseo sign-in or reconnect option.",
+    "Open application": "Open application",
+    "Data contribution enabled": "Data contribution enabled",
+    "Data contribution disabled": "Data contribution disabled",
+    "Could not update data contribution": "Could not update data contribution",
+    "Classifier created": "Classifier created",
+    "Could not create classifier": "Could not create classifier",
+    "Contribute data, save": "Contribute data, save",
+    "Active": "Active",
+    "Opt in": "Opt in",
+    "Disable contribution": "Disable contribution",
+    "Review and enable": "Review and enable",
+    "Enable discounted data contribution?": "Enable discounted data contribution?",
+    "Passkey registration was cancelled": "Passkey registration was cancelled",
+    "Passkey added": "Passkey added",
+    "Passkey removed": "Passkey removed",
+    "Enter your current password": "Enter your current password",
+    "Could not add passkey": "Could not add passkey",
+    "Could not remove passkey": "Could not remove passkey",
+    "Passkeys are not enabled for this environment yet.": "Passkeys are not enabled for this environment yet.",
+    "Passkeys": "Passkeys",
+    "Device Passkeys": "Device Passkeys",
+    "Sign in with your device biometrics, PIN, or security key.": "Sign in with your device biometrics, PIN, or security key.",
+    "Add Passkey": "Add Passkey",
+    "Loading passkeys...": "Loading passkeys...",
+    "No passkeys added yet.": "No passkeys added yet.",
+    "Passkey": "Passkey",
+    "Remove passkey": "Remove passkey",
+    "Verify it&apos;s you": "Verify it's you",
+    "Adding or removing a passkey changes how your account can be accessed, so recent authentication is required.": "Adding or removing a passkey changes how your account can be accessed, so recent authentication is required.",
+    "Your last sign-in is too old for this security change. Sign in again, then return here to continue.": "Your last sign-in is too old for this security change. Sign in again, then return here to continue.",
+    "Sign in again": "Sign in again",
+    "Continue using your recent social, SSO, or passkey sign-in.": "Continue using your recent social, SSO, or passkey sign-in.",
+    "Starting account deletion...": "Starting account deletion...",
+    "Account access removed. Deletion is in progress.": "Account access removed. Deletion is in progress.",
+    "Could not delete account": "Could not delete account",
+    "Delete account?": "Delete account?",
+    "to confirm.": "to confirm.",
+    "Confirmation": "Confirmation",
+    "Type \"DELETE\" to confirm": "Type \"DELETE\" to confirm",
+    "Passwordless accounts require a recent provider sign-in.": "Passwordless accounts require a recent provider sign-in.",
+    "No MFA factor found": "No MFA factor found",
+    "Disabling MFA...": "Disabling MFA...",
+    "Two-factor authentication disabled": "Two-factor authentication disabled",
+    "Could not disable MFA": "Could not disable MFA",
+    "MFA enabled successfully!": "MFA enabled successfully!",
+    "Authenticator App": "Authenticator App",
+    "Two-Factor Authentication": "Two-Factor Authentication",
+    "Require a code from your authenticator app when signing in.": "Require a code from your authenticator app when signing in.",
+    "Enable MFA": "Enable MFA",
+    "Disable Two-Factor Authentication": "Disable Two-Factor Authentication",
+    "Remove the additional sign-in verification from your account.": "Remove the additional sign-in verification from your account.",
+    "Disable MFA?": "Disable MFA?",
+    "This will remove the extra security layer from your account.": "This will remove the extra security layer from your account.",
+    "Disabling...": "Disabling...",
+    "Disable MFA": "Disable MFA",
+    "Failed to start MFA setup": "Failed to start MFA setup",
+    "Secret copied to clipboard": "Secret copied to clipboard",
+    "Failed to copy secret": "Failed to copy secret",
+    "Please enter a 6-digit code": "Please enter a 6-digit code",
+    "Invalid code. Please try again.": "Invalid code. Please try again.",
+    "Confirm your identity": "Confirm your identity",
+    "Enter your current password, or continue after a recent provider sign-in.": "Enter your current password, or continue after a recent provider sign-in.",
+    "Set up two-factor authentication": "Set up two-factor authentication",
+    "Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)": "Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)",
+    "MFA QR Code": "MFA QR Code",
+    "Can&apos;t scan? Enter this code manually:": "Can't scan? Enter this code manually:",
+    "Next: Enter code": "Next: Enter code",
+    "Verify your code": "Verify your code",
+    "Enter the 6-digit code from your authenticator app": "Enter the 6-digit code from your authenticator app",
+    "The code will auto-verify when you enter all 6 digits": "The code will auto-verify when you enter all 6 digits",
+    "Verifying...": "Verifying...",
+    "Verify code": "Verify code",
+    "Two-factor authentication enabled": "Two-factor authentication enabled",
+    "Your account is now protected with two-factor authentication": "Your account is now protected with two-factor authentication",
+    "You&apos;ll need your authenticator app to sign in from now on. Keep a secure backup of the authenticator configuration before changing devices.": "You'll need your authenticator app to sign in from now on. Keep a secure backup of the authenticator configuration before changing devices.",
+    "Public": "Public",
+    "Private": "Private",
+    "Unable to update app": "Unable to update app",
+    "Could not save settings": "Could not save settings",
+    "Chat completion notifications enabled": "Chat completion notifications enabled",
+    "Password is required": "Password is required",
+    "Account details": "Account details",
+    "Default workspace": "Default workspace",
+    "Search workspaces…": "Search workspaces…",
+    "No workspace found.": "No workspace found.",
+    "Email": "Email",
+    "Analytics Cookies": "Analytics Cookies",
+    "Toggle analytics cookies": "Toggle analytics cookies",
+    "Obfuscate Info": "Obfuscate Info",
+    "Toggle obfuscation": "Toggle obfuscation",
+    "Unsaved changes": "Unsaved changes",
+    "Chat Completion": "Chat Completion",
+    "Enable chat completion browser notifications": "Enable chat completion browser notifications",
+    "Enter your new password": "Enter your new password",
+    "Confirm your new password": "Confirm your new password",
+    "Current email": "Current email",
+    "Enter your new email address": "Enter your new email address",
+    "Enter your password to confirm": "Enter your password to confirm",
+    "Could not update destinations": "Could not update destinations",
+    "No destinations": "No destinations",
+    "destination": "destination",
+    "destinations": "destinations",
+    "Deliver this alert to": "Deliver this alert to",
+    "Share profile": "Share profile",
+    "Share Card": "Share Card",
+    "activity. Preview the image, then share or download it.": "activity. Preview the image, then share or download it.",
+    "Download": "Download",
+    "Post": "Post",
+    "Copied": "Copied",
+    "Copy Link": "Copy Link",
+    "Played": "Played",
+    "Wins": "Wins",
+    "Streak": "Streak",
+    "Average Score": "Average Score",
+    "Catalogue Games": "Catalogue Games",
+    "Daily results from your signed-in games, grouped by game.": "Daily results from your signed-in games, grouped by game.",
+    "Play Today": "Play Today",
+    "Best Score": "Best Score",
+    "Not played yet": "Not played yet",
+    "Last played": "Last played",
+    "No authorized apps": "No authorized apps",
+    "You haven&apos;t authorized any third-party applications yet. When you do, they&apos;ll appear here.": "You haven't authorized any third-party applications yet. When you do, they'll appear here.",
+    "Access revoked for app": "Access revoked for {appName}",
+    "Failed to revoke access": "Failed to revoke access",
+    "Revoke Access": "Revoke Access",
+    "Revoke Access?": "Revoke Access?",
+    "This will immediately prevent {appName} from accessing your Phaseo account. Any active tokens will be invalidated.": "This will immediately prevent {appName} from accessing your Phaseo account. Any active tokens will be invalidated.",
+    "The application will no longer be able to make API requests on your behalf. You can re-authorize the app later if needed.": "The application will no longer be able to make API requests on your behalf. You can re-authorize the app later if needed.",
+    "Revoking...": "Revoking...",
+    "Merge": "Merge",
+    "Merging apps...": "Merging apps...",
+    "Apps merged": "Apps merged",
+    "Failed to merge apps": "Failed to merge apps",
+    "Merge apps": "Merge apps",
+    "Move all requests from this app into another and remove the source afterwards.": "Move all requests from this app into another and remove the source afterwards.",
+    "Merge into": "Merge into",
+    "Choose target app": "Choose target app",
+    "This will move all historical requests to the selected app and delete {appName}.": "This will move all historical requests to the selected app and delete {appName}.",
+    "Merging...": "Merging...",
+    "Merge app": "Merge app",
+    "More actions": "More actions",
+    "View Stats": "View Stats",
+    "Make Private": "Make Private",
+    "Make Public": "Make Public",
+    "Attribution headers copied": "Attribution headers copied",
+    "Failed to copy headers": "Failed to copy headers",
+    "Copy Headers": "Copy Headers",
+    "Edit": "Edit",
+    "No apps found": "No apps found",
+    "App attribution records will appear here after your requests include app headers.": "App attribution records will appear here after your requests include app headers.",
+    "App": "App",
+    "Visibility": "Visibility",
+    "Last Seen": "Last Seen",
+    "Created": "Created",
+    "No public URL set": "No public URL set",
+    "Managed by Phaseo": "Managed by Phaseo",
+    "private": "private",
+    "public": "public",
+    "Saving changes...": "Saving changes...",
+    "App updated": "App updated",
+    "Failed to update app": "Failed to update app",
+    "Edit app": "Edit app",
+    "Update the metadata shown on your app profile.": "Update the metadata shown on your app profile.",
+    "App name": "App name",
+    "App URL": "App URL",
+    "Docs URL": "Docs URL",
+    "Image URL": "Image URL",
+    "Checking image…": "Checking image…",
+    "This URL did not load a valid image.": "This URL did not load a valid image.",
+    "App logo preview": "App logo preview",
+    "Image loaded": "Image loaded",
+    "Leave empty to use the app initial.": "Leave empty to use the app initial.",
+    "Categories": "Categories",
+    "Saving...": "Saving...",
+    "Save": "Save",
+    "Choose up to 3 categories": "Choose up to 3 categories",
+    "Discount": "Discount",
+    "per request": "per request",
+    "Retained (30 days)": "Retained (30 days)",
+    "Discount earned": "Discount earned",
+    "Instructions": "Instructions",
+    "Categories (JSON)": "Categories (JSON)",
+    "Enable model deprecation alerts": "Enable model deprecation alerts",
+    "Could not save alert": "Could not save alert",
+    "Send test": "Send test",
+    "Delete {name}": "Delete {name}",
+    "Saved": "Saved",
+    "Retention": "Retention",
+    "Choose how long private payload copies remain available.": "Choose how long private payload copies remain available.",
+    "Include provider payloads": "Include provider payloads",
+    "Also retain the transformed upstream request and provider response.": "Also retain the transformed upstream request and provider response.",
+    "Route Access": "Route Access",
+    "Control which providers and models this workspace may use. Scoped guardrails can restrict individual members and API keys further.": "Control which providers and models this workspace may use. Scoped guardrails can restrict individual members and API keys further.",
+    "Control which providers and models Phaseo may use for requests made as you. Workspace policy can restrict them further.": "Control which providers and models Phaseo may use for requests made as you. Workspace policy can restrict them further.",
+    "Approve request": "Approve request",
+    "Approve": "Approve",
+    "Reject request": "Reject request",
+    "Reject": "Reject",
+    "Approving…": "Approving…",
+    "Rejecting…": "Rejecting…",
+    "Request approved": "Request approved",
+    "Request rejected": "Request rejected",
+    "Join requests": "Join requests",
+    "Approve or ignore requests to join this workspace.": "Approve or ignore requests to join this workspace.",
+    "pending": "pending",
+    "request": "request",
+    "Select workspace…": "Select workspace…",
+    "No workspaces available.": "No workspaces available.",
+    "No pending requests for": "No pending requests for",
+    "Join request": "Join request",
+    "Requested": "Requested",
+    "Failed:": "Failed:",
+    "requested to join": "requested to join",
+    "member": "member",
+    "members": "members",
+    "Sample preview": "Sample preview",
+    "Hide Samples": "Hide Samples",
+    "No workspace is currently selected.": "No workspace is currently selected.",
+    "No members in {workspace} yet.": "No members in {workspace} yet.",
+    "Role": "Role",
+    "Actions": "Actions",
+    "Spend (30d)": "Spend (30d)",
+    "Sort by 30-day spend": "Sort by 30-day spend",
+    "currently descending": "currently descending",
+    "currently ascending": "currently ascending",
+    "You": "You",
+    "Sample": "Sample",
+    "Actions for {member}": "Actions for {member}",
+    "Change Role": "Change Role",
+    "Copy User ID": "Copy User ID",
+    "Remove Member": "Remove Member",
+    "Member actions": "Member actions",
+    "User Role": "User Role",
+    "Only workspace owners can change member roles.": "Only workspace owners can change member roles.",
+    "The workspace owner role is fixed and cannot be edited.": "The workspace owner role is fixed and cannot be edited.",
+    "Working...": "Working...",
+    "You can only revoke members with an equal or lower role.": "You can only revoke members with an equal or lower role.",
+    "Leaving...": "Leaving...",
+    "Are you sure you want to leave {workspace}?": "Are you sure you want to leave {workspace}?",
+    "You can't revoke access for someone with a higher role than yours.": "You can't revoke access for someone with a higher role than yours.",
+    "Are you sure you want to revoke access for {member}?": "Are you sure you want to revoke access for {member}?",
+    "Updated {member}'s sample role.": "Updated {member}'s sample role.",
+    "Unable to update the member role right now.": "Unable to update the member role right now.",
+    "You can't revoke access for members with a higher role than yours.": "You can't revoke access for members with a higher role than yours.",
+    "Removed sample member {member}.": "Removed sample member {member}.",
+    "Unable to revoke access.": "Unable to revoke access.",
+    "You can't revoke the owner's access.": "You can't revoke the owner's access.",
+    "You left {workspace}.": "You left {workspace}.",
+    "Revoked access for {member}.": "Revoked access for {member}.",
+    "Unable to revoke access right now.": "Unable to revoke access right now.",
+    "Copied user ID": "Copied user ID",
+    "Unable to copy user ID": "Unable to copy user ID",
+    "Invites": "Invites",
+    "View and manage invites for this workspace.": "View and manage invites for this workspace.",
+    "{count} total": "{count} total",
+    "{count} active": "{count} active",
+    "No invites for {workspace} yet.": "No invites for {workspace} yet.",
+    "Created by": "Created by",
+    "Unknown": "Unknown",
+    "Expires": "Expires",
+    "No expiry": "No expiry",
+    "Uses:": "Uses:",
+    "active": "active",
+    "expired": "expired",
+    "Your monthly Enterprise subscription": "Your monthly Enterprise subscription",
+    "Change answers": "Change answers",
+    "Self Serve Enterprise": "Self Serve Enterprise",
+    " / month": " / month",
+    "Subscribe": "Subscribe",
+    "Quote valid until {date}. USD billing only.": "Quote valid until {date}. USD billing only.",
+    "Build your Enterprise plan": "Build your Enterprise plan",
+    "Tell us the shape of your workspace. You will get a fixed USD price immediately—no sales call and no custom contract.": "Tell us the shape of your workspace. You will get a fixed USD price immediately—no sales call and no custom contract.",
+    "Active members": "Active members",
+    "Volume discounts are applied automatically. Credit funding is billed separately.": "Volume discounts are applied automatically. Credit funding is billed separately.",
+    "What will you use?": "What will you use?",
+    "Single sign-on": "Single sign-on",
+    "SCIM provisioning": "SCIM provisioning",
+    "Slack Connect support": "Slack Connect support",
+    "All Enterprise features are included in one subscription.": "All Enterprise features are included in one subscription.",
+    "Calculate my price": "Calculate my price",
+    "Enterprise pricing is unavailable": "Enterprise pricing is unavailable",
+    "Could not calculate pricing": "Could not calculate pricing",
+    "Could not start checkout": "Could not start checkout",
+    "SAML SSO and SCIM provisioning": "SAML SSO and SCIM provisioning",
+    "{count} active members included": "{count} active members included",
+    "Estimated {count} additional members at ${price}/member/month": "Estimated {count} additional members at ${price}/member/month",
+    "Estimated monthly total: ${amount}": "Estimated monthly total: ${amount}",
+    "Departments, roles and governance": "Departments, roles and governance",
+    "Standard 5% credit top-up fee": "Standard 5% credit top-up fee",
+    "Owner": "Owner",
+    "Admin": "Admin",
+    "this workspace": "this workspace",
+    "this member": "this member",
+    "the workspace": "the workspace",
+    "Choose the comparison baseline and narrow the feedback included below.": "Choose the comparison baseline and narrow the feedback included below.",
+    "No Baseline": "No Baseline",
+    "Last 7 Days": "Last 7 Days",
+    "All Ratings": "All Ratings",
+    "Comparisons use explicit ratings. Positive means thumbs up or correct; negative means thumbs down, incorrect, or unsafe. Numeric scores are optional detail only.": "Comparisons use explicit ratings. Positive means thumbs up or correct; negative means thumbs down, incorrect, or unsafe. Numeric scores are optional detail only.",
+    "Reset": "Reset",
+    "Apply filters": "Apply filters",
+    "Provider Routing": "Provider Routing",
+    "Choose provider fallback order, exclusions, and routing performance thresholds.": "Choose provider fallback order, exclusions, and routing performance thresholds.",
+    "Set routing behavior, response caching, and prompt defaults.": "Set routing behavior, response caching, and prompt defaults.",
+    "Plugins": "Plugins",
+    "Enable deterministic gateway plugins for this preset.": "Enable deterministic gateway plugins for this preset.",
+    "Generation Parameters": "Generation Parameters",
+    "Set sampling and deterministic defaults.": "Set sampling and deterministic defaults.",
+    "Model defaults": "Model defaults",
+    "Reasoning Configuration": "Reasoning Configuration",
+    "Configure reasoning-specific behavior when supported.": "Configure reasoning-specific behavior when supported.",
+    "No preset plugins enabled": "No preset plugins enabled",
+    "Disabled": "Disabled",
+    "Response Healing": "Response Healing",
+    "Healing Mode": "Healing Mode",
+    "Safe": "Safe",
+    "Strict": "Strict",
+    "Strict mode only unwraps already-valid JSON from fences or surrounding text.": "Strict mode only unwraps already-valid JSON from fences or surrounding text.",
+    "Safe mode enables the full bounded JSON repair path for structured-output workflows.": "Safe mode enables the full bounded JSON repair path for structured-output workflows.",
+    "Provider order": "Provider order",
+    "Select Providers": "Select Providers",
+    "Search providers...": "Search providers...",
+    "No matching routable providers": "No matching routable providers",
+    "No provider order configured. Any eligible provider may be used.": "No provider order configured. Any eligible provider may be used.",
+    "Blocked Providers": "Blocked Providers",
+    "These providers will never be used, even if they support the selected model.": "These providers will never be used, even if they support the selected model.",
+    "No providers blocked.": "No providers blocked.",
+    "Residency requirements": "Residency requirements",
+    "Required execution region": "Required execution region",
+    "Required data region": "Required data region",
+    "Any Region": "Any Region",
+    "Any region": "Any region",
+    "Performance routing": "Performance routing",
+    "Maximum Price": "Maximum Price",
+    "Prompt": "Prompt",
+    "Completion": "Completion",
+    "Preferred Minimum Throughput": "Preferred Minimum Throughput",
+    "Preferred Maximum Latency": "Preferred Maximum Latency",
+    "Overview / Provider Routing": "Overview / Provider Routing",
+    "Overview / Generation Parameters": "Overview / Generation Parameters",
+    "Overview / Reasoning Configuration": "Overview / Reasoning Configuration",
+    "Set deterministic and sampling defaults that apply to requests using this preset.": "Set deterministic and sampling defaults that apply to requests using this preset.",
+    "Configure reasoning settings for models that expose reasoning-specific controls.": "Configure reasoning settings for models that expose reasoning-specific controls.",
+    "Temperature": "Temperature",
+    "Top P": "Top P",
+    "Top K": "Top K",
+    "Max Tokens": "Max Tokens",
+    "Frequency Penalty": "Frequency Penalty",
+    "Presence Penalty": "Presence Penalty",
+    "Repetition Penalty": "Repetition Penalty",
+    "Seed": "Seed",
+    "Random": "Random",
+    "Enable Reasoning": "Enable Reasoning",
+    "Reasoning Effort": "Reasoning Effort",
+    "None": "None",
+    "Minimal": "Minimal",
+    "Low": "Low",
+    "Medium": "Medium",
+    "High": "High",
+    "Extra High": "Extra High",
+    "Maximum": "Maximum",
+    "Reasoning Max Tokens": "Reasoning Max Tokens",
+    "Leave empty for model default": "Leave empty for model default",
+    "Exclude Reasoning from Output": "Exclude Reasoning from Output",
+    "Actions": "Actions",
+    "Create your first key to start sending gateway requests.": "Create your first key to start sending gateway requests.",
+    "Create an API key to manage access and usage limits.": "Create an API key to manage access and usage limits.",
+    "key selected": "key selected",
+    "keys selected": "keys selected",
+    "Activate": "Activate",
+    "Pause": "Pause",
+    "Key": "Key",
+    "Details": "Details",
+    "Rotate": "Rotate",
+    "No cap": "No cap",
+    "requests": "requests",
+    "spend": "spend",
+    "Resets in {time}": "Resets in {time}",
+    "This will delete {count} {unit} and remove linked guardrail assignments from those keys.": "This will delete {count} {unit} and remove linked guardrail assignments from those keys.",
+    "key": "key",
+    "keys": "keys",
+    "Deleting...": "Deleting...",
+    "Delete selected": "Delete selected",
+    "Pausing selected keys...": "Pausing selected keys...",
+    "Activating selected keys...": "Activating selected keys...",
+    "Selected keys paused": "Selected keys paused",
+    "Selected keys activated": "Selected keys activated",
+    "Failed to update selected keys": "Failed to update selected keys",
+    "Deleting selected keys...": "Deleting selected keys...",
+    "Selected keys deleted": "Selected keys deleted",
+    "Failed to delete selected keys": "Failed to delete selected keys",
+    "API Key": "API Key",
+    "Detailed usage, spend, metadata, and guardrail coverage for this key.": "Detailed usage, spend, metadata, and guardrail coverage for this key.",
+    "Metadata": "Metadata",
+    "Key ID": "Key ID",
+    "Key Ref": "Key Ref",
+    "Updated": "Updated",
+    "Limits": "Limits",
+    "Unlimited": "Unlimited",
+    "Guardrail": "Guardrail",
+    "Recent window": "Recent window",
+    "Blocked": "Blocked",
+    "Redacted": "Redacted",
+    "Flagged": "Flagged",
+    "Last triggered": "Last triggered",
+    "Most active guardrails": "Most active guardrails",
+    "Guardrail activity was recorded, but the source rule could not be resolved from current workspace mappings.": "Guardrail activity was recorded, but the source rule could not be resolved from current workspace mappings.",
+    "No recorded blocked, redacted, or flagged requests for this key in the last 30 days.": "No recorded blocked, redacted, or flagged requests for this key in the last 30 days.",
+    "Activity": "Activity",
+    "Logs": "Logs",
+    "Any eligible provider": "Any eligible provider",
+    "Response healing": "Response healing",
+    "Restrict routing to providers that advertise matching execution or data residency metadata.": "Restrict routing to providers that advertise matching execution or data residency metadata.",
+    "Require zero data retention support": "Require zero data retention support",
+    "Only route to providers that advertise default or optional zero-retention support.": "Only route to providers that advertise default or optional zero-retention support.",
+    "Maximum price per million tokens for prompt and completion before the provider is deprioritized.": "Maximum price per million tokens for prompt and completion before the provider is deprioritized.",
+    "Preferred minimum throughput in tokens per second. Endpoints below these thresholds may still be used, but are deprioritized in routing.": "Preferred minimum throughput in tokens per second. Endpoints below these thresholds may still be used, but are deprioritized in routing.",
+    "Preferred maximum latency in seconds. Endpoints above these thresholds may still be used, but are deprioritized in routing.": "Preferred maximum latency in seconds. Endpoints above these thresholds may still be used, but are deprioritized in routing.",
+    "This preset will be published to the Marketplace and can be invoked using": "This preset will be published to the Marketplace and can be invoked using",
+    "Public": "Public",
+    "Select providers in order. The router will prefer the first available provider from this ordered subset.": "Select providers in order. The router will prefer the first available provider from this ordered subset.",
+    "No models selected yet.": "No models selected yet.",
+    "Thumbs Up": "Thumbs Up",
+    "Thumbs Down": "Thumbs Down",
+    "Correct": "Correct",
+    "Partly Correct": "Partly Correct",
+    "Incorrect": "Incorrect",
+    "Unsafe": "Unsafe",
+    "Unrated": "Unrated"
+  },
+  "identity": {
+    "openReviewQueue": "Open internal review queue",
+    "profile": "Profile",
+    "catalog": "Catalog",
+    "submit": "Submit",
+    "providerProfile": "Provider profile",
+    "providerProfileDescription": "This is the public identity attached to your submission.",
+    "providerName": "Provider name",
+    "providerSlug": "Provider slug",
+    "providerSlugDescription": "Used in provider URLs and routing metadata.",
+    "website": "Website",
+    "logoUrl": "Logo URL",
+    "logoUrlDescription": "Use a stable HTTPS image URL. We’ll review it with the provider profile.",
+    "liveCatalog": "Live catalog",
+    "liveCatalogDescription": "Give us the HTTPS URL that returns your model list.",
+    "modelsListUrl": "Models list URL",
+    "checkCatalog": "Check catalog",
+    "whatWeCheck": "What we check",
+    "noPaymentRequired": "No payment required",
+    "catalogPreview": "Catalog preview",
+    "reviewOutcomes": "Review outcomes",
+    "yourProviderActivity": "Your provider activity",
+    "noProviderActivity": "No provider activity yet",
+    "discount": "Discount",
+    "retained30Days": "Retained (30 days)",
+    "discountEarned": "Discount earned",
+    "instructions": "Instructions",
+    "categoriesJson": "Categories (JSON)",
+    "deleteClassifier": "Delete {name}"
+  },
+  "observability": {
+    "activity": "Activity",
+    "yourUsage": "Your usage across Phaseo.",
+    "sampledRequests": "This view is based on the first {count} requests in the selected period.",
+    "noUsagePeriod": "No usage in this period.",
+    "toks": "toks",
+    "chartOptions": "Chart options",
+    "showOther": "Show Other",
+    "cumulativeSum": "Cumulative sum",
+    "chartType": "Chart type",
+    "barChart": "Bar chart",
+    "lineChart": "Line chart",
+    "dotPlot": "Dot plot",
+    "new": "New",
+    "topByTokens": "Top by tokens",
+    "topGuardrails": "Top guardrails",
+    "noGuardrailEvents": "No guardrail events in this period.",
+    "top": "Top",
+    "bottom": "Bottom",
+    "rollupTotal": "Rollup: Total",
+    "rollupAverage": "Rollup: Average",
+    "guardrailBreakdown": "Guardrail breakdown",
+    "guardrailEventsOverTime": "Guardrail events over time",
+    "filteredSpend": "Filtered spend",
+    "requests": "Requests",
+    "spend": "Spend",
+    "sampledSpend": "Spend is calculated from a 5,000-request sample."
+  },
+  "credits": {
+    "currentBalance": "Current Balance",
+    "refreshBalance": "Refresh balance",
+    "refreshing": "Refreshing credits…",
+    "refreshed": "Credits refreshed",
+    "refreshFailed": "Failed to refresh credits",
+    "notifications": "Notifications",
+    "lowBalanceAlerts": "Low Balance Alerts",
+    "lowBalanceDescription": "Alert when workspace credit reaches the configured threshold.",
+    "enableLowBalance": "Enable low balance alerts",
+    "creditThreshold": "Credit threshold",
+    "thresholdDescription": "Alert at or below this balance. Limited to one email every six hours.",
+    "thresholdInvalid": "Use a non-negative amount with up to two decimal places.",
+    "autoTopUpFailed": "Auto Top-Up Failed",
+    "autoTopUpDescription": "Alert when an automatic credit charge fails.",
+    "enableAutoTopUp": "Enable auto top-up failure alerts",
+    "paymentMethodExpiring": "Payment Method Expiring",
+    "paymentMethodExpiringDescription": "Alert before a saved payment method expires.",
+    "enablePaymentMethodExpiring": "Enable payment method expiry alerts",
+    "savingAlert": "Saving low balance alert…",
+    "savingPreference": "Saving notification preference…",
+    "saved": "Saved",
+    "saveAlertFailed": "Failed to save alert",
+    "savePreferenceFailed": "Failed to save notification preference",
+    "currentTier": "Current Tier",
+    "topUpFee": "Credit Top-Up Fee",
+    "lastMonthSpend": "Last Month Spend",
+    "progressThisMonth": "Progress this month",
+    "spendMoreToThreshold": "Spend {amount} more this month to reach the next threshold",
+    "thresholdReached": "Threshold reached for this month.",
+    "learnPricing": "Learn about pricing",
+    "spendingTrends": "Spending Trends",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "vsLastMonth": "vs last month",
+    "sameAsLastMonth": "Same as last month",
+    "pricingWorks": "How pricing works:",
+    "pricingExplanation": "Your usage updates monthly and the displayed fee is applied when purchasing credits.",
+    "savingVsBasic": "Saving ~{amount} this month vs Basic",
+    "headsUp": "Heads up:",
+    "spendingBelowThreshold": "Your spending is below $10k this month. You will keep Enterprise tier status with a 3-month grace period.",
+    "standard": "Standard",
+    "basic": "Basic",
+    "enterprise": "Enterprise"
+    ,"pricing": "Pricing"
+    ,"lastMonth": "Last month"
+    ,"currentTopUpFee": "Current top-up fee"
+    ,"pricingTier": "Pricing Tier"
+    ,"currentTierLower": "Current tier"
+    ,"premium": "Premium"
+    ,"saveVsBasic": "Save {percent}% vs Basic"
+    ,"standardPricing": "Standard pricing"
+    ,"onlyAway": "Only {amount} away from Enterprise tier!"
+    ,"qualifyNextMonth": "Spend {amount}+ this month to qualify for Enterprise tier next month."
+    ,"belowThreshold": "Your month-to-date spend ({amount}) is below the Enterprise threshold."
+    ,"maintainPricing": "Spend {amount}+ to maintain Enterprise top-up fee pricing."
+    ,"downgradeNote": "Note: Tier downgrades occur after 3 consecutive months below threshold."
+    ,"thisMonthAmount": "This month: {amount}"
+    ,"toEnterprise": "{percent}% to Enterprise"
+    ,"topUpFeePercent": "{percent}% top-up fee"
+    ,"perMonth": "{amount}+/mo"
+    ,"unlocking": "Unlocking"
+    ,"howItWorks": "How it works"
+    ,"basicTierFee": "Basic Tier (5%)"
+    ,"basicTierDescription": "All teams start here. Automatic upgrade after spending {amount}+ in any month."
+    ,"enterpriseTierFee": "Enterprise Tier (5%)"
+    ,"enterpriseTierDescription": "Enterprise qualification is maintained while spending {amount}+ monthly. Downgrade to Basic after 3 consecutive months below threshold."
+    ,"tiersUpdated": "Tiers are automatically updated on the 1st of each month based on the previous-month spend."
+    ,"questionsContact": "Questions? Contact support for custom pricing or volume discounts."
+    ,"refundConfirmed": "Your refund is confirmed. Most banks post refunds in 5–10 business days."
+    ,"refundProcessing": "Your refund request is processing. Once confirmed, most banks post refunds in 5–10 business days."
+    ,"paymentConfirmed": "Payment confirmed. Your credits have been added."
+    ,"paymentProcessing": "Processing payment — we are attempting to charge your card. Click Refresh to check the latest status."
+    ,"cardSaved": "Card saved successfully."
+    ,"checkoutProcessing": "Checkout completed. Waiting for payment confirmation. Click Refresh to check the latest status."
+    ,"checkoutCancelled": "Checkout cancelled. No charges were made."
+    ,"dismiss": "Dismiss"
+    ,"dismissCountdown": "Dismiss (auto closes in {seconds}s)"
+    ,"redeemCreditCode": "Redeem Credit Code"
+    ,"redeemCreditDescription": "Enter a promo code to apply credits to the selected team."
+    ,"redeemCode": "Redeem Code"
+    ,"promoDisclaimer": "Promotional credits are issued at our sole discretion and may be changed or withdrawn at any time without notice."
+    ,"team": "Team"
+    ,"selectTeam": "Select team"
+    ,"code": "Code"
+    ,"creditCodesInvoiceDisabled": "Credit codes are disabled for invoice billing teams."
+    ,"enterCreditCode": "Enter a credit code."
+    ,"selectTeamError": "Select a team."
+    ,"selectedTeam": "selected team"
+    ,"redeeming": "Redeeming…"
+    ,"redeemed": "Redeemed"
+    ,"redeemAgain": "Redeem Again"
+    ,"surveySetup": "Setup is unclear"
+    ,"surveyPricing": "Pricing is unclear"
+    ,"surveyModel": "I don't know which model to pick"
+    ,"surveyPayment": "I hit a payment issue"
+    ,"surveyExploring": "I'm just exploring"
+    ,"surveyNotReady": "I'm not ready yet"
+    ,"other": "Other"
+    ,"feedbackReceived": "Feedback received"
+    ,"surveyThanks": "Thanks for telling us where the friction is."
+    ,"surveyThanksBody": "We'll use this to improve setup, pricing clarity, model guidance, and checkout."
+    ,"surveyBadge": "15-second survey"
+    ,"surveyTitle": "What's stopping you from purchasing credits?"
+    ,"surveyDescription": "If something is blocking your first top-up, tell us which part is frictional. This only shows for zero-balance workspaces that have not completed a credit purchase yet."
+    ,"optionalDetail": "Optional detail"
+    ,"surveyPlaceholder": "Anything specific that made you stop?"
+    ,"surveyPrivacy": "Answers are tied to this workspace so we can fix the right part of the flow."
+    ,"thanksFeedback": "Thanks for the feedback"
+    ,"sending": "Sending…"
+    ,"sendFeedback": "Send feedback"
+    ,"authorizedSigner": "Authorized Signer"
+    ,"invoicedBilling": "Invoiced Billing"
+    ,"invoicedActive": "Invoiced billing is active"
+    ,"startInvoiced": "Start invoiced billing"
+    ,"configurePostUsage": "Configure post-usage billing for {team}."
+    ,"teamTierMessage": "This team is on the {tier} tier. Invoiced billing is available on Enterprise."
+    ,"enterpriseOnly": "Invoiced billing is available for Enterprise teams only."
+    ,"startInvoicedBilling": "Start Invoiced Billing"
+    ,"invoicedPermanent": "Invoiced billing is permanent once enabled."
+    ,"billingDay": "Billing day"
+    ,"chooseBillingDay": "Choose billing day"
+    ,"day": "Day {day}"
+    ,"paymentTerms": "Payment terms"
+    ,"chooseTerms": "Choose terms"
+    ,"netDays": "Net {days}"
+    ,"billingAgreement": "By enabling invoiced billing, you agree:"
+    ,"monthlyInvoices": "Invoices are issued monthly based on gateway usage."
+    ,"paymentDue": "Payment is due under the selected Net terms."
+    ,"cannotSwitchWallet": "Invoiced billing cannot be switched back to wallet mode."
+    ,"delinquentRestrictions": "Delinquent invoices may result in service restrictions."
+    ,"signature": "Signature"
+    ,"signaturePreview": "Signature preview"
+    ,"signingAs": "Signing as {name}"
+    ,"signatureCaptured": "Signature captured"
+    ,"pressHoldToSign": "Press and hold to sign ({percent}%)"
+    ,"updateBilling": "Update your billing day and payment terms at any time."
+    ,"enableAfterSignature": "Enable invoiced billing once your signature is captured."
+    ,"savingBilling": "Saving billing setup…"
+    ,"billingSaved": "Billing setup saved"
+    ,"billingSaveFailed": "Failed to save billing setup"
+    ,"saveInvoiceSettings": "Save invoice settings"
+    ,"enableInvoicedBilling": "Enable invoiced billing"
+    ,"invoiceHistory": "Invoice history"
+    ,"invoiceHistoryDescription": "Track issued invoices, statuses, due dates, and open detailed records."
+    ,"noInvoices": "No invoices yet. Your first invoice appears once a billing cycle closes."
+    ,"invoice": "Invoice"
+    ,"internalInvoice": "Internal invoice"
+    ,"details": "Details"
+    ,"opening": "Opening…"
+    ,"invoiceDetails": "Invoice details"
+    ,"invoiceDetailsDescription": "Detailed billing record for this enterprise invoice."
+    ,"invoiceNumber": "Invoice number"
+    ,"status": "Status"
+    ,"billingPeriod": "Billing period"
+    ,"amount": "Amount"
+    ,"issued": "Issued"
+    ,"due": "Due"
+    ,"stripeInvoiceId": "Stripe invoice ID"
+    ,"close": "Close"
+    ,"openInvoice": "Open invoice"
+    ,"paid": "Paid"
+    ,"open": "Open"
+    ,"void": "Void"
+    ,"uncollectible": "Uncollectible"
+    ,"draft": "Draft"
+    ,"unableLoadInvoice": "Unable to load invoice document"
+    ,"failedOpenInvoice": "Failed to open invoice document"
+    ,"Request cost": "Request cost"
+    ,"Reservation": "Reservation"
+    ,"Resolution": "Resolution"
+    ,"Output duration": "Output duration"
+    ,"Completion window": "Completion window"
+    ,"Request counts": "Request counts"
+    ,"Inspect": "Inspect"
+    ,"Copy native id": "Copy native ID"
+    ,"Copy BYOK key id": "Copy BYOK key ID"
+    ,"Copy reservation id": "Copy reservation ID"
+    ,"Copy native request id": "Copy native request ID"
+    ,"Copy request model id": "Copy request model ID"
+    ,"Copy output file id": "Copy output file ID"
+    ,"Copy output file content endpoint": "Copy output file content endpoint"
+    ,"Copy error file id": "Copy error file ID"
+    ,"Copy error file content endpoint": "Copy error file content endpoint"
+    ,"Copy cancel endpoint": "Copy cancel endpoint"
+    ,"No webhook attempts recorded yet.": "No webhook attempts recorded yet."
+    ,"No webhook configured": "No webhook configured"
+    ,"Retryable": "Retryable"
+    ,"Enabled": "Enabled"
+    ,"Disabled": "Disabled"
+    ,"Next retry": "Next retry"
+    ,"Finish reason": "Finish reason"
+    ,"Hint": "Hint"
+    ,"Type:": "Type:"
+    ,"actions": "Actions"
+    ,"Missing workspace context. Select a workspace in the header and try again.": "Missing workspace context. Select a workspace in the header and try again."
+    ,"Could not create management API key right now. Please try again.": "Could not create management API key right now. Please try again."
+    ,"Create Management API Key": "Create Management API Key"
+    ,"Choose the minimum access this management API key needs.": "Choose the minimum access this management API key needs."
+    ,"once": "once"
+    ,"and grants elevated privileges. Store it securely.": "and grants elevated privileges. Store it securely."
+    ,"Key name (e.g. production management)": "Key name (e.g. production management)"
+    ,"Access template": "Access template"
+    ,"Optional. Leave blank to keep this management key active until you revoke or pause it.": "Optional. Leave blank to keep this management key active until you revoke or pause it."
+    ,"This key will not be shown again and grants elevated privileges. Keep this code secret at all times.": "This key will not be shown again and grants elevated privileges. Keep this code secret at all times."
+    ,"AI Stats management API key": "AI Stats management API key"
+    ,"This action is permanent. This key has elevated privileges.": "This action is permanent. This key has elevated privileges."
+    ,"To confirm, type the key name": "To confirm, type the key name"
+    ,"Saving management API key...": "Saving management API key..."
+    ,"Management API key updated": "Management API key updated"
+    ,"Edit Management API Key": "Edit Management API Key"
+    ,"Update the lifecycle and access level for this elevated-privilege key.": "Update the lifecycle and access level for this elevated-privilege key."
+    ,"Access level": "Access level"
+    ,"Management key access level": "Management key access level"
+    ,"Custom scopes are preserved until you select a new access level.": "Custom scopes are preserved until you select a new access level."
+    ,"Optional. Clear this field to remove the expiry date.": "Optional. Clear this field to remove the expiry date."
+    ,"Paused": "Paused"
+    ,"Saving limits...": "Saving limits..."
+    ,"Limits updated": "Limits updated"
+    ,"Failed to update limits": "Failed to update limits"
+    ,"Management API Key Limits": "Management API Key Limits"
+    ,"Set request limits for this elevated-privilege key.": "Set request limits for this elevated-privilege key."
+    ,"Daily": "Daily"
+    ,"Weekly": "Weekly"
+    ,"Monthly": "Monthly"
+    ,"Usage": "Usage"
+    ,"Usage for": "Usage for"
+    ,"Request usage and cost for this management API key.": "Request usage and cost for this management API key."
+    ,"Total Requests": "Total Requests"
+    ,"Total Cost": "Total Cost"
+    ,"All": "All"
+    ,"No management keys yet": "No management keys yet"
+    ,"Create a management key when you need elevated automation access.": "Create a management key when you need elevated automation access."
+    ,"Unknown": "Unknown"
+    ,"Created": "Created"
+    ,"Expires": "Expires"
+    ,"Missing workspace context. Select a workspace in the header and try again.": "Missing workspace context. Select a workspace in the header and try again."
+    ,"Limits must be zero or a positive number.": "Limits must be zero or a positive number."
+    ,"UTC": "UTC"
+    ,"Relative": "Relative"
+    ,"Timestamp": "Timestamp"
+    ,"Status": "Status"
+    ,"Requests Today": "Requests Today"
+    ,"Spend Today": "Spend Today"
+    ,"Scopes": "Scopes"
+    ,"No explicit scopes configured.": "No explicit scopes configured."
+    ,"Applied guardrails": "Applied guardrails"
+    ,"No guardrails applied.": "No guardrails applied."
+    ,"Guardrail activity": "Guardrail activity"
+    ,"Requests": "Requests"
+    ,"Spend": "Spend"
+    ,"No API keys yet": "No API keys yet"
+    ,"Create a key to start making gateway requests.": "Create a key to start making gateway requests."
+    ,"No keys for this workspace": "No keys for this workspace"
+    ,"Provider Routing": "Provider Routing"
+    ,"Choose how the Gateway prioritizes providers": "Choose how the Gateway prioritizes providers"
+    ,"for": "for"
+    ,"for this workspace": "for this workspace"
+    ,"Routing Preference": "Routing Preference"
+    ,"Select a routing mode": "Select a routing mode"
+    ,"Beta Channel": "Beta Channel"
+    ,"Include beta providers in a small share of production traffic.": "Include beta providers in a small share of production traffic."
+    ,"Enable beta channel": "Enable beta channel"
+    ,"Alpha Channel": "Alpha Channel"
+    ,"Include alpha providers within beta canary traffic.": "Include alpha providers within beta canary traffic."
+    ,"Enable alpha channel": "Enable alpha channel"
+    ,"Response Healing": "Response Healing"
+    ,"Set the workspace default for repairing structured model output.": "Set the workspace default for repairing structured model output."
+    ,"Enable by Default": "Enable by Default"
+    ,"Repair compatible structured-output responses for this workspace.": "Repair compatible structured-output responses for this workspace."
+    ,"Enable default response healing": "Enable default response healing"
+    ,"Healing Mode": "Healing Mode"
+    ,"Only unwrap already-valid JSON from fences or surrounding text.": "Only unwrap already-valid JSON from fences or surrounding text."
+    ,"Apply bounded repairs such as trailing-comma cleanup and safe closer recovery.": "Apply bounded repairs such as trailing-comma cleanup and safe closer recovery."
+    ,"Select a healing mode": "Select a healing mode"
+    ,"Lock Workspace Policy": "Lock Workspace Policy"
+    ,"Prevent presets and requests from overriding this default.": "Prevent presets and requests from overriding this default."
+    ,"Lock default response healing policy": "Lock default response healing policy"
+    ,"Routing Preview": "Routing Preview"
+    ,"An illustrative distribution for the current policy. Live routing also considers compatibility, health, availability, and failover signals.": "An illustrative distribution for the current policy. Live routing also considers compatibility, health, availability, and failover signals."
+    ,"Updating routing policy...": "Updating routing policy..."
+    ,"Routing policy updated": "Routing policy updated"
+    ,"Routing policy updated; gateway cache refresh pending": "Routing policy updated; gateway cache refresh pending"
+    ,"Failed to update routing policy": "Failed to update routing policy"
+    ,"Pending sync": "Pending sync"
+    ,"Synced": "Synced"
+    ,"Key name is required": "Key name is required"
+    ,"Please provide a key value": "Please provide a key value"
+    ,"Missing provider id": "Missing provider id"
+    ,"Key updated": "Key updated"
+    ,"Key updated and replaced": "Key updated and replaced"
+    ,"Key saved": "Key saved"
+    ,"Failed to save key": "Failed to save key"
+    ,"Info": "Info"
+    ,"Use IAM credentials": "Use IAM credentials"
+    ,"Key scope": "Key scope"
+    ,"Leave a list empty to allow every option.": "Leave a list empty to allow every option."
+    ,"Models": "Models"
+    ,"Phaseo API keys": "Phaseo API keys"
+    ,"Preset name is required": "Preset name is required"
+    ,"Preset slug is required": "Preset slug is required"
+    ,"Select at least one model for this preset.": "Select at least one model for this preset."
+    ,"You must be signed in and in a workspace to save a preset.": "You must be signed in and in a workspace to save a preset."
+    ,"Draft saved": "Draft saved"
+    ,"Preset created": "Preset created"
+    ,"Failed to save preset": "Failed to save preset"
+    ,"Deleting preset...": "Deleting preset..."
+    ,"Preset deleted": "Preset deleted"
+    ,"Failed to delete preset": "Failed to delete preset"
+    ,"Delete Preset": "Delete Preset"
+    ,"This action is permanent and cannot be undone.": "This action is permanent and cannot be undone."
+    ,"To confirm, type the preset name": "To confirm, type the preset name"
+    ,"Type preset name to confirm": "Type preset name to confirm"
+    ,"Preset reference copied": "Preset reference copied"
+    ,"No presets yet": "No presets yet"
+    ,"OAuth app": "OAuth app"
+    ,"created successfully": "created successfully"
+    ,"Client secret copied to clipboard": "Client secret copied to clipboard"
+    ,"OAuth App Created": "OAuth App Created"
+    ,"Important:": "Important:"
+    ,"Copy your client secret now. You won&apos;t be able to see it again!": "Copy your client secret now. You won&apos;t be able to see it again!"
+    ,"Application Name": "Application Name"
+    ,"Client ID": "Client ID"
+    ,"Client Secret": "Client Secret"
+    ,"Create OAuth App": "Create OAuth App"
+    ,"Scopes this app may request": "Scopes this app may request"
+    ,"Description": "Description"
+    ,"Homepage URL": "Homepage URL"
+    ,"Save your client credentials now. The client secret will not be shown again.": "Save your client credentials now. The client secret will not be shown again."
+    ,"None": "None"
+    ,"Create a new OAuth application for third-party integrations.": "Create a new OAuth application for third-party integrations."
+    ,"Create App": "Create App"
+    ,"Failed to create OAuth app": "Failed to create OAuth app"
+    ,"No OAuth apps yet": "No OAuth apps yet"
+    ,"Create your first OAuth app to enable third-party integrations with your Phaseo account.": "Create your first OAuth app to enable third-party integrations with your Phaseo account."
+    ,"Configured Destinations": "Configured Destinations"
+    ,"Connection disabled": "Connection disabled"
+    ,"Connection enabled": "Connection enabled"
+    ,"Available": "Available"
+    ,"Coming Soon": "Coming Soon"
+    ,"Delete destination?": "Delete destination?"
+    ,"Destination deleted": "Destination deleted"
+    ,"Key deleted": "Key deleted"
+    ,"Delete key?": "Delete key?"
+    ,"Needs attention": "Needs attention"
+    ,"Sample": "Sample"
+    ,"Move key up": "Move key up"
+    ,"Move key down": "Move key down"
+    ,"Collapse key": "Collapse key"
+    ,"Expand key": "Expand key"
+    ,"Failed to reorder key": "Failed to reorder key"
+    ,"Previous key expiry": "Previous key expiry"
+    ,"New": "New"
+    ,"OAuth App": "OAuth App"
+    ,"deleted successfully": "deleted successfully"
+    ,"App name doesn't match": "App name doesn't match"
+    ,"Failed to delete OAuth app": "Failed to delete OAuth app"
+    ,"Delete App": "Delete App"
+    ,"Delete OAuth App": "Delete OAuth App"
+    ,"This will permanently delete": "This will permanently delete"
+    ,"and revoke all user authorizations.": "and revoke all user authorizations."
+    ,"Warning:": "Warning:"
+    ,"This action cannot be undone. All users who authorized this app will lose access immediately.": "This action cannot be undone. All users who authorized this app will lose access immediately."
+    ,"Type": "Type"
+    ,"to confirm": "to confirm"
+    ,"Client secret regenerated successfully": "Client secret regenerated successfully"
+    ,"Failed to regenerate secret": "Failed to regenerate secret"
+    ,"New client secret copied to clipboard": "New client secret copied to clipboard"
+    ,"Regenerate": "Regenerate"
+    ,"New Client Secret": "New Client Secret"
+    ,"Save your new secret now. It will not be shown again.": "Save your new secret now. It will not be shown again."
+    ,"Copy your new secret now. The old secret has been invalidated.": "Copy your new secret now. The old secret has been invalidated."
+    ,"Regenerate Client Secret?": "Regenerate Client Secret?"
+    ,"This action cannot be undone. The old secret will be immediately invalidated.": "This action cannot be undone. The old secret will be immediately invalidated."
+    ,"Destination saved": "Destination saved"
+    ,"Connected": "Connected"
+    ,"Connection check failed": "Connection check failed"
+    ,"Connection": "Connection"
+    ,"Destination Name": "Destination Name"
+    ,"Additional Metadata": "Additional Metadata"
+    ,"Choose which structured context accompanies each trace.": "Choose which structured context accompanies each trace."
+    ,"Sampling": "Sampling"
+    ,"API Key Filter": "API Key Filter"
+    ,"Name is required.": "Name is required."
+    ,"Guardrail saved": "Guardrail saved"
+    ,"Creating guardrail...": "Creating guardrail..."
+    ,"Saving guardrail...": "Saving guardrail..."
+    ,"Deleting guardrail...": "Deleting guardrail..."
+    ,"Guardrail deleted": "Guardrail deleted"
+    ,"Search...": "Search..."
+    ,"No guardrails yet": "No guardrails yet"
+    ,"Search presets": "Search presets"
+    ,"Clear preset search": "Clear preset search"
+    ,"No presets match": "No presets match"
+    ,"View": "View"
+    ,"Feedback detail": "Feedback detail"
+    ,"optional score": "optional score"
+    ,"raw": "raw"
+    ,"No comment provided": "No comment provided"
+    ,"No request id": "No request ID"
+    ,"No session id": "No session ID"
+    ,"Not supplied": "Not supplied"
+    ,"No metadata": "No metadata"
+    ,"Analysis": "Analysis"
+    ,"Comparison Baseline": "Comparison Baseline"
+    ,"Optional. Select a control only for A/B tests or staged rollouts.": "Optional. Select a control only for A/B tests or staged rollouts."
+    ,"Baseline preset": "Baseline preset"
+    ,"Date Window": "Date Window"
+    ,"Limit feedback to a recent or custom period.": "Limit feedback to a recent or custom period."
+    ,"Date window": "Date window"
+    ,"Rating": "Rating"
+    ,"Focus the analysis on a specific response outcome.": "Focus the analysis on a specific response outcome."
+    ,"Rating filter": "Rating filter"
+    ,"must be a positive number.": "must be a positive number."
+    ,"Enter both custom price limits.": "Enter both custom price limits."
+    ,"These limits and patterns do not leave any eligible text models.": "These limits and patterns do not leave any eligible text models."
+    ,"Auto Routing updated": "Auto Routing updated"
+    ,"Auto Routing updated; gateway cache refresh pending": "Auto Routing updated; gateway cache refresh pending"
+    ,"Select all API keys": "Select all API keys"
+    ,"Preset Name": "Preset Name"
+    ,"Concise Support Assistant": "Concise Support Assistant"
+    ,"Invocation Slug": "Invocation Slug"
+    ,"concise-support-assistant": "concise-support-assistant"
+    ,"When should this preset be used?": "When should this preset be used?"
+    ,"Visibility": "Visibility"
+    ,"Control who can discover and use this preset.": "Control who can discover and use this preset."
+    ,"Preset Access": "Preset Access"
+    ,"Private presets are only visible to you. Workspace presets can be used by members. Public presets appear in the marketplace.": "Private presets are only visible to you. Workspace presets can be used by members. Public presets appear in the marketplace."
+    ,"Only Me": "Only Me"
+    ,"Share With Workspace": "Share With Workspace"
+    ,"Publish to Marketplace": "Publish to Marketplace"
+    ,"Drag to set the default model and fallback order.": "Drag to set the default model and fallback order."
+    ,"Add Model": "Add Model"
+    ,"Search models...": "Search models..."
+    ,"No matching models": "No matching models"
+    ,"Clear": "Clear"
+    ,"Configuration groups": "Configuration groups"
+    ,"Overview / Request Defaults": "Overview / Request Defaults"
+    ,"Preferred Routing Profile": "Preferred Routing Profile"
+    ,"Balanced": "Balanced"
+    ,"Lowest cost": "Lowest cost"
+    ,"Lowest latency": "Lowest latency"
+    ,"Highest throughput": "Highest throughput"
+    ,"Enable Response Caching": "Enable Response Caching"
+    ,"Cache TTL (seconds)": "Cache TTL (seconds)"
+    ,"System Prompt": "System Prompt"
+    ,"Published": "Published"
+    ,"release": "release"
+    ,"next": "next"
+    ,"Failed to publish version": "Failed to publish version"
+    ,"Upstream": "Upstream"
+    ,"applied to your draft": "applied to your draft"
+    ,"Failed to apply upstream update": "Failed to apply upstream update"
+    ,"No presets for this workspace": "No presets for this workspace"
+    ,"Publishing…": "Publishing…"
+    ,"Publish new version": "Publish new version"
+    ,"Apply upstream": "Apply upstream"
+    ,"to draft": "to draft"
+    ,"Last 7 days": "Last 7 days"
+    ,"Last 30 days": "Last 30 days"
+    ,"Last 90 days": "Last 90 days"
+    ,"Custom": "Custom"
+    ,"Custom Dates": "Custom Dates"
+    ,"Include feedback created within this range.": "Include feedback created within this range."
+    ,"All ratings": "All ratings"
+    ,"Thumbs up": "Thumbs up"
+    ,"Thumbs down": "Thumbs down"
+    ,"Correct": "Correct"
+    ,"Partly correct": "Partly correct"
+    ,"Incorrect": "Incorrect"
+    ,"Unsafe": "Unsafe"
+    ,"Unrated": "Unrated"
+    ,"Metadata Cohort": "Metadata Cohort"
+    ,"Group or filter feedback using an indexed metadata dimension.": "Group or filter feedback using an indexed metadata dimension."
+    ,"Regenerating...": "Regenerating..."
+    ,"Regenerate Secret": "Regenerate Secret"
+    ,"Client ID copied to clipboard": "Client ID copied to clipboard"
+    ,"OAuth scopes updated": "OAuth scopes updated"
+    ,"Failed to update OAuth scopes": "Failed to update OAuth scopes"
+    ,"Active Users": "Active Users"
+    ,"Requests (30d)": "Requests (30d)"
+    ,"Visit website": "Visit website"
+    ,"Recent Authorizations": "Recent Authorizations"
+    ,"No authorizations yet": "No authorizations yet"
+    ,"User Activity (Recent)": "User Activity (Recent)"
+    ,"No user activity yet": "No user activity yet"
+    ,"App name doesn't match": "App name doesn't match"
+    ,"Delete key?": "Delete key?"
+    ,"Suspended": "Suspended"
+    ,"Deleted": "Deleted"
+    ,"View Details": "View Details"
+    ,"Failed to update redirect URIs. Please try again.": "Failed to update redirect URIs. Please try again."
+    ,"Please enter a redirect URI": "Please enter a redirect URI"
+    ,"No redirect URIs configured": "No redirect URIs configured"
+    ,"Enable all": "Enable all"
+    ,"Add pattern": "Add pattern"
+    ,"Pattern {index}": "Pattern {index}"
+    ,"Flags": "Flags"
+    ,"Supported: g, i, m, s, u. Global matching is always applied automatically.": "Supported: g, i, m, s, u. Global matching is always applied automatically."
+    ,"Regex pattern": "Regex pattern"
+    ,"Matches will redact to a placeholder derived from the pattern name.": "Matches will redact to a placeholder derived from the pattern name."
+    ,"No custom patterns configured yet.": "No custom patterns configured yet."
+    ,"Test sample text to see what would be flagged, redacted, or blocked.": "Test sample text to see what would be flagged, redacted, or blocked."
+    ,"Result": "Result"
+    ,"Enter sample text": "Enter sample text"
+    ,"Detection disabled": "Detection disabled"
+    ,"No matches": "No matches"
+    ,"Would block": "Would block"
+    ,"Would redact": "Would redact"
+    ,"Would flag": "Would flag"
+    ,"Nothing to preview yet.": "Nothing to preview yet."
+    ,"Transformed text": "Transformed text"
+    ,"Effective availability": "Effective availability"
+    ,"{count} limits configured": "{count} limits configured"
+    ,"No limits": "No limits"
+    ,"Use API key limits for hard request and spend enforcement while member and workspace aggregation is completed.": "Use API key limits for hard request and spend enforcement while member and workspace aggregation is completed."
+    ,"All ({count})": "All ({count})"
+    ,"Available ({count})": "Available ({count})"
+    ,"Unavailable ({count})": "Unavailable ({count})"
+    ,"No models are currently available.": "No models are currently available."
+    ,"No models are currently unavailable.": "No models are currently unavailable."
+    ,"No active models are available.": "No active models are available."
+    ,"If multiple guardrails apply to the same key, the most restrictive action wins: Block, then Redact, then Flag.": "If multiple guardrails apply to the same key, the most restrictive action wins: Block, then Redact, then Flag."
+  }
+}

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -69,6 +71,7 @@ function AlertCard({
 	row: DeprecationWarning;
 	mode: AlertCardMode;
 }) {
+	const t = useTranslations("SettingsUI");
 	const modelOrgId = deriveOrganisationId(row.modelId, row.organisationId);
 	const replacementOrgId = row.replacementModelId
 		? deriveOrganisationId(row.replacementModelId, null)
@@ -102,7 +105,7 @@ function AlertCard({
 				variant="outline"
 				className="h-5 shrink-0 gap-1 border-red-300 bg-red-50 px-1.5 text-[11px] text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300"
 			>
-				<span className="font-semibold">Retired</span>
+				<span className="font-semibold">{t("strings.Retired" as never)}</span>
 			</Badge>
 		);
 
@@ -147,7 +150,7 @@ function AlertCard({
 						{row.lastUsedAt ? (
 							<span className="inline-flex items-center gap-1">
 								<span>
-									Last used{" "}
+									{t("strings.Last used" as never)}{" "}
 									<span className="font-medium text-foreground">
 										{formatDate(row.lastUsedAt)}
 									</span>
@@ -157,7 +160,7 @@ function AlertCard({
 					</>
 				) : (
 					<span>
-						Retired{" "}
+						{t("strings.Retired" as never)}{" "}
 						<span className="font-medium text-foreground">
 							{row.retirementDate ? formatDate(row.retirementDate) : "unknown"}
 						</span>
@@ -167,14 +170,14 @@ function AlertCard({
 
 			{mode === "retired" ? (
 				<p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-					This model is retired and no longer usable.
+					{t("strings.This model is retired and no longer usable." as never)}
 				</p>
 			) : null}
 
 			{row.replacementModelId ? (
 				<div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
 					<ArrowRight className="h-3 w-3 shrink-0" />
-					<span className="shrink-0">Recommended replacement:</span>
+					<span className="shrink-0">{t("strings.Recommended replacement:" as never)}</span>
 					<ModelLink
 						modelId={row.replacementModelId}
 						modelName={null}
@@ -185,7 +188,7 @@ function AlertCard({
 			) : mode === "deprecated" ? (
 				<div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
 					<ArrowRight className="h-3 w-3 shrink-0 opacity-60" />
-					<span>No recommended replacement yet.</span>
+					<span>{t("strings.No recommended replacement yet." as never)}</span>
 				</div>
 			) : null}
 		</div>
@@ -308,6 +311,7 @@ export default async function DeprecationWarnings({
 	showHeader = true,
 }: DeprecationWarningsProps = {}) {
 	const rawWarnings = warnings ?? [];
+	const t = await getTranslations("SettingsUI");
 	if (!rawWarnings.length) return null;
 
 	const deprecatedRows = sortByRetirementDateAsc(
@@ -330,14 +334,14 @@ export default async function DeprecationWarnings({
 		<div id={id} className="space-y-3">
 			{showHeader ? (
 				<div className="flex items-center gap-2">
-					<h3 className="text-base font-semibold">Model Lifecycle Alerts</h3>
+					<h3 className="text-base font-semibold">{t("strings.Model Lifecycle Alerts" as never)}</h3>
 					<Separator className="flex-1" />
 				</div>
 			) : null}
 
 			<div className="space-y-5">
 				<CardsBlock
-					title="Models You Use"
+					title={t("strings.Models You Use" as never)}
 					rows={deprecatedInUseRows}
 					mode="deprecated"
 				/>
@@ -345,13 +349,13 @@ export default async function DeprecationWarnings({
 					<Separator className="my-2" />
 				) : null}
 				<CardsBlock
-					title="Models You Don't Use"
+					title={t("strings.Models You Don't Use" as never)}
 					rows={deprecatedFyiRows}
 					mode="deprecated"
 					collapsible={false}
 				/>
 				<SectionBlock
-					title="Recent Retirements"
+					title={t("strings.Recent Retirements" as never)}
 					rows={recentRetiredRows}
 					mode="retired"
 				/>
@@ -359,4 +363,3 @@ export default async function DeprecationWarnings({
 		</div>
 	);
 }
-

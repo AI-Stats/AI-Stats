@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useEffect, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import {
@@ -55,6 +57,7 @@ export function ImageModelSettingsDialog({
 	onUpdateParams,
 	onReset,
 }: ImageModelSettingsDialogProps) {
+	const t = useTranslations("Product.chatRooms");
 	const schema = getImageModelSchema(selectedModelId ?? "");
 	const isGoogleImageSchema = schema.variant.startsWith("google-");
 	const sizeLabel = isGoogleImageSchema ? "Aspect ratio" : "Resolution";
@@ -101,8 +104,8 @@ export function ImageModelSettingsDialog({
 		<RoomModelSettingsShell
 			open={open}
 			onOpenChange={onOpenChange}
-			title="Image model settings"
-			description="Configure image generation options for the selected model."
+			title={t("imageSettings")}
+			description={t("imageSettingsDescription")}
 			settings={settings}
 			modelChoices={modelChoices}
 			selectedModelId={selectedModelId}
@@ -157,7 +160,7 @@ export function ImageModelSettingsDialog({
 							onValueChange={(value) => onUpdateParams({ style: value })}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="Select style" />
+								<SelectValue placeholder={t("selectStyle")} />
 							</SelectTrigger>
 							<SelectContent>
 								{schema.styleOptions.map((style) => (

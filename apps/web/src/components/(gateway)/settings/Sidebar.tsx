@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useLocale } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Building2, ChevronRight, ExternalLink, PanelLeftClose, PanelLeftOpen, UserRound } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -30,6 +30,12 @@ import {
 import type { NavGroup, NavItem, SettingsScope } from "./Sidebar.config";
 import { getSettingsSidebar, isSettingsNavChildActive } from "./Sidebar.config";
 import { cn } from "@/lib/utils";
+import { getSettingsMessages } from "@/i18n/settings";
+import { isPublicLocale, type PublicLocale } from "@/i18n/routing";
+
+const LABEL_KEYS = {
+	Settings:"settings",Account:"account",Workspace:"workspace",Profile:"profile",Details:"details",MFA:"mfa","Provider onboarding":"providerOnboarding","Connected Apps":"connectedApps","Danger Zone":"dangerZone",Workspaces:"workspaces",Billing:"billing",Credits:"credits",Transactions:"transactions","Payment Methods":"paymentMethods","Feature Preview":"featurePreview",General:"settings",Members:"members",Access:"access",Notifications:"notifications",Guardrails:"guardrails",Enterprise:"enterprise",Overview:"overview",Directory:"directory",Departments:"departments","Single Sign-On":"singleSignOn",SCIM:"scim",Privacy:"privacy",Usage:"usage",Trends:"trends",Explore:"explore",Geography:"geography","Guardrail Activity":"guardrailActivity",Alerts:"alerts",Logs:"logs",Requests:"requests","Upstream Requests":"upstreamRequests",Sessions:"sessions",Videos:"videos",Batches:"batches","API Keys":"apiKeys","Management Keys":"managementKeys",Broadcast:"broadcast",Apps:"apps",Routing:"routing","Auto routing":"autoRouting","Dynamic Routes":"dynamicRoutes","Bring Your Own Key":"bringYourOwnKey",Presets:"presets",Feedback:"feedback","OAuth Apps":"oauthApps",Webhooks:"webhooks","Provider review":"providerReview"
+} as const;
 
 export default function SettingsSidebar({
 	children,
@@ -50,6 +56,20 @@ export default function SettingsSidebar({
 	showAutoRouting?: boolean;
 	showInternal?: boolean;
 }) {
+	const locale = useLocale();
+	const settingsMessages = getSettingsMessages((isPublicLocale(locale) ? locale : "en-GB") as PublicLocale);
+	const translateLabel = (label: string) => {
+		const key = LABEL_KEYS[label as keyof typeof LABEL_KEYS];
+		if (!key) return label;
+		if (key === "workspace") return settingsMessages.sidebar.scope.workspace;
+		return (settingsMessages.sidebar.items as Record<string, string>)[key] ?? label;
+	};
+	const translateBadge = (badge: string) => {
+		if (badge === "Beta") return settingsMessages.common.beta;
+		if (badge === "Alpha") return settingsMessages.common.alpha;
+		if (badge === "Preview") return settingsMessages.common.preview;
+		return badge;
+	};
 	const pathname = usePathname();
 	const { isMobile, setOpenMobile, state, toggleSidebar } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
@@ -148,6 +168,7 @@ export default function SettingsSidebar({
 			!item.disabled && !item.external && activeItem?.href === item.href;
 
 		const Icon = item.icon;
+		const label = translateLabel(item.label);
 		const content = (
 			<>
 				{Icon ? (
@@ -157,14 +178,14 @@ export default function SettingsSidebar({
 					/>
 				) : null}
 				<span className="min-w-0 flex-1 truncate group-data-[collapsible=icon]:hidden">
-					{item.label}
+					{label}
 				</span>
 				{item.badge && (
 					<Badge
 						variant="outline"
 						className="ml-auto h-5 px-1.5 text-[10px] capitalize group-data-[collapsible=icon]:hidden"
 					>
-						{item.badge}
+						{translateBadge(item.badge)}
 					</Badge>
 				)}
 				{item.href === "/settings/usage" && !isCollapsed ? children : null}
@@ -192,8 +213,8 @@ export default function SettingsSidebar({
 						<CollapsibleTrigger asChild>
 							<SidebarMenuButton
 								isActive={false}
-								tooltip={item.label}
-								aria-label={isCollapsed ? `Toggle ${item.label} navigation` : undefined}
+											tooltip={label}
+											aria-label={isCollapsed ? settingsMessages.sidebar.actions.toggle.replace("{label}", label) : undefined}
 								className={cn(
 									"!rounded-lg text-left",
 									active && "text-sidebar-accent-foreground",
@@ -221,13 +242,13 @@ export default function SettingsSidebar({
 												aria-current={childActive ? "page" : undefined}
 												className="!rounded-lg"
 											>
-												<span className="min-w-0 flex-1 truncate">{child.label}</span>
+															<span className="min-w-0 flex-1 truncate">{translateLabel(child.label)}</span>
 												{child.badge ? (
 													<Badge
 														variant="outline"
 														className="ml-auto h-5 px-1.5 text-[10px] capitalize"
 													>
-														{child.badge}
+																	{translateBadge(child.badge)}
 													</Badge>
 												) : null}
 											</SidebarMenuSubButton>
@@ -246,9 +267,9 @@ export default function SettingsSidebar({
 				<SidebarMenuButton
 					disabled
 					aria-disabled="true"
-					aria-label={isCollapsed ? item.label : undefined}
+					aria-label={isCollapsed ? label : undefined}
 					className="cursor-not-allowed !rounded-lg"
-					tooltip={item.label}
+					tooltip={label}
 				>
 					{content}
 				</SidebarMenuButton>
@@ -257,12 +278,12 @@ export default function SettingsSidebar({
 
 		if (item.external) {
 			return (
-			<SidebarMenuButton asChild tooltip={item.label} className="!rounded-lg">
+					<SidebarMenuButton asChild tooltip={label} className="!rounded-lg">
 					<a
 						href={item.href}
 						target="_blank"
 						rel="noreferrer"
-						aria-label={`${item.label} (opens in a new tab)`}
+						aria-label={settingsMessages.sidebar.actions.external.replace("{label}", label)}
 						onClick={closeMobile}
 					>
 						{content}
@@ -272,11 +293,11 @@ export default function SettingsSidebar({
 		}
 
 		return (
-			<SidebarMenuButton asChild isActive={active} tooltip={item.label} className="!rounded-lg">
+			<SidebarMenuButton asChild isActive={active} tooltip={label} className="!rounded-lg">
 				<Link
 					href={item.href}
 					aria-current={active ? "page" : undefined}
-					aria-label={isCollapsed ? item.label : undefined}
+					aria-label={isCollapsed ? label : undefined}
 					onClick={closeMobile}
 				>
 					{content}
@@ -290,15 +311,15 @@ export default function SettingsSidebar({
 			<SidebarHeader className="h-[53px] shrink-0 gap-0 border-b px-2 py-0 group-data-[collapsible=icon]:px-2">
 				<div className="flex h-full items-center gap-2 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
 					<div className="text-sm font-semibold text-foreground group-data-[collapsible=icon]:hidden">
-						Settings
+						{settingsMessages.sidebar.settings}
 					</div>
 					<Button
 						variant="ghost"
 						size="icon"
 						className="ml-auto group-data-[collapsible=icon]:ml-0"
 						onClick={toggleSidebar}
-						aria-label={isCollapsed ? "Expand settings sidebar" : "Collapse settings sidebar"}
-						title={isCollapsed ? "Expand settings sidebar" : "Collapse settings sidebar"}
+					aria-label={isCollapsed ? settingsMessages.sidebar.actions.expand : settingsMessages.sidebar.actions.collapse}
+					title={isCollapsed ? settingsMessages.sidebar.actions.expand : settingsMessages.sidebar.actions.collapse}
 					>
 						{isCollapsed ? (
 							<PanelLeftOpen className="h-4 w-4" />
@@ -310,21 +331,21 @@ export default function SettingsSidebar({
 			</SidebarHeader>
 			<div className="shrink-0 group-data-[collapsible=icon]:hidden">
 				<div className="px-2 pb-2 pt-3">
-					<div className="grid grid-cols-2 rounded-lg bg-muted/70 p-1" aria-label="Settings scope">
-						<button type="button" data-settings-segment aria-pressed={selectedScope === "personal"} onClick={() => selectScope("personal")} className={selectedScope === "personal" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><UserRound className="size-3.5" />Account</button>
-						<button type="button" data-settings-segment aria-pressed={selectedScope === "workspace"} onClick={() => selectScope("workspace")} className={selectedScope === "workspace" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><Building2 className="size-3.5" />Workspace</button>
+					<div className="grid grid-cols-2 rounded-lg bg-muted/70 p-1" aria-label={settingsMessages.sidebar.settings}>
+						<button type="button" data-settings-segment aria-pressed={selectedScope === "personal"} onClick={() => selectScope("personal")} className={selectedScope === "personal" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><UserRound className="size-3.5" />{settingsMessages.sidebar.scope.account}</button>
+						<button type="button" data-settings-segment aria-pressed={selectedScope === "workspace"} onClick={() => selectScope("workspace")} className={selectedScope === "workspace" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><Building2 className="size-3.5" />{settingsMessages.sidebar.scope.workspace}</button>
 					</div>
 				</div>
 			</div>
 			<div className="hidden shrink-0 border-b border-sidebar-border px-2 py-2 group-data-[collapsible=icon]:block">
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton isActive={selectedScope === "personal"} tooltip="Account" className="!rounded-lg" aria-label="Show Account settings" onClick={() => selectScope("personal")}>
+						<SidebarMenuButton isActive={selectedScope === "personal"} tooltip={settingsMessages.sidebar.scope.account} className="!rounded-lg" aria-label={settingsMessages.sidebar.scope.showAccount} onClick={() => selectScope("personal")}>
 							<UserRound className="size-4" />
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 					<SidebarMenuItem>
-						<SidebarMenuButton isActive={selectedScope === "workspace"} tooltip="Workspace" className="!rounded-lg" aria-label="Show Workspace settings" onClick={() => selectScope("workspace")}>
+						<SidebarMenuButton isActive={selectedScope === "workspace"} tooltip={settingsMessages.sidebar.scope.workspace} className="!rounded-lg" aria-label={settingsMessages.sidebar.scope.showWorkspace} onClick={() => selectScope("workspace")}>
 							<Building2 className="size-4" />
 						</SidebarMenuButton>
 					</SidebarMenuItem>

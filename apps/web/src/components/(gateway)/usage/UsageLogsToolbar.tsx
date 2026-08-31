@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
 	CalendarDays,
@@ -161,6 +162,7 @@ export default function UsageLogsToolbar({
 	showRefresh?: boolean;
 	showLivePreset?: boolean;
 }) {
+	const t = useTranslations("SettingsUI");
 	const router = useRouter();
 	const pathname = usePathname() ?? "/settings/usage/logs";
 	const searchParams = useSearchParams() ?? new URLSearchParams();
@@ -365,7 +367,7 @@ export default function UsageLogsToolbar({
 		const parsed = parseTypedRangeInput(rangeInputValue);
 		if (!parsed) {
 			toast.error(
-				"Use shorthand like 2mo, 4w, 36h, or a range like 2026-05-11 09:00 -> 2026-05-12 18:30.",
+				t("strings.Use shorthand like 2mo, 4w, 36h, or a range like 2026-05-11 09:00 -> 2026-05-12 18:30." as never),
 			);
 			return;
 		}
@@ -398,7 +400,7 @@ export default function UsageLogsToolbar({
 						const result = await revalidateUsage("logs");
 						if (!result.ok) {
 							throw new Error(
-								result.message || "Failed to revalidate usage data.",
+								result.message || t("strings.Failed to revalidate usage data." as never),
 							);
 						}
 					}
@@ -407,10 +409,10 @@ export default function UsageLogsToolbar({
 				})();
 				if (showToast) {
 					await toast.promise(refreshPromise, {
-						loading: "Refreshing usage data...",
-						success: "Usage data refreshed.",
+						loading: t("strings.Refreshing usage data..." as never),
+						success: t("strings.Usage data refreshed." as never),
 						error: (error: unknown) =>
-							getErrorMessage(error, "Failed to revalidate usage data."),
+							getErrorMessage(error, t("strings.Failed to revalidate usage data." as never)),
 					});
 				} else {
 					await refreshPromise;
@@ -477,7 +479,7 @@ export default function UsageLogsToolbar({
 						size="icon"
 						onClick={() => void handleRefresh()}
 						disabled={refreshActive}
-						aria-label="Refresh current view"
+						aria-label={t("strings.Refresh current view" as never)}
 						aria-busy={refreshActive}
 					>
 						<RefreshCw
@@ -557,8 +559,8 @@ export default function UsageLogsToolbar({
 										rangeInputRef.current?.blur();
 									}
 								}}
-								aria-label="Usage time range"
-						placeholder="YYYY-MM-DD HH:mm – YYYY-MM-DD HH:mm"
+							aria-label={t("strings.Usage time range" as never)}
+						placeholder={t("strings.YYYY-MM-DD HH:mm – YYYY-MM-DD HH:mm" as never)}
 								className={cn(
 									"h-9 rounded-lg border-transparent bg-input/50 pl-9 pr-10 text-sm font-medium text-foreground shadow-none transition-colors hover:bg-input/70 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
 									effectivePreset === "live" &&
@@ -573,7 +575,7 @@ export default function UsageLogsToolbar({
 										variant="ghost"
 										size="icon"
 										className="h-7 w-7 rounded-lg text-muted-foreground"
-										aria-label="Open range presets"
+										aria-label={t("strings.Open range presets" as never)}
 										onMouseDown={(event) => event.preventDefault()}
 									>
 										<ChevronDown className="h-3.5 w-3.5" />
@@ -602,9 +604,9 @@ export default function UsageLogsToolbar({
 										onClick={() => setShowCustomRange(false)}
 									>
 										<ChevronLeft className="h-3.5 w-3.5" />
-										Back
+										{t("strings.Back" as never)}
 									</Button>
-									<div className="text-xs font-medium">Custom Range</div>
+									<div className="text-xs font-medium">{t("strings.Custom Range" as never)}</div>
 								</div>
 								<Separator />
 								<div className="px-4 py-3">
@@ -626,7 +628,7 @@ export default function UsageLogsToolbar({
 										className="rounded-md"
 										onClick={() => setPopoverOpen(false)}
 									>
-										Cancel
+										{t("strings.Cancel" as never)}
 									</Button>
 									<Button
 										type="button"
@@ -673,7 +675,7 @@ export default function UsageLogsToolbar({
 									<RangeOptionButton
 										badge={<CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />}
 										badgeVariant="plain"
-										label="Custom Range"
+										label={t("strings.Custom Range" as never)}
 										active={effectivePreset === "custom"}
 										onClick={() => setShowCustomRange(true)}
 									/>

@@ -14,6 +14,7 @@ import {
 	Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -185,6 +186,9 @@ function CategoryIcons({ category }: { category: string | null }) {
 }
 
 export default function AppsPanel({ apps }: { apps: AppItem[] }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string, values?: Record<string, string>) =>
+		(t as unknown as (messageKey: string, messageValues?: Record<string, string>) => string)(`strings.${key}`, values);
 	const [items, setItems] = useState<AppItem[]>(apps);
 	const [pending, setPending] = useState<Record<string, boolean>>({});
 	const [editAppId, setEditAppId] = useState<string | null>(null);
@@ -269,7 +273,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						aria-label={`Manage ${app.title}`} />} />}>
 						<MoreHorizontal className="size-4" />
 					</TooltipTrigger>
-					<TooltipContent>More actions</TooltipContent>
+									<TooltipContent>{s("More actions")}</TooltipContent>
 				</Tooltip>
 				<DropdownMenuContent align="end" className="w-44 rounded-md">
 					{mobile ? (
@@ -281,7 +285,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								}
 							>
 								<BarChart2 className="mr-2 size-4" />
-								View Stats
+														{s("View Stats")}
 							</DropdownMenuItem>
 							{!app.is_managed ? (
 								<DropdownMenuItem
@@ -296,7 +300,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 									) : (
 										<Globe className="mr-2 size-4" />
 									)}
-									{app.is_public ? "Make Private" : "Make Public"}
+													{app.is_public ? s("Make Private") : s("Make Public")}
 								</DropdownMenuItem>
 							) : null}
 						</>
@@ -306,12 +310,12 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						onClick={() => {
 							navigator.clipboard
 								.writeText(attributionHeaders)
-								.then(() => toast.success("Attribution headers copied"))
-								.catch(() => toast.error("Failed to copy headers"));
+														.then(() => toast.success(s("Attribution headers copied")))
+														.catch(() => toast.error(s("Failed to copy headers")));
 						}}
 					>
 						<Copy className="mr-2 size-4" />
-						Copy Headers
+										{s("Copy Headers")}
 					</DropdownMenuItem>
 					{!app.is_managed ? (
 						<DropdownMenuItem
@@ -319,7 +323,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 							onClick={() => setEditAppId(app.id)}
 						>
 							<Pencil className="mr-2 size-4" />
-							Edit
+													{s("Edit")}
 						</DropdownMenuItem>
 					) : null}
 					{!app.is_managed ? (
@@ -332,7 +336,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 							}}
 						>
 							<Merge className="mr-2 size-4" />
-							Merge
+													{s("Merge")}
 						</DropdownMenuItem>
 					) : null}
 				</DropdownMenuContent>
@@ -347,10 +351,9 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					<EmptyMedia variant="icon">
 						<Blocks className="h-5 w-5" />
 					</EmptyMedia>
-					<EmptyTitle>No apps found</EmptyTitle>
+					<EmptyTitle>{s("No apps found")}</EmptyTitle>
 					<EmptyDescription>
-						App attribution records will appear here after your requests include
-						app headers.
+						{s("App attribution records will appear here after your requests include app headers.")}
 					</EmptyDescription>
 				</EmptyHeader>
 			</Empty>
@@ -372,10 +375,10 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					>
 						<TableHeader className="bg-muted/30">
 							<TableRow>
-								<TableHead className="w-[42%]">App</TableHead>
-								<TableHead className="w-[16%]">Visibility</TableHead>
-								<TableHead className="w-[16%]">Last Seen</TableHead>
-								<TableHead className="w-[16%]">Created</TableHead>
+								<TableHead className="w-[42%]">{s("App")}</TableHead>
+								<TableHead className="w-[16%]">{s("Visibility")}</TableHead>
+								<TableHead className="w-[16%]">{s("Last Seen")}</TableHead>
+								<TableHead className="w-[16%]">{s("Created")}</TableHead>
 								<TableHead className="w-[10%] text-right" />
 							</TableRow>
 						</TableHeader>
@@ -408,7 +411,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 														<CategoryIcons category={app.category} />
 													</div>
 													<div className="truncate text-xs text-muted-foreground">
-														{displayUrl ? app.url : "No public URL set"}
+										{displayUrl ? app.url : s("No public URL set")}
 													</div>
 										</div>
 									</div>
@@ -416,7 +419,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								<TableCell>
 									{app.is_managed ? (
 										<Badge variant="outline" className="rounded-md">
-											Managed by Phaseo
+															{s("Managed by Phaseo")}
 										</Badge>
 									) : (
 										<Button
@@ -429,7 +432,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 												handleVisibilityToggle(app, !app.is_public)
 											}
 											aria-label={`Make ${app.title} ${
-												app.is_public ? "private" : "public"
+																app.is_public ? s("private") : s("public")
 											}`}
 										>
 											{app.is_public ? (
@@ -437,7 +440,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											) : (
 												<Lock className="size-3" />
 											)}
-											{app.is_public ? "Public" : "Private"}
+											{app.is_public ? s("Public") : s("Private")}
 										</Button>
 									)}
 								</TableCell>
@@ -457,7 +460,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 													</Link>
 												</Button>
 											</TooltipTrigger>
-							<TooltipContent>View Stats</TooltipContent>
+							<TooltipContent>{s("View Stats")}</TooltipContent>
 										</Tooltip>
 										{renderActions(app)}
 									</div>
@@ -497,7 +500,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 												)}
 											</div>
 											<div className="truncate text-xs text-muted-foreground">
-												{displayUrl ? app.url : "No public URL set"}
+												{displayUrl ? app.url : s("No public URL set")}
 											</div>
 										</div>
 									</div>
@@ -507,11 +510,11 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 								<div className="grid grid-cols-2 gap-3 text-xs">
 									<div>
-										<div className="text-muted-foreground">Last Seen</div>
+										<div className="text-muted-foreground">{s("Last Seen")}</div>
 										<div>{formatDate(app.last_seen)}</div>
 									</div>
 									<div>
-										<div className="text-muted-foreground">Created</div>
+										<div className="text-muted-foreground">{s("Created")}</div>
 										<div>{formatDate(app.created_at)}</div>
 									</div>
 								</div>

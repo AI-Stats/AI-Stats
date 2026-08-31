@@ -31,13 +31,14 @@ import {
 import { formatRelativeToNow } from "@/lib/formatRelative";
 import { formatDateTime as formatPreciseDateTime } from "@/lib/gateway/usage/timeFormatting";
 import EditKeyItem from "./EditKeyItem";
+import { useTranslations } from "next-intl";
 
 const NANOS_PER_USD = 1_000_000_000;
 
-function formatDateTime(value?: string | null) {
-	if (!value) return "Never";
+function formatDateTime(value?: string | null, emptyText = "Never") {
+	if (!value) return emptyText;
 	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return "Never";
+	if (Number.isNaN(date.getTime())) return emptyText;
 	return new Intl.DateTimeFormat("en-GB", {
 		year: "numeric",
 		month: "short",
@@ -73,11 +74,13 @@ function KeyTimeHover({
 	emptyText,
 	userTimeZone,
 	relativeNowMs,
+	labels,
 }: {
 	value?: string | null;
 	emptyText: string;
 	userTimeZone: string;
 	relativeNowMs: number | null;
+	labels: { utc: string; relative: string; timestamp: string };
 }) {
 	if (!value) return <>{emptyText}</>;
 	const date = new Date(value);
@@ -87,7 +90,7 @@ function KeyTimeHover({
 		<HoverCard>
 			<HoverCardTrigger asChild>
 				<span className="cursor-help underline decoration-dotted underline-offset-2">
-					{formatDateTime(value)}
+					{formatDateTime(value, emptyText)}
 				</span>
 			</HoverCardTrigger>
 			<HoverCardContent align="start" className="w-auto">
@@ -97,17 +100,17 @@ function KeyTimeHover({
 						<div className="font-mono">{formatPreciseDateTime(date, userTimeZone)}</div>
 					</div>
 					<div className="grid grid-cols-[120px_1fr] gap-2">
-						<div className="text-muted-foreground">UTC</div>
+						<div className="text-muted-foreground">{labels.utc}</div>
 						<div className="font-mono">{formatPreciseDateTime(date, "UTC")}</div>
 					</div>
 					<div className="grid grid-cols-[120px_1fr] gap-2">
-						<div className="text-muted-foreground">Relative</div>
+						<div className="text-muted-foreground">{labels.relative}</div>
 						<div className="font-mono">
 							{relativeNowMs ? formatRelativeToNow(date, relativeNowMs) : "-"}
 						</div>
 					</div>
 					<div className="grid grid-cols-[120px_1fr] gap-2">
-						<div className="text-muted-foreground">Timestamp</div>
+						<div className="text-muted-foreground">{labels.timestamp}</div>
 						<div className="font-mono">{Math.floor(date.getTime() / 1000)}</div>
 					</div>
 				</div>
@@ -136,9 +139,9 @@ function normalizeScopes(value: unknown): string[] {
 	return [];
 }
 
-function limitText(value: unknown, formatter: (v: unknown) => string) {
+function limitText(value: unknown, formatter: (v: unknown) => string, unlimitedText = "Unlimited") {
 	const numeric = Number(value ?? 0);
-	if (!Number.isFinite(numeric) || numeric <= 0) return "Unlimited";
+	if (!Number.isFinite(numeric) || numeric <= 0) return unlimitedText;
 	return formatter(value);
 }
 
@@ -201,6 +204,7 @@ export default function KeyDetailsItem({
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [internalOpen, setInternalOpen] = useState(false);
 	const [editOpen, setEditOpen] = useState(false);
 	const suppressInspectorDismissRef = useRef(false);
@@ -211,6 +215,7 @@ export default function KeyDetailsItem({
 	const activityHref = `/settings/usage?group=key&key=${encodeURIComponent(String(k?.id ?? ""))}`;
 	const logsHref = `/settings/usage/logs?key=${encodeURIComponent(String(k?.id ?? ""))}`;
 	const stateLabel = keyStateLabel(k);
+	const localizedStateLabel = t(`strings.${stateLabel}` as never);
 	const stateVisual = stateLabel === "Active"
 		? { Icon: CheckCircle2, className: "text-emerald-600 dark:text-emerald-400" }
 		: stateLabel === "Limits reached"
@@ -261,7 +266,7 @@ export default function KeyDetailsItem({
 						}} />}>
 
 						<Info className="mr-2 h-4 w-4" />
-						Details
+						{t("strings.Details" as never)}
 
 				</DropdownMenuItem>
 			) : null}
@@ -276,13 +281,13 @@ export default function KeyDetailsItem({
 				<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[50vw] lg:!w-[48vw] xl:!w-[44vw] 2xl:!w-[42vw] data-[side=right]:sm:max-w-none">
 					<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 pr-14 dark:border-zinc-800">
 						<div className="min-w-0 pr-8">
-						<ProviderInspectorSheetTitle className="truncate text-base">{k?.name ?? "API Key"}</ProviderInspectorSheetTitle>
+						<ProviderInspectorSheetTitle className="truncate text-base">{k?.name ?? t("strings.API Key" as never)}</ProviderInspectorSheetTitle>
 						<ProviderInspectorSheetDescription className="mt-1 font-mono text-[11px]">
 							{formatKeyReference(k?.prefix)}
 						</ProviderInspectorSheetDescription>
 						</div>
 						<ProviderInspectorSheetDescription className="sr-only">
-							Detailed usage, spend, metadata, and guardrail coverage for this key.
+							{t("strings.Detailed usage, spend, metadata, and guardrail coverage for this key." as never)}
 						</ProviderInspectorSheetDescription>
 					</ProviderInspectorSheetHeader>
 
@@ -295,22 +300,22 @@ export default function KeyDetailsItem({
 					<div>
 						<div className="grid grid-cols-2 border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800 sm:grid-cols-4">
 							<div className="border-r border-zinc-200/80 pr-3 dark:border-zinc-800">
-								<div className="text-xs text-muted-foreground">Status</div>
+								<div className="text-xs text-muted-foreground">{t("strings.Status" as never)}</div>
 								<div className="mt-2 flex items-center gap-2 text-lg font-semibold">
 									<StateIcon aria-hidden="true" className={`size-4 shrink-0 ${stateVisual.className}`} />
-									<span>{stateLabel}</span>
+									<span>{localizedStateLabel}</span>
 								</div>
 							</div>
 							<div className="px-3 sm:border-r sm:border-zinc-200/80 sm:dark:border-zinc-800">
-								<div className="text-xs text-muted-foreground">Requests Today</div>
+								<div className="text-xs text-muted-foreground">{t("strings.Requests Today" as never)}</div>
 								<div className="mt-2 text-lg font-semibold">{formatCount(k?.current_usage_daily)}</div>
 							</div>
 							<div className="mt-4 border-r border-zinc-200/80 pr-3 dark:border-zinc-800 sm:mt-0 sm:px-3">
-								<div className="text-xs text-muted-foreground">Spend Today</div>
+								<div className="text-xs text-muted-foreground">{t("strings.Spend Today" as never)}</div>
 								<div className="mt-2 text-lg font-semibold">{formatUsdFromNanos(k?.current_usage_daily_cost_nanos)}</div>
 							</div>
 							<div className="mt-4 pl-3 sm:mt-0">
-								<div className="text-xs text-muted-foreground">Guardrails</div>
+								<div className="text-xs text-muted-foreground">{t("strings.Guardrails" as never)}</div>
 								<div className="mt-2 text-lg font-semibold">{guardrails.length}</div>
 							</div>
 						</div>
@@ -319,37 +324,37 @@ export default function KeyDetailsItem({
 							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 								<div className="flex items-center gap-2 text-sm font-medium">
 									<FileText className="h-4 w-4" />
-									Metadata
+									{t("strings.Metadata" as never)}
 								</div>
 								<div className="mt-2">
-									<DetailRow label="Key ID" value={String(k?.id ?? "Unknown")} mono truncate />
-									<DetailRow label="Key Ref" value={formatKeyReference(k?.prefix)} mono />
-									<DetailRow label="Created" value={<KeyTimeHover value={k?.created_at} emptyText="Never" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
-									<DetailRow label="Updated" value={<KeyTimeHover value={k?.updated_at} emptyText="Never" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
-									<DetailRow label="Last Used" value={<KeyTimeHover value={k?.last_used_at} emptyText="Never" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
-									<DetailRow label="Expires" value={<KeyTimeHover value={k?.expires_at} emptyText="No expiry" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
+									<DetailRow label={t("strings.Key ID" as never)} value={String(k?.id ?? t("strings.Unknown" as never))} mono truncate />
+									<DetailRow label={t("strings.Key Ref" as never)} value={formatKeyReference(k?.prefix)} mono />
+									<DetailRow label={t("strings.Created" as never)} value={<KeyTimeHover value={k?.created_at} emptyText={t("strings.Never" as never)} userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} labels={{ utc: t("strings.UTC" as never), relative: t("strings.Relative" as never), timestamp: t("strings.Timestamp" as never) }} />} />
+									<DetailRow label={t("strings.Updated" as never)} value={<KeyTimeHover value={k?.updated_at} emptyText={t("strings.Never" as never)} userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} labels={{ utc: t("strings.UTC" as never), relative: t("strings.Relative" as never), timestamp: t("strings.Timestamp" as never) }} />} />
+									<DetailRow label={t("strings.Last Used" as never)} value={<KeyTimeHover value={k?.last_used_at} emptyText={t("strings.Never" as never)} userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} labels={{ utc: t("strings.UTC" as never), relative: t("strings.Relative" as never), timestamp: t("strings.Timestamp" as never) }} />} />
+									<DetailRow label={t("strings.Expires" as never)} value={<KeyTimeHover value={k?.expires_at} emptyText={t("strings.No expiry" as never)} userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} labels={{ utc: t("strings.UTC" as never), relative: t("strings.Relative" as never), timestamp: t("strings.Timestamp" as never) }} />} />
 								</div>
 							</section>
 
 							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 								<div className="flex items-center gap-2 text-sm font-medium">
 									<Shield className="h-4 w-4" />
-									Limits
+									{t("strings.Limits" as never)}
 								</div>
 								<div className="mt-2">
-									<DetailRow label="Daily Requests" value={limitText(k?.daily_limit_requests, formatCount)} />
-									<DetailRow label="Weekly Requests" value={limitText(k?.weekly_limit_requests, formatCount)} />
-									<DetailRow label="Monthly Requests" value={limitText(k?.monthly_limit_requests, formatCount)} />
-									<DetailRow label="Daily Spend" value={limitText(k?.daily_limit_cost_nanos, formatUsdFromNanos)} />
-									<DetailRow label="Weekly Spend" value={limitText(k?.weekly_limit_cost_nanos, formatUsdFromNanos)} />
-									<DetailRow label="Monthly Spend" value={limitText(k?.monthly_limit_cost_nanos, formatUsdFromNanos)} />
+									<DetailRow label={t("strings.Daily Requests" as never)} value={limitText(k?.daily_limit_requests, formatCount, t("strings.Unlimited" as never))} />
+									<DetailRow label={t("strings.Weekly Requests" as never)} value={limitText(k?.weekly_limit_requests, formatCount, t("strings.Unlimited" as never))} />
+									<DetailRow label={t("strings.Monthly Requests" as never)} value={limitText(k?.monthly_limit_requests, formatCount, t("strings.Unlimited" as never))} />
+									<DetailRow label={t("strings.Daily Spend" as never)} value={limitText(k?.daily_limit_cost_nanos, formatUsdFromNanos, t("strings.Unlimited" as never))} />
+									<DetailRow label={t("strings.Weekly Spend" as never)} value={limitText(k?.weekly_limit_cost_nanos, formatUsdFromNanos, t("strings.Unlimited" as never))} />
+									<DetailRow label={t("strings.Monthly Spend" as never)} value={limitText(k?.monthly_limit_cost_nanos, formatUsdFromNanos, t("strings.Unlimited" as never))} />
 								</div>
 							</section>
 						</div>
 
 						<div>
 							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
-								<div className="text-sm font-medium">Scopes</div>
+									<div className="text-sm font-medium">{t("strings.Scopes" as never)}</div>
 								<div className="mt-2">
 									{scopes.length > 0 ? (
 										<div className="flex flex-wrap gap-2">
@@ -360,13 +365,13 @@ export default function KeyDetailsItem({
 											))}
 										</div>
 									) : (
-										<div className="text-sm text-muted-foreground">No explicit scopes configured.</div>
+										<div className="text-sm text-muted-foreground">{t("strings.No explicit scopes configured." as never)}</div>
 									)}
 								</div>
 							</section>
 
 							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
-								<div className="text-sm font-medium">Applied guardrails</div>
+								<div className="text-sm font-medium">{t("strings.Applied guardrails" as never)}</div>
 								<div className="mt-2">
 									{guardrails.length > 0 ? (
 										<div className="flex flex-wrap gap-2">
@@ -376,12 +381,12 @@ export default function KeyDetailsItem({
 													variant={guardrail?.enabled === false ? "secondary" : "outline"}
 													className="text-[11px]"
 												>
-													{guardrail?.name ?? guardrail?.id ?? "Guardrail"}
+											{guardrail?.name ?? guardrail?.id ?? t("strings.Guardrail" as never)}
 												</Badge>
 											))}
 										</div>
 									) : (
-										<div className="text-sm text-muted-foreground">No guardrails applied.</div>
+										<div className="text-sm text-muted-foreground">{t("strings.No guardrails applied." as never)}</div>
 									)}
 								</div>
 							</section>
@@ -389,9 +394,9 @@ export default function KeyDetailsItem({
 
 						<section className="px-5 py-4">
 							<div className="flex items-center justify-between gap-3">
-								<div className="text-sm font-medium">Guardrail activity</div>
+								<div className="text-sm font-medium">{t("strings.Guardrail activity" as never)}</div>
 								<div className="text-xs text-muted-foreground">
-									{guardrailEnforcementSummary?.windowLabel ?? "Recent window"}
+									{guardrailEnforcementSummary?.windowLabel ?? t("strings.Recent window" as never)}
 								</div>
 							</div>
 							<div className="mt-2">
@@ -400,7 +405,7 @@ export default function KeyDetailsItem({
 										<div className="grid gap-3 sm:grid-cols-4">
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
 												<div className="text-xs text-muted-foreground">
-													Blocked
+															{t("strings.Blocked" as never)}
 												</div>
 												<div className="mt-2 text-lg font-semibold">
 													{formatCount(guardrailEnforcementSummary.blocked)}
@@ -408,7 +413,7 @@ export default function KeyDetailsItem({
 											</div>
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
 												<div className="text-xs text-muted-foreground">
-													Redacted
+															{t("strings.Redacted" as never)}
 												</div>
 												<div className="mt-2 text-lg font-semibold">
 													{formatCount(guardrailEnforcementSummary.redacted)}
@@ -416,7 +421,7 @@ export default function KeyDetailsItem({
 											</div>
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
 												<div className="text-xs text-muted-foreground">
-													Flagged
+															{t("strings.Flagged" as never)}
 												</div>
 												<div className="mt-2 text-lg font-semibold">
 													{formatCount(guardrailEnforcementSummary.flagged)}
@@ -424,7 +429,7 @@ export default function KeyDetailsItem({
 											</div>
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
 												<div className="text-xs text-muted-foreground">
-													Last triggered
+															{t("strings.Last triggered" as never)}
 												</div>
 												<div className="mt-2 text-sm font-semibold">
 													{formatDateTime(
@@ -436,7 +441,7 @@ export default function KeyDetailsItem({
 
 										<div className="space-y-2">
 											<div className="text-xs text-muted-foreground">
-												Most active guardrails
+														{t("strings.Most active guardrails" as never)}
 											</div>
 											{Array.isArray(guardrailEnforcementSummary.topGuardrails) &&
 											guardrailEnforcementSummary.topGuardrails.length > 0 ? (
@@ -452,7 +457,7 @@ export default function KeyDetailsItem({
 																variant="outline"
 																className="text-[11px]"
 															>
-																{guardrail?.name ?? guardrail?.id ?? "Guardrail"}
+																		{guardrail?.name ?? guardrail?.id ?? t("strings.Guardrail" as never)}
 																<span className="ml-1 text-muted-foreground">
 																	×{formatCount(guardrail?.count)}
 																</span>
@@ -462,16 +467,14 @@ export default function KeyDetailsItem({
 												</div>
 											) : (
 												<div className="text-sm text-muted-foreground">
-													Guardrail activity was recorded, but the source rule
-													could not be resolved from current workspace mappings.
+															{t("strings.Guardrail activity was recorded, but the source rule could not be resolved from current workspace mappings." as never)}
 												</div>
 											)}
 										</div>
 									</div>
 								) : (
 									<div className="text-sm text-muted-foreground">
-										No recorded blocked, redacted, or flagged requests for
-										this key in the last 30 days.
+															{t("strings.No recorded blocked, redacted, or flagged requests for this key in the last 30 days." as never)}
 									</div>
 								)}
 							</div>
@@ -483,17 +486,17 @@ export default function KeyDetailsItem({
 						<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
 								<Button type="button" onClick={() => handleEditOpenChange(true)}>
 									<Pencil className="size-4" />
-									Edit
+															{t("strings.Edit" as never)}
 								</Button>
 							<Button asChild variant="outline">
 								<Link href={activityHref}>
-									Activity
+									{t("strings.Activity" as never)}
 									<ArrowUpRight className="ml-2 h-4 w-4" />
 								</Link>
 							</Button>
 							<Button asChild variant="outline">
 								<Link href={logsHref}>
-									Logs
+									{t("strings.Logs" as never)}
 									<ArrowUpRight className="ml-2 h-4 w-4" />
 								</Link>
 							</Button>

@@ -26,6 +26,7 @@ import {
 import { featureLabels } from "@/lib/config/featureLabels";
 import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface ModelsTableHeaderProps {
 	allEndpoints: string[];
@@ -62,6 +63,7 @@ export default function ModelsTableHeader({
 	allTiers,
 	allStatuses,
 }: ModelsTableHeaderProps) {
+	const t = useTranslations("Catalogue.models");
 	const pathname = usePathname();
 	const isTable = pathname?.includes("/models/table");
 
@@ -119,7 +121,7 @@ export default function ModelsTableHeader({
 		<>
 			<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
 				<div className="flex items-center w-full md:w-auto">
-					<h1 className="font-bold text-xl mb-2 md:mb-0">Models</h1>
+					<h1 className="font-bold text-xl mb-2 md:mb-0">{t("title")}</h1>
 
 					{/* Mobile: tabs next to the title */}
 					<div className="ml-2 md:hidden">
@@ -135,13 +137,13 @@ export default function ModelsTableHeader({
 										<Link
 											href="/models"
 											prefetch={false}
-											aria-label="Card view"
+											aria-label={t("cardView")}
 										>
 											<GridIcon className="h-4 w-4" />
 										</Link>
 									</Button>
 								</TooltipTrigger>
-								<TooltipContent side="top">Card view</TooltipContent>
+								<TooltipContent side="top">{t("cardView")}</TooltipContent>
 							</Tooltip>
 
 							<Tooltip>
@@ -155,13 +157,13 @@ export default function ModelsTableHeader({
 										<Link
 											href="/models/table"
 											prefetch={false}
-											aria-label="Table view"
+											aria-label={t("tableView")}
 										>
 											<TableIcon className="h-4 w-4" />
 										</Link>
 									</Button>
 								</TooltipTrigger>
-								<TooltipContent side="top">Table view</TooltipContent>
+								<TooltipContent side="top">{t("tableView")}</TooltipContent>
 							</Tooltip>
 						</div>
 					</div>
@@ -170,7 +172,7 @@ export default function ModelsTableHeader({
 				<div className="relative w-full md:w-1/5">
 					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 					<Input
-						placeholder="Search models..."
+						placeholder={t("searchPlaceholder")}
 						value={search}
 						onChange={(e) =>
 							setSearch(e.target.value || "", {

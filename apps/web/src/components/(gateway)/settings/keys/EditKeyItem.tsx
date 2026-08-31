@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Edit2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -79,7 +80,7 @@ function parseUsd(value: string): number | null | undefined {
 	return Math.round(parsed * NANOS_PER_USD);
 }
 
-function buildLimitPayload(form: LimitsForm): KeyLimitPayload | null {
+function buildLimitPayload(form: LimitsForm, invalidMessage: string): KeyLimitPayload | null {
 	const values = {
 		dailyRequests: parseInteger(form.dailyRequests),
 		weeklyRequests: parseInteger(form.weeklyRequests),
@@ -90,7 +91,7 @@ function buildLimitPayload(form: LimitsForm): KeyLimitPayload | null {
 	};
 	const invalid = Object.values(values).some((value) => value === undefined);
 	if (invalid) {
-		toast.error("Limits must be zero or a positive number.");
+		toast.error(invalidMessage);
 		return null;
 	}
 	return values as KeyLimitPayload;
@@ -115,6 +116,7 @@ function LimitInput({
 	onChange: (value: string) => void;
 	kind: "requests" | "spend";
 }) {
+	const t = useTranslations("SettingsUI");
 	return (
 		<div className="min-w-0 space-y-2">
 			<Label htmlFor={id}>{label}</Label>
@@ -127,7 +129,7 @@ function LimitInput({
 					type="number"
 					min="0"
 					step={kind === "spend" ? "0.01" : "1"}
-					placeholder="Unlimited"
+					placeholder={t("strings.Unlimited" as never)}
 					value={value}
 					onChange={(event) => onChange(event.target.value)}
 				/>
@@ -152,6 +154,7 @@ export default function EditKeyItem({
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [internalOpen, setInternalOpen] = useState(false);
 	const open = controlledOpen ?? internalOpen;
 	const setOpen = onOpenChange ?? setInternalOpen;
@@ -175,10 +178,10 @@ export default function EditKeyItem({
 		event.preventDefault();
 		const trimmedName = name.trim();
 		if (!trimmedName) {
-			toast.error("Key name is required.");
+			toast.error(t("strings.Key name is required." as never));
 			return;
 		}
-		const limitPayload = buildLimitPayload(limits);
+		const limitPayload = buildLimitPayload(limits, t("strings.Limits must be zero or a positive number." as never));
 		if (!limitPayload) return;
 
 		setSaving(true);
@@ -189,9 +192,9 @@ export default function EditKeyItem({
 					updateKeyLimitsAction(k.id, limitPayload),
 				]),
 				{
-					loading: "Saving key...",
-					success: "Key updated",
-					error: (error) => error instanceof Error ? error.message : "Failed to update key",
+					loading: t("strings.Saving key..." as never),
+					success: t("strings.Key updated" as never),
+					error: (error) => error instanceof Error ? error.message : t("strings.Failed to update key" as never),
 				},
 			);
 			setOpen(false);
@@ -205,29 +208,29 @@ export default function EditKeyItem({
 			{trigger ? (
 				<DropdownMenuItem render={<div className="flex w-full items-center gap-2 text-left" onClick={() => setTimeout(() => setOpen(true), 0)} />}>
 					<Edit2 className="mr-2 size-4" />
-					Edit
+					{t("strings.Edit" as never)}
 				</DropdownMenuItem>
 			) : null}
 			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[36rem]">
 				<DialogHeader>
-					<DialogTitle>Edit API Key</DialogTitle>
+					<DialogTitle>{t("strings.Edit API Key" as never)}</DialogTitle>
 					<DialogDescription>
-						Manage the key name, availability, and usage limits.
+						{t("strings.Manage the key name, availability, and usage limits." as never)}
 					</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={onSave} className="space-y-6">
 					<section className="space-y-4">
-						<div className="text-sm font-medium">General</div>
+						<div className="text-sm font-medium">{t("strings.General" as never)}</div>
 						<div className="space-y-2">
-							<Label htmlFor={`key-name-${k.id}`}>Key Name</Label>
+							<Label htmlFor={`key-name-${k.id}`}>{t("strings.Key Name" as never)}</Label>
 							<Input id={`key-name-${k.id}`} value={name} onChange={(event) => setName(event.target.value)} />
 						</div>
 						<div className="flex items-center justify-between gap-4">
 							<div>
-								<div className="text-sm font-medium">Enabled</div>
-								<div className="text-xs text-muted-foreground">Disabled keys cannot make gateway requests.</div>
+								<div className="text-sm font-medium">{t("strings.Enabled" as never)}</div>
+								<div className="text-xs text-muted-foreground">{t("strings.Disabled keys cannot make gateway requests." as never)}</div>
 							</div>
-							<Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Key enabled" />
+							<Switch checked={enabled} onCheckedChange={setEnabled} aria-label={t("strings.Key enabled" as never)} />
 						</div>
 					</section>
 
@@ -235,8 +238,8 @@ export default function EditKeyItem({
 
 					<section className="space-y-4">
 						<div>
-							<div className="text-sm font-medium">Limits</div>
-							<div className="text-xs text-muted-foreground">Leave a field blank for unlimited.</div>
+							<div className="text-sm font-medium">{t("strings.Limits" as never)}</div>
+							<div className="text-xs text-muted-foreground">{t("strings.Leave a field blank for unlimited." as never)}</div>
 						</div>
 						<div className="grid gap-4 md:grid-cols-3">
 							<LimitInput id="edit-key-daily-requests" label="Daily Requests" value={limits.dailyRequests} onChange={(value) => updateLimit("dailyRequests", value)} kind="requests" />
@@ -251,8 +254,8 @@ export default function EditKeyItem({
 					</section>
 
 					<DialogFooter>
-						<DialogClose asChild><Button type="button" variant="ghost">Cancel</Button></DialogClose>
-						<Button type="submit" disabled={saving || !dirty}>{saving ? "Saving..." : "Save Changes"}</Button>
+						<DialogClose asChild><Button type="button" variant="ghost">{t("strings.Cancel" as never)}</Button></DialogClose>
+						<Button type="submit" disabled={saving || !dirty}>{saving ? t("strings.Saving..." as never) : t("strings.Save Changes" as never)}</Button>
 					</DialogFooter>
 				</form>
 			</DialogContent>

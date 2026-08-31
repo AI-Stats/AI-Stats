@@ -67,6 +67,7 @@ import {
 	updateApiKeyAction,
 } from "@/app/(dashboard)/settings/keys/actions";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type KeyState = "active" | "disabled" | "limited" | "expired";
 type KeyDialogType = "details" | "edit" | "rotate" | "delete";
@@ -178,6 +179,7 @@ function GuardrailSummary({
 	guardrails?: any[];
 	className?: string;
 }) {
+	const t = useTranslations("SettingsUI");
 	const items = Array.isArray(guardrails) ? guardrails : [];
 	if (items.length === 0) {
 		return (
@@ -199,7 +201,7 @@ function GuardrailSummary({
 						{guardrail.name ?? guardrail.id ?? "Guardrail"}
 					</span>
 					{guardrail.enabled === false ? (
-						<span className="text-muted-foreground">(Off)</span>
+						<span className="text-muted-foreground">({t("labels.off")})</span>
 					) : null}
 				</Badge>
 			))}
@@ -390,6 +392,7 @@ function LimitPillStack({
 	state: KeyState;
 	metricLabel: "requests" | "spend";
 }) {
+	const t = useTranslations("SettingsUI");
 	return (
 		<div className="flex min-w-0 flex-col gap-1">
 			{windows.map((window) => {
@@ -414,11 +417,11 @@ function LimitPillStack({
 							: tone === "ok"
 								? "bg-emerald-600"
 								: "bg-muted-foreground/40";
-				const value = clamped !== null ? `${Math.round(clamped)}%` : "No cap";
+				const value = clamped !== null ? `${Math.round(clamped)}%` : t("strings.No cap" as never);
 				const title =
 					metricLabel === "requests"
-						? `${window.name} requests`
-						: `${window.name} spend`;
+						? `${window.name} ${t("strings.requests" as never)}`
+						: `${window.name} ${t("strings.spend" as never)}`;
 				const resetText = formatResetCountdown(window.label);
 
 				return (
@@ -444,7 +447,7 @@ function LimitPillStack({
 										</div>
 									</div>
 									<div className="mt-1 text-muted-foreground">
-										Resets in {resetText}
+									{t("strings.Resets in {time}" as never, { time: resetText } as never)}
 									</div>
 								</div>
 								<div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -455,27 +458,27 @@ function LimitPillStack({
 								</div>
 								<div className="space-y-1.5">
 									<div className="flex items-center justify-between gap-4">
-										<span className="text-muted-foreground">Used</span>
+											<span className="text-muted-foreground">{t("labels.used")}</span>
 										<span className="font-mono font-medium tabular-nums">
 											{formatter(window.used)}
 										</span>
 									</div>
 									<div className="flex items-center justify-between gap-4">
-										<span className="text-muted-foreground">Limit</span>
+											<span className="text-muted-foreground">{t("labels.limit")}</span>
 										<span className="font-mono font-medium tabular-nums">
-											{window.limit > 0 ? formatter(window.limit) : "No cap"}
+											{window.limit > 0 ? formatter(window.limit) : t("strings.No cap" as never)}
 										</span>
 									</div>
 									{window.limit > 0 ? (
 										<div className="flex items-center justify-between gap-4">
-											<span className="text-muted-foreground">Remaining</span>
+													<span className="text-muted-foreground">{t("labels.remaining")}</span>
 											<span className="font-mono font-semibold tabular-nums text-foreground">
 												{formatter(remaining)}
 											</span>
 										</div>
 									) : null}
 									<div className="flex items-center justify-between gap-4 border-t pt-1.5">
-										<span className="text-muted-foreground">Reset</span>
+													<span className="text-muted-foreground">{t("labels.reset")}</span>
 										<span className="font-mono font-semibold tabular-nums text-foreground">
 											{resetText}
 										</span>
@@ -491,6 +494,7 @@ function LimitPillStack({
 }
 
 export default function KeysPanel({ teamsWithKeys }: any) {
+	const t = useTranslations("SettingsUI");
 	const router = useRouter();
 	// Ensure teams that have keys are shown first. Within each workspace, keys are
 	// ordered by most recent use; keys without a valid last-used timestamp come last.
@@ -578,10 +582,10 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 					)
 				),
 				{
-					loading: paused ? "Pausing selected keys..." : "Activating selected keys...",
-					success: paused ? "Selected keys paused" : "Selected keys activated",
+					loading: paused ? t("strings.Pausing selected keys..." as never) : t("strings.Activating selected keys..." as never),
+					success: paused ? t("strings.Selected keys paused" as never) : t("strings.Selected keys activated" as never),
 					error: (error) =>
-						(error && (error as any).message) || "Failed to update selected keys",
+						(error && (error as any).message) || t("strings.Failed to update selected keys" as never),
 				}
 			);
 			setSelectedIds(new Set());
@@ -602,10 +606,10 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 					)
 				),
 				{
-					loading: "Deleting selected keys...",
-					success: "Selected keys deleted",
+					loading: t("strings.Deleting selected keys..." as never),
+					success: t("strings.Selected keys deleted" as never),
 					error: (error) =>
-						(error && (error as any).message) || "Failed to delete selected keys",
+						(error && (error as any).message) || t("strings.Failed to delete selected keys" as never),
 				}
 			);
 			setBulkDeleteOpen(false);
@@ -623,9 +627,9 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 					<EmptyMedia variant="icon">
 						<Key className="h-5 w-5" />
 					</EmptyMedia>
-					<EmptyTitle>No API keys yet</EmptyTitle>
+					<EmptyTitle>{t("strings.No API keys yet" as never)}</EmptyTitle>
 					<EmptyDescription>
-						Create your first key to start sending gateway requests.
+						{t("strings.Create your first key to start sending gateway requests." as never)}
 					</EmptyDescription>
 				</EmptyHeader>
 			</Empty>
@@ -640,7 +644,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 					<div className="text-sm">
 						<span className="font-medium">{selectedKeys.length}</span>{" "}
 						<span className="text-muted-foreground">
-							{selectedKeys.length === 1 ? "key selected" : "keys selected"}
+											{selectedKeys.length === 1 ? t("strings.key selected" as never) : t("strings.keys selected" as never)}
 						</span>
 					</div>
 					<div className="flex flex-wrap items-center gap-2">
@@ -652,7 +656,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 							onClick={() => runBulkStatusUpdate(false)}
 						>
 							<CheckCircle2 className="h-4 w-4" />
-							Activate
+							{t("strings.Activate" as never)}
 						</Button>
 						<Button
 							type="button"
@@ -662,7 +666,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 							onClick={() => runBulkStatusUpdate(true)}
 						>
 							<Ban className="h-4 w-4" />
-							Pause
+							{t("strings.Pause" as never)}
 						</Button>
 						<Button
 							type="button"
@@ -672,7 +676,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 							onClick={() => setBulkDeleteOpen(true)}
 						>
 							<Trash2 className="h-4 w-4" />
-							Delete
+							{t("strings.Delete" as never)}
 						</Button>
 					</div>
 				</div>
@@ -688,9 +692,9 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 								<EmptyMedia variant="icon">
 									<Key className="h-5 w-5" />
 								</EmptyMedia>
-								<EmptyTitle className="text-base">No keys for this workspace</EmptyTitle>
+						<EmptyTitle className="text-base">{t("strings.No keys for this workspace" as never)}</EmptyTitle>
 								<EmptyDescription>
-									Create an API key to manage access and usage limits.
+									{t("strings.Create an API key to manage access and usage limits." as never)}
 								</EmptyDescription>
 							</EmptyHeader>
 						</Empty>
@@ -742,30 +746,30 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 															variant="ghost"
 															size="icon"
 															className="h-8 w-8"
-															aria-label="Actions" />}>
+									aria-label={t("labels.actions")} />}>
 
 															<MoreVertical className="h-4 w-4" />
 
 													</DropdownMenuTrigger>
 												<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-2xl">
 														<KeyDialogMenuItem
-															label="Details"
+																	label={t("strings.Details" as never)}
 															Icon={Info}
 															onOpen={() => openKeyDialog("details", k)}
 														/>
 														<UsageItem k={k} />
 														<KeyDialogMenuItem
-															label="Edit"
+																	label={t("strings.Edit" as never)}
 															Icon={Edit2}
 															onOpen={() => openKeyDialog("edit", k)}
 														/>
 														<KeyDialogMenuItem
-															label="Rotate"
+																	label={t("strings.Rotate" as never)}
 															Icon={RefreshCw}
 															onOpen={() => openKeyDialog("rotate", k)}
 														/>
 														<KeyDialogMenuItem
-															label="Delete"
+																	label={t("strings.Delete" as never)}
 															Icon={Trash2}
 															variant="destructive"
 															onOpen={() => openKeyDialog("delete", k)}
@@ -776,18 +780,18 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 
 											<div className="grid grid-cols-2 gap-3 text-xs">
 												<div>
-													<div className="text-muted-foreground">Last Used</div>
+											<div className="text-muted-foreground">{t("strings.Last Used" as never)}</div>
 													<div>{formatLastUsed(k.last_used_at)}</div>
 												</div>
 												<div>
-													<div className="text-muted-foreground">Expires</div>
+											<div className="text-muted-foreground">{t("strings.Expires" as never)}</div>
 													<div>{formatExpiry(k.expires_at)}</div>
 												</div>
 											</div>
 
 											<div className="space-y-1.5">
 												<div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-													Requests
+									{t("strings.Requests" as never)}
 												</div>
 												<LimitPillStack
 													windows={visuals.requestWindows}
@@ -799,7 +803,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 
 											<div className="space-y-1.5">
 												<div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-													Spend
+									{t("strings.Spend" as never)}
 												</div>
 												<LimitPillStack
 													windows={visuals.spendWindows}
@@ -828,23 +832,23 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 												onCheckedChange={(checked) =>
 													toggleAllKeys(checked === true)
 												}
-												aria-label="Select all API keys"
+								aria-label={t("strings.Select all API keys" as never)}
 											/>
 										</TableHead>
 										<TableHead className="w-[26%]">
-											Key{" "}
+											{t("strings.Key" as never)}{" "}
 											<span className="ml-1 text-xs font-normal text-muted-foreground">
 												({team.keys.length})
 											</span>
 										</TableHead>
-										<TableHead className="w-[16%]">Guardrails</TableHead>
-										<TableHead className="w-[16%]">Requests</TableHead>
-										<TableHead className="w-[16%]">Spend</TableHead>
+											<TableHead className="w-[16%]">{t("strings.Guardrails" as never)}</TableHead>
+											<TableHead className="w-[16%]">{t("strings.Requests" as never)}</TableHead>
+											<TableHead className="w-[16%]">{t("strings.Spend" as never)}</TableHead>
 										<TableHead className="w-[10%] whitespace-nowrap">
-											Last Used
+											{t("strings.Last Used" as never)}
 										</TableHead>
 										<TableHead className="w-[8%] whitespace-nowrap">
-											Expires
+											{t("strings.Expires" as never)}
 										</TableHead>
 										<TableHead className="w-[5%] text-right" />
 									</TableRow>
@@ -931,7 +935,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 														<DropdownMenuTrigger render={<Button
 																variant="ghost"
 																size="icon"
-																aria-label="Actions" />}>
+								aria-label={t("labels.actions")} />}>
 
 																<MoreVertical />
 
@@ -942,23 +946,23 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 													className="w-40 rounded-2xl"
 														>
 															<KeyDialogMenuItem
-																label="Details"
+																		label={t("strings.Details" as never)}
 																Icon={Info}
 																onOpen={() => openKeyDialog("details", k)}
 															/>
 															<UsageItem k={k} />
 															<KeyDialogMenuItem
-																label="Edit"
+																		label={t("strings.Edit" as never)}
 																Icon={Edit2}
 																onOpen={() => openKeyDialog("edit", k)}
 															/>
 															<KeyDialogMenuItem
-																label="Rotate"
+																		label={t("strings.Rotate" as never)}
 																Icon={RefreshCw}
 																onOpen={() => openKeyDialog("rotate", k)}
 															/>
 															<KeyDialogMenuItem
-																label="Delete"
+																		label={t("strings.Delete" as never)}
 																Icon={Trash2}
 																variant="destructive"
 																onOpen={() => openKeyDialog("delete", k)}
@@ -1028,11 +1032,12 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 		<Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Delete selected API keys?</DialogTitle>
+								<DialogTitle>{t("keys.deleteSelectedQuestion")}</DialogTitle>
 					<DialogDescription>
-						This will delete {selectedKeys.length}{" "}
-						{selectedKeys.length === 1 ? "key" : "keys"} and remove linked
-						guardrail assignments from those keys.
+						{t("strings.This will delete {count} {unit} and remove linked guardrail assignments from those keys." as never, {
+							count: selectedKeys.length,
+							unit: selectedKeys.length === 1 ? t("strings.key" as never) : t("strings.keys" as never),
+						} as never)}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border bg-muted/30 p-2 text-sm">
@@ -1054,7 +1059,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						disabled={bulkBusy}
 						onClick={() => setBulkDeleteOpen(false)}
 					>
-						Cancel
+												{t("strings.Cancel" as never)}
 					</Button>
 					<Button
 						type="button"
@@ -1062,7 +1067,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						disabled={bulkBusy || selectedKeys.length === 0}
 						onClick={runBulkDelete}
 					>
-						{bulkBusy ? "Deleting..." : "Delete selected"}
+										{bulkBusy ? t("strings.Deleting..." as never) : t("strings.Delete selected" as never)}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

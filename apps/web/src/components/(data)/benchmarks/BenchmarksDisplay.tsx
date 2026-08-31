@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useQueryState } from "nuqs";
 import BenchmarkCard from "./BenchmarkCard";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ interface BenchmarksDisplayProps {
 export default function BenchmarksDisplay({
 	benchmarks,
 }: BenchmarksDisplayProps) {
+	const t = useTranslations("Catalogue.benchmarks");
 	// Filter and always sort A-Z
 	const [search, setSearch] = useQueryState("search", {
 		defaultValue: "",
@@ -38,13 +40,13 @@ export default function BenchmarksDisplay({
 			<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
 				<div>
 					<h1 className="font-bold text-xl mb-2 md:mb-0">
-						Benchmarks
+						{t("title")}
 					</h1>
 				</div>
 				<div className="relative w-full max-w-xs md:w-80">
 					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 					<Input
-						placeholder="Search benchmarks..."
+						placeholder={t("searchPlaceholder")}
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						className="pl-9 pr-2 py-1.5 text-sm rounded-full bg-background border focus:outline-hidden focus:ring-2 focus:ring-primary w-full"
@@ -64,7 +66,7 @@ export default function BenchmarksDisplay({
 					))
 				) : (
 					<div className="col-span-full text-center text-muted-foreground py-12">
-						No benchmarks found.
+						{t("noResults")}
 					</div>
 				)}
 			</div>

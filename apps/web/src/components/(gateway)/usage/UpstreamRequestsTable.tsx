@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, KeyRound, XCircle } from "lucide-react";
 
 import type { ProviderMetadataEntry } from "@/app/(dashboard)/gateway/usage/server-actions";
@@ -133,6 +134,7 @@ export default function UpstreamRequestsTable({
 	providerMetadata: Map<string, ProviderMetadataEntry>;
 	keys: Map<string, KeyMetadata>;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [selected, setSelected] = React.useState<UsageUpstreamRequestRow | null>(null);
 
 	return (
@@ -147,16 +149,16 @@ export default function UpstreamRequestsTable({
 					<Table wrapInContainer={false} className="min-w-[1080px] whitespace-nowrap text-xs">
 						<TableHeader>
 							<TableRow className="h-9">
-								<TableHead>Date</TableHead>
-								<TableHead>Model</TableHead>
-								<TableHead>Provider</TableHead>
-								<TableHead>Source</TableHead>
-								<TableHead>Generation ID</TableHead>
-								<TableHead>Status</TableHead>
-								<TableHead className="text-right">Attempts</TableHead>
-								<TableHead>Key used</TableHead>
-								<TableHead className="text-right">Throughput</TableHead>
-								<TableHead className="text-right">Latency</TableHead>
+								<TableHead>{t("strings.Date" as never)}</TableHead>
+								<TableHead>{t("strings.Model" as never)}</TableHead>
+								<TableHead>{t("strings.Provider" as never)}</TableHead>
+								<TableHead>{t("strings.Source" as never)}</TableHead>
+								<TableHead>{t("strings.Generation ID" as never)}</TableHead>
+								<TableHead>{t("strings.Status" as never)}</TableHead>
+								<TableHead className="text-right">{t("strings.Attempts" as never)}</TableHead>
+								<TableHead>{t("strings.Key used" as never)}</TableHead>
+								<TableHead className="text-right">{t("strings.Throughput" as never)}</TableHead>
+								<TableHead className="text-right">{t("strings.Latency" as never)}</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -286,10 +288,10 @@ export default function UpstreamRequestsTable({
 								) : null}
 								<Separator className="my-5" />
 								<div className="space-y-5">
-									<PayloadSection title="Request payload" value={selected.request_payload} />
-									<PayloadSection title="Response payload" value={selected.response_payload} />
-									<PayloadSection title="Usage" value={selected.usage} />
-									<PayloadSection title="Metadata" value={selected.metadata} />
+									<PayloadSection title={t("strings.Request payload" as never)} value={selected.request_payload} />
+									<PayloadSection title={t("strings.Response payload" as never)} value={selected.response_payload} />
+									<PayloadSection title={t("strings.Usage" as never)} value={selected.usage} />
+									<PayloadSection title={t("strings.Metadata" as never)} value={selected.metadata} />
 								</div>
 							</div>
 						</>

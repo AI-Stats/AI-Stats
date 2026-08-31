@@ -9,7 +9,7 @@ function readSource(relativePath: string): string {
 
 describe("settings UI contracts", () => {
 	it("uses the sidebar as the single settings navigation hierarchy", () => {
-		const layoutSource = readSource("src/app/(dashboard)/settings/layout.tsx");
+		const layoutSource = readSource("src/app/[locale]/(dashboard)/settings/layout.tsx");
 		const sidebarSource = readSource(
 			"src/components/(gateway)/settings/Sidebar.tsx",
 		);
@@ -39,7 +39,7 @@ describe("settings UI contracts", () => {
 		const pageHeaderSource = readSource(
 			"src/components/(gateway)/settings/SettingsPageHeader.tsx",
 		);
-		const keysPageSource = readSource("src/app/(dashboard)/settings/keys/page.tsx");
+		const keysPageSource = readSource("src/app/[locale]/(dashboard)/settings/keys/page.tsx");
 
 		expect(headerSource).toContain("<SettingsSidebarTrigger");
 		expect(headerSource.indexOf("<SettingsSidebarTrigger")).toBeLessThan(
@@ -92,7 +92,7 @@ describe("settings UI contracts", () => {
 			"src/components/(gateway)/settings/teams/TeamSettingsPanel.tsx",
 		);
 		const accountWorkspacesSource = readSource(
-			"src/app/(dashboard)/settings/account/workspaces/page.tsx",
+			"src/app/[locale]/(dashboard)/settings/account/workspaces/page.tsx",
 		);
 
 		expect(containerSource).not.toContain('settings/CreateTeamDialog');
