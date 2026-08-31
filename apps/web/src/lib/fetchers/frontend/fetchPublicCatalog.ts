@@ -271,21 +271,10 @@ export async function fetchFrontendMonitorHistoryPage(
 export async function fetchFrontendModelOverview(
 	modelId: string,
 ): Promise<ModelOverviewPage | null> {
-	const path = `/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1` as const;
-	for (let attempt = 0; attempt < 2; attempt += 1) {
-		try {
-			const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(path);
-			return payload?.model ?? null;
-		} catch (error) {
-			const status =
-				error && typeof error === "object" && "status" in error
-					? Number((error as { status?: unknown }).status)
-					: null;
-			if (![502, 503, 504].includes(status) || attempt === 1) throw error;
-			await new Promise((resolve) => setTimeout(resolve, 150));
-		}
-	}
-	return null;
+	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
+		`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
+	);
+	return payload?.model ?? null;
 }
 
 export async function fetchFrontendModelHeader(
