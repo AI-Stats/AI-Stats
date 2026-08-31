@@ -637,7 +637,9 @@
       "minimax/minimax-m2.7:free",
       "minimax/minimax-m3:free",
       "minimax/music-3.0:free",
-      "minimax/speech-2.8:free"
+      "minimax/speech-2.8:free",
+      "minimax/h3",
+      "minimax/h3-max"
     ],
     "mistral": [
       "mistral/codestral",

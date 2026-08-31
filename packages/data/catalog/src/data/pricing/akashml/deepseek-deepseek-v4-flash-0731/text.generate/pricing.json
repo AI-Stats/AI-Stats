@@ -5,12 +5,15 @@
   "api_model_id": "deepseek/deepseek-v4-flash-0731",
   "capability_id": "text.generate",
   "rules": [
-    { "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.1, "currency": "USD", "pricing_plan": "standard", "note": "AkashML models endpoint pricing checked 2026-08-28: $0.10 per 1M input tokens.", "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://api.akashml.com/v1/models" },
+    { "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.065, "currency": "USD", "pricing_plan": "standard", "note": "AkashML models endpoint pricing checked 2026-08-31: $0.065 per 1M input tokens.", "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://api.akashml.com/v1/models" },
     { "meter": "implicit_cached_input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.02, "currency": "USD", "pricing_plan": "standard", "note": null, "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://akashml.com/docs/platform/models" },
-    { "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.28, "currency": "USD", "pricing_plan": "standard", "note": null, "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://akashml.com/docs/platform/models" }
+    { "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.18, "currency": "USD", "pricing_plan": "standard", "note": "AkashML models endpoint pricing checked 2026-08-31: $0.18 per 1M output tokens.", "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://api.akashml.com/v1/models" }
   ],
   "regions": [],
   "service_tiers": ["standard"],
-  "sources": [{ "kind": "pricing", "url": "https://api.akashml.com/v1/models", "accessed_at": "2026-08-28T00:00:00Z" }],
-  "verification": { "status": "verified", "checked_at": "2026-08-28", "notes": "Verified against AkashML's live models endpoint." }
+  "sources": [
+    { "kind": "pricing", "url": "https://api.akashml.com/v1/models", "accessed_at": "2026-08-31T00:00:00Z", "notes": "Live endpoint source for the current input and output rates." },
+    { "kind": "pricing", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-31T00:00:00Z", "notes": "Platform documentation source for the $0.02/M cached-input rate." }
+  ],
+  "verification": { "status": "verified", "checked_at": "2026-08-31", "notes": "Input and output rates verified against AkashML's live models endpoint; the cached-input rate is verified against AkashML's platform model documentation." }
 }

@@ -375,9 +375,6 @@ pub mod model_ids {
     /// Model ID: `google/gemini-embedding-2`.
     /// Model page: https://phaseo.app/models/google/gemini-embedding-2
     pub const GOOGLE_GEMINI_EMBEDDING_2: &str = "google/gemini-embedding-2";
-    /// Model ID: `google/gemini-robotics-er-1.6-preview`.
-    /// Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
-    pub const GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: &str = "google/gemini-robotics-er-1.6-preview";
     /// Model ID: `google/gemini-robotics-er-2-preview`.
     /// Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview
     pub const GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW: &str = "google/gemini-robotics-er-2-preview";
@@ -561,6 +558,12 @@ pub mod model_ids {
     /// Model ID: `mindai/macaron-v1-venti`.
     /// Model page: https://phaseo.app/models/mindai/macaron-v1-venti
     pub const MINDAI_MACARON_V1_VENTI: &str = "mindai/macaron-v1-venti";
+    /// Model ID: `minimax/h3`.
+    /// Model page: https://phaseo.app/models/minimax/h3
+    pub const MINIMAX_H3: &str = "minimax/h3";
+    /// Model ID: `minimax/h3-max`.
+    /// Model page: https://phaseo.app/models/minimax/h3-max
+    pub const MINIMAX_H3_MAX: &str = "minimax/h3-max";
     /// Model ID: `minimax/hailuo-02`.
     /// Model page: https://phaseo.app/models/minimax/hailuo-02
     pub const MINIMAX_HAILUO_02: &str = "minimax/hailuo-02";
@@ -759,24 +762,6 @@ pub mod model_ids {
     /// Model ID: `moonshotai/kimi-k3-fast`.
     /// Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast
     pub const MOONSHOTAI_KIMI_K3_FAST: &str = "moonshotai/kimi-k3-fast";
-    /// Model ID: `moonshotai/moonshot-v1-128k`.
-    /// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k
-    pub const MOONSHOTAI_MOONSHOT_V1_128K: &str = "moonshotai/moonshot-v1-128k";
-    /// Model ID: `moonshotai/moonshot-v1-128k-vision-preview`.
-    /// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k-vision-preview
-    pub const MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW: &str = "moonshotai/moonshot-v1-128k-vision-preview";
-    /// Model ID: `moonshotai/moonshot-v1-32k`.
-    /// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k
-    pub const MOONSHOTAI_MOONSHOT_V1_32K: &str = "moonshotai/moonshot-v1-32k";
-    /// Model ID: `moonshotai/moonshot-v1-32k-vision-preview`.
-    /// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k-vision-preview
-    pub const MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW: &str = "moonshotai/moonshot-v1-32k-vision-preview";
-    /// Model ID: `moonshotai/moonshot-v1-8k`.
-    /// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k
-    pub const MOONSHOTAI_MOONSHOT_V1_8K: &str = "moonshotai/moonshot-v1-8k";
-    /// Model ID: `moonshotai/moonshot-v1-8k-vision-preview`.
-    /// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview
-    pub const MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW: &str = "moonshotai/moonshot-v1-8k-vision-preview";
     /// Model ID: `morph/morph-compactor`.
     /// Model page: https://phaseo.app/models/morph/morph-compactor
     pub const MORPH_MORPH_COMPACTOR: &str = "morph/morph-compactor";
@@ -801,21 +786,9 @@ pub mod model_ids {
     /// Model ID: `nousresearch/hermes-4-405b`.
     /// Model page: https://phaseo.app/models/nousresearch/hermes-4-405b
     pub const NOUSRESEARCH_HERMES_4_405B: &str = "nousresearch/hermes-4-405b";
-    /// Model ID: `nousresearch/hermes-4-70b`.
-    /// Model page: https://phaseo.app/models/nousresearch/hermes-4-70b
-    pub const NOUSRESEARCH_HERMES_4_70B: &str = "nousresearch/hermes-4-70b";
-    /// Model ID: `nvidia/cosmos3-super-reasoner`.
-    /// Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner
-    pub const NVIDIA_COSMOS3_SUPER_REASONER: &str = "nvidia/cosmos3-super-reasoner";
-    /// Model ID: `nvidia/llama-3.1-nemotron-ultra-253b`.
-    /// Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b
-    pub const NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B: &str = "nvidia/llama-3.1-nemotron-ultra-253b";
     /// Model ID: `nvidia/nemotron-3-nano-30b-a3b`.
     /// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b
     pub const NVIDIA_NEMOTRON_3_NANO_30B_A3B: &str = "nvidia/nemotron-3-nano-30b-a3b";
-    /// Model ID: `nvidia/nemotron-3-nano-omni`.
-    /// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
-    pub const NVIDIA_NEMOTRON_3_NANO_OMNI: &str = "nvidia/nemotron-3-nano-omni";
     /// Model ID: `nvidia/nemotron-3-super-120b-a12b`.
     /// Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
     pub const NVIDIA_NEMOTRON_3_SUPER_120B_A12B: &str = "nvidia/nemotron-3-super-120b-a12b";
@@ -1818,7 +1791,6 @@ pub mod model_ids {
         GOOGLE_GEMINI_3_7_FLASH,
         GOOGLE_GEMINI_EMBEDDING_001,
         GOOGLE_GEMINI_EMBEDDING_2,
-        GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
         GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
         GOOGLE_GEMMA_3_12B,
         GOOGLE_GEMMA_3_27B,
@@ -1880,6 +1852,8 @@ pub mod model_ids {
         MICROSOFT_WIZARDLM_2_8X22B,
         MINDAI_MACARON_V1_TALL,
         MINDAI_MACARON_V1_VENTI,
+        MINIMAX_H3,
+        MINIMAX_H3_MAX,
         MINIMAX_HAILUO_02,
         MINIMAX_HAILUO_2_3,
         MINIMAX_HAILUO_2_3_FAST,
@@ -1946,12 +1920,6 @@ pub mod model_ids {
         MOONSHOTAI_KIMI_K2_7_CODE,
         MOONSHOTAI_KIMI_K3,
         MOONSHOTAI_KIMI_K3_FAST,
-        MOONSHOTAI_MOONSHOT_V1_128K,
-        MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW,
-        MOONSHOTAI_MOONSHOT_V1_32K,
-        MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW,
-        MOONSHOTAI_MOONSHOT_V1_8K,
-        MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW,
         MORPH_MORPH_COMPACTOR,
         MORPH_MORPH_V3_FAST,
         MORPH_MORPH_V3_LARGE,
@@ -1960,11 +1928,7 @@ pub mod model_ids {
         NOUS_HERMES_3_LLAMA_3_1_405B,
         NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B,
         NOUSRESEARCH_HERMES_4_405B,
-        NOUSRESEARCH_HERMES_4_70B,
-        NVIDIA_COSMOS3_SUPER_REASONER,
-        NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B,
         NVIDIA_NEMOTRON_3_NANO_30B_A3B,
-        NVIDIA_NEMOTRON_3_NANO_OMNI,
         NVIDIA_NEMOTRON_3_SUPER_120B_A12B,
         NVIDIA_NEMOTRON_3_ULTRA_550B_A55B,
         NVIDIA_NEMOTRON_3_5_LIGHTNING,

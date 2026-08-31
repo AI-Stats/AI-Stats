@@ -741,7 +741,12 @@ async function fetchMiniMaxVideoStatus(job: VideoJobRecord): Promise<VideoProvid
 	if (!key) return null;
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.MINIMAX_BASE_URL || "https://api.minimax.io").replace(/\/+$/, "");
-	const res = await fetch(`${baseUrl}/v1/query/video_generation?task_id=${encodeURIComponent(taskId)}`, {
+	const normalizedModel = String(job.model ?? job.meta?.model ?? "").trim().toLowerCase();
+	const isV2 = normalizedModel === "minimax-h3" || normalizedModel.endsWith("/h3") || normalizedModel === "minimax-h3-max" || normalizedModel.endsWith("/h3-max");
+	const taskUrl = isV2
+		? `${baseUrl}/v2/query/video_generation/${encodeURIComponent(taskId)}`
+		: `${baseUrl}/v1/query/video_generation?task_id=${encodeURIComponent(taskId)}`;
+	const res = await fetch(taskUrl, {
 		method: "GET",
 		headers: {
 			Authorization: `Bearer ${key}`,
@@ -751,18 +756,20 @@ async function fetchMiniMaxVideoStatus(job: VideoJobRecord): Promise<VideoProvid
 	if (!res.ok) return null;
 	const json = await res.json().catch(() => null);
 	if (!json || typeof json !== "object") return null;
+	const task = (json as any).task ?? json;
 	return {
-		status: mapMiniMaxVideoStatus((json as any).status ?? (json as any).task_status ?? (json as any).data?.status),
+		status: mapMiniMaxVideoStatus(task.status ?? task.task_status ?? task.data?.status),
 		providerId,
-		model: String((json as any).model ?? (json as any).data?.model ?? job.model ?? "").trim() || undefined,
+		model: String(task.model ?? task.data?.model ?? job.model ?? "").trim() || undefined,
 		seconds: toPositiveNumber(
-			(json as any).duration ??
-			(json as any).data?.duration ??
+			task.duration ??
+			task.usage?.output_seconds ??
+			task.data?.duration ??
 			job.meta?.seconds,
 		),
 		requestOptions: buildVideoPricingRequestOptions({
-			resolution: (json as any).resolution ?? (json as any).size ?? job.meta?.resolution,
-			quality: (json as any).quality ?? job.meta?.quality,
+			resolution: task.resolution ?? task.size ?? job.meta?.resolution,
+			quality: task.quality ?? job.meta?.quality,
 		}),
 		raw: json,
 	};

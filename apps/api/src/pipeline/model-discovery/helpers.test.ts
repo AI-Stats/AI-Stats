@@ -34,6 +34,15 @@ const GOOGLE_VERTEX_DISCOVERY_PROVIDER = {
 	authStyle: "google_vertex",
 } as const;
 
+const MINIMAX_DISCOVERY_PROVIDER = {
+	providerId: "minimax",
+	providerName: "MiniMax",
+	baseUrl: "https://api.minimax.io",
+	pathPrefix: "/v1",
+	apiKeyEnv: ["MINIMAX_API_KEY"],
+	authStyle: "bearer",
+} as const;
+
 afterEach(() => {
 	teardownTestRuntime();
 });
@@ -43,6 +52,12 @@ afterAll(() => {
 });
 
 describe("resolveProviderModelsEndpoint", () => {
+	it("resolves MiniMax's OpenAI-compatible models endpoint", () => {
+		expect(resolveProviderModelsEndpoint(MINIMAX_DISCOVERY_PROVIDER)).toBe(
+			"https://api.minimax.io/v1/models",
+		);
+	});
+
 	it("interpolates encoded endpoint parameters from Worker bindings", () => {
 		setupRuntimeFromEnv({
 			CLOUDFLARE_ACCOUNT_ID: "account/id",
@@ -79,6 +94,26 @@ describe("resolveProviderModelsEndpoint", () => {
 });
 
 describe("fetchProviderModels", () => {
+	it("fetches MiniMax's OpenAI-compatible model list with bearer auth", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url === "https://api.minimax.io/v1/models",
+			response: jsonResponse({
+				object: "list",
+				data: [
+					{ id: "MiniMax-M3", object: "model", owned_by: "minimax" },
+					{ id: "MiniMax-H3-Max", object: "model", owned_by: "minimax" },
+				],
+			}),
+		}]);
+		try {
+			const models = await fetchProviderModels(MINIMAX_DISCOVERY_PROVIDER, "test-minimax-key");
+			expect(models.map((model) => model.id)).toEqual(["MiniMax-H3-Max", "MiniMax-M3"]);
+			expect(fetchMock.calls[0]?.headers.Authorization).toBe("Bearer test-minimax-key");
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("uses Reka's X-Api-Key header for model discovery", async () => {
 		const fetchMock = installFetchMock([{
 			match: (url) => url === "https://api.reka.ai/v1/models",

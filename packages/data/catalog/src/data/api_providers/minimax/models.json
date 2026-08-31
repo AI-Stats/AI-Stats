@@ -265,11 +265,73 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "minimax/h3-max",
+    "provider_api_model_id": "minimax:minimax/h3-max",
+    "provider_model_slug": "MiniMax-H3-Max",
+    "internal_model_id": "minimax/h3-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": {
+          "prompt": { "type": "string", "max_length": 7000 },
+          "duration": { "type": "number", "min": 5, "max": 15, "aliases": ["seconds", "duration_seconds"] },
+          "size": { "type": "enum", "values": ["480P", "768P"], "aliases": ["resolution"] },
+          "ratio": { "type": "string" },
+          "content": { "type": "array", "item_types": ["text", "image_url"] }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video"],
+        "modes": ["text-to-video", "image-to-video", "first-last-frame"]
+      }
+    ],
+    "provider_status": "available",
+    "phaseo_status": "available",
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["minimax-v2"], "endpoint": "/v2/video_generation", "deployment": null },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/guides/video-generation",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "MiniMax documents MiniMax H3 Max as a jointly released, fast variant supporting text-to-video and image-to-video at 480P or 768P for 5-15 second videos."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "MiniMax publishes $0.05/sec at 480P and $0.08/sec at 768P; input images are currently free."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-31T00:00:00Z",
+      "notes": "Verified against MiniMax's current V2 video-generation and pay-as-you-go documentation. Phaseo routes H3 Max through the native V2 adapter."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "minimax/h3",
     "provider_api_model_id": "minimax:minimax/h3",
     "provider_model_slug": "MiniMax-H3",
     "internal_model_id": "minimax/h3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "video",
@@ -288,7 +350,7 @@
           },
           "duration": {
             "type": "number",
-            "min": 5,
+            "min": 4,
             "max": 15,
             "aliases": [
               "seconds",
@@ -342,9 +404,9 @@
       }
     ],
     "provider_status": "available",
-    "phaseo_status": "unsupported",
+    "phaseo_status": "available",
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -374,7 +436,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-07-31T00:00:00Z",
-      "notes": "MiniMax documents MiniMax-H3 on POST /v2/video_generation. Phaseo remains unroutable until its MiniMax adapter supports the V2 multimodal content array and task lifecycle."
+      "notes": "MiniMax documents MiniMax-H3 on POST /v2/video_generation. Phaseo routes H3 through the native V2 adapter."
     },
     "rate_limits": []
   },
