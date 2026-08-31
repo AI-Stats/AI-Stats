@@ -12,6 +12,7 @@ import { getBaseModel } from "../execute/utils";
 import { stripUsagePricing } from "../usage";
 import { buildImagePricingRequestOptions } from "@core/image-request-options";
 import { normalizeTextServiceTier, readRequestedServiceTier } from "@core/serviceTiers";
+import { getProviderPricingKey } from "../before/context.shared";
 
 function normalizeObservedServiceTier(value: unknown): string {
     if (typeof value === "string" && value.trim().toLowerCase() === "default") {
@@ -92,9 +93,7 @@ export async function loadProviderPricing(
         const pricingKey =
             typeof result.pricingKey === "string" && result.pricingKey.trim().length > 0
                 ? result.pricingKey.trim()
-                : apiModelId
-                    ? `${result.provider}:${apiModelId}`
-                    : result.provider;
+                : getProviderPricingKey(result.provider, apiModelId, result.providerModelSlug);
 
         let card = ctx.pricing?.[pricingKey] ?? null;
         if (!card && pricingKey !== result.provider && apiModelId) {

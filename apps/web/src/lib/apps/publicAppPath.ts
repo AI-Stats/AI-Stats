@@ -13,6 +13,7 @@ export function getPublicAppRouteSegment(title: string): string {
 	return slugifyAppName(title) || "app";
 }
 
-export function getPublicAppPath(title: string): string {
-	return `/apps/${encodeURIComponent(getPublicAppRouteSegment(title))}`;
+export function getPublicAppPath(title: string, publicSlug?: string | null): string {
+	const resolvedSlug = publicSlug?.trim() || getPublicAppRouteSegment(title);
+	return `/apps/${encodeURIComponent(resolvedSlug)}`;
 }

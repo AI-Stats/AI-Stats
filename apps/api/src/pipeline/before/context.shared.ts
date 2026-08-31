@@ -29,6 +29,19 @@ export function round3(value: number): number {
 	return Math.round(value * 1000) / 1000;
 }
 
+export function getProviderPricingKey(
+	providerId: string,
+	apiModelId?: string | null,
+	providerModelSlug?: string | null,
+): string {
+	const provider = providerId.trim();
+	const model = apiModelId?.trim();
+	const route = providerModelSlug?.trim().toLowerCase();
+	if (model && route) return `${provider}:${model}:${route}`;
+	if (model) return `${provider}:${model}`;
+	return provider;
+}
+
 function toUnixSeconds(date: Date): number {
 	return Math.floor(date.getTime() / 1000);
 }

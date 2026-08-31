@@ -32,9 +32,14 @@ function suppressSmallPublicPerformanceCohorts(value: Record<string, any>): Reco
 		&& hasPublicPerformanceSample(value.last_24h.total_requests)
 		? value.last_24h
 		: {};
+	const prev24h = value.prev_24h && typeof value.prev_24h === "object"
+		&& hasPublicPerformanceSample(value.prev_24h.total_requests)
+		? value.prev_24h
+		: {};
 	return {
 		...value,
 		last_24h: last24h,
+		prev_24h: prev24h,
 		hourly_24h: Array.isArray(value.hourly_24h) ? value.hourly_24h.filter((entry: unknown) => keep(entry)) : [],
 		provider_daily_7d: Array.isArray(value.provider_daily_7d) ? value.provider_daily_7d.filter((entry: unknown) => keep(entry)) : [],
 		time_of_day_5d: Array.isArray(value.time_of_day_5d) ? value.time_of_day_5d.filter((entry: unknown) => keep(entry, "sample_count")) : [],
@@ -1682,16 +1687,22 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		) {
 			performance = {
 				...performance,
-				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).filter((row) => hasPublicPerformanceSample(row.health_requests ?? row.requests)).map((row) => ({
-					provider: row.provider_id, provider_name: row.provider_name ?? row.provider_id, requests: row.health_requests ?? row.requests,
+				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).filter((row) => hasPublicPerformanceSample(row.health_requests ?? row.requests)).map((row) => {
+					const provider = publicProviderId(row.provider_id, stealthProviderIds);
+					return {
+					provider, provider_name: provider === "stealth" ? "stealth" : row.provider_name ?? row.provider_id, requests: row.health_requests ?? row.requests,
 					uptime_pct: row.uptime_pct, avg_latency_ms: row.percentile_latency_ms ?? row.avg_latency_ms, avg_generation_ms: null, avg_throughput: row.percentile_throughput ?? row.avg_throughput,
 					uptime_buckets: Array.isArray(row.buckets) ? row.buckets.filter((bucket) => hasPublicPerformanceSample((bucket as Record<string, unknown>).requests ?? (bucket as Record<string, unknown>).health_requests)) : [],
-				})),
+					};
+				}),
 			};
 		}
 		if (!performance) return withPublicCache(c.json({ modelId, performance: null, metrics: null, activity: null }), sectionPolicy("performance", modelId));
 		performance = {
 			...performance,
+			prev_24h: hasPublicPerformanceSample(performance.prev_24h?.total_requests)
+				? performance.prev_24h
+				: {},
 			last_24h: hasPublicPerformanceSample(performance.last_24h?.total_requests)
 				? performance.last_24h
 				: {},
@@ -1706,8 +1717,18 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		};
 		performance = {
 			...performance,
-			provider_uptime_24h: (performance.provider_uptime_24h ?? []).filter(isKnownProvider),
-			provider_daily_7d: (performance.provider_daily_7d ?? []).filter(isKnownProvider),
+			provider_uptime_24h: (performance.provider_uptime_24h ?? [])
+				.filter(isKnownProvider)
+				.map((value: Record<string, unknown>) => {
+					const provider = publicProviderId(value.provider, stealthProviderIds);
+					return { ...value, provider, provider_name: provider === "stealth" ? "stealth" : value.provider_name ?? value.provider };
+				}),
+			provider_daily_7d: (performance.provider_daily_7d ?? [])
+				.filter(isKnownProvider)
+				.map((value: Record<string, unknown>) => {
+					const provider = publicProviderId(value.provider, stealthProviderIds);
+					return { ...value, provider, provider_name: provider === "stealth" ? "stealth" : value.provider_name ?? value.provider };
+				}),
 		};
 		if (
 			providerHourly.error &&

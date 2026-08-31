@@ -323,7 +323,7 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[0]).toMatchObject({
             providerId: "venice",
             apiModelId: "anthropic/claude-opus-5",
-            pricingKey: "venice:anthropic/claude-opus-5",
+            pricingKey: "venice:anthropic/claude-opus-5:claude-opus-5-fast",
             providerModelSlug: "claude-opus-5-fast",
             maxInputTokens: 1_000_000,
             maxOutputTokens: 128_000,
@@ -385,7 +385,7 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[0]).toMatchObject({
             providerId: "moonshotai",
             apiModelId: "moonshotai/kimi-k2.7-code",
-            pricingKey: "moonshotai:moonshotai/kimi-k2.7-code",
+            pricingKey: "moonshotai:moonshotai/kimi-k2.7-code:kimi-k2.7-code-highspeed",
             providerModelSlug: "kimi-k2.7-code-highspeed",
             maxInputTokens: 262_144,
             maxOutputTokens: 65_536,
@@ -476,7 +476,7 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[0]).toMatchObject({
             providerId: "deepinfra",
             apiModelId: "minimax/minimax-m2.7",
-            pricingKey: "deepinfra:minimax/minimax-m2.7",
+            pricingKey: "deepinfra:minimax/minimax-m2.7:minimaxai/minimax-m2.7-turbo",
             providerModelSlug: "MiniMaxAI/MiniMax-M2.7-Turbo",
             maxInputTokens: 196_608,
             maxOutputTokens: 131_072,
@@ -566,7 +566,7 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[0]).toMatchObject({
             providerId: "crofai",
             apiModelId: "deepseek/deepseek-v4-pro",
-            pricingKey: "crofai:deepseek/deepseek-v4-pro",
+            pricingKey: "crofai:deepseek/deepseek-v4-pro:deepseek-v4-pro-lightning",
             providerModelSlug: "deepseek-v4-pro-lightning",
             maxInputTokens: 1_000_000,
             maxOutputTokens: 131_072,
@@ -580,7 +580,7 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[1]).toMatchObject({
             providerId: "crofai",
             apiModelId: "moonshotai/kimi-k2.5",
-            pricingKey: "crofai:moonshotai/kimi-k2.5",
+            pricingKey: "crofai:moonshotai/kimi-k2.5:kimi-k2.5-lightning",
             providerModelSlug: "kimi-k2.5-lightning",
             maxInputTokens: 131_072,
             maxOutputTokens: 32_768,
@@ -647,7 +647,7 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[0]).toMatchObject({
             providerId: "google-ai-studio",
             apiModelId: "google/gemini-3-pro-image-flex",
-            pricingKey: "google-ai-studio:google/gemini-3-pro-image-flex",
+            pricingKey: "google-ai-studio:google/gemini-3-pro-image-flex:gemini-3-pro-image-flex",
             providerModelSlug: "gemini-3-pro-image-flex",
             maxInputTokens: 2_000_000,
             maxOutputTokens: 64_000,
@@ -724,7 +724,7 @@ describe("applyServiceTierRouting", () => {
             candidates: [makeCandidate({ providerId: "wafer", apiModelId: "moonshotai/kimi-k3", providerModelSlug: "Kimi-K3", pricingCard: makeCard({ provider: "wafer", model: "moonshotai/kimi-k3", plans: ["standard", "priority"] }) })],
             body: { service_tier: "priority" }, capability: "text.generate",
         });
-        expect(result.candidates[0]).toMatchObject({ providerId: "wafer", apiModelId: "moonshotai/kimi-k3", pricingKey: "wafer:moonshotai/kimi-k3", providerModelSlug: "Kimi-K3-Fast", maxInputTokens: 1_000_000, maxOutputTokens: 262_144 });
+        expect(result.candidates[0]).toMatchObject({ providerId: "wafer", apiModelId: "moonshotai/kimi-k3", pricingKey: "wafer:moonshotai/kimi-k3:kimi-k3-fast", providerModelSlug: "Kimi-K3-Fast", maxInputTokens: 1_000_000, maxOutputTokens: 262_144 });
         expect(result.diagnostics.remappedProviders[0]).toMatchObject({ providerId: "wafer", toApiModelId: "moonshotai/kimi-k3-fast", reason: "priority_fast_sibling" });
     });
 
@@ -743,7 +743,7 @@ describe("applyServiceTierRouting", () => {
             candidates: [makeCandidate({ providerId: "crofai", apiModelId: "moonshotai/kimi-k3", providerModelSlug: "kimi-k3", pricingCard: makeCard({ provider: "crofai", model: "moonshotai/kimi-k3", plans: ["standard", "flex"] }) })],
             body: { service_tier: "flex" }, capability: "text.generate",
         });
-        expect(result.candidates[0]).toMatchObject({ providerId: "crofai", apiModelId: "moonshotai/kimi-k3", pricingKey: "crofai:moonshotai/kimi-k3", providerModelSlug: "kimi-k3-eco", maxInputTokens: 1_000_000, maxOutputTokens: 131_072 });
+        expect(result.candidates[0]).toMatchObject({ providerId: "crofai", apiModelId: "moonshotai/kimi-k3", pricingKey: "crofai:moonshotai/kimi-k3:kimi-k3-eco", providerModelSlug: "kimi-k3-eco", maxInputTokens: 1_000_000, maxOutputTokens: 131_072 });
         expect(result.diagnostics.remappedProviders[0]).toMatchObject({ providerId: "crofai", toApiModelId: "moonshotai/kimi-k3-flex", reason: "flex_sibling" });
     });
 

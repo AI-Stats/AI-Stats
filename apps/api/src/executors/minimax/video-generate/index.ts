@@ -306,7 +306,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		};
 	}
 	const normalizedModel = model.trim().toLowerCase();
-	if (/(?:^|\/)h3(?:-max)?$/i.test(normalizedModel)) {
+	if (isV2) {
 		const upstream = new Response(JSON.stringify({
 			error: { type: "minimax_v2_video_not_enabled", message: "MiniMax-H3 requires the V2 multimodal video lifecycle, which is not enabled for routing." },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });

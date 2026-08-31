@@ -8,6 +8,7 @@ import type { ByokKeyMeta, PipelineContext, ProviderAttemptLog } from "../before
 import { Timer } from "../telemetry/timer";
 import { dispatchBackground, ensureRuntimeForBackground, getSupabaseAdmin } from "@/runtime/env";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
+import { getProviderPricingKey } from "../before/context.shared";
 
 export type PipelineTiming = {
 	timer: Timer;
@@ -1047,9 +1048,7 @@ async function attemptProviderWithIR(
 			apiModelId: candidateApiModelId,
 			pricingKey:
 				candidate.pricingKey ??
-				(candidateApiModelId
-					? `${candidate.providerId}:${candidateApiModelId}`
-					: candidate.providerId),
+				getProviderPricingKey(candidate.providerId, candidateApiModelId, providerModelSlug),
 			providerModelSlug: providerModelSlug ?? null,
 			generationTimeMs,
 			bill: {

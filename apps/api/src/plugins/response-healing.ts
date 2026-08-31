@@ -331,7 +331,7 @@ export function validateJsonSchemaValue(
 					errors.push(`${candidatePath} uses an unsupported or unsafe pattern`);
 					if (errors.length >= limit) return;
 				} else try {
-					const pattern = new RegExp(candidateSchema.pattern);
+					const pattern = compileSchemaPattern(candidateSchema.pattern);
 					if (!pattern.test(candidate)) {
 						errors.push(`${candidatePath} does not match the required pattern`);
 						if (errors.length >= limit) return;
