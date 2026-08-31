@@ -190,6 +190,25 @@ describe("minimax video executor", () => {
 		});
 	});
 
+	it("rejects unsupported prompt options for MiniMax V2", async () => {
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({
+			model: "minimax/h3",
+			prompt: "A cinematic sunrise over the ocean",
+			enhancePrompt: true,
+			providerParams: { fast_pretreatment: true },
+		}, "MiniMax-H3"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.json()).toMatchObject({
+			error: {
+				type: "unsupported_option",
+				message: expect.stringContaining("prompt_optimizer and fast_pretreatment"),
+			},
+		});
+	});
+
 	it("fails the gateway response when MiniMax video metadata cannot be persisted", async () => {
 		state.reservationResult = {
 			reservationId: "video_hold:req_minimax_video_test",

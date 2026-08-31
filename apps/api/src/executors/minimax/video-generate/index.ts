@@ -210,6 +210,27 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	if (typeof minimaxExtensions.fast_pretreatment === "boolean") {
 		passthroughRequest.fast_pretreatment = minimaxExtensions.fast_pretreatment;
 	}
+	if (isV2 && ("prompt_optimizer" in passthroughRequest || "fast_pretreatment" in passthroughRequest)) {
+		const unsupportedOptions = [
+			"prompt_optimizer" in passthroughRequest ? "prompt_optimizer" : null,
+			"fast_pretreatment" in passthroughRequest ? "fast_pretreatment" : null,
+		].filter((option): option is string => option !== null);
+		const upstream = new Response(JSON.stringify({
+			error: {
+				type: "unsupported_option",
+				message: `MiniMax V2 does not support ${unsupportedOptions.join(" or ")} on /v2/video_generation.`,
+			},
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+		};
+	}
 	try {
 		const firstFrame = await imageReferenceToString(
 			ir.inputReference ?? ir.inputImage ?? ir.input?.image ??
