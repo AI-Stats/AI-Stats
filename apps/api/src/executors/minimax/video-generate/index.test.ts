@@ -124,6 +124,72 @@ describe("minimax video executor", () => {
 		);
 	});
 
+	it("uses MiniMax V2 content requests for H3 text-to-video", async () => {
+		let capturedUrl = "";
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v2/video_generation"),
+			response: jsonResponse({ task_id: "task_h3", status: "queued" }),
+			onRequest: (call) => {
+				capturedUrl = call.url;
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/h3",
+			prompt: "A cinematic sunrise over the ocean",
+			duration: 5,
+			resolution: "2K",
+			aspectRatio: "16:9",
+		}, "MiniMax-H3"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedUrl).toContain("/v2/video_generation");
+		expect(capturedBody).toMatchObject({
+			model: "MiniMax-H3",
+			resolution: "2K",
+			duration: 5,
+			ratio: "16:9",
+			content: [{ type: "text", text: "A cinematic sunrise over the ocean" }],
+		});
+	});
+
+	it("maps H3 Max first and last frames into V2 content", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v2/video_generation"),
+			response: jsonResponse({ task_id: "task_h3_max", status: "queued" }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/h3-max",
+			prompt: "A dancer moves through a neon city",
+			duration: 8,
+			size: "480P",
+			inputReferences: [
+				{ type: "image", role: "first_frame", url: "https://example.com/first.jpg" },
+				{ type: "image", role: "last_frame", url: "https://example.com/last.jpg" },
+			],
+		}, "MiniMax-H3-Max"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody).toMatchObject({
+			model: "MiniMax-H3-Max",
+			resolution: "480P",
+			duration: 8,
+			ratio: "adaptive",
+			content: [
+				{ type: "text", text: "A dancer moves through a neon city" },
+				{ type: "image_url", image_url: { url: "https://example.com/first.jpg" }, role: "first_frame" },
+				{ type: "image_url", image_url: { url: "https://example.com/last.jpg" }, role: "last_frame" },
+			],
+		});
+	});
+
 	it("fails the gateway response when MiniMax video metadata cannot be persisted", async () => {
 		state.reservationResult = {
 			reservationId: "video_hold:req_minimax_video_test",

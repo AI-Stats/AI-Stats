@@ -57,7 +57,7 @@
   "benchmarks": [],
   "page_notice": {
     "tone": "info",
-    "markdown": "MiniMax's API offers H3 Max through the V2 video-generation endpoint. The provider route is catalogued, but Phaseo routing remains disabled until the MiniMax adapter supports the V2 payload and task lifecycle."
+    "markdown": "MiniMax's API offers H3 Max through the V2 video-generation endpoint. Phaseo routes H3 Max through the native MiniMax V2 video adapter."
   },
   "model_type": null,
   "knowledge_cutoff": null,

@@ -283,7 +283,12 @@ export async function fetchMiniMaxVideoTask(
 	}
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.MINIMAX_BASE_URL || "https://api.minimax.io").replace(/\/+$/, "");
-	return fetch(`${baseUrl}/v1/query/video_generation?task_id=${encodeURIComponent(taskId)}`, {
+	const normalizedModel = String(videoMeta?.model ?? "").trim().toLowerCase();
+	const isV2 = normalizedModel === "minimax-h3" || normalizedModel.endsWith("/h3") || normalizedModel === "minimax-h3-max" || normalizedModel.endsWith("/h3-max");
+	const url = isV2
+		? `${baseUrl}/v2/query/video_generation/${encodeURIComponent(taskId)}`
+		: `${baseUrl}/v1/query/video_generation?task_id=${encodeURIComponent(taskId)}`;
+	return fetch(url, {
 		method: "GET",
 		headers: {
 			Authorization: `Bearer ${key}`,
@@ -564,6 +569,8 @@ export function extractVideoOutputFromPayload(payload: any): Array<{ index: numb
 		return urls.map((uri, index) => ({ index, uri, mime_type: "video/mp4" }));
 	}
 	const videoUrl =
+		payload?.task?.content?.url ??
+		payload?.task?.content?.video_url ??
 		payload?.content?.video_url ??
 		payload?.assets?.video ??
 		payload?.asset?.url ??
