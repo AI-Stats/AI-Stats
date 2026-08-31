@@ -4,7 +4,7 @@ import { fetchFrontendBenchmark } from "@/lib/fetchers/frontend/fetchPublicCatal
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import Script from "next/script";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import {
 	buildBenchmarkMetadataDescription,
 	buildBenchmarkMetadataTitle,
@@ -128,20 +128,8 @@ export default async function Page({
 		<>
 			{structuredData && (
 				<>
-					<Script
-						id="benchmark-dataset-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.datasetSchema),
-						}}
-					/>
-					<Script
-						id="benchmark-breadcrumb-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.breadcrumbSchema),
-						}}
-					/>
+					<JsonLdScript id="benchmark-dataset-schema" data={structuredData.datasetSchema} />
+					<JsonLdScript id="benchmark-breadcrumb-schema" data={structuredData.breadcrumbSchema} />
 				</>
 			)}
 			<BenchmarkDetailShell benchmark={benchmark} tocItems={[{ id: "summary", label: "Summary" }, { id: "progress", label: "Progress" }, { id: "model-results", label: "Model Results" }]}>

@@ -783,6 +783,8 @@ export function resolveAnthropicInferenceGeo(
 	providerId: string,
 	ir?: IRChatRequest,
 ): "global" | "us" | null {
+	// The US AWS route is a residency-specific offer. Never let a request-level
+	// geo preference downgrade it to Anthropic's global inference pool.
 	if (providerId === "anthropic-us" || providerId === "anthropic-aws-us") return "us";
 
 	const explicitInferenceGeo = String(ir?.geo?.inferenceGeo ?? "")

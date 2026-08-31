@@ -19,6 +19,7 @@ import {
 
 const providerSlugSchema = z.string().trim().toLowerCase().min(2).max(64).regex(/^[a-z0-9][a-z0-9._-]*$/);
 const MAX_PROVIDER_SOURCES_PER_USER = 5;
+const MAX_PROVIDER_SUBMISSIONS_PER_USER_PER_DAY = 5;
 const httpsUrlSchema = z.string().trim().url().refine((value) => new URL(value).protocol === "https:");
 const profileSchema = z.object({
 	providerSlug: providerSlugSchema,
@@ -98,6 +99,12 @@ async function enforceOnboardingRateLimit(c: any, userId: string) {
 			? c.json({ error: "provider_onboarding_rate_limit_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS)
 			: null;
 	}
+}
+
+async function reserveProviderSubmissionSlot(client: any, userId: string): Promise<boolean> {
+	const result = await client.rpc("reserve_provider_onboarding_submission_slot", { p_user_id: userId });
+	if (result.error) throw new Error("provider_submission_quota_unavailable");
+	return result.data === true;
 }
 
 async function accessibleWorkspaceIds(client: any, userId: string): Promise<string[]> {
@@ -295,6 +302,13 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", asyn
 		const verified = await client.from("provider_claim_challenges").update({ status: "verified", verified_at: new Date().toISOString() }).eq("id", challenge.data.id).eq("status", "pending").select("id").maybeSingle();
 		if (verified.error) return c.json({ error: "claim_verification_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 		if (!verified.data) return responseError(c, "This ownership proof has already been used.", 409);
+	}
+	try {
+		if (!await reserveProviderSubmissionSlot(client, user.id)) {
+			return c.json({ ok: false, error: "rate_limited", message: "Provider onboarding submissions are limited to five per user per day." }, 429, PRIVATE_NO_STORE_HEADERS);
+		}
+	} catch {
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 
 	const providerMetadata = {

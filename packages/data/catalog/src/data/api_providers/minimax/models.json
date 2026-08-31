@@ -269,7 +269,7 @@
     "provider_api_model_id": "minimax:minimax/h3-max",
     "provider_model_slug": "MiniMax-H3-Max",
     "internal_model_id": "minimax/h3-max",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "video",
@@ -282,29 +282,77 @@
         "capability_id": "video.generate",
         "status": "active",
         "params": {
-          "prompt": { "type": "string", "max_length": 7000 },
-          "duration": { "type": "number", "min": 5, "max": 15, "aliases": ["seconds", "duration_seconds"] },
-          "size": { "type": "enum", "values": ["480P", "768P"], "aliases": ["resolution"] },
-          "ratio": { "type": "string" },
-          "content": { "type": "array", "item_types": ["text", "image_url"] }
+          "prompt": {
+            "type": "string",
+            "max_length": 7000
+          },
+          "duration": {
+            "type": "number",
+            "min": 5,
+            "max": 15,
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "enum",
+            "values": [
+              "480P",
+              "768P"
+            ],
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "ratio": {
+            "type": "string"
+          },
+          "content": {
+            "type": "array",
+            "item_types": [
+              "text",
+              "image_url"
+            ]
+          }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": true,
-        "input_modalities": ["text", "image"],
-        "output_modalities": ["video"],
-        "modes": ["text-to-video", "image-to-video", "first-last-frame"]
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video",
+          "first-last-frame"
+        ]
       }
     ],
     "provider_status": "available",
-    "phaseo_status": "available",
+    "phaseo_status": "unsupported",
     "routing_status": "active",
-    "routable": true,
-    "regions": { "execution": null, "data": null },
-    "service_tiers": ["standard"],
-    "api": { "formats": ["minimax-v2"], "endpoint": "/v2/video_generation", "deployment": null },
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "minimax-v2"
+      ],
+      "endpoint": "/v2/video_generation",
+      "deployment": null
+    },
     "sources": [
       {
         "kind": "documentation",
@@ -322,7 +370,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-31T00:00:00Z",
-      "notes": "Verified against MiniMax's current V2 video-generation and pay-as-you-go documentation. Phaseo routes H3 Max through the native V2 adapter."
+      "notes": "Verified against MiniMax's current V2 video-generation and pay-as-you-go documentation. Phaseo remains unroutable until the MiniMax V2 adapter supports H3 Max's task lifecycle."
     },
     "rate_limits": []
   },

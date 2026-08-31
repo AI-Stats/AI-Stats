@@ -4,6 +4,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { load as yamlLoad } from "js-yaml";
 import { cache } from "react";
+import type { PublicLocale } from "@/i18n/routing";
 
 const CATEGORY_FILE_NAME = "_category.md";
 const MARKDOWN_EXTENSION = ".md";
@@ -11,6 +12,11 @@ const DEFAULT_ORDER = Number.MAX_SAFE_INTEGER;
 const FALLBACK_CATEGORY_PARAM = "__placeholder__";
 const FALLBACK_ARTICLE_PARAM = "__placeholder__";
 const HELP_CONTENT_ROOT = path.join(process.cwd(), "src", "content", "help");
+
+function helpContentRoot(locale: PublicLocale): string {
+	if (locale === "en-GB") return HELP_CONTENT_ROOT;
+	return path.join(HELP_CONTENT_ROOT, "locales", locale);
+}
 
 type MarkdownFrontmatter = {
 	title?: unknown;
@@ -121,18 +127,21 @@ function parseMarkdownDocument(raw: string): {
 	return { frontmatter, content };
 }
 
-async function resolveHelpContentRoot(): Promise<string | null> {
+async function resolveHelpContentRoot(locale: PublicLocale): Promise<string | null> {
+	const root = helpContentRoot(locale);
 	try {
-		const stat = await fs.stat(HELP_CONTENT_ROOT);
-		if (stat.isDirectory()) return HELP_CONTENT_ROOT;
+		const stat = await fs.stat(root);
+		if (stat.isDirectory()) return root;
 	} catch {
 		// no-op: caller handles missing content dir
 	}
 	return null;
 }
 
-const loadHelpCenter = cache(async (): Promise<HelpCenterData> => {
-	const helpRoot = await resolveHelpContentRoot();
+const loadHelpCenter = cache(async (locale: PublicLocale): Promise<HelpCenterData> => {
+	const requestedRoot = helpContentRoot(locale);
+	const helpRoot = (await resolveHelpContentRoot(locale)) ??
+		(await resolveHelpContentRoot("en-GB"));
 	if (!helpRoot) {
 		return {
 			categories: [],
@@ -258,14 +267,27 @@ const loadHelpCenter = cache(async (): Promise<HelpCenterData> => {
 });
 
 export async function getHelpCategories(): Promise<HelpCategory[]> {
-	const { categories } = await loadHelpCenter();
+	const { categories } = await loadHelpCenter("en-GB");
+	return categories;
+}
+
+export async function getLocalizedHelpCategories(locale: PublicLocale): Promise<HelpCategory[]> {
+	const { categories } = await loadHelpCenter(locale);
 	return categories;
 }
 
 export async function getHelpCategory(
 	categorySlug: string
 ): Promise<HelpCategory | null> {
-	const { categories } = await loadHelpCenter();
+	const { categories } = await loadHelpCenter("en-GB");
+	return categories.find((category) => category.slug === categorySlug) ?? null;
+}
+
+export async function getLocalizedHelpCategory(
+	locale: PublicLocale,
+	categorySlug: string,
+): Promise<HelpCategory | null> {
+	const { categories } = await loadHelpCenter(locale);
 	return categories.find((category) => category.slug === categorySlug) ?? null;
 }
 
@@ -273,12 +295,21 @@ export async function getHelpArticle(
 	categorySlug: string,
 	articleSlug: string
 ): Promise<HelpArticle | null> {
-	const { articleLookup } = await loadHelpCenter();
+	const { articleLookup } = await loadHelpCenter("en-GB");
+	return articleLookup.get(`${categorySlug}/${articleSlug}`) ?? null;
+}
+
+export async function getLocalizedHelpArticle(
+	locale: PublicLocale,
+	categorySlug: string,
+	articleSlug: string,
+): Promise<HelpArticle | null> {
+	const { articleLookup } = await loadHelpCenter(locale);
 	return articleLookup.get(`${categorySlug}/${articleSlug}`) ?? null;
 }
 
 export async function getHelpCategoryParams(): Promise<Array<{ category: string }>> {
-	const categories = await getHelpCategories();
+	const categories = await getLocalizedHelpCategories("en-GB");
 	if (!categories.length) {
 		return [{ category: FALLBACK_CATEGORY_PARAM }];
 	}
@@ -288,7 +319,7 @@ export async function getHelpCategoryParams(): Promise<Array<{ category: string 
 export async function getHelpArticleParams(): Promise<
 	Array<{ category: string; slug: string }>
 > {
-	const categories = await getHelpCategories();
+	const categories = await getLocalizedHelpCategories("en-GB");
 	const params = categories.flatMap((category) =>
 		category.articles.map((article) => ({
 			category: category.slug,

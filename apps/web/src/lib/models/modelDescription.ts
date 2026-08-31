@@ -223,8 +223,52 @@ export function buildModelPageMetadataDescription(args: {
 	return truncateAtWordBoundary(combined, maxLength);
 }
 
-export function buildModelOverviewMetadataTitle(modelName: string): string {
+export type ModelOverviewMetadataSignals = {
+	providerCount?: number;
+	benchmarkCount?: number;
+	hasPricing?: boolean;
+	contextLength?: number;
+};
+
+function formatContextLength(value: number): string {
+	if (value >= 1_000_000) return `${Math.round(value / 1_000_000)}M`;
+	if (value >= 1_000) return `${Math.round(value / 1_000)}K`;
+	return String(Math.round(value));
+}
+
+export function buildModelOverviewMetadataTitle(
+	modelName: string,
+	signals?: ModelOverviewMetadataSignals,
+): string {
 	const normalizedName = normalizeText(modelName) ?? "AI Model";
+	if (signals) {
+		const providerCount = Math.max(0, Math.floor(signals.providerCount ?? 0));
+		const benchmarkCount = Math.max(0, Math.floor(signals.benchmarkCount ?? 0));
+		const descriptor = signals.hasPricing && providerCount > 0
+			? `API Pricing — Compare ${providerCount} Provider${providerCount === 1 ? "" : "s"}`
+			: signals.hasPricing
+				? "API Pricing"
+				: providerCount > 0
+					? `API Provider${providerCount === 1 ? "" : "s"}`
+					: benchmarkCount > 0
+						? "Benchmarks"
+						: signals.contextLength && signals.contextLength > 0
+							? `${formatContextLength(signals.contextLength)} Context`
+							: "AI Model";
+			const title = `${normalizedName} ${descriptor} | Phaseo`;
+			if (title.length <= 60) return title;
+			const compactDescriptor = signals.hasPricing
+				? "Pricing"
+				: providerCount > 0
+					? "Providers"
+					: benchmarkCount > 0
+						? "Benchmarks"
+						: "AI Model";
+			const compactTitle = `${normalizedName} ${compactDescriptor} | Phaseo`;
+			return compactTitle.length <= 60
+				? compactTitle
+				: `${truncateAtWordBoundary(normalizedName, 51)} | Phaseo`;
+	}
 	const detailedTitle = `${normalizedName} Pricing, Benchmarks & Providers`;
 	return detailedTitle.length <= 56
 		? detailedTitle
@@ -234,9 +278,36 @@ export function buildModelOverviewMetadataTitle(modelName: string): string {
 export function buildModelOverviewMetadataDescription(args: {
 	modelName: string;
 	organisationName?: string | null;
+	modelDescription?: string | null;
+	providerCount?: number;
+	benchmarkCount?: number;
+	hasPricing?: boolean;
 }): string {
 	const modelName = normalizeText(args.modelName) ?? "this AI model";
 	const organisationName = normalizeText(args.organisationName);
 	const creatorText = organisationName ? ` from ${organisationName}` : "";
+	if (args.modelDescription || args.providerCount != null || args.benchmarkCount != null || args.hasPricing != null) {
+		const providerCount = Math.max(0, Math.floor(args.providerCount ?? 0));
+		const benchmarkCount = Math.max(0, Math.floor(args.benchmarkCount ?? 0));
+		const facts = [
+			args.hasPricing && providerCount > 0
+				? `compare API pricing across ${providerCount} provider${providerCount === 1 ? "" : "s"}`
+				: args.hasPricing
+					? "compare API pricing"
+					: null,
+			benchmarkCount > 0
+				? `review ${benchmarkCount} benchmark result${benchmarkCount === 1 ? "" : "s"}`
+				: null,
+		].filter((fact): fact is string => Boolean(fact));
+		const fallback = facts.length > 0
+			? `Use Phaseo to ${facts.join(" and ")}${creatorText}.`
+			: `Review ${modelName} specifications and API compatibility${creatorText} on Phaseo.`;
+		return buildModelPageMetadataDescription({
+			modelDescription: args.modelDescription,
+			suffix: facts.length > 0 ? `Phaseo can ${facts.join(" and ")}.` : "",
+			fallback,
+			maxLength: 160,
+		});
+	}
 	return `Compare ${modelName} pricing, providers, benchmark results, latency, and availability. Review specifications and API compatibility${creatorText} on Phaseo.`;
 }

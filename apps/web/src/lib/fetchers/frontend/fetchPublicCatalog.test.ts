@@ -1,5 +1,4 @@
 const mockFetchPublicWebApi = jest.fn();
-
 jest.mock("@/lib/web-api/client", () => ({
 	fetchOptionalPublicWebApi: jest.fn(),
 	fetchPublicWebApi: (...args: unknown[]) => mockFetchPublicWebApi(...args),

@@ -106,9 +106,9 @@ publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 publicRankingsRouter.get("/rankings/model-retention", async (c) => {
 	const cohortWeeks = bounded(c.req.query("weeks"), 10, 52);
 	const limit = bounded(c.req.query("limit"), 20, 100);
-	const minimumWorkspaceWeeks = boundedAtLeast(c.req.query("min_workspace_weeks"), 25, 25, 10_000);
-	const minimumWorkspaces = boundedAtLeast(c.req.query("min_workspaces"), 5, 5, 10_000);
-	const minimumWeeks = boundedAtLeast(c.req.query("min_weeks"), 2, 2, 52);
+	const minimumWorkspaceWeeks = Math.max(25, bounded(c.req.query("min_workspace_weeks"), 25, 10_000));
+	const minimumWorkspaces = Math.max(20, bounded(c.req.query("min_workspaces"), 20, 10_000));
+	const minimumWeeks = Math.max(2, bounded(c.req.query("min_weeks"), 2, 52));
 	try {
 		const client = getDataClient(c.env);
 		const { data, error } = await client.rpc("get_public_model_retention_rankings", {
@@ -135,11 +135,12 @@ publicRankingsRouter.get("/rankings/model-retention", async (c) => {
 			}];
 		}));
 		return withPublicCache(c.json({
-			data: rows.map((row) => ({ ...row,
-				...(models.get(String(row.model_id ?? "")) ?? {
-					model_name: String(row.model_id ?? ""), organisation_id: null, organisation_name: null,
-				}),
-			})),
+			// Only publish aggregates for visible catalogue models; do not leak
+			// an unrecognised raw model id through the fallback representation.
+			data: rows.flatMap((row) => {
+				const model = models.get(String(row.model_id ?? ""));
+				return model ? [{ ...row, ...model }] : [];
+			}),
 			methodology: { cohortWeeks, minimumWorkspaceWeeks, minimumWorkspaces, minimumWeeks },
 		}), LIVE_CACHE);
 	} catch (error) {

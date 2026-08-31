@@ -490,7 +490,20 @@ function registerControlPlaneReadTools(
 
 export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPhaseoUser): McpServer {
 	const server = new McpServer(
-		{ name: "Phaseo", version: "0.3.0" },
+		{
+			name: "Phaseo",
+			title: "Phaseo",
+			version: "0.3.0",
+			description: "Find, compare, and monitor AI models with live Phaseo data.",
+			websiteUrl: "https://phaseo.app",
+			icons: [
+				{
+					src: "https://phaseo.app/png_logo_light.png",
+					mimeType: "image/png",
+					sizes: ["1024x1024"],
+				},
+			],
+		},
 		{
 			instructions:
 				"Phaseo provides live model, provider, pricing, and authenticated workspace data. For current availability or pricing questions, use Phaseo tools instead of relying on model memory. Treat cost results as estimates. All Phaseo MCP tools are read-only; use the Phaseo dashboard, CLI, or Management API for administrative changes.",

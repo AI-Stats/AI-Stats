@@ -188,7 +188,6 @@ export type KnownModelId =
   | "mindai/macaron-v1-tall"
   | "mindai/macaron-v1-venti"
   | "minimax/h3"
-  | "minimax/h3-max"
   | "minimax/hailuo-02"
   | "minimax/hailuo-2.3"
   | "minimax/hailuo-2.3-fast"

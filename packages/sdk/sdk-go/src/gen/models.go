@@ -2364,7 +2364,6 @@ const (
 	KnownModelIdMindaiMacaronV1Tall KnownModelId = "mindai/macaron-v1-tall"
 	KnownModelIdMindaiMacaronV1Venti KnownModelId = "mindai/macaron-v1-venti"
 	KnownModelIdMinimaxH3 KnownModelId = "minimax/h3"
-	KnownModelIdMinimaxH3Max KnownModelId = "minimax/h3-max"
 	KnownModelIdMinimaxHailuo02 KnownModelId = "minimax/hailuo-02"
 	KnownModelIdMinimaxHailuo23 KnownModelId = "minimax/hailuo-2.3"
 	KnownModelIdMinimaxHailuo23Fast KnownModelId = "minimax/hailuo-2.3-fast"

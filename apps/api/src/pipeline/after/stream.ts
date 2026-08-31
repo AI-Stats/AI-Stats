@@ -512,6 +512,8 @@ export async function handleStreamResponse(
 			const healthImpact = classifyProviderHealthImpact({
 				upstreamStatus: result.upstream.status,
 				aborted: info?.aborted === true,
+				// An upstream-completed empty response is a contract issue, not
+				// evidence that the provider is unhealthy.
 				midStreamError: streamFailed,
 				finishReason: cachedFinishReason ?? result.bill.finish_reason ?? null,
 			});
@@ -816,6 +818,9 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
+
+
+
 
 
 

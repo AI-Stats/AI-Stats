@@ -359,6 +359,11 @@ inline Response ExportAnalyticsCsv(Client& client, const std::map<std::string, s
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response FinalizeRealtimeSession(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/finalize";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response ForkPreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/fork";
 	return client.request("POST", resolved_path, body);

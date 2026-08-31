@@ -85,12 +85,15 @@ function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): Rul
 }
 
 function compareRuleScores(a: RuleScore, b: RuleScore): number {
-    if (b.priority !== a.priority) return b.priority - a.priority;
     if (b.fullySatisfiedGroups !== a.fullySatisfiedGroups) return b.fullySatisfiedGroups - a.fullySatisfiedGroups;
     if (b.matchedConditions !== a.matchedConditions) return b.matchedConditions - a.matchedConditions;
     if (b.totalConditions !== a.totalConditions) return b.totalConditions - a.totalConditions;
-    if (a.partiallySatisfiedGroups !== b.partiallySatisfiedGroups) return a.partiallySatisfiedGroups - b.partiallySatisfiedGroups;
+    // A matching conditional tier is more specific than an unconditional base
+    // tier. This keeps legacy/catalog rules safe when their optional priority
+    // metadata was omitted and otherwise defaulted below the base rate.
     if (a.hasConditions !== b.hasConditions) return b.hasConditions ? 1 : -1;
+    if (b.priority !== a.priority) return b.priority - a.priority;
+    if (a.partiallySatisfiedGroups !== b.partiallySatisfiedGroups) return a.partiallySatisfiedGroups - b.partiallySatisfiedGroups;
     return a.index - b.index;
 }
 
@@ -675,31 +678,33 @@ export function computeBillSummary(
         let resolvedPlan = pricingPlan;
         let conservativeCoverageFallback = false;
         if (!candidates.length && pricingPlan !== "standard") {
-            const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
-            if (fallbackCandidates.length) {
-                candidates = fallbackCandidates;
-                resolvedPlan = "standard";
-                logPricingDebug("meter_plan_fallback", {
+            const requestedPlanDefinesMeter = card.rules.some(
+                (rule) => rule.pricing_plan === pricingPlan && rule.meter === dim,
+            );
+            if (requestedPlanDefinesMeter) {
+                candidates = card.rules
+                    .filter((rule) =>
+                        (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
+                        rule.meter === dim,
+                    )
+                    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+                conservativeCoverageFallback = true;
+                logPricingDebug("meter_plan_coverage_fallback", {
                     meter: dim,
                     quantity: qty,
                     requestedPricingPlan: pricingPlan,
                     fallbackPricingPlan: "standard",
                     candidateRuleIds: candidates.map((r) => r.id),
                 });
-            } else if (pricingPlan !== "batch") {
-                // Batch reservations/finalization reject unmatched paid usage;
-                // interactive tiers must recover provider cost after output is delivered.
-                const coverageCandidates = card.rules
-                    .filter((rule) =>
-                        (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
-                        rule.meter === dim,
-                    )
-					.sort((a, b) => effectiveRulePriority(b) - effectiveRulePriority(a));
-                if (coverageCandidates.length) {
-                    candidates = coverageCandidates;
-                    conservativeCoverageFallback = true;
-                    resolvedPlan = pricingPlan;
-                    logPricingDebug("meter_plan_coverage_fallback", {
+            }
+            if (conservativeCoverageFallback) {
+                resolvedPlan = pricingPlan;
+            } else {
+                const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
+                if (fallbackCandidates.length) {
+                    candidates = fallbackCandidates;
+                    resolvedPlan = "standard";
+                    logPricingDebug("meter_plan_fallback", {
                         meter: dim,
                         quantity: qty,
                         requestedPricingPlan: pricingPlan,

@@ -37,7 +37,7 @@ describe("applyResponseHealingPlugin", () => {
 	it("rejects pattern syntax unsupported by the safe engine", () => {
 		expect(validateJsonSchemaValue("aa", { type: "string", pattern: "(a)\\1" })).toEqual({
 			ok: false,
-			errors: ["$ uses an unsupported pattern"],
+			errors: ["$ uses an unsupported or unsafe pattern"],
 		});
 	});
 	it("repairs malformed chat-completions JSON output", () => {

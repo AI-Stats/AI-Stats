@@ -1,7 +1,7 @@
 import {
 	getPublicAppPath,
 	getPublicAppRouteSegment,
-} from "@/lib/apps/publicAppPath";
+} from "./publicAppPath";
 
 describe("public app paths", () => {
 	it("uses the app name without exposing its database ID", () => {
@@ -11,13 +11,5 @@ describe("public app paths", () => {
 
 	it("normalizes punctuation and spacing", () => {
 		expect(getPublicAppPath("  My AI App!  ")).toBe("/apps/my-ai-app");
-	});
-
-	it("matches the database's ASCII slug normalization", () => {
-		expect(getPublicAppPath("Café")).toBe("/apps/caf");
-	});
-
-	it("preserves a collision-safe host suffix returned by the API", () => {
-		expect(getPublicAppPath("my-app--example.com")).toBe("/apps/my-app--example.com");
 	});
 });

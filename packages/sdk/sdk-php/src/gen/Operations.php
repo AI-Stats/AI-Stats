@@ -500,6 +500,13 @@ function exportAnalyticsCsv(Client $client, ?array $path = null, ?array $query =
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function finalizeRealtimeSession(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions/" . rawurlencode((string)($path["session_id"] ?? "")) . "/finalize";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function forkPreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];

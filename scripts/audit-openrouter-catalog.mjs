@@ -47,6 +47,13 @@ const latestAliases = {
 
 const title = (value) => value.split(/[._-]+/).map((part) => part ? part[0].toUpperCase() + part.slice(1) : part).join(" ");
 const modality = (value) => value === "image" ? "image/*" : value === "audio" ? "audio/*" : value === "video" ? "video/*" : value;
+const safePathParts = (value) => {
+  const parts = String(value).split("/");
+  if (parts.length < 2 || parts.some((part) => !/^[a-z0-9][a-z0-9._:@-]{0,127}$/i.test(part) || part === "." || part === "..")) {
+    throw new Error(`Unsafe remote model id: ${value}`);
+  }
+  return parts;
+};
 
 const chat = (await json(modelsUrl)).data;
 const videosPayload = await json(videosUrl);
@@ -68,8 +75,7 @@ function canonicalBase(id) {
 }
 
 async function ensureOrganisation(id) {
-  assertCatalogSegment(id, "organisation id");
-  const file = resolveCatalogPath(root, "organisations", id, "organisation.json");
+  const file = path.join(root, "organisations", safePathParts(`${id}/placeholder`)[0], "organisation.json");
   try { await readFile(file); return; } catch {}
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, `${JSON.stringify({
@@ -83,11 +89,12 @@ async function ensureOrganisation(id) {
 
 async function ensureCanonical(id, row) {
   if (canonicalIds.has(id)) return;
-  const [organisationId, modelId] = parseCanonicalModelId(id);
+  const parts = safePathParts(id);
+  const organisationId = id.split("/")[0];
   await ensureOrganisation(organisationId);
   const input = (row.architecture?.input_modalities ?? ["text"]).map(modality);
   const output = (row.architecture?.output_modalities ?? ["text"]).map(modality);
-  const file = resolveCatalogPath(root, "models", organisationId, modelId, "model.json");
+  const file = path.join(root, "models", ...parts, "model.json");
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, `${JSON.stringify({
     model_id: id, organisation_id: organisationId, name: row.name ?? title(id.split("/").at(-1)),

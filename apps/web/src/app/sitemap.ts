@@ -16,6 +16,7 @@ import {
 	fetchFrontendSubscriptionPlans,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { SITE_URL } from "@/lib/seo";
+import { analyseModelCardIndexability } from "@/lib/seo/modelIndexability";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 type ChangeFrequency = NonNullable<SitemapEntry["changeFrequency"]>;
@@ -384,12 +385,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			),
 		);
 	}
-	const modelEntries = modelIds.map((slug) => {
+	const indexableModelIds = new Set(
+		modelsForSitemap
+			.filter((model) => analyseModelCardIndexability(model).indexable)
+			.map((model) => normalizeModelId(model.model_id))
+			.filter((modelId): modelId is string => Boolean(modelId)),
+	);
+	const modelEntries = modelIds
+		.filter((slug) => indexableModelIds.has(slug))
+		.map((slug) => {
 		return {
 			slug,
 			lastModified: modelLastModifiedById.get(slug) ?? null,
 		};
-	});
+		});
 	const dynamicItems = [
 		...applySuffixesWithEntries("/models", modelEntries, MODEL_SUFFIXES),
 		...applySuffixesWithEntries(

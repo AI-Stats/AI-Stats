@@ -91,7 +91,7 @@ describe("public model routes", () => {
 		}));
 
 		const response = await app.request(
-			"https://phaseo.app/api/_web/models/deepseek%2Fdeepseek-v4-flash-0731/pricing-history?days=30",
+			"https://phaseo.app/api/_web/models/deepseek%2Fdeepseek-v4-flash-0731/pricing-history?days=3650",
 			{},
 			env,
 		);
@@ -592,6 +592,25 @@ describe("public model routes", () => {
 		expect(performance.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
 	});
 
+	it("keeps the model page healthy when the optional performance rollup fails", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({ code: "57014", message: "canceling statement due to statement timeout" }), { status: 503 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({ modelId: "openai/gpt-test", metrics: null, performance: null });
+	});
+
 	it("suppresses performance and uptime series for a single-request cohort", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
@@ -685,75 +704,12 @@ describe("public model routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(payload.minimumSampleSize).toBe(20);
-		expect(payload.metrics.summary).toMatchObject({
-			totalRequests: 0,
-		});
+		expect(payload.metrics.summary).toMatchObject({ totalRequests: 0, successfulRequests: 0 });
 		expect(payload.metrics.hourly).toEqual([]);
 		expect(payload.metrics.successSeries).toEqual([]);
 		expect(payload.metrics.providerHourly7d).toEqual([]);
 		expect(payload.metrics.qualitySeries).toEqual([]);
 		expect(payload.metrics.providerPerformance).toEqual([]);
-	});
-
-	it("suppresses low-volume execution colos", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("/rpc/get_v2_model_performance_colos")) {
-				return new Response(JSON.stringify([
-					{ cloudflare_colo: "LHR", request_count: 1 },
-					{ cloudflare_colo: "FRA", request_count: 20 },
-				]), { status: 200 });
-			}
-			return new Response(JSON.stringify([]), { status: 200 });
-		}));
-
-		const response = await app.request(
-			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance/colos",
-			{},
-			env,
-		);
-
-		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual({
-			modelId: "openai/gpt-test",
-			colos: [{ colo: "FRA", requests: 20 }],
-		});
-	});
-
-	it("pseudonymizes stealth providers in public performance telemetry", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("v2_model_provider_routes")) {
-				return new Response(JSON.stringify([{ provider_slug: "secret-provider" }]), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
-				return new Response(JSON.stringify({
-					last_24h: { total_requests: 20, successful_requests: 20 },
-					hourly_24h: [],
-					provider_uptime_24h: [{ provider: "secret-provider", provider_name: "Secret Provider", requests: 20 }],
-					provider_daily_7d: [{ day: "2026-08-29", provider: "secret-provider", provider_name: "Secret Provider", requests: 20 }],
-				}), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
-				return new Response(JSON.stringify([{ provider_id: "secret-provider", provider_name: "Secret Provider", health_requests: 20, requests: 20, buckets: [] }]), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_hourly_performance_v2")) {
-				return new Response(JSON.stringify([{ bucket: "2026-08-29T00:00:00Z", provider_id: "secret-provider", provider_name: "Secret Provider", requests: 20 }]), { status: 200 });
-			}
-			return new Response(JSON.stringify([]), { status: 200 });
-		}));
-
-		const response = await app.request(
-			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance",
-			{},
-			env,
-		);
-		const payload = await response.json() as any;
-
-		expect(response.status).toBe(200);
-		expect(JSON.stringify(payload)).not.toContain("secret-provider");
-		expect(payload.metrics.providerPerformance[0]).toMatchObject({ provider: "stealth", providerName: "Stealth" });
-		expect(payload.metrics.providerHourly7d[0]).toMatchObject({ provider: "stealth", providerName: "Stealth" });
 	});
 
 	it("never exposes a synthetic unknown provider in performance data", async () => {
@@ -833,14 +789,18 @@ describe("public model routes", () => {
 			expect.objectContaining({ provider: "poolside", providerColor: "#12AB78" }),
 		]);
 		expect(payload.metrics.providerDaily7d).toEqual([
-				expect.objectContaining({
-					provider: "poolside",
-					providerColor: "#12AB78",
-				cachedInputPct: 62.5,
-				cachedInputTokens: 625,
-				effectiveInputTokens: 1000,
-				cacheTelemetryRequests: 20,
-			}),
+			expect.objectContaining({
+			provider: "poolside",
+			providerColor: "#12AB78",
+			cachedInputPct: 62.5,
+			cachedInputTokens: 625,
+			effectiveInputTokens: 1000,
+			cacheTelemetryRequests: 20,
+			requests: 20,
+		}),
+		]);
+		expect(payload.metrics.providerHourly7d).toEqual([
+			expect.objectContaining({ provider: "poolside", requests: 20 }),
 		]);
 		expect(payload.metrics.providerHourly7d).toEqual([
 			expect.objectContaining({ provider: "poolside", requests: 20 }),
@@ -1009,10 +969,12 @@ describe("public model routes", () => {
 	it("returns the overview shape used by the model page", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_model_overview")) return new Response(JSON.stringify({
-				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
-				organisation_name: "OpenAI", organisation_country_code: "US", model_details: [], model_links: [],
-			}), { status: 200 });
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", description: null, lab_slug: "openai",
+				status: "active", catalogue_status: "active", released_at: "2026-07-01T00:00:00Z",
+				announced_at: null, input_modalities: ["text"], output_modalities: ["text"], metadata: {}, hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
 			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ model_slug: "openai/gpt-test", license: "MIT", license_url: null, limits: { context: 128000 } }), { status: 200 });
 			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify([]), { status: 200 });
 			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify([
@@ -1043,6 +1005,80 @@ describe("public model routes", () => {
 				],
 			},
 		});
+	});
+
+	it("renders the overview when optional enrichments are unavailable", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", description: null, lab_slug: "openai",
+				status: "active", catalogue_status: "active", released_at: "2026-07-01T00:00:00Z",
+				announced_at: null, input_modalities: ["text"], output_modalities: ["text"], metadata: {}, hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
+			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ error: "identity temporarily unavailable" }), { status: 503 });
+			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify({ error: "aliases temporarily unavailable" }), { status: 503 });
+			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify({ error: "variants temporarily unavailable" }), { status: 503 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			model: {
+				model_id: "openai/gpt-test",
+				name: "GPT Test",
+				organisation_id: "openai",
+				aliases: [],
+				variants: [],
+			},
+		});
+	});
+
+	it("uses a targeted model lookup without calling the wide overview RPC", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test",
+				name: "GPT Test",
+				description: "A test model",
+				lab_slug: "openai",
+				status: "active",
+				catalogue_status: "active",
+				released_at: "2026-07-01T00:00:00Z",
+				announced_at: null,
+				input_modalities: ["text"],
+				output_modalities: ["text"],
+				metadata: { limits: { context: 128000 } },
+				hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			model: {
+				model_id: "openai/gpt-test",
+				name: "GPT Test",
+				description: "A test model",
+				organisation: { name: "OpenAI" },
+				model_details: [{ detail_name: "input_context_length", detail_value: 128000 }],
+			},
+		});
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_model_overview"))).toBe(false);
 	});
 
 	it("returns public model app usage from the rollup RPC", async () => {

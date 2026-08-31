@@ -561,9 +561,6 @@ module PhaseoSdk
     # Model ID: minimax/h3
     # Model page: https://phaseo.app/models/minimax/h3
     MINIMAX_H3 = "minimax/h3"
-    # Model ID: minimax/h3-max
-    # Model page: https://phaseo.app/models/minimax/h3-max
-    MINIMAX_H3_MAX = "minimax/h3-max"
     # Model ID: minimax/hailuo-02
     # Model page: https://phaseo.app/models/minimax/hailuo-02
     MINIMAX_HAILUO_02 = "minimax/hailuo-02"
@@ -1365,6 +1362,12 @@ module PhaseoSdk
     # Model ID: qwen/wan2.7-t2v
     # Model page: https://phaseo.app/models/qwen/wan2.7-t2v
     QWEN_WAN2_7_T2V = "qwen/wan2.7-t2v"
+    # Model ID: qwen/wan3.0-video
+    # Model page: https://phaseo.app/models/qwen/wan3.0-video
+    QWEN_WAN3_0_VIDEO = "qwen/wan3.0-video"
+    # Model ID: qwen/wan3.0-video-prime
+    # Model page: https://phaseo.app/models/qwen/wan3.0-video-prime
+    QWEN_WAN3_0_VIDEO_PRIME = "qwen/wan3.0-video-prime"
     # Model ID: reka-edge
     # Model page: https://phaseo.app/models/reka-edge
     REKA_EDGE = "reka-edge"
@@ -1853,7 +1856,6 @@ module PhaseoSdk
     ModelIds::MINDAI_MACARON_V1_TALL,
     ModelIds::MINDAI_MACARON_V1_VENTI,
     ModelIds::MINIMAX_H3,
-    ModelIds::MINIMAX_H3_MAX,
     ModelIds::MINIMAX_HAILUO_02,
     ModelIds::MINIMAX_HAILUO_2_3,
     ModelIds::MINIMAX_HAILUO_2_3_FAST,
@@ -2121,6 +2123,8 @@ module PhaseoSdk
     ModelIds::QWEN_TEXT_EMBEDDING_V3,
     ModelIds::QWEN_TEXT_EMBEDDING_V4,
     ModelIds::QWEN_WAN2_7_T2V,
+    ModelIds::QWEN_WAN3_0_VIDEO,
+    ModelIds::QWEN_WAN3_0_VIDEO_PRIME,
     ModelIds::REKA_EDGE,
     ModelIds::REKA_EDGE_2603,
     ModelIds::REKA_FLASH,

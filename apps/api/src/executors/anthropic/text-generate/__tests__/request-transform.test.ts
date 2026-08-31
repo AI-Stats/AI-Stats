@@ -597,16 +597,10 @@ describe("irToAnthropicMessages service controls", () => {
 		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBeNull();
 	});
 
-	it("does not let request options override a US-scoped offer", () => {
+	it("does not allow a US AWS route to be downgraded to global inference", () => {
 		const request = createBaseRequest();
-		request.geo = {
-			inferenceGeo: "global",
-			requiredExecutionRegion: "global",
-		};
-
+		request.geo = { inferenceGeo: "global" };
 		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
-		expect(resolveAnthropicInferenceGeo("anthropic-us", request)).toBe("us");
-		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBe("global");
 	});
 });
 

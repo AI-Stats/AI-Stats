@@ -17,6 +17,7 @@ import type { ProviderExecutor } from "../../types";
 
 const DEFAULT_BASE_URL = "https://dashscope-intl.aliyuncs.com";
 const DASHSCOPE_TASK_PREFIX = "dscope_";
+const WAN30_MAX_REFERENCE_VIDEO_SECONDS = 15;
 
 function encodeDashscopeTaskId(taskId: string): string {
 	const b64 = btoa(taskId).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -447,15 +448,21 @@ function wan30Request(
 	if (ratio && !allowedRatios.has(ratio)) {
 		throw new InvalidAlibabaVideoRequestError(`Unsupported Wan 3.0 aspect ratio: ${ratio}.`);
 	}
-	const inputVideoSeconds = ir.inputVideoDurationSeconds;
+	const requestedInputVideoSeconds = ir.inputVideoDurationSeconds;
 	if (referenceVideos.length > 0) {
-		if (inputVideoSeconds == null || !Number.isFinite(inputVideoSeconds) || inputVideoSeconds <= 0 || inputVideoSeconds > 15) {
+		if (requestedInputVideoSeconds == null || !Number.isFinite(requestedInputVideoSeconds) || requestedInputVideoSeconds <= 0 || requestedInputVideoSeconds > WAN30_MAX_REFERENCE_VIDEO_SECONDS) {
 			throw new InvalidAlibabaVideoRequestError("input_video_duration is required for Wan 3.0 reference video input and must be at most 15 seconds.");
 		}
-		if (inputVideoSeconds + seconds > 30) {
+		if (requestedInputVideoSeconds + seconds > 30) {
 			throw new InvalidAlibabaVideoRequestError("Wan 3.0 input and output video duration cannot exceed 30 seconds in total.");
 		}
 	}
+	// DashScope does not return authoritative reference-video duration in the
+	// async result. Never use the caller's duration claim for billing; reserve
+	// the maximum billable input duration for every reference-video request.
+	const inputVideoSeconds = referenceVideos.length > 0
+		? WAN30_MAX_REFERENCE_VIDEO_SECONDS
+		: requestedInputVideoSeconds;
 	if (ir.seed != null && (ir.seed < 0 || ir.seed > 2_147_483_647)) {
 		throw new InvalidAlibabaVideoRequestError("Wan 3.0 seed must be between 0 and 2147483647.");
 	}

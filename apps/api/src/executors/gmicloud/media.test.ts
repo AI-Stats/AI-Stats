@@ -95,39 +95,24 @@ describe("GMICloud native media executors", () => {
 		expect((result.ir as any)?.audio?.mimeType).toBe("audio/mpeg");
 	});
 
-	it("does not let vendor extensions replace guarded speech fields", async () => {
+	it("does not allow GMI Cloud extensions to replace canonical speech fields", async () => {
 		let body: any;
 		const mock = installFetchMock([{
 			match: (url, init) => url.endsWith("/api/v1/ie/requestqueue/apikey/requests") && init?.method === "POST",
-			response: jsonResponse({ request_id: "speech_req_guarded", status: "success", outcome: { audio_base64: "AQID" } }),
+			response: jsonResponse({ request_id: "speech_req_safe", status: "success", outcome: { audio_base64: "AQ==" } }),
 			onRequest: (call) => { body = call.bodyJson; },
 		}]);
 
 		await executeSpeech(args({
 			model: "minimax/speech-2.8:free",
-			input: "guarded input",
-			voice: "safe_voice",
-			format: "mp3",
+			input: "validated text",
+			voice: "validated-voice",
 			speed: 1.25,
-			vendor: {
-				gmicloud: {
-					text: "bypassed input",
-					voice_id: "bypassed_voice",
-					format: "wav",
-					speed: "9",
-					language_boost: "English",
-				},
-			},
+			rawRequest: { gmicloud: { text: "attacker text", voice_id: "attacker-voice", format: "wav", speed: "fast" } },
 		} as IRAudioSpeechRequest, "audio.speech", "minimax-tts-speech-2.8-hd"));
 		mock.restore();
 
-		expect(body.payload).toMatchObject({
-			text: "guarded input",
-			voice_id: "safe_voice",
-			format: "mp3",
-			speed: "1.25",
-			language_boost: "English",
-		});
+		expect(body.payload).toMatchObject({ text: "validated text", voice_id: "validated-voice", format: "mp3", speed: "1.25" });
 	});
 
 	it("returns a non-OK result for terminal queue failures", async () => {

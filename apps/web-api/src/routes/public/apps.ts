@@ -44,6 +44,7 @@ function missingRollup(error: unknown): boolean {
 		|| message.includes("v2_web_public_usage_hourly");
 }
 
+
 type PublicAppGroup = {
 	reference: string;
 	app: Record<string, unknown>;
@@ -163,21 +164,30 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 });
 
 async function resolveAppNames(env: Env, rows: Array<Record<string, unknown>>) {
-	const references = rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
-	const groups = await getPublicAppGroups(env, references);
-	const groupsByReference = new Map(groups.map((group) => [group.reference, group]));
+	const ids = [...new Set(rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean))];
+	const metadata = new Map<string, { name: string; url: string | null; category: string | null }>();
+	if (ids.length) {
+		const { data, error } = await getDataClient(env).from("api_apps").select("id,title,url,category").in("id", ids).eq("is_public", true).eq("is_active", true);
+		if (error) throw error;
+		for (const row of data ?? []) {
+			metadata.set(row.id, {
+				name: String(row.title ?? row.id),
+				url: typeof row.url === "string" ? row.url : null,
+				category: typeof row.category === "string" ? row.category : null,
+			});
+		}
+	}
 	return rows
-		.filter((row) => groupsByReference.has(String(row.app_id ?? "").trim()))
+		.filter((row) => metadata.has(String(row.app_id ?? "").trim()))
 		.map((row) => {
-			const group = groupsByReference.get(String(row.app_id).trim())!;
-			const appId = String(group.app.id ?? "").trim();
+			const appId = String(row.app_id).trim();
+			const app = metadata.get(appId);
 			return {
 				...row,
 				app_id: appId,
-				app_name: String(group.app.title ?? appId),
-				app_slug: group.publicSlug,
-				app_url: typeof group.app.url === "string" ? group.app.url : null,
-				app_category: typeof group.app.category === "string" ? group.app.category : null,
+				app_name: app?.name ?? appId,
+				app_url: app?.url ?? null,
+				app_category: app?.category ?? null,
 			};
 		});
 }

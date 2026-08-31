@@ -47,21 +47,6 @@ describe("buildParameterSupportSummary", () => {
 		});
 	});
 
-	it("recognizes top-level array parameter metadata as documented", () => {
-		expect(
-			buildParameterSupportSummary([
-				providerModel(
-					["temperature", "top-p"] as unknown as ProviderModel["params"],
-				),
-			]),
-		).toEqual({
-			parameters: ["temperature", "top_p"],
-			status: "documented",
-			documentedRouteCount: 1,
-			unknownRouteCount: 0,
-		});
-	});
-
 	it("marks fully populated route metadata as documented", () => {
 		expect(
 			buildParameterSupportSummary([

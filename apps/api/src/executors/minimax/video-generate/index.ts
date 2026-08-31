@@ -305,22 +305,16 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			mappedRequest,
 		};
 	}
-	if (isV2 && seconds != null && (!Number.isInteger(seconds) || seconds < (v2Model === "MiniMax-H3-Max" ? 5 : 4) || seconds > 15)) {
-		const min = v2Model === "MiniMax-H3-Max" ? 5 : 4;
-		const upstream = new Response(JSON.stringify({ error: { type: "duration_unsupported", message: `${v2Model} video duration must be an integer from ${min} to 15 seconds.` } }), { status: 400, headers: { "Content-Type": "application/json" } });
-		return { kind: "completed", ir: undefined, bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null }, upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest };
-	}
-	if (isV2 && ((v2Model === "MiniMax-H3-Max" && !["480P", "768P"].includes(String(size).toUpperCase())) || (v2Model === "MiniMax-H3" && !["768P", "2K"].includes(String(size).toUpperCase())))) {
-		const upstream = new Response(JSON.stringify({ error: { type: "resolution_unsupported", message: `${v2Model} does not support resolution ${size}.` } }), { status: 400, headers: { "Content-Type": "application/json" } });
-		return { kind: "completed", ir: undefined, bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null }, upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest };
-	}
-	if (isV2 && (passthroughRequest.first_frame_image || passthroughRequest.last_frame_image) && (subjectImages.length > 0 || referenceMedia.length > 0)) {
-		const upstream = new Response(JSON.stringify({ error: { type: "input_reference_conflict", message: "MiniMax V2 first/last-frame and reference inputs cannot be mixed." } }), { status: 400, headers: { "Content-Type": "application/json" } });
-		return { kind: "completed", ir: undefined, bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null }, upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest };
-	}
-	if (isV2 && v2Model === "MiniMax-H3-Max" && (subjectImages.length > 0 || referenceMedia.length > 0)) {
-		const upstream = new Response(JSON.stringify({ error: { type: "reference_model_unsupported", message: "MiniMax-H3-Max supports first/last-frame image-to-video, not reference-to-video inputs." } }), { status: 400, headers: { "Content-Type": "application/json" } });
-		return { kind: "completed", ir: undefined, bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null }, upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest };
+	const normalizedModel = model.trim().toLowerCase();
+	if (isV2) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "minimax_v2_video_not_enabled", message: "MiniMax-H3 requires the V2 multimodal video lifecycle, which is not enabled for routing." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
 	}
 	const normalizedResolution = String(passthroughRequest.resolution ?? "").toUpperCase();
 	if (isMiniMaxHailuoV1(model) && ![6, 10].includes(seconds)) {

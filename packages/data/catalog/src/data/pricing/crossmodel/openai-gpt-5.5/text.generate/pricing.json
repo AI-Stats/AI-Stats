@@ -78,6 +78,7 @@
       "pricing_plan": "standard",
       "note": null,
             "match": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],      "conditions": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],
+      "priority": 300,
       "source": null
     },
     {
@@ -89,6 +90,7 @@
       "pricing_plan": "standard",
       "note": null,
             "match": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],      "conditions": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],
+      "priority": 300,
       "source": null
     },
     {
@@ -100,6 +102,7 @@
       "pricing_plan": "standard",
       "note": null,
             "match": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],      "conditions": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],
+      "priority": 300,
       "source": null
     },
     {
@@ -111,6 +114,7 @@
       "pricing_plan": "standard",
       "note": null,
             "match": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],      "conditions": [         {           "path": "input_tokens",           "op": "gte",           "or_group": 1,           "and_index": 1,           "value": 272000         }       ],
+      "priority": 300,
       "source": null
     }
   ],

@@ -25,6 +25,7 @@ import {
 	computeAdaptiveTtlForDynamic,
 	computeCreditSnapshotTtlForContext,
 	computeStaticTtl,
+	getProviderPricingKey,
 	isCreditContextLike,
 	isDynamicContextLike,
 	hasConfiguredKeyLimits,
@@ -897,7 +898,7 @@ async function fetchFreeRouterProviderPool(args: {
             providerId,
             providerModelSlug,
         });
-        const pricingKey = `${providerId}:${apiModelId}`;
+		const pricingKey = getProviderPricingKey(providerId, apiModelId, providerModelSlug);
         providers.push({
             providerId,
             providerStatus: providerStatus?.status ?? "not_ready",
@@ -930,7 +931,7 @@ async function fetchFreeRouterProviderPool(args: {
                     : Number(capability.max_output_tokens),
         });
 
-        const card = await loadPriceCard(providerId, apiModelId, args.endpoint);
+        const card = await loadPriceCard(providerId, apiModelId, args.endpoint, providerModelSlug);
         if (card) {
             pricing[pricingKey] = card;
         }
@@ -1780,7 +1781,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
 
 
 
