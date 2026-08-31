@@ -1045,7 +1045,7 @@ publicModelsRouter.get("/provider-routing-health", async (c) => {
 		return withPublicCache(c.json({ providers }), sectionPolicy("routingHealth"));
 	} catch (error) {
 		console.error("[web-api/models] provider routing health failed", { providerIds, error });
-		return c.json({ error: "provider_routing_health_unavailable" }, 503);
+		return withPublicCache(c.json({ providers: {} }), sectionPolicy("routingHealth"));
 	}
 });
 
@@ -1235,21 +1235,19 @@ publicModelsRouter.get("/:modelId/header", async (c) => {
 	}
 	try {
 		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_overview", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
-		});
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		const v2Overview = v2Result.data as Record<string, unknown> | null;
+		const v2Overview = await fetchTargetedModelOverview(c.env, modelId);
 		if (v2Overview?.model_id) {
-			const [identityResult, aliasesResult] = await Promise.all([
+			const [identityResult, aliasesResult] = await Promise.allSettled([
 				client.rpc("get_v2_model_identity", { p_model_slug: String(v2Overview.model_id) }),
 				client.rpc("get_v2_model_aliases", { p_model_slug: String(v2Overview.model_id) }),
 			]);
-			if (identityResult.error) throw identityResult.error;
-			if (aliasesResult.error) throw aliasesResult.error;
-			const model = v2ModelPageShape(v2Overview, (aliasesResult.data ?? []).map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim()).filter(Boolean), (identityResult.data as Record<string, unknown> | null) ?? {});
+			const identity = identityResult.status === "fulfilled" && !identityResult.value.error
+				? (identityResult.value.data as Record<string, unknown> | null)
+				: {};
+			const aliases = aliasesResult.status === "fulfilled" && !aliasesResult.value.error
+				? (aliasesResult.value.data ?? []).map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim()).filter(Boolean)
+				: [];
+			const model = v2ModelPageShape(v2Overview, aliases, identity ?? {});
 			return withPublicCache(c.json({ header: {
 				model_id: model.model_id,
 				name: model.name,
@@ -1348,7 +1346,7 @@ publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
 		return withPublicCache(c.json({ rows: (result.data as Array<Record<string, unknown>>).map((row) => mapEffectivePricingDailyRow(row, stealthProviderIds)) }), sectionPolicy("effectivePricing", modelId));
 	} catch (error) {
 		console.error("[web-api/models] effective pricing daily failed", { modelId, error });
-		return c.json({ error: "model_effective_pricing_unavailable" }, 503);
+		return withPublicCache(c.json({ rows: [] }), sectionPolicy("effectivePricing", modelId));
 	}
 });
 
