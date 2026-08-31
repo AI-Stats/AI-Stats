@@ -175,5 +175,28 @@
     "sources": [{"kind":"provider_models","url":"https://docs.relace.ai/api-reference/open-models/chat-completions","accessed_at":"2026-08-24T00:00:00Z","notes":"Exact upstream slug, context, JSON mode, features, and pricing."}],
     "verification": {"status":"verified","checked_at":"2026-08-24T00:00:00Z","notes":"Hosted and available from Relace; Phaseo route disabled pending provider-path dispatch support."},
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "relace:z-ai/glm-5.3-flash",
+    "provider_model_slug": "z-ai/glm-5.3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-31T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","seed","top_k","repetition_penalty","tools","tool_choice","response_format","reasoning_effort"],"reasoning":true,"tool_call":true,"structured_output":false,"temperature":true,"attachment":true,"input_modalities":["text","image","video"],"output_modalities":["text"],"modes":[]}],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["standard"],
+    "api": {"formats": [], "endpoint": null, "deployment": null},
+    "sources": [{"kind":"provider_models","url":"https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash-20260826/endpoints","accessed_at":"2026-08-31T00:00:00Z","notes":"OpenRouter's live endpoint catalog lists Relace as serving z-ai/glm-5.3-flash with FP4 quantization and a 1M-token context window."}],
+    "verification": {"status":"partial","checked_at":"2026-08-31T00:00:00Z","notes":"Availability and endpoint metadata verified against OpenRouter; Relace's direct GLM route and provider-path dispatch are not yet verified."},
+    "rate_limits": []
   }
 ]
