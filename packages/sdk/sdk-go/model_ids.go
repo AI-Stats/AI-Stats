@@ -379,9 +379,6 @@ const (
 	// Model ID: google/gemini-embedding-2
 	// Model page: https://phaseo.app/models/google/gemini-embedding-2
 	ModelIDGoogleGeminiEmbedding2 gen.ModelId = "google/gemini-embedding-2"
-	// Model ID: google/gemini-robotics-er-1.6-preview
-	// Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
-	ModelIDGoogleGeminiRoboticsEr16Preview gen.ModelId = "google/gemini-robotics-er-1.6-preview"
 	// Model ID: google/gemini-robotics-er-2-preview
 	// Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview
 	ModelIDGoogleGeminiRoboticsEr2Preview gen.ModelId = "google/gemini-robotics-er-2-preview"
@@ -565,6 +562,12 @@ const (
 	// Model ID: mindai/macaron-v1-venti
 	// Model page: https://phaseo.app/models/mindai/macaron-v1-venti
 	ModelIDMindaiMacaronV1Venti gen.ModelId = "mindai/macaron-v1-venti"
+	// Model ID: minimax/h3
+	// Model page: https://phaseo.app/models/minimax/h3
+	ModelIDMinimaxH3 gen.ModelId = "minimax/h3"
+	// Model ID: minimax/h3-max
+	// Model page: https://phaseo.app/models/minimax/h3-max
+	ModelIDMinimaxH3Max gen.ModelId = "minimax/h3-max"
 	// Model ID: minimax/hailuo-02
 	// Model page: https://phaseo.app/models/minimax/hailuo-02
 	ModelIDMinimaxHailuo02 gen.ModelId = "minimax/hailuo-02"
@@ -763,24 +766,6 @@ const (
 	// Model ID: moonshotai/kimi-k3-fast
 	// Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast
 	ModelIDMoonshotaiKimiK3Fast gen.ModelId = "moonshotai/kimi-k3-fast"
-	// Model ID: moonshotai/moonshot-v1-128k
-	// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k
-	ModelIDMoonshotaiMoonshotV1128k gen.ModelId = "moonshotai/moonshot-v1-128k"
-	// Model ID: moonshotai/moonshot-v1-128k-vision-preview
-	// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k-vision-preview
-	ModelIDMoonshotaiMoonshotV1128kVisionPreview gen.ModelId = "moonshotai/moonshot-v1-128k-vision-preview"
-	// Model ID: moonshotai/moonshot-v1-32k
-	// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k
-	ModelIDMoonshotaiMoonshotV132k gen.ModelId = "moonshotai/moonshot-v1-32k"
-	// Model ID: moonshotai/moonshot-v1-32k-vision-preview
-	// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k-vision-preview
-	ModelIDMoonshotaiMoonshotV132kVisionPreview gen.ModelId = "moonshotai/moonshot-v1-32k-vision-preview"
-	// Model ID: moonshotai/moonshot-v1-8k
-	// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k
-	ModelIDMoonshotaiMoonshotV18k gen.ModelId = "moonshotai/moonshot-v1-8k"
-	// Model ID: moonshotai/moonshot-v1-8k-vision-preview
-	// Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview
-	ModelIDMoonshotaiMoonshotV18kVisionPreview gen.ModelId = "moonshotai/moonshot-v1-8k-vision-preview"
 	// Model ID: morph/morph-compactor
 	// Model page: https://phaseo.app/models/morph/morph-compactor
 	ModelIDMorphMorphCompactor gen.ModelId = "morph/morph-compactor"
@@ -805,21 +790,9 @@ const (
 	// Model ID: nousresearch/hermes-4-405b
 	// Model page: https://phaseo.app/models/nousresearch/hermes-4-405b
 	ModelIDNousresearchHermes4405b gen.ModelId = "nousresearch/hermes-4-405b"
-	// Model ID: nousresearch/hermes-4-70b
-	// Model page: https://phaseo.app/models/nousresearch/hermes-4-70b
-	ModelIDNousresearchHermes470b gen.ModelId = "nousresearch/hermes-4-70b"
-	// Model ID: nvidia/cosmos3-super-reasoner
-	// Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner
-	ModelIDNvidiaCosmos3SuperReasoner gen.ModelId = "nvidia/cosmos3-super-reasoner"
-	// Model ID: nvidia/llama-3.1-nemotron-ultra-253b
-	// Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b
-	ModelIDNvidiaLlama31NemotronUltra253b gen.ModelId = "nvidia/llama-3.1-nemotron-ultra-253b"
 	// Model ID: nvidia/nemotron-3-nano-30b-a3b
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b
 	ModelIDNvidiaNemotron3Nano30bA3b gen.ModelId = "nvidia/nemotron-3-nano-30b-a3b"
-	// Model ID: nvidia/nemotron-3-nano-omni
-	// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
-	ModelIDNvidiaNemotron3NanoOmni gen.ModelId = "nvidia/nemotron-3-nano-omni"
 	// Model ID: nvidia/nemotron-3-super-120b-a12b
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
 	ModelIDNvidiaNemotron3Super120bA12b gen.ModelId = "nvidia/nemotron-3-super-120b-a12b"
@@ -1822,7 +1795,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGemini37Flash,
 	ModelIDGoogleGeminiEmbedding001,
 	ModelIDGoogleGeminiEmbedding2,
-	ModelIDGoogleGeminiRoboticsEr16Preview,
 	ModelIDGoogleGeminiRoboticsEr2Preview,
 	ModelIDGoogleGemma312b,
 	ModelIDGoogleGemma327b,
@@ -1884,6 +1856,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMicrosoftWizardlm28x22b,
 	ModelIDMindaiMacaronV1Tall,
 	ModelIDMindaiMacaronV1Venti,
+	ModelIDMinimaxH3,
+	ModelIDMinimaxH3Max,
 	ModelIDMinimaxHailuo02,
 	ModelIDMinimaxHailuo23,
 	ModelIDMinimaxHailuo23Fast,
@@ -1950,12 +1924,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMoonshotaiKimiK27Code,
 	ModelIDMoonshotaiKimiK3,
 	ModelIDMoonshotaiKimiK3Fast,
-	ModelIDMoonshotaiMoonshotV1128k,
-	ModelIDMoonshotaiMoonshotV1128kVisionPreview,
-	ModelIDMoonshotaiMoonshotV132k,
-	ModelIDMoonshotaiMoonshotV132kVisionPreview,
-	ModelIDMoonshotaiMoonshotV18k,
-	ModelIDMoonshotaiMoonshotV18kVisionPreview,
 	ModelIDMorphMorphCompactor,
 	ModelIDMorphMorphV3Fast,
 	ModelIDMorphMorphV3Large,
@@ -1964,11 +1932,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDNousHermes3Llama31405b,
 	ModelIDNousresearchHermes3Llama3170b,
 	ModelIDNousresearchHermes4405b,
-	ModelIDNousresearchHermes470b,
-	ModelIDNvidiaCosmos3SuperReasoner,
-	ModelIDNvidiaLlama31NemotronUltra253b,
 	ModelIDNvidiaNemotron3Nano30bA3b,
-	ModelIDNvidiaNemotron3NanoOmni,
 	ModelIDNvidiaNemotron3Super120bA12b,
 	ModelIDNvidiaNemotron3Ultra550bA55b,
 	ModelIDNvidiaNemotron35Lightning,
