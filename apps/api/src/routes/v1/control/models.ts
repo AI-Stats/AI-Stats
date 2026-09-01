@@ -412,6 +412,7 @@ async function buildFreeRouterCatalogueModel(args: {
             base_model_id: FREE_ROUTER_MODEL_ID,
             variant_kind: "standard",
             previous_model_id: null,
+            replacement_model_id: null,
             name: FREE_ROUTER_NAME,
             description: null,
             release_date: null,
@@ -662,7 +663,7 @@ export async function handleModels(req: Request) {
             .map((model) =>
                 toPhaseoModel(
                     model,
-                    replacementByPreviousModel.get(model.model_id) ?? null,
+                    model.replacement_model_id ?? replacementByPreviousModel.get(model.model_id) ?? null,
                     variantsByBaseModel.get(model.base_model_id || model.model_id) ?? {},
                 )
             );
@@ -898,4 +899,3 @@ export const modelsRoutes = new Hono<Env>();
 modelsRoutes.get("/me", withRuntime((req) => handleMyModels(req)));
 modelsRoutes.get("/:author/:slug/endpoints", withRuntime((req) => handleModelEndpoints(req)));
 modelsRoutes.get("/", withRuntime((req) => handleModels(req)));
-
