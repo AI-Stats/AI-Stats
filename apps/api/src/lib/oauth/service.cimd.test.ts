@@ -65,6 +65,20 @@ describe("OAuth client ID metadata documents", () => {
 		expect(assertRedirectAllowed(client!, "http://localhost:61903/callback/client")).toBe(false);
 	});
 
+	it("keeps CIMD web-client loopback redirects on their registered port", async () => {
+		const clientId = "https://web-client.example/client.json";
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+			client_id: clientId,
+			client_name: "Web Client",
+			application_type: "web",
+			redirect_uris: ["http://127.0.0.1/callback/client"],
+			token_endpoint_auth_method: "none",
+		})));
+		const client = await loadOAuthClient(clientId);
+
+		expect(assertRedirectAllowed(client!, "http://127.0.0.1:61903/callback/client")).toBe(false);
+	});
+
 	it("rejects metadata that does not bind itself to the exact client_id", async () => {
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
 			client_id: "https://attacker.example/client.json",
