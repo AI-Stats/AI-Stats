@@ -878,6 +878,7 @@ describe("emitGatewayRequestEvent", () => {
 			error_origin: "user",
 			error_operational_kind: "request_provider_filter_no_match",
 			error_action_owner: "caller",
+			error_operationally_actionable: false,
 			error_requires_investigation: false,
 		});
 	});
@@ -916,6 +917,7 @@ describe("emitGatewayRequestEvent", () => {
 			error_origin: "gateway",
 			error_operational_kind: "gateway_provider_availability_gap",
 			error_action_owner: "gateway",
+			error_operationally_actionable: true,
 			error_requires_investigation: true,
 		});
 	});

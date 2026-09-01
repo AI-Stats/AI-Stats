@@ -47,6 +47,13 @@ export type GatewayBindings = {
     AXIOM_DETAIL_SAMPLE_RATE?: string;
     AXIOM_SLOW_REQUEST_MS?: string;
     AXIOM_LOG_FAILURE_COOLDOWN_MS?: string;
+	OBSERVABILITY_WEBHOOK_SECRET?: string;
+	LINEAR_API_KEY?: string;
+	LINEAR_TEAM_ID?: string;
+	LINEAR_PROJECT_ID?: string;
+	LINEAR_TRIAGE_STATUS_ID?: string;
+	LINEAR_ASSIGNEE_ID?: string;
+	LINEAR_OBSERVABILITY_LABEL_ID?: string;
 	OPENAI_API_KEY?: string;
 	OPENAI_EU_BASE_URL?: string;
     OPENAI_BASE_URL?: string;

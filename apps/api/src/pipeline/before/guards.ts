@@ -15,6 +15,7 @@ import { err } from "./http";
 import { extractModel, formatZodErrors, buildProviderCandidatesWithDiagnostics } from "./utils";
 import { fetchGatewayContext } from "./context";
 import { generatePublicId } from "./genId";
+import { requestIdFor } from "@/runtime/request-id";
 import { isDebugAllowed } from "../debug";
 import type { DebugOptions } from "@core/types";
 import { authenticate, authenticateManagement, type AuthFailure } from "./auth";
@@ -298,7 +299,7 @@ export async function guardAuth(req: Request, options: GuardAuthOptions = {}): P
     oauthResource?: string | null;
     scopes?: string[];
 }>> {
-    const requestId = generatePublicId();
+    const requestId = requestIdFor(req);
     const auth = await authenticate(req, {
         useKvCache: options.useKvCache,
         allowOAuthJwt: options.allowOAuthJwt,
@@ -340,7 +341,7 @@ export async function guardManagementAuth(req: Request, options: GuardAuthOption
     oauthResource?: string | null;
     scopes?: string[];
 }>> {
-    const requestId = generatePublicId();
+    const requestId = requestIdFor(req);
     const auth = await authenticateManagement(req, { useKvCache: options.useKvCache });
     if (!auth.ok) {
         const reason = (auth as AuthFailure).reason;
