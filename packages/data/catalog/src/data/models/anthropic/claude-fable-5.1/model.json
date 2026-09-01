@@ -30,13 +30,13 @@
     { "name": "tool_choice", "value": "Supports auto and none. Forced any or named-tool selection is not supported." },
     {
       "name": "availability",
-      "value": "Claude Fable 5.1 is enabled through the direct Anthropic provider. Anthropic US, Claude Platform on AWS, Amazon Bedrock, and Google Vertex AI mappings remain disabled pending provider-specific verification."
+      "value": "Claude Fable 5.1 is enabled through the direct Anthropic provider. Anthropic also confirms availability on Amazon Bedrock, Claude Platform on AWS, Google Cloud, and Microsoft Foundry; Phaseo tracks those mappings as supported but non-routable pending provider-specific IDs, regions, and pricing verification."
     }
   ],
   "benchmarks": [],
   "page_notice": {
     "tone": "info",
-    "markdown": "Claude Fable 5.1 is currently available through the direct Anthropic provider. Other provider mappings remain disabled pending verification."
+    "markdown": "Claude Fable 5.1 is currently routable through the direct Anthropic provider. Amazon Bedrock, Claude Platform on AWS, Google Cloud, and Microsoft Foundry support is tracked but remains disabled pending provider-specific verification."
   },
   "model_type": null,
   "knowledge_cutoff": "2026-06-01T00:00:00",
