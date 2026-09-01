@@ -80,6 +80,9 @@ function listBaseMigrationFiles(baseSha) {
 	if (!output) return [];
 	return output
 		.split(/\r?\n/)
+		.filter((path) =>
+			/^supabase\/migrations\/[^/]+$/.test(path.replaceAll("\\", "/")),
+		)
 		.map((path) => path.split("/").at(-1) ?? "")
 		.filter((file) => MIGRATION_NAME.test(file))
 		.sort();
