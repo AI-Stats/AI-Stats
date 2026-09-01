@@ -7,7 +7,7 @@
   "previous_model_id": "anthropic/claude-fable-5",
   "description": "Claude Fable 5.1 is Anthropic's successor to Claude Fable 5. It is currently available through Phaseo using the direct Anthropic provider.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-09-01T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
