@@ -13,20 +13,13 @@ import { v1Router } from "@/routes/v1";
 import { internalRouter } from "@/routes/internal";
 import { handleScheduledEvent } from "@/scheduled";
 import { sendAxiomWideEvent } from "@/observability/axiom";
+import { requestIdFor } from "@/runtime/request-id";
 export { RealtimeRelayDurableObject } from "@core/realtime-relay-durable-object";
 
 const app = new Hono<Env>();
 
-function requestIdFrom(request: Request): string {
-	const supplied = request.headers.get("x-request-id")?.trim();
-	if (supplied && supplied.length <= 128 && /^[a-zA-Z0-9._:-]+$/.test(supplied)) {
-		return supplied;
-	}
-	return crypto.randomUUID();
-}
-
 app.use("*", async (c, next) => {
-	const requestId = requestIdFrom(c.req.raw);
+	const requestId = requestIdFor(c.req.raw);
 	c.set("requestId", requestId);
 	await next();
 	if (c.res.status === 101) return;
@@ -46,7 +39,7 @@ app.route("/v1", v1Router);
 app.route("/internal", internalRouter);
 
 app.onError((error, c) => {
-	const requestId = c.get("requestId") ?? requestIdFrom(c.req.raw);
+	const requestId = c.get("requestId") ?? requestIdFor(c.req.raw);
 	const url = new URL(c.req.url);
 	const event = sendAxiomWideEvent({
 		event_type: "api.unhandled_error",
@@ -90,7 +83,6 @@ export default {
 	fetch: app.fetch,
 	scheduled: handleScheduledEvent,
 };
-
 
 
 

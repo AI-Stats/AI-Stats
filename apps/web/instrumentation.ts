@@ -2,6 +2,7 @@ import type { Instrumentation } from "next";
 import { PostHog } from "posthog-node";
 
 import { POSTHOG_API_HOST, POSTHOG_KEY } from "@/lib/analytics";
+import { readAnalyticsConsentFromCookieHeader } from "@/lib/cookieConsent";
 
 export function register() {}
 
@@ -19,6 +20,8 @@ function getPosthogClient(): PostHog | null {
 }
 
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
+	const cookieHeader = request.headers.cookie;
+	if (readAnalyticsConsentFromCookieHeader(Array.isArray(cookieHeader) ? cookieHeader.join("; ") : cookieHeader) !== "accepted") return;
 	const client = getPosthogClient();
 	if (!client) return;
 
