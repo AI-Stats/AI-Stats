@@ -126,21 +126,39 @@ describe("pricingRoutes", () => {
 	it("batches meter queries to keep PostgREST URLs bounded", async () => {
 		const skus = Array.from({ length: 201 }, (_, index) => ({
 			sku_id: `sku_${index}`,
-			provider_model_id: `pm_${index}`,
+			provider_model_id: "pm_1",
 			operation: "chat/completions",
 			service_tier_slug: "standard",
 			currency: "USD",
 			metadata: {},
 		}));
-		const from = vi.fn((table: string) => queryResult({
-			data: table === "v2_pricing_skus" ? skus : [],
-			error: null,
-		}));
+		let meterBatch = 0;
+		const from = vi.fn((table: string) => {
+			if (table === "v2_pricing_skus") return queryResult({ data: skus, error: null });
+			if (table === "v2_model_provider_routes") return queryResult({ data: [{
+				provider_model_id: "pm_1", provider_slug: "openai", model_slug: "openai/gpt-test",
+			}], error: null });
+			if (table === "v2_models") return queryResult({ data: [{
+				model_slug: "openai/gpt-test", name: "GPT Test", hidden: false, status: "active",
+			}], error: null });
+			if (table === "v2_pricing_sku_meters") {
+				const batch = meterBatch++;
+				return queryResult({ data: [{
+					sku_id: batch === 0 ? "sku_0" : "sku_200",
+					meter_key: batch === 0 ? "second" : "first",
+					unit: "token", unit_quantity: 1, price_nanos: 1, metadata: {},
+					meter_order: batch === 0 ? 2 : 1,
+				}], error: null });
+			}
+			throw new Error(`unexpected table: ${table}`);
+		});
 		getSupabaseAdminMock.mockReturnValue({ from });
 
 		const response = await pricingRoutes.request("https://example.com/models");
+		const body = await response.json() as { models: Array<{ meters: Array<{ meter: string }> }> };
 
 		expect(response.status).toBe(200);
 		expect(from.mock.calls.filter(([table]) => table === "v2_pricing_sku_meters")).toHaveLength(2);
+		expect(body.models[0]?.meters.map((meter) => meter.meter)).toEqual(["first", "second"]);
 	});
 });

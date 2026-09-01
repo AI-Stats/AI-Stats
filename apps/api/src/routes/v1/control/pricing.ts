@@ -70,6 +70,7 @@ async function handlePricingModels(req: Request) {
                 .order("meter_order");
             meterRows.push(...requireQueryResult("v2_pricing_sku_meters", metersResult));
         }
+        meterRows.sort((a, b) => Number(a.meter_order ?? 0) - Number(b.meter_order ?? 0));
 
         const routes = new Map(routeRows.map((route) => [route.provider_model_id, route]));
         const models = new Map(modelRows
@@ -211,7 +212,6 @@ export const pricingRoutes = new Hono<Env>();
 
 pricingRoutes.get("/models", withRuntime(handlePricingModels));
 pricingRoutes.post("/calculate", withRuntime(handlePricingCalculate));
-
 
 
 
