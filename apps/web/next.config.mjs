@@ -48,6 +48,11 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_DEPLOY_TIME:
       process.env.NEXT_PUBLIC_DEPLOY_TIME ?? new Date().toISOString(),
+    NEXT_PUBLIC_RELEASE:
+      process.env.NEXT_PUBLIC_RELEASE ??
+      process.env.VERCEL_GIT_COMMIT_SHA ??
+      process.env.CF_PAGES_COMMIT_SHA ??
+      "development",
   },
   outputFileTracingRoot: monorepoRoot,
   turbopack: {

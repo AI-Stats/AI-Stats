@@ -401,6 +401,7 @@ export function withCors(
         "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
         "Access-Control-Allow-Headers":
             "Authorization,Content-Type,x-title,http-referer,x-app-id,x-app-name,x-app-categories,x-phaseo-client,x-phaseo-client-version,x-gateway-debug,x-phaseo-debug,X-Phaseo-Strictness,x-phaseo-cache-revalidate",
+        "Access-Control-Expose-Headers": "X-Request-Id",
         "Access-Control-Max-Age": "86400",
     };
 

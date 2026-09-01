@@ -27,6 +27,10 @@ import {
 	PRODUCT_FEEDBACK_SURVEY_ID,
 	type ProductFeedbackPayload,
 } from "@/lib/productFeedback";
+import {
+	buildErrorReproductionContext,
+	installFailedFetchObserver,
+} from "@/lib/errorReproductionContext";
 
 let posthogInitialized = false;
 let listenersBound = false;
@@ -105,25 +109,18 @@ function captureToPosthog(payload: ClientErrorPayload) {
 		return;
 	}
 
-	const contextJson = payload.context
-		? JSON.stringify(payload.context).slice(0, 4000)
-		: undefined;
+	const capturedError = payload.error instanceof Error
+		? payload.error
+		: Object.assign(new Error(payload.message), {
+			stack: payload.stack ?? undefined,
+		});
 
-	posthog.capture("web_client_error", {
+	posthog.captureException(capturedError, {
+		...buildErrorReproductionContext(posthog.get_session_id()),
+		...payload.context,
 		source: payload.source,
-		message: payload.message,
-		stack: payload.stack?.slice(0, 8000),
 		fatal: Boolean(payload.fatal),
 		handled: Boolean(payload.handled),
-		url:
-			typeof window !== "undefined" ? window.location.href : undefined,
-		path:
-			typeof window !== "undefined"
-				? `${window.location.pathname}${window.location.search}`
-				: undefined,
-		user_agent:
-			typeof navigator !== "undefined" ? navigator.userAgent : undefined,
-		context: contextJson,
 	});
 }
 
@@ -165,6 +162,7 @@ function bindGlobalErrorListeners() {
 
 		captureClientError({
 			source: "window.error",
+			error,
 			message:
 				error instanceof Error
 					? error.message
@@ -192,6 +190,7 @@ function bindGlobalErrorListeners() {
 
 		captureClientError({
 			source: "window.unhandledrejection",
+			error: reason,
 			message,
 			stack,
 			fatal: false,
@@ -263,6 +262,7 @@ function initializePosthog() {
 		autocapture: false,
 		capture_pageview: false,
 		capture_pageleave: false,
+		capture_exceptions: false,
 		person_profiles: "identified_only",
 		disable_session_recording: true,
 		opt_out_capturing_by_default: true,
@@ -323,6 +323,7 @@ function applyPosthogConsent(consent: AnalyticsConsent | null) {
 }
 
 if (typeof window !== "undefined") {
+	installFailedFetchObserver();
 	bindGlobalErrorListeners();
 
 	if (POSTHOG_KEY) {
