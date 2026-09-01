@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const guardAuthMock = vi.fn();
 const fetchCatalogueMock = vi.fn();
 const fetchGatewayContextMock = vi.fn();
+const anonymousModelsRateLimitMock = vi.fn();
 
 vi.mock("@pipeline/before/guards", () => ({
     guardAuth: (...args: any[]) => guardAuthMock(...args),
@@ -15,6 +16,10 @@ vi.mock("./models.catalogue", () => ({
 
 vi.mock("@pipeline/before/context", () => ({
     fetchGatewayContext: (...args: any[]) => fetchGatewayContextMock(...args),
+}));
+
+vi.mock("@/lib/models/rateLimit", () => ({
+    checkAnonymousModelsRateLimit: (...args: any[]) => anonymousModelsRateLimitMock(...args),
 }));
 
 import { handleModelEndpoints, handleModels, handleMyModels } from "./models";
@@ -108,6 +113,8 @@ describe("handleModels", () => {
         guardAuthMock.mockReset();
         fetchCatalogueMock.mockReset();
         fetchGatewayContextMock.mockReset();
+        anonymousModelsRateLimitMock.mockReset();
+        anonymousModelsRateLimitMock.mockResolvedValue(true);
         guardAuthMock.mockResolvedValue({
             ok: true,
             value: {
@@ -144,6 +151,7 @@ describe("handleModels", () => {
         );
 
         expect(response.status).toBe(200);
+        expect(guardAuthMock).not.toHaveBeenCalled();
         expect(fetchCatalogueMock).toHaveBeenCalledWith(
             expect.objectContaining({ availability: "active" }),
         );
@@ -153,9 +161,91 @@ describe("handleModels", () => {
         });
     });
 
+    it("serves the active catalogue anonymously without workspace-derived models", async () => {
+        fetchGatewayContextMock.mockResolvedValue({
+            resolvedModel: "phaseo/free",
+            providers: [{
+                providerId: "openai",
+                apiModelId: "openai/gpt-4o-mini",
+                pricingKey: "openai:openai/gpt-4o-mini",
+                capabilityParams: {},
+            }],
+            pricing: {},
+        });
+
+        const response = await handleModels(new Request("https://api.example.com/v1/models"));
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get("cache-control")).toContain("public");
+        expect(response.headers.get("vary")).toBe("Authorization");
+        expect(guardAuthMock).not.toHaveBeenCalled();
+        expect(fetchGatewayContextMock).not.toHaveBeenCalled();
+        await expect(response.json()).resolves.toMatchObject({
+            ok: true,
+            availability_mode: "active",
+            total: 1,
+            models: [{ id: "openai/gpt-4o-mini", availability: { status: "active" } }],
+        });
+    });
+
+    it("rate limits anonymous discovery before loading the catalogue", async () => {
+        anonymousModelsRateLimitMock.mockResolvedValue(false);
+
+        const response = await handleModels(new Request("https://api.example.com/v1/models"));
+
+        expect(response.status).toBe(429);
+        expect(response.headers.get("retry-after")).toBe("60");
+        expect(fetchCatalogueMock).not.toHaveBeenCalled();
+    });
+
+    it("validates supplied credentials instead of downgrading to anonymous access", async () => {
+        guardAuthMock.mockResolvedValue({
+            ok: false,
+            response: new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 }),
+        });
+
+        const response = await handleModels(new Request("https://api.example.com/v1/models", {
+            headers: { Authorization: "Bearer invalid" },
+        }));
+
+        expect(response.status).toBe(401);
+        expect(guardAuthMock).toHaveBeenCalledOnce();
+        expect(fetchCatalogueMock).not.toHaveBeenCalled();
+    });
+
+    it("requires authentication for non-routable availability records", async () => {
+        const response = await handleModels(
+            new Request("https://api.example.com/v1/models?availability=all"),
+        );
+
+        expect(response.status).toBe(401);
+        expect(response.headers.get("cache-control")).toBe("no-store");
+        expect(guardAuthMock).not.toHaveBeenCalled();
+        expect(fetchCatalogueMock).not.toHaveBeenCalled();
+        await expect(response.json()).resolves.toMatchObject({
+            error: "authentication_required",
+        });
+    });
+
+    it("redacts catalogue diagnostics from anonymous failures", async () => {
+        fetchCatalogueMock.mockRejectedValue(new Error("database host and internal query details"));
+
+        const response = await handleModels(new Request("https://api.example.com/v1/models"));
+
+        expect(response.status).toBe(500);
+        expect(response.headers.get("cache-control")).toBe("no-store");
+        await expect(response.json()).resolves.toEqual({
+            ok: false,
+            error: "failed",
+            message: "Failed to load model catalogue",
+        });
+    });
+
     it("returns structured Phaseo capabilities and provider offers", async () => {
         const response = await handleModels(
-            new Request("https://api.example.com/"),
+            new Request("https://api.example.com/", {
+                headers: { Authorization: "Bearer phaseo_test" },
+            }),
             "shared",
         );
 
@@ -478,7 +568,9 @@ describe("handleModels", () => {
         });
 
         const response = await handleModels(
-            new Request("https://api.example.com/"),
+            new Request("https://api.example.com/", {
+                headers: { Authorization: "Bearer phaseo_test" },
+            }),
             "shared",
         );
 
@@ -571,7 +663,9 @@ describe("handleModels", () => {
         ]);
 
         const response = await handleModels(
-            new Request("https://api.example.com/?availability=all"),
+            new Request("https://api.example.com/?availability=all", {
+                headers: { Authorization: "Bearer phaseo_test" },
+            }),
             "shared",
         );
 

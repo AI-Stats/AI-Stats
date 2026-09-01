@@ -20,6 +20,7 @@ import {
 } from "./models.catalogue";
 import { buildFeedResponse, parseFeedFormat, type FeedItem } from "./models.feeds";
 import { getEndpointMetadata } from "./endpoint-metadata";
+import { checkAnonymousModelsRateLimit } from "@/lib/models/rateLimit";
 
 type LifecycleStatus = "active" | "deprecated" | "retired" | null;
 type AvailabilityMode = "active" | "all";
@@ -37,6 +38,10 @@ const MAX_OFFSET = 5000;
 const FREE_ROUTER_MODEL_ID = "phaseo/free";
 const FREE_ROUTER_NAME = "Phaseo Free Router";
 const FREE_ROUTER_ENDPOINTS = ["chat/completions", "responses", "messages"] as const;
+const ANONYMOUS_CACHE_HEADERS = {
+    "Cache-Control": "public, max-age=300, s-maxage=1800, stale-while-revalidate=1800",
+    "Vary": "Authorization",
+} as const;
 
 function parsePaginationParam(raw: string | null, fallback: number, max: number): number {
     if (!raw) return fallback;
@@ -556,12 +561,31 @@ export async function handleModels(req: Request) {
         );
     }
 
-    const auth = await guardAuth(req, { allowOAuthJwt: true });
-    if (!auth.ok) {
+    // Missing credentials select the public catalogue. Supplied credentials are
+    // still validated so an invalid or under-scoped key cannot silently fall
+    // back to anonymous access.
+    const hasAuthorization = Boolean(req.headers.get("authorization")?.trim());
+    const auth = hasAuthorization
+        ? await guardAuth(req, { allowOAuthJwt: true })
+        : null;
+    if (auth && !auth.ok) {
         return (auth as GuardErr).response;
     }
-    const scopeError = requireCapability(auth.value, CAPABILITIES.MODELS_READ);
-    if (scopeError) return scopeError;
+    if (auth?.ok) {
+        const scopeError = requireCapability(auth.value, CAPABILITIES.MODELS_READ);
+        if (scopeError) return scopeError;
+    }
+    if (!auth && !(await checkAnonymousModelsRateLimit(req))) {
+        return json(
+            {
+                ok: false,
+                error: "rate_limited",
+                message: "Too many anonymous model discovery requests. Try again shortly.",
+            },
+            429,
+            { "Cache-Control": "no-store", "Retry-After": "60" },
+        );
+    }
 
     const requestedFormat = parseFeedFormat(url);
     if (requestedFormat.ok === false) {
@@ -627,6 +651,17 @@ export async function handleModels(req: Request) {
             { "Cache-Control": "no-store" }
         );
     }
+    if (!auth && availabilityMode === "all") {
+        return json(
+            {
+                ok: false,
+                error: "authentication_required",
+                message: "availability=all requires authentication. Anonymous discovery only returns currently gateway-routable models.",
+            },
+            401,
+            { "Cache-Control": "no-store" }
+        );
+    }
 
     try {
         const catalogue = await fetchCatalogue({
@@ -645,12 +680,14 @@ export async function handleModels(req: Request) {
             params,
             availability: availabilityMode,
         });
-        const freeRouterModel = await buildFreeRouterCatalogueModel({
-            workspaceId: auth.value.workspaceId,
-            apiKeyId: auth.value.apiKeyId,
-            endpoints,
-            catalogue,
-        });
+        const freeRouterModel = auth?.ok
+            ? await buildFreeRouterCatalogueModel({
+                workspaceId: auth.value.workspaceId,
+                apiKeyId: auth.value.apiKeyId,
+                endpoints,
+                catalogue,
+            })
+            : null;
         const enrichedCatalogue =
             freeRouterModel && !catalogue.some((model) => model.model_id === freeRouterModel.model_id)
                 ? [freeRouterModel, ...catalogue]
@@ -667,7 +704,7 @@ export async function handleModels(req: Request) {
                 )
             );
         const paged = models.slice(offset, offset + limit);
-        const headers = cacheHeaders(cacheOptions);
+        const headers = auth ? cacheHeaders(cacheOptions) : ANONYMOUS_CACHE_HEADERS;
         if (requestedFormat.format !== "json") {
             const items: FeedItem[] = paged.map((model) => ({
                 id: model.id,
@@ -698,7 +735,13 @@ export async function handleModels(req: Request) {
         );
     } catch (error: any) {
         return json(
-            { ok: false, error: "failed", message: String(error?.message ?? error) },
+            {
+                ok: false,
+                error: "failed",
+                message: auth
+                    ? String(error?.message ?? error)
+                    : "Failed to load model catalogue",
+            },
             500,
             { "Cache-Control": "no-store" }
         );
@@ -898,4 +941,3 @@ export const modelsRoutes = new Hono<Env>();
 modelsRoutes.get("/me", withRuntime((req) => handleMyModels(req)));
 modelsRoutes.get("/:author/:slug/endpoints", withRuntime((req) => handleModelEndpoints(req)));
 modelsRoutes.get("/", withRuntime((req) => handleModels(req)));
-
