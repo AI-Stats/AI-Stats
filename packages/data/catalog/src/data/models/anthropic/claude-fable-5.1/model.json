@@ -15,11 +15,19 @@
   "output_types": "text",
   "api_model_id": "anthropic/claude-fable-5.1",
   "family_id": "anthropic/claude-5",
-  "links": [],
+  "links": [
+    {
+      "title": "Migration guide",
+      "kind": "docs",
+      "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide"
+    }
+  ],
   "details": [
     { "name": "input_context_length", "value": 1000000 },
-    { "name": "default_output_context_length", "value": 64000 },
     { "name": "output_context_length", "value": 128000 },
+    { "name": "prompt_cache_minimum_tokens", "value": 512 },
+    { "name": "data_retention", "value": "30 days; unavailable under zero data retention unless expressly authorized" },
+    { "name": "tool_choice", "value": "Supports auto and none. Forced any or named-tool selection is not supported." },
     {
       "name": "availability",
       "value": "Claude Fable 5.1 is enabled through the direct Anthropic provider. Anthropic US, Claude Platform on AWS, Amazon Bedrock, and Google Vertex AI mappings remain disabled pending provider-specific verification."
@@ -42,23 +50,30 @@
     "output": ["text"]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
+    "attachment": true,
+    "tool_call": true,
     "structured_output": null,
     "temperature": null,
-    "streaming": null,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "docs",
+      "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide",
+      "accessed_at": "2026-09-01T00:00:00Z",
+      "notes": "Official migration guide for model IDs, limits, pricing, adaptive thinking, cache minimums, tool-choice restrictions, and retention requirements."
+    }
+  ],
   "verification": {
-    "status": "unverified",
+    "status": "partial",
     "checked_at": "2026-09-01T00:00:00Z",
-    "notes": "Model identity, June 2026 knowledge cutoff, 1M context, and 64K default / 128K maximum output corroborated by a user-supplied Claude Code 2.1.257 release report."
+    "notes": "Anthropic's migration guide verifies the model ID, 1M context, 128K maximum output, adaptive thinking, cache behavior, and API restrictions. The June 2026 knowledge cutoff remains corroborated by a user-supplied Claude Code 2.1.257 release report."
   },
   "last_updated": "2026-09-01T00:00:00",
   "removal_date": null,

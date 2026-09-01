@@ -5,7 +5,7 @@
   "status": "Limited Access",
   "hidden": false,
   "previous_model_id": "anthropic/claude-mythos-5",
-  "description": "Claude Mythos 5.1 is Anthropic's first-party-only Mythos release for restricted frontier workflows. It is tracked with direct Anthropic availability only.",
+  "description": "Claude Mythos 5.1 is Anthropic's restricted-access Mythos release for approved Project Glasswing customers. Phaseo tracks it with direct Anthropic availability only.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
@@ -15,15 +15,19 @@
   "output_types": "text",
   "api_model_id": "anthropic/claude-mythos-5.1",
   "family_id": "anthropic/claude-5",
-  "links": [],
+  "links": [
+    { "title": "Migration guide", "kind": "docs", "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide" }
+  ],
   "details": [
     { "name": "input_context_length", "value": 1000000 },
-    { "name": "default_output_context_length", "value": 64000 },
     { "name": "output_context_length", "value": 128000 },
-    { "name": "availability", "value": "Claude Mythos 5.1 is first-party only and is mapped exclusively to the direct Anthropic provider." }
+    { "name": "prompt_cache_minimum_tokens", "value": 512 },
+    { "name": "data_retention", "value": "30 days; unavailable under zero data retention unless expressly authorized" },
+    { "name": "tool_choice", "value": "Supports auto and none. Forced any or named-tool selection is not supported." },
+    { "name": "availability", "value": "Claude Mythos 5.1 is available only to approved Project Glasswing customers and is mapped exclusively to the direct Anthropic provider." }
   ],
   "benchmarks": [],
-  "page_notice": { "tone": "info", "markdown": "Claude Mythos 5.1 is a limited-access, first-party-only Anthropic model." },
+  "page_notice": { "tone": "info", "markdown": "Claude Mythos 5.1 is available only to approved Project Glasswing customers." },
   "model_type": null,
   "knowledge_cutoff": "2026-06-01T00:00:00",
   "limits": { "context": 1000000, "input": 1000000, "output": 128000 },
@@ -31,8 +35,10 @@
   "reasoning": { "supported": true, "options": [] },
   "capabilities": { "attachment": true, "tool_call": true, "structured_output": true, "temperature": null, "streaming": true, "web_search": true },
   "open_weights": null,
-  "sources": [],
-  "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "Model identity, first-party-only availability, June 2026 knowledge cutoff, 1M context, and 64K default / 128K maximum output corroborated by a user-supplied Claude Code 2.1.257 release report." },
+  "sources": [
+    { "kind": "docs", "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide", "accessed_at": "2026-09-01T00:00:00Z", "notes": "Official migration guide for model ID, Project Glasswing access, limits, pricing, adaptive thinking, cache minimums, tool-choice restrictions, and retention requirements." }
+  ],
+  "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "Anthropic's migration guide verifies the model ID, Project Glasswing access restriction, 1M context, 128K maximum output, adaptive thinking, cache behavior, and API restrictions. The June 2026 knowledge cutoff remains corroborated by a user-supplied Claude Code 2.1.257 release report." },
   "last_updated": "2026-09-01T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,

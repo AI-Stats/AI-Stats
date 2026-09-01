@@ -18,8 +18,8 @@
     "regions": { "execution": ["global", "us"], "data": ["us"] },
     "service_tiers": [],
     "api": { "formats": [], "endpoint": null, "deployment": null },
-    "sources": [],
-    "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "First-party-only Anthropic route corroborated by a user-supplied Claude Code 2.1.257 release report." },
+    "sources": [{ "kind": "docs", "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide", "accessed_at": "2026-09-01T00:00:00Z", "notes": "Official Anthropic model ID, access restriction, context and output limits, and API behavior." }],
+    "verification": { "status": "verified", "checked_at": "2026-09-01T00:00:00Z", "notes": "Official Anthropic migration guide verifies the direct route and Project Glasswing access restriction." },
     "rate_limits": []
   },
   {
@@ -35,14 +35,14 @@
     "max_output_tokens": 128000,
     "effective_from": null,
     "effective_to": null,
-    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": ["max_tokens", "stop", "reasoning", "include_reasoning", "tool_choice", "tools", "structured_outputs", "response_format", "verbosity", "reasoning_effort"], "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null, "attachment": null, "input_modalities": null, "output_modalities": null, "modes": [] }],
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": ["max_tokens", "stop", "reasoning", "include_reasoning", "tool_choice", "tools", "structured_outputs", "response_format", "verbosity", "reasoning_effort"], "reasoning": true, "tool_call": true, "structured_output": null, "temperature": null, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
     "routing_status": "active",
     "routable": true,
     "regions": { "execution": ["global", "us"], "data": ["us"] },
     "service_tiers": [],
     "api": { "formats": [], "endpoint": null, "deployment": null },
-    "sources": [],
-    "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "Direct Anthropic route enabled; provider-specific model details and pricing remain provisional." },
+    "sources": [{ "kind": "docs", "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide", "accessed_at": "2026-09-01T00:00:00Z", "notes": "Official Anthropic model ID, availability, context and output limits, and API behavior." }],
+    "verification": { "status": "verified", "checked_at": "2026-09-01T00:00:00Z", "notes": "Official Anthropic migration guide verifies the direct route and provider-specific behavior." },
     "rate_limits": []
   },
   {
