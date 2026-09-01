@@ -86,6 +86,26 @@ curl https://api.phaseo.app/v1/chat/completions \
 
 Use `engine: "native"` only in the tool declaration. If a model tries to pass `engine: "native"` inside an already-emitted gateway search call, Phaseo returns a tool error because native tools must be selected before the upstream request is sent.
 
+## TinyFish Search
+
+Enable the engine by configuring `TINYFISH_API_KEY` in your Phaseo gateway runtime secrets, then select it in the tool parameters:
+
+```json
+{
+  "type": "phaseo:web_search",
+  "parameters": {
+    "engine": "tinyfish",
+    "language": "en",
+    "page": 0,
+    "max_results": 5,
+    "allowed_domains": ["phaseo.app", "github.com"],
+    "excluded_domains": ["reddit.com"]
+  }
+}
+```
+
+`language` provides a locale hint and `page` selects a result page from `0` through `10`. TinyFish supports both domain-filter lists; Phaseo converts them into search operators. Results include URLs, titles, and snippets/highlights. Use `phaseo:web_fetch` when the model needs fuller text from a result.
+
 ## Domain filtering
 
 Use `allowed_domains` when the answer must come from a controlled source set:
