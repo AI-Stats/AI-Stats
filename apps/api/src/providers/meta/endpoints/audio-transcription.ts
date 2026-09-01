@@ -1,7 +1,7 @@
 import type { AdapterResult, ProviderExecuteArgs } from "../../types";
 import { AudioTranscriptionSchema, type AudioTranscriptionRequest } from "@core/schemas";
 import { buildAdapterPayload } from "../../utils";
-import { resolveOpenAICompatKey } from "../../openai-compatible/config";
+import { openAICompatUrl, resolveOpenAICompatKey } from "../../openai-compatible/config";
 import { upstreamTestHeaders } from "@providers/shared/testing";
 
 function invalidParameterResponse(param: string, message: string): Response {
@@ -61,7 +61,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		...upstreamTestHeaders(args.meta),
 	};
 	const sessionId = body.session_id ? `?sessionId=${encodeURIComponent(body.session_id)}` : "";
-	const res = await (args.upstreamTiming?.fetch ?? fetch)(`https://api.meta.ai/v1/asr/transcribe${sessionId}`, {
+	const res = await (args.upstreamTiming?.fetch ?? fetch)(`${openAICompatUrl(args.providerId, "/asr/transcribe")}${sessionId}`, {
 		method: "POST",
 		headers,
 		body: form,
