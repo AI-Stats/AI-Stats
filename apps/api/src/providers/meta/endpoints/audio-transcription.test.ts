@@ -61,4 +61,22 @@ describe("Meta Muse Voice transcription", () => {
 		expect(result.upstream.status).toBe(400);
 		expect(await result.upstream.json()).toMatchObject({ error: { param: "stream" } });
 	});
+
+	it("rejects non-WAV uploads before dispatch", async () => {
+		const result = await exec(args({ file: new File(["audio"], "sample.mp3", { type: "audio/mpeg" }) }));
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.json()).toMatchObject({ error: { param: "file" } });
+	});
+
+	it.each([
+		["file_url", "https://example.com/sample.wav"],
+		["s3_presigned_url", "https://example.com/sample.wav"],
+		["file_id", "file_123"],
+		["context_bias", ["Phaseo"]],
+		["output_content", "transcript"],
+	] as const)("rejects unsupported %s instead of silently dropping it", async (parameter, value) => {
+		const result = await exec(args({ [parameter]: value }));
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.json()).toMatchObject({ error: { param: parameter } });
+	});
 });

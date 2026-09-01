@@ -15,17 +15,39 @@ function emptyBill() {
 	return { cost_cents: 0, currency: "USD" as const, usage: undefined, upstream_id: null, finish_reason: null };
 }
 
+const UNSUPPORTED_PARAMETERS = [
+	"file_url",
+	"s3_presigned_url",
+	"file_id",
+	"languages",
+	"prompt",
+	"temperature",
+	"timestamp_granularities",
+	"output_content",
+	"context_bias",
+	"include",
+	"chunking_strategy",
+	"known_speaker_names",
+	"known_speaker_references",
+	"config",
+] as const satisfies readonly (keyof AudioTranscriptionRequest)[];
+
+function isWavFile(file: File | Blob): boolean {
+	const mimeType = String(file.type ?? "").trim().toLowerCase();
+	const filename = typeof (file as File).name === "string" ? (file as File).name.trim().toLowerCase() : "";
+	const mimeIsWav = mimeType === "audio/wav" || mimeType === "audio/x-wav" || mimeType === "audio/wave";
+	const extensionIsWav = filename.endsWith(".wav") || filename.endsWith(".wave");
+	return (mimeType ? mimeIsWav : true) && (filename ? extensionIsWav : true) && (Boolean(mimeType) || Boolean(filename));
+}
+
 export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const keyInfo = await resolveOpenAICompatKey(args);
 	const body = buildAdapterPayload(AudioTranscriptionSchema, args.body, []).adapterPayload as AudioTranscriptionRequest;
-	const unsupported = body.prompt !== undefined ? "prompt"
-		: body.temperature !== undefined ? "temperature"
-		: body.stream === true ? "stream"
-		: (body.timestamp_granularities?.length ?? 0) > 0 ? "timestamp_granularities"
-		: (body.include?.length ?? 0) > 0 ? "include"
-		: body.chunking_strategy !== undefined ? "chunking_strategy"
+	const unsupportedParameter = UNSUPPORTED_PARAMETERS.find((parameter) => body[parameter] != null);
+	const unsupported = unsupportedParameter
+		?? (body.stream === true ? "stream"
 		: body.response_format && body.response_format !== "json" ? "response_format"
-		: null;
+		: null);
 	if (unsupported) {
 		return {
 			kind: "completed",
@@ -39,6 +61,15 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		return {
 			kind: "completed",
 			upstream: invalidParameterResponse("file", "Meta Muse Voice Transcribe requires a WAV file upload."),
+			bill: emptyBill(),
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (!isWavFile(body.file)) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse("file", "Meta Muse Voice Transcribe only supports WAV file uploads."),
 			bill: emptyBill(),
 			keySource: keyInfo.source,
 			byokKeyId: keyInfo.byokId,
