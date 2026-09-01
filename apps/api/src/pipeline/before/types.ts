@@ -652,6 +652,8 @@ export type WebFetchObservability = {
 export type PipelineContext = {
     endpoint: Endpoint;
     capability: string;
+    /** Server-owned idempotency key for this billable pipeline execution. */
+    billingRequestId: string;
     requestId: string;
     protocol?: string;
     providerCapabilitiesBeta?: boolean;

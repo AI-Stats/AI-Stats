@@ -40,6 +40,7 @@ import {
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 import { getWebhookEndpointSigningConfig } from "@core/webhook-endpoints";
 import { parseRequestLabels } from "./request-labels";
+import { generatePublicId } from "./genId";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
@@ -1288,6 +1289,7 @@ export async function beforeRequest(
         endpoint,
         capability,
         requestId,
+        billingRequestId: generatePublicId(),
         meta,
         rawBody,
         body: mergedBody,
