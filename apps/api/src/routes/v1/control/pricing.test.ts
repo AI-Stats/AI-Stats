@@ -122,4 +122,25 @@ describe("pricingRoutes", () => {
 		);
 		consoleError.mockRestore();
 	});
+
+	it("batches meter queries to keep PostgREST URLs bounded", async () => {
+		const skus = Array.from({ length: 201 }, (_, index) => ({
+			sku_id: `sku_${index}`,
+			provider_model_id: `pm_${index}`,
+			operation: "chat/completions",
+			service_tier_slug: "standard",
+			currency: "USD",
+			metadata: {},
+		}));
+		const from = vi.fn((table: string) => queryResult({
+			data: table === "v2_pricing_skus" ? skus : [],
+			error: null,
+		}));
+		getSupabaseAdminMock.mockReturnValue({ from });
+
+		const response = await pricingRoutes.request("https://example.com/models");
+
+		expect(response.status).toBe(200);
+		expect(from.mock.calls.filter(([table]) => table === "v2_pricing_sku_meters")).toHaveLength(2);
+	});
 });
