@@ -9,7 +9,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.3,
+      "price_per_unit": 0.165,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -29,7 +29,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.5,
+      "price_per_unit": 0.825,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -49,7 +49,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 4.5,
+      "price_per_unit": 2.4475,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -74,13 +74,13 @@
     {
       "kind": "provider_pricing",
       "url": "https://novita.ai/pricing?de=1",
-      "accessed_at": "2026-08-20T00:00:00Z",
-      "notes": "Current Novita pricing for mindai/macaron-v1-venti."
+      "accessed_at": "2026-09-01T00:00:00Z",
+      "notes": "Novita's current pricing for mindai/macaron-v1-venti: $0.165 cached input, $0.825 input, and $2.4475 output per 1M tokens."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-20T00:00:00Z",
-    "notes": "Verified from Novita's first-party pricing catalog and model page."
+    "checked_at": "2026-09-01T00:00:00Z",
+    "notes": "Pricing verified against Novita's current first-party model catalog."
   }
 }

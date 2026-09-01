@@ -595,5 +595,71 @@
       "notes": "Verified against Wafer's live /v1/models response, including the exact GLM-5.3-Flash slug, capabilities, context, and pricing."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "wafer:GLM-5.3",
+    "provider_model_slug": "GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": "NVFP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-09-01T07:18:52Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "tools",
+          "tool_choice",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "response_format",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": ["none", "low", "high", "max"]
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions", "openai.responses", "anthropic.messages"],
+      "endpoint": "https://pass.wafer.ai/v1",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://pass.wafer.ai/v1/models",
+        "accessed_at": "2026-09-01T07:18:52Z",
+        "notes": "Wafer's live model API reports GLM-5.3 as an NVFP4 serverless model with a 1M-token context window, reasoning, tools, structured text formats, streaming, and ZDR support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-01T07:18:52Z",
+      "notes": "Verified against Wafer's live /v1/models response, including the exact GLM-5.3 slug, capabilities, context, quantization, and pricing."
+    },
+    "rate_limits": []
   }
 ]
