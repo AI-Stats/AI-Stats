@@ -500,6 +500,9 @@ export const logoManifest = {
 	tinker: {
 		color: "/logos/tinker.svg",
 	},
+	tinyfish: {
+		color: "/logos/tinyfish.svg",
+	},
 	"thinking-machines": {
 		color: "/logos/thinking-machines.svg",
 	},
