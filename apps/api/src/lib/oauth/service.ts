@@ -48,6 +48,7 @@ type OAuthClient = {
 	beta_status: "private" | "beta" | "public";
 	status: string;
 	registration_source: "first_party" | "dynamic" | "developer" | "cimd";
+	application_type?: "native" | "web";
 };
 
 const CIMD_MAX_CLIENT_ID_LENGTH = 2048;
@@ -555,6 +556,7 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 	const redirectUris = Array.isArray(metadata.redirect_uris) ? metadata.redirect_uris : [];
 	const clientUri = optionalHttpsMetadataUrl(metadata.client_uri);
 	const logoUri = optionalHttpsMetadataUrl(metadata.logo_uri);
+	const applicationType = metadata.application_type === "native" ? "native" : "web";
 	if (
 		name.length < 1
 		|| name.length > 100
@@ -593,6 +595,7 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 		beta_status: "public",
 		status: "active",
 		registration_source: "cimd",
+		application_type: applicationType,
 	};
 	pruneCimdClientCache(Date.now(), clientUrl.origin);
 	cimdClientCache.set(clientId, { expiresAt: Date.now() + CIMD_CACHE_TTL_MS, client });
@@ -694,8 +697,37 @@ function isCliLoopbackRedirectUri(client: OAuthClient, redirectUri: string): boo
 	}
 }
 
+function isCimdLoopbackRedirectUri(client: OAuthClient, redirectUri: string): boolean {
+	if (client.registration_source !== "cimd" || client.application_type !== "native") return false;
+	try {
+		const requested = new URL(redirectUri);
+		if (
+			requested.protocol !== "http:"
+			|| !["127.0.0.1", "localhost", "::1", "[::1]"].includes(requested.hostname)
+			|| requested.username
+			|| requested.password
+			|| requested.hash
+		) return false;
+		return client.redirect_uris.some((registeredUri) => {
+			const registered = new URL(registeredUri);
+			return registered.protocol === "http:"
+				&& registered.hostname === requested.hostname
+				&& registered.port === ""
+				&& registered.pathname === requested.pathname
+				&& registered.search === requested.search
+				&& !registered.username
+				&& !registered.password
+				&& !registered.hash;
+		});
+	} catch {
+		return false;
+	}
+}
+
 export function assertRedirectAllowed(client: OAuthClient, redirectUri: string): boolean {
-	return client.redirect_uris.some((uri) => uri === redirectUri) || isCliLoopbackRedirectUri(client, redirectUri);
+	return client.redirect_uris.some((uri) => uri === redirectUri)
+		|| isCliLoopbackRedirectUri(client, redirectUri)
+		|| isCimdLoopbackRedirectUri(client, redirectUri);
 }
 
 export async function ensureGrant(args: {
