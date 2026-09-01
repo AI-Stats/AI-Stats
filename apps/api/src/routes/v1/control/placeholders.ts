@@ -9,7 +9,7 @@ import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime, cacheHeaders } from "../../utils";
 import { requireCapability } from "./route-helpers";
 import { fetchCatalogue } from "./models.catalogue";
-import { getEndpointMetadata } from "./endpoint-metadata";
+import { findEndpointMetadata } from "./endpoint-metadata";
 
 async function handleListEndpoints(req: Request) {
 	const auth = await guardAuth(req, { useKvCache: false, allowOAuthJwt: true });
@@ -31,7 +31,8 @@ async function handleListEndpoints(req: Request) {
 
 		for (const model of catalogue) {
 			for (const rawEndpoint of model.endpoints) {
-				const metadata = getEndpointMetadata(rawEndpoint);
+				const metadata = findEndpointMetadata(rawEndpoint);
+				if (!metadata) continue;
 				const endpoint = metadata.id;
 				const current = endpointMap.get(endpoint) ?? {
 					id: endpoint,
@@ -43,7 +44,7 @@ async function handleListEndpoints(req: Request) {
 				current.models.add(model.model_id);
 				for (const provider of model.providers) {
 					if (provider.endpoints.some(
-						(providerEndpoint) => getEndpointMetadata(providerEndpoint).id === endpoint,
+						(providerEndpoint) => findEndpointMetadata(providerEndpoint)?.id === endpoint,
 					)) {
 						current.providers.add(provider.api_provider_id);
 					}
@@ -90,5 +91,4 @@ async function handleListEndpoints(req: Request) {
 export const placeholdersRoutes = new Hono<Env>();
 
 placeholdersRoutes.get("/endpoints", withRuntime(handleListEndpoints));
-
 

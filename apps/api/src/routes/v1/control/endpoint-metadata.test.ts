@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getEndpointMetadata, listEndpointMetadata } from "./endpoint-metadata";
+import { findEndpointMetadata, getEndpointMetadata, listEndpointMetadata } from "./endpoint-metadata";
 
 describe("endpoint metadata", () => {
     it.each([
@@ -31,5 +31,10 @@ describe("endpoint metadata", () => {
         expect(() => getEndpointMetadata("unknown.capability")).toThrow(
             "Unsupported public capability metadata",
         );
+    });
+
+    it("allows discovery callers to ignore non-endpoint capabilities", () => {
+        expect(findEndpointMetadata("structured.output")).toBeNull();
+        expect(findEndpointMetadata("text.generate")).toMatchObject({ id: "chat.completions" });
     });
 });

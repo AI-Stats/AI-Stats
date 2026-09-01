@@ -117,6 +117,21 @@ describe("placeholdersRoutes /endpoints", () => {
 		}]);
 	});
 
+	it("ignores catalogue features that are not callable endpoints", async () => {
+		fetchCatalogueMock.mockResolvedValue([{
+			model_id: "openai/gpt-test",
+			endpoints: ["responses", "structured.output"],
+			providers: [{ api_provider_id: "openai", endpoints: ["responses", "structured.output"] }],
+		}]);
+
+		const response = await placeholdersRoutes.request("https://example.com/endpoints");
+		const payload = await response.json() as any;
+
+		expect(response.status).toBe(200);
+		expect(payload.endpoints).toEqual(["responses"]);
+		expect(payload.data).toEqual([expect.objectContaining({ id: "responses", provider_count: 1 })]);
+	});
+
 	it("requires models:read from OAuth callers", async () => {
 		guardAuthMock.mockResolvedValue({
 			ok: true,
