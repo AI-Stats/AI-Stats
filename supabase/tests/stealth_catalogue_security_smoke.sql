@@ -147,7 +147,9 @@ begin
     'public.get_v2_model_pricing_without_stealth_redaction(text,text,text)'::regprocedure
   ) into raw_pricing_definition;
   if position('where variant.status <> ''disabled''' in raw_pricing_definition) > 0
-    or position('and route.status <> ''disabled''' in raw_pricing_definition) > 0 then
+    or position('and route.status <> ''disabled''' in raw_pricing_definition) > 0
+    or position('variant.status as variant_status' in raw_pricing_definition) = 0
+    or position('and model.variant_routing_enabled' in raw_pricing_definition) = 0 then
     raise exception 'public_pricing_hides_inactive_provider_routes';
   end if;
 
