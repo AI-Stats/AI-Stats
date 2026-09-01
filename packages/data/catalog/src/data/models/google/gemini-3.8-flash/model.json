@@ -1,0 +1,63 @@
+{
+  "model_id": "google/gemini-3.8-flash",
+  "organisation_id": "google",
+  "name": "Gemini 3.8 Flash",
+  "status": "Rumoured",
+  "previous_model_id": "google/gemini-3.7-flash",
+  "description": "Gemini 3.8 Flash is an anticipated successor to Google's Gemini 3.7 Flash model. Phaseo is tracking the name for launch readiness; capabilities, availability, and pricing remain unconfirmed.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "google/gemini-3.8-flash",
+  "links": [],
+  "details": [
+    {
+      "name": "availability",
+      "value": "Pre-launch placeholder. Google has not confirmed the model name, API slug, release date, modalities, limits, capabilities, or pricing. Phaseo has pre-seeded disabled Google AI Studio and Vertex AI mappings so they can be verified and enabled quickly if the model launches under the anticipated slug."
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Gemini 3.8 Flash is tracked as a pre-launch placeholder. Details and routes remain disabled until Google publishes official documentation."
+  },
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [],
+    "output": []
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": false,
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": "2026-09-01T00:00:00Z",
+    "notes": "No official Google announcement, model documentation, or pricing was found as of the checked date."
+  },
+  "last_updated": "2026-09-01T00:00:00",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
