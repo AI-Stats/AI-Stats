@@ -52,8 +52,8 @@ secrets before enabling either webhook destination:
 
 The endpoint accepts only a bounded, privacy-safe incident envelope. Do not send
 request bodies, authorization headers, query values, cookies, or customer
-content. See `docs/observability-linear-triage.md` for payload templates and the
-rollout checklist.
+content. Keep source payload templates and the rollout checklist in the private
+deployment issue rather than the public documentation tree.
 
 ## Useful Links
 
