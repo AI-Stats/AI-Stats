@@ -6,6 +6,7 @@ declare
   route_policy text;
   models_page_definition text;
   pricing_definition text;
+  raw_pricing_definition text;
   overview_definition text;
 begin
   if not exists (
@@ -140,6 +141,16 @@ begin
   if position('''execution_region'', null' in lower(pricing_definition)) = 0
     or position('''data_region'', null' in lower(pricing_definition)) = 0 then
     raise exception 'pricing_provider_model_regions_not_redacted';
+  end if;
+
+  select pg_get_functiondef(
+    'public.get_v2_model_pricing_without_stealth_redaction(text,text,text)'::regprocedure
+  ) into raw_pricing_definition;
+  if position('where variant.status <> ''disabled''' in raw_pricing_definition) > 0
+    or position('and route.status <> ''disabled''' in raw_pricing_definition) > 0
+    or position('variant.status as variant_status' in raw_pricing_definition) = 0
+    or position('and model.variant_routing_enabled' in raw_pricing_definition) = 0 then
+    raise exception 'public_pricing_hides_inactive_provider_routes';
   end if;
 
   select pg_get_functiondef('public.get_v2_model_overview(text,text,text)'::regprocedure)
