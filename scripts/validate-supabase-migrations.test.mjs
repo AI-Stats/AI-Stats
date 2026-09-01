@@ -20,8 +20,32 @@ test("rejects an out-of-order migration after another PR has merged", () => {
 		validateMigrationOrder(
 			["20260901105106_already_merged.sql"],
 			["supabase/migrations/20260901100000_stale_branch.sql"],
+			() => "select 1;",
 		).join("\n"),
 		/must be newer than the base branch's latest version 20260901105106/,
+	);
+});
+
+test("accepts a documented production history backfill", () => {
+	assert.deepEqual(
+		validateMigrationOrder(
+			["20260901105106_already_merged.sql"],
+			["supabase/migrations/20260901100000_production_backfill.sql"],
+			() =>
+				"-- phaseo:allow-production-history-backfill reason: Restore a migration already recorded in the production ledger.\nselect 1;",
+		),
+		[],
+	);
+});
+
+test("rejects an undocumented production history backfill exemption", () => {
+	assert.match(
+		validateMigrationOrder(
+			["20260901105106_already_merged.sql"],
+			["supabase/migrations/20260901100000_production_backfill.sql"],
+			() => "-- phaseo:allow-production-history-backfill reason: prod\nselect 1;",
+		).join("\n"),
+		/already-applied production history backfill/,
 	);
 });
 

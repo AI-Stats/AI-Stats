@@ -9,6 +9,7 @@ const MIGRATIONS_DIRECTORY = join(REPOSITORY_ROOT, "supabase", "migrations");
 const MIGRATION_NAME = /^(\d{8}|\d{14})_[a-z0-9][a-z0-9_]*\.sql$/;
 const NEW_MIGRATION_NAME = /^(\d{14})_[a-z0-9][a-z0-9_]*\.sql$/;
 const DESTRUCTIVE_APPROVAL = /^\s*--\s*phaseo:allow-destructive-migration\s+reason:\s*(.+)$/im;
+const HISTORY_BACKFILL_APPROVAL = /^\s*--\s*phaseo:allow-production-history-backfill\s+reason:\s*(.+)$/im;
 const DESTRUCTIVE_PATTERNS = [
 	["DROP TABLE", /\bdrop\s+table\b/i],
 	["DROP SCHEMA", /\bdrop\s+schema\b/i],
@@ -84,7 +85,11 @@ function listBaseMigrationFiles(baseSha) {
 		.sort();
 }
 
-export function validateMigrationOrder(baseFiles, addedPaths) {
+export function validateMigrationOrder(
+	baseFiles,
+	addedPaths,
+	readMigration = (path) => readFileSync(resolve(REPOSITORY_ROOT, path), "utf8"),
+) {
 	const errors = [];
 	const latestBaseVersion = baseFiles
 		.map((file) => file.match(MIGRATION_NAME)?.[1] ?? "")
@@ -98,9 +103,13 @@ export function validateMigrationOrder(baseFiles, addedPaths) {
 		const file = path.split("/").at(-1) ?? "";
 		const version = file.match(NEW_MIGRATION_NAME)?.[1];
 		if (version && version <= latestBaseVersion) {
+			const approval = readMigration(path).match(HISTORY_BACKFILL_APPROVAL);
+			const reason = approval?.[1]?.trim() ?? "";
+			if (reason.length >= 12) continue;
 			errors.push(
 				`${path}: migration version ${version} must be newer than the base branch's latest version ${latestBaseVersion}. ` +
-				"Rebase onto the current target branch and create a new migration with `supabase migration new`.",
+				"Rebase onto the current target branch and create a new migration with `supabase migration new`. " +
+				"For an already-applied production history backfill, add '-- phaseo:allow-production-history-backfill reason: <specific justification>'.",
 			);
 		}
 	}
