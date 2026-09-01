@@ -61,9 +61,6 @@ const (
 	// Model ID: anthropic/claude-haiku-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
 	ModelIDAnthropicClaudeHaiku45 gen.ModelId = "anthropic/claude-haiku-4.5"
-	// Model ID: anthropic/claude-mythos-5.1
-	// Model page: https://phaseo.app/models/anthropic/claude-mythos-5.1
-	ModelIDAnthropicClaudeMythos51 gen.ModelId = "anthropic/claude-mythos-5.1"
 	// Model ID: anthropic/claude-opus-4
 	// Model page: https://phaseo.app/models/anthropic/claude-opus-4
 	ModelIDAnthropicClaudeOpus4 gen.ModelId = "anthropic/claude-opus-4"
@@ -1698,7 +1695,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDAnthropicClaudeFable5,
 	ModelIDAnthropicClaudeFable51,
 	ModelIDAnthropicClaudeHaiku45,
-	ModelIDAnthropicClaudeMythos51,
 	ModelIDAnthropicClaudeOpus4,
 	ModelIDAnthropicClaudeOpus41,
 	ModelIDAnthropicClaudeOpus45,

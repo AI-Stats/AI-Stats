@@ -60,9 +60,6 @@ inline constexpr std::string_view ANTHROPIC_CLAUDE_FABLE_5_1 = "anthropic/claude
 // Model ID: anthropic/claude-haiku-4.5
 // Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
 inline constexpr std::string_view ANTHROPIC_CLAUDE_HAIKU_4_5 = "anthropic/claude-haiku-4.5";
-// Model ID: anthropic/claude-mythos-5.1
-// Model page: https://phaseo.app/models/anthropic/claude-mythos-5.1
-inline constexpr std::string_view ANTHROPIC_CLAUDE_MYTHOS_5_1 = "anthropic/claude-mythos-5.1";
 // Model ID: anthropic/claude-opus-4
 // Model page: https://phaseo.app/models/anthropic/claude-opus-4
 inline constexpr std::string_view ANTHROPIC_CLAUDE_OPUS_4 = "anthropic/claude-opus-4";
@@ -1677,7 +1674,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 556> ALL = {
+inline constexpr std::array<std::string_view, 555> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1696,7 +1693,6 @@ inline constexpr std::array<std::string_view, 556> ALL = {
 	ANTHROPIC_CLAUDE_FABLE_5,
 	ANTHROPIC_CLAUDE_FABLE_5_1,
 	ANTHROPIC_CLAUDE_HAIKU_4_5,
-	ANTHROPIC_CLAUDE_MYTHOS_5_1,
 	ANTHROPIC_CLAUDE_OPUS_4,
 	ANTHROPIC_CLAUDE_OPUS_4_1,
 	ANTHROPIC_CLAUDE_OPUS_4_5,
