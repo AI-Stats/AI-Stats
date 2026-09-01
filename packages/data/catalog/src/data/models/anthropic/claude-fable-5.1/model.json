@@ -2,7 +2,7 @@
   "model_id": "anthropic/claude-fable-5.1",
   "organisation_id": "anthropic",
   "name": "Claude Fable 5.1",
-  "status": "Rumoured",
+  "status": "Available",
   "hidden": true,
   "previous_model_id": "anthropic/claude-fable-5",
   "description": "Claude Fable 5.1 is an anticipated successor to Anthropic's Claude Fable 5 model. Phaseo is tracking the name for launch readiness; capabilities, availability, and pricing remain unconfirmed.",
