@@ -5,7 +5,7 @@
   "status": "Limited Access",
   "hidden": false,
   "previous_model_id": "anthropic/claude-mythos-5",
-  "description": "Claude Mythos 5.1 is Anthropic's restricted-access Mythos release for approved Project Glasswing customers. Phaseo tracks it with direct Anthropic availability only.",
+  "description": "Claude Mythos 5.1 is Anthropic's restricted-access Mythos release for approved Project Glasswing customers. Phaseo tracks the model but does not expose a public gateway route.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
@@ -24,10 +24,10 @@
     { "name": "prompt_cache_minimum_tokens", "value": 512 },
     { "name": "data_retention", "value": "30 days; unavailable under zero data retention unless expressly authorized" },
     { "name": "tool_choice", "value": "Supports auto and none. Forced any or named-tool selection is not supported." },
-    { "name": "availability", "value": "Claude Mythos 5.1 is available only to approved Project Glasswing customers and is mapped exclusively to the direct Anthropic provider." }
+    { "name": "availability", "value": "Claude Mythos 5.1 is available only to approved Project Glasswing customers. Its direct Anthropic mapping is internal-scoped and non-routable until Phaseo implements an explicit approved-customer gate." }
   ],
   "benchmarks": [],
-  "page_notice": { "tone": "info", "markdown": "Claude Mythos 5.1 is available only to approved Project Glasswing customers." },
+  "page_notice": { "tone": "warning", "markdown": "Claude Mythos 5.1 requires Project Glasswing approval and is not publicly routable through Phaseo." },
   "model_type": null,
   "knowledge_cutoff": "2026-06-01T00:00:00",
   "limits": { "context": 1000000, "input": 1000000, "output": 128000 },

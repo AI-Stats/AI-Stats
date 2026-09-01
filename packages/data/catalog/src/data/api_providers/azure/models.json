@@ -1,5 +1,31 @@
 [
   {
+    "api_model_id": "anthropic/claude-fable-5.1",
+    "provider_api_model_id": "azure:anthropic/claude-fable-5.1",
+    "provider_model_slug": "claude-fable-5-1",
+    "internal_model_id": "anthropic/claude-fable-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": ["max_tokens", "stop", "reasoning", "include_reasoning", "tool_choice", "tools", "reasoning_effort"], "reasoning": true, "tool_call": true, "structured_output": null, "temperature": null, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": "claude-fable-5-1" },
+    "sources": [
+      { "kind": "docs", "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide", "accessed_at": "2026-09-01T00:00:00Z", "notes": "Anthropic confirms Microsoft Foundry availability and the 1M context / 128K output limits." },
+      { "kind": "models", "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/claude-models", "accessed_at": "2026-09-01T00:00:00Z", "notes": "Official Microsoft Foundry Claude model catalogue; Fable models use Anthropic-hosted partner deployments." }
+    ],
+    "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "Microsoft Foundry availability is verified by Anthropic. The Fable 5.1 deployment slug, lifecycle, regions, quota, and pricing remain pending Microsoft-specific verification, so routing is disabled." },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "microsoft/mai-image-2",
     "provider_api_model_id": "azure:microsoft/mai-image-2",
     "provider_model_slug": "mai-image-2",
