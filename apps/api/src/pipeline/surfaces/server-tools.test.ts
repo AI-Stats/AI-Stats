@@ -1530,6 +1530,53 @@ describe("buildServerToolContinuation", () => {
 		}
 	});
 
+	it("rejects insecure TinyFish Search base URLs", async () => {
+		getBindingsMock.mockReturnValue({
+			TINYFISH_API_KEY: "tinyfish_test_key",
+			TINYFISH_SEARCH_BASE_URL: "http://search.example.com",
+		});
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+
+		try {
+			const continuation = await buildServerToolContinuation(
+				{
+					choices: [{
+						message: {
+							role: "assistant",
+							content: [],
+							toolCalls: [{
+								id: "call_tinyfish_insecure",
+								name: "phaseo_web_search",
+								arguments: JSON.stringify({ query: "latest AI news", engine: "tinyfish" }),
+							}],
+						},
+						finishReason: "tool_calls",
+					}],
+				} as any,
+				{
+					enabled: true,
+					datetimeDefaultTimezones: ["UTC"],
+					webSearchEnabled: true,
+					webSearchMaxResults: 5,
+					webSearchIncludeText: false,
+					webSearchIncludeHighlights: true,
+					webFetchEnabled: false,
+					webFetchMaxChars: 12000,
+				},
+			);
+
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(continuation?.toolResults[0]).toMatchObject({ isError: true });
+			expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toMatchObject({
+				error: "search_not_configured",
+				engine: "tinyfish",
+			});
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
 	it("executes configured Parallel web search calls", async () => {
 		getBindingsMock.mockReturnValue({
 			PARALLEL_API_KEY: "parallel_test_key",

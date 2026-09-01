@@ -1764,7 +1764,9 @@ function resolveTinyfishSearchConfig(): { apiKey: string; baseUrl: string } | nu
 		const apiKey = String(bindings.TINYFISH_API_KEY ?? "").trim();
 		if (!apiKey) return null;
 		const baseUrl = String(bindings.TINYFISH_SEARCH_BASE_URL ?? DEFAULT_TINYFISH_SEARCH_BASE_URL).trim() || DEFAULT_TINYFISH_SEARCH_BASE_URL;
-		return { apiKey, baseUrl: baseUrl.replace(/\/+$/, "") };
+		const parsedBaseUrl = new URL(baseUrl);
+		if (parsedBaseUrl.protocol !== "https:") return null;
+		return { apiKey, baseUrl: parsedBaseUrl.toString().replace(/\/+$/, "") };
 	} catch {
 		return null;
 	}
