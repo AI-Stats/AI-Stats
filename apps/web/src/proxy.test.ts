@@ -8,7 +8,7 @@ import {
 	proxy,
 } from "./proxy";
 
-const origin = "https://phaseo.ai";
+const origin = "https://phaseo.app";
 const localizedAuthRoutes = ["sign-in", "sign-up", "error"] as const;
 
 describe("public localisation proxy", () => {
