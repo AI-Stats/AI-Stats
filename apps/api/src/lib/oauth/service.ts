@@ -694,8 +694,37 @@ function isCliLoopbackRedirectUri(client: OAuthClient, redirectUri: string): boo
 	}
 }
 
+function isCimdLoopbackRedirectUri(client: OAuthClient, redirectUri: string): boolean {
+	if (client.registration_source !== "cimd") return false;
+	try {
+		const requested = new URL(redirectUri);
+		if (
+			requested.protocol !== "http:"
+			|| !["127.0.0.1", "localhost", "::1", "[::1]"].includes(requested.hostname)
+			|| requested.username
+			|| requested.password
+			|| requested.hash
+		) return false;
+		return client.redirect_uris.some((registeredUri) => {
+			const registered = new URL(registeredUri);
+			return registered.protocol === "http:"
+				&& registered.hostname === requested.hostname
+				&& registered.port === ""
+				&& registered.pathname === requested.pathname
+				&& registered.search === requested.search
+				&& !registered.username
+				&& !registered.password
+				&& !registered.hash;
+		});
+	} catch {
+		return false;
+	}
+}
+
 export function assertRedirectAllowed(client: OAuthClient, redirectUri: string): boolean {
-	return client.redirect_uris.some((uri) => uri === redirectUri) || isCliLoopbackRedirectUri(client, redirectUri);
+	return client.redirect_uris.some((uri) => uri === redirectUri)
+		|| isCliLoopbackRedirectUri(client, redirectUri)
+		|| isCimdLoopbackRedirectUri(client, redirectUri);
 }
 
 export async function ensureGrant(args: {
