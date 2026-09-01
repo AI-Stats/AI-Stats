@@ -56,8 +56,14 @@ final class ModelIds
     /** Model ID: anthropic/claude-fable-5. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public const ANTHROPIC_CLAUDE_FABLE_5 = 'anthropic/claude-fable-5';
 
+    /** Model ID: anthropic/claude-fable-5.1. Model page: https://phaseo.app/models/anthropic/claude-fable-5.1 */
+    public const ANTHROPIC_CLAUDE_FABLE_5_1 = 'anthropic/claude-fable-5.1';
+
     /** Model ID: anthropic/claude-haiku-4.5. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5 */
     public const ANTHROPIC_CLAUDE_HAIKU_4_5 = 'anthropic/claude-haiku-4.5';
+
+    /** Model ID: anthropic/claude-mythos-5.1. Model page: https://phaseo.app/models/anthropic/claude-mythos-5.1 */
+    public const ANTHROPIC_CLAUDE_MYTHOS_5_1 = 'anthropic/claude-mythos-5.1';
 
     /** Model ID: anthropic/claude-opus-4. Model page: https://phaseo.app/models/anthropic/claude-opus-4 */
     public const ANTHROPIC_CLAUDE_OPUS_4 = 'anthropic/claude-opus-4';

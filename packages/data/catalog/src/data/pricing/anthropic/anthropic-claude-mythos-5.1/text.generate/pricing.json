@@ -1,0 +1,19 @@
+{
+  "key": "anthropic:anthropic/claude-mythos-5.1:text.generate",
+  "api_provider_id": "anthropic",
+  "provider_slug": "anthropic",
+  "api_model_id": "anthropic/claude-mythos-5.1",
+  "capability_id": "text.generate",
+  "rules": [
+    { "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 10, "currency": "USD", "pricing_plan": "standard", "note": "Provisional Mythos 5 rate pending Mythos 5.1-specific pricing.", "match": [], "priority": 100, "effective_from": "2026-09-01T00:00:00Z", "region": null, "cache_duration_seconds": null, "conditions": [], "source": null },
+    { "meter": "cached_read_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 1, "currency": "USD", "pricing_plan": "standard", "note": "Provisional Mythos 5 rate pending Mythos 5.1-specific pricing.", "match": [], "priority": 100, "effective_from": "2026-09-01T00:00:00Z", "region": null, "cache_duration_seconds": null, "conditions": [], "source": null },
+    { "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 50, "currency": "USD", "pricing_plan": "standard", "note": "Provisional Mythos 5 rate pending Mythos 5.1-specific pricing.", "match": [], "priority": 100, "effective_from": "2026-09-01T00:00:00Z", "region": null, "cache_duration_seconds": null, "conditions": [], "source": null },
+    { "meter": "cached_write_text_tokens_5m", "unit": "token", "unit_size": 1000000, "price_per_unit": 12.5, "currency": "USD", "pricing_plan": "standard", "note": "Provisional Mythos 5 rate pending Mythos 5.1-specific pricing.", "match": [], "priority": 100, "effective_from": "2026-09-01T00:00:00Z", "region": null, "cache_duration_seconds": null, "conditions": [], "source": null },
+    { "meter": "cached_write_text_tokens_1h", "unit": "token", "unit_size": 1000000, "price_per_unit": 20, "currency": "USD", "pricing_plan": "standard", "note": "Provisional Mythos 5 rate pending Mythos 5.1-specific pricing.", "match": [], "priority": 100, "effective_from": "2026-09-01T00:00:00Z", "region": null, "cache_duration_seconds": null, "conditions": [], "source": null },
+    { "meter": "native_web_search_requests", "unit": "request", "unit_size": 1, "price_per_unit": 0.01, "currency": "USD", "pricing_plan": "standard", "note": "Anthropic web-search request rate; token charges also apply.", "match": [], "priority": 100, "effective_from": "2026-09-01T00:00:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://platform.claude.com/docs/en/about-claude/pricing" }
+  ],
+  "regions": [],
+  "service_tiers": ["standard"],
+  "sources": [],
+  "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "Provisionally inherits Claude Mythos 5 rates until Anthropic publishes Mythos 5.1-specific pricing." }
+}

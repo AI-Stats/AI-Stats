@@ -51,9 +51,15 @@ module PhaseoSdk
     # Model ID: anthropic/claude-fable-5
     # Model page: https://phaseo.app/models/anthropic/claude-fable-5
     ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5"
+    # Model ID: anthropic/claude-fable-5.1
+    # Model page: https://phaseo.app/models/anthropic/claude-fable-5.1
+    ANTHROPIC_CLAUDE_FABLE_5_1 = "anthropic/claude-fable-5.1"
     # Model ID: anthropic/claude-haiku-4.5
     # Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
     ANTHROPIC_CLAUDE_HAIKU_4_5 = "anthropic/claude-haiku-4.5"
+    # Model ID: anthropic/claude-mythos-5.1
+    # Model page: https://phaseo.app/models/anthropic/claude-mythos-5.1
+    ANTHROPIC_CLAUDE_MYTHOS_5_1 = "anthropic/claude-mythos-5.1"
     # Model ID: anthropic/claude-opus-4
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4
     ANTHROPIC_CLAUDE_OPUS_4 = "anthropic/claude-opus-4"
@@ -1686,7 +1692,9 @@ module PhaseoSdk
     ModelIds::ANTHROPIC_CLAUDE_3_5_HAIKU,
     ModelIds::ANTHROPIC_CLAUDE_3_7_SONNET,
     ModelIds::ANTHROPIC_CLAUDE_FABLE_5,
+    ModelIds::ANTHROPIC_CLAUDE_FABLE_5_1,
     ModelIds::ANTHROPIC_CLAUDE_HAIKU_4_5,
+    ModelIds::ANTHROPIC_CLAUDE_MYTHOS_5_1,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_1,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_5,

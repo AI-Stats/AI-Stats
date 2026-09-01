@@ -143,7 +143,9 @@
       "anthropic/claude-sonnet-4.6",
       "anthropic/claude-sonnet-5",
       "anthropic/claude-fable-5",
-      "anthropic/claude-opus-4.7"
+      "anthropic/claude-opus-4.7",
+      "anthropic/claude-fable-5.1",
+      "anthropic/claude-mythos-5.1"
     ],
     "arcee-ai": [
       "arcee-ai/trinity-large",

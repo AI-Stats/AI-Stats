@@ -51,9 +51,15 @@ pub mod model_ids {
     /// Model ID: `anthropic/claude-fable-5`.
     /// Model page: https://phaseo.app/models/anthropic/claude-fable-5
     pub const ANTHROPIC_CLAUDE_FABLE_5: &str = "anthropic/claude-fable-5";
+    /// Model ID: `anthropic/claude-fable-5.1`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-fable-5.1
+    pub const ANTHROPIC_CLAUDE_FABLE_5_1: &str = "anthropic/claude-fable-5.1";
     /// Model ID: `anthropic/claude-haiku-4.5`.
     /// Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
     pub const ANTHROPIC_CLAUDE_HAIKU_4_5: &str = "anthropic/claude-haiku-4.5";
+    /// Model ID: `anthropic/claude-mythos-5.1`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-mythos-5.1
+    pub const ANTHROPIC_CLAUDE_MYTHOS_5_1: &str = "anthropic/claude-mythos-5.1";
     /// Model ID: `anthropic/claude-opus-4`.
     /// Model page: https://phaseo.app/models/anthropic/claude-opus-4
     pub const ANTHROPIC_CLAUDE_OPUS_4: &str = "anthropic/claude-opus-4";
@@ -1686,7 +1692,9 @@ pub mod model_ids {
         ANTHROPIC_CLAUDE_3_5_HAIKU,
         ANTHROPIC_CLAUDE_3_7_SONNET,
         ANTHROPIC_CLAUDE_FABLE_5,
+        ANTHROPIC_CLAUDE_FABLE_5_1,
         ANTHROPIC_CLAUDE_HAIKU_4_5,
+        ANTHROPIC_CLAUDE_MYTHOS_5_1,
         ANTHROPIC_CLAUDE_OPUS_4,
         ANTHROPIC_CLAUDE_OPUS_4_1,
         ANTHROPIC_CLAUDE_OPUS_4_5,
