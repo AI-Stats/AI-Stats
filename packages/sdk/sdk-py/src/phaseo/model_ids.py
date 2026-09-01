@@ -738,6 +738,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/meta/muse-spark-1.2
     META_MUSE_SPARK_1_2: Final[str] = "meta/muse-spark-1.2"
 
+    # Model ID: meta/muse-voice-transcribe-1.0
+    # Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
+    META_MUSE_VOICE_TRANSCRIBE_1_0: Final[str] = "meta/muse-voice-transcribe-1.0"
+
     # Model ID: microsoft/phi-4
     # Model page: https://phaseo.app/models/microsoft/phi-4
     MICROSOFT_PHI_4: Final[str] = "microsoft/phi-4"
@@ -2418,6 +2422,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.META_MUSE_GLIMMER_30B,
         ModelIds.META_MUSE_IMAGE_1_0,
         ModelIds.META_MUSE_SPARK_1_2,
+        ModelIds.META_MUSE_VOICE_TRANSCRIBE_1_0,
         ModelIds.MICROSOFT_PHI_4,
         ModelIds.MICROSOFT_WIZARDLM_2_8X22B,
         ModelIds.MINDAI_MACARON_V1_TALL,

@@ -554,6 +554,9 @@ final class ModelIds
     /** Model ID: meta/muse-spark-1.2. Model page: https://phaseo.app/models/meta/muse-spark-1.2 */
     public const META_MUSE_SPARK_1_2 = 'meta/muse-spark-1.2';
 
+    /** Model ID: meta/muse-voice-transcribe-1.0. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0 */
+    public const META_MUSE_VOICE_TRANSCRIBE_1_0 = 'meta/muse-voice-transcribe-1.0';
+
     /** Model ID: microsoft/phi-4. Model page: https://phaseo.app/models/microsoft/phi-4 */
     public const MICROSOFT_PHI_4 = 'microsoft/phi-4';
 

@@ -2360,6 +2360,7 @@ const (
 	KnownModelIdMetaMuseGlimmer30b KnownModelId = "meta/muse-glimmer-30b"
 	KnownModelIdMetaMuseImage10 KnownModelId = "meta/muse-image-1.0"
 	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
+	KnownModelIdMetaMuseVoiceTranscribe10 KnownModelId = "meta/muse-voice-transcribe-1.0"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftWizardlm28x22b KnownModelId = "microsoft/wizardlm-2-8x22b"
 	KnownModelIdMindaiMacaronV1Tall KnownModelId = "mindai/macaron-v1-tall"
