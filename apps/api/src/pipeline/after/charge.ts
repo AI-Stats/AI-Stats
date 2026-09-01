@@ -4,6 +4,8 @@
 
 import type { PipelineContext } from "../before/types";
 import { recordUsageAndCharge } from "../pricing/persist";
+import type { PriceCard } from "../pricing/types";
+import { reportZeroCostBillingAnomaly } from "./billing-integrity";
 
 const CHARGE_RETRY_DELAYS_MS = [0, 100, 500] as const;
 
@@ -16,9 +18,24 @@ export async function recordUsageAndChargeOnce(args: {
 	ctx: PipelineContext;
 	costNanos: number;
 	endpoint: string;
+	card?: PriceCard | null;
+	pricedUsage?: unknown;
+	provider?: string | null;
+	model?: string | null;
+	isByok?: boolean;
 }): Promise<void> {
 	const { ctx, costNanos, endpoint } = args;
 	if (ctx.testingMode) return;
+	await reportZeroCostBillingAnomaly({
+		ctx,
+		card: args.card,
+		pricedUsage: args.pricedUsage,
+		costNanos,
+		endpoint,
+		provider: args.provider,
+		model: args.model,
+		isByok: args.isByok === true,
+	});
 	if (!Number.isFinite(costNanos) || costNanos <= 0) return;
 
 	const meta = ctx.meta as Record<string, unknown>;

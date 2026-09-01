@@ -142,3 +142,38 @@ export async function emitGatewayTelemetryDeliveryFailure(args: {
         telemetry_sink: args.sink,
     });
 }
+
+export async function emitGatewayBillingAnomaly(args: {
+    requestId: string;
+    workspaceId: string;
+    provider: string | null;
+    model: string | null;
+    endpoint: string;
+    reason: string;
+    costNanos: number;
+    usage: unknown;
+}) {
+    try {
+        await sendAxiomWideEvent({
+            event_type: "gateway.billing_anomaly",
+            event_emitted_at: new Date().toISOString(),
+            success: true,
+            error_type: "billing_integrity",
+            error_origin: "gateway",
+            error_operational_kind: "unexpected_zero_cost",
+            error_action_owner: "gateway",
+            error_operationally_actionable: true,
+            error_requires_investigation: true,
+            error_code: args.reason,
+            request_id: args.requestId,
+            workspace_id: args.workspaceId,
+            provider: args.provider,
+            model: args.model,
+            endpoint: args.endpoint,
+            cost_nanos: args.costNanos,
+            usage: args.usage,
+        });
+    } catch (error) {
+        console.error("[observability] billing anomaly event emit failed", error);
+    }
+}

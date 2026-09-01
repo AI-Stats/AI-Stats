@@ -30,6 +30,7 @@ import {
 import { buildCachedResponseRecord } from "@/core/response-cache";
 import { applyResponsePlugins } from "@/plugins/registry";
 import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
+import type { PriceCard } from "../pricing/types";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -139,6 +140,8 @@ function dispatchNonStreamSuccessSideEffects(args: {
     cacheAwareRoutingEnabled: boolean;
     clientResponseBody: any;
     responseStatus: number;
+	card: PriceCard | null;
+	isByok: boolean;
 }) {
     const {
         ctx,
@@ -154,6 +157,8 @@ function dispatchNonStreamSuccessSideEffects(args: {
         cacheAwareRoutingEnabled,
         clientResponseBody,
         responseStatus,
+		card,
+		isByok,
     } = args;
 
     let releaseRuntime: () => void = () => { };
@@ -235,6 +240,11 @@ function dispatchNonStreamSuccessSideEffects(args: {
                 ctx,
                 costNanos: totalNanos,
                 endpoint: ctx.endpoint,
+				card,
+				pricedUsage: usageForBilling,
+				provider: result.provider,
+				model: ctx.model,
+				isByok,
             });
 
             await handleSuccessAudit(
@@ -567,6 +577,8 @@ async function handleNonStreamResponse(
         cacheAwareRoutingEnabled,
         clientResponseBody: responseBody,
         responseStatus: result.upstream.status,
+		card,
+		isByok,
     });
 
     if (ctx.endpoint === "audio.speech" && shouldReturnBinaryAudio(ctx)) {
@@ -609,8 +621,6 @@ async function handleNonStreamResponse(
     const responseStatus = result.upstream.status;
     return ctx.timer.span("after_create_response", () => createResponse(responseBody, responseStatus, headers));
 }
-
-
 
 
 
