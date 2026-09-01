@@ -29,6 +29,8 @@ type PricingModel = {
     }>;
 };
 
+const PRICING_METER_QUERY_BATCH_SIZE = 200;
+
 function requireQueryResult<T>(table: string, result: { data: T[] | null; error: { message?: string } | null }): T[] {
     if (result.error) throw new Error(`${table}: ${result.error.message || "query failed"}`);
     return result.data ?? [];
@@ -59,12 +61,16 @@ async function handlePricingModels(req: Request) {
         const modelRows = requireQueryResult("v2_models", modelsResult);
         const skuRows = requireQueryResult("v2_pricing_skus", skusResult);
         const skuIds = skuRows.map((sku) => sku.sku_id);
-        const metersResult = skuIds.length
-            ? await supabase.from("v2_pricing_sku_meters")
+        const meterRows = [];
+        for (let index = 0; index < skuIds.length; index += PRICING_METER_QUERY_BATCH_SIZE) {
+            const metersResult = await supabase.from("v2_pricing_sku_meters")
                 .select("sku_id,meter_key,unit,unit_quantity,price_nanos,metadata,meter_order")
-                .in("sku_id", skuIds).eq("billable", true).order("meter_order")
-            : { data: [], error: null };
-        const meterRows = requireQueryResult("v2_pricing_sku_meters", metersResult);
+                .in("sku_id", skuIds.slice(index, index + PRICING_METER_QUERY_BATCH_SIZE))
+                .eq("billable", true)
+                .order("meter_order");
+            meterRows.push(...requireQueryResult("v2_pricing_sku_meters", metersResult));
+        }
+        meterRows.sort((a, b) => Number(a.meter_order ?? 0) - Number(b.meter_order ?? 0));
 
         const routes = new Map(routeRows.map((route) => [route.provider_model_id, route]));
         const models = new Map(modelRows
@@ -206,8 +212,6 @@ export const pricingRoutes = new Hono<Env>();
 
 pricingRoutes.get("/models", withRuntime(handlePricingModels));
 pricingRoutes.post("/calculate", withRuntime(handlePricingCalculate));
-
-
 
 
 
