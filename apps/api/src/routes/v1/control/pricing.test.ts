@@ -32,6 +32,11 @@ function queryResult(result: { data: unknown[]; error: unknown }) {
 	return query;
 }
 
+function trackedQuery(result: { data: unknown[]; error: unknown }) {
+	const query = queryResult(result);
+	return query as typeof query & { or: ReturnType<typeof vi.fn> };
+}
+
 describe("pricingRoutes", () => {
 	beforeEach(() => {
 		guardAuthMock.mockReset();
@@ -46,7 +51,15 @@ describe("pricingRoutes", () => {
 		});
 	});
 
-	it("includes active rows with open effective windows and avoids empty in filters", async () => {
+	it("filters expired SKUs in PostgREST and avoids empty in filters", async () => {
+		const pricingQuery = trackedQuery({ data: [{
+			sku_id: "sku_1",
+			provider_model_id: "pm_1",
+			operation: "chat/completions",
+			service_tier_slug: "standard",
+			currency: "USD",
+			metadata: {},
+		}], error: null });
 		getSupabaseAdminMock.mockReturnValue({
 			from: vi.fn((table: string) => {
 				if (table === "v2_model_provider_routes") return queryResult({ data: [{
@@ -60,14 +73,7 @@ describe("pricingRoutes", () => {
 					hidden: false,
 					status: "active",
 				}], error: null });
-				if (table === "v2_pricing_skus") return queryResult({ data: [{
-					sku_id: "sku_1",
-					provider_model_id: "pm_1",
-					operation: "chat/completions",
-					service_tier_slug: "standard",
-					currency: "USD",
-					metadata: {},
-				}], error: null });
+				if (table === "v2_pricing_skus") return pricingQuery;
 				if (table === "v2_pricing_sku_meters") return queryResult({ data: [{
 					sku_id: "sku_1",
 					meter_key: "input_tokens",
@@ -89,5 +95,31 @@ describe("pricingRoutes", () => {
 		expect(body.models).toEqual([
 			expect.objectContaining({ model: "openai/gpt-test", meters: [expect.objectContaining({ meter: "input_tokens" })] }),
 		]);
+		expect(pricingQuery.or).toHaveBeenCalledOnce();
+		expect(pricingQuery.or).toHaveBeenCalledWith(expect.stringMatching(
+			/^effective_to\.is\.null,effective_to\.gt\."\d{4}-\d{2}-\d{2}T.*Z"$/,
+		));
+	});
+
+	it("logs the failed pricing table without exposing database details", async () => {
+		const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => queryResult({
+				data: [],
+				error: table === "v2_pricing_skus" ? { message: "Bad Request" } : null,
+			})),
+		});
+
+		const response = await pricingRoutes.request("https://example.com/models");
+
+		expect(response.status).toBe(500);
+		await expect(response.json()).resolves.toMatchObject({
+			message: "Pricing catalogue is temporarily unavailable",
+		});
+		expect(consoleError).toHaveBeenCalledWith(
+			"[gateway/pricing] model catalogue query failed",
+			{ message: "v2_pricing_skus: Bad Request" },
+		);
+		consoleError.mockRestore();
 	});
 });

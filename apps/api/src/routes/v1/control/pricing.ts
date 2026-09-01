@@ -29,6 +29,11 @@ type PricingModel = {
     }>;
 };
 
+function requireQueryResult<T>(table: string, result: { data: T[] | null; error: { message?: string } | null }): T[] {
+    if (result.error) throw new Error(`${table}: ${result.error.message || "query failed"}`);
+    return result.data ?? [];
+}
+
 async function handlePricingModels(req: Request) {
     const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
@@ -48,26 +53,26 @@ async function handlePricingModels(req: Request) {
             supabase.from("v2_pricing_skus")
                 .select("sku_id,provider_model_id,operation,service_tier_slug,currency,metadata")
                 .eq("status", "active").lte("effective_from", nowIso)
-                .or(`effective_to.is.null,effective_to.gt.${nowIso}`),
+                .or(`effective_to.is.null,effective_to.gt.\"${nowIso}\"`),
         ]);
-        for (const result of [routesResult, modelsResult, skusResult]) {
-            if (result.error) throw new Error(result.error.message);
-        }
-        const skuIds = (skusResult.data ?? []).map((sku) => sku.sku_id);
+        const routeRows = requireQueryResult("v2_model_provider_routes", routesResult);
+        const modelRows = requireQueryResult("v2_models", modelsResult);
+        const skuRows = requireQueryResult("v2_pricing_skus", skusResult);
+        const skuIds = skuRows.map((sku) => sku.sku_id);
         const metersResult = skuIds.length
             ? await supabase.from("v2_pricing_sku_meters")
                 .select("sku_id,meter_key,unit,unit_quantity,price_nanos,metadata,meter_order")
                 .in("sku_id", skuIds).eq("billable", true).order("meter_order")
             : { data: [], error: null };
-        if (metersResult.error) throw new Error(metersResult.error.message);
+        const meterRows = requireQueryResult("v2_pricing_sku_meters", metersResult);
 
-        const routes = new Map((routesResult.data ?? []).map((route) => [route.provider_model_id, route]));
-        const models = new Map((modelsResult.data ?? [])
+        const routes = new Map(routeRows.map((route) => [route.provider_model_id, route]));
+        const models = new Map(modelRows
             .filter((model) => !model.hidden && model.status !== "disabled" && model.status !== "retired")
             .map((model) => [model.model_slug, model]));
-        const skuById = new Map((skusResult.data ?? []).map((sku) => [sku.sku_id, sku]));
+        const skuById = new Map(skuRows.map((sku) => [sku.sku_id, sku]));
         const modelMap = new Map<string, PricingModel>();
-        for (const meter of metersResult.data ?? []) {
+        for (const meter of meterRows) {
             const sku = skuById.get(meter.sku_id);
             const route = sku ? routes.get(sku.provider_model_id) : null;
             const model = route ? models.get(route.model_slug) : null;
@@ -120,8 +125,11 @@ async function handlePricingModels(req: Request) {
         );
         return response;
     } catch (error: any) {
+        console.error("[gateway/pricing] model catalogue query failed", {
+            message: String(error?.message ?? error),
+        });
         return json(
-            { ok: false, error: "failed", message: String(error?.message ?? error) },
+            { ok: false, error: "failed", message: "Pricing catalogue is temporarily unavailable" },
             500,
             { "Cache-Control": "no-store" }
         );
@@ -198,8 +206,6 @@ export const pricingRoutes = new Hono<Env>();
 
 pricingRoutes.get("/models", withRuntime(handlePricingModels));
 pricingRoutes.post("/calculate", withRuntime(handlePricingCalculate));
-
-
 
 
 

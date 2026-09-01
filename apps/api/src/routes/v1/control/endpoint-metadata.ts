@@ -168,3 +168,9 @@ export function getEndpointMetadata(endpoint: string): EndpointMetadata {
     }
     throw new Error(`Unsupported public capability metadata: ${endpoint}`);
 }
+
+export function findEndpointMetadata(endpoint: string): EndpointMetadata | null {
+    const normalized = endpoint.trim().toLowerCase();
+    const metadata = METADATA_BY_KEY.get(normalized);
+    return metadata ? { ...metadata, aliases: [...metadata.aliases] } : null;
+}
