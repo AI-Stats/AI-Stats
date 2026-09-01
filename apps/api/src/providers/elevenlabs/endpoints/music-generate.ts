@@ -72,8 +72,15 @@ function defaultOutputFormatForGatewayFormat(format?: string | null): string | u
 	if (!normalized) return undefined;
 	if (normalized === "mp3") return "mp3_44100_128";
 	if (normalized === "wav") return "pcm_44100";
-	if (normalized === "aac" || normalized === "ogg") return "mp3_44100_128";
+	if (normalized === "ogg") return "opus_48000_128";
 	return undefined;
+}
+
+function invalidParameterResponse(param: string, message: string): Response {
+	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
+		status: 400,
+		headers: { "Content-Type": "application/json" },
+	});
 }
 
 /**
@@ -89,10 +96,51 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const { canonical, adapterPayload } = buildAdapterPayload(MusicGenerateSchema, args.body, []);
     const typedPayload = adapterPayload as MusicGenerateRequest;
     const elevenParams = (canonical as MusicGenerateRequest).elevenlabs ?? {};
+	const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
+	const compositionPlan = elevenParams.composition_plan ?? null;
+	const seed = elevenParams.seed ?? null;
+	if (prompt !== null && (compositionPlan !== null || seed !== null)) {
+		const param = compositionPlan !== null ? "composition_plan" : "seed";
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				param,
+				"ElevenLabs Music prompt cannot be combined with composition_plan or seed.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (elevenParams.with_timestamps === true) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				"with_timestamps",
+				"ElevenLabs Music timestamps require the detailed compose endpoint, which this gateway adapter does not support.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (typedPayload.format === "aac") {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				"format",
+				"ElevenLabs Music does not provide AAC output; use mp3, wav, ogg, or a documented native output_format.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
-    const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
-    const compositionPlan = elevenParams.composition_plan ?? null;
-    const musicLengthMs =
+	const musicLengthMs =
         elevenParams.music_length_ms ??
         (typeof typedPayload.duration === "number" ? typedPayload.duration * 1000 : null);
 
@@ -101,21 +149,22 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         prompt,
         composition_plan: compositionPlan,
         music_length_ms: musicLengthMs,
-        model_id: elevenParams.model_id ?? "music_v1",
+        model_id: elevenParams.model_id ?? args.providerModelSlug ?? "music_v2",
         force_instrumental: elevenParams.force_instrumental ?? false,
         store_for_inpainting: elevenParams.store_for_inpainting ?? false,
-        with_timestamps: elevenParams.with_timestamps ?? false,
         sign_with_c2pa: elevenParams.sign_with_c2pa ?? false,
     };
 
-    if (requestBody.prompt == null && requestBody.composition_plan == null) {
-        requestBody.prompt = "";
-    }
+	if (requestBody.prompt == null && requestBody.composition_plan == null && requestBody.seed == null) {
+		requestBody.prompt = "";
+	}
 
     const outputFormat =
         elevenParams.output_format ??
         defaultOutputFormatForGatewayFormat(typedPayload.format);
     delete requestBody.output_format;
+	// The binary endpoint does not accept this field; true requests are rejected above.
+    delete requestBody.with_timestamps;
     const query = outputFormat ? `?output_format=${encodeURIComponent(outputFormat)}` : "";
     const bindings = getBindings() as any;
     const baseUrl = String(bindings.ELEVENLABS_BASE_URL || "https://api.elevenlabs.io").replace(/\/+$/, "");

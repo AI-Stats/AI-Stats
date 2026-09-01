@@ -49,7 +49,7 @@
   "details": [
     {
       "name": "duration_seconds",
-      "value": "5-15"
+      "value": "4-15"
     },
     {
       "name": "max_resolution",
@@ -71,7 +71,7 @@
   "benchmarks": [],
   "page_notice": {
     "tone": "info",
-    "markdown": "MiniMax's API offers H3 through the new `/v2/video_generation` multimodal endpoint. The provider route is catalogued, but Phaseo routing remains disabled until the MiniMax adapter supports the V2 payload and task lifecycle."
+    "markdown": "MiniMax's API offers H3 through the `/v2/video_generation` multimodal endpoint. Phaseo routes H3 through the native MiniMax V2 video adapter."
   },
   "model_type": null,
   "knowledge_cutoff": null,

@@ -7,6 +7,7 @@ const MAX_LABELS = 32;
 const MAX_KEY_LENGTH = 64;
 const MAX_VALUE_LENGTH = 256;
 const LABEL_KEY_PATTERN = /^[A-Za-z0-9_.:-]+$/;
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/;
 
 export type RequestLabelsResult =
     | { ok: true; labels: RequestLabel[] }
@@ -18,6 +19,7 @@ function normalizeLabel(value: unknown, field: "key" | "value"): string | null {
     const maxLength = field === "key" ? MAX_KEY_LENGTH : MAX_VALUE_LENGTH;
     if (!normalized || normalized.length > maxLength) return null;
     if (field === "key" && !LABEL_KEY_PATTERN.test(normalized)) return null;
+    if (CONTROL_CHARACTER_PATTERN.test(normalized)) return null;
     return normalized;
 }
 export function parseRequestLabels(req: Request): RequestLabelsResult {

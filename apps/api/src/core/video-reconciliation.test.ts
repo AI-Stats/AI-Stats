@@ -222,6 +222,7 @@ describe("video-reconciliation provider polling", () => {
 				keySource: "gateway",
 				resolution: "1280x720",
 				quality: "standard",
+				inputVideoSeconds: 8,
 			},
 		});
 
@@ -258,6 +259,7 @@ describe("video-reconciliation provider polling", () => {
 				providerId: "alibaba",
 				model: "wan2.2-t2v-plus",
 				seconds: 5,
+				requestOptions: expect.objectContaining({ input_video_seconds: 8 }),
 			}),
 		);
 	});

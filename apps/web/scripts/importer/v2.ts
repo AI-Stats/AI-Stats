@@ -208,6 +208,16 @@ export function canonicalServiceTierSlug(value: unknown): string {
     return normalized === "fast" ? "priority" : normalized;
 }
 
+function pricingRulePriority(rule: Record<string, any>): number {
+	if (Number.isFinite(rule.priority)) return Number(rule.priority);
+	const conditions = Array.isArray(rule.match)
+		? rule.match
+		: Array.isArray(rule.conditions)
+			? rule.conditions
+			: [];
+	return conditions.length > 0 ? 300 : 100;
+}
+
 function stableUuid(value: string): string {
     const hash = createHash("sha256").update(value).digest("hex").slice(0, 32).split("");
     hash[12] = "4";
@@ -245,7 +255,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
             match: rule.match ?? rule.conditions ?? [],
             billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
             time_windows: rule.time_windows ?? [],
-            priority: rule.priority ?? 100,
+			priority: pricingRulePriority(rule),
             meter_key: slug(rule.meter, "meter"),
         });
         const comparable = {
@@ -269,7 +279,7 @@ export function v2PricingMeterMetadata(rule: Record<string, any>): Record<string
         source: "json",
         source_key: rule.source_key ?? rule.rule_id,
         note: rule.note ?? null,
-        priority: rule.priority ?? 100,
+		priority: pricingRulePriority(rule),
         billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
         time_windows: rule.time_windows ?? [],
         ...(rule.included_quantity === undefined
@@ -461,7 +471,11 @@ async function upsertChunks(
         v2_model_links: [{ sourceTypes: ["model"], key: "model_slug" }],
         v2_model_details: [{ sourceTypes: ["model"], key: "model_slug" }],
         v2_benchmark_results: [{ sourceTypes: ["model"], key: "model_slug" }],
-        v2_subscription_plan_models: [{ sourceTypes: ["model"], key: "model_slug" }],
+        v2_subscription_plan_models: [
+            { sourceTypes: ["subscription-plans"], key: "plan_uuid" },
+            { sourceTypes: ["models", "model"], key: "model_slug" },
+        ],
+        v2_subscription_plan_features: [{ sourceTypes: ["subscription-plans"], key: "plan_uuid" }],
         v2_model_provider_routes: [
             { sourceTypes: ["model"], key: "model_slug" },
             { sourceTypes: ["provider_route"], key: "provider_model_id" },
@@ -525,6 +539,34 @@ export function staleOwnedModelChildRows(
     const desiredIdentities = new Set(desiredRows.map(row => childIdentity(row, identityFields)));
     return existingRows
         .filter(row => ownedModelSlugs.has(String(row.model_slug ?? "")))
+        .filter(row => !desiredIdentities.has(childIdentity(row, identityFields)));
+}
+
+export function staleSubscriptionPlanUuids(
+    existingRows: Record<string, any>[],
+    desiredPlanUuids: Set<string>,
+    protectedPlanUuids: Set<string>,
+): string[] {
+    return existingRows
+        .map(row => String(row.plan_uuid ?? ""))
+        .filter(Boolean)
+        .filter(planUuid => !desiredPlanUuids.has(planUuid))
+        .filter(planUuid => !protectedPlanUuids.has(planUuid));
+}
+
+export function staleSubscriptionPlanChildRows(
+    existingRows: Record<string, any>[],
+    desiredRows: Record<string, any>[],
+    desiredPlanUuids: Set<string>,
+    protectedPlanUuids: Set<string>,
+    identityFields: string[],
+    protectedModelSlugs: Set<string> = new Set(),
+): Record<string, any>[] {
+    const desiredIdentities = new Set(desiredRows.map(row => childIdentity(row, identityFields)));
+    return existingRows
+        .filter(row => desiredPlanUuids.has(String(row.plan_uuid ?? "")))
+        .filter(row => !protectedPlanUuids.has(String(row.plan_uuid ?? "")))
+        .filter(row => !row.model_slug || !protectedModelSlugs.has(String(row.model_slug)))
         .filter(row => !desiredIdentities.has(childIdentity(row, identityFields)));
 }
 
@@ -1381,7 +1423,7 @@ export async function syncV2Catalogue(): Promise<void> {
             match: normalizedMatch,
             billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
             time_windows: rule.time_windows ?? [],
-            priority: rule.priority ?? 100,
+			priority: pricingRulePriority(rule),
         });
         const skuCode = `offer-${shortHash(offerIdentity)}`;
         const skuLookupKey = `${providerModelId}:${skuCode}:1`;
@@ -1405,7 +1447,7 @@ export async function syncV2Catalogue(): Promise<void> {
                 match: normalizedMatch,
                 billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
                 time_windows: rule.time_windows ?? [],
-                priority: rule.priority ?? 100,
+				priority: pricingRulePriority(rule),
             },
         });
     }
@@ -1633,7 +1675,7 @@ export async function syncV2Catalogue(): Promise<void> {
         entries.push(row);
         subscriptionPlanById.set(String(row.plan_id), entries);
     }
-    await upsertChunks(supa, "v2_subscription_plan_models", source.subscriptionPlans.flatMap(plan =>
+    const subscriptionPlanModelRows = source.subscriptionPlans.flatMap(plan =>
         (subscriptionPlanById.get(String(plan.plan_id)) ?? []).flatMap(option =>
             (Array.isArray(plan.models) ? plan.models : []).flatMap((model: Record<string, any>) => {
                 const modelSlug = canonicalModelSlug(model.model_id ?? model.model_slug);
@@ -1647,8 +1689,9 @@ export async function syncV2Catalogue(): Promise<void> {
                 }];
             }),
         ),
-    ), "plan_uuid,model_slug");
-    await upsertChunks(supa, "v2_subscription_plan_features", source.subscriptionPlans.flatMap(plan =>
+    );
+    await upsertChunks(supa, "v2_subscription_plan_models", subscriptionPlanModelRows, "plan_uuid,model_slug");
+    const subscriptionPlanFeatureRows = source.subscriptionPlans.flatMap(plan =>
         (subscriptionPlanById.get(String(plan.plan_id)) ?? []).flatMap(option =>
             (Array.isArray(plan.features) ? plan.features : []).flatMap((feature: Record<string, any>) =>
                 feature?.feature_name ? [{
@@ -1660,7 +1703,57 @@ export async function syncV2Catalogue(): Promise<void> {
                 }] : [],
             ),
         ),
-    ), "plan_uuid,feature_name");
+    );
+    await upsertChunks(supa, "v2_subscription_plan_features", subscriptionPlanFeatureRows, "plan_uuid,feature_name");
+
+    const desiredSubscriptionPlanUuids = new Set(subscriptionPlanRows.map(row => String(row.plan_uuid)));
+    const protectedSubscriptionPlanUuids = protectedCatalogueKeys.get("subscription-plans") ?? new Set<string>();
+    const existingSubscriptionPlanModels = await fetchAll(
+        supa,
+        "v2_subscription_plan_models",
+        "plan_uuid,model_slug",
+    );
+    await deleteByCompositeRows(
+        supa,
+        "v2_subscription_plan_models",
+        ["plan_uuid", "model_slug"],
+        staleSubscriptionPlanChildRows(
+            existingSubscriptionPlanModels,
+            subscriptionPlanModelRows,
+            desiredSubscriptionPlanUuids,
+            protectedSubscriptionPlanUuids,
+            ["plan_uuid", "model_slug"],
+            protectedModelSlugs,
+        ),
+    );
+    const existingSubscriptionPlanFeatures = await fetchAll(
+        supa,
+        "v2_subscription_plan_features",
+        "plan_uuid,feature_name",
+    );
+    await deleteByCompositeRows(
+        supa,
+        "v2_subscription_plan_features",
+        ["plan_uuid", "feature_name"],
+        staleSubscriptionPlanChildRows(
+            existingSubscriptionPlanFeatures,
+            subscriptionPlanFeatureRows,
+            desiredSubscriptionPlanUuids,
+            protectedSubscriptionPlanUuids,
+            ["plan_uuid", "feature_name"],
+        ),
+    );
+    const existingSubscriptionPlans = await fetchAll(supa, "v2_subscription_plans", "plan_uuid");
+    await deleteByIds(
+        supa,
+        "v2_subscription_plans",
+        "plan_uuid",
+        staleSubscriptionPlanUuids(
+            existingSubscriptionPlans,
+            desiredSubscriptionPlanUuids,
+            protectedSubscriptionPlanUuids,
+        ),
+    );
 
     const desiredModelSlugs = new Set([...canonicalModelRows, ...variantModelRows].map(row => String(row.model_slug)));
     const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");

@@ -322,7 +322,14 @@ request, use:
 
 ## BYOK considerations
 
-If you bring your own provider key, that provider's limits and policies apply. Fallbacks are still attempted where possible, but upstream account limits can constrain available options.
+Use BYOK when you want Phaseo routing and observability while the selected provider bills model usage to your own account.
+
+- The first 250,000 completed BYOK requests in each UTC calendar month have no Phaseo service fee.
+- After that allowance, Phaseo charges 2.5% of provider-equivalent cost.
+- Keep at least $1 of Phaseo credit available. This protects managed fallback and post-allowance fee collection; provider charges still go directly to your provider account.
+- Your provider's quotas, data policy, model access, and account restrictions still apply.
+
+Provider credentials are encrypted with AES-256-GCM and bound to their workspace and provider before storage. Scope each key to the models and Phaseo API keys that need it, and disable managed fallback if a request must never use Phaseo credits.
 
 ## What to log
 

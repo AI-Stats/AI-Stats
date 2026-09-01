@@ -254,8 +254,6 @@ namespace PhaseoSdk
         public const string GoogleGeminiEmbedding001 = "google/gemini-embedding-001";
         /// <summary>Model ID: <c>google/gemini-embedding-2</c>. Model page: https://phaseo.app/models/google/gemini-embedding-2</summary>
         public const string GoogleGeminiEmbedding2 = "google/gemini-embedding-2";
-        /// <summary>Model ID: <c>google/gemini-robotics-er-1.6-preview</c>. Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview</summary>
-        public const string GoogleGeminiRoboticsEr16Preview = "google/gemini-robotics-er-1.6-preview";
         /// <summary>Model ID: <c>google/gemini-robotics-er-2-preview</c>. Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview</summary>
         public const string GoogleGeminiRoboticsEr2Preview = "google/gemini-robotics-er-2-preview";
         /// <summary>Model ID: <c>google/gemma-3-12b</c>. Model page: https://phaseo.app/models/google/gemma-3-12b</summary>
@@ -378,6 +376,8 @@ namespace PhaseoSdk
         public const string MindaiMacaronV1Tall = "mindai/macaron-v1-tall";
         /// <summary>Model ID: <c>mindai/macaron-v1-venti</c>. Model page: https://phaseo.app/models/mindai/macaron-v1-venti</summary>
         public const string MindaiMacaronV1Venti = "mindai/macaron-v1-venti";
+        /// <summary>Model ID: <c>minimax/h3</c>. Model page: https://phaseo.app/models/minimax/h3</summary>
+        public const string MinimaxH3 = "minimax/h3";
         /// <summary>Model ID: <c>minimax/hailuo-02</c>. Model page: https://phaseo.app/models/minimax/hailuo-02</summary>
         public const string MinimaxHailuo02 = "minimax/hailuo-02";
         /// <summary>Model ID: <c>minimax/hailuo-2.3</c>. Model page: https://phaseo.app/models/minimax/hailuo-2.3</summary>
@@ -510,18 +510,6 @@ namespace PhaseoSdk
         public const string MoonshotaiKimiK3 = "moonshotai/kimi-k3";
         /// <summary>Model ID: <c>moonshotai/kimi-k3-fast</c>. Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast</summary>
         public const string MoonshotaiKimiK3Fast = "moonshotai/kimi-k3-fast";
-        /// <summary>Model ID: <c>moonshotai/moonshot-v1-128k</c>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k</summary>
-        public const string MoonshotaiMoonshotV1128k = "moonshotai/moonshot-v1-128k";
-        /// <summary>Model ID: <c>moonshotai/moonshot-v1-128k-vision-preview</c>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k-vision-preview</summary>
-        public const string MoonshotaiMoonshotV1128kVisionPreview = "moonshotai/moonshot-v1-128k-vision-preview";
-        /// <summary>Model ID: <c>moonshotai/moonshot-v1-32k</c>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k</summary>
-        public const string MoonshotaiMoonshotV132k = "moonshotai/moonshot-v1-32k";
-        /// <summary>Model ID: <c>moonshotai/moonshot-v1-32k-vision-preview</c>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k-vision-preview</summary>
-        public const string MoonshotaiMoonshotV132kVisionPreview = "moonshotai/moonshot-v1-32k-vision-preview";
-        /// <summary>Model ID: <c>moonshotai/moonshot-v1-8k</c>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k</summary>
-        public const string MoonshotaiMoonshotV18k = "moonshotai/moonshot-v1-8k";
-        /// <summary>Model ID: <c>moonshotai/moonshot-v1-8k-vision-preview</c>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview</summary>
-        public const string MoonshotaiMoonshotV18kVisionPreview = "moonshotai/moonshot-v1-8k-vision-preview";
         /// <summary>Model ID: <c>morph/morph-compactor</c>. Model page: https://phaseo.app/models/morph/morph-compactor</summary>
         public const string MorphMorphCompactor = "morph/morph-compactor";
         /// <summary>Model ID: <c>morph/morph-v3-fast</c>. Model page: https://phaseo.app/models/morph/morph-v3-fast</summary>
@@ -538,16 +526,8 @@ namespace PhaseoSdk
         public const string NousresearchHermes3Llama3170b = "nousresearch/hermes-3-llama-3.1-70b";
         /// <summary>Model ID: <c>nousresearch/hermes-4-405b</c>. Model page: https://phaseo.app/models/nousresearch/hermes-4-405b</summary>
         public const string NousresearchHermes4405b = "nousresearch/hermes-4-405b";
-        /// <summary>Model ID: <c>nousresearch/hermes-4-70b</c>. Model page: https://phaseo.app/models/nousresearch/hermes-4-70b</summary>
-        public const string NousresearchHermes470b = "nousresearch/hermes-4-70b";
-        /// <summary>Model ID: <c>nvidia/cosmos3-super-reasoner</c>. Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner</summary>
-        public const string NvidiaCosmos3SuperReasoner = "nvidia/cosmos3-super-reasoner";
-        /// <summary>Model ID: <c>nvidia/llama-3.1-nemotron-ultra-253b</c>. Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b</summary>
-        public const string NvidiaLlama31NemotronUltra253b = "nvidia/llama-3.1-nemotron-ultra-253b";
         /// <summary>Model ID: <c>nvidia/nemotron-3-nano-30b-a3b</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b</summary>
         public const string NvidiaNemotron3Nano30bA3b = "nvidia/nemotron-3-nano-30b-a3b";
-        /// <summary>Model ID: <c>nvidia/nemotron-3-nano-omni</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni</summary>
-        public const string NvidiaNemotron3NanoOmni = "nvidia/nemotron-3-nano-omni";
         /// <summary>Model ID: <c>nvidia/nemotron-3-super-120b-a12b</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b</summary>
         public const string NvidiaNemotron3Super120bA12b = "nvidia/nemotron-3-super-120b-a12b";
         /// <summary>Model ID: <c>nvidia/nemotron-3-ultra-550b-a55b</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-ultra-550b-a55b</summary>
@@ -932,6 +912,10 @@ namespace PhaseoSdk
         public const string QwenTextEmbeddingV4 = "qwen/text-embedding-v4";
         /// <summary>Model ID: <c>qwen/wan2.7-t2v</c>. Model page: https://phaseo.app/models/qwen/wan2.7-t2v</summary>
         public const string QwenWan27T2v = "qwen/wan2.7-t2v";
+        /// <summary>Model ID: <c>qwen/wan3.0-video</c>. Model page: https://phaseo.app/models/qwen/wan3.0-video</summary>
+        public const string QwenWan30Video = "qwen/wan3.0-video";
+        /// <summary>Model ID: <c>qwen/wan3.0-video-prime</c>. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime</summary>
+        public const string QwenWan30VideoPrime = "qwen/wan3.0-video-prime";
         /// <summary>Model ID: <c>reka-edge</c>. Model page: https://phaseo.app/models/reka-edge</summary>
         public const string RekaEdge = "reka-edge";
         /// <summary>Model ID: <c>reka-edge-2603</c>. Model page: https://phaseo.app/models/reka-edge-2603</summary>

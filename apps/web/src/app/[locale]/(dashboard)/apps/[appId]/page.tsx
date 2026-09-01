@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 	const { appId } = await params;
 	const t = await getTranslations("Product.appsDetail");
 	const app = await fetchFrontendAppDetails(appId);
-	const path = app ? getPublicAppPath(app.slug ?? app.title) : `/apps/${encodeURIComponent(appId)}`;
+	const path = app ? getPublicAppPath(app.title, app.slug) : `/apps/${encodeURIComponent(appId)}`;
 
 	if (!app) {
 		return buildMetadata({
@@ -134,7 +134,7 @@ export default async function Page({ params }: PageProps) {
 
 	const canonicalAppId = app.slug?.trim() || getPublicAppRouteSegment(app.title);
 	if (canonicalAppId !== appId) {
-		permanentRedirect(getPublicAppPath(canonicalAppId));
+		permanentRedirect(getPublicAppPath(app.title, app.slug));
 	}
 
 	const rows4w = await fetchFrontendAppUsage(app.id, "4w");

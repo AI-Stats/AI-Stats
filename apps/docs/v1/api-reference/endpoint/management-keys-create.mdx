@@ -1,0 +1,10 @@
+---
+title: "Create management key"
+sidebarTitle: "Create management key"
+badge: "Beta"
+openapi: "POST /management-keys"
+description: "Create a scoped management key for control-plane automation."
+---
+<Note>This endpoint requires an owner or admin identity and `management_keys:write`.</Note>
+
+Choose a capability template or provide an explicit scope list. The raw `key` is returned only in the creation response; store it immediately in server-side secret storage.

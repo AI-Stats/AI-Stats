@@ -15,6 +15,7 @@ import { err } from "./http";
 import { extractModel, formatZodErrors, buildProviderCandidatesWithDiagnostics } from "./utils";
 import { fetchGatewayContext } from "./context";
 import { generatePublicId } from "./genId";
+import { requestIdFor } from "@/runtime/request-id";
 import { isDebugAllowed } from "../debug";
 import type { DebugOptions } from "@core/types";
 import { authenticate, authenticateManagement, type AuthFailure } from "./auth";
@@ -88,7 +89,7 @@ function classifyProviderCandidateFailure(diagnostics: ProviderCandidateBuildDia
 
 function describeKeyLimitExceeded(args: {
 	reason: string | null;
-	limitWindow?: "daily" | "weekly" | "monthly" | null;
+	limitWindow?: "daily" | "weekly" | "monthly" | "lifetime" | null;
 	limitMetric?: "requests" | "cost" | "soft_blocked" | null;
 	currentValue?: number | null;
 	limitValue?: number | null;
@@ -104,7 +105,10 @@ function describeKeyLimitExceeded(args: {
 				? "weekly"
 				: args.limitWindow === "monthly"
 					? "monthly"
+					: args.limitWindow === "lifetime"
+						? "lifetime"
 					: "configured";
+	const subject = args.reason?.startsWith("workspace_") ? "workspace" : "API key";
 	const metricLabel =
 		args.limitMetric === "cost"
 			? "spend limit"
@@ -119,10 +123,10 @@ function describeKeyLimitExceeded(args: {
 		Number.isFinite(args.limitValue) &&
 		args.limitValue > 0
 	) {
-		return `This API key has reached its ${windowLabel} ${metricLabel} (${args.currentValue}/${args.limitValue}).`;
+		return `This ${subject} has reached its ${windowLabel} ${metricLabel} (${args.currentValue}/${args.limitValue}).`;
 	}
 
-	return `This API key has reached its ${windowLabel} ${metricLabel}.`;
+	return `This ${subject} has reached its ${windowLabel} ${metricLabel}.`;
 }
 
 function normalizeFormKey(key: string): { key: string; array: boolean } {
@@ -295,7 +299,7 @@ export async function guardAuth(req: Request, options: GuardAuthOptions = {}): P
     oauthResource?: string | null;
     scopes?: string[];
 }>> {
-    const requestId = generatePublicId();
+    const requestId = requestIdFor(req);
     const auth = await authenticate(req, {
         useKvCache: options.useKvCache,
         allowOAuthJwt: options.allowOAuthJwt,
@@ -337,7 +341,7 @@ export async function guardManagementAuth(req: Request, options: GuardAuthOption
     oauthResource?: string | null;
     scopes?: string[];
 }>> {
-    const requestId = generatePublicId();
+    const requestId = requestIdFor(req);
     const auth = await authenticateManagement(req, { useKvCache: options.useKvCache });
     if (!auth.ok) {
         const reason = (auth as AuthFailure).reason;
@@ -467,6 +471,7 @@ export async function guardContext(args: {
                     current_value: context.keyLimit.currentValue ?? null,
                     limit_value: context.keyLimit.limitValue ?? null,
                     buckets: context.keyLimit.buckets ?? null,
+                    budgets: context.keyLimit.budgets ?? null,
                     description: describeKeyLimitExceeded({
                         reason: context.keyLimit.reason ?? null,
                         limitWindow: context.keyLimit.limitWindow ?? null,

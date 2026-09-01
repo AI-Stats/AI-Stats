@@ -215,6 +215,7 @@
     "startLiveChat": "Iniciar chat en directo",
     "chatUnavailable": "Chat en directo no disponible",
     "sendEmail": "Enviar correo electrónico",
+    "createTicket": "Crear ticket",
     "openChatNewTab": "Abrir el chat en una pestaña nueva",
     "privateReplyBody": "Si incluye datos de cuenta, información de facturación, identificadores de solicitud o capturas de pantalla, elige un ticket privado de soporte.",
     "repliesResumeSoon": "Las respuestas del soporte se reanudarán pronto.",

@@ -212,6 +212,7 @@ type KeyRow = {
     expires_at?: string | null;
     soft_blocked?: boolean | null;
     scopes?: unknown;
+	created_by?: string | null;
 	key_kind?: string | null;
 	oauth_client_id?: string | null;
 	oauth_user_id?: string | null;
@@ -742,7 +743,7 @@ export async function authenticateManagement(
         apiKeyId: keyRow.id,
         apiKeyRef: `mgmt_kid_${parsed.kid}`,
         apiKeyKid: parsed.kid,
-        userId: null,
+        userId: keyRow.created_by ?? null,
         internal,
         authMethod: "api_key",
         scopes: grantedScopes,

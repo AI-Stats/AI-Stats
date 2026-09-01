@@ -82,10 +82,11 @@ describe("logos", () => {
 		});
 	});
 
-	test.each([
+		test.each([
 		["cline", "/logos/cline_light.svg", "/logos/cline_dark.svg"],
 		["helicone", "/logos/helicone_light.svg", "/logos/helicone_dark.svg"],
 		["ollama", "/logos/ollama_light.svg", "/logos/ollama_dark.svg"],
+		["runinfra", "/logos/runinfra.svg", "/logos/runinfra_dark.svg"],
 		["sarvam", "/logos/sarvam_light.svg", "/logos/sarvam_dark.svg"],
 		["tinfoil", "/logos/tinfoil_light.svg", "/logos/tinfoil_dark.svg"],
 		["v0", "/logos/v0_light.svg", "/logos/v0_dark.svg"],

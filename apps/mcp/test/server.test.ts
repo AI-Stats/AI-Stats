@@ -42,6 +42,19 @@ describe("Phaseo MCP server metadata", () => {
 		await server.connect(serverTransport);
 		await client.connect(clientTransport);
 
+		expect(client.getServerVersion()).toMatchObject({
+			name: "Phaseo",
+			title: "Phaseo",
+			websiteUrl: "https://phaseo.app",
+			icons: [
+				{
+					src: "https://phaseo.app/png_logo_light.png",
+					mimeType: "image/png",
+					sizes: ["1024x1024"],
+				},
+			],
+		});
+
 		const result = await client.listTools();
 		const tools = Object.fromEntries(result.tools.map((tool) => [tool.name, tool]));
 

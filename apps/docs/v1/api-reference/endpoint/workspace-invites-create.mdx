@@ -1,0 +1,10 @@
+---
+title: "Create workspace invite"
+sidebarTitle: "Create invite"
+badge: "Beta"
+openapi: "POST /workspaces/{id}/invites"
+description: "Create a time-limited workspace invite."
+---
+<Note>This endpoint requires a management API key with `workspaces:write`.</Note>
+
+The plaintext `token` is returned once. Store it securely; subsequent list operations return only a preview.

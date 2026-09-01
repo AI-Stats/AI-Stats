@@ -1935,6 +1935,52 @@ export function checkSubscriptionPlanModels(
     return errors;
 }
 
+const SUBSCRIPTION_PLAN_FREQUENCIES = new Set([
+    'custom',
+    'monthly',
+    'one-time',
+    'quarterly',
+    'usage',
+    'yearly',
+]);
+
+export function checkSubscriptionPlanShape(planId: string, data: any): string[] {
+    const errors: string[] = [];
+    const pricingOptions = Array.isArray(data?.pricing_options) ? data.pricing_options : null;
+    if (!pricingOptions?.length) {
+        errors.push(`Subscription plan ${planId} must contain at least one pricing option`);
+    } else {
+        pricingOptions.forEach((option: any, index: number) => {
+            const label = `Subscription plan ${planId} pricing option ${index}`;
+            if (!SUBSCRIPTION_PLAN_FREQUENCIES.has(option?.frequency)) {
+                errors.push(`${label} has unsupported frequency ${String(option?.frequency)}`);
+            }
+            if (typeof option?.usd_price !== 'number' || !Number.isFinite(option.usd_price) || option.usd_price < 0) {
+                errors.push(`${label} must have a non-negative finite usd_price`);
+            }
+            if (typeof option?.link !== 'string' || !option.link.trim()) {
+                errors.push(`${label} must include a source link`);
+            } else {
+                try {
+                    const sourceUrl = new URL(option.link);
+                    if (sourceUrl.protocol !== 'https:') {
+                        errors.push(`${label} source link must use HTTPS`);
+                    }
+                } catch {
+                    errors.push(`${label} has an invalid source link`);
+                }
+            }
+        });
+    }
+    if (!Array.isArray(data?.features)) {
+        errors.push(`Subscription plan ${planId} features must be an array`);
+    }
+    if (!Array.isArray(data?.models)) {
+        errors.push(`Subscription plan ${planId} models must be an array`);
+    }
+    return errors;
+}
+
 function checkSubscriptionPlans(state: ValidationState): string[] {
     const errors: string[] = [];
     const plansDir = path.join(DATA_ROOT, 'subscription_plans');
@@ -1950,6 +1996,8 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
         const planId = typeof data.plan_id === 'string' ? data.plan_id.trim() : plan;
         if (!planId) {
             errors.push(`Subscription plan at ${plan} missing plan_id`);
+        } else if (planId !== plan) {
+            errors.push(`Subscription plan directory ${plan} does not match plan_id ${planId}`);
         }
         if (typeof data.name !== 'string' || !data.name.trim()) {
             errors.push(`Subscription plan ${planId} missing name`);
@@ -1962,6 +2010,7 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
         } else {
             errors.push(`Subscription plan ${planId} missing organisation_id`);
         }
+        errors.push(...checkSubscriptionPlanShape(planId, data));
         const planModels = Array.isArray(data.models) ? data.models : [];
         errors.push(...checkSubscriptionPlanModels(planId, planModels, state.modelIds));
     }

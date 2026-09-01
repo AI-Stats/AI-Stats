@@ -1,0 +1,10 @@
+---
+title: "Update observability destination"
+sidebarTitle: "Update destination"
+badge: "Beta"
+openapi: "PATCH /observability/destinations/{id}"
+description: "Update destination policy, filters, or credentials."
+---
+<Note>This endpoint requires a management API key with `settings:write`.</Note>
+
+Omit `config` to retain the existing encrypted configuration. Supplying it replaces the configuration atomically at the destination row.

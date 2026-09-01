@@ -7,7 +7,7 @@
     {
       "frequency": "monthly",
       "usd_price": 20,
-      "link": "https://windsurf.com/pricing",
+      "link": "https://devin.ai/pricing",
       "other_info": "Extra usage can be purchased after the included allowance"
     }
   ],
@@ -32,18 +32,6 @@
     }
   ],
   "models": [
-    {
-      "model_id": "windsurf/swe-1.6",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Standard included quota",
-      "other_info": null
-    },
-    {
-      "model_id": "windsurf/swe-1.5",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Standard included quota",
-      "other_info": null
-    },
     {
       "model_id": "windsurf/swe-1-mini",
       "model_info": "Tab completion model",

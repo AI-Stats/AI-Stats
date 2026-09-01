@@ -81,6 +81,8 @@
           "temperature",
           "max_tokens",
           "frequency_penalty",
+          "logit_bias",
+          "min_p",
           "presence_penalty",
           "repetition_penalty",
           "seed",

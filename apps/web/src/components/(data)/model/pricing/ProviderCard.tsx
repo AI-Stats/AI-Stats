@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { resolveEnforcedZdr } from "@/components/(data)/model/pricing/zdr";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
@@ -94,8 +95,8 @@ import {
 import {
 	clearProviderInspector,
 	dispatchProviderInspectorOpen,
-	PROVIDER_INSPECTOR_OPEN_EVENT,
-	type ProviderInspectorOpenDetail,
+	PROVIDER_INSPECTOR_CHANGE_EVENT,
+	type ProviderInspectorChangeDetail,
 } from "@/components/(data)/model/pricing/providerInspectorSync";
 
 const PROVIDER_STATUSES_DOCS_HREF =
@@ -1626,9 +1627,12 @@ export default function ProviderCard({
 
 	useEffect(() => {
 		const handleOpen = (event: Event) => {
-			const detail = (event as CustomEvent<ProviderInspectorOpenDetail>).detail;
+			const detail = (event as CustomEvent<ProviderInspectorChangeDetail>).detail;
 			const providerId = detail?.providerId;
-			if (!providerId) return;
+			if (!providerId) {
+				setExpanded(false);
+				return;
+			}
 			setInspectorNavigationProviderIds(
 				detail.navigationProviderIds?.length ? detail.navigationProviderIds : null,
 			);
@@ -1680,9 +1684,9 @@ export default function ProviderCard({
 			setExpanded(isTargetProvider);
 		};
 
-		window.addEventListener(PROVIDER_INSPECTOR_OPEN_EVENT, handleOpen);
+		window.addEventListener(PROVIDER_INSPECTOR_CHANGE_EVENT, handleOpen);
 		return () => {
-			window.removeEventListener(PROVIDER_INSPECTOR_OPEN_EVENT, handleOpen);
+			window.removeEventListener(PROVIDER_INSPECTOR_CHANGE_EVENT, handleOpen);
 			if (inspectorAnimationResetRef.current !== null) {
 				window.clearTimeout(inspectorAnimationResetRef.current);
 			}
@@ -1991,21 +1995,12 @@ export default function ProviderCard({
 	const infoScope = providerModelsInScope;
 	const tableInfoScope = tableProviderModelsInScope;
 	const providerModelSlugs = infoScope.map((pm) => pm.provider_model_slug);
-	const routableProviderApiModelIds = Array.from(
-		new Set(
-			infoScope
-				.filter(
-					(pm) =>
-						pm.is_active_gateway &&
-						pm.capability_status !== "disabled" &&
-						pm.phaseo_status !== "disabled",
-				)
-				.map((pm) => pm.model_id.trim())
-				.filter(Boolean),
-		),
-	);
-	const providerQualifiedModelId = routableProviderApiModelIds.length === 1
-		? `${sec.providerId}:${routableProviderApiModelIds[0]}`
+	const providerApiModelIds = infoScope.map((pm) => pm.model_id);
+	const canonicalModelId = providerApiModelIds.find(
+		(modelId) => typeof modelId === "string" && modelId.trim().length > 0,
+	)?.trim();
+	const providerQualifiedModelId = canonicalModelId
+		? `${sec.providerId}:${canonicalModelId}`
 		: null;
 	const tableProviderModelSlugs = tableInfoScope.map((pm) => pm.provider_model_slug);
 	const tableProviderApiModelIds = tableInfoScope.map((pm) => pm.model_id);
@@ -2422,7 +2417,7 @@ export default function ProviderCard({
 				notes: policy.reason ?? provider.provider.prompt_training_notes ?? null,
 				sourceUrl: policy.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
 				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
-				zeroDataRetention: policy.zdrEligibility === "eligible"
+				zeroDataRetention: policy.zdrEligibility === "eligible" && provider.provider.zero_data_retention === true
 					? true
 					: policy.zdrEligibility === "ineligible"
 						? false
@@ -2838,7 +2833,7 @@ export default function ProviderCard({
 		: selectedDataPolicy?.tier ?? provider.provider.data_policy_tier;
 	const selectedZdr = hasMixedCapabilityPolicies
 		? null
-		: selectedDataPolicy?.zdrEligibility === "eligible"
+		: selectedDataPolicy?.zdrEligibility === "eligible" && provider.provider.zero_data_retention === true
 			? true
 			: selectedDataPolicy?.zdrEligibility === "ineligible"
 				? false

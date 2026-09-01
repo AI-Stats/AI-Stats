@@ -60,6 +60,11 @@ type RuleScore = {
     hasConditions: boolean;
 };
 
+function effectiveRulePriority(rule: PriceRule): number {
+	if (Number.isFinite(rule.priority)) return Number(rule.priority);
+	return Array.isArray(rule.match) && rule.match.length > 0 ? 300 : 100;
+}
+
 function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): RuleScore[] {
     return candidates.map((rule, index) => {
         const summary = evaluateConditions(rule.match, ctx);
@@ -69,7 +74,7 @@ function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): Rul
         return {
             rule,
             index,
-            priority: rule.priority ?? 0,
+			priority: effectiveRulePriority(rule),
             matchedConditions: summary.matchedConditions,
             totalConditions: summary.totalConditions,
             fullySatisfiedGroups,
@@ -80,12 +85,15 @@ function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): Rul
 }
 
 function compareRuleScores(a: RuleScore, b: RuleScore): number {
-    if (b.priority !== a.priority) return b.priority - a.priority;
     if (b.fullySatisfiedGroups !== a.fullySatisfiedGroups) return b.fullySatisfiedGroups - a.fullySatisfiedGroups;
     if (b.matchedConditions !== a.matchedConditions) return b.matchedConditions - a.matchedConditions;
     if (b.totalConditions !== a.totalConditions) return b.totalConditions - a.totalConditions;
-    if (a.partiallySatisfiedGroups !== b.partiallySatisfiedGroups) return a.partiallySatisfiedGroups - b.partiallySatisfiedGroups;
+    // A matching conditional tier is more specific than an unconditional base
+    // tier. This keeps legacy/catalog rules safe when their optional priority
+    // metadata was omitted and otherwise defaulted below the base rate.
     if (a.hasConditions !== b.hasConditions) return b.hasConditions ? 1 : -1;
+    if (b.priority !== a.priority) return b.priority - a.priority;
+    if (a.partiallySatisfiedGroups !== b.partiallySatisfiedGroups) return a.partiallySatisfiedGroups - b.partiallySatisfiedGroups;
     return a.index - b.index;
 }
 
@@ -659,7 +667,7 @@ export function computeBillSummary(
         card.rules
             .filter((r) => r.pricing_plan === plan && r.meter === meter)
             .filter((r) => matchesConditions(r.match, matchContext))
-            .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+			.sort((a, b) => effectiveRulePriority(b) - effectiveRulePriority(a));
 
     for (const dim of dims) {
         const qty = meters[dim];
@@ -670,31 +678,33 @@ export function computeBillSummary(
         let resolvedPlan = pricingPlan;
         let conservativeCoverageFallback = false;
         if (!candidates.length && pricingPlan !== "standard") {
-            const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
-            if (fallbackCandidates.length) {
-                candidates = fallbackCandidates;
-                resolvedPlan = "standard";
-                logPricingDebug("meter_plan_fallback", {
+            const requestedPlanDefinesMeter = card.rules.some(
+                (rule) => rule.pricing_plan === pricingPlan && rule.meter === dim,
+            );
+            if (requestedPlanDefinesMeter) {
+                candidates = card.rules
+                    .filter((rule) =>
+                        (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
+                        rule.meter === dim,
+                    )
+                    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+                conservativeCoverageFallback = true;
+                logPricingDebug("meter_plan_coverage_fallback", {
                     meter: dim,
                     quantity: qty,
                     requestedPricingPlan: pricingPlan,
                     fallbackPricingPlan: "standard",
                     candidateRuleIds: candidates.map((r) => r.id),
                 });
-            } else if (pricingPlan !== "batch") {
-                // Batch reservations/finalization reject unmatched paid usage;
-                // interactive tiers must recover provider cost after output is delivered.
-                const coverageCandidates = card.rules
-                    .filter((rule) =>
-                        (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
-                        rule.meter === dim,
-                    )
-                    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-                if (coverageCandidates.length) {
-                    candidates = coverageCandidates;
-                    conservativeCoverageFallback = true;
-                    resolvedPlan = pricingPlan;
-                    logPricingDebug("meter_plan_coverage_fallback", {
+            }
+            if (conservativeCoverageFallback) {
+                resolvedPlan = pricingPlan;
+            } else {
+                const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
+                if (fallbackCandidates.length) {
+                    candidates = fallbackCandidates;
+                    resolvedPlan = "standard";
+                    logPricingDebug("meter_plan_fallback", {
                         meter: dim,
                         quantity: qty,
                         requestedPricingPlan: pricingPlan,
@@ -730,7 +740,7 @@ export function computeBillSummary(
                 id: r.id,
                 price_per_unit: r.price_per_unit,
                 unit_size: r.unit_size,
-                priority: r.priority,
+				priority: effectiveRulePriority(r),
                 match: r.match,
             })),
             selection_rankings: selectionSummary.rankings.slice(0, 10),
@@ -777,7 +787,7 @@ export function computeBillSummary(
                 id: rule.id,
                 unit_size: rule.unit_size,
                 price_per_unit: priced.unitPriceUsd,
-                priority: rule.priority,
+				priority: effectiveRulePriority(rule),
                 pricing_plan: rule.pricing_plan,
                 billing_timestamp_basis: priced.billingTimestampBasis,
                 billing_timestamp_basis_configured: priced.billingTimestampBasisConfigured,
@@ -804,7 +814,7 @@ export function computeBillSummary(
             line_nanos: priced.lineNanos,
             bill_mode: (rule.included_quantity ?? 0) > 0 ? "over" : "all",
             included_quantity: rule.included_quantity,
-            rule_priority: rule.priority,
+			rule_priority: effectiveRulePriority(rule),
             rule_id: rule.id,
             billing_timestamp_basis: priced.billingTimestampBasis,
             billing_timestamp_basis_configured: priced.billingTimestampBasisConfigured,

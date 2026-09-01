@@ -8,6 +8,7 @@ import type { ByokKeyMeta, PipelineContext, ProviderAttemptLog } from "../before
 import { Timer } from "../telemetry/timer";
 import { dispatchBackground, ensureRuntimeForBackground, getSupabaseAdmin } from "@/runtime/env";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
+import { getProviderPricingKey } from "../before/context.shared";
 
 export type PipelineTiming = {
 	timer: Timer;
@@ -112,7 +113,7 @@ export type CredentialAttemptPhase = "priority_byok" | "gateway" | "fallback_byo
 
 export function buildCredentialAttemptPlan(
 	rankedProviders: any[],
-	options: { includeFallbackByok?: boolean } = {},
+	options: { includeFallbackByok?: boolean; allowManagedFallback?: boolean } = {},
 ): Array<{
 	routed: any;
 	phase: CredentialAttemptPhase;
@@ -141,13 +142,17 @@ export function buildCredentialAttemptPlan(
 			.flatMap((routed) => keysForMode(routed, "fallback"))
 			.slice(0, remainingByokAttempts);
 
-	return [
-		...limitedPriorityAttempts,
-		...rankedProviders.map((routed) => ({
+	const gatewayAttempts = limitedPriorityAttempts.length === 0 || options.allowManagedFallback === true
+		? rankedProviders.map((routed) => ({
 			routed,
 			phase: "gateway" as const,
 			credential: { kind: "gateway" as const },
-		})),
+		}))
+		: [];
+
+	return [
+		...limitedPriorityAttempts,
+		...gatewayAttempts,
 		...fallbackAttempts,
 	];
 }
@@ -479,6 +484,7 @@ export async function doRequestWithIR(
 	const rankedProviders = ranked.slice(0, maxTries);
 	const credentialPlan = buildCredentialAttemptPlan(rankedProviders, {
 		includeFallbackByok: true,
+		allowManagedFallback: ctx.teamSettings?.byokFallbackEnabled === true,
 	});
 	ctx.credentialPlan = credentialPlan.map((entry, index) => ({
 		attempt_number: index + 1,
@@ -641,6 +647,7 @@ async function attemptProviderWithIR(
 				candidate.providerId,
 				candidateApiModelId ?? baseModel,
 				ctx.capability,
+				providerModelSlug,
 			),
 		);
 		if (pricingCard) {
@@ -1041,9 +1048,7 @@ async function attemptProviderWithIR(
 			apiModelId: candidateApiModelId,
 			pricingKey:
 				candidate.pricingKey ??
-				(candidateApiModelId
-					? `${candidate.providerId}:${candidateApiModelId}`
-					: candidate.providerId),
+				getProviderPricingKey(candidate.providerId, candidateApiModelId, providerModelSlug),
 			providerModelSlug: providerModelSlug ?? null,
 			generationTimeMs,
 			bill: {

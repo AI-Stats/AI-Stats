@@ -10,7 +10,7 @@ const AION_REASONING_SPLIT_BLOCKLIST = new Set([
 	"aion-rp-llama-3.1-8b",
 ]);
 
-const AION_REASONING_EFFORT_MODELS = new Set(["aion-2.0"]);
+const AION_REASONING_EFFORT_MODELS = new Set(["aion-2.0", "aion-3.0", "aion-3.0-mini"]);
 
 function normalizeAionReasoningEffort(ir: any): "none" | "low" | "medium" | "high" | undefined {
 	const reasoning = ir?.reasoning;

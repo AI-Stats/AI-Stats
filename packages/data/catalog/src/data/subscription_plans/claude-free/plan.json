@@ -20,7 +20,7 @@
   "features": [],
   "models": [
     {
-      "model_id": "anthropic/claude-sonnet-4.5",
+      "model_id": "anthropic/claude-sonnet-5",
       "model_info": null,
       "rate_limit": null,
       "other_info": null

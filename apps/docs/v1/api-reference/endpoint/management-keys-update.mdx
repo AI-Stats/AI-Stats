@@ -1,0 +1,10 @@
+---
+title: "Update management key"
+sidebarTitle: "Update management key"
+badge: "Beta"
+openapi: "PATCH /management-keys/{id}"
+description: "Update a management key's scopes, limits, expiry, name, or paused state."
+---
+<Note>This endpoint requires an owner or admin identity and `management_keys:write`.</Note>
+
+A caller cannot grant scopes it does not hold. Omitted fields keep their current values.

@@ -144,6 +144,8 @@ describe("handleScheduledEvent", () => {
 
 	it("runs async webhook retries on five-minute core job ticks by default", async () => {
 		const env = {
+			ENV: "prod",
+			ACCOUNT_DELETION_PURGE_ENABLED: "true",
 			ASYNC_WEBHOOK_RETRIES_LIMIT_PER_KIND: "37",
 			ASYNC_WEBHOOK_RETRIES_MAX_DELIVERIES: "11",
 		} as any;
@@ -167,6 +169,25 @@ describe("handleScheduledEvent", () => {
 			asOf: new Date("2026-06-10T00:05:00.000Z"),
 			limit: 250,
 		});
+		expect(runAccountDeletionPurgeJobMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not let staging claim the shared account-deletion queue", async () => {
+		await handleScheduledEvent(
+			scheduledEventAt("2026-06-10T00:05:00.000Z"),
+			{ ENV: "staging", ACCOUNT_DELETION_PURGE_ENABLED: "true" } as any,
+		);
+
+		expect(runAccountDeletionPurgeJobMock).not.toHaveBeenCalled();
+	});
+
+	it("fails closed when the production deletion worker is not explicitly enabled", async () => {
+		await handleScheduledEvent(
+			scheduledEventAt("2026-06-10T00:05:00.000Z"),
+			{ ENV: "prod" } as any,
+		);
+
+		expect(runAccountDeletionPurgeJobMock).not.toHaveBeenCalled();
 	});
 
 	it("allows the v2 analytics outbox batch size to be configured", async () => {

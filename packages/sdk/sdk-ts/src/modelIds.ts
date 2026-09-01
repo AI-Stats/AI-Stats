@@ -251,8 +251,6 @@ export const ModelIds = {
   GOOGLE_GEMINI_EMBEDDING_001: "google/gemini-embedding-001",
   /** Model ID: `google/gemini-embedding-2`. Model page: https://phaseo.app/models/google/gemini-embedding-2 */
   GOOGLE_GEMINI_EMBEDDING_2: "google/gemini-embedding-2",
-  /** Model ID: `google/gemini-robotics-er-1.6-preview`. Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview */
-  GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: "google/gemini-robotics-er-1.6-preview",
   /** Model ID: `google/gemini-robotics-er-2-preview`. Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview */
   GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW: "google/gemini-robotics-er-2-preview",
   /** Model ID: `google/gemma-3-12b`. Model page: https://phaseo.app/models/google/gemma-3-12b */
@@ -375,6 +373,8 @@ export const ModelIds = {
   MINDAI_MACARON_V1_TALL: "mindai/macaron-v1-tall",
   /** Model ID: `mindai/macaron-v1-venti`. Model page: https://phaseo.app/models/mindai/macaron-v1-venti */
   MINDAI_MACARON_V1_VENTI: "mindai/macaron-v1-venti",
+  /** Model ID: `minimax/h3`. Model page: https://phaseo.app/models/minimax/h3 */
+  MINIMAX_H3: "minimax/h3",
   /** Model ID: `minimax/hailuo-02`. Model page: https://phaseo.app/models/minimax/hailuo-02 */
   MINIMAX_HAILUO_02: "minimax/hailuo-02",
   /** Model ID: `minimax/hailuo-2.3`. Model page: https://phaseo.app/models/minimax/hailuo-2.3 */
@@ -507,18 +507,6 @@ export const ModelIds = {
   MOONSHOTAI_KIMI_K3: "moonshotai/kimi-k3",
   /** Model ID: `moonshotai/kimi-k3-fast`. Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast */
   MOONSHOTAI_KIMI_K3_FAST: "moonshotai/kimi-k3-fast",
-  /** Model ID: `moonshotai/moonshot-v1-128k`. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k */
-  MOONSHOTAI_MOONSHOT_V1_128K: "moonshotai/moonshot-v1-128k",
-  /** Model ID: `moonshotai/moonshot-v1-128k-vision-preview`. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k-vision-preview */
-  MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW: "moonshotai/moonshot-v1-128k-vision-preview",
-  /** Model ID: `moonshotai/moonshot-v1-32k`. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k */
-  MOONSHOTAI_MOONSHOT_V1_32K: "moonshotai/moonshot-v1-32k",
-  /** Model ID: `moonshotai/moonshot-v1-32k-vision-preview`. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k-vision-preview */
-  MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW: "moonshotai/moonshot-v1-32k-vision-preview",
-  /** Model ID: `moonshotai/moonshot-v1-8k`. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k */
-  MOONSHOTAI_MOONSHOT_V1_8K: "moonshotai/moonshot-v1-8k",
-  /** Model ID: `moonshotai/moonshot-v1-8k-vision-preview`. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview */
-  MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW: "moonshotai/moonshot-v1-8k-vision-preview",
   /** Model ID: `morph/morph-compactor`. Model page: https://phaseo.app/models/morph/morph-compactor */
   MORPH_MORPH_COMPACTOR: "morph/morph-compactor",
   /** Model ID: `morph/morph-v3-fast`. Model page: https://phaseo.app/models/morph/morph-v3-fast */
@@ -535,16 +523,8 @@ export const ModelIds = {
   NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B: "nousresearch/hermes-3-llama-3.1-70b",
   /** Model ID: `nousresearch/hermes-4-405b`. Model page: https://phaseo.app/models/nousresearch/hermes-4-405b */
   NOUSRESEARCH_HERMES_4_405B: "nousresearch/hermes-4-405b",
-  /** Model ID: `nousresearch/hermes-4-70b`. Model page: https://phaseo.app/models/nousresearch/hermes-4-70b */
-  NOUSRESEARCH_HERMES_4_70B: "nousresearch/hermes-4-70b",
-  /** Model ID: `nvidia/cosmos3-super-reasoner`. Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner */
-  NVIDIA_COSMOS3_SUPER_REASONER: "nvidia/cosmos3-super-reasoner",
-  /** Model ID: `nvidia/llama-3.1-nemotron-ultra-253b`. Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b */
-  NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B: "nvidia/llama-3.1-nemotron-ultra-253b",
   /** Model ID: `nvidia/nemotron-3-nano-30b-a3b`. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b */
   NVIDIA_NEMOTRON_3_NANO_30B_A3B: "nvidia/nemotron-3-nano-30b-a3b",
-  /** Model ID: `nvidia/nemotron-3-nano-omni`. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni */
-  NVIDIA_NEMOTRON_3_NANO_OMNI: "nvidia/nemotron-3-nano-omni",
   /** Model ID: `nvidia/nemotron-3-super-120b-a12b`. Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b */
   NVIDIA_NEMOTRON_3_SUPER_120B_A12B: "nvidia/nemotron-3-super-120b-a12b",
   /** Model ID: `nvidia/nemotron-3-ultra-550b-a55b`. Model page: https://phaseo.app/models/nvidia/nemotron-3-ultra-550b-a55b */
@@ -929,6 +909,10 @@ export const ModelIds = {
   QWEN_TEXT_EMBEDDING_V4: "qwen/text-embedding-v4",
   /** Model ID: `qwen/wan2.7-t2v`. Model page: https://phaseo.app/models/qwen/wan2.7-t2v */
   QWEN_WAN2_7_T2V: "qwen/wan2.7-t2v",
+  /** Model ID: `qwen/wan3.0-video`. Model page: https://phaseo.app/models/qwen/wan3.0-video */
+  QWEN_WAN3_0_VIDEO: "qwen/wan3.0-video",
+  /** Model ID: `qwen/wan3.0-video-prime`. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime */
+  QWEN_WAN3_0_VIDEO_PRIME: "qwen/wan3.0-video-prime",
   /** Model ID: `reka-edge`. Model page: https://phaseo.app/models/reka-edge */
   REKA_EDGE: "reka-edge",
   /** Model ID: `reka-edge-2603`. Model page: https://phaseo.app/models/reka-edge-2603 */

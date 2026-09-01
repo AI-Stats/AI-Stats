@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyResponseHealingPlugin } from "./response-healing";
+import { applyResponseHealingPlugin, validateJsonSchemaValue } from "./response-healing";
 
 function buildArgs(overrides?: Partial<Parameters<typeof applyResponseHealingPlugin>[0]>) {
 	return {
@@ -25,6 +25,21 @@ function buildArgs(overrides?: Partial<Parameters<typeof applyResponseHealingPlu
 }
 
 describe("applyResponseHealingPlugin", () => {
+	it("evaluates untrusted patterns with a linear-time regex engine", () => {
+		const candidate = `${"a".repeat(10_000)}!`;
+		const startedAt = performance.now();
+		const result = validateJsonSchemaValue(candidate, { type: "string", pattern: "^(a+)+$" });
+
+		expect(result.ok).toBe(false);
+		expect(performance.now() - startedAt).toBeLessThan(250);
+	});
+
+	it("rejects pattern syntax unsupported by the safe engine", () => {
+		expect(validateJsonSchemaValue("aa", { type: "string", pattern: "(a)\\1" })).toEqual({
+			ok: false,
+			errors: ["$ uses an unsupported or unsafe pattern"],
+		});
+	});
 	it("repairs malformed chat-completions JSON output", () => {
 		const outcome = applyResponseHealingPlugin(buildArgs());
 

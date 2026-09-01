@@ -15,6 +15,12 @@ import {
 import { persistGatewayIoLog, resolveGatewayIoLoggingPolicy } from "./io-logging";
 import { persistGatewayUpstreamRequests } from "./upstream-requests";
 import { protectStealthAuditArgs } from "./stealth-identity";
+import {
+	validateStructuredOutputResponse,
+	validateToolCallResponses,
+	type StructuredOutputValidation,
+	type ToolCallValidation,
+} from "./response-validation";
 
 function supaAdmin() {
     return getSupabaseAdmin();
@@ -251,9 +257,11 @@ async function upsertV2RequestFact(args: {
     currency?: string | null;
     toolCallCount?: number | null;
     toolCallSucceeded?: boolean | null;
+    toolCallValidation?: ToolCallValidation | null;
     structuredOutputAttempted?: boolean;
     structuredOutputSucceeded?: boolean;
-    structuredOutputSuccessBasis?: "json_parse" | "unobserved" | null;
+    structuredOutputSuccessBasis?: StructuredOutputValidation["basis"];
+    structuredOutputErrorReason?: StructuredOutputValidation["errorReason"];
     downstreamDisconnected?: boolean;
     streamCancellationSupport?: "supported" | "unsupported" | "unknown";
     streamProviderBillingOnCancel?: "stops" | "unknown";
@@ -532,6 +540,10 @@ async function upsertV2RequestFact(args: {
                 structured_output_success_basis: args.structuredOutputAttempted
                     ? (args.structuredOutputSuccessBasis ?? "unobserved")
                     : null,
+                structured_output_error_reason: args.structuredOutputAttempted
+                    ? (args.structuredOutputErrorReason ?? "none")
+                    : null,
+                tool_call_validation: args.toolCallValidation ?? null,
                 downstream_disconnected: args.downstreamDisconnected === true,
                 stream_cancellation_support: args.streamCancellationSupport ?? "unknown",
                 stream_provider_billing_on_cancel: args.streamProviderBillingOnCancel ?? "unknown",
@@ -780,44 +792,6 @@ function isStructuredOutputRequest(payload: unknown): boolean {
     return format.type === "json_schema" || format.type === "json_object";
 }
 
-function extractStructuredOutput(value: unknown): unknown {
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    const response = value as Record<string, any>;
-    if (response.output_parsed && typeof response.output_parsed === "object") return response.output_parsed;
-    if (response.parsed && typeof response.parsed === "object") return response.parsed;
-    if (typeof response.output_text === "string") return response.output_text;
-    if (typeof response.text === "string") return response.text;
-    const choiceContent = response.choices?.[0]?.message?.content;
-    if (typeof choiceContent === "string") return choiceContent;
-    const outputText = response.output?.flatMap?.((item: any) => item?.content ?? [])
-        ?.find?.((item: any) => typeof item?.text === "string")?.text;
-    if (typeof outputText === "string") return outputText;
-    const anthropicText = response.content?.find?.((item: any) => typeof item?.text === "string")?.text;
-    return typeof anthropicText === "string" ? anthropicText : null;
-}
-
-function structuredOutputResult(requestPayload: unknown, gatewayResponse: unknown): {
-    attempted: boolean;
-    succeeded: boolean;
-    basis: "json_parse" | "unobserved" | null;
-} {
-    const attempted = isStructuredOutputRequest(requestPayload);
-    if (!attempted) return { attempted: false, succeeded: false, basis: null };
-    const output = extractStructuredOutput(gatewayResponse);
-    if (output && typeof output === "object") {
-        return { attempted: true, succeeded: true, basis: "json_parse" };
-    }
-    if (typeof output !== "string" || output.trim().length === 0) {
-        return { attempted: true, succeeded: false, basis: "unobserved" };
-    }
-    try {
-        JSON.parse(output);
-        return { attempted: true, succeeded: true, basis: "json_parse" };
-    } catch {
-        return { attempted: true, succeeded: false, basis: "json_parse" };
-    }
-}
-
 function readToolCallCount(usage: unknown, finishReason?: string | null): number {
     const record = usage && typeof usage === "object" && !Array.isArray(usage)
         ? usage as Record<string, unknown>
@@ -887,7 +861,8 @@ export async function auditSuccess(input: {
     try {
         const pricingLines = args.usagePriced?.pricing?.lines ?? [];
         const strippedUsage = stripPricingFromUsage(args.usagePriced);
-        const structuredOutput = structuredOutputResult(args.requestPayload, args.gatewayResponse);
+        const structuredOutput = validateStructuredOutputResponse(args.requestPayload, args.gatewayResponse);
+        const toolCallValidation = validateToolCallResponses(args.requestPayload, args.gatewayResponse);
         const appId = await ensureAppId({
             workspaceId: args.workspaceId,
             appTitle: args.appTitle ?? null,
@@ -1036,11 +1011,18 @@ export async function auditSuccess(input: {
                             : null
                     ),
                     currency: args.currency,
-                    toolCallCount: readToolCallCount(strippedUsage, args.finishReason),
-                    toolCallSucceeded: readToolCallCount(strippedUsage, args.finishReason) > 0 ? true : null,
+                    toolCallCount: Math.max(
+                        readToolCallCount(strippedUsage, args.finishReason),
+                        toolCallValidation.totalCalls,
+                    ),
+                    toolCallSucceeded: toolCallValidation.totalCalls > 0
+                        ? toolCallValidation.invalidCalls === 0
+                        : readToolCallCount(strippedUsage, args.finishReason) > 0 ? true : null,
+                    toolCallValidation: toolCallValidation.totalCalls > 0 ? toolCallValidation : null,
                     structuredOutputAttempted: structuredOutput.attempted,
                     structuredOutputSucceeded: structuredOutput.succeeded,
                     structuredOutputSuccessBasis: structuredOutput.basis,
+                    structuredOutputErrorReason: structuredOutput.errorReason,
                     downstreamDisconnected: args.downstreamDisconnected === true,
                     streamCancellationSupport: args.streamCancellationSupport ?? "unknown",
                     streamProviderBillingOnCancel: args.streamProviderBillingOnCancel ?? "unknown",
@@ -1600,3 +1582,6 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
         releaseRuntime();
     }
 }
+
+
+

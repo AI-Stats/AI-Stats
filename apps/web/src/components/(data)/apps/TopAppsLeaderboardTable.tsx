@@ -20,7 +20,6 @@ const PAGE_SIZE = 20;
 type LeaderboardAppRow = {
 	appId: string;
 	appName: string;
-	appSlug?: string | null;
 	appUrl?: string | null;
 	appCategory?: string | null;
 	tokens: number;
@@ -131,7 +130,7 @@ export default function TopAppsLeaderboardTable({
 								return (
 									<Link
 										key={app.appId}
-										href={getPublicAppPath(app.appSlug ?? app.appName)}
+										href={getPublicAppPath(app.appName)}
 										className="group grid min-h-20 grid-cols-[2rem_2.5rem_minmax(0,1fr)_auto] items-center gap-3 py-3 transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 									>
 										<span className="text-xs font-medium tabular-nums text-muted-foreground">{absoluteRank}.</span>

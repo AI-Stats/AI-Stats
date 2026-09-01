@@ -215,6 +215,7 @@
     "startLiveChat": "Démarrer le chat en direct",
     "chatUnavailable": "Chat en direct indisponible",
     "sendEmail": "Envoyer un e-mail",
+    "createTicket": "Créer un ticket",
     "openChatNewTab": "Ouvrir le chat dans un nouvel onglet",
     "privateReplyBody": "Si votre message contient des informations de compte, de facturation, des identifiants de requête ou des captures d'écran, choisissez plutôt un ticket d'assistance privé.",
     "methods": {

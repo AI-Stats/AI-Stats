@@ -8,7 +8,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2025-09-05T00:00:00",
     "effective_to": "2026-05-25T00:00:00",
@@ -35,15 +35,30 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/v1/chat/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model list identifies kimi-k2-turbo-preview as a deprecated high-speed K2 route and records the K2-series retirement on 25 May 2026."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://platform.kimi.ai/docs/api/chat",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official reference documents POST /v1/chat/completions with Bearer authentication."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Valid legacy turbo offer route, advertised at 60-100 output tokens/s; retired with the K2 series on 25 May 2026."
     },
     "rate_limits": []
   },
@@ -56,7 +71,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2025-11-06T00:00:00",
     "effective_to": "2026-05-25T00:00:00",
@@ -83,15 +98,30 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/v1/chat/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model list identifies kimi-k2-thinking-turbo as a deprecated high-speed K2 route and records the K2-series retirement on 25 May 2026."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://platform.kimi.ai/docs/api/chat",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official reference documents POST /v1/chat/completions with Bearer authentication."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Valid legacy turbo offer route, advertised at 60-100 output tokens/s; retired with the K2 series on 25 May 2026."
     },
     "rate_limits": []
   },
@@ -107,11 +137,11 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -123,7 +153,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -139,11 +169,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -159,11 +196,11 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -175,7 +212,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -191,11 +228,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -211,11 +255,11 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -227,7 +271,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -243,11 +287,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -263,11 +314,11 @@
     "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -279,7 +330,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -295,11 +346,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -315,11 +373,11 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -331,7 +389,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -347,11 +405,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -367,11 +432,11 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -383,7 +448,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -399,11 +464,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -419,11 +491,11 @@
     "context_length": 32768,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -435,7 +507,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -451,11 +523,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -471,11 +550,11 @@
     "context_length": 32768,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -487,7 +566,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -503,11 +582,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -523,11 +609,11 @@
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -539,7 +625,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -555,11 +641,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   },
@@ -575,11 +668,11 @@
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -591,7 +684,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -607,11 +700,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.kimi.ai/docs/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official model inventory confirms this is a direct Moonshot/Kimi route, not a model in the retired specialized Moonshot AI Turbo offer."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.486+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical model-discovery observation. This route was misclassified under moonshotai-turbo and never belonged to the specialized turbo offer; disabled at the audit cutoff without erasing the observation."
     },
     "rate_limits": []
   }

@@ -1602,14 +1602,14 @@
     "provider_api_model_id": "gmicloud:kwaipilot/kat-coder-pro-v2",
     "provider_model_slug": "kwaipilot/kat-coder-pro-v2",
     "internal_model_id": "kwaipilot/kat-coder-pro-v2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-31T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-09-01T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1625,8 +1625,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1641,7 +1641,7 @@
     "verification": {
       "status": "unverified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retired after GMICloud removed kwaipilot/kat-coder-pro-v2 from its current model catalog; historical route metadata and pricing are retained."
     },
     "rate_limits": []
   },
@@ -5424,6 +5424,69 @@
       "status": "partial",
       "checked_at": "2026-08-26T00:00:00Z",
       "notes": "Live availability and provider slug verified in OpenRouter's endpoint catalog; direct GMI Cloud pricing and model-page verification remain incomplete."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash",
+    "provider_api_model_id": "gmicloud:inclusionAI/Ling-3.0-flash",
+    "provider_model_slug": "inclusionAI/Ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": "BF16",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-09-01T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "tools",
+          "tool_choice",
+          "reasoning"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": "/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/5b75ac7b-96c8-40c6-a72a-ae62b9e68fe8",
+        "accessed_at": "2026-09-01T00:00:00Z",
+        "notes": "Authenticated GMICloud Model Hub lists inclusionAI/Ling-3.0-flash with BF16 serving, 262,144-token context, OpenAI-compatible chat, and current token pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-01T00:00:00Z",
+      "notes": "Exact route, availability, capabilities, context, quantization, and pricing verified against GMICloud's authenticated Model Hub."
     },
     "rate_limits": []
   }

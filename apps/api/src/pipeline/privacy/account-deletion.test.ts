@@ -88,7 +88,7 @@ describe("account deletion purge", () => {
 			workspaceIds: ["ws_1"],
 			keyIds: [],
 			keyKids: ["kid_1"],
-		})).resolves.toEqual({ complete: true, deleted: 2 });
+		})).resolves.toEqual({ complete: true, deleted: 2, cursor: null });
 		expect(cache.delete).toHaveBeenCalledTimes(2);
 		expect(cache.delete).not.toHaveBeenCalledWith("gateway:static:v3:ws_other:model");
 	});
@@ -110,6 +110,8 @@ describe("account deletion purge", () => {
 			deadline_at: "2026-09-29T00:00:00.000Z",
 			r2_objects_deleted: 0,
 			kv_keys_deleted: 0,
+			kv_scan_cursor: null,
+			attempts: 1,
 		}];
 
 		const summary = await runAccountDeletionPurgeJob({ now: new Date("2026-08-30T00:00:00.000Z") });
@@ -137,11 +139,41 @@ describe("account deletion purge", () => {
 			deadline_at: "2026-09-29T00:00:00.000Z",
 			r2_objects_deleted: 0,
 			kv_keys_deleted: 0,
+			kv_scan_cursor: null,
+			attempts: 1,
 		}];
 
 		const summary = await runAccountDeletionPurgeJob({ now: new Date("2026-08-30T00:00:00.000Z") });
 
 		expect(summary).toMatchObject({ claimed: 1, completed: 0, failed: 1 });
 		expect(runtime.updates[0]).toMatchObject({ status: "failed", last_error: "auth_user_still_exists" });
+	});
+
+	it("persists and resumes a bounded KV scan instead of restarting at the namespace head", async () => {
+		let calls = 0;
+		const list = vi.fn(async ({ cursor }: { cursor?: string }) => {
+			calls += 1;
+			if (cursor === "cursor-100") {
+				return { keys: [], list_complete: true, cacheStatus: null };
+			}
+			return { keys: [], list_complete: false, cursor: `cursor-${calls}`, cacheStatus: null };
+		});
+		runtime.kv = { list, delete: vi.fn() } as unknown as KVNamespace;
+		runtime.claimedJobs = [{
+			id: "job_1", user_id: null, workspace_ids: [], key_ids: [], key_kids: [],
+			deadline_at: "2026-09-29T00:00:00.000Z", r2_objects_deleted: 0, kv_keys_deleted: 0,
+			kv_scan_cursor: null, attempts: 1,
+		}];
+
+		const first = await runAccountDeletionPurgeJob({ now: new Date("2026-08-30T00:00:00.000Z") });
+		expect(first).toMatchObject({ completed: 0, deferred: 1, failed: 0 });
+		expect(runtime.updates[0]).toMatchObject({ status: "pending", kv_scan_cursor: "cursor-100" });
+
+		runtime.updates = [];
+		runtime.claimedJobs[0].kv_scan_cursor = "cursor-100";
+		const second = await runAccountDeletionPurgeJob({ now: new Date("2026-08-30T00:05:00.000Z") });
+		expect(second).toMatchObject({ completed: 1, deferred: 0, failed: 0 });
+		expect(list).toHaveBeenLastCalledWith({ cursor: "cursor-100", limit: 1000 });
+		expect(runtime.updates[0]).toMatchObject({ status: "completed", kv_scan_cursor: null });
 	});
 });

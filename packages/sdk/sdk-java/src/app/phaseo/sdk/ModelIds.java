@@ -379,9 +379,6 @@ public final class ModelIds {
     /** Model ID: <code>google/gemini-embedding-2</code>. Model page: https://phaseo.app/models/google/gemini-embedding-2 */
     public static final String GOOGLE_GEMINI_EMBEDDING_2 = "google/gemini-embedding-2";
 
-    /** Model ID: <code>google/gemini-robotics-er-1.6-preview</code>. Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview */
-    public static final String GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW = "google/gemini-robotics-er-1.6-preview";
-
     /** Model ID: <code>google/gemini-robotics-er-2-preview</code>. Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview */
     public static final String GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW = "google/gemini-robotics-er-2-preview";
 
@@ -564,6 +561,9 @@ public final class ModelIds {
 
     /** Model ID: <code>mindai/macaron-v1-venti</code>. Model page: https://phaseo.app/models/mindai/macaron-v1-venti */
     public static final String MINDAI_MACARON_V1_VENTI = "mindai/macaron-v1-venti";
+
+    /** Model ID: <code>minimax/h3</code>. Model page: https://phaseo.app/models/minimax/h3 */
+    public static final String MINIMAX_H3 = "minimax/h3";
 
     /** Model ID: <code>minimax/hailuo-02</code>. Model page: https://phaseo.app/models/minimax/hailuo-02 */
     public static final String MINIMAX_HAILUO_02 = "minimax/hailuo-02";
@@ -763,24 +763,6 @@ public final class ModelIds {
     /** Model ID: <code>moonshotai/kimi-k3-fast</code>. Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast */
     public static final String MOONSHOTAI_KIMI_K3_FAST = "moonshotai/kimi-k3-fast";
 
-    /** Model ID: <code>moonshotai/moonshot-v1-128k</code>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k */
-    public static final String MOONSHOTAI_MOONSHOT_V1_128K = "moonshotai/moonshot-v1-128k";
-
-    /** Model ID: <code>moonshotai/moonshot-v1-128k-vision-preview</code>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k-vision-preview */
-    public static final String MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW = "moonshotai/moonshot-v1-128k-vision-preview";
-
-    /** Model ID: <code>moonshotai/moonshot-v1-32k</code>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k */
-    public static final String MOONSHOTAI_MOONSHOT_V1_32K = "moonshotai/moonshot-v1-32k";
-
-    /** Model ID: <code>moonshotai/moonshot-v1-32k-vision-preview</code>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k-vision-preview */
-    public static final String MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW = "moonshotai/moonshot-v1-32k-vision-preview";
-
-    /** Model ID: <code>moonshotai/moonshot-v1-8k</code>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k */
-    public static final String MOONSHOTAI_MOONSHOT_V1_8K = "moonshotai/moonshot-v1-8k";
-
-    /** Model ID: <code>moonshotai/moonshot-v1-8k-vision-preview</code>. Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview */
-    public static final String MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW = "moonshotai/moonshot-v1-8k-vision-preview";
-
     /** Model ID: <code>morph/morph-compactor</code>. Model page: https://phaseo.app/models/morph/morph-compactor */
     public static final String MORPH_MORPH_COMPACTOR = "morph/morph-compactor";
 
@@ -805,20 +787,8 @@ public final class ModelIds {
     /** Model ID: <code>nousresearch/hermes-4-405b</code>. Model page: https://phaseo.app/models/nousresearch/hermes-4-405b */
     public static final String NOUSRESEARCH_HERMES_4_405B = "nousresearch/hermes-4-405b";
 
-    /** Model ID: <code>nousresearch/hermes-4-70b</code>. Model page: https://phaseo.app/models/nousresearch/hermes-4-70b */
-    public static final String NOUSRESEARCH_HERMES_4_70B = "nousresearch/hermes-4-70b";
-
-    /** Model ID: <code>nvidia/cosmos3-super-reasoner</code>. Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner */
-    public static final String NVIDIA_COSMOS3_SUPER_REASONER = "nvidia/cosmos3-super-reasoner";
-
-    /** Model ID: <code>nvidia/llama-3.1-nemotron-ultra-253b</code>. Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b */
-    public static final String NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B = "nvidia/llama-3.1-nemotron-ultra-253b";
-
     /** Model ID: <code>nvidia/nemotron-3-nano-30b-a3b</code>. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b */
     public static final String NVIDIA_NEMOTRON_3_NANO_30B_A3B = "nvidia/nemotron-3-nano-30b-a3b";
-
-    /** Model ID: <code>nvidia/nemotron-3-nano-omni</code>. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni */
-    public static final String NVIDIA_NEMOTRON_3_NANO_OMNI = "nvidia/nemotron-3-nano-omni";
 
     /** Model ID: <code>nvidia/nemotron-3-super-120b-a12b</code>. Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b */
     public static final String NVIDIA_NEMOTRON_3_SUPER_120B_A12B = "nvidia/nemotron-3-super-120b-a12b";
@@ -1395,6 +1365,12 @@ public final class ModelIds {
 
     /** Model ID: <code>qwen/wan2.7-t2v</code>. Model page: https://phaseo.app/models/qwen/wan2.7-t2v */
     public static final String QWEN_WAN2_7_T2V = "qwen/wan2.7-t2v";
+
+    /** Model ID: <code>qwen/wan3.0-video</code>. Model page: https://phaseo.app/models/qwen/wan3.0-video */
+    public static final String QWEN_WAN3_0_VIDEO = "qwen/wan3.0-video";
+
+    /** Model ID: <code>qwen/wan3.0-video-prime</code>. Model page: https://phaseo.app/models/qwen/wan3.0-video-prime */
+    public static final String QWEN_WAN3_0_VIDEO_PRIME = "qwen/wan3.0-video-prime";
 
     /** Model ID: <code>reka-edge</code>. Model page: https://phaseo.app/models/reka-edge */
     public static final String REKA_EDGE = "reka-edge";

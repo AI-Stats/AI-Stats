@@ -215,6 +215,7 @@
     "startLiveChat": "ライブチャットを開始",
     "chatUnavailable": "ライブチャットを利用できません",
     "sendEmail": "メールを送る",
+    "createTicket": "チケットを作成",
     "openChatNewTab": "新しいタブでチャットを開く",
     "privateReplyBody": "アカウント情報、請求情報、リクエストID、スクリーンショットを含む場合は、代わりに非公開のサポートチケットを選択してください。",
     "repliesResumeSoon": "サポートからの返信はまもなく再開します。",

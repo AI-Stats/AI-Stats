@@ -138,6 +138,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					{ href: "/settings/workspaces/settings", label: "General" },
 					{ href: "/settings/workspaces/members", label: "Members" },
 					{ href: "/settings/workspaces/access", label: "Access" },
+					{ href: "/settings/workspaces/activity", label: "Activity" },
 					{ href: "/settings/notifications", label: "Notifications" },
 				],
 			},

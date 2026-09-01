@@ -22,11 +22,16 @@ import HomeModelUpdatesSection, {
 } from "@/components/landingPage/Home/HomeModelUpdatesSection";
 import HomeOpenSourceSection from "@/components/landingPage/Home/HomeOpenSourceSection";
 import HomeQuickstartSection from "@/components/landingPage/Home/HomeQuickstartSection";
+import {
+	buildHomeModelPrices,
+	type HomeModelPrices,
+} from "@/components/landingPage/Home/homeModelIntel";
 import HomeReliabilitySection from "@/components/landingPage/Home/HomeReliabilitySection";
 import PartnerLogos from "@/components/landingPage/PartnerLogos/PartnerLogos";
 import { Logo } from "@/components/Logo";
 import { HomepageModelContext } from "@/components/agents/HomepageModelContext";
 import { Button } from "@/components/ui/button";
+import { fetchFrontendGatewayModels } from "@/lib/fetchers/frontend/fetchFrontendGatewayModels";
 import Script from "next/script";
 import {
 	PREFERRED_SITE_NAME,
@@ -185,7 +190,15 @@ function LandingSecondarySections({ isBeta, t }: { isBeta: boolean; t: HomeTrans
 	);
 }
 
-function LandingPage({ isBeta, t }: { isBeta: boolean; t: HomeTranslator }) {
+function LandingPage({
+	isBeta,
+	t,
+	modelPrices,
+}: {
+	isBeta: boolean;
+	t: HomeTranslator;
+	modelPrices: HomeModelPrices;
+}) {
 	return (
 		<div className="container mx-auto mt-16 mb-20 px-4 sm:mt-20 sm:px-6 lg:px-8">
 			<div className="space-y-14">
@@ -251,7 +264,10 @@ function LandingPage({ isBeta, t }: { isBeta: boolean; t: HomeTranslator }) {
 						</div>
 					</div>
 
-					<HomeQuickstartSection variant={isBeta ? "beta" : "default"} />
+					<HomeQuickstartSection
+						variant={isBeta ? "beta" : "default"}
+						modelPrices={modelPrices}
+					/>
 				</section>
 				<LandingSecondarySections isBeta={isBeta} t={t} />
 			</div>
@@ -261,7 +277,15 @@ function LandingPage({ isBeta, t }: { isBeta: boolean; t: HomeTranslator }) {
 
 export default async function Page() {
 	const t = await getTranslations("Site.home");
-	const heroVariant = await getGatewayHeroVariant();
+	const [heroVariant, modelPrices] = await Promise.all([
+		getGatewayHeroVariant(),
+		fetchFrontendGatewayModels()
+			.then(buildHomeModelPrices)
+			.catch((error) => {
+				console.warn("[Homepage] failed to load gateway model prices", error);
+				return {};
+			}),
+	]);
 	const softwareApplicationSchema = {
 		"@context": "https://schema.org",
 		"@type": "SoftwareApplication",
@@ -324,7 +348,11 @@ export default async function Page() {
 				}}
 			/>
 			<HomepageModelContext />
-			<LandingPage isBeta={heroVariant === "experimental"} t={t as unknown as HomeTranslator} />
+			<LandingPage
+				isBeta={heroVariant === "experimental"}
+				t={t as unknown as HomeTranslator}
+				modelPrices={modelPrices}
+			/>
 		</>
 	);
 }

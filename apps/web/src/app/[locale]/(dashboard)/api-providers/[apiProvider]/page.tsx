@@ -8,7 +8,7 @@ import {
 import ProviderModelsClient from "./models/ProviderModelsClient";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import Script from "next/script";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { buildLocalizedPageMetadata } from "@/lib/auth/localized-metadata";
@@ -155,20 +155,8 @@ export default async function Page({
 		<>
 			{structuredData && (
 				<>
-					<Script
-						id="provider-org-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="provider-breadcrumb-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.breadcrumbSchema),
-						}}
-					/>
+					<JsonLdScript id="provider-org-schema" data={structuredData.organizationSchema} />
+					<JsonLdScript id="provider-breadcrumb-schema" data={structuredData.breadcrumbSchema} />
 				</>
 			)}
 			<APIProviderDetailShell apiProviderId={apiProvider} tocItems={[{ id: "performance", label: t("performance") }, { id: "token-usage", label: t("tokenUsage") }, { id: "top-models", label: t("topModels") }, { id: "top-apps", label: t("topApps") }, { id: "models", label: t("models") }]}>

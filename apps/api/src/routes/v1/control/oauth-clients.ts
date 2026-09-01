@@ -24,6 +24,7 @@ import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES, GATEWAY_ACCESS_SCOPE, normalizeScopeList } from "@/lib/authz/capabilities";
 import { requireCapability, requireOAuthWorkspaceRole } from "./route-helpers";
 import { createOpaqueCode, hashOAuthClientSecret, isThirdPartyOAuthEnabled } from "@/lib/oauth/service";
+import { recordWorkspaceAuditEvent } from "@/lib/audit/workspaceAudit";
 
 const app = new Hono<Env>();
 const PAGE_SIZE = 5000;
@@ -44,6 +45,7 @@ function readAuthContext(ctx: Env["Variables"]["ctx"] | undefined): {
 	userId: string | null;
 	authMethod: "api_key" | "oauth" | null;
 	scopes: string[];
+	requestId: string | null;
 } {
 	const authMethod = ctx?.authMethod;
 	const scopes = ctx?.scopes;
@@ -52,6 +54,7 @@ function readAuthContext(ctx: Env["Variables"]["ctx"] | undefined): {
 		userId: typeof ctx?.userId === "string" ? ctx.userId : null,
 		authMethod: authMethod === "api_key" || authMethod === "oauth" ? authMethod : null,
 		scopes: Array.isArray(scopes) ? scopes.filter((scope): scope is string => typeof scope === "string") : [],
+		requestId: typeof ctx?.requestId === "string" ? ctx.requestId : null,
 	};
 }
 
@@ -71,6 +74,7 @@ app.use("*", async (c, next) => {
 			internal: auth.value.internal,
 			authMethod: auth.value.authMethod ?? null,
 			scopes: auth.value.scopes ?? auth.value.oauthScopes ?? [],
+			requestId: auth.value.requestId ?? null,
 		});
 		return await next();
 	} finally {
@@ -279,6 +283,19 @@ function serializeOAuthClientRecord(
 	};
 }
 
+async function auditOAuthClient(auth: ReturnType<typeof readAuthContext>, action: string, client: Record<string, unknown>) {
+	if (!auth.workspaceId) return;
+	await recordWorkspaceAuditEvent(getSupabaseAdmin(), {
+		workspaceId: auth.workspaceId,
+		actorUserId: auth.userId,
+		action,
+		targetType: "oauth_client",
+		targetId: String(client.client_id ?? ""),
+		targetName: String(client.name ?? "") || null,
+		requestId: auth.requestId,
+	});
+}
+
 function thirdPartyOAuthComingSoon() {
 	return new Response(
 		JSON.stringify({
@@ -381,6 +398,7 @@ app.post("/", async (c) => {
 			console.error("Error storing OAuth metadata:", metadataError);
 			return c.json({ error: "Failed to create OAuth app" }, 500);
 		}
+		await auditOAuthClient(authCtx, "oauth_client.created", metadata as Record<string, unknown>);
 
 		return c.json(
 			serializeOAuthClientRecord(
@@ -587,6 +605,7 @@ app.patch("/:clientId", async (c) => {
 			console.error("Error updating OAuth metadata:", metadataError);
 			return c.json({ error: "Failed to update OAuth app" }, 500);
 		}
+		await auditOAuthClient(authCtx, "oauth_client.updated", updated as Record<string, unknown>);
 
 		return c.json(serializeOAuthClientRecord(updated as Record<string, unknown>));
 	} catch (error: any) {
@@ -619,7 +638,7 @@ app.delete("/:clientId", async (c) => {
 		// Verify ownership before deleting
 		const { data: app, error: fetchError } = await supabase
 			.from("oauth_app_metadata")
-			.select("client_id")
+			.select("client_id, name")
 			.eq("client_id", clientId)
 			.eq("workspace_id", authCtx.workspaceId)
 			.single();
@@ -660,6 +679,7 @@ app.delete("/:clientId", async (c) => {
 			console.error("Error deleting OAuth metadata:", deleteError);
 			return c.json({ error: "Failed to delete OAuth app metadata" }, 500);
 		}
+		await auditOAuthClient(authCtx, "oauth_client.deleted", app as Record<string, unknown>);
 
 		return c.json({
 			message: "OAuth app deleted successfully",
@@ -695,7 +715,7 @@ app.post("/:clientId/regenerate-secret", async (c) => {
 		// Verify ownership
 		const { data: app, error: fetchError } = await supabase
 			.from("oauth_app_metadata")
-			.select("client_id, client_type")
+			.select("client_id, client_type, name")
 			.eq("client_id", clientId)
 			.eq("workspace_id", authCtx.workspaceId)
 			.single();
@@ -722,6 +742,7 @@ app.post("/:clientId/regenerate-secret", async (c) => {
 			console.error("Error regenerating OAuth secret:", secretError);
 			return c.json({ error: "Failed to regenerate secret" }, 500);
 		}
+		await auditOAuthClient(authCtx, "oauth_client.secret_regenerated", app as Record<string, unknown>);
 
 		return c.json({
 			client_id: clientId,
@@ -735,4 +756,3 @@ app.post("/:clientId/regenerate-secret", async (c) => {
 });
 
 export default app;
-

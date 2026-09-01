@@ -54,6 +54,10 @@ test("backend-ts emits stable file set", async () => {
 	assert.ok(widgetModel?.contents.includes("export interface Widget"));
 	const clientFile = files.find((file) => file.path === "client/default.ts");
 	assert.ok(clientFile?.contents.includes("getWidget"));
+	assert.ok(clientFile?.contents.includes("path: {"));
+	assert.ok(clientFile?.contents.includes("args: GetWidgetParams"));
+	assert.ok(!clientFile?.contents.includes("args: GetWidgetParams = {}"));
+	assert.ok(clientFile?.contents.includes('String(path["id"])'));
 });
 
 test("backend-ts parenthesizes array item unions", async () => {

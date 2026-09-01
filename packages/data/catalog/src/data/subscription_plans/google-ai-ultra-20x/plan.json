@@ -1,6 +1,6 @@
 {
   "plan_id": "google-ai-ultra-20x",
-  "name": "Gemini Ultra 20x",
+  "name": "Google AI Ultra 20x",
   "organisation_id": "google",
   "description": null,
   "pricing_options": [
@@ -51,15 +51,15 @@
   ],
   "models": [
     {
-      "model_id": "google/gemini-3-flash-preview",
+      "model_id": "google/gemini-3.6-flash",
       "model_info": "Fast",
-      "rate_limit": "General Access",
+      "rate_limit": "20x Pro usage limits",
       "other_info": null
     },
     {
-      "model_id": "google/gemini-3.1-pro-preview",
+      "model_id": "google/gemini-3.1-pro",
       "model_info": "Pro / Thinking",
-      "rate_limit": "20x higher usage limits vs. Google AI Pro",
+      "rate_limit": "20x Pro usage limits",
       "other_info": null
     }
   ]

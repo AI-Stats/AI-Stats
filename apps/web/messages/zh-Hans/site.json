@@ -217,6 +217,7 @@
     "startLiveChat": "开始在线聊天",
     "chatUnavailable": "在线聊天不可用",
     "sendEmail": "发送电子邮件",
+    "createTicket": "创建工单",
     "openChatNewTab": "在新标签页中打开聊天",
     "privateReplyBody": "如果内容包含账户详情、账单信息、请求 ID 或截图，请改选私密支持工单。",
     "methods": {

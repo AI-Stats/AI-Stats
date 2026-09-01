@@ -215,6 +215,7 @@
     "startLiveChat": "Start live chat",
     "chatUnavailable": "Live chat unavailable",
     "sendEmail": "Send email",
+    "createTicket": "Create ticket",
     "openChatNewTab": "Open chat in new tab",
     "privateReplyBody": "If this includes account details, billing information, request IDs, or screenshots, choose a private support ticket instead.",
     "repliesResumeSoon": "Support replies resume soon.",

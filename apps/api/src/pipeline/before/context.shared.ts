@@ -29,6 +29,19 @@ export function round3(value: number): number {
 	return Math.round(value * 1000) / 1000;
 }
 
+export function getProviderPricingKey(
+	providerId: string,
+	apiModelId?: string | null,
+	providerModelSlug?: string | null,
+): string {
+	const provider = providerId.trim();
+	const model = apiModelId?.trim();
+	const route = providerModelSlug?.trim().toLowerCase();
+	if (model && route) return `${provider}:${model}:${route}`;
+	if (model) return `${provider}:${model}`;
+	return provider;
+}
+
 function toUnixSeconds(date: Date): number {
 	return Math.floor(date.getTime() / 1000);
 }
@@ -110,6 +123,7 @@ export function computeCreditSnapshotTtlForContext(context: GatewayContextData):
 }
 
 export function hasConfiguredKeyLimits(keyLimit: GatewayContextData["keyLimit"]): boolean {
+	if ((keyLimit?.budgets?.length ?? 0) > 0) return true;
 	const buckets = keyLimit?.buckets ?? null;
 	return [buckets?.daily, buckets?.weekly, buckets?.monthly].some((bucket) =>
 		Boolean(
@@ -321,6 +335,7 @@ export function cloneGatewayContextData(value: GatewayContextData): GatewayConte
 		keyLimit: value.keyLimit
 			? {
 					...value.keyLimit,
+					budgets: value.keyLimit.budgets?.map((budget) => ({ ...budget })) ?? value.keyLimit.budgets ?? null,
 					buckets: value.keyLimit.buckets
 						? {
 								daily: value.keyLimit.buckets.daily

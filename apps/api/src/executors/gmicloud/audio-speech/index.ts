@@ -27,6 +27,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const extensions = (vendor?.gmicloud ?? raw.gmicloud ?? vendor?.minimax ?? raw.minimax ?? {}) as Record<string, any>;
 	const format = ir.responseFormat ?? ir.format ?? "mp3";
 	const payload: Record<string, unknown> = {
+		// Provider extensions are untrusted request data. Apply them first so
+		// canonical fields below cannot be replaced by an extension key.
 		...extensions,
 		text: ir.input,
 		...(voiceName(ir.voice) ? { voice_id: voiceName(ir.voice) } : {}),

@@ -506,10 +506,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-embedding-2
     GOOGLE_GEMINI_EMBEDDING_2: Final[str] = "google/gemini-embedding-2"
 
-    # Model ID: google/gemini-robotics-er-1.6-preview
-    # Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
-    GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: Final[str] = "google/gemini-robotics-er-1.6-preview"
-
     # Model ID: google/gemini-robotics-er-2-preview
     # Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview
     GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW: Final[str] = "google/gemini-robotics-er-2-preview"
@@ -753,6 +749,10 @@ class ModelIds:
     # Model ID: mindai/macaron-v1-venti
     # Model page: https://phaseo.app/models/mindai/macaron-v1-venti
     MINDAI_MACARON_V1_VENTI: Final[str] = "mindai/macaron-v1-venti"
+
+    # Model ID: minimax/h3
+    # Model page: https://phaseo.app/models/minimax/h3
+    MINIMAX_H3: Final[str] = "minimax/h3"
 
     # Model ID: minimax/hailuo-02
     # Model page: https://phaseo.app/models/minimax/hailuo-02
@@ -1018,30 +1018,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast
     MOONSHOTAI_KIMI_K3_FAST: Final[str] = "moonshotai/kimi-k3-fast"
 
-    # Model ID: moonshotai/moonshot-v1-128k
-    # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k
-    MOONSHOTAI_MOONSHOT_V1_128K: Final[str] = "moonshotai/moonshot-v1-128k"
-
-    # Model ID: moonshotai/moonshot-v1-128k-vision-preview
-    # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k-vision-preview
-    MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW: Final[str] = "moonshotai/moonshot-v1-128k-vision-preview"
-
-    # Model ID: moonshotai/moonshot-v1-32k
-    # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k
-    MOONSHOTAI_MOONSHOT_V1_32K: Final[str] = "moonshotai/moonshot-v1-32k"
-
-    # Model ID: moonshotai/moonshot-v1-32k-vision-preview
-    # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-32k-vision-preview
-    MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW: Final[str] = "moonshotai/moonshot-v1-32k-vision-preview"
-
-    # Model ID: moonshotai/moonshot-v1-8k
-    # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k
-    MOONSHOTAI_MOONSHOT_V1_8K: Final[str] = "moonshotai/moonshot-v1-8k"
-
-    # Model ID: moonshotai/moonshot-v1-8k-vision-preview
-    # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview
-    MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW: Final[str] = "moonshotai/moonshot-v1-8k-vision-preview"
-
     # Model ID: morph/morph-compactor
     # Model page: https://phaseo.app/models/morph/morph-compactor
     MORPH_MORPH_COMPACTOR: Final[str] = "morph/morph-compactor"
@@ -1074,25 +1050,9 @@ class ModelIds:
     # Model page: https://phaseo.app/models/nousresearch/hermes-4-405b
     NOUSRESEARCH_HERMES_4_405B: Final[str] = "nousresearch/hermes-4-405b"
 
-    # Model ID: nousresearch/hermes-4-70b
-    # Model page: https://phaseo.app/models/nousresearch/hermes-4-70b
-    NOUSRESEARCH_HERMES_4_70B: Final[str] = "nousresearch/hermes-4-70b"
-
-    # Model ID: nvidia/cosmos3-super-reasoner
-    # Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner
-    NVIDIA_COSMOS3_SUPER_REASONER: Final[str] = "nvidia/cosmos3-super-reasoner"
-
-    # Model ID: nvidia/llama-3.1-nemotron-ultra-253b
-    # Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b
-    NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B: Final[str] = "nvidia/llama-3.1-nemotron-ultra-253b"
-
     # Model ID: nvidia/nemotron-3-nano-30b-a3b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b
     NVIDIA_NEMOTRON_3_NANO_30B_A3B: Final[str] = "nvidia/nemotron-3-nano-30b-a3b"
-
-    # Model ID: nvidia/nemotron-3-nano-omni
-    # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
-    NVIDIA_NEMOTRON_3_NANO_OMNI: Final[str] = "nvidia/nemotron-3-nano-omni"
 
     # Model ID: nvidia/nemotron-3-super-120b-a12b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
@@ -1862,6 +1822,14 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/wan2.7-t2v
     QWEN_WAN2_7_T2V: Final[str] = "qwen/wan2.7-t2v"
 
+    # Model ID: qwen/wan3.0-video
+    # Model page: https://phaseo.app/models/qwen/wan3.0-video
+    QWEN_WAN3_0_VIDEO: Final[str] = "qwen/wan3.0-video"
+
+    # Model ID: qwen/wan3.0-video-prime
+    # Model page: https://phaseo.app/models/qwen/wan3.0-video-prime
+    QWEN_WAN3_0_VIDEO_PRIME: Final[str] = "qwen/wan3.0-video-prime"
+
     # Model ID: reka-edge
     # Model page: https://phaseo.app/models/reka-edge
     REKA_EDGE: Final[str] = "reka-edge"
@@ -2388,7 +2356,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.GOOGLE_GEMINI_3_7_FLASH,
         ModelIds.GOOGLE_GEMINI_EMBEDDING_001,
         ModelIds.GOOGLE_GEMINI_EMBEDDING_2,
-        ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
         ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
         ModelIds.GOOGLE_GEMMA_3_12B,
         ModelIds.GOOGLE_GEMMA_3_27B,
@@ -2450,6 +2417,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MICROSOFT_WIZARDLM_2_8X22B,
         ModelIds.MINDAI_MACARON_V1_TALL,
         ModelIds.MINDAI_MACARON_V1_VENTI,
+        ModelIds.MINIMAX_H3,
         ModelIds.MINIMAX_HAILUO_02,
         ModelIds.MINIMAX_HAILUO_2_3,
         ModelIds.MINIMAX_HAILUO_2_3_FAST,
@@ -2516,12 +2484,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MOONSHOTAI_KIMI_K2_7_CODE,
         ModelIds.MOONSHOTAI_KIMI_K3,
         ModelIds.MOONSHOTAI_KIMI_K3_FAST,
-        ModelIds.MOONSHOTAI_MOONSHOT_V1_128K,
-        ModelIds.MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW,
-        ModelIds.MOONSHOTAI_MOONSHOT_V1_32K,
-        ModelIds.MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW,
-        ModelIds.MOONSHOTAI_MOONSHOT_V1_8K,
-        ModelIds.MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW,
         ModelIds.MORPH_MORPH_COMPACTOR,
         ModelIds.MORPH_MORPH_V3_FAST,
         ModelIds.MORPH_MORPH_V3_LARGE,
@@ -2530,11 +2492,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.NOUS_HERMES_3_LLAMA_3_1_405B,
         ModelIds.NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B,
         ModelIds.NOUSRESEARCH_HERMES_4_405B,
-        ModelIds.NOUSRESEARCH_HERMES_4_70B,
-        ModelIds.NVIDIA_COSMOS3_SUPER_REASONER,
-        ModelIds.NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B,
         ModelIds.NVIDIA_NEMOTRON_3_NANO_30B_A3B,
-        ModelIds.NVIDIA_NEMOTRON_3_NANO_OMNI,
         ModelIds.NVIDIA_NEMOTRON_3_SUPER_120B_A12B,
         ModelIds.NVIDIA_NEMOTRON_3_ULTRA_550B_A55B,
         ModelIds.NVIDIA_NEMOTRON_3_5_LIGHTNING,
@@ -2727,6 +2685,8 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_TEXT_EMBEDDING_V3,
         ModelIds.QWEN_TEXT_EMBEDDING_V4,
         ModelIds.QWEN_WAN2_7_T2V,
+        ModelIds.QWEN_WAN3_0_VIDEO,
+        ModelIds.QWEN_WAN3_0_VIDEO_PRIME,
         ModelIds.REKA_EDGE,
         ModelIds.REKA_EDGE_2603,
         ModelIds.REKA_FLASH,

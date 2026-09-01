@@ -67,6 +67,7 @@ const labelOverrides: Partial<Record<KnownLogoId, string>> = {
 	"perplexity-agent": "Perplexity Agent",
 	poe: "Poe",
 	"qiniu-ai": "Qiniu AI",
+	runinfra: "RunInfra",
 	sakana: "Sakana AI",
 	stepfun: "StepFun",
 	submodel: "SubModel",

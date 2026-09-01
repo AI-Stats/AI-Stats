@@ -1,3 +1,6 @@
+/**
+ * Legacy unpaginated analytics response retained for SDK source compatibility.
+ */
 export interface ActivityResponse {
   data: {
     byok_usage_inference: number;

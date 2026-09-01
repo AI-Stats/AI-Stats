@@ -232,7 +232,15 @@
             "provider_min": null,
             "provider_max": null,
             "provider_default": "medium",
-            "notes": "reasoning_effort supports none, low, medium, or high only on Aion 2.0."
+            "notes": "Phaseo reasoning controls map to Aion's reasoning_effort field."
+          },
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "medium",
+            "values": ["none", "low", "medium", "high"],
+            "notes": "Aion's native effort field."
           },
           {
             "param_id": "reasoning_split",
@@ -271,11 +279,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "sources": [
+      { "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" },
+      { "kind": "documentation", "url": "https://api.aionlabs.ai/docs/api-reference/", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents reasoning_effort on Aion 2.0, Aion 3.0, and Aion 3.0 Mini with none, low, medium, and high values." }
+    ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-21T00:00:00Z",
-      "notes": "Verified as currently available against Aion Labs' live model endpoint."
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Availability verified against the live models endpoint; reasoning effort support verified against the current API reference."
     },
     "rate_limits": []
   },
@@ -448,8 +459,8 @@
             "param_id": "reasoning_split",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
-            "notes": "AION API Reference lists reasoning_effort as Aion 2.0-only; Aion 3.0 support is limited to reasoning_split."
+            "provider_default": true,
+            "notes": "Separates model reasoning from visible response text."
           },
           {
             "param_id": "metadata",
@@ -459,6 +470,14 @@
             "notes": null
           },
           "reasoning",
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "medium",
+            "values": ["none", "low", "medium", "high"],
+            "notes": "Aion's native effort field."
+          },
           "include_reasoning",
           "top_p",
           "response_format",
@@ -486,11 +505,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "sources": [
+      { "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" },
+      { "kind": "documentation", "url": "https://api.aionlabs.ai/docs/api-reference/", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents reasoning_effort on Aion 2.0, Aion 3.0, and Aion 3.0 Mini with none, low, medium, and high values." }
+    ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-21T00:00:00Z",
-      "notes": "Verified as currently available against Aion Labs' live model endpoint."
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Availability verified against the live models endpoint; reasoning effort support verified against the current API reference."
     },
     "rate_limits": []
   },
@@ -558,8 +580,8 @@
             "param_id": "reasoning_split",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": null,
-            "notes": "AION API Reference lists reasoning_effort as Aion 2.0-only; Aion 3.0 Mini support is limited to reasoning_split."
+            "provider_default": true,
+            "notes": "Separates model reasoning from visible response text."
           },
           {
             "param_id": "metadata",
@@ -569,6 +591,14 @@
             "notes": null
           },
           "reasoning",
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "medium",
+            "values": ["none", "low", "medium", "high"],
+            "notes": "Aion's native effort field."
+          },
           "include_reasoning",
           "top_p",
           "response_format",
@@ -596,11 +626,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "sources": [
+      { "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" },
+      { "kind": "documentation", "url": "https://api.aionlabs.ai/docs/api-reference/", "accessed_at": "2026-08-30T00:00:00Z", "notes": "Documents reasoning_effort on Aion 2.0, Aion 3.0, and Aion 3.0 Mini with none, low, medium, and high values." }
+    ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-21T00:00:00Z",
-      "notes": "Verified as currently available against Aion Labs' live model endpoint."
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Availability verified against the live models endpoint; reasoning effort support verified against the current API reference."
     },
     "rate_limits": []
   },

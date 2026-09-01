@@ -51,13 +51,13 @@
   ],
   "models": [
     {
-      "model_id": "anthropic/claude-sonnet-4.6",
+      "model_id": "anthropic/claude-sonnet-5",
       "model_info": null,
       "rate_limit": "1.25x Claude Pro usage",
       "other_info": null
     },
     {
-      "model_id": "anthropic/claude-sonnet-4.5",
+      "model_id": "anthropic/claude-fable-5",
       "model_info": null,
       "rate_limit": "1.25x Claude Pro usage",
       "other_info": null
@@ -69,13 +69,13 @@
       "other_info": null
     },
     {
-      "model_id": "anthropic/claude-opus-4.6",
+      "model_id": "anthropic/claude-opus-5",
       "model_info": null,
       "rate_limit": "Included subject to Team usage limits",
       "other_info": null
     },
     {
-      "model_id": "anthropic/claude-opus-4.5",
+      "model_id": "anthropic/claude-mythos-5",
       "model_info": null,
       "rate_limit": "Included subject to Team usage limits",
       "other_info": null

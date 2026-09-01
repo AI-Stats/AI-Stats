@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ErrorReporter } from "@/components/ErrorReporter";
 
 export default function GlobalError({
 	error,
@@ -28,7 +29,8 @@ export default function GlobalError({
 					minHeight: "100vh",
 					padding: "1.5rem",
 				}}
-			>
+		>
+				<ErrorReporter error={error} source="global" />
 				<main style={{ maxWidth: "28rem", textAlign: "center" }}>
 					<h1 style={{ fontSize: "1.5rem", margin: 0 }}>
 						Phaseo could not load this page

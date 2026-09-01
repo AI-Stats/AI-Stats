@@ -8,6 +8,45 @@ import { publicProviderDisplayName, publicProviderPayload, STEALTH_PROVIDER_DISP
 import { buildFreeRouterCatalogueRow, fetchFreeRouterOverview } from "@/models/free-router";
 import { withPublicCache, type PublicCachePolicy } from "@/http/cache";
 
+// Basic latency, throughput, and uptime observations are useful from the first
+// request. Keep a larger cohort only for derived cache telemetry, which can
+// reveal more about an individual request's token composition.
+const PUBLIC_PERFORMANCE_MIN_REQUESTS = 20;
+const PUBLIC_CACHE_TELEMETRY_MIN_REQUESTS = 20;
+
+function hasPublicPerformanceSample(value: unknown) {
+	return Number(value ?? 0) >= PUBLIC_PERFORMANCE_MIN_REQUESTS;
+}
+
+function hasPublicCacheTelemetrySample(value: unknown) {
+	return Number(value ?? 0) >= PUBLIC_CACHE_TELEMETRY_MIN_REQUESTS;
+}
+
+function suppressSmallPublicPerformanceCohorts(value: Record<string, any>): Record<string, any> {
+	const keep = (entry: unknown, field = "requests") => {
+		if (!entry || typeof entry !== "object") return false;
+		const row = entry as Record<string, unknown>;
+		return hasPublicPerformanceSample(row[field] ?? row.health_requests ?? row.sample_count);
+	};
+	const last24h = value.last_24h && typeof value.last_24h === "object"
+		&& hasPublicPerformanceSample(value.last_24h.total_requests)
+		? value.last_24h
+		: {};
+	const prev24h = value.prev_24h && typeof value.prev_24h === "object"
+		&& hasPublicPerformanceSample(value.prev_24h.total_requests)
+		? value.prev_24h
+		: {};
+	return {
+		...value,
+		last_24h: last24h,
+		prev_24h: prev24h,
+		hourly_24h: Array.isArray(value.hourly_24h) ? value.hourly_24h.filter((entry: unknown) => keep(entry)) : [],
+		provider_daily_7d: Array.isArray(value.provider_daily_7d) ? value.provider_daily_7d.filter((entry: unknown) => keep(entry)) : [],
+		time_of_day_5d: Array.isArray(value.time_of_day_5d) ? value.time_of_day_5d.filter((entry: unknown) => keep(entry, "sample_count")) : [],
+		quality_series: Array.isArray(value.quality_series) ? value.quality_series.filter((entry: unknown) => keep(entry)) : [],
+	};
+}
+
 const CACHE_PROFILES = {
 	catalogue: {
 		edgeTtlSeconds: 5 * 60,
@@ -306,7 +345,7 @@ async function modelAliases(env: Env, modelId: string): Promise<string[]> {
 	const aliases = new Set([modelId]);
 	const client = getDataClient(env);
 	const [routeResult, aliasResult] = await Promise.all([
-		client.from("v2_model_provider_routes").select("model_slug,provider_model_id,provider_model_slug").eq("model_slug", modelId),
+		client.from("v2_model_provider_routes").select("model_slug,provider_model_id,provider_model_slug").eq("model_slug", modelId).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]),
 		client.from("v2_model_aliases").select("alias_slug,model_slug").eq("model_slug", modelId).eq("enabled", true),
 	]);
 	for (const result of [routeResult, aliasResult]) {
@@ -343,17 +382,21 @@ async function resolveNoticeApiModelId(env: Env, modelId: string): Promise<strin
 	const [aliasResult, modelResult, routeIdResult, routeSlugResult] = await Promise.all([
 		client.from("v2_model_aliases").select("model_slug").eq("alias_slug", modelId).eq("enabled", true).maybeSingle(),
 		client.from("v2_models").select("model_slug").eq("model_slug", modelId).eq("hidden", false).maybeSingle(),
-		client.from("v2_model_provider_routes").select("model_slug").eq("provider_model_id", modelId).limit(1),
-		client.from("v2_model_provider_routes").select("model_slug").eq("provider_model_slug", modelId).limit(1),
+		client.from("v2_model_provider_routes").select("model_slug").eq("provider_model_id", modelId).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]).limit(1),
+		client.from("v2_model_provider_routes").select("model_slug").eq("provider_model_slug", modelId).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]).limit(1),
 	]);
 	for (const result of [aliasResult, modelResult, routeIdResult, routeSlugResult]) {
 		if (result.error) throw result.error;
 	}
-	return normalisedId(aliasResult.data?.model_slug)
+	const resolved = normalisedId(aliasResult.data?.model_slug)
 		?? normalisedId(modelResult.data?.model_slug)
 		?? normalisedId(routeIdResult.data?.[0]?.model_slug)
 		?? normalisedId(routeSlugResult.data?.[0]?.model_slug)
 		?? null;
+	if (!resolved) return null;
+	const visible = await client.from("v2_models").select("model_slug").eq("model_slug", resolved).eq("hidden", false).neq("status", "disabled").maybeSingle();
+	if (visible.error) throw visible.error;
+	return normalisedId(visible.data?.model_slug);
 }
 
 type ModelsCatalogueVersion = "v1" | "v2";
@@ -707,6 +750,64 @@ type ModelVariantSummary = {
 	variant_kind: string;
 };
 
+function modelContextLengths(metadata: unknown): number[] {
+	if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return [];
+	const limits = (metadata as Record<string, unknown>).limits;
+	if (!limits || typeof limits !== "object" || Array.isArray(limits)) return [];
+	const context = Number((limits as Record<string, unknown>).context);
+	return Number.isFinite(context) && context > 0 ? [Math.trunc(context)] : [];
+}
+
+/**
+ * The catalogue RPC intentionally composes a wide page projection. Keep the
+ * model detail page available if that projection is slow or unavailable by
+ * reading only the requested model and its lab.
+ */
+async function fetchTargetedModelOverview(
+	env: Env,
+	modelId: string,
+): Promise<Record<string, unknown> | null> {
+	const client = getDataClient(env);
+	const modelResult = await client
+		.from("v2_models")
+		.select("model_slug,name,description,lab_slug,status,catalogue_status,released_at,announced_at,input_modalities,output_modalities,metadata,hidden")
+		.eq("model_slug", modelId.trim().toLowerCase())
+		.eq("hidden", false)
+		.neq("status", "disabled")
+		.maybeSingle();
+	if (modelResult.error) throw modelResult.error;
+	const model = modelResult.data as Record<string, unknown> | null;
+	if (!model) return null;
+
+	const labResult = await client
+		.from("v2_labs")
+		.select("lab_slug,name,country_code")
+		.eq("lab_slug", String(model.lab_slug ?? ""))
+		.maybeSingle();
+	if (labResult.error) throw labResult.error;
+	const lab = labResult.data as Record<string, unknown> | null;
+	const catalogueStatus = String(model.catalogue_status ?? model.status ?? "unknown");
+	const normalizedCatalogueStatus = catalogueStatus.toLowerCase();
+	const gatewayStatus = ["draft", "announced"].includes(normalizedCatalogueStatus)
+		? "coming_soon"
+		: ["active", "available"].includes(normalizedCatalogueStatus)
+			? "active"
+			: "not_active";
+
+	return {
+		model_id: model.model_slug,
+		name: model.name,
+		description: model.description,
+		organisation_id: model.lab_slug,
+		organisation_name: lab?.name ?? model.lab_slug,
+		primary_date: model.released_at ?? model.announced_at ?? null,
+		gateway_status: gatewayStatus,
+		gateway_input_modalities: Array.isArray(model.input_modalities) ? model.input_modalities : [],
+		gateway_output_modalities: Array.isArray(model.output_modalities) ? model.output_modalities : [],
+		context_lengths: modelContextLengths(model.metadata),
+	};
+}
+
 async function fetchModelVariants(
 	env: Env,
 	modelId: string,
@@ -768,7 +869,6 @@ function v2ModelPageShape(
 }
 
 export const publicModelsRouter = new Hono<{ Bindings: Env }>();
-const PUBLIC_TELEMETRY_MIN_REQUESTS = 20;
 
 /** Main models API. Deliberately excludes volatile benchmark/performance data. */
 publicModelsRouter.get("/", async (c) => {
@@ -953,7 +1053,7 @@ publicModelsRouter.get("/provider-routing-health", async (c) => {
 		return withPublicCache(c.json({ providers }), sectionPolicy("routingHealth"));
 	} catch (error) {
 		console.error("[web-api/models] provider routing health failed", { providerIds, error });
-		return c.json({ error: "provider_routing_health_unavailable" }, 503);
+		return withPublicCache(c.json({ providers: {} }), sectionPolicy("routingHealth"));
 	}
 });
 
@@ -999,26 +1099,48 @@ publicModelsRouter.get("/:modelId", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
 		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_overview", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
-		});
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		const v2Overview = v2Result.data as Record<string, unknown> | null;
+		// The old overview RPC expands the entire public catalogue before it
+		// filters to one model. Model pages only need stable model facts here;
+		// fetch those facts directly so one slow catalogue row cannot take down
+		// every detail page.
+		const v2Overview = await fetchTargetedModelOverview(c.env, modelId);
 		if (v2Overview?.model_id) {
 			const canonicalModelId = String(v2Overview.model_id);
-			const [identityResult, aliasesResult, variants] = await Promise.all([
+			const [identityResult, aliasesResult, variantsResult] = await Promise.allSettled([
 				client.rpc("get_v2_model_identity", { p_model_slug: canonicalModelId }),
 				client.rpc("get_v2_model_aliases", { p_model_slug: canonicalModelId }),
 				fetchModelVariants(c.env, canonicalModelId),
 			]);
-			if (identityResult.error) throw identityResult.error;
-			if (aliasesResult.error) throw aliasesResult.error;
-			const aliases = (aliasesResult.data ?? [])
+			const identity = identityResult.status === "fulfilled" && !identityResult.value.error
+				? (identityResult.value.data as Record<string, unknown> | null)
+				: {};
+			const aliases = aliasesResult.status === "fulfilled" && !aliasesResult.value.error
+				? (aliasesResult.value.data ?? [])
 				.map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim())
-				.filter(Boolean);
-			const identity = identityResult.data as Record<string, unknown> | null;
+				.filter(Boolean)
+				: [];
+			const variants = variantsResult.status === "fulfilled" ? variantsResult.value : [];
+			if (identityResult.status === "rejected" || identityResult.value?.error) {
+				console.error("[web-api/models] optional overview enrichment failed", {
+					modelId,
+					enrichment: "identity",
+					error: identityResult.status === "rejected" ? identityResult.reason : identityResult.value.error,
+				});
+			}
+			if (aliasesResult.status === "rejected" || aliasesResult.value?.error) {
+				console.error("[web-api/models] optional overview enrichment failed", {
+					modelId,
+					enrichment: "aliases",
+					error: aliasesResult.status === "rejected" ? aliasesResult.reason : aliasesResult.value.error,
+				});
+			}
+			if (variantsResult.status === "rejected") {
+				console.error("[web-api/models] optional overview enrichment failed", {
+					modelId,
+					enrichment: "variants",
+					error: variantsResult.reason,
+				});
+			}
 			return withPublicCache(c.json({ model: v2ModelPageShape(v2Overview, aliases, identity ?? {}, variants) }), sectionPolicy("overview", modelId));
 		}
 		return notFound(c);
@@ -1066,18 +1188,11 @@ publicModelsRouter.get("/:modelId/realtime", async (c) => {
 				throughputs.push((tokens * 1_000) / generationMs);
 			}
 		}
-		const hasPublicSample = rows.length >= PUBLIC_TELEMETRY_MIN_REQUESTS;
-		const hasPublicLatencySample = latencies.length >= PUBLIC_TELEMETRY_MIN_REQUESTS;
-		const hasPublicThroughputSample = throughputs.length >= PUBLIC_TELEMETRY_MIN_REQUESTS;
-		return withPublicCache(c.json({
-			available: hasPublicSample,
-			minimumSampleSize: PUBLIC_TELEMETRY_MIN_REQUESTS,
-			stats: {
-				requestsInWindow: hasPublicSample ? rows.length : null,
-				latencyP50Ms: hasPublicLatencySample ? median(latencies) : null,
-				throughputP50TokPerSec: hasPublicThroughputSample ? median(throughputs) : null,
-			},
-		}), sectionPolicy("realtime", modelId));
+		return withPublicCache(c.json({ stats: {
+			requestsInWindow: rows.length,
+			latencyP50Ms: median(latencies),
+			throughputP50TokPerSec: median(throughputs),
+		} }), sectionPolicy("realtime", modelId));
 	} catch (error) {
 		console.error("[web-api/models] realtime stats failed", { modelId, error });
 		return c.json({ error: "model_realtime_unavailable" }, 503);
@@ -1128,21 +1243,19 @@ publicModelsRouter.get("/:modelId/header", async (c) => {
 	}
 	try {
 		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_overview", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
-		});
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		const v2Overview = v2Result.data as Record<string, unknown> | null;
+		const v2Overview = await fetchTargetedModelOverview(c.env, modelId);
 		if (v2Overview?.model_id) {
-			const [identityResult, aliasesResult] = await Promise.all([
+			const [identityResult, aliasesResult] = await Promise.allSettled([
 				client.rpc("get_v2_model_identity", { p_model_slug: String(v2Overview.model_id) }),
 				client.rpc("get_v2_model_aliases", { p_model_slug: String(v2Overview.model_id) }),
 			]);
-			if (identityResult.error) throw identityResult.error;
-			if (aliasesResult.error) throw aliasesResult.error;
-			const model = v2ModelPageShape(v2Overview, (aliasesResult.data ?? []).map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim()).filter(Boolean), (identityResult.data as Record<string, unknown> | null) ?? {});
+			const identity = identityResult.status === "fulfilled" && !identityResult.value.error
+				? (identityResult.value.data as Record<string, unknown> | null)
+				: {};
+			const aliases = aliasesResult.status === "fulfilled" && !aliasesResult.value.error
+				? (aliasesResult.value.data ?? []).map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim()).filter(Boolean)
+				: [];
+			const model = v2ModelPageShape(v2Overview, aliases, identity ?? {});
 			return withPublicCache(c.json({ header: {
 				model_id: model.model_id,
 				name: model.name,
@@ -1241,7 +1354,7 @@ publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
 		return withPublicCache(c.json({ rows: (result.data as Array<Record<string, unknown>>).map((row) => mapEffectivePricingDailyRow(row, stealthProviderIds)) }), sectionPolicy("effectivePricing", modelId));
 	} catch (error) {
 		console.error("[web-api/models] effective pricing daily failed", { modelId, error });
-		return c.json({ error: "model_effective_pricing_unavailable" }, 503);
+		return withPublicCache(c.json({ rows: [] }), sectionPolicy("effectivePricing", modelId));
 	}
 });
 
@@ -1257,12 +1370,15 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 		const v2 = await getDataClient(c.env).rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
 		if (!v2.error && Array.isArray(v2.data)) {
 			const rows = (v2.data as Array<Record<string, unknown>>)
-				.filter((row) => providerIds.includes(String(row.provider_id ?? "")) && Number(row.health_requests ?? row.requests ?? 0) >= 20)
+				.filter((row) => providerIds.includes(String(row.provider_id ?? "")) && hasPublicPerformanceSample(row.health_requests ?? row.requests))
 				.map((row) => ({ ...row, provider_id: publicProviderId(row.provider_id, stealthProviderIds) }));
 			return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
 		}
 		throw v2.error ?? new Error("V2 provider health query returned an invalid payload");
-	} catch (error) { console.error("[web-api/models] provider health failed", { modelId, error }); return c.json({ error: "model_provider_health_unavailable" }, 503); }
+	} catch (error) {
+		console.error("[web-api/models] provider health failed", { modelId, error });
+		return withPublicCache(c.json({ rows: [], source: "unavailable" }), sectionPolicy("providerHealth", modelId));
+	}
 });
 
 publicModelsRouter.get("/:modelId/pricing-history", async (c) => {
@@ -1505,7 +1621,7 @@ publicModelsRouter.get("/:modelId/performance/colos", async (c) => {
 			? (result.data as Array<Record<string, unknown>>).map((row) => ({
 				colo: String(row.cloudflare_colo ?? "").trim().toUpperCase(),
 				requests: Number(row.request_count ?? 0),
-			})).filter((row) => /^[A-Z0-9]{3}$/.test(row.colo) && row.requests >= PUBLIC_TELEMETRY_MIN_REQUESTS)
+			})).filter((row) => /^[A-Z0-9]{3}$/.test(row.colo) && hasPublicPerformanceSample(row.requests))
 			: [];
 		return withPublicCache(c.json({ modelId, colos }), sectionPolicy("performance", modelId));
 	} catch (error) {
@@ -1514,7 +1630,7 @@ publicModelsRouter.get("/:modelId/performance/colos", async (c) => {
 	}
 });
 
-/** 15-minute cache for the live-ish performance rollup; raw RPC payload preserves the source fidelity. */
+/** 15-minute cache for the live-ish performance rollup and seven-day hourly provider series. */
 publicModelsRouter.get("/:modelId/performance", async (c) => {
 	const modelId = c.req.param("modelId");
 	const cloudflareColo = c.req.query("colo")?.trim().toUpperCase() || null;
@@ -1527,7 +1643,8 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		: "all";
 	try {
 		const client = getDataClient(c.env);
-		const [v2, health, cachedInput] = await Promise.all([
+		const stealthProviderIds = await stealthProviderIdsForModel(c.env, modelId);
+		const [v2, health, cachedInput, providerHourly, qualityHourly] = await Promise.all([
 			client.rpc("get_v2_model_performance_metrics", {
 				p_model_slug: modelId,
 				p_cloudflare_colo: cloudflareColo,
@@ -1542,10 +1659,23 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 				p_stream_mode: streamMode,
 				p_context_bucket: contextBucket,
 			}),
+			client.rpc("get_v2_model_provider_hourly_performance_v2", {
+				p_model_slug: modelId,
+				p_cloudflare_colo: cloudflareColo,
+				p_percentile: percentile / 100,
+				p_stream_mode: streamMode,
+				p_context_bucket: contextBucket,
+			}),
+			client.rpc("get_v2_model_quality_hourly_v1", {
+				p_model_slug: modelId,
+				p_cloudflare_colo: cloudflareColo,
+				p_stream_mode: streamMode,
+				p_context_bucket: contextBucket,
+			}),
 		]);
 		let performance: Record<string, any> | null = null;
 		if (!v2.error && v2.data && !Array.isArray(v2.data) && typeof v2.data === "object") {
-			performance = v2.data as Record<string, any>;
+			performance = suppressSmallPublicPerformanceCohorts(v2.data as Record<string, any>);
 		} else if (v2.error && !/could not find|does not exist|PGRST202/i.test(v2.error.message ?? "")) {
 			throw v2.error;
 		} else throw v2.error ?? new Error("V2 performance query returned an invalid payload");
@@ -1560,44 +1690,74 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		) {
 			performance = {
 				...performance,
-				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).filter((row) => Number(row.health_requests ?? row.requests ?? 0) >= 20).map((row) => ({
-					provider: row.provider_id, provider_name: row.provider_name ?? row.provider_id, requests: row.health_requests ?? row.requests,
+				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).filter((row) => hasPublicPerformanceSample(row.health_requests ?? row.requests)).map((row) => {
+					const provider = publicProviderId(row.provider_id, stealthProviderIds);
+					return {
+					provider, provider_name: provider === "stealth" ? "stealth" : row.provider_name ?? row.provider_id, requests: row.health_requests ?? row.requests,
 					uptime_pct: row.uptime_pct, avg_latency_ms: row.percentile_latency_ms ?? row.avg_latency_ms, avg_generation_ms: null, avg_throughput: row.percentile_throughput ?? row.avg_throughput,
-					uptime_buckets: Array.isArray(row.buckets) ? row.buckets.filter((bucket) => Number((bucket as Record<string, unknown>).requests ?? (bucket as Record<string, unknown>).health_requests ?? 0) >= 20) : [],
-				})),
+					uptime_buckets: Array.isArray(row.buckets) ? row.buckets.filter((bucket) => hasPublicPerformanceSample((bucket as Record<string, unknown>).requests ?? (bucket as Record<string, unknown>).health_requests)) : [],
+					};
+				}),
 			};
 		}
 		if (!performance) return withPublicCache(c.json({ modelId, performance: null, metrics: null, activity: null }), sectionPolicy("performance", modelId));
-		const totalRequests = Number(performance.last_24h?.total_requests ?? 0);
-		if (totalRequests < PUBLIC_TELEMETRY_MIN_REQUESTS) {
-			return withPublicCache(c.json({
-				modelId,
-				performance: null,
-				metrics: null,
-				activity: null,
-				minimumSampleSize: PUBLIC_TELEMETRY_MIN_REQUESTS,
-			}), sectionPolicy("performance", modelId));
-		}
+		performance = {
+			...performance,
+			prev_24h: hasPublicPerformanceSample(performance.prev_24h?.total_requests)
+				? performance.prev_24h
+				: {},
+			last_24h: hasPublicPerformanceSample(performance.last_24h?.total_requests)
+				? performance.last_24h
+				: {},
+			hourly_24h: (performance.hourly_24h ?? []).filter((value: Record<string, unknown>) =>
+				hasPublicPerformanceSample(value.requests)),
+			provider_daily_7d: (performance.provider_daily_7d ?? []).filter((value: Record<string, unknown>) =>
+				hasPublicPerformanceSample(value.requests)),
+		};
 		const isKnownProvider = (value: Record<string, unknown>) => {
 			const provider = String(value.provider ?? "").trim().toLowerCase();
 			return provider.length > 0 && provider !== "unknown";
 		};
-		const rawSevenDayProviderCount = new Set(
-			(performance.provider_daily_7d ?? [])
-				.filter((row: Record<string, unknown>) => isKnownProvider(row) && Number(row.requests ?? 0) > 0)
-				.map((row: Record<string, unknown>) => String(row.provider ?? "").trim().toLowerCase()),
-		).size;
 		performance = {
 			...performance,
-			hourly_24h: (performance.hourly_24h ?? []).filter((row: Record<string, unknown>) => Number(row.requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
-			provider_uptime_24h: (performance.provider_uptime_24h ?? []).filter((row: Record<string, unknown>) => isKnownProvider(row) && Number(row.requests ?? row.health_requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
-			provider_daily_7d: (performance.provider_daily_7d ?? []).filter((row: Record<string, unknown>) => isKnownProvider(row) && Number(row.requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
-			time_of_day_5d: (performance.time_of_day_5d ?? []).filter((row: Record<string, unknown>) => Number(row.sample_count ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
-			quality_series: (performance.quality_series ?? []).filter((row: Record<string, unknown>) => Number(row.requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
+			provider_uptime_24h: (performance.provider_uptime_24h ?? [])
+				.filter(isKnownProvider)
+				.map((value: Record<string, unknown>) => {
+					const provider = publicProviderId(value.provider, stealthProviderIds);
+					return { ...value, provider, provider_name: provider === "stealth" ? "stealth" : value.provider_name ?? value.provider };
+				}),
+			provider_daily_7d: (performance.provider_daily_7d ?? [])
+				.filter(isKnownProvider)
+				.map((value: Record<string, unknown>) => {
+					const provider = publicProviderId(value.provider, stealthProviderIds);
+					return { ...value, provider, provider_name: provider === "stealth" ? "stealth" : value.provider_name ?? value.provider };
+				}),
 		};
+		if (
+			providerHourly.error &&
+			!/could not find|does not exist|PGRST202/i.test(providerHourly.error.message ?? "")
+		) {
+			throw providerHourly.error;
+		}
+		const providerHourlyRows = !providerHourly.error && Array.isArray(providerHourly.data)
+			? (providerHourly.data as Array<Record<string, unknown>>).filter((value) => {
+				const provider = String(value.provider_id ?? "").trim().toLowerCase();
+				return provider.length > 0 && provider !== "unknown" && hasPublicPerformanceSample(value.requests);
+			})
+			: [];
+		if (
+			qualityHourly.error &&
+			!/could not find|does not exist|PGRST202/i.test(qualityHourly.error.message ?? "")
+		) {
+			throw qualityHourly.error;
+		}
+		const qualityHourlyRows = !qualityHourly.error && Array.isArray(qualityHourly.data)
+			? (qualityHourly.data as Array<Record<string, unknown>>).filter((value) => hasPublicPerformanceSample(value.requests))
+			: [];
 		const providerSlugs = [...new Set([
 			...(performance.provider_uptime_24h ?? []).map((value: Record<string, unknown>) => String(value.provider ?? "")),
 			...(performance.provider_daily_7d ?? []).map((value: Record<string, unknown>) => String(value.provider ?? "")),
+			...providerHourlyRows.map((value) => String(value.provider_id ?? "")),
 		].map((provider) => provider.trim().toLowerCase()).filter(Boolean))];
 		const providerMetadata = providerSlugs.length > 0
 			? await client.from("v2_providers").select("provider_slug,metadata").in("provider_slug", providerSlugs)
@@ -1621,16 +1781,44 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		const hourly = (performance.hourly_24h ?? []).map((value: Record<string, unknown>) => {
 			const cache = cachedInputHourly.get(String(value.bucket ?? "")) as Record<string, unknown> | undefined;
 			const cacheRequests = Number(cache?.telemetry_requests ?? 0);
-			return { bucket: value.bucket ?? "", avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: cacheRequests >= 20 ? number(cache?.cached_input_pct) : null, cacheTelemetryRequests: cacheRequests >= 20 ? cacheRequests : 0, requests: Number(value.requests ?? 0), successPct: number(value.success_pct) };
+			return { bucket: value.bucket ?? "", avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: hasPublicCacheTelemetrySample(cacheRequests) ? number(cache?.cached_input_pct) : null, cacheTelemetryRequests: hasPublicCacheTelemetrySample(cacheRequests) ? cacheRequests : 0, requests: Number(value.requests ?? 0), successPct: number(value.success_pct) };
 		});
-		const providerPerformance = (performance.provider_uptime_24h ?? []).map((value: Record<string, any>) => ({ provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), requests: Number(value.requests ?? 0), uptimePct: number(value.uptime_pct), uptimeBuckets: (value.uptime_buckets ?? []).map((bucket: Record<string, unknown>) => ({ start: bucket.start ?? "", end: bucket.end ?? "", successPct: number(bucket.success_pct) })) }));
+		const providerPerformance = (performance.provider_uptime_24h ?? []).map((value: Record<string, any>) => { const provider = publicProviderId(value.provider, stealthProviderIds); return { provider, providerName: provider === "stealth" ? "Stealth" : value.provider_name ?? value.provider ?? "", providerColor: providerColor(provider), avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), requests: Number(value.requests ?? 0), uptimePct: number(value.uptime_pct), uptimeBuckets: (value.uptime_buckets ?? []).map((bucket: Record<string, unknown>) => ({ start: bucket.start ?? "", end: bucket.end ?? "", successPct: number(bucket.success_pct) })) }; });
 		const providerDaily7d = (performance.provider_daily_7d ?? []).map((value: Record<string, unknown>) => {
 			const cache = cachedInputProviderDaily.get(`${String(value.day ?? "")}:${String(value.provider ?? "")}`) as Record<string, unknown> | undefined;
 			const cacheRequests = Number(cache?.telemetry_requests ?? 0);
-			return { day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: cacheRequests >= 20 ? number(cache?.cached_input_pct) : null, cachedInputTokens: cacheRequests >= 20 ? number(cache?.cached_input_tokens) : null, effectiveInputTokens: cacheRequests >= 20 ? number(cache?.effective_input_tokens) : null, cacheTelemetryRequests: cacheRequests >= 20 ? cacheRequests : 0, requests: Number(value.requests ?? 0) };
+			return { day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: hasPublicCacheTelemetrySample(cacheRequests) ? number(cache?.cached_input_pct) : null, cachedInputTokens: hasPublicCacheTelemetrySample(cacheRequests) ? number(cache?.cached_input_tokens) : null, effectiveInputTokens: hasPublicCacheTelemetrySample(cacheRequests) ? number(cache?.effective_input_tokens) : null, cacheTelemetryRequests: hasPublicCacheTelemetrySample(cacheRequests) ? cacheRequests : 0, requests: Number(value.requests ?? 0) };
 		});
+		const providerHourly7d = providerHourlyRows.map((value) => {
+			const cacheRequests = Number(value.cache_telemetry_requests ?? 0);
+			const provider = publicProviderId(value.provider_id, stealthProviderIds);
+			return {
+				bucket: value.bucket ?? "",
+				provider,
+				providerName: provider === "stealth" ? "Stealth" : value.provider_name ?? value.provider_id ?? "",
+				providerColor: providerColor(provider),
+				avgThroughput: number(value.effective_throughput_tps),
+				avgOutputSpeed: number(value.output_speed_tps),
+				avgLatencyMs: number(value.gateway_ttft_ms),
+				avgEndToEndMs: number(value.gateway_e2e_ms),
+				avgGenerationMs: number(value.provider_duration_ms),
+				avgPhaseoOverheadMs: number(value.phaseo_overhead_ms),
+				avgTpotMs: number(value.tpot_ms),
+				avgItlMs: number(value.itl_ms),
+				cachedInputPct: hasPublicCacheTelemetrySample(cacheRequests) ? number(value.cached_input_pct) : null,
+				cachedInputTokens: hasPublicCacheTelemetrySample(cacheRequests) ? number(value.cached_input_tokens) : null,
+				effectiveInputTokens: hasPublicCacheTelemetrySample(cacheRequests) ? number(value.effective_input_tokens) : null,
+				cacheTelemetryRequests: hasPublicCacheTelemetrySample(cacheRequests) ? cacheRequests : 0,
+				requests: Number(value.requests ?? 0),
+			};
+		}).filter((value) => String(value.provider).trim().length > 0);
 		const providerCount = providerPerformance.filter((provider: Record<string, unknown>) => Number(provider.requests ?? 0) > 0).length;
-		const percentileSeries = rawSevenDayProviderCount === 1
+		const sevenDayProviderCount = new Set(
+			providerDaily7d
+				.filter((provider) => provider.requests > 0)
+				.map((provider) => provider.provider),
+		).size;
+		const percentileSeries = sevenDayProviderCount === 1
 			? await client.rpc("get_v2_model_provider_percentile_series_v2", {
 				p_model_slug: modelId,
 				p_cloudflare_colo: cloudflareColo,
@@ -1645,11 +1833,12 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		const timeOfDay = (performance.time_of_day_5d ?? []).map((value: Record<string, unknown>) => ({ hour: Number(value.hour ?? 0), avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), sampleCount: Number(value.sample_count ?? 0) }));
 		const providerPercentileDaily7d = (Array.isArray(percentileSeries.data) ? percentileSeries.data : []).map((value: Record<string, unknown>) => {
 			const seriesPercentile = Number(value.percentile);
+			const provider = publicProviderId(value.provider_id, stealthProviderIds);
 			return {
 				day: value.usage_day ?? "",
-				provider: value.provider_id ?? "",
-				providerName: value.provider_name ?? value.provider_id ?? "",
-				providerColor: providerColor(value.provider_id),
+				provider,
+				providerName: provider === "stealth" ? "Stealth" : value.provider_name ?? value.provider_id ?? "",
+				providerColor: providerColor(provider),
 				percentile: seriesPercentile,
 				avgThroughput: number(value.effective_throughput_tps),
 				avgOutputSpeed: number(value.output_speed_tps),
@@ -1658,16 +1847,75 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 				avgPhaseoOverheadMs: number(value.phaseo_overhead_ms),
 				avgTpotMs: number(value.tpot_ms),
 				avgItlMs: number(value.itl_ms),
-				cachedInputPct: Number(value.requests ?? 0) >= 20 ? number(value.cached_input_pct) : null,
+				cachedInputPct: hasPublicCacheTelemetrySample(value.requests) ? number(value.cached_input_pct) : null,
 				requests: Number(value.requests ?? 0),
 			};
-		}).filter((value) => String(value.provider).trim().length > 0 && value.requests >= PUBLIC_TELEMETRY_MIN_REQUESTS);
-		const qualitySeries = (performance.quality_series ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", toolCallSuccessPct: number(value.tool_call_success_pct), structuredOutputSuccessPct: number(value.structured_output_success_pct), cacheHitRatePct: Number(value.requests ?? 0) >= 20 ? number(value.cache_hit_rate_pct) : null, requests: Number(value.requests ?? 0) }));
-		const metrics = { cloudflareColo: performance.cloudflare_colo ?? cloudflareColo, percentile, streamMode, contextBucket, summary: summary(performance.last_24h), prevSummary: performance.prev_24h ? summary(performance.prev_24h) : null, hourly, successSeries, timeOfDay, providerPerformance, providerDaily7d, providerPercentileDaily7d, qualitySeries, dataRange: hourly.length ? { start: hourly[0]?.bucket ?? "", end: hourly[hourly.length - 1]?.bucket ?? "" } : { start: "", end: "" }, cumulativeTokens: number(performance.cumulative_tokens?.total_tokens), releaseDate: performance.cumulative_tokens?.release_date ?? null };
+		}).filter((value) => String(value.provider).trim().length > 0);
+		const legacyQualitySeries = (performance.quality_series ?? []).map((value: Record<string, unknown>) => {
+			const toolCallSuccessPct = number(value.tool_call_success_pct);
+			const structuredOutputSuccessPct = number(value.structured_output_success_pct);
+			return {
+				bucket: value.bucket ?? "",
+				toolCallSuccessPct,
+				toolCallErrorPct: toolCallSuccessPct == null ? null : 100 - toolCallSuccessPct,
+				structuredOutputSuccessPct,
+				structuredOutputErrorPct: structuredOutputSuccessPct == null ? null : 100 - structuredOutputSuccessPct,
+				cacheHitRatePct: hasPublicCacheTelemetrySample(value.requests) ? number(value.cache_hit_rate_pct) : null,
+				requests: Number(value.requests ?? 0),
+			};
+		});
+		const hourlyQualitySeries = qualityHourlyRows.map((value) => {
+			const requests = Number(value.requests ?? 0);
+			const toolCallResponses = Number(value.tool_call_responses ?? 0);
+			const toolCallErrors = Number(value.tool_call_errors ?? 0);
+			const structuredOutputResponses = Number(value.structured_output_responses ?? 0);
+			const structuredOutputErrors = Number(value.structured_output_errors ?? 0);
+			const toolCallErrorPct = toolCallResponses > 0
+				? toolCallErrors * 100 / toolCallResponses
+				: requests > 0 ? 0 : null;
+			const structuredOutputErrorPct = structuredOutputResponses > 0
+				? structuredOutputErrors * 100 / structuredOutputResponses
+				: requests > 0 ? 0 : null;
+			return {
+				bucket: value.bucket ?? "",
+				toolCallSuccessPct: toolCallErrorPct == null ? null : 100 - toolCallErrorPct,
+				toolCallErrorPct,
+				toolCallHistoricalDefault: toolCallResponses === 0 && requests > 0,
+				toolCallErrorCounts: {
+					invalidJson: Number(value.tool_invalid_json_errors ?? 0),
+					schemaMismatch: Number(value.tool_schema_mismatch_errors ?? 0),
+					unknownToolName: Number(value.tool_unknown_name_errors ?? 0),
+				},
+				structuredOutputSuccessPct: structuredOutputErrorPct == null ? null : 100 - structuredOutputErrorPct,
+				structuredOutputErrorPct,
+				structuredOutputHistoricalDefault: structuredOutputResponses === 0 && requests > 0,
+				structuredOutputErrorCounts: {
+					invalidJson: Number(value.structured_invalid_json_errors ?? 0),
+					schemaMismatch: Number(value.structured_schema_mismatch_errors ?? 0),
+					missingOutput: Number(value.structured_missing_output_errors ?? 0),
+				},
+				cacheHitRatePct: number(value.cache_read_pct),
+				requests,
+			};
+		}).filter((value) =>
+			value.toolCallErrorPct != null ||
+			value.structuredOutputErrorPct != null ||
+			value.cacheHitRatePct != null
+		);
+		const qualitySeries = hourlyQualitySeries.length > 0 ? hourlyQualitySeries : legacyQualitySeries;
+		const metrics = { cloudflareColo: performance.cloudflare_colo ?? cloudflareColo, percentile, streamMode, contextBucket, summary: summary(performance.last_24h), prevSummary: performance.prev_24h ? summary(performance.prev_24h) : null, hourly, successSeries, timeOfDay, providerPerformance, providerDaily7d, providerHourly7d, providerPercentileDaily7d, qualitySeries, dataRange: providerHourly7d.length ? { start: providerHourly7d[0]?.bucket ?? "", end: providerHourly7d[providerHourly7d.length - 1]?.bucket ?? "" } : hourly.length ? { start: hourly[0]?.bucket ?? "", end: hourly[hourly.length - 1]?.bucket ?? "" } : { start: "", end: "" }, cumulativeTokens: number(performance.cumulative_tokens?.total_tokens), releaseDate: performance.cumulative_tokens?.release_date ?? null };
 		const activity = { summary: metrics.summary, providerPerformance, cumulativeTokens: metrics.cumulativeTokens };
-		return withPublicCache(c.json({ modelId, performance, metrics, activity }), sectionPolicy("performance", modelId));
+		return withPublicCache(c.json({
+			modelId,
+			performance,
+			metrics,
+			activity,
+			minimumSampleSize: PUBLIC_PERFORMANCE_MIN_REQUESTS,
+		}), sectionPolicy("performance", modelId));
 	} catch (error) {
 		console.error("[web-api/models] performance failed", { modelId, error });
-		return c.json({ error: "performance_unavailable" }, 503);
+		// Performance is an optional section of the model page. A delayed or
+		// unavailable rollup must not turn the whole page into a failed request.
+		return withPublicCache(c.json({ modelId, performance: null, metrics: null, activity: null }), sectionPolicy("performance", modelId));
 	}
 });

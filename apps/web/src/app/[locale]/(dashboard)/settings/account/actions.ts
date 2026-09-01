@@ -510,6 +510,14 @@ export async function changeEmailAction(
         throw new Error('Failed to verify current password')
     }
 
+	const priorEmail = user.email.trim().toLowerCase()
+	const identityResult = await createAdminClient()
+		.from('resend_contact_identities')
+		.upsert({ user_id: user.id, email: priorEmail }, { onConflict: 'user_id,email' })
+	if (identityResult.error) {
+		throw new Error('Failed to prepare email change')
+	}
+
     // Update email (Supabase sends confirmation to both addresses)
     const { error: updateError } = await supabase.auth.updateUser({
         email: newEmail,

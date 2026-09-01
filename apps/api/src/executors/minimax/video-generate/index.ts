@@ -1,6 +1,6 @@
 // Purpose: Executor for minimax / video-generate.
 // Why: Uses MiniMax native video APIs directly instead of relay providers.
-// How: Submits async jobs to /v1/video_generation and returns normalized queued IR.
+// How: Submits async jobs to MiniMax V1 or V2 and returns normalized queued IR.
 
 import type { IRVideoGenerationRequest, IRVideoGenerationResponse } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
@@ -153,12 +153,24 @@ function isMiniMaxHailuoV1(model: string): boolean {
 	return normalized.includes("hailuo-2.3") || normalized.includes("hailuo-02");
 }
 
+function isMiniMaxV2Model(model: string): boolean {
+	const normalized = model.trim().toLowerCase();
+	return normalized === "minimax-h3" || normalized.endsWith("/h3") ||
+		normalized === "minimax-h3-max" || normalized.endsWith("/h3-max");
+}
+
+function canonicalMiniMaxV2Model(model: string): "MiniMax-H3" | "MiniMax-H3-Max" {
+	return model.trim().toLowerCase().endsWith("h3-max") ? "MiniMax-H3-Max" : "MiniMax-H3";
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRVideoGenerationRequest;
 	const model = args.providerModelSlug || ir.model || "video-01";
+	const isV2 = isMiniMaxV2Model(model);
+	const v2Model = isV2 ? canonicalMiniMaxV2Model(model) : null;
 	const seconds = parseDurationSeconds(ir) ?? 6;
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution }) ??
-		(isMiniMaxHailuoV1(model) ? "768P" : "720P");
+		(isMiniMaxV2Model(model) ? "768P" : isMiniMaxHailuoV1(model) ? "768P" : "720P");
 	const quality = ir.quality ?? null;
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
@@ -180,6 +192,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		rawRequest.provider_params ??
 		{}
 	) as Record<string, any>;
+	let mappedRequest: string | undefined;
 	const passthroughRequest: Record<string, any> = {
 		model,
 		prompt: ir.prompt,
@@ -196,6 +209,27 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	if (typeof ir.enhancePrompt === "boolean") passthroughRequest.prompt_optimizer = ir.enhancePrompt;
 	if (typeof minimaxExtensions.fast_pretreatment === "boolean") {
 		passthroughRequest.fast_pretreatment = minimaxExtensions.fast_pretreatment;
+	}
+	if (isV2 && ("prompt_optimizer" in passthroughRequest || "fast_pretreatment" in passthroughRequest)) {
+		const unsupportedOptions = [
+			"prompt_optimizer" in passthroughRequest ? "prompt_optimizer" : null,
+			"fast_pretreatment" in passthroughRequest ? "fast_pretreatment" : null,
+		].filter((option): option is string => option !== null);
+		const upstream = new Response(JSON.stringify({
+			error: {
+				type: "unsupported_option",
+				message: `MiniMax V2 does not support ${unsupportedOptions.join(" or ")} on /v2/video_generation.`,
+			},
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+		};
 	}
 	try {
 		const firstFrame = await imageReferenceToString(
@@ -225,13 +259,12 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const subjectImages = (ir.inputReferences ?? [])
 		.filter((entry) => entry.type === "image" && entry.role === "reference" && typeof entry.url === "string")
 		.map((entry) => entry.url as string);
+	const referenceMedia = (ir.inputReferences ?? [])
+		.filter((entry) => (entry.type === "video" || entry.type === "audio") && entry.role === "reference" && typeof entry.url === "string")
+		.map((entry) => ({ type: entry.type === "video" ? "video_url" : "audio_url", url: entry.url as string }));
 	if (subjectImages.length > 0) {
 		passthroughRequest.subject_reference = [{ type: "character", image: subjectImages }];
 	}
-	const requestBody = JSON.stringify(passthroughRequest);
-	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest)
-		? requestBody
-		: undefined;
 	if (isMiniMaxImageToVideoOnlyModel(model) && !toNonEmptyString(passthroughRequest.first_frame_image)) {
 		const upstream = new Response(
 			JSON.stringify({
@@ -258,9 +291,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			mappedRequest,
 		};
 	}
-	if (ir.prompt.length > 2000) {
+	if (ir.prompt.length > (isV2 ? 7000 : 2000)) {
 		const upstream = new Response(JSON.stringify({
-			error: { type: "prompt_too_long", message: "MiniMax video prompts must not exceed 2000 characters." },
+				error: { type: "prompt_too_long", message: `MiniMax ${isV2 ? "V2" : "V1"} video prompts must not exceed ${isV2 ? 7000 : 2000} characters.` },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });
 		return {
 			kind: "completed",
@@ -273,7 +306,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		};
 	}
 	const normalizedModel = model.trim().toLowerCase();
-	if (normalizedModel === "minimax-h3" || normalizedModel.endsWith("/h3")) {
+	if (isV2) {
 		const upstream = new Response(JSON.stringify({
 			error: { type: "minimax_v2_video_not_enabled", message: "MiniMax-H3 requires the V2 multimodal video lifecycle, which is not enabled for routing." },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -304,7 +337,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
 		};
 	}
-	if (passthroughRequest.last_frame_image && normalizedResolution === "512P") {
+	if (!isV2 && passthroughRequest.last_frame_image && normalizedResolution === "512P") {
 		const upstream = new Response(JSON.stringify({
 			error: { type: "last_frame_resolution_unsupported", message: "MiniMax first/last-frame generation does not support 512P." },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -314,7 +347,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
 		};
 	}
-	if (passthroughRequest.last_frame_image && !isMiniMaxHailuo02(model)) {
+	if (!isV2 && passthroughRequest.last_frame_image && !isMiniMaxHailuo02(model)) {
 		const upstream = new Response(JSON.stringify({
 			error: { type: "last_frame_model_unsupported", message: "MiniMax last-frame video generation requires MiniMax-Hailuo-02." },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -324,7 +357,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
 		};
 	}
-	if (passthroughRequest.last_frame_image && !passthroughRequest.first_frame_image) {
+	if (!isV2 && passthroughRequest.last_frame_image && !passthroughRequest.first_frame_image) {
 		const upstream = new Response(JSON.stringify({
 			error: { type: "first_frame_required", message: "MiniMax last-frame generation also requires a first frame." },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -334,7 +367,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
 		};
 	}
-	if (subjectImages.length > 0 && !isMiniMaxSubjectReferenceModel(model)) {
+	if (!isV2 && subjectImages.length > 0 && !isMiniMaxSubjectReferenceModel(model)) {
 		const upstream = new Response(JSON.stringify({
 			error: { type: "subject_reference_model_unsupported", message: "MiniMax subject-reference generation requires S2V-01." },
 		}), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -352,6 +385,13 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		passthroughRequest.video_params?.seconds,
 	);
 	const secondsForBilling = seconds ?? passthroughSeconds ?? null;
+	const inputImageCount = (passthroughRequest.first_frame_image ? 1 : 0) + (passthroughRequest.last_frame_image ? 1 : 0) + subjectImages.length;
+	const inputVideoSeconds = toPositiveNumber(ir.inputVideoDurationSeconds) ??
+		toPositiveNumber(minimaxExtensions.input_video_seconds) ??
+		toPositiveNumber(minimaxExtensions.inputVideoSeconds);
+	const inputAudioSeconds = toPositiveNumber(ir.inputAudioDurationSeconds) ??
+		toPositiveNumber(minimaxExtensions.input_audio_seconds) ??
+		toPositiveNumber(minimaxExtensions.inputAudioSeconds);
 	const passthroughResolution =
 		toNonEmptyString(passthroughRequest.resolution) ??
 		toNonEmptyString(passthroughRequest.input_resolution) ??
@@ -381,6 +421,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				resolution: ir.resolution,
 				quality: qualityForBilling,
 				seconds: secondsForBilling,
+				input_image_count: inputImageCount,
+				input_video_seconds: inputVideoSeconds,
+				input_audio_seconds: inputAudioSeconds,
 			}),
 			isByok: keyInfo.source === "byok",
 		});
@@ -487,9 +530,29 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.MINIMAX_BASE_URL || DEFAULT_MINIMAX_BASE_URL).replace(/\/+$/, "");
+	const v2Ratio = toNonEmptyString(minimaxExtensions.ratio) ?? toNonEmptyString(ir.aspectRatio) ?? toNonEmptyString(ir.ratio);
+	const v2Content: Array<Record<string, unknown>> = [{ type: "text", text: ir.prompt }];
+	if (isV2) {
+		if (passthroughRequest.first_frame_image) v2Content.push({ type: "image_url", image_url: { url: passthroughRequest.first_frame_image }, role: "first_frame" });
+		if (passthroughRequest.last_frame_image) v2Content.push({ type: "image_url", image_url: { url: passthroughRequest.last_frame_image }, role: "last_frame" });
+		for (const image of subjectImages) v2Content.push({ type: "image_url", image_url: { url: image }, role: "reference_image" });
+		for (const media of referenceMedia) v2Content.push({ type: media.type, [media.type]: { url: media.url }, role: media.type === "video_url" ? "reference_video" : "reference_audio" });
+	}
+	const requestPayload = isV2
+		? {
+			model: v2Model,
+			content: v2Content,
+			resolution: String(size).toUpperCase(),
+			duration: seconds,
+			ratio: v2Content.length > 1 && subjectImages.length === 0 ? "adaptive" : v2Ratio ?? "16:9",
+			...(toNonEmptyString(ir.callbackUrl) ? { callback_url: ir.callbackUrl } : {}),
+		}
+		: passthroughRequest;
+	const requestBody = JSON.stringify(requestPayload);
+	mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestBody : undefined;
 	let res: Response;
 	try {
-		res = await fetchUpstream(args, `${baseUrl}/v1/video_generation`, {
+		res = await fetchUpstream(args, `${baseUrl}/${isV2 ? "v2" : "v1"}/video_generation`, {
 			method: "POST",
 			headers: {
 				"Authorization": `Bearer ${keyInfo.key}`,
@@ -582,6 +645,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				appId: args.meta.appId ?? null,
 				model,
 				seconds: secondsForBilling,
+				inputImageCount,
+				inputVideoSeconds: inputVideoSeconds ?? null,
+				inputAudioSeconds: inputAudioSeconds ?? null,
 				resolution: resolutionForBilling ?? null,
 				quality: qualityForBilling,
 				outputAccess: ir.outputAccess ?? "both",

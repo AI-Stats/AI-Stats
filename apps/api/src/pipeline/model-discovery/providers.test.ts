@@ -13,6 +13,7 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 		expect(providerIds.has("inference-net")).toBe(true);
 		expect(providerIds.has("mancer")).toBe(true);
 		expect(providerIds.has("mara")).toBe(true);
+		expect(providerIds.has("minimax")).toBe(true);
 		expect(providerIds.has("reka")).toBe(true);
 		expect(providerIds.has("switchpoint")).toBe(true);
 		expect(providerIds.has("upstage")).toBe(true);
@@ -87,6 +88,11 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 		});
 		expect(providers.get("together")).toMatchObject({
 			modelsEndpoint: "https://api.together.ai/v1/models",
+		});
+		expect(providers.get("minimax")).toMatchObject({
+			baseUrl: "https://api.minimax.io",
+			pathPrefix: "/v1",
+			apiKeyEnv: ["MINIMAX_API_KEY"],
 		});
 		expect(providers.get("reka")).toMatchObject({
 			baseUrl: "https://api.reka.ai",

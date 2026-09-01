@@ -29,9 +29,21 @@
       "feature_value": "Included",
       "feature_description": null,
       "other_info": null
+    },
+    {
+      "feature_name": "Flash Answers",
+      "feature_value": "200 / Day",
+      "feature_description": "Published Team-plan example allowance.",
+      "other_info": null
     }
   ],
   "models": [
+    {
+      "model_id": "mistral/mistral-medium-3",
+      "model_info": "Mistral identifies the Medium family as its most performant option for complex software engineering in Vibe.",
+      "rate_limit": null,
+      "other_info": null
+    },
     {
       "model_id": "mistral/mistral-small-4",
       "model_info": null,

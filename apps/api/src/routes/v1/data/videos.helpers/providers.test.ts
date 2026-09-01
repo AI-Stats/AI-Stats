@@ -2,11 +2,12 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { VideoJobMeta, VideoJobRecord } from "@core/video-jobs";
 import { installFetchMock, jsonResponse } from "../../../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../../tests/helpers/runtime";
-import { cancelFalTask, decodeFalVideoIdentity, resolveDashscopeTaskId, resolveXAiNativeId } from "./providers";
+import { cancelFalTask, decodeFalVideoIdentity, extractVideoOutputFromPayload, fetchMiniMaxVideoTask, resolveDashscopeTaskId, resolveXAiNativeId } from "./providers";
 
 beforeAll(() => setupRuntimeFromEnv({
 	FAL_KEY: "test-fal-key",
 	FAL_QUEUE_BASE_URL: "https://queue.fal.test",
+	MINIMAX_API_KEY: "test-minimax-key",
 }));
 afterAll(() => teardownTestRuntime());
 
@@ -60,6 +61,45 @@ describe("fal queue lifecycle", () => {
 				method: "PUT",
 				headers: { Authorization: "Key test-fal-key" },
 			});
+		} finally {
+			mock.restore();
+		}
+	});
+});
+
+describe("MiniMax V1/V2 lifecycle", () => {
+	it("polls H3 tasks through the V2 path and extracts nested task content", async () => {
+		const mock = installFetchMock([{
+			match: (url, init) => url === "https://api.minimax.io/v2/query/video_generation/task_h3" && init?.method === "GET",
+			response: jsonResponse({ task: { status: "succeeded", content: { url: "https://cdn.example.com/h3.mp4" } } }),
+		}]);
+		try {
+			const response = await fetchMiniMaxVideoTask(
+				{ workspaceId: "team_test", requestId: "req_h3" } as any,
+				meta("minimax", "task_h3") as VideoJobMeta,
+				"task_h3",
+			);
+			expect(response).toBeInstanceOf(Response);
+			expect(mock.calls[0]?.url).toContain("/v2/query/video_generation/task_h3");
+			const payload = await (response as Response).clone().json();
+			expect(extractVideoOutputFromPayload(payload)).toEqual([{ index: 0, uri: "https://cdn.example.com/h3.mp4", mime_type: "video/mp4" }]);
+		} finally {
+			mock.restore();
+		}
+	});
+
+	it("keeps legacy MiniMax models on the V1 polling path", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.minimax.io/v1/query/video_generation?task_id=task_v1",
+			response: jsonResponse({ status: "Success", video_url: "https://cdn.example.com/v1.mp4" }),
+		}]);
+		try {
+			await fetchMiniMaxVideoTask(
+				{ workspaceId: "team_test", requestId: "req_v1" } as any,
+				{ provider: "minimax", model: "MiniMax-Hailuo-2.3", providerTaskId: "task_v1" },
+				"task_v1",
+			);
+			expect(mock.calls[0]?.url).toContain("/v1/query/video_generation?task_id=task_v1");
 		} finally {
 			mock.restore();
 		}

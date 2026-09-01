@@ -44,6 +44,7 @@ function missingRollup(error: unknown): boolean {
 		|| message.includes("v2_web_public_usage_hourly");
 }
 
+
 type PublicAppGroup = {
 	reference: string;
 	app: Record<string, unknown>;
@@ -147,31 +148,46 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 	const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].slice(0, 100);
 	try {
 		if (modelIds.length === 0) return withPublicCache(c.json({ mappings: [] }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
-		let query = getDataClient(c.env).from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug").in("provider_model_slug", modelIds);
+		let query = getDataClient(c.env).from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug").in("provider_model_slug", modelIds).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]);
 		if (providerIds.length) query = query.in("provider_slug", providerIds);
 		const { data, error } = await query;
 		if (error) throw error;
-		const mappings = (data ?? []).map((row) => ({ provider_id: row.provider_slug, api_model_id: row.provider_model_slug, model_id: row.model_slug }));
+		const modelSlugs = [...new Set((data ?? []).map((row) => String(row.model_slug ?? "")).filter(Boolean))];
+		const visibleModels = modelSlugs.length
+			? await getDataClient(c.env).from("v2_models").select("model_slug").in("model_slug", modelSlugs).eq("hidden", false).neq("status", "disabled")
+			: { data: [], error: null };
+		if (visibleModels.error) throw visibleModels.error;
+		const visibleModelSlugs = new Set((visibleModels.data ?? []).map((row) => row.model_slug));
+		const mappings = (data ?? []).filter((row) => visibleModelSlugs.has(row.model_slug)).map((row) => ({ provider_id: row.provider_slug, api_model_id: row.provider_model_slug, model_id: row.model_slug }));
 		return withPublicCache(c.json({ mappings }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
 	} catch (error) { console.error("[web-api/apps] mappings failed", error); return c.json({ error: "app_model_mappings_unavailable" }, 503); }
 });
 
 async function resolveAppNames(env: Env, rows: Array<Record<string, unknown>>) {
-	const references = rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
-	const groups = await getPublicAppGroups(env, references);
-	const groupsByReference = new Map(groups.map((group) => [group.reference, group]));
+	const ids = [...new Set(rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean))];
+	const metadata = new Map<string, { name: string; url: string | null; category: string | null }>();
+	if (ids.length) {
+		const { data, error } = await getDataClient(env).from("api_apps").select("id,title,url,category").in("id", ids).eq("is_public", true).eq("is_active", true);
+		if (error) throw error;
+		for (const row of data ?? []) {
+			metadata.set(row.id, {
+				name: String(row.title ?? row.id),
+				url: typeof row.url === "string" ? row.url : null,
+				category: typeof row.category === "string" ? row.category : null,
+			});
+		}
+	}
 	return rows
-		.filter((row) => groupsByReference.has(String(row.app_id ?? "").trim()))
+		.filter((row) => metadata.has(String(row.app_id ?? "").trim()))
 		.map((row) => {
-			const group = groupsByReference.get(String(row.app_id).trim())!;
-			const appId = String(group.app.id ?? "").trim();
+			const appId = String(row.app_id).trim();
+			const app = metadata.get(appId);
 			return {
 				...row,
 				app_id: appId,
-				app_name: String(group.app.title ?? appId),
-				app_slug: group.publicSlug,
-				app_url: typeof group.app.url === "string" ? group.app.url : null,
-				app_category: typeof group.app.category === "string" ? group.app.category : null,
+				app_name: app?.name ?? appId,
+				app_url: app?.url ?? null,
+				app_category: app?.category ?? null,
 			};
 		});
 }
@@ -328,7 +344,6 @@ publicAppsRouter.get("/apps/:appReference", async (c) => {
 		return withPublicCache(c.json({ app: {
 			...app,
 			slug: publicSlug,
-			member_ids: appIds,
 			total_tokens: totalTokens,
 			total_requests: totalRequests,
 		} }), {

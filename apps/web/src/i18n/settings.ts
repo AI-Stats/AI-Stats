@@ -24,6 +24,8 @@ import type { PublicLocale } from "./routing";
 export type SourceSettingsMessages = typeof englishSettingsMessages;
 export type SettingsMessages = SourceSettingsMessages;
 export type SettingsUiMessages = Record<string, unknown>;
+export type SettingsSidebarItemKey = keyof SourceSettingsMessages["sidebar"]["items"];
+export type SettingsSidebarHeadingKey = keyof SourceSettingsMessages["sidebar"]["headings"];
 
 const settingsCatalogs: Record<PublicLocale, SettingsMessages> = {
 	"en-GB": englishSettingsMessages,
@@ -57,4 +59,18 @@ export function getSettingsMessages(locale: PublicLocale): SettingsMessages {
 
 export function getSettingsUiMessages(locale: PublicLocale): SettingsUiMessages {
 	return settingsUiCatalogs[locale];
+}
+
+export function getSettingsSidebarItemLabel(
+	locale: PublicLocale,
+	key: SettingsSidebarItemKey,
+): string {
+	return getSettingsMessages(locale).sidebar.items[key];
+}
+
+export function getSettingsSidebarHeading(
+	locale: PublicLocale,
+	key: SettingsSidebarHeadingKey,
+): string {
+	return getSettingsMessages(locale).sidebar.headings[key];
 }

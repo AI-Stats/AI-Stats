@@ -1,11 +1,8 @@
 "use client";
 
-import { Activity } from "lucide-react";
 import type { ChartConfig } from "@/components/ui/chart";
 import {
 	ChartContainer,
-	ChartLegend,
-	ChartLegendContent,
 	ChartTooltip,
 } from "@/components/ui/chart";
 import {
@@ -16,18 +13,11 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@/components/ui/empty";
 import type { ModelSuccessPoint } from "@/lib/fetchers/models/getModelPerformance";
 
 const successChartConfig: ChartConfig = {
 	overall: {
-		label: "Phaseo success rate",
+		label: "Model uptime",
 		color: "hsl(142, 76%, 36%)",
 	},
 	worst: {
@@ -41,11 +31,18 @@ function formatBucketLabel(bucket: string) {
 	if (!Number.isFinite(date.getTime())) {
 		return bucket;
 	}
-	return date.toLocaleTimeString("en-US", {
+	return date.toLocaleTimeString("en-GB", {
 		hour: "2-digit",
 		minute: "2-digit",
 		hour12: false,
+		timeZone: "UTC",
 	});
+}
+
+function toHourlyBucket(value: Date | string) {
+	const date = new Date(value);
+	date.setUTCMinutes(0, 0, 0);
+	return date.toISOString();
 }
 
 function getDisplayedUptime(value: number | null | undefined, requests: number) {
@@ -53,87 +50,116 @@ function getDisplayedUptime(value: number | null | undefined, requests: number) 
 	return requests === 0 ? 100 : null;
 }
 
+function formatUptime(value: number | null | undefined) {
+	return value != null ? `${value.toFixed(1)}%` : "—";
+}
+
+export function buildUptimeChartData(
+	successSeries: ModelSuccessPoint[],
+	now = new Date(),
+) {
+	const pointsByBucket = new Map(
+		successSeries.map((point) => [toHourlyBucket(point.bucket), point]),
+	);
+	const currentHour = new Date(toHourlyBucket(now));
+
+	return Array.from({ length: 24 }, (_, index) => {
+		const bucketDate = new Date(currentHour);
+		bucketDate.setUTCHours(currentHour.getUTCHours() - (23 - index));
+		const bucket = bucketDate.toISOString();
+		const point = pointsByBucket.get(bucket);
+		const requests = point?.requests ?? 0;
+
+		return {
+			time: formatBucketLabel(bucket),
+			overall: getDisplayedUptime(point?.overallSuccessPct, requests),
+			worst: point
+				? getDisplayedUptime(point.worstProviderSuccessPct, requests)
+				: null,
+			bucket,
+			requests,
+		};
+	});
+}
+
 interface ModelSuccessChartProps {
 	successSeries: ModelSuccessPoint[];
 	showLeastStableProvider?: boolean;
+	showTitle?: boolean;
 }
 
 export default function ModelSuccessChart({
 	successSeries,
 	showLeastStableProvider = true,
+	showTitle = true,
 }: ModelSuccessChartProps) {
-	const chartData = successSeries.map((point) => ({
-		time: formatBucketLabel(point.bucket),
-		overall: getDisplayedUptime(point.overallSuccessPct, point.requests),
-		worst: showLeastStableProvider
-			? getDisplayedUptime(point.worstProviderSuccessPct, point.requests)
-			: null,
-		bucket: point.bucket,
-		requests: point.requests,
+	const chartData = buildUptimeChartData(successSeries).map((point) => ({
+		...point,
+		worst: showLeastStableProvider ? point.worst : null,
 	}));
-
-	if (!chartData.length) {
-		return (
-			<div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-6 text-center">
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<Activity />
-						</EmptyMedia>
-						<EmptyTitle>No success data yet</EmptyTitle>
-						<EmptyDescription>
-							Data will appear as requests land in the last 24
-							hours.
-						</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
-			</div>
-		);
-	}
+	const totalRequests = chartData.reduce((sum, point) => sum + point.requests, 0);
+	const measuredPoints = chartData.filter(
+		(point) => point.requests > 0 && point.overall != null,
+	);
+	const measuredRequests = measuredPoints.reduce(
+		(sum, point) => sum + point.requests,
+		0,
+	);
+	const summaryUptime =
+		totalRequests === 0
+			? 100
+			: measuredRequests > 0
+				? measuredPoints.reduce(
+						(sum, point) => sum + (point.overall ?? 0) * point.requests,
+						0,
+					) / measuredRequests
+				: null;
 
 	return (
-		<div className="rounded-lg border border-border/80 bg-card p-6 text-card-foreground shadow-xs">
-			<div className="flex items-center justify-between">
-				<div>
-					<h3 className="text-lg font-semibold text-foreground">
-						Model Uptime
-					</h3>
-				</div>
+		<div className="grid gap-4 rounded-lg border border-border/70 bg-background p-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center">
+			<div className="min-w-0">
+				{showTitle ? (
+					<h3 className="text-sm font-medium text-foreground">Model uptime</h3>
+				) : null}
+				<p className="mt-1 text-3xl font-semibold tracking-tight text-emerald-600 tabular-nums dark:text-emerald-400">
+					{formatUptime(summaryUptime)}
+				</p>
+				<p className="mt-1 text-xs text-muted-foreground">Last 24 hours</p>
+				<p className="mt-0.5 text-xs text-muted-foreground">
+					{totalRequests > 0
+						? `${totalRequests.toLocaleString()} request${totalRequests === 1 ? "" : "s"} observed`
+						: "No requests observed"}
+				</p>
 			</div>
-			<div className="mt-4 h-[260px] w-full">
+			<div className="min-w-0">
+				<div className="mb-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+					<span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+					Uptime per hour
+				</div>
+				<div
+					className="h-[112px] w-full"
+					role="img"
+					aria-label={`Hourly model uptime over the last 24 hours. ${formatUptime(summaryUptime)} uptime from ${totalRequests.toLocaleString()} requests.`}
+				>
 				<ChartContainer
 					config={successChartConfig}
 					className="h-full w-full"
 				>
 					<ResponsiveContainer width="100%" height="100%">
 						<LineChart data={chartData}>
-							<CartesianGrid
-								strokeDasharray="3 3"
-								stroke="var(--border)"
-								opacity={0.5}
-								vertical={false}
-							/>
+							<CartesianGrid vertical={false} stroke="var(--border)" opacity={0.35} />
 							<XAxis
 								dataKey="time"
 								axisLine={false}
+								interval={5}
+								padding={{ left: 20, right: 20 }}
 								tickLine={false}
 								tick={{
 									fontSize: 12,
 									fill: "var(--muted-foreground)",
 								}}
 							/>
-							<YAxis
-								axisLine={false}
-								tickLine={false}
-								tick={{
-									fontSize: 12,
-									fill: "var(--muted-foreground)",
-								}}
-								domain={[0, 100]}
-								tickFormatter={(value) =>
-									`${value.toFixed(0)}%`
-								}
-							/>
+							<YAxis hide domain={[0, 100]} />
 							<ChartTooltip
 								content={({ active, payload }) => {
 									if (
@@ -146,43 +172,26 @@ export default function ModelSuccessChart({
 
 									return (
 										<div className="rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg">
-											<p className="text-xs uppercase text-muted-foreground">
+											<p className="text-xs text-muted-foreground">
 												{payload[0].payload.time}
 											</p>
 											<p className="text-sm">
 												<span className="font-semibold">
-													Model success:
+													Uptime:
 												</span>{" "}
-												{payload[0].payload.overall !=
-												null
-													? `${payload[0].payload.overall.toFixed(
-															1
-													  )}%`
-													: "—"}
+												{formatUptime(payload[0].payload.overall)}
 											</p>
-											<p className="text-sm">
-												<span className="font-semibold">
-													Worst provider:
-												</span>{" "}
-												{payload[0].payload.worst !=
-												null
-													? `${payload[0].payload.worst.toFixed(
-															1
-													  )}%`
-													: "—"}
-											</p>
+											{showLeastStableProvider ? (
+												<p className="text-sm">
+													<span className="font-semibold">
+														Worst provider:
+													</span>{" "}
+													{formatUptime(payload[0].payload.worst)}
+												</p>
+											) : null}
 										</div>
 									);
 								}}
-							/>
-							<ChartLegend
-								verticalAlign="top"
-								content={(props) => (
-									<ChartLegendContent
-										payload={props.payload}
-										verticalAlign={props.verticalAlign}
-									/>
-								)}
 							/>
 							{showLeastStableProvider ? (
 								<Line
@@ -200,12 +209,13 @@ export default function ModelSuccessChart({
 								dataKey="overall"
 								stroke="var(--color-overall)"
 								strokeWidth={3}
-								dot={false}
+								dot={{ r: 2, strokeWidth: 0 }}
 								connectNulls
 							/>
 						</LineChart>
 					</ResponsiveContainer>
 				</ChartContainer>
+				</div>
 			</div>
 		</div>
 	);

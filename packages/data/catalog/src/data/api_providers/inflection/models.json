@@ -68,11 +68,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://developers.inflection.ai/docs/workspaces",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official catalogue identifies Pi 3.0 and exact request ID inflection_3_pi."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://developers.inflection.ai/api/docs",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official OpenAI-compatible chat-completions API reference."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Production Inflection 3 Pi model and exact provider request ID verified."
     },
     "rate_limits": []
   },
@@ -152,11 +165,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://developers.inflection.ai/docs/workspaces",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official catalogue identifies Productivity 3.0 and exact request ID inflection_3_productivity."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://developers.inflection.ai/api/docs",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official OpenAI-compatible chat-completions API reference."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Production Inflection 3 Productivity model and exact provider request ID verified."
     },
     "rate_limits": []
   },
@@ -222,7 +248,7 @@
           }
         ],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
         "temperature": null,
         "attachment": null,
@@ -243,11 +269,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://developers.inflection.ai/docs/workspaces",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official catalogue identifies Pi 3.1 as a beta preview for agentic workflows, with exact request ID Pi-3.1 and tool calling."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://developers.inflection.ai/api/docs",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official API reference documents Pi-3.1 on the experimental chat-attributes surface."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Beta-preview availability, tool-calling positioning, and exact provider request ID verified; Phaseo routing remains disabled."
     },
     "rate_limits": []
   }

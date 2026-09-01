@@ -675,7 +675,7 @@ export function AuditDataTable({
 
 													</DropdownMenuItem>
 													<DropdownMenuItem render={<Link
-															href={`/models/${item.modelId}/providers`}
+															href={`/models/${item.modelId}#providers`}
 															className="cursor-pointer" />}>
 
 															<ExternalLink className="mr-2 h-4 w-4" />
@@ -683,7 +683,7 @@ export function AuditDataTable({
 
 													</DropdownMenuItem>
 													<DropdownMenuItem render={<Link
-															href={`/models/${item.modelId}/benchmarks`}
+															href={`/models/${item.modelId}#benchmarks`}
 															className="cursor-pointer" />}>
 
 															<ExternalLink className="mr-2 h-4 w-4" />
@@ -831,7 +831,7 @@ export function AuditDataTable({
 										<TableCell className="text-center font-semibold border border-gray-200">
 											{item.benchmarkCount > 0 ? (
 												<Link
-													href={`/models/${item.modelId}/benchmarks`}
+													href={`/models/${item.modelId}#benchmarks`}
 													className="text-blue-600 underline decoration-transparent hover:decoration-current transition-colors duration-200"
 												>
 													{item.benchmarkCount}
@@ -1003,4 +1003,3 @@ export function AuditDataTable({
 		</TooltipProvider>
 	);
 }
-

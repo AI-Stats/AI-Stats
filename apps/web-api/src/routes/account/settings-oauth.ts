@@ -7,13 +7,13 @@ import { requireAccountWorkspace } from "./context";
 
 const SUPPORTED_SCOPES = new Set([
 	"openid", "profile", "email", "me:read", "models:read", "providers:read",
-	"pricing:read", "credits:read", "activity:read", "analytics:read",
+	"pricing:read", "credits:read", "activity:read", "analytics:read", "budgets:read",
 	"generations:read", "feedback:read", "feedback:write", "workspaces:read", "keys:read", "presets:read",
-	"settings:read", "guardrails:read", "management_keys:read", "oauth_clients:read",
-	"workspaces:write", "keys:write", "presets:write", "settings:write",
-	"guardrails:write", "management_keys:write", "oauth_clients:write",
+	"settings:read", "provider_credentials:read", "guardrails:read", "management_keys:read", "oauth_clients:read",
+	"workspaces:write", "keys:write", "presets:write", "settings:write", "provider_credentials:write",
+	"guardrails:write", "management_keys:write", "oauth_clients:write", "budgets:write",
 	"workspaces:delete", "keys:delete", "presets:delete", "guardrails:delete",
-	"management_keys:delete", "oauth_clients:delete",
+	"management_keys:delete", "oauth_clients:delete", "provider_credentials:delete", "budgets:delete",
 ]);
 
 type OAuthBody = {

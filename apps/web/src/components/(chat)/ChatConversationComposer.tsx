@@ -3205,38 +3205,47 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 							durationMs={recordingDurationMs}
 						/>
 					) : (
-						<Textarea
-							ref={textareaRef}
-							data-chat-composer-input="true"
-							value={composer}
-							onChange={(event) => {
-								handleComposerChange(event.target.value);
-							}}
-							onKeyDown={(event) => {
-								if (slashMenuOpen) {
-									if (handleSlashNavigationKeyDown(event)) {
+						<ScrollArea
+							className={cn(
+								"max-h-[7.25rem]",
+								!composerExpanded &&
+									"order-1 w-full sm:order-2 sm:flex-1",
+							)}
+							viewportClassName="h-auto max-h-[7.25rem] overflow-y-auto overscroll-contain"
+						>
+							<Textarea
+								ref={textareaRef}
+								data-chat-composer-input="true"
+								value={composer}
+								onChange={(event) => {
+									handleComposerChange(event.target.value);
+								}}
+								onKeyDown={(event) => {
+									if (slashMenuOpen) {
+										if (handleSlashNavigationKeyDown(event)) {
+											return;
+										}
+									}
+									if (handlePromptHistoryKeyDown(event)) {
 										return;
 									}
-								}
-								if (handlePromptHistoryKeyDown(event)) {
-									return;
-								}
-								if (event.key === "Enter" && !event.shiftKey) {
-									event.preventDefault();
-									if (canSubmit) {
-										handleComposerSubmit();
+									if (event.key === "Enter" && !event.shiftKey) {
+										event.preventDefault();
+										if (canSubmit) {
+											handleComposerSubmit();
+										}
 									}
-								}
-							}}
-							rows={1}
-							placeholder={placeholder}
-							className={cn(
-								"resize-none border-0 !bg-transparent shadow-none transition-[min-height,padding] duration-[220ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform focus-visible:ring-0 motion-reduce:transition-none dark:!bg-transparent",
-								composerExpanded
-									? "min-h-[56px] px-1 py-2"
-									: "order-1 min-h-9 w-full px-2 py-2 sm:order-2 sm:flex-1",
-							)}
-						/>
+								}}
+								rows={1}
+								placeholder={placeholder}
+								className={cn(
+									"resize-none overflow-hidden border-0 !bg-transparent leading-5 shadow-none transition-[min-height,padding] duration-[220ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform focus-visible:ring-0 motion-reduce:transition-none dark:!bg-transparent",
+									composerExpanded
+										? "min-h-[56px] px-1 py-2"
+										: "min-h-9 px-2 py-2",
+								)}
+							/>
+						</ScrollArea>
 					)}
 					<div
 						className={cn(

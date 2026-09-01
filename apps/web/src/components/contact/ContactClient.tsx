@@ -148,6 +148,7 @@ const ISSUE_OPTIONS: IssueOption[] = [
 	},
 ];
 const ISSUE_VALUES = new Set(ISSUE_OPTIONS.map((option) => option.value));
+const TAWK_TICKET_URL = "https://phaseo.tawk.help";
 
 type TawkApi = {
 	hideWidget?: () => void;
@@ -396,6 +397,12 @@ function TawkSupportLauncher({
 							<ArrowUpRight className="size-4" />
 						</Button>
 					)}
+					<Button asChild type="button" variant="outline" className="w-full">
+						<a href={TAWK_TICKET_URL} target="_blank" rel="noreferrer">
+							{t("createTicket")}
+							<ArrowUpRight className="size-4" />
+						</a>
+					</Button>
 					<Button asChild type="button" variant="outline" className="w-full">
 						<a href={emailHref}>
 							{t("sendEmail")}

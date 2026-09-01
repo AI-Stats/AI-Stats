@@ -29,7 +29,7 @@ export async function recordUsageAndChargeOnce(args: {
 		try {
 			await waitBeforeRetry(delayMs);
 			await recordUsageAndCharge({
-				requestId: ctx.requestId,
+				requestId: ctx.billingRequestId,
 				workspaceId: ctx.workspaceId,
 				cost_nanos: costNanos,
 			});
@@ -49,4 +49,3 @@ export async function recordUsageAndChargeOnce(args: {
 		attempts: CHARGE_RETRY_DELAYS_MS.length,
 	});
 }
-

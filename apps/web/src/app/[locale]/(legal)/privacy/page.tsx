@@ -510,6 +510,11 @@ export default async function PrivacyPage() {
 				</p>
 				<ul className="mt-2 list-disc space-y-1 pl-5 text-foreground/80">
 					<li>
+						Request-level metadata for BYOK gateway calls is kept for
+						up to 90 days. Aggregated, non-content usage totals may be
+						kept longer for billing, reliability, and statistical purposes.
+					</li>
+					<li>
 						to operate and maintain your account and any paid
 						features;
 					</li>

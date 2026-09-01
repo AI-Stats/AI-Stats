@@ -13,7 +13,7 @@ import { getTranslations } from "next-intl/server";
 
 export const metadata = { title: "BYOK - Settings" };
 
-const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+const BYOK_MONTHLY_FREE_REQUESTS = 250_000;
 const BYOK_FEE_PERCENT = 2.5;
 const BYOK_GUIDE_HREF = "https://phaseo.app/docs/v1/guides/routing-and-fallbacks#byok-considerations";
 
@@ -170,7 +170,7 @@ async function ByokProvidersSection() {
 				<div>
 					<h2 className="text-base font-semibold">{t("byok.monthlyUsage")}</h2>
 					<p className="mt-1 text-sm text-muted-foreground">
-						{fmtCompactInt(BYOK_MONTHLY_FREE_REQUESTS)} free requests per month, then {BYOK_FEE_PERCENT}% service fee on provider-equivalent cost.
+						{fmtCompactInt(BYOK_MONTHLY_FREE_REQUESTS)} requests per month with no service fee, then {BYOK_FEE_PERCENT}% of provider-equivalent cost.
 					</p>
 				</div>
 				<div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8">

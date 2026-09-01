@@ -2,7 +2,7 @@ import { getSupabaseAdmin } from "@/runtime/env";
 import { loadPriceCard } from "@pipeline/pricing";
 import { normalizeTextServiceTier, readRequestedServiceTier } from "@core/serviceTiers";
 import type { PriceCard } from "../pricing/types";
-import { ROUTABLE_CAPABILITY_STATUSES, isWithinEffectiveWindow } from "./context.shared";
+import { getProviderPricingKey, ROUTABLE_CAPABILITY_STATUSES, isWithinEffectiveWindow } from "./context.shared";
 import type { ProviderCandidate } from "./types";
 import { parseRouteAvailabilityPolicy } from "@/lib/config/routeAvailability";
 import { resolveEffectiveDataPolicy } from "./dataPolicy";
@@ -246,11 +246,12 @@ async function remapToTierSibling(
     }
 
     const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
+    const remappedProviderModelSlug = matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug;
     const remapped: ProviderCandidate = {
         ...candidate,
         apiModelId: siblingApiModelId,
-        pricingKey: `${candidate.providerId}:${siblingApiModelId}`,
-        providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        pricingKey: getProviderPricingKey(candidate.providerId, siblingApiModelId, remappedProviderModelSlug),
+        providerModelSlug: remappedProviderModelSlug,
         quantizationScheme:
 			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
 				? matchedProviderRow.metadata.quantization_scheme
@@ -349,9 +350,11 @@ async function remapToHiddenTierSibling(
     if (!matchedProviderRow?.provider_model_id) return null;
 
     const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
+    const remappedProviderModelSlug = matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug;
     const remapped: ProviderCandidate = {
         ...candidate,
-        providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        pricingKey: getProviderPricingKey(candidate.providerId, candidate.apiModelId, remappedProviderModelSlug),
+        providerModelSlug: remappedProviderModelSlug,
         quantizationScheme:
 			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
 				? matchedProviderRow.metadata.quantization_scheme

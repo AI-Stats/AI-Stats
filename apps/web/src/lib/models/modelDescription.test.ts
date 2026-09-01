@@ -108,4 +108,35 @@ describe("modelDescription", () => {
 		expect(description).toContain("from Aion Labs on Phaseo");
 		expect(description.length).toBeLessThanOrEqual(160);
 	});
+
+	it("builds metadata titles from the strongest available page signal", () => {
+		expect(
+			buildModelOverviewMetadataTitle("MiniMax M3", {
+				providerCount: 12,
+				hasPricing: true,
+			}),
+		).toBe("MiniMax M3 API Pricing — Compare 12 Providers | Phaseo");
+	});
+
+	it("keeps signal-based titles concise for long model names", () => {
+		const title = buildModelOverviewMetadataTitle(
+			"Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
+			{ providerCount: 12, hasPricing: true },
+		);
+
+		expect(title.length).toBeLessThanOrEqual(60);
+	});
+
+	it("does not advertise missing metadata in descriptions", () => {
+		const description = buildModelOverviewMetadataDescription({
+			modelName: "Qwen 3 8B",
+			organisationName: "Qwen",
+			providerCount: 0,
+			benchmarkCount: 0,
+			hasPricing: false,
+		});
+
+		expect(description).not.toContain("providers");
+		expect(description).not.toContain("benchmark results");
+	});
 });

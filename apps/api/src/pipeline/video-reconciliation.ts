@@ -69,6 +69,7 @@ function terminalVideoPricingOptions(job: VideoJobRecord) {
 	return buildVideoPricingRequestOptions({
 		resolution: job.meta?.resolution,
 		quality: job.meta?.quality,
+		input_video_seconds: job.meta?.inputVideoSeconds,
 		input_audio_seconds: isLtxAudio ? 20 : job.meta?.inputAudioSeconds,
 		mode: isLtxAudio ? "audio-to-video" : job.meta?.ltxEndpoint,
 	});

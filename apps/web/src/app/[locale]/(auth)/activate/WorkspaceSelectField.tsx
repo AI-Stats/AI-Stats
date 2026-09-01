@@ -22,12 +22,16 @@ export function WorkspaceSelectField({
 	workspaces: Workspace[];
 }) {
 	const [workspaceId, setWorkspaceId] = useState(workspaces[0]?.id ?? "");
+	const items = workspaces.map((workspace) => ({
+		value: workspace.id,
+		label: `${workspace.name} (${workspace.role})`,
+	}));
 
 	return (
 		<div className="space-y-2">
 			<input type="hidden" name="workspace_id" value={workspaceId} />
 			<Label htmlFor="workspace_id">Workspace</Label>
-			<Select value={workspaceId} onValueChange={setWorkspaceId}>
+			<Select items={items} value={workspaceId} onValueChange={setWorkspaceId}>
 				<SelectTrigger id="workspace_id">
 					<SelectValue placeholder="Choose a workspace" />
 				</SelectTrigger>

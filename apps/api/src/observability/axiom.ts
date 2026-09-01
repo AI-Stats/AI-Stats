@@ -3,6 +3,7 @@
 // How: Sends structured events to Axiom with safe timeouts.
 
 import { getBindings, isLocalTestingModeEnabled } from "@/runtime/env";
+import type { GatewayBindings } from "@/runtime/env";
 
 export type WideEvent = Record<string, unknown>;
 let warnedMissingWideDataset = false;
@@ -17,12 +18,15 @@ function shouldAutoDisableWideIngest(bindings: ReturnType<typeof getBindings>): 
     return env !== "prod" && env !== "production";
 }
 
-export async function sendAxiomWideEvent(event: WideEvent): Promise<boolean | undefined> {
+export async function sendAxiomWideEvent(
+    event: WideEvent,
+    providedBindings?: GatewayBindings,
+): Promise<boolean | undefined> {
     if (localTestingAxiomWideIngestDisabled) {
         return;
     }
 
-    const bindings = getBindings();
+    const bindings = providedBindings ?? getBindings();
     const dataset = bindings.AXIOM_WIDE_DATASET ?? bindings.AXIOM_DATASET;
     const token = bindings.AXIOM_API_KEY;
 
@@ -102,6 +106,7 @@ export async function emitGatewayOperationalFailure(args: {
             error_origin: "gateway",
             error_operational_kind: args.workflow === "batch_submission" ? "submission_failed" : "finalization_failed",
             error_action_owner: "gateway",
+            error_operationally_actionable: true,
             error_requires_investigation: true,
             error_code: args.reason,
             error_message: message.slice(0, 500) || null,
@@ -128,6 +133,7 @@ export async function emitGatewayTelemetryDeliveryFailure(args: {
         error_origin: "gateway",
         error_operational_kind: "telemetry_delivery_failed",
         error_action_owner: "gateway",
+        error_operationally_actionable: true,
         error_requires_investigation: true,
         error_code: `${args.sink}_delivery_failed`,
         error_message: args.error.slice(0, 500),
@@ -136,4 +142,3 @@ export async function emitGatewayTelemetryDeliveryFailure(args: {
         telemetry_sink: args.sink,
     });
 }
-

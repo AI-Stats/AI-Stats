@@ -529,6 +529,10 @@ export const logoManifest = {
 	voyage: {
 		color: "/logos/voyage.svg",
 	},
+	runinfra: {
+		light: "/logos/runinfra.svg",
+		dark: "/logos/runinfra_dark.svg",
+	},
 	wandb: {
 		color: "/logos/weights-and-biases.svg",
 	},

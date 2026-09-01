@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { notifyAccountDeleted } from "@/auth/accountLifecycleDiscord";
+import { deleteResendContact } from "@/auth/resendContacts";
 import { requireUser } from "@/auth/requireUser";
 import { getAuthenticatedDataClient, getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
@@ -12,6 +13,7 @@ import { accountSettingsTeamsRouter } from "./settings-teams";
 import { accountSettingsProfileRouter } from "./settings-profile";
 import { accountSettingsProfileAvatarRouter, ownedProfileAvatarKey } from "./settings-profile-avatar";
 import { accountSettingsKeysRouter } from "./settings-keys";
+import { accountSettingsAuditRouter } from "./settings-audit";
 import { accountSettingsOAuthRouter } from "./settings-oauth";
 import { accountSettingsByokRouter } from "./settings-byok";
 import { accountSettingsGuardrailsRouter } from "./settings-guardrails";
@@ -31,7 +33,8 @@ const PHASEO_CLI_SCOPES = [
 	"pricing:read", "credits:read", "activity:read", "analytics:read", "generations:read",
 	"workspaces:read", "workspaces:write", "workspaces:delete", "keys:read", "keys:write",
 	"keys:delete", "presets:read", "presets:write", "presets:delete", "settings:read",
-	"settings:write", "guardrails:read", "guardrails:write", "guardrails:delete",
+	"settings:write", "provider_credentials:read", "provider_credentials:write", "provider_credentials:delete",
+	"guardrails:read", "guardrails:write", "guardrails:delete",
 	"management_keys:read", "management_keys:write", "management_keys:delete",
 	"oauth_clients:read", "oauth_clients:write", "oauth_clients:delete",
 ] as const;
@@ -74,7 +77,7 @@ const APP_CATEGORIES = new Set([
 const OBSERVABILITY_DESTINATIONS = new Set([
 	"otel_collector", "webhook",
 ]);
-const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+const BYOK_MONTHLY_FREE_REQUESTS = 100_000;
 
 function normalizeAppCategories(value: unknown): string | null {
 	if (typeof value !== "string") return null;
@@ -109,6 +112,7 @@ accountSettingsRouter.route("/", accountSettingsTeamsRouter);
 accountSettingsRouter.route("/", accountSettingsProfileRouter);
 accountSettingsRouter.route("/", accountSettingsProfileAvatarRouter);
 accountSettingsRouter.route("/", accountSettingsKeysRouter);
+accountSettingsRouter.route("/", accountSettingsAuditRouter);
 accountSettingsRouter.route("/", accountSettingsOAuthRouter);
 accountSettingsRouter.route("/", accountSettingsByokRouter);
 accountSettingsRouter.route("/", accountSettingsGuardrailsRouter);
@@ -402,7 +406,28 @@ accountSettingsRouter.get("/account/danger", async (c) => {
 accountSettingsRouter.delete("/account", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const { error } = await getDataClient(c.env).auth.admin.deleteUser(user.id);
+	const dataClient = getDataClient(c.env);
+	const identityResult = await dataClient
+		.from("resend_contact_identities")
+		.select("email")
+		.eq("user_id", user.id);
+	if (identityResult.error) {
+		return c.json({ error: "account_contact_cleanup_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
+	const contactEmails = [...new Set([
+		user.email,
+		...(identityResult.data ?? []).map((identity) => identity.email),
+	].map((email) => String(email ?? "").trim().toLowerCase()).filter(Boolean))];
+	try {
+		for (const email of contactEmails) await deleteResendContact(c.env, email);
+	} catch (cleanupError) {
+		console.error("account_resend_contact_delete_failed", {
+			userId: user.id,
+			error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+		});
+		return c.json({ error: "account_contact_cleanup_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
+	const { error } = await dataClient.auth.admin.deleteUser(user.id);
 	if (error) return c.json({ error: "account_delete_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const avatarKey = ownedProfileAvatarKey(c.env, c.req.raw, user.userMetadata.avatar_url, user.id);
 	if (avatarKey && c.env.PROFILE_AVATARS_BUCKET) {
