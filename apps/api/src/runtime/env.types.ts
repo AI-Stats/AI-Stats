@@ -253,6 +253,8 @@ export type GatewayBindings = {
     FAL_QUEUE_BASE_URL?: string;
     PERPLEXITY_API_KEY?: string;
     PERPLEXITY_BASE_URL?: string;
+    TINYFISH_API_KEY?: string;
+    TINYFISH_SEARCH_BASE_URL?: string;
     POOLSIDE_API_KEY?: string;
     POOLSIDE_BASE_URL?: string;
     PHALA_API_KEY?: string;

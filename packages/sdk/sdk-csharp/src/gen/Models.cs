@@ -2868,14 +2868,23 @@ public sealed class GatewayWebFetchToolDefinition
 
 public sealed class GatewayWebSearchToolDefinition
 {
+	[JsonPropertyName("engine")]
+	public string? Engine { get; set; }
+
 	[JsonPropertyName("include_highlights")]
 	public bool? IncludeHighlights { get; set; }
 
 	[JsonPropertyName("include_text")]
 	public bool? IncludeText { get; set; }
 
+	[JsonPropertyName("language")]
+	public string? Language { get; set; }
+
 	[JsonPropertyName("max_results")]
 	public long? MaxResults { get; set; }
+
+	[JsonPropertyName("page")]
+	public long? Page { get; set; }
 
 	[JsonPropertyName("parameters")]
 	public Dictionary<string, object>? Parameters { get; set; }

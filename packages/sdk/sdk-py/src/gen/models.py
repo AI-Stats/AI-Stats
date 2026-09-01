@@ -1053,9 +1053,12 @@ class GatewayWebFetchToolDefinition(TypedDict):
 	type: Literal["phaseo:web_fetch", "gateway:web_fetch"]
 
 class GatewayWebSearchToolDefinition(TypedDict):
+	engine: NotRequired[Literal["auto", "native", "exa", "firecrawl", "parallel", "perplexity", "tinyfish"]]
 	include_highlights: NotRequired[bool]
 	include_text: NotRequired[bool]
+	language: NotRequired[str]
 	max_results: NotRequired[int]
+	page: NotRequired[int]
 	parameters: NotRequired[Dict[str, Any]]
 	type: Literal["phaseo:web_search", "gateway:web_search"]
 

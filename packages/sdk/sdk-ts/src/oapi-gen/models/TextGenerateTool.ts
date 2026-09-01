@@ -16,13 +16,33 @@ export type TextGenerateTool =
       type: "phaseo:datetime" | "gateway:datetime";
     }
   | {
+      engine?:
+        | "auto"
+        | "native"
+        | "exa"
+        | "firecrawl"
+        | "parallel"
+        | "perplexity"
+        | "tinyfish";
       include_highlights?: boolean;
       include_text?: boolean;
+      language?: string;
       max_results?: number;
+      page?: number;
       parameters?: {
+        engine?:
+          | "auto"
+          | "native"
+          | "exa"
+          | "firecrawl"
+          | "parallel"
+          | "perplexity"
+          | "tinyfish";
         include_highlights?: boolean;
         include_text?: boolean;
+        language?: string;
         max_results?: number;
+        page?: number;
       };
       type: "phaseo:web_search" | "gateway:web_search";
     }

@@ -1890,9 +1890,12 @@ type GatewayWebFetchToolDefinition struct {
 }
 
 type GatewayWebSearchToolDefinition struct {
+	Engine *string `json:"engine,omitempty"`
 	IncludeHighlights *bool `json:"include_highlights,omitempty"`
 	IncludeText *bool `json:"include_text,omitempty"`
+	Language *string `json:"language,omitempty"`
 	MaxResults *int `json:"max_results,omitempty"`
+	Page *int `json:"page,omitempty"`
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Type string `json:"type"`
 }

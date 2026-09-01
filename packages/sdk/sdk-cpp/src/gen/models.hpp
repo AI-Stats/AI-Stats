@@ -1180,9 +1180,12 @@ struct GatewayWebFetchToolDefinition {
 };
 
 struct GatewayWebSearchToolDefinition {
+	std::any engine;
 	std::optional<bool> include_highlights;
 	std::optional<bool> include_text;
+	std::string language;
 	std::optional<int> max_results;
+	std::optional<int> page;
 	std::map<std::string, std::any> parameters;
 	std::any type;
 };

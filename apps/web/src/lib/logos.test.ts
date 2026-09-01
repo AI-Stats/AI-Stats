@@ -133,6 +133,7 @@ describe("logos", () => {
 			["io-net", "/logos/ionet.svg"],
 			["ovhcloud", "/logos/ovhcloud.svg"],
 			["sap-ai-core", "/logos/sap.svg"],
+			["tinyfish", "/logos/tinyfish.svg"],
 			["zhipuai-coding-plan", "/logos/zhipu.svg"],
 		] as const) {
 			expect(resolveLogo(id)).toMatchObject({ src });

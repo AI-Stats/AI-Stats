@@ -1185,9 +1185,12 @@ public final class Models {
 	}
 
 	public static class GatewayWebSearchToolDefinition {
+		public Object engine;
 		public Boolean include_highlights;
 		public Boolean include_text;
+		public String language;
 		public Integer max_results;
+		public Integer page;
 		public Object parameters;
 		public Object type;
 	}

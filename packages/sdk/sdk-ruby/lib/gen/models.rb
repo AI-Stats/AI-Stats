@@ -1697,17 +1697,23 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     GatewayWebFetchToolDefinition = Struct.new(:max_chars, :parameters, :type, keyword_init: true)
+    # @!attribute [rw] engine
+    #   @return [String, nil]
     # @!attribute [rw] include_highlights
     #   @return [Boolean, nil]
     # @!attribute [rw] include_text
     #   @return [Boolean, nil]
+    # @!attribute [rw] language
+    #   @return [String, nil]
     # @!attribute [rw] max_results
+    #   @return [Integer, nil]
+    # @!attribute [rw] page
     #   @return [Integer, nil]
     # @!attribute [rw] parameters
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] type
     #   @return [String]
-    GatewayWebSearchToolDefinition = Struct.new(:include_highlights, :include_text, :max_results, :parameters, :type, keyword_init: true)
+    GatewayWebSearchToolDefinition = Struct.new(:engine, :include_highlights, :include_text, :language, :max_results, :page, :parameters, :type, keyword_init: true)
     # @!attribute [rw] app_id
     #   @return [String, nil]
     # @!attribute [rw] byok
