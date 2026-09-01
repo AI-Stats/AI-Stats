@@ -268,11 +268,12 @@ describe("AIMock provider matrix", () => {
                     ir: {
                         model: "whisper-1",
                         file,
-                        ...(providerId === "xiaomi" ? {} : {
+                        ...(providerId === "xiaomi" || providerId === "meta" ? {} : {
                             responseFormat: "verbose_json",
                             timestampGranularities: ["word", "segment"],
                         }),
                     },
+                    ...(providerId === "meta" ? { providerModelSlug: "muse-voice-transcribe-1.0" } : {}),
                 });
 
                 const completed = expectCompleted(result);

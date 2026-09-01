@@ -221,6 +221,28 @@ function createOpenAIChatMount(): Mountable {
     };
 }
 
+function createMetaAsrMount(): Mountable {
+    let journal: Journal | null = null;
+    return {
+        setJournal(nextJournal) { journal = nextJournal; },
+        async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
+            if (pathname !== "/transcribe" || req.method !== "POST") return false;
+            await readIncomingBody(req);
+            const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
+            const transcript = "Deterministic transcription from AIMock.";
+            journal?.add({ method: req.method, path: req.url ?? pathname, headers, body: null, service: "transcription", response: { status: 200, fixture: null } });
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+                sessionId: "meta_asr_aimock_123",
+                transcript,
+                audioDurationMs: 1250,
+                turns: [{ turnId: 0, text: transcript, start: 0, end: 1.25 }],
+            }));
+            return true;
+        },
+    };
+}
+
 function createGmiRequestQueueMount(): Mountable {
     let journal: Journal | null = null;
     return {
@@ -695,6 +717,7 @@ export async function startAimock(): Promise<LLMock> {
     ]);
     aimock.mount("/v1/rerank", createOpenAIRerankMount());
     aimock.mount("/v1/tts", createXAiTtsMount());
+    aimock.mount("/v1/asr", createMetaAsrMount());
     aimock.mount("/v1beta/interactions", createGoogleInteractionsMount());
     aimock.mount("/v1/openai", createOpenAIChatMount());
     aimock.mount("/v1/solar", createOpenAIChatMount());
