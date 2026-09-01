@@ -1,3 +1,5 @@
+-- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
+
 -- Keep database URL grouping aligned with the web API, including userinfo
 -- and bracketed IPv6 authorities.
 create or replace function public.api_app_url_group_key(
@@ -194,7 +196,4 @@ comment on function public.get_public_app_groups(text[]) is
   'Resolves public app IDs or stable slugs to canonical URL groups for the service API.';
 
 ;
-
-
--- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
 

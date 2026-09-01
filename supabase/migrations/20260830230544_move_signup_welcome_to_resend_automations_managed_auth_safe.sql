@@ -1,3 +1,5 @@
+-- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
+
 do $migration$
 begin
   if to_regprocedure('public.enqueue_welcome_email()') is not null
@@ -16,7 +18,4 @@ set attempts = greatest(attempts, 5),
     last_error = 'cancelled: signup welcome moved to Resend Automations'
 where sent_at is null
   and (kind = 'welcome' or template = 'welcome');;
-
-
--- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
 

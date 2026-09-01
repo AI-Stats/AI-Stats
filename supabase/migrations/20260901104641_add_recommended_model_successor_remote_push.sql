@@ -1,3 +1,5 @@
+-- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
+
 -- Keep recommended successors independent from previous_model_slug lineage.
 -- replacement_model_slug already exists on v2_models; this RPC exposes a
 -- focused, audited write for the admin model editor.
@@ -76,8 +78,3 @@ revoke all on function public.set_v2_model_recommended_successor(uuid, text, tex
   from public, anon, authenticated;
 grant execute on function public.set_v2_model_recommended_successor(uuid, text, text)
   to service_role;
-
-
-
--- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
-

@@ -1,3 +1,5 @@
+-- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
+
 create table if not exists public.resend_webhook_events (
   id text primary key,
   event_type text not null,
@@ -25,7 +27,4 @@ comment on table public.resend_webhook_events is
   'Idempotency and operational metadata for verified Resend delivery webhooks. Recipient addresses are stored only as SHA-256 hashes.';
 comment on table public.email_delivery_suppressions is
   'Recipients that must not be retried after a Resend bounce, complaint, or suppression event.';;
-
-
--- phaseo:allow-production-history-backfill reason: Restore the exact migration version already recorded in the production ledger.
 
