@@ -7,7 +7,7 @@
   "previous_model_id": "google/gemini-3.7-flash",
   "description": "Gemini 3.8 Flash is an anticipated successor to Google's Gemini 3.7 Flash model. Phaseo is tracking the name for launch readiness; capabilities, availability, and pricing remain unconfirmed.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-09-02T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
