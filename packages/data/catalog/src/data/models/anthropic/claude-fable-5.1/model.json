@@ -1,0 +1,64 @@
+{
+  "model_id": "anthropic/claude-fable-5.1",
+  "organisation_id": "anthropic",
+  "name": "Claude Fable 5.1",
+  "status": "Available",
+  "hidden": true,
+  "previous_model_id": "anthropic/claude-fable-5",
+  "description": "Claude Fable 5.1 is an anticipated successor to Anthropic's Claude Fable 5 model. Phaseo is tracking the name for launch readiness; capabilities, availability, and pricing remain unconfirmed.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "anthropic/claude-fable-5.1",
+  "family_id": "anthropic/claude-5",
+  "links": [],
+  "details": [
+    {
+      "name": "availability",
+      "value": "Pre-launch placeholder. Anthropic has not confirmed the model name, API slug, release date, modalities, limits, capabilities, or pricing. Phaseo has pre-seeded disabled mappings for Anthropic, Claude Platform on AWS, Amazon Bedrock, and Google Vertex AI so they can be verified and enabled quickly if the model launches under the anticipated slug."
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Claude Fable 5.1 is tracked as a pre-launch placeholder. Details and routes remain disabled until Anthropic publishes official documentation."
+  },
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [],
+    "output": []
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": "2026-09-01T00:00:00Z",
+    "notes": "No official Anthropic announcement, model documentation, or pricing was found as of the checked date."
+  },
+  "last_updated": "2026-09-01T00:00:00",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
