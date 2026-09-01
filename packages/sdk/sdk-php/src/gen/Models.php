@@ -2085,12 +2085,18 @@ class GatewayWebFetchToolDefinition
 
 class GatewayWebSearchToolDefinition
 {
+	/** @var string|null */
+	public $engine;
 	/** @var bool|null */
 	public $include_highlights;
 	/** @var bool|null */
 	public $include_text;
+	/** @var string|null */
+	public $language;
 	/** @var int|null */
 	public $max_results;
+	/** @var int|null */
+	public $page;
 	/** @var array<string, mixed>|null */
 	public $parameters;
 	/** @var string */

@@ -600,7 +600,7 @@ const GatewayDatetimeToolSchema = z.object({
 const GatewayWebSearchToolSchema = z.object({
 	type: z.enum(["phaseo:web_search", "gateway:web_search"]),
 	parameters: z.object({
-		engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel", "perplexity"]).optional(),
+		engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel", "perplexity", "tinyfish"]).optional(),
 		max_results: z.number().int().positive().max(25).optional(),
 		max_total_results: z.number().int().positive().max(100).optional(),
 		search_context_size: z.enum(["low", "medium", "high"]).optional(),
@@ -613,8 +613,10 @@ const GatewayWebSearchToolSchema = z.object({
 		include_text: z.boolean().optional(),
 		include_highlights: z.boolean().optional(),
 		user_location: z.record(z.string(), z.any()).optional(),
+		language: z.string().optional(),
+		page: z.number().int().min(0).max(10).optional(),
 	}).optional(),
-	engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel", "perplexity"]).optional(),
+	engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel", "perplexity", "tinyfish"]).optional(),
 	max_results: z.number().int().positive().max(25).optional(),
 	max_total_results: z.number().int().positive().max(100).optional(),
 	search_context_size: z.enum(["low", "medium", "high"]).optional(),
@@ -627,6 +629,8 @@ const GatewayWebSearchToolSchema = z.object({
 	include_text: z.boolean().optional(),
 	include_highlights: z.boolean().optional(),
 	user_location: z.record(z.string(), z.any()).optional(),
+	language: z.string().optional(),
+	page: z.number().int().min(0).max(10).optional(),
 });
 
 const GatewayWebFetchToolSchema = z.object({

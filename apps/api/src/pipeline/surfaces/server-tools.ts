@@ -426,6 +426,7 @@ type PrepareRequestResult =
 export type ServerToolExecutionMetrics = {
 	datetimeRequests: number;
 	webSearchRequests: number;
+	billableWebSearchRequests?: number;
 	webSearchResults: number;
 	webSearchExtraResults: number;
 	webFetchRequests: number;
@@ -2746,7 +2747,13 @@ async function executeWebSearchToolCall(
 	call: { id: string; arguments: string },
 	config: ServerToolConfig,
 	remainingResults: number,
-): Promise<{ toolResult: IRToolResult; webFetchRequests: number; webSearchResults: number; webSearchExtraResults: number }> {
+): Promise<{
+	toolResult: IRToolResult;
+	webFetchRequests: number;
+	webSearchResults: number;
+	webSearchExtraResults: number;
+	billableWebSearchRequests?: number;
+}> {
 	const args = parseJsonObject(call.arguments);
 	const query = parseWebSearchQuery(args);
 	if (!query) {
@@ -2828,6 +2835,7 @@ async function executeWebSearchToolCall(
 				webFetchRequests: 0,
 				webSearchResults: 0,
 				webSearchExtraResults: 0,
+				billableWebSearchRequests: 0,
 			};
 		}
 
@@ -2868,6 +2876,7 @@ async function executeWebSearchToolCall(
 					webFetchRequests: 0,
 					webSearchResults: 0,
 					webSearchExtraResults: 0,
+					billableWebSearchRequests: 0,
 				};
 			}
 
@@ -2904,6 +2913,7 @@ async function executeWebSearchToolCall(
 				webFetchRequests: 0,
 				webSearchResults,
 				webSearchExtraResults: 0,
+				billableWebSearchRequests: 0,
 			};
 		} catch (error) {
 			return {
@@ -2919,6 +2929,7 @@ async function executeWebSearchToolCall(
 				webFetchRequests: 0,
 				webSearchResults: 0,
 				webSearchExtraResults: 0,
+				billableWebSearchRequests: 0,
 			};
 		}
 	}
@@ -3225,7 +3236,14 @@ export async function buildServerToolContinuation(
 				remainingSearchResults,
 			);
 			toolResults.push(executed.toolResult);
+			const webSearchRequestsBefore = usage.webSearchRequests;
 			usage.webSearchRequests += 1;
+			if (typeof executed.billableWebSearchRequests === "number") {
+				usage.billableWebSearchRequests =
+					(usage.billableWebSearchRequests ?? webSearchRequestsBefore) + Math.max(0, executed.billableWebSearchRequests);
+			} else if (usage.billableWebSearchRequests !== undefined) {
+				usage.billableWebSearchRequests += 1;
+			}
 			usage.webSearchResults += Math.max(0, executed.webSearchResults);
 			usage.webSearchExtraResults += Math.max(0, executed.webSearchExtraResults);
 			usage.webFetchRequests += Math.max(0, executed.webFetchRequests);
@@ -3716,7 +3734,7 @@ export function attachServerToolUsageToRawUsage(
 		search_models_requests: (Number(existing?.search_models_requests ?? 0) || 0) + Math.max(0, args.searchModelsRequests),
 	};
 	base.server_tool_web_search_requests =
-		(Number(base.server_tool_web_search_requests ?? 0) || 0) + Math.max(0, args.webSearchRequests);
+		(Number(base.server_tool_web_search_requests ?? 0) || 0) + Math.max(0, args.billableWebSearchRequests ?? args.webSearchRequests);
 	base.server_tool_web_search_extra_results =
 		(Number(base.server_tool_web_search_extra_results ?? 0) || 0) + Math.max(0, args.webSearchExtraResults);
 	base.server_tool_web_fetch_requests =

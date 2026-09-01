@@ -99,6 +99,28 @@ describe("text request schema validation", () => {
 		expect(parsed.success).toBe(true);
 	});
 
+	it("accepts TinyFish web search parameters on chat requests", () => {
+		const parsed = ChatCompletionsSchema.safeParse({
+			model: "gpt-4.1",
+			messages: [{ role: "user", content: "find recent AI news" }],
+			tools: [{
+				type: "phaseo:web_search",
+				parameters: {
+					engine: "tinyfish",
+					language: "en",
+					page: 2,
+				},
+			}],
+		});
+
+		expect(parsed.success).toBe(true);
+		if (parsed.success) {
+			expect(parsed.data.tools?.[0]).toMatchObject({
+				parameters: { engine: "tinyfish", language: "en", page: 2 },
+			});
+		}
+	});
+
 	it("accepts Phaseo web fetch server tool on chat requests", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",

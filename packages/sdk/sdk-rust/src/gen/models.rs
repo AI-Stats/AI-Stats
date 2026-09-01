@@ -1176,9 +1176,12 @@ pub struct GatewayWebFetchToolDefinition {
 }
 
 pub struct GatewayWebSearchToolDefinition {
+	pub engine: Option<String>,
 	pub include_highlights: Option<bool>,
 	pub include_text: Option<bool>,
+	pub language: Option<String>,
 	pub max_results: Option<i64>,
+	pub page: Option<i64>,
 	pub parameters: Option<HashMap<String, String>>,
 	pub r#type: String,
 }

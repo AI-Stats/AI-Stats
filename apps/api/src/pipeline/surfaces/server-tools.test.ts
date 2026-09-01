@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { buildServerToolContinuation, prepareServerToolsForTextRequest } from "./server-tools";
+import {
+	attachServerToolUsageToRawUsage,
+	buildServerToolContinuation,
+	prepareServerToolsForTextRequest,
+} from "./server-tools";
 
 const getBindingsMock = vi.fn();
 
@@ -1506,6 +1510,7 @@ describe("buildServerToolContinuation", () => {
 			expect(requestUrl.searchParams.get("page")).toBe("2");
 			expect(continuation?.usage).toMatchObject({
 				webSearchRequests: 1,
+				billableWebSearchRequests: 0,
 				webSearchResults: 1,
 				webSearchExtraResults: 0,
 				webFetchRequests: 0,
@@ -2110,5 +2115,35 @@ describe("buildServerToolContinuation", () => {
 		} finally {
 			vi.unstubAllGlobals();
 		}
+	});
+});
+
+describe("server tool billing", () => {
+	it("keeps free TinyFish usage observable without adding a billable search meter", () => {
+		const usage = attachServerToolUsageToRawUsage(
+			{ prompt_tokens: 10 },
+			{
+				datetimeRequests: 0,
+				webSearchRequests: 1,
+				billableWebSearchRequests: 0,
+				webSearchResults: 3,
+				webSearchExtraResults: 0,
+				webFetchRequests: 0,
+				advisorRequests: 0,
+				imageGenerationRequests: 0,
+				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
+			},
+		);
+
+		expect(usage).toMatchObject({
+			server_tool_use: {
+				web_search_requests: 1,
+				web_search_results: 3,
+			},
+			server_tool_web_search_requests: 0,
+		});
 	});
 });
