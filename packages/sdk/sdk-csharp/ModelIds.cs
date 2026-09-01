@@ -38,8 +38,12 @@ namespace PhaseoSdk
         public const string AnthropicClaude37Sonnet = "anthropic/claude-3.7-sonnet";
         /// <summary>Model ID: <c>anthropic/claude-fable-5</c>. Model page: https://phaseo.app/models/anthropic/claude-fable-5</summary>
         public const string AnthropicClaudeFable5 = "anthropic/claude-fable-5";
+        /// <summary>Model ID: <c>anthropic/claude-fable-5.1</c>. Model page: https://phaseo.app/models/anthropic/claude-fable-5.1</summary>
+        public const string AnthropicClaudeFable51 = "anthropic/claude-fable-5.1";
         /// <summary>Model ID: <c>anthropic/claude-haiku-4.5</c>. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5</summary>
         public const string AnthropicClaudeHaiku45 = "anthropic/claude-haiku-4.5";
+        /// <summary>Model ID: <c>anthropic/claude-mythos-5.1</c>. Model page: https://phaseo.app/models/anthropic/claude-mythos-5.1</summary>
+        public const string AnthropicClaudeMythos51 = "anthropic/claude-mythos-5.1";
         /// <summary>Model ID: <c>anthropic/claude-opus-4</c>. Model page: https://phaseo.app/models/anthropic/claude-opus-4</summary>
         public const string AnthropicClaudeOpus4 = "anthropic/claude-opus-4";
         /// <summary>Model ID: <c>anthropic/claude-opus-4.1</c>. Model page: https://phaseo.app/models/anthropic/claude-opus-4.1</summary>
