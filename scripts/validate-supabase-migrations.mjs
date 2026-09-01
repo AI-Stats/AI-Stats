@@ -67,6 +67,47 @@ function getMigrationChanges(baseSha) {
 	});
 }
 
+function listBaseMigrationFiles(baseSha) {
+	if (!baseSha || /^0+$/.test(baseSha)) return [];
+
+	const output = execFileSync(
+		"git",
+		["ls-tree", "-r", "--name-only", baseSha, "--", "supabase/migrations"],
+		{ cwd: REPOSITORY_ROOT, encoding: "utf8" },
+	).trim();
+
+	if (!output) return [];
+	return output
+		.split(/\r?\n/)
+		.map((path) => path.split("/").at(-1) ?? "")
+		.filter((file) => MIGRATION_NAME.test(file))
+		.sort();
+}
+
+export function validateMigrationOrder(baseFiles, addedPaths) {
+	const errors = [];
+	const latestBaseVersion = baseFiles
+		.map((file) => file.match(MIGRATION_NAME)?.[1] ?? "")
+		.filter(Boolean)
+		.sort()
+		.at(-1);
+
+	if (!latestBaseVersion) return errors;
+
+	for (const path of addedPaths) {
+		const file = path.split("/").at(-1) ?? "";
+		const version = file.match(NEW_MIGRATION_NAME)?.[1];
+		if (version && version <= latestBaseVersion) {
+			errors.push(
+				`${path}: migration version ${version} must be newer than the base branch's latest version ${latestBaseVersion}. ` +
+				"Rebase onto the current target branch and create a new migration with `supabase migration new`.",
+			);
+		}
+	}
+
+	return errors;
+}
+
 function stripSqlComments(sql) {
 	return sql
 		.replace(/\/\*[\s\S]*?\*\//g, " ")
@@ -159,6 +200,7 @@ export function validateSupabaseMigrations(baseSha = "") {
 	for (const path of added) {
 		errors.push(...validateAddedMigration(path, files));
 	}
+	errors.push(...validateMigrationOrder(listBaseMigrationFiles(baseSha), added));
 
 	if (errors.length > 0) {
 		throw new Error(`Invalid Supabase migrations:\n- ${errors.join("\n- ")}`);
