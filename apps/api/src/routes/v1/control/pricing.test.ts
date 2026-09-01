@@ -51,7 +51,7 @@ describe("pricingRoutes", () => {
 		});
 	});
 
-	it("includes active rows with open effective windows and avoids empty in filters", async () => {
+	it("filters expired SKUs in PostgREST and avoids empty in filters", async () => {
 		const pricingQuery = trackedQuery({ data: [{
 			sku_id: "sku_1",
 			provider_model_id: "pm_1",
@@ -59,15 +59,6 @@ describe("pricingRoutes", () => {
 			service_tier_slug: "standard",
 			currency: "USD",
 			metadata: {},
-			effective_to: null,
-		}, {
-			sku_id: "sku_expired",
-			provider_model_id: "pm_1",
-			operation: "chat/completions",
-			service_tier_slug: "standard",
-			currency: "USD",
-			metadata: {},
-			effective_to: "2020-01-01T00:00:00.000Z",
 		}], error: null });
 		getSupabaseAdminMock.mockReturnValue({
 			from: vi.fn((table: string) => {
@@ -104,10 +95,14 @@ describe("pricingRoutes", () => {
 		expect(body.models).toEqual([
 			expect.objectContaining({ model: "openai/gpt-test", meters: [expect.objectContaining({ meter: "input_tokens" })] }),
 		]);
-		expect(pricingQuery.or).not.toHaveBeenCalled();
+		expect(pricingQuery.or).toHaveBeenCalledOnce();
+		expect(pricingQuery.or).toHaveBeenCalledWith(expect.stringMatching(
+			/^effective_to\.is\.null,effective_to\.gt\."\d{4}-\d{2}-\d{2}T.*Z"$/,
+		));
 	});
 
-	it("identifies the failed pricing table", async () => {
+	it("logs the failed pricing table without exposing database details", async () => {
+		const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 		getSupabaseAdminMock.mockReturnValue({
 			from: vi.fn((table: string) => queryResult({
 				data: [],
@@ -119,7 +114,12 @@ describe("pricingRoutes", () => {
 
 		expect(response.status).toBe(500);
 		await expect(response.json()).resolves.toMatchObject({
-			message: "v2_pricing_skus: Bad Request",
+			message: "Pricing catalogue is temporarily unavailable",
 		});
+		expect(consoleError).toHaveBeenCalledWith(
+			"[gateway/pricing] model catalogue query failed",
+			{ message: "v2_pricing_skus: Bad Request" },
+		);
+		consoleError.mockRestore();
 	});
 });

@@ -51,13 +51,13 @@ async function handlePricingModels(req: Request) {
                 .eq("routing_enabled", true).in("status", ["active", "degraded"]),
             supabase.from("v2_models").select("model_slug,name,hidden,status"),
             supabase.from("v2_pricing_skus")
-                .select("sku_id,provider_model_id,operation,service_tier_slug,currency,metadata,effective_to")
-                .eq("status", "active").lte("effective_from", nowIso),
+                .select("sku_id,provider_model_id,operation,service_tier_slug,currency,metadata")
+                .eq("status", "active").lte("effective_from", nowIso)
+                .or(`effective_to.is.null,effective_to.gt.\"${nowIso}\"`),
         ]);
         const routeRows = requireQueryResult("v2_model_provider_routes", routesResult);
         const modelRows = requireQueryResult("v2_models", modelsResult);
-        const skuRows = requireQueryResult("v2_pricing_skus", skusResult)
-            .filter((sku) => sku.effective_to == null || String(sku.effective_to) > nowIso);
+        const skuRows = requireQueryResult("v2_pricing_skus", skusResult);
         const skuIds = skuRows.map((sku) => sku.sku_id);
         const metersResult = skuIds.length
             ? await supabase.from("v2_pricing_sku_meters")
@@ -125,8 +125,11 @@ async function handlePricingModels(req: Request) {
         );
         return response;
     } catch (error: any) {
+        console.error("[gateway/pricing] model catalogue query failed", {
+            message: String(error?.message ?? error),
+        });
         return json(
-            { ok: false, error: "failed", message: String(error?.message ?? error) },
+            { ok: false, error: "failed", message: "Pricing catalogue is temporarily unavailable" },
             500,
             { "Cache-Control": "no-store" }
         );
@@ -203,7 +206,6 @@ export const pricingRoutes = new Hono<Env>();
 
 pricingRoutes.get("/models", withRuntime(handlePricingModels));
 pricingRoutes.post("/calculate", withRuntime(handlePricingCalculate));
-
 
 
 
