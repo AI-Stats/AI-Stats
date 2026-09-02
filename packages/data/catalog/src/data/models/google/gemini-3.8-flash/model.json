@@ -2,60 +2,71 @@
   "model_id": "google/gemini-3.8-flash",
   "organisation_id": "google",
   "name": "Gemini 3.8 Flash",
-  "status": "Rumoured",
-  "hidden": true,
+  "status": "Available",
+  "hidden": false,
   "previous_model_id": "google/gemini-3.7-flash",
-  "description": "Gemini 3.8 Flash is an anticipated successor to Google's Gemini 3.7 Flash model. Google's public billing catalogue now lists Gemini API and Vertex AI SKUs, while the model release, capabilities, limits, and callable API identifiers remain unconfirmed.",
-  "announced_date": null,
+  "description": "Gemini 3.8 Flash is Google's generally available multimodal workhorse model for long-horizon coding, autonomous agents, and high-throughput workloads.",
+  "announced_date": "2026-09-02T00:00:00",
   "release_date": "2026-09-02T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,image,video,audio",
+  "output_types": "text",
   "api_model_id": "google/gemini-3.8-flash",
-  "links": [],
+  "links": [
+    {
+      "title": "Vertex AI model documentation",
+      "kind": "documentation",
+      "url": "https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-8-flash"
+    },
+    {
+      "title": "Google Cloud pricing",
+      "kind": "pricing",
+      "url": "https://cloud.google.com/vertex-ai/generative-ai/pricing"
+    }
+  ],
   "details": [
     {
       "name": "availability",
-      "value": "Pre-launch placeholder. Public Google billing SKUs confirm planned Gemini API and Vertex AI pricing, but Google has not confirmed the callable model slug, release, modalities, limits, or capabilities. Phaseo keeps both provider mappings disabled until the official model documentation is published."
+      "value": "Generally available on Vertex AI in global, US, and EU locations. Phaseo displays the verified provider support while gateway routing remains disabled."
     }
   ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Gemini 3.8 Flash is tracked as a pre-launch placeholder. Details and routes remain disabled until Google publishes official documentation."
-  },
+  "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 1048576,
     "input": null,
-    "output": null
+    "output": 65536
   },
   "modalities": {
-    "input": [],
-    "output": []
+    "input": ["text", "image/*", "video/*", "audio/*"],
+    "output": ["text"]
   },
   "reasoning": {
-    "supported": null,
-    "options": []
+    "supported": true,
+    "options": ["low", "medium", "high"]
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
     "streaming": null,
-    "web_search": null
+    "web_search": true
   },
-  "open_weights": null,
-  "sources": [{ "kind": "pricing", "url": "https://cloud.google.com/skus?filter=3.8%20Flash&currency=USD", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Google's public billing catalogue contains model-specific Gemini 3.8 Flash SKUs for Gemini API and Vertex AI." }],
+  "open_weights": false,
+  "sources": [
+    { "kind": "documentation", "url": "https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-8-flash", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Official GA model ID, release date, modalities, token limits, capabilities, service options, and regions." },
+    { "kind": "pricing", "url": "https://cloud.google.com/skus?filter=3.8%20Flash&currency=USD", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Google's public billing catalogue contains model-specific Gemini 3.8 Flash SKUs for Gemini API and Vertex AI." }
+  ],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-09-02T00:00:00Z",
-    "notes": "Official Google billing SKUs verify provider-specific pricing. The release, callable model identifiers, capabilities, and limits remain unverified."
+    "notes": "Google's Vertex AI documentation verifies the GA release, callable model ID, modalities, limits, capabilities, locations, and consumption options; billing SKUs verify provider pricing."
   },
   "last_updated": "2026-09-02T00:00:00",
   "removal_date": null,
