@@ -22,21 +22,30 @@ import {
 } from "@/lib/productFeedback";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 
-const CATEGORIES: Array<{ value: ProductFeedbackCategory; label: string }> = [
-	{ value: "issue", label: "Issue" },
-	{ value: "idea", label: "Idea" },
-	{ value: "other", label: "Other" },
+function reasonTranslationKey(reason: ProductFeedbackReason): string {
+	return reason === "missing_capability"
+		? "reasons.missingCapability"
+		: reason === "incorrect_data"
+			? "reasons.incorrectData"
+			: `reasons.${reason}`;
+}
+
+const CATEGORIES: ProductFeedbackCategory[] = [
+	"issue",
+	"idea",
+	"other",
 ];
 
-const REASONS: Array<{ value: ProductFeedbackReason; label: string }> = [
-	{ value: "usability", label: "Confusing or difficult to use" },
-	{ value: "missing_capability", label: "Missing feature or workflow" },
-	{ value: "incorrect_data", label: "Incorrect or missing data" },
-	{ value: "reliability", label: "Bug or unexpected behaviour" },
-	{ value: "performance", label: "Slow or unresponsive" },
-	{ value: "documentation", label: "Documentation or guidance" },
-	{ value: "other", label: "Something else" },
+const REASONS: ProductFeedbackReason[] = [
+	"usability",
+	"missing_capability",
+	"incorrect_data",
+	"reliability",
+	"performance",
+	"documentation",
+	"other",
 ];
 
 type ProductFeedbackProps = {
@@ -50,6 +59,7 @@ export function ProductFeedbackDialog(props: ProductFeedbackProps & {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }) {
+	const t = useTranslations("Product.feedback");
 	const [category, setCategory] = useState<ProductFeedbackCategory>("idea");
 	const [reason, setReason] = useState<ProductFeedbackReason>("missing_capability");
 	const [message, setMessage] = useState("");
@@ -79,11 +89,11 @@ export function ProductFeedbackDialog(props: ProductFeedbackProps & {
 			context: props.context,
 		});
 		if (!captured) {
-			toast.error(message.trim() ? "Enable analytics cookies to send feedback." : "Add a little detail before sending.");
+			toast.error(message.trim() ? t("enableAnalytics") : t("addDetail"));
 			return;
 		}
 
-		toast.success("Feedback sent — thank you.");
+		toast.success(t("sent"));
 		setSubmitted(true);
 		setMessage("");
 		setCategory("idea");
@@ -95,61 +105,61 @@ export function ProductFeedbackDialog(props: ProductFeedbackProps & {
 		<Dialog open={props.open} onOpenChange={changeOpen}>
 			<DialogContent className="gap-5 rounded-md sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>Share Feedback</DialogTitle>
+					<DialogTitle>{t("share")}</DialogTitle>
 					<DialogDescription>
-						{props.prompt ?? "Tell us what would make this part of Phaseo work better for you."}
+						{props.prompt ?? t("defaultPrompt")}
 					</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-3">
-					<div className="grid grid-cols-3 gap-2" aria-label="Feedback category">
-						{CATEGORIES.map((option) => (
+					<div className="grid grid-cols-3 gap-2" aria-label={t("category")}>
+						{CATEGORIES.map((value) => (
 							<Button
-								key={option.value}
+								key={value}
 								type="button"
-								variant={category === option.value ? "secondary" : "outline"}
-								aria-pressed={category === option.value}
+								variant={category === value ? "secondary" : "outline"}
+								aria-pressed={category === value}
 								className="rounded-md"
-								onClick={() => setCategory(option.value)}
+								onClick={() => setCategory(value)}
 							>
-								{option.label}
+								{t(`categories.${value}`)}
 							</Button>
 						))}
 					</div>
 					<div className="space-y-1.5">
-						<Label htmlFor="product-feedback-reason">Reason</Label>
+						<Label htmlFor="product-feedback-reason">{t("reason")}</Label>
 						<Select value={reason} onValueChange={(value) => setReason(value as ProductFeedbackReason)}>
 							<SelectTrigger id="product-feedback-reason" className="w-full rounded-md">
-								<span>{REASONS.find((option) => option.value === reason)?.label}</span>
+								<span>{t(reasonTranslationKey(reason) as never)}</span>
 							</SelectTrigger>
 							<SelectContent>
-								{REASONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+								{REASONS.map((value) => <SelectItem key={value} value={value}>{t(reasonTranslationKey(value) as never)}</SelectItem>)}
 							</SelectContent>
 						</Select>
 					</div>
 					<div className="space-y-1.5">
-						<Label htmlFor="product-feedback-message">Details</Label>
+						<Label htmlFor="product-feedback-message">{t("details")}</Label>
 					<Textarea
 						id="product-feedback-message"
 						value={message}
 						onChange={(event) => setMessage(event.target.value)}
-						placeholder="What should we improve?"
+						placeholder={t("placeholder")}
 						maxLength={4_000}
 						className="min-h-28 max-h-56 resize-y overflow-y-auto rounded-md"
 					/>
 					</div>
 					<p className="text-xs text-muted-foreground">
-						Please do not include API keys, credentials, or other sensitive information.
+						{t("privacyNotice")}
 					</p>
 				</div>
 
 				<DialogFooter>
 					<Button type="button" variant="outline" className="rounded-md" onClick={() => changeOpen(false)}>
-						Cancel
+						{t("cancel")}
 					</Button>
 					<Button type="button" className="rounded-md" disabled={!message.trim()} onClick={submit}>
 						<SendHorizontal className="size-4" />
-						Send Feedback
+						{t("send")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -158,13 +168,14 @@ export function ProductFeedbackDialog(props: ProductFeedbackProps & {
 }
 
 export function ProductFeedbackButton(props: ProductFeedbackProps) {
+	const t = useTranslations("Product.feedback");
 	const [open, setOpen] = useState(false);
 
 	return (
 		<>
 			<Button variant="outline" className="rounded-md" onClick={() => setOpen(true)}>
 				<MessageSquareMore className="size-4" />
-				{props.label ?? "Feedback"}
+				{props.label ?? t("send")}
 			</Button>
 			<ProductFeedbackDialog {...props} open={open} onOpenChange={setOpen} />
 		</>

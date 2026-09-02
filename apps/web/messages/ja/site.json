@@ -1,0 +1,370 @@
+{
+  "home": {
+    "title": "Phaseo：AI Gateway とオープンモデルカタログ",
+    "description": "信頼できるモデルデータを見つけ、1つのオープンソース AI gateway を通じてリクエストをルーティングし、プロバイダー間のコスト、信頼性、利用状況、パフォーマンスを把握できます。",
+    "heroTitle": "あらゆるAIモデルを1つのプラットフォームで",
+    "heroDescription": "信頼できるモデルデータを見つけ、1つの OpenAI 互換 gateway を通じてリクエストをルーティングし、対応プロバイダー間のコスト、信頼性、利用状況、パフォーマンスを把握できます。",
+    "explore": "探索",
+    "models": "モデル",
+    "getApiKey": "APIキーを取得",
+    "viewGithub": "GitHubを見る",
+    "openModelDatabase": "オープンなモデルデータベースと統合 gateway",
+    "openModelDatabaseDescription": "幅広いモデルカタログを確認し、リリース前に Gateway ルートが有効なモデルへ絞り込みます。",
+    "transparentPricing": "透明な料金体系",
+    "viewPricing": "料金を見る",
+    "usePricingCalculator": "料金計算ツールを使う",
+    "pricingPoints": {
+      "payAsYouGo": "完全従量課金",
+      "payAsYouGoBody": "エンタープライズプラン、契約、サブスクリプション、最低利用額、月額・年額の契約期間はありません。",
+      "creditFee": "クレジット購入手数料 {fee}%",
+      "creditFeeBody": "クレジット購入時に適用されます。最低手数料は1ドルです。利用料金はカタログに表示されたモデル価格に基づきます。",
+      "managedCredits": "管理クレジットまたはBYOK",
+      "managedCreditsBody": "BYOKでは毎月100万件まで手数料無料でリクエストできます。それ以降は、プロバイダー相当の費用に対して2.5%のサービス手数料がかかります。"
+    }
+  },
+  "about": {
+    "badge": "会社情報",
+    "title": "プロバイダーをまたいでモデルにアクセスし、確実に運用へ届ける、統合されたオープンなレイヤー。",
+    "intro": "Phaseo は実用的なオープン性を中心に構築されています。幅広いモデルとプロバイダーへのアクセス、リリース・非推奨・廃止の明確な追跡、そして予測不能な事態を減らしながら本番ワークロードを運用できる可視性を提供します。",
+    "exploreModels": "モデルを探索",
+    "pricing": "Phaseo の料金",
+    "documentation": "ドキュメント",
+    "howItWorks": "仕組み",
+    "howItWorksTitle": "探索から本番運用までの明確な道筋。",
+    "howItWorksDescription": "モデルを調査し、1つのAPIレイヤーで実行し、ライフサイクルの変更を把握しながら、時間の経過に伴う動作を監視できます。",
+    "whatWeBuild": "私たちが作るもの",
+    "whatWeBuildTitle": "AIの変化に合わせて役立ち続ける、堅牢なプロダクト基盤。",
+    "whatWeBuildDescription": "目標はシンプルです。アクセスの幅を保ち、インターフェースを安定させ、運用を分かりやすくすることです。",
+    "open": "オープン",
+    "step": "ステップ {number}"
+  },
+  "mission": {
+    "title": "ミッション",
+    "intro": "Phaseo のミッションは、AIモデルへのアクセスを幅広く、手頃に、透明で、持ち運びやすく、オープンにすることです。",
+    "principles": "私たちの原則",
+    "broadAccess": "幅広いアクセス",
+    "broadAccessBody": "責任を持って可能な限り多くの有用なモデル、プロバイダー、モダリティ、機能を、1つの一貫したインターフェースで支援します。",
+    "lowestPrice": "持続可能な最低価格",
+    "lowestPriceBody": "ルーティング、インフラ、ソフトウェアの効率を改善し続け、その成果を価格の引き下げとサービスの向上に還元します。",
+    "openByDefault": "デフォルトでオープン",
+    "openByDefaultBody": "Phaseo をオープンソースとして維持し、gateway を利用する人々が検証、拡張、批評、改善できるようにします。",
+    "usersFirst": "投資家よりユーザーを優先",
+    "usersFirstBody": "短期的な金銭的利益への圧力ではなく、長期的なユーザー利益、プロダクト品質、公平なアクセスを基準に意思決定します。",
+    "transparency": "ロックインのない透明性",
+    "transparencyBody": "料金、ルーティング、提供状況、ライフサイクルの変更、運用を分かりやすくしながら、データと連携の持ち運びやすさを保ちます。",
+    "technicalExcellence": "技術的卓越性",
+    "technicalExcellenceBody": "正確なデータ、信頼できるルーティング、強力な互換性、有用な可視性、シンプルに感じられる開発者体験で競争します。",
+    "builtWithEveryone": "みんなでつくる",
+    "builtWithEveryoneBody": "ユーザー、コントリビューター、モデル作成者、プロバイダーが、プラットフォームとその周辺標準に意義ある形で参加できる方法を提供します。",
+    "principlesTitle": "私たちのつくり方を導く約束。",
+    "principlesDescription": "これらの原則は、Phaseo の成長に伴うプロダクト、料金、パートナーシップ、事業上の意思決定の指針となるものです。",
+    "exploreModels": "モデルを探索",
+    "viewSource": "ソースを見る",
+    "roadmap": "ロードマップを読む"
+  },
+  "faq": {
+    "title": "AIモデルデータベースと gateway に関するよくある質問",
+    "intro": "モデルの比較、データの理解、gateway の利用に関する実用的な回答です。答えが見つかりませんか？ <support>チームにお問い合わせください</support>。",
+    "items": [
+      {
+        "question": "Phaseo でAIモデルを比較するにはどうすればよいですか？",
+        "answer": "まず<models>モデルディレクトリ</models>を開き、モデルページで料金、プロバイダー、ベンチマーク結果、レイテンシーの指標、互換性の詳細を比較します。表示される情報は、そのモデルで利用できるデータによって異なります。"
+      },
+      {
+        "question": "モデルページでは何が分かりますか？",
+        "answer": "モデルページには、特定のモデルに関する有用な情報がまとまっています。作成者、提供しているプロバイダー、掲載料金、ベンチマークの対象範囲、gateway での利用可否などです。ページのタブから、料金、プロバイダー、パフォーマンス、クイックスタートの詳細を確認できます。"
+      },
+      {
+        "question": "Phaseo はモデル料金をどのように計算しますか？",
+        "answer": "Phaseo は、各プロバイダールートのメーター、単位サイズ、通貨、プラン、有効日を保存します。入力と出力の料金は分けて扱い、比較のためトークン価格を100万トークンあたりに正規化します。複合的な見出し価格にまとめることはありません。詳しくは<pricingMethodology>料金の方法論</pricingMethodology>を読むか、<calculator>料金計算ツール</calculator>に独自のトークン量を入力してください。"
+      },
+      {
+        "question": "gateway の利用可否とは何ですか？",
+        "answer": "Gateway の利用可否は、Phaseo が現在そのモデルに適格なルートを持っているかどうかを示します。モデルの品質やベンチマーク性能とは別のものです。プロバイダーの状態は変わる可能性があるため、本番でルートに依存する前に、モデルのプロバイダーと利用可否を確認してください。"
+      },
+      {
+        "question": "Phaseo を AI gateway として使えますか？",
+        "answer": "はい。Phaseo Gateway は、対応モデルとプロバイダーに対して1つのOpenAI互換インターフェースを提供します。APIキーを作成し、モデルを選ぶだけで、モデルとプロバイダーを選択しながら同じ連携インターフェースを使えます。"
+      },
+      {
+        "question": "自分のプロバイダーAPIキーを使えますか？",
+        "answer": "はい。プロバイダーとの関係と直接の請求を維持したい場合は、自分のプロバイダーキーを持ち込めます。そのうえで、Phaseo のルーティング、ヘルスチェック、ポリシーレイヤーを利用できます。"
+      },
+      {
+        "question": "どのプロバイダーやモデルタイプを探索できますか？",
+        "answer": "<providers>プロバイダーディレクトリ</providers>で対応状況を確認するか、モデルディレクトリをチャット、埋め込み、画像、音声、動画、モデレーションなどの機能で絞り込めます。現在掲載されているモデルカタログを確認するには、プロバイダーページが最適です。"
+      },
+      {
+        "question": "ベンチマークとパフォーマンスのデータはどのように扱われますか？",
+        "answer": "ベンチマークスコアは、比較の文脈を保てるよう、ベンチマークとその方法論とともに表示されます。単一のスコアだけで本番の判断をする前に、<benchmarkMethodology>Phaseo がAIベンチマークを正規化する方法</benchmarkMethodology>と、<performanceMethodology>レイテンシーとスループットの測定方法</performanceMethodology>を確認してください。"
+      },
+      {
+        "question": "掲載内容が間違っている、または不完全に見える場合はどうすればよいですか？",
+        "answer": "<contribute>コントリビューションページ</contribute>から、訂正の報告や不足情報の追加を行えます。正確で出典のある報告は、プロバイダーのカタログや料金が変わってもディレクトリを役立つ状態に保つ助けになります。"
+      }
+    ]
+  },
+  "methodology": {
+    "label": "方法論",
+    "title": "Phaseo が公開情報を測定する方法",
+    "description": "公開カタログ全体で、料金、パフォーマンス、ベンチマーク、プロバイダー対応範囲をどのように定義しているかを説明する4つのリファレンスページです。",
+    "lastUpdated": "最終更新 {date}",
+    "readPage": "ページを読む",
+    "relatedPages": "関連ページ",
+    "articleLastUpdated": "最終更新：{date}",
+    "entries": {
+      "how-phaseo-calculates-model-pricing": {
+        "shortTitle": "モデル料金",
+        "title": "Phaseo がモデル料金を計算する方法",
+        "description": "Phaseo がプロバイダーの料金表、メーター、ルーティングルールを、カタログ全体のモデルページに表示する公開料金へ変換する方法です。",
+        "intro": "このページでは、プロバイダーの料金ソースを、モデルページとプロバイダーページに表示する公開料金へ Phaseo が変換する仕組みを説明します。",
+        "sections": {
+          "what": "測定するもの",
+          "inputs": "主な入力データ",
+          "normalised": "料金の正規化方法",
+          "dates": "有効日と変更の扱い",
+          "caveats": "注意点"
+        },
+        "related": {
+          "gateway": "Gateway の料金",
+          "calculator": "料金計算ツール",
+          "models": "モデルデータベース"
+        }
+      },
+      "how-phaseo-measures-latency-throughput": {
+        "shortTitle": "レイテンシーとスループット",
+        "title": "Phaseo がレイテンシーとスループットを測定する方法",
+        "description": "Phaseo がランキングやモデル・プロバイダーのパフォーマンスページに表示する、レイテンシー、スループット、リクエスト性能の指標を定義する方法です。",
+        "intro": "このページでは、Phaseo におけるレイテンシーとスループットの定義、指標の集計方法、ルートや期間によって結果が変わる理由を説明します。",
+        "sections": {
+          "what": "測定するもの",
+          "windows": "集計期間",
+          "eligibility": "フィルタリングと適格性",
+          "move": "値が変動する理由",
+          "caveats": "注意点"
+        },
+        "related": {
+          "rankings": "ランキング",
+          "models": "モデル",
+          "providers": "プロバイダー"
+        }
+      },
+      "how-phaseo-normalises-ai-benchmarks": {
+        "shortTitle": "ベンチマークの正規化",
+        "title": "Phaseo がAIベンチマークを正規化する方法",
+        "description": "Phaseo が異なるソース間でベンチマーク表示を揃えながら、ベンチマークスコア、バリエーション、並び順の方向を保存する方法です。",
+        "intro": "このページでは、すべてのベンチマークが直接比較できるとは限らないことを踏まえ、異なるソースのベンチマークデータを Phaseo が扱う方法を説明します。",
+        "sections": {
+          "what": "保存するもの",
+          "normalised": "ここでいう正規化の意味",
+          "ranking": "ランキングのロジック",
+          "source": "ソースの品質と開示",
+          "caveats": "注意点"
+        },
+        "related": {
+          "benchmarks": "ベンチマーク",
+          "models": "モデル",
+          "compare": "モデルを比較"
+        }
+      },
+      "how-phaseo-tracks-provider-availability": {
+        "shortTitle": "プロバイダーの利用可否",
+        "title": "Phaseo がプロバイダーの利用可否を追跡する方法",
+        "description": "Phaseo がモデルとプロバイダーの対応を管理し、gateway の利用可否を追跡し、公開カタログページでプロバイダーごとの対応範囲を解釈する方法です。",
+        "intro": "このページでは、モデルがプロバイダーで利用可能かどうかを Phaseo が判断する方法と、公開されているプロバイダー対応状況が何を意味するかを説明します。",
+        "sections": {
+          "what": "Phaseo における利用可否の意味",
+          "mappings": "対応関係の保存方法",
+          "active": "Gateway で有効なものとカタログに表示されるもの",
+          "changes": "プロバイダーページが変わるとき",
+          "caveats": "注意点"
+        },
+        "related": {
+          "providers": "プロバイダーデータベース",
+          "models": "モデル",
+          "rankings": "ランキング"
+        }
+      }
+    }
+  },
+  "contact": {
+    "title": "Phaseo サポートに問い合わせる",
+    "intro": "必要なことをお知らせください。適切な窓口へご案内します。個別のアカウント問題はサポートチケットに、公開バグ、機能リクエスト、簡単な質問は内容に合ったチャンネルへ送られます。",
+    "sendFeedback": "プロダクトへのフィードバックを送る",
+    "stepOne": "ステップ1",
+    "stepTwo": "ステップ2",
+    "whatHelp": "どのようなサポートが必要ですか？",
+    "chooseIssue": "問題の種類を選択",
+    "pickClosest": "最も近い選択肢を選ぶと、下に次の手順が表示されます。",
+    "recommended": "おすすめ：{method}",
+    "privateReply": "非公開で返信してほしいですか？",
+    "switchPrivate": "非公開チケットに切り替える",
+    "otherMethods": "その他のサポート方法",
+    "otherMethodsBody": "問題に合う場合は、別のチャンネルを利用してください。",
+    "yourTime": "あなたの時刻 {time}",
+    "checking": "確認中…",
+    "supportTime": "Phaseo のサポート時間：{time}",
+    "support": "サポート",
+    "liveChatTitle": "ライブチャットまたはメール",
+    "liveChatDescription": "このページからライブチャットを開始するか、必要な情報を入力済みのメールを開きます。",
+    "signedInAs": "{email} としてサインイン中",
+    "chatNotConfigured": "このデプロイメントではライブチャットが設定されていません。",
+    "chatOutsideHours": "ライブチャットはサポート時間内に利用できます。メールはいつでも受け付けています。",
+    "chatOffline": "ライブチャットはオフラインです",
+    "loadingChat": "チャットを読み込み中…",
+    "startLiveChat": "ライブチャットを開始",
+    "chatUnavailable": "ライブチャットを利用できません",
+    "sendEmail": "メールを送る",
+    "createTicket": "チケットを作成",
+    "openChatNewTab": "新しいタブでチャットを開く",
+    "privateReplyBody": "アカウント情報、請求情報、リクエストID、スクリーンショットを含む場合は、代わりに非公開のサポートチケットを選択してください。",
+    "repliesResumeSoon": "サポートからの返信はまもなく再開します。",
+    "feedbackPrompt": "Phaseo 全体で、もっとわかりやすく、速く、役立つようにすべき点をお知らせください。アカウントや請求に関するサポートは、以下のサポート窓口をご利用ください。",
+    "methods": {
+      "support": {
+        "title": "非公開サポートチケット",
+        "description": "アカウント、請求、データ、実装に関する問題に最適です。",
+        "cta": "チケットを作成"
+      },
+      "github": {
+        "title": "GitHub",
+        "description": "再現可能なバグ、機能リクエスト、公開での進捗追跡に最適です。",
+        "cta": "GitHubを開く"
+      },
+      "discord": {
+        "title": "Discord",
+        "description": "簡単なセットアップの質問や気軽なコミュニティフィードバックに最適です。",
+        "cta": "Discordに参加"
+      },
+      "docs": {
+        "title": "ドキュメント",
+        "description": "gateway ガイド、SDKサンプル、モデルリファレンス、クイックスタートに最適です。",
+        "cta": "ドキュメントを読む"
+      }
+    },
+    "issues": {
+      "billing": {
+        "label": "請求またはアカウントの問題",
+        "helper": "非公開のサポートチケットを作成してください。入力したメールアドレスに返信します。"
+      },
+      "bug": {
+        "label": "バグまたは障害",
+        "helper": "再現可能で、他のユーザーにも追跡が役立つ問題はGitHubを利用してください。"
+      },
+      "data": {
+        "label": "データまたは指標の問題",
+        "helper": "モデルID、プロバイダー名、URL、タイムスタンプを添えて非公開チケットを作成してください。"
+      },
+      "docs": {
+        "label": "ドキュメントまたは連携に関する質問",
+        "helper": "まずドキュメントをご確認ください。答えがない場合は、該当ページを明記してチケットを送ってください。"
+      },
+      "feature": {
+        "label": "機能リクエスト",
+        "helper": "ワークフロー、期待する動作、重要な理由を記載してGitHub issueを開いてください。"
+      },
+      "general": {
+        "label": "一般的な質問",
+        "helper": "非公開のサポートチケットを作成し、具体的に返信できるだけの情報を含めてください。"
+      },
+      "community": {
+        "label": "コミュニティまたは簡単なフィードバック",
+        "helper": "気軽な回答や他のユーザーとの議論を希望する場合はDiscordを利用してください。"
+      }
+    }
+  },
+  "trust": {
+    "trustCentre": "信頼センター",
+    "phaseoTrustCentre": "Phaseo 信頼センター",
+    "lastReviewed": "最終確認 {date}",
+    "privacyPolicy": "プライバシーポリシー",
+    "termsOfService": "利用規約",
+    "privacyQuestions": "プライバシーに関する質問",
+    "securityAndTrust": "Phaseo のセキュリティと信頼性",
+    "currentSafeguards": "現在の製品の保護対策、データの取り扱い、保証状況。掲載する主張は、Phaseo が現時点で裏付けられる内容に限られます。",
+    "assurance": "保証",
+    "sections": "信頼センターのセクション",
+    "claimLabels": "主張のラベル",
+    "trustDocuments": "信頼性に関する資料",
+    "trustDocumentsBody": "セキュリティレビュー、ベンダー評価、DPA の検討には、詳細な資料をご利用ください。",
+    "security": "セキュリティ",
+    "securityBody": "現在のコードとドキュメントで裏付けられた製品および運用上の保護対策。",
+    "dataHandling": "データの取り扱い",
+    "dataHandlingBody": "デフォルトで gateway のコンテンツがどのように扱われるか、例外が適用される場合、プロバイダーに依存する部分を説明します。",
+    "serviceProviders": "サービスプロバイダー",
+    "serviceProvidersBody": "Phaseo の最新のプライバシーポリシーで開示しているカテゴリ。",
+    "availability": "可用性とインシデント",
+    "compliance": "コンプライアンス",
+    "responsibleDisclosure": "責任ある開示",
+    "emailSecurity": "メールセキュリティ",
+    "privateGithubReport": "非公開 GitHub レポート",
+    "reviewedEvidence": "リポジトリの証拠に照らしてレビュー済み"
+  },
+  "profileShare": {
+    "titleSuffix": "Phaseo シェアカード",
+    "description": "個人のワークスペース活動から生成された、簡潔なスナップショット。",
+    "shareCard": "{name}さんのシェアカード",
+    "downloadImage": "画像をダウンロード",
+    "openPhaseo": "Phaseo を開く",
+    "imageAlt": "{name}さんの Phaseo シェアカード"
+  },
+  "profile": {
+    "title": "共有プロフィール",
+    "loading": "プロフィールを読み込み中…"
+  },
+  "pricing": {
+    "title": "料金",
+    "description": "シンプルな従量課金の AI gateway 料金。セルフサービスの Enterprise ID、ガバナンス、支払い込みプランも任意で利用できます。",
+    "everythingIncluded": "すべて込み",
+    "everythingIncludedBody": "費用をかける前に、モデルカタログ、ランキング、SDK、無料のモデルチャットをお試しください。プランを変更せず、必要なときだけクレジットを追加して有料モデルを利用できます。",
+    "swipeCompare": "左右にスワイプしてプロバイダーを比較します。",
+    "showFreeAccess": "無料アクセスを表示",
+    "compareCompetitors": "競合と比較",
+    "competitorNote": "競合の詳細は、2026 年 7 月 26 日に確認した公開ドキュメントを反映しています。「広告なし」は、公開された製品または料金ドキュメントでその機能を確認できなかったことを意味します。",
+    "selfServeEnterprise": "セルフサービス Enterprise",
+    "selfServeEnterpriseBody": "100～100,000 人のチーム向けに Enterprise を設定し、正確な月額料金を確認して、営業担当者との通話やモデル利用額のコミットなしで申し込めます。",
+    "buildPlan": "プランを作成",
+    "activeMembers": "アクティブなメンバー",
+    "users": "ユーザー",
+    "enterpriseSubscription": "Enterprise サブスクリプション",
+    "monthEstimated": "／月の見積もり",
+    "whatYouGet": "利用できるもの",
+    "included": "含まれるもの",
+    "creditTopUpFee": "クレジット追加手数料",
+    "modelUsageCredits": "モデル利用クレジット",
+    "purchasedSeparately": "別途購入",
+    "committedModelSpend": "コミット済みモデル利用額",
+    "none": "なし",
+    "usdNote": "USD 建ての月額サブスクリプション。クレジットの購入は別扱いで、対応する支払い方法全体に標準の 5% 追加手数料が適用されます。モデル利用額は必要に応じて自由に調整でき、サブスクリプション料金は変わりません。",
+    "features": {
+      "sso": "SAML SSO とサインインの強制",
+      "scim": "SCIM のユーザー、グループ、一括操作",
+      "departments": "部署とワークスペースのロール",
+      "audit": "監査とガバナンスの管理",
+      "priority": "優先サポート"
+    },
+    "paygHeadline": "デフォルトは従量課金。チームに必要になったら Enterprise を追加できます。",
+    "paygBody": "必要なときにクレジットを購入し、使った分だけ支払います。Enterprise の ID と支払い機能は任意で、料金を公開したうえで、営業担当者との通話なしに有効化できます。",
+    "manageCredits": "クレジットを管理",
+    "manageProviderKeys": "プロバイダーキーを管理",
+    "modelPricingCalculator": "モデル料金計算ツール",
+    "payg": "従量課金",
+    "paygBodyShort": "必要なときだけクレジットを追加します。",
+    "enterpriseOptional": "Enterprise は任意です",
+    "enterpriseOptionalBody": "利用料金を変えずに SSO、SCIM、ガバナンスを追加できます。",
+    "pricesPublic": "料金は公開されています",
+    "pricesPublicBody": "簡単な質問に答えるだけで、すぐに申し込めます。",
+    "faqTitle": "よくある質問",
+    "ready": "始める準備はできましたか？",
+    "readyBody": "無料で始め、必要なときにクレジットを追加し、成長後も同じ従量課金条件を利用できます。",
+    "openPlatform": "オープンプラットフォーム",
+    "askPricing": "料金について質問する"
+  },
+  "legal": {
+    "lastUpdated": "最終更新日：{date}",
+    "privacyTitle": "プライバシーポリシー",
+    "privacyIntro": "このプライバシーポリシーでは、Phaseo の名称で運営する Daniel Butler（「Phaseo」「当社」「私たち」）が、ウェブサイト、ダッシュボード、API gateway（総称して「本サービス」）の利用時に個人データをどのように収集、利用、保護するかを説明します。",
+    "termsTitle": "利用規約",
+    "termsIntro": "この利用規約（「規約」）は、Phaseo のウェブサイト、データディレクトリ、統合 API gateway（総称して「本サービス」）の利用条件を定めるものです。"
+  }
+}

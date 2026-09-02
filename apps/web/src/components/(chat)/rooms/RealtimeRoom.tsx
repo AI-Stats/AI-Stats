@@ -3,6 +3,7 @@
 import NumberFlow from "@number-flow/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import {
 	AlertTriangle,
@@ -972,6 +973,7 @@ function RealtimeModelSelector({
 	onSelectModel: (modelId: string) => void;
 	disabled: boolean;
 }) {
+	const t = useTranslations("Product.chatRooms");
 	const [open, setOpen] = useState(false);
 	const [searchValue, setSearchValue] = useState("");
 	const normalizedSearch = searchValue.trim().toLowerCase();
@@ -1036,12 +1038,12 @@ function RealtimeModelSelector({
 				commandProps={{ shouldFilter: false }}
 			>
 				<ModelSelectorInput
-					placeholder="Search realtime models..."
+									placeholder={t("searchRealtimeModels")}
 					value={searchValue}
 					onValueChange={setSearchValue}
 				/>
 				<ModelSelectorList className="max-h-[70vh]" viewportClassName="p-3">
-					<ModelSelectorEmpty>No realtime models found.</ModelSelectorEmpty>
+									<ModelSelectorEmpty>{t("noRealtimeModels")}</ModelSelectorEmpty>
 					{groupedModels.map((group, index) => (
 						<ModelSelectorGroup
 							key={`${group.heading}-${index}`}
@@ -1105,6 +1107,7 @@ function RealtimeVoiceSelector({
 	onSelectVoice: (voiceId: string) => void;
 	disabled: boolean;
 }) {
+	const t = useTranslations("Product.chatRooms");
 	const selectedVoice =
 		voices.find((voice) => voice.id === selectedVoiceId) ?? voices[0] ?? null;
 	const [open, setOpen] = useState(false);
@@ -1159,7 +1162,7 @@ function RealtimeVoiceSelector({
 					type="button"
 					variant="ghost"
 					disabled={disabled}
-					aria-label="Select realtime voice"
+							aria-label={t("selectRealtimeVoice")}
 					className="h-8 w-[156px] justify-between gap-1.5 px-2 text-xs font-normal shadow-none hover:bg-muted"
 				>
 					<span className="flex min-w-0 items-center gap-1.5">
@@ -1382,6 +1385,7 @@ type RealtimeRoomProps = {
 };
 
 export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
+	const t = useTranslations("Product.chatRooms");
 	const { toggleSidebar, state: sidebarState } = useSidebar();
 	const realtimeModels = useMemo(() => buildRealtimeModels(models), [models]);
 	const suggestedModels = useMemo(() => {
@@ -2925,7 +2929,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 									size="icon"
 									className="-ml-1 h-8 w-8"
 									onClick={toggleSidebar}
-									aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
+									aria-label={sidebarState === "expanded" ? t("collapseSidebar") : t("openSidebar")}
 								>
 									{sidebarState === "expanded" ? (
 										<PanelLeftClose className="h-4 w-4" />
@@ -2966,13 +2970,13 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 									variant="ghost"
 									size="icon"
 									className="h-8 w-8"
-									aria-label="Open realtime settings"
+									aria-label={t("realtimeSettings")}
 									onClick={() => setSettingsOpen(true)}
 								>
 									<Settings className="h-4 w-4" />
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Settings</TooltipContent>
+							<TooltipContent>{t("settings")}</TooltipContent>
 						</Tooltip>
 					</div>
 				</div>
@@ -3102,7 +3106,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 						) : (
 							<div className="w-full max-w-3xl">
 								<div className="mb-5 text-center">
-									<p className="text-sm font-medium">Choose a realtime model</p>
+									<p className="text-sm font-medium">{t("chooseRealtimeModel")}</p>
 									<p className="mt-1 text-sm text-muted-foreground">
 										Start with one of these live voice models, or open the selector for the full list.
 									</p>
@@ -3172,7 +3176,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 
 				<aside className="flex min-h-0 flex-col bg-muted/10">
 					<div className="border-b border-border px-4 py-3">
-						<p className="text-sm font-medium">Live transcript</p>
+						<p className="text-sm font-medium">{t("liveTranscript")}</p>
 						<p className="mt-1 text-xs text-muted-foreground">
 							Assistant transcript appears when the provider emits audio transcript
 							events.
@@ -3208,7 +3212,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 					</div>
 					<div className="border-t border-border">
 						<div className="border-b border-border px-4 py-3">
-							<p className="text-sm font-medium">Realtime diagnostics</p>
+							<p className="text-sm font-medium">{t("realtimeDiagnostics")}</p>
 							<p className="mt-1 text-xs text-muted-foreground">
 								Newest provider and transport events.
 							</p>
@@ -3291,6 +3295,7 @@ function RealtimeSettingsDialog({
 	defaultSystemPrompt: string;
 	onSystemPromptChange: (prompt: string) => void;
 }) {
+	const t = useTranslations("Product.chatRooms");
 	const orbOptions: Array<{
 		value: RealtimeOrbMode;
 		label: string;
@@ -3316,7 +3321,7 @@ function RealtimeSettingsDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="overflow-hidden p-0 md:max-h-[440px] md:max-w-[680px]">
-				<DialogTitle className="sr-only">Realtime settings</DialogTitle>
+				<DialogTitle className="sr-only">{t("realtimeSettings")}</DialogTitle>
 				<DialogDescription className="sr-only">
 					Realtime display and session settings.
 				</DialogDescription>
@@ -3346,14 +3351,14 @@ function RealtimeSettingsDialog({
 						<div className="flex-1 overflow-y-auto p-4">
 							<div className="grid gap-4">
 								<div className="grid gap-1">
-									<p className="text-sm font-semibold text-foreground">Model</p>
+									<p className="text-sm font-semibold text-foreground">{t("model")}</p>
 									<p className="text-xs text-muted-foreground">
 										Applied when the next realtime session starts.
 									</p>
 								</div>
 								<div className="grid gap-2 rounded-lg border border-border bg-background p-3">
 									<div className="flex items-center justify-between gap-3">
-										<Label htmlFor="realtime-system-prompt">System prompt</Label>
+										<Label htmlFor="realtime-system-prompt">{t("systemPrompt")}</Label>
 										<Button
 											type="button"
 											variant="ghost"
@@ -3377,13 +3382,13 @@ function RealtimeSettingsDialog({
 									</p>
 								</div>
 								<div className="grid gap-1">
-									<p className="text-sm font-semibold text-foreground">Display</p>
+									<p className="text-sm font-semibold text-foreground">{t("display")}</p>
 									<p className="text-xs text-muted-foreground">
 										Stored locally for this browser.
 									</p>
 								</div>
 								<div className="grid gap-2 rounded-lg border border-border bg-background p-3">
-									<Label>Voice visual</Label>
+									<Label>{t("voiceVisual")}</Label>
 									<div className="grid gap-2">
 										{orbOptions.map((option) => (
 											<button

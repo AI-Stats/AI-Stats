@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/Logo";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
@@ -868,6 +869,7 @@ function buildResolvedEntries(args: {
 }
 
 export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
+	const t = useTranslations("Product.chatRooms");
 	const isImageRoom = roomId === "image";
 	const { toggleSidebar, state: sidebarState } = useSidebar();
 	const filteredModels = useMemo(
@@ -1805,7 +1807,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							)}
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
+						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>{t("toggleSidebar")}</TooltipContent>
 					</Tooltip>
 					<RoomModelSelector
 						models={filteredModels}
@@ -1829,7 +1831,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								<MessageCircleDashed className="h-4 w-4" />
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent>Temporary chat</TooltipContent>
+							<TooltipContent>{t("temporaryChat")}</TooltipContent>
 					</Tooltip>
 					<Tooltip>
 						<TooltipTrigger asChild>
@@ -1845,7 +1847,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								<SettingsIcon className="h-5 w-5" />
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent>Settings</TooltipContent>
+							<TooltipContent>{t("settings")}</TooltipContent>
 					</Tooltip>
 				</div>
 				</header>
@@ -1962,7 +1964,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 															onClick={() => {
 																void retryEntry(entry);
 															}}
-															aria-label="Retry failed generation"
+											aria-label={t("retryFailedGeneration")}
 														>
 															{retryingEntryId === entry.id ? (
 																<Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1991,7 +1993,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 														<AlertDialogContent>
 															<AlertDialogHeader>
 																<AlertDialogTitle>
-																	{entry.status === "pending" ? "Remove pending generation?" : "Remove failed generation?"}
+														{entry.status === "pending" ? t("removePendingGeneration") : t("removeFailedGeneration")}
 																</AlertDialogTitle>
 																<AlertDialogDescription>
 																	This removes the failed item from your local room
@@ -1999,7 +2001,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 																</AlertDialogDescription>
 															</AlertDialogHeader>
 															<AlertDialogFooter>
-																<AlertDialogCancel>Cancel</AlertDialogCancel>
+											<AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
 																<AlertDialogAction
 																	className="bg-destructive text-white hover:bg-destructive/90"
 																	onClick={() => {
@@ -2019,7 +2021,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 													target="_blank"
 													rel="noopener noreferrer"
 													download
-													aria-label="Download image"
+										aria-label={t("downloadImage")}
 												>
 													<Download className="h-3.5 w-3.5" />
 												</a>
@@ -2061,7 +2063,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 															void retryEntry(entry);
 														}}
 														disabled={isLoading}
-														aria-label="Retry failed generation"
+											aria-label={t("retryFailedGeneration")}
 													>
 														{retryingEntryId === entry.id && isLoading ? (
 															<Loader2 className="h-4 w-4 animate-spin" />
@@ -2081,20 +2083,20 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 																variant="ghost"
 																size="icon"
 																className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-																aria-label="Delete failed generation"
+										aria-label={t("deleteFailedGeneration")}
 															>
 																<Trash2 className="h-4 w-4" />
 															</Button>
 														</AlertDialogTrigger>
 														<AlertDialogContent>
 															<AlertDialogHeader>
-																<AlertDialogTitle>Remove failed generation?</AlertDialogTitle>
+										<AlertDialogTitle>{t("removeFailedGeneration")}</AlertDialogTitle>
 																<AlertDialogDescription>
 																	This removes the failed item from your local room history.
 																</AlertDialogDescription>
 															</AlertDialogHeader>
 															<AlertDialogFooter>
-																<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
 																<AlertDialogAction
 																	className="bg-destructive text-white hover:bg-destructive/90"
 																	onClick={() => {
@@ -2114,7 +2116,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 													target="_blank"
 													rel="noopener noreferrer"
 													download
-													aria-label="Download video"
+										aria-label={t("downloadVideo")}
 												>
 													<Download className="h-4 w-4" />
 												</a>
@@ -2125,7 +2127,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										{entry.status === "failed" ? (
 											<div className="flex max-w-lg flex-col items-center gap-2 text-center">
 												<CircleAlert className="h-8 w-8 text-destructive" />
-												<p className="text-sm font-medium text-destructive">Generation failed</p>
+										<p className="text-sm font-medium text-destructive">{t("generationFailed")}</p>
 												<p className="text-xs text-muted-foreground">
 													Try updating the prompt or model settings and run again.
 												</p>

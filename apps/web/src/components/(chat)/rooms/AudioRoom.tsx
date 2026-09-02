@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/Logo";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
@@ -982,6 +983,7 @@ export function AudioRoom({
 	initialMode = "speech",
 	allowedModes = ["speech"],
 }: AudioRoomProps) {
+	const t = useTranslations("Product.chatRooms");
 	const { toggleSidebar, state: sidebarState, isMobile } = useSidebar();
 	const collapsed = sidebarState === "collapsed" && !isMobile;
 	const normalizedAllowedModes = useMemo(
@@ -1947,7 +1949,7 @@ export function AudioRoom({
 									>
 										<SquarePen className="h-4 w-4 shrink-0" />
 										{collapsed ? null : (
-											<span className="truncate text-left">New Chat</span>
+											<span className="truncate text-left">{t("newChat")}</span>
 										)}
 									</Button>
 								</TooltipTrigger>
@@ -1996,7 +1998,7 @@ export function AudioRoom({
 							>
 								<Link href="/" className="group/db flex w-full min-w-0 items-center gap-2">
 									<Database className="h-4 w-4 shrink-0" />
-									<span className="flex-1 min-w-0 truncate text-left">Database</span>
+									<span className="flex-1 min-w-0 truncate text-left">{t("database")}</span>
 									<ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover/db:opacity-100" />
 								</Link>
 							</Button>
@@ -2025,14 +2027,14 @@ export function AudioRoom({
 								aria-label="Search Chats"
 							>
 								<Search className="h-4 w-4 shrink-0" />
-								<span className="truncate text-left">Search Chats</span>
+									<span className="truncate text-left">{t("searchChats")}</span>
 							</Button>
 						)}
 					</div>
 					<SidebarSeparator className="mx-0 my-0 w-full" />
 					<ScrollArea className="h-full group-data-[collapsible=icon]:hidden">
 						<SidebarGroup className={CHAT_SIDEBAR_HISTORY_GROUP_CLASS}>
-							<SidebarGroupLabel>Chats</SidebarGroupLabel>
+							<SidebarGroupLabel>{t("chats")}</SidebarGroupLabel>
 							<SidebarGroupContent className="overflow-hidden">
 								<SidebarMenu>
 									{renderConversationSection("Pinned", groupedConversations.pinned)}
@@ -2101,7 +2103,7 @@ export function AudioRoom({
 								)}
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
+						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>{t("toggleSidebar")}</TooltipContent>
 						</Tooltip>
 						<RoomModelSelector
 							models={filteredModels}
@@ -2123,7 +2125,7 @@ export function AudioRoom({
 									<MessageCircleDashed className="h-4 w-4" />
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Temporary chat</TooltipContent>
+							<TooltipContent>{t("temporaryChat")}</TooltipContent>
 						</Tooltip>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -2139,7 +2141,7 @@ export function AudioRoom({
 									<SettingsIcon className="h-5 w-5" />
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Settings</TooltipContent>
+							<TooltipContent>{t("settings")}</TooltipContent>
 						</Tooltip>
 					</div>
 				</div>
@@ -2300,7 +2302,7 @@ export function AudioRoom({
 															<Pencil className="h-3.5 w-3.5" />
 														</Button>
 													</TooltipTrigger>
-													<TooltipContent side="top">Edit prompt</TooltipContent>
+										<TooltipContent side="top">{t("editPrompt")}</TooltipContent>
 												</Tooltip>
 											</div>
 										</div>
@@ -2374,7 +2376,7 @@ export function AudioRoom({
 															<Download className="h-3.5 w-3.5" />
 														</Button>
 													</TooltipTrigger>
-													<TooltipContent side="top">Download</TooltipContent>
+										<TooltipContent side="top">{t("download")}</TooltipContent>
 												</Tooltip>
 												{(entry.mode === "speech" || entry.mode === "music") &&
 												entry.inputText ? (
@@ -2392,7 +2394,7 @@ export function AudioRoom({
 																<RotateCcw className="h-3.5 w-3.5" />
 															</Button>
 														</TooltipTrigger>
-														<TooltipContent side="top">Retry</TooltipContent>
+										<TooltipContent side="top">{t("retry")}</TooltipContent>
 													</Tooltip>
 												) : null}
 												<Popover
@@ -2414,25 +2416,25 @@ export function AudioRoom({
 																</Button>
 															</PopoverTrigger>
 														</TooltipTrigger>
-														<TooltipContent side="top">Metadata</TooltipContent>
+										<TooltipContent side="top">{t("metadata")}</TooltipContent>
 													</Tooltip>
 													<PopoverContent align="start" className="w-72">
 														<div className="grid gap-3 text-sm">
 															<div className="grid gap-1.5">
 																<div className="flex items-center justify-between">
-																	<span className="text-muted-foreground">Total tokens</span>
+											<span className="text-muted-foreground">{t("totalTokens")}</span>
 																	<span>{formatMetric(metrics.totalTokens)}</span>
 																</div>
 																<div className="flex items-center justify-between">
-																	<span className="text-muted-foreground">Generation</span>
+											<span className="text-muted-foreground">{t("generation")}</span>
 																	<span>{formatMetric(generationSeconds, " s")}</span>
 																</div>
 																<div className="flex items-center justify-between">
-																	<span className="text-muted-foreground">Throughput</span>
+											<span className="text-muted-foreground">{t("throughput")}</span>
 																	<span>{formatMetric(throughputDisplay, " tps")}</span>
 																</div>
 																<div className="flex items-center justify-between">
-																	<span className="text-muted-foreground">Total cost</span>
+											<span className="text-muted-foreground">{t("totalCost")}</span>
 																	<span>{costLabel ?? "-"}</span>
 																</div>
 															</div>
@@ -2470,7 +2472,7 @@ export function AudioRoom({
 									}
 								}}
 								rows={1}
-								placeholder="Generate speech from anything"
+								placeholder={t("generateSpeech")}
 								className="order-1 min-h-9 w-full resize-none border-0 !bg-transparent px-2 py-2 shadow-none focus-visible:ring-0 sm:order-2 sm:flex-1 dark:!bg-transparent"
 							/>
 						) : mode === "music" ? (
@@ -2485,7 +2487,7 @@ export function AudioRoom({
 										}
 									}}
 									rows={audioComposerExpanded ? 3 : 1}
-									placeholder="Generate music from anything"
+								placeholder={t("generateMusic")}
 									className={cn(
 										"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
 										audioComposerExpanded
@@ -2502,7 +2504,7 @@ export function AudioRoom({
 										value={musicLyricsInput}
 										onChange={(event) => setMusicLyricsInput(event.target.value)}
 										rows={3}
-										placeholder="Add any lyrics (optional)"
+								placeholder={t("lyricsOptional")}
 										className="min-h-[72px] max-h-40 overflow-y-auto resize-none border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0"
 									/>
 								</div>
@@ -2551,7 +2553,7 @@ export function AudioRoom({
 												className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
 												onClick={() => setAudioUrlInput("")}
 											>
-												<span className="max-w-[220px] truncate">Audio URL</span>
+													<span className="max-w-[220px] truncate">{t("audioUrl")}</span>
 												<X className="h-3 w-3" />
 											</button>
 										) : null}

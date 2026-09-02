@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
 	Check,
 	ChevronDown,
@@ -64,6 +65,7 @@ function CopyTextButton({
 	onCopied,
 	variant = "outline",
 }: CopyTextButtonProps) {
+	const t = useTranslations("SettingsUI");
 	const [copied, setCopied] = React.useState(false);
 
 	async function copy() {
@@ -73,14 +75,14 @@ function CopyTextButton({
 			window.setTimeout(() => setCopied(false), 2000);
 			onCopied?.();
 		} catch {
-			toast.error("Could not copy to clipboard");
+			toast.error(t("strings.Could not copy to clipboard" as never));
 		}
 	}
 
 	return (
 		<Button type="button" variant={variant} size="sm" onClick={copy}>
 			{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-			{copied ? "Copied" : children}
+			{copied ? t("strings.Copied" as never) : children}
 		</Button>
 	);
 }
@@ -95,6 +97,7 @@ export function SecretRevealActions({
 	baseUrl = AI_STATS_GATEWAY_BASE_URL,
 	enableTest = kind === "api-key",
 }: SecretRevealActionsProps) {
+	const t = useTranslations("SettingsUI");
 	const [testState, setTestState] = React.useState<
 		"idle" | "testing" | "success" | "error"
 	>("idle");
@@ -124,15 +127,15 @@ export function SecretRevealActions({
 			});
 			if (body?.ok === false) {
 				throw new Error(
-					body?.message || "The key could not be verified right now.",
+					body?.message || t("strings.The key could not be verified right now." as never),
 				);
 			}
 			setTestState("success");
-			toast.success("Key works");
+			toast.success(t("strings.Key works" as never));
 		} catch (error) {
 			setTestState("error");
 			toast.error(
-				error instanceof Error ? error.message : "Could not test API key",
+				error instanceof Error ? error.message : t("strings.Could not test API key" as never),
 			);
 		}
 	}
@@ -143,22 +146,22 @@ export function SecretRevealActions({
 				<CopyTextButton
 					value={secret}
 					variant="default"
-					onCopied={() => toast.success("Copied key")}
+					onCopied={() => toast.success(t("strings.Copied key" as never))}
 				>
-					Copy key
+					{t("strings.Copy key" as never)}
 				</CopyTextButton>
 				<CopyTextButton
 					value={envFile}
-					onCopied={() => toast.success("Copied .env")}
+					onCopied={() => toast.success(t("strings.Copied .env" as never))}
 				>
-					Copy .env
+					{t("strings.Copy .env" as never)}
 				</CopyTextButton>
 
 				{kind === "api-key" ? (
 					<DropdownMenu>
 						<DropdownMenuTrigger render={<Button type="button" variant="outline" size="sm" />}>
 
-								Copy config
+								{t("strings.Copy config" as never)}
 								<ChevronDown className="h-4 w-4" />
 
 						</DropdownMenuTrigger>
@@ -170,7 +173,7 @@ export function SecretRevealActions({
 										void navigator.clipboard
 											.writeText(snippet.value)
 											.then(() => toast.success(`Copied ${snippet.label}`))
-											.catch(() => toast.error("Could not copy config"));
+											.catch(() => toast.error(t("strings.Could not copy config" as never)));
 									}}
 									className="rounded-lg"
 								>
@@ -186,7 +189,7 @@ export function SecretRevealActions({
 						<DropdownMenuTrigger render={<Button type="button" variant="outline" size="sm" />}>
 
 								<Download className="h-4 w-4" />
-								Export
+								{t("strings.Export" as never)}
 								<ChevronDown className="h-4 w-4" />
 
 						</DropdownMenuTrigger>
@@ -200,7 +203,7 @@ export function SecretRevealActions({
 											item.content,
 											item.mimeType,
 										);
-										toast.success(`Downloaded ${item.label} collection`);
+										toast.success(`${t("strings.Downloaded" as never)} ${item.label} ${t("strings.collection" as never)}`);
 									}}
 									className="rounded-lg"
 								>
@@ -224,7 +227,7 @@ export function SecretRevealActions({
 						) : (
 							<TestTube2 className="h-4 w-4" />
 						)}
-						{testState === "testing" ? "Testing..." : "Test key"}
+						{testState === "testing" ? t("strings.Testing..." as never) : t("strings.Test key" as never)}
 					</Button>
 				) : null}
 			</div>
@@ -241,9 +244,8 @@ export function SecretRevealActions({
 					urls={onePasswordUrls}
 				/>
 				{kind === "api-key" ? (
-					<p className="text-xs text-muted-foreground">
-						Exports use placeholders so downloaded collections do not contain the
-						secret.
+							<p className="text-xs text-muted-foreground">
+								{t("strings.Exports use placeholders so downloaded collections do not contain the secret." as never)}
 					</p>
 				) : null}
 			</div>

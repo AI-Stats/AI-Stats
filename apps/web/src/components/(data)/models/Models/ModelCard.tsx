@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
 	memo,
 	useEffect,
@@ -527,6 +528,7 @@ function ModelCardImpl({
 	showOrganisationPrefix?: boolean;
 	contentPaddingClassName?: string;
 }) {
+	const t = useTranslations("Catalogue.models");
 	const modelSlug = model.model_id;
 	const modelHref =
 		getModelDetailsHref(model.organisation_id, model.model_id) ??
@@ -752,27 +754,27 @@ function ModelCardImpl({
 	const fromPriceSummary = explicitFromPrice ?? fallbackFromPrice;
 	const priceSummary =
 		isFreeDisplayModel
-			? "Free"
+			? t("free")
 			: structuredPriceSummary
 				? structuredPriceSummary
 				: fromPriceSummary;
-	const priceLabel = structuredPriceSummary || isTextModel ? "Pricing" : "From:";
+	const priceLabel = structuredPriceSummary || isTextModel ? t("pricing") : t("from");
 	const fallbackInputLabel =
 		primaryInputKey === "image"
-			? "Image Inputs"
+			? t("imageInputs")
 			: primaryInputKey === "audio"
-				? "Audio Input"
+				? t("audioInput")
 				: primaryInputKey === "video"
-					? "Video Input"
-					: "Input";
+					? t("videoInput")
+					: t("input");
 	const fallbackOutputLabel =
 		primaryOutputKey === "image"
-			? "Output Images (from)"
+			? t("outputImagesFrom")
 			: primaryOutputKey === "audio"
-				? "Audio Output"
+				? t("audioOutput")
 				: primaryOutputKey === "video"
-					? "Video Output (from)"
-					: "Output";
+					? t("videoOutputFrom")
+					: t("output");
 	const fallbackInputUnit =
 		normalizeFromPriceUnit(model.lowest_from_price_unit) ??
 		inferPriceUnitFromModality(primaryInputKey);
@@ -791,7 +793,7 @@ function ModelCardImpl({
 	const standardPricingRows = [
 		{
 			id: "input",
-			label: String(model.lowest_standard_input_price_label ?? "").trim() || "Input",
+			label: String(model.lowest_standard_input_price_label ?? "").trim() || t("input"),
 			value: formatPriceWithUnit(
 				model.lowest_standard_input_price,
 				model.lowest_standard_input_price_unit,
@@ -800,7 +802,7 @@ function ModelCardImpl({
 		{
 			id: "output",
 			label:
-				String(model.lowest_standard_output_price_label ?? "").trim() || "Output",
+				String(model.lowest_standard_output_price_label ?? "").trim() || t("output"),
 			value: formatPriceWithUnit(
 				model.lowest_standard_output_price,
 				model.lowest_standard_output_price_unit,
@@ -882,7 +884,7 @@ function ModelCardImpl({
 		pricingDetailRows = [
 			{
 				id: "summary",
-				label: "Pricing",
+			label: t("pricing"),
 				value: priceSummary,
 			},
 		];
@@ -1271,7 +1273,7 @@ function ModelCardImpl({
 										data-no-row-nav="true"
 										className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
 									>
-										<span className="text-muted-foreground">Providers</span>
+										<span className="text-muted-foreground">{t("providers")}</span>
 										<span className="font-medium text-foreground tabular-nums">
 											{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
 										</span>
@@ -1331,7 +1333,7 @@ function ModelCardImpl({
 							</HoverCard>
 						) : (
 							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
-								<span className="text-muted-foreground">Providers</span>
+								<span className="text-muted-foreground">{t("providers")}</span>
 								<span className="font-medium text-foreground tabular-nums">
 									{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
 								</span>

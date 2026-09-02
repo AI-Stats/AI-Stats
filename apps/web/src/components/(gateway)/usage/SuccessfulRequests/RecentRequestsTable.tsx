@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import {
     Table,
     TableBody,
@@ -46,15 +47,16 @@ export default function RecentRequestsTable({
     rows: RecentRequestRow[];
     onSelect: (row: RecentRequestRow) => void;
 }) {
+    const t = useTranslations("SettingsUI");
     return (
         <div className="overflow-auto">
             <Table>
                 <TableHeader>
                     <TableRow className="h-8">
-                        <TableHead className="py-1">Time</TableHead>
-                        <TableHead className="py-1">Model</TableHead>
-                        <TableHead className="py-1 text-right">Spend</TableHead>
-                        <TableHead className="py-1 text-right">Tokens</TableHead>
+                        <TableHead className="py-1">{t("strings.Time" as never)}</TableHead>
+                        <TableHead className="py-1">{t("strings.Model" as never)}</TableHead>
+                        <TableHead className="py-1 text-right">{t("strings.Spend" as never)}</TableHead>
+                        <TableHead className="py-1 text-right">{t("strings.Tokens" as never)}</TableHead>
                         <TableHead className="w-[40px] py-1"></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -81,7 +83,7 @@ export default function RecentRequestsTable({
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => onSelect(r)}
-                                        aria-label="View details"
+                                        aria-label={t("strings.View details" as never)}
                                     >
                                         <ChevronRight className="h-4 w-4" />
                                     </Button>

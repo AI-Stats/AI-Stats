@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface RevokeDialogProps {
 	authorizationId: string;
@@ -29,6 +30,7 @@ export default function RevokeDialog({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
+	const t = useTranslations("SettingsUI");
 
 	const handleRevoke = async () => {
 		setLoading(true);
@@ -46,12 +48,12 @@ export default function RevokeDialog({
 				return;
 			}
 
-			toast.success(`Access revoked for "${appName}"`);
+			toast.success((t as unknown as (key: string, values?: Record<string, string>) => string)("strings.Access revoked for app", { appName }));
 
 			setOpen(false);
 			router.refresh();
 		} catch (err: any) {
-			setError(err.message || "Failed to revoke access");
+			setError(err.message || t("strings.Failed to revoke access" as never));
 		} finally {
 			setLoading(false);
 		}
@@ -67,24 +69,21 @@ export default function RevokeDialog({
 			<DialogTrigger asChild>
 				<Button variant="outline" size="sm" className="w-full shrink-0 rounded-md sm:w-auto">
 					<X className="h-4 w-4 mr-1" />
-					Revoke Access
+					{t("strings.Revoke Access" as never)}
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Revoke Access?</DialogTitle>
+					<DialogTitle>{t("strings.Revoke Access?" as never)}</DialogTitle>
 					<DialogDescription>
-						This will immediately prevent <strong>{appName}</strong> from
-						accessing your Phaseo account. Any active tokens will be
-						invalidated.
+						{(t as unknown as (key: string, values?: Record<string, string>) => string)("strings.This will immediately prevent {appName} from accessing your Phaseo account. Any active tokens will be invalidated.", { appName })}
 					</DialogDescription>
 				</DialogHeader>
 
 				<Alert>
 					<AlertTriangle className="h-4 w-4" />
 					<AlertDescription>
-						The application will no longer be able to make API requests on
-						your behalf. You can re-authorize the app later if needed.
+						{t("strings.The application will no longer be able to make API requests on your behalf. You can re-authorize the app later if needed." as never)}
 					</AlertDescription>
 				</Alert>
 
@@ -96,7 +95,7 @@ export default function RevokeDialog({
 
 				<DialogFooter>
 					<Button variant="outline" className="rounded-md" onClick={handleClose}>
-						Cancel
+						{t("strings.Cancel" as never)}
 					</Button>
 					<Button
 						variant="destructive"
@@ -104,7 +103,7 @@ export default function RevokeDialog({
 						onClick={handleRevoke}
 						disabled={loading}
 					>
-						{loading ? "Revoking..." : "Revoke Access"}
+						{loading ? t("strings.Revoking..." as never) : t("strings.Revoke Access" as never)}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

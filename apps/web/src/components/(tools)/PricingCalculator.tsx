@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
 	parseAsArrayOf,
 	parseAsInteger,
@@ -138,6 +139,7 @@ export default function PricingCalculator({
 	totalModelsCount = 500,
 	providersCount = 10,
 }: PricingCalculatorProps) {
+	const t = useTranslations("Product.tools.pricing");
 	const [models, setModels] = useState<PricingModel[]>(() => initialModels || []);
 	const [loadingModelIds, setLoadingModelIds] = useState<string[]>([]);
 	const [pricingNotice, setPricingNotice] = useState<string | null>(null);
@@ -360,7 +362,7 @@ export default function PricingCalculator({
 					setModels((current) => mergePricingModels(current, pricingRows));
 				}
 			} catch {
-				setPricingNotice("Pricing could not be loaded for this model. Please try again.");
+			setPricingNotice(t("noModels"));
 				return;
 			} finally {
 				setLoadingModelIds([]);
@@ -369,7 +371,7 @@ export default function PricingCalculator({
 		const defaultConfig = resolveDefaultPricingConfig(pricingRows, modelId);
 		if (!defaultConfig) {
 			const modelName = catalogModels.find((model) => model.modelId === modelId)?.displayName || modelId;
-			setPricingNotice(`No pricing meters are currently published for ${modelName}.`);
+			setPricingNotice(`${t("noModels")}: ${modelName}`);
 			return;
 		}
 		const selection = {
@@ -418,7 +420,7 @@ export default function PricingCalculator({
 
 	return (
 		<div className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:py-12">
-			<ToolPageHeader title="AI Pricing Calculator" description="Select one or more models, configure their provider pricing, then compare every priced meter in a tabular view.">
+			<ToolPageHeader title={t("title")} description={t("description")}>
 					<div className="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
 						<span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-2.5 py-1">
 							<CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
@@ -467,7 +469,7 @@ export default function PricingCalculator({
 							<Card>
 								<CardContent className="text-center py-12">
 									<p className="text-muted-foreground">
-										Select at least one model to configure usage inputs.
+										{t("selectModel")}
 									</p>
 								</CardContent>
 							</Card>

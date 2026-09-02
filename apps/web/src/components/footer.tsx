@@ -1,9 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { FooterStatusIndicator } from "@/components/FooterStatusIndicator";
 import { ThemeSelector } from "@/components/theme-toggle";
 import { Logo } from "@/components/Logo";
 import { FooterYearRange } from "./FooterYearRange";
+import { FooterLocaleSwitcher } from "@/components/i18n/FooterLocaleSwitcher";
 
 const startYear = 2025;
 
@@ -86,17 +88,54 @@ type FooterLink = {
 	external?: boolean;
 };
 
+const FOOTER_LABEL_KEYS = {
+	Models: "models",
+	Chat: "chat",
+	Providers: "providers",
+	Apps: "apps",
+	Rankings: "rankings",
+	Tools: "tools",
+	Monitor: "monitor",
+	Documentation: "documentation",
+	"API Reference": "apiReference",
+	Quickstart: "quickstart",
+	SDKs: "sdks",
+	Compare: "compare",
+	"Migration Guides": "migrationGuides",
+	Methodology: "methodology",
+	Blog: "blog",
+	About: "about",
+	"Trust Centre": "trustCentre",
+	Mission: "mission",
+	Pricing: "pricing",
+	"Works With": "worksWith",
+	Acknowledgements: "acknowledgements",
+	Support: "support",
+	Privacy: "privacy",
+	Terms: "terms",
+	Discord: "discord",
+	GitHub: "github",
+	LinkedIn: "linkedin",
+	Reddit: "reddit",
+	X: "x",
+} as const;
+
+type FooterLabel = keyof typeof FOOTER_LABEL_KEYS;
+
 function FooterLinkList({
 	title,
 	links,
+	titleKey,
 }: {
 	title: string;
 	links: FooterLink[];
+	titleKey: "explore" | "build" | "resources" | "company" | "community";
 }) {
+	const t = useTranslations("Common.footer");
 	return (
 		<div className="flex min-w-0 flex-col gap-2">
 			<h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-				{title}
+			{t(titleKey)}
 			</h3>
 			<ul className="lg:space-y-1.5">
 				{links.map((link) => (
@@ -122,7 +161,7 @@ function FooterLinkList({
 									/>
 								</span>
 							) : null}
-							{link.label}
+											{t(FOOTER_LABEL_KEYS[link.label as FooterLabel])}
 						</Link>
 					</li>
 				))}
@@ -132,6 +171,7 @@ function FooterLinkList({
 }
 
 export default function Footer() {
+	const t = useTranslations("Common.footer");
 	return (
 		<footer className="mt-auto w-full overflow-x-clip border-t border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
 			<div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -164,26 +204,26 @@ export default function Footer() {
 					</div>
 					<div className="col-span-2 grid grid-cols-2 gap-x-4 sm:gap-x-6 lg:hidden">
 						<div className="flex min-w-0 flex-col gap-6">
-							<FooterLinkList title="Explore" links={productLinks} />
-							<FooterLinkList title="Resources" links={resourceLinks} />
-							<FooterLinkList title="Community" links={communityLinks} />
+											<FooterLinkList title="Explore" titleKey="explore" links={productLinks} />
+											<FooterLinkList title="Resources" titleKey="resources" links={resourceLinks} />
+											<FooterLinkList title="Community" titleKey="community" links={communityLinks} />
 						</div>
 						<div className="flex min-w-0 flex-col gap-6">
-							<FooterLinkList title="Build" links={developerLinks} />
-							<FooterLinkList title="Company" links={companyLinks} />
+											<FooterLinkList title="Build" titleKey="build" links={developerLinks} />
+											<FooterLinkList title="Company" titleKey="company" links={companyLinks} />
 						</div>
 					</div>
 					<div className="hidden lg:contents">
-						<FooterLinkList title="Explore" links={productLinks} />
-						<FooterLinkList title="Build" links={developerLinks} />
-						<FooterLinkList title="Resources" links={resourceLinks} />
-						<FooterLinkList title="Company" links={companyLinks} />
-						<FooterLinkList title="Community" links={communityLinks} />
+										<FooterLinkList title="Explore" titleKey="explore" links={productLinks} />
+										<FooterLinkList title="Build" titleKey="build" links={developerLinks} />
+										<FooterLinkList title="Resources" titleKey="resources" links={resourceLinks} />
+										<FooterLinkList title="Company" titleKey="company" links={companyLinks} />
+										<FooterLinkList title="Community" titleKey="community" links={communityLinks} />
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-2 border-t border-zinc-200/80 pt-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
-					<div className="flex flex-nowrap items-center gap-x-3">
+				<div className="flex flex-col gap-3 border-t border-zinc-200/80 pt-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex flex-wrap items-center gap-x-3 gap-y-2">
 						<p className="whitespace-nowrap font-medium tracking-[0.01em] text-zinc-500 dark:text-zinc-400">
 							&copy; <FooterYearRange startYear={startYear} /> {"\u2022"} Phaseo
 						</p>
@@ -193,41 +233,42 @@ export default function Footer() {
 						<div className="hidden lg:block">
 							<ThemeSelector className="py-0" labelSize="sm" />
 						</div>
+						<FooterLocaleSwitcher />
 					</div>
 					<p className="hidden shrink-0 items-center gap-x-1.5 text-xs sm:max-md:inline-flex">
-						<span>Report:</span>
+						<span>{t("report")}</span>
 						<Link
 							href="https://github.com/phaseoteam/Phaseo/issues"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
 						>
-							Issue
+											{t("issue")}
 						</Link>
 						<span aria-hidden="true">·</span>
 						<Link
 							href="/contact"
 							className="text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
 						>
-							Support
+											{t("support")}
 						</Link>
 					</p>
 					<p className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1 sm:max-md:hidden">
-						<span>Spotted a data issue or broken page?</span>
+						<span>{t("spottedIssue")}</span>
 						<Link
 							href="https://github.com/phaseoteam/Phaseo/issues"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
 						>
-							Open an issue
+											{t("openIssue")}
 						</Link>
-						<span>or</span>
+						<span>{t("or")}</span>
 						<Link
 							href="/contact"
 							className="text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
 						>
-							contact support
+											{t("contactSupport")}
 						</Link>
 					</p>
 				</div>

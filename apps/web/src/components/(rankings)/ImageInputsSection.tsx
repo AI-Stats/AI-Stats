@@ -6,8 +6,10 @@ import {
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { fetchFrontendRankingImageInputs } from "@/lib/fetchers/frontend/fetchRankingSections";
 import { formatModelDisplayName } from "@/lib/models/displayName";
+import { getTranslations } from "next-intl/server";
 
 export async function ImageInputsSection() {
+	const t = await getTranslations("Catalogue.rankings");
 	const result = await fetchFrontendRankingImageInputs("year", 20).catch(() => ({ data: [] }));
 	const modelIds = [...new Set(result.data.map((row) => row.model_id).filter(Boolean))];
 	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds).catch(
@@ -27,7 +29,7 @@ export async function ImageInputsSection() {
 		<section id="image-inputs" className="scroll-mt-32 space-y-4 border-t border-border pt-12">
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 				<div className="space-y-0.5">
-					<h2 className="text-2xl font-semibold leading-8">Image Inputs</h2>
+					<h2 className="text-2xl font-semibold leading-8">{t("imageInputs")}</h2>
 					<p className="max-w-3xl text-sm text-muted-foreground">
 						Images processed by multimodal models, rather than images generated.
 					</p>

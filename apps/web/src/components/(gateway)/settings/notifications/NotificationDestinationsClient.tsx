@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { BellRing, Globe2, Mail, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { createNotificationDestination, deleteNotificationDestination, setBillingNotificationPreference, testNotificationConfiguration, testNotificationDestination } from "@/app/(dashboard)/settings/credits/actions";
 import {
@@ -58,6 +59,8 @@ const providers: Provider[] = [
 const providerByType = new Map(providers.map((provider) => [provider.type, provider]));
 
 export default function NotificationDestinationsClient({ initialDestinations, initialModelDeprecationEnabled, initialNotificationRoutes }: { initialDestinations: NotificationDestination[]; initialModelDeprecationEnabled: boolean; initialNotificationRoutes: Partial<Record<NotificationEventKind, string[]>> }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string, values?: Record<string, string>) => (t as unknown as (messageKey: string, messageValues?: Record<string, string>) => string)(`strings.${key}`, values);
 	const [destinations, setDestinations] = React.useState(initialDestinations ?? []);
 	const [modelDeprecationEnabled, setModelDeprecationEnabled] = React.useState(initialModelDeprecationEnabled);
 	const [open, setOpen] = React.useState(false);
@@ -79,19 +82,19 @@ export default function NotificationDestinationsClient({ initialDestinations, in
 	function isTypeConfigured(type: DestinationType) { return type === "email" ? emails.length > 0 : type === "discord" ? Boolean(targets.discord?.trim() && discordBotToken.trim()) : Boolean(targets[type]?.trim()); }
 	function mentionIds(type: "discord" | "discord_webhook", kind: "userIds" | "roleIds") { return String(discordMentions[type]?.[kind] ?? "").split(",").map((value) => value.trim()).filter(Boolean); }
 	function targetForType(type: DestinationType) { return type === "email" ? JSON.stringify(emails) : type === "discord" ? JSON.stringify({ channelId: targets.discord?.trim(), botToken: discordBotToken.trim(), userIds: mentionIds("discord", "userIds"), roleIds: mentionIds("discord", "roleIds") }) : type === "discord_webhook" ? JSON.stringify({ url: String(targets.discord_webhook ?? "").trim(), userIds: mentionIds("discord_webhook", "userIds"), roleIds: mentionIds("discord_webhook", "roleIds") }) : type === "slack" ? JSON.stringify({ url: String(targets.slack ?? "").trim(), userIds: slackMentions.userIds.split(",").map((value) => value.trim()).filter(Boolean), userGroupIds: slackMentions.userGroupIds.split(",").map((value) => value.trim()).filter(Boolean) }) : type === "microsoft_teams" ? JSON.stringify({ url: String(targets.microsoft_teams ?? "").trim(), mentionIds: teamsMentionIds.split(",").map((value) => value.trim()).filter(Boolean) }) : String(targets[type] ?? "").trim(); }
-	function discordMentionFields(type: "discord" | "discord_webhook") { return <div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor={`${type}-user-ids`}>Ping user IDs <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="rounded-md" id={`${type}-user-ids`} value={discordMentions[type]?.userIds ?? ""} onChange={(event) => setDiscordMentions((current) => ({ ...current, [type]: { userIds: event.target.value, roleIds: current[type]?.roleIds ?? "" } }))} placeholder="123…, 456…" /></div><div className="space-y-2"><Label htmlFor={`${type}-role-ids`}>Ping role IDs <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="rounded-md" id={`${type}-role-ids`} value={discordMentions[type]?.roleIds ?? ""} onChange={(event) => setDiscordMentions((current) => ({ ...current, [type]: { userIds: current[type]?.userIds ?? "", roleIds: event.target.value } }))} placeholder="123…, 456…" /></div></div>; }
-	function slackMentionFields() { return <div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="slack-user-ids">Ping user IDs <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="rounded-md" id="slack-user-ids" value={slackMentions.userIds} onChange={(event) => setSlackMentions((current) => ({ ...current, userIds: event.target.value }))} placeholder="U012…, U034…" /></div><div className="space-y-2"><Label htmlFor="slack-user-group-ids">Ping user group IDs <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="rounded-md" id="slack-user-group-ids" value={slackMentions.userGroupIds} onChange={(event) => setSlackMentions((current) => ({ ...current, userGroupIds: event.target.value }))} placeholder="S012…, S034…" /></div></div>; }
-	function teamsMentionFields() { return <div className="space-y-2"><Label htmlFor="teams-mention-ids">Ping users <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="rounded-md" id="teams-mention-ids" value={teamsMentionIds} onChange={(event) => setTeamsMentionIds(event.target.value)} placeholder="alex@company.com, Entra object ID…" /><p className="text-xs text-muted-foreground">Use Microsoft 365 email addresses or Entra object IDs. Teams webhooks cannot mention roles or everyone.</p></div>; }
-	function sendConfigurationTest(type: DestinationType) { toast.promise(testNotificationConfiguration({ type, target: targetForType(type) }), { loading: `Sending ${providerByType.get(type)?.name ?? "channel"} test…`, success: "Test notification delivered", error: (error) => error instanceof Error ? error.message : "Could not send test" }); }
+	function discordMentionFields(type: "discord" | "discord_webhook") { return <div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor={`${type}-user-ids`}>{s("Ping user IDs")} <span className="font-normal text-muted-foreground">({s("optional")})</span></Label><Input className="rounded-md" id={`${type}-user-ids`} value={discordMentions[type]?.userIds ?? ""} onChange={(event) => setDiscordMentions((current) => ({ ...current, [type]: { userIds: event.target.value, roleIds: current[type]?.roleIds ?? "" } }))} placeholder="123…, 456…" /></div><div className="space-y-2"><Label htmlFor={`${type}-role-ids`}>{s("Ping role IDs")} <span className="font-normal text-muted-foreground">({s("optional")})</span></Label><Input className="rounded-md" id={`${type}-role-ids`} value={discordMentions[type]?.roleIds ?? ""} onChange={(event) => setDiscordMentions((current) => ({ ...current, [type]: { userIds: current[type]?.userIds ?? "", roleIds: event.target.value } }))} placeholder="123…, 456…" /></div></div>; }
+	function slackMentionFields() { return <div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="slack-user-ids">{s("Ping user IDs")} <span className="font-normal text-muted-foreground">({s("optional")})</span></Label><Input className="rounded-md" id="slack-user-ids" value={slackMentions.userIds} onChange={(event) => setSlackMentions((current) => ({ ...current, userIds: event.target.value }))} placeholder="U012…, U034…" /></div><div className="space-y-2"><Label htmlFor="slack-user-group-ids">{s("Ping user group IDs")} <span className="font-normal text-muted-foreground">({s("optional")})</span></Label><Input className="rounded-md" id="slack-user-group-ids" value={slackMentions.userGroupIds} onChange={(event) => setSlackMentions((current) => ({ ...current, userGroupIds: event.target.value }))} placeholder="S012…, S034…" /></div></div>; }
+	function teamsMentionFields() { return <div className="space-y-2"><Label htmlFor="teams-mention-ids">{s("Ping users")} <span className="font-normal text-muted-foreground">({s("optional")})</span></Label><Input className="rounded-md" id="teams-mention-ids" value={teamsMentionIds} onChange={(event) => setTeamsMentionIds(event.target.value)} placeholder="alex@company.com, Entra object ID…" /><p className="text-xs text-muted-foreground">{s("Use Microsoft 365 email addresses or Entra object IDs. Teams webhooks cannot mention roles or everyone.")}</p></div>; }
+	function sendConfigurationTest(type: DestinationType) { toast.promise(testNotificationConfiguration({ type, target: targetForType(type) }), { loading: `${s("Sending")} ${providerByType.get(type)?.name ?? s("channel")} ${s("test")}…`, success: s("Test notification delivered"), error: (error) => error instanceof Error ? error.message : s("Could not send test") }); }
 	function addEmail() {
 		const email = emailDraft.trim().toLowerCase();
-		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if (email) toast.error("Enter a valid email address"); return; }
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if (email) toast.error(s("Enter a valid email address")); return; }
 		setEmails((current) => current.includes(email) ? current : [...current, email]); setEmailDraft("");
 	}
 	async function removeDestination(destinationId: string) {
 		setSaving(true);
-		try { await deleteNotificationDestination(destinationId); setDestinations((current) => current.filter((entry) => entry.id !== destinationId)); toast.success("Destination removed"); }
-		catch (error) { toast.error(error instanceof Error ? error.message : "Could not remove destination"); }
+		try { await deleteNotificationDestination(destinationId); setDestinations((current) => current.filter((entry) => entry.id !== destinationId)); toast.success(s("Destination removed")); }
+		catch (error) { toast.error(error instanceof Error ? error.message : s("Could not remove destination")); }
 		finally { setSaving(false); }
 	}
 	async function createDestination() {
@@ -99,21 +102,21 @@ export default function NotificationDestinationsClient({ initialDestinations, in
 		setSaving(true);
 		try {
 			const created = await Promise.all(selectedTypes.map((type) => createNotificationDestination({ name: name.trim(), type, target: targetForType(type) })));
-			setDestinations((current) => [...created, ...current]); setOpen(false); resetSheet(); toast.success(created.length === 1 ? "Destination created" : `${created.length} destinations created`);
-		} catch (error) { toast.error(error instanceof Error ? error.message : "Could not create destination"); }
+			setDestinations((current) => [...created, ...current]); setOpen(false); resetSheet(); toast.success(created.length === 1 ? s("Destination created") : `${created.length} ${s("destinations created")}`);
+		} catch (error) { toast.error(error instanceof Error ? error.message : s("Could not create destination")); }
 		finally { setSaving(false); }
 	}
 
 	return (
 		<>
 			<section aria-labelledby="event-alerts-title" className="space-y-3">
-				<h2 id="event-alerts-title" className="font-heading text-base font-medium">Product alerts</h2>
+				<h2 id="event-alerts-title" className="font-heading text-base font-medium">{s("Product alerts")}</h2>
 				<div className="rounded-xl border bg-background/40 px-4 py-4">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<div><h3 className="text-sm font-medium">Model Deprecation Alerts</h3><p className="mt-0.5 text-sm text-muted-foreground">Get notice before a model your workspace uses is retired.</p></div>
-						<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto"><NotificationRouteSelector destinations={destinations} eventKind="model_deprecation" initialDestinationIds={initialNotificationRoutes.model_deprecation ?? []} /><Switch checked={modelDeprecationEnabled} aria-label="Enable model deprecation alerts" onCheckedChange={(checked) => {
+						<div><h3 className="text-sm font-medium">{s("Model Deprecation Alerts")}</h3><p className="mt-0.5 text-sm text-muted-foreground">{s("Get notice before a model your workspace uses is retired.")}</p></div>
+						<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto"><NotificationRouteSelector destinations={destinations} eventKind="model_deprecation" initialDestinationIds={initialNotificationRoutes.model_deprecation ?? []} /><Switch checked={modelDeprecationEnabled} aria-label={s("Enable model deprecation alerts")} onCheckedChange={(checked) => {
 							const next = Boolean(checked); setModelDeprecationEnabled(next);
-							toast.promise(setBillingNotificationPreference({ preference: "modelDeprecationAlerts", enabled: next }), { loading: "Saving alert…", success: "Saved", error: "Could not save alert" });
+							toast.promise(setBillingNotificationPreference({ preference: "modelDeprecationAlerts", enabled: next }), { loading: `${s("Saving")}…`, success: s("Saved"), error: s("Could not save alert") });
 						}} /></div>
 					</div>
 				</div>
@@ -121,15 +124,15 @@ export default function NotificationDestinationsClient({ initialDestinations, in
 
 			<section aria-labelledby="destinations-title" className="space-y-3">
 				<div className="flex items-end justify-between gap-4">
-					<div><h2 id="destinations-title" className="font-heading text-base font-medium">Destinations</h2><p className="mt-1 text-sm text-muted-foreground">Create reusable channels, then choose them on each alert above.</p></div>
-					<Button className="rounded-md" onClick={() => setOpen(true)}><Plus /> Add destination</Button>
+					<div><h2 id="destinations-title" className="font-heading text-base font-medium">{s("Destinations")}</h2><p className="mt-1 text-sm text-muted-foreground">{s("Create reusable channels, then choose them on each alert above.")}</p></div>
+					<Button className="rounded-md" onClick={() => setOpen(true)}><Plus /> {s("Add destination")}</Button>
 				</div>
 				<div className="overflow-hidden rounded-xl border bg-background/40">
 					{destinations.length === 0 ? (
-						<div className="flex flex-col items-center px-6 py-12 text-center"><div className="mb-4 rounded-md border bg-muted/40 p-3"><BellRing className="size-5 text-muted-foreground" /></div><h3 className="text-sm font-medium">No destinations yet</h3><p className="mt-1 max-w-sm text-sm text-muted-foreground">Add a destination to route alerts to the tools your team already watches.</p><Button className="mt-5 rounded-md" variant="outline" onClick={() => setOpen(true)}><Plus /> Add destination</Button></div>
+						<div className="flex flex-col items-center px-6 py-12 text-center"><div className="mb-4 rounded-md border bg-muted/40 p-3"><BellRing className="size-5 text-muted-foreground" /></div><h3 className="text-sm font-medium">{s("No destinations yet")}</h3><p className="mt-1 max-w-sm text-sm text-muted-foreground">{s("Add a destination to route alerts to the tools your team already watches.")}</p><Button className="mt-5 rounded-md" variant="outline" onClick={() => setOpen(true)}><Plus /> {s("Add destination")}</Button></div>
 					) : destinations.map((destination, index) => {
 						const item = providerByType.get(destination.type)!; const Icon = item.icon;
-						return <div key={destination.id} className={cn("flex items-center gap-3 px-4 py-3.5", index > 0 && "border-t")}><div className={cn("grid size-9 place-items-center rounded-md", item.color)}><Icon className="size-4.5" /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{destination.name}</p><p className="truncate text-xs text-muted-foreground">{item.name} · {destination.targetPreview}</p></div><Button className="rounded-md" variant="outline" size="sm" disabled={saving} onClick={() => toast.promise(testNotificationDestination(destination.id), { loading: "Sending test…", success: "Test notification delivered", error: (error) => error instanceof Error ? error.message : "Could not send test" })}>Send test</Button><Button className="rounded-md" variant="ghost" size="icon-sm" aria-label={`Delete ${destination.name}`} disabled={saving} onClick={() => void removeDestination(destination.id)}><Trash2 /></Button></div>;
+						return <div key={destination.id} className={cn("flex items-center gap-3 px-4 py-3.5", index > 0 && "border-t")}><div className={cn("grid size-9 place-items-center rounded-md", item.color)}><Icon className="size-4.5" /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{destination.name}</p><p className="truncate text-xs text-muted-foreground">{item.name} · {destination.targetPreview}</p></div><Button className="rounded-md" variant="outline" size="sm" disabled={saving} onClick={() => toast.promise(testNotificationDestination(destination.id), { loading: `${s("Sending")} ${s("test")}…`, success: s("Test notification delivered"), error: (error) => error instanceof Error ? error.message : s("Could not send test") })}>{s("Send test")}</Button><Button className="rounded-md" variant="ghost" size="icon-sm" aria-label={s("Delete {name}", { name: destination.name })} disabled={saving} onClick={() => void removeDestination(destination.id)}><Trash2 /></Button></div>;
 					})}
 				</div>
 			</section>
@@ -139,7 +142,7 @@ export default function NotificationDestinationsClient({ initialDestinations, in
 					<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 pr-14 dark:border-zinc-800">
 						<div className="flex min-w-0 items-center gap-3">
 							<div className={cn("grid size-11 shrink-0 place-items-center rounded-md border border-zinc-200/80 dark:border-zinc-800", selectedProvider?.color ?? "bg-muted")}><SelectedProviderIcon className="size-6" /></div>
-							<div className="min-w-0"><ProviderInspectorSheetTitle className="truncate text-base">Add notifier</ProviderInspectorSheetTitle><ProviderInspectorSheetDescription className="mt-1">Connect one or more channels to workspace alerts.</ProviderInspectorSheetDescription></div>
+							<div className="min-w-0"><ProviderInspectorSheetTitle className="truncate text-base">{s("Add notifier")}</ProviderInspectorSheetTitle><ProviderInspectorSheetDescription className="mt-1">{s("Connect one or more channels to workspace alerts.")}</ProviderInspectorSheetDescription></div>
 						</div>
 					</ProviderInspectorSheetHeader>
 					<ScrollArea className="min-h-0 flex-1 overscroll-contain" viewportClassName="pb-6 overscroll-contain">

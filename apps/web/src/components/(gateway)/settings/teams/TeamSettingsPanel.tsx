@@ -3,6 +3,7 @@
 import * as React from "react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,6 +99,7 @@ export default function TeamSettingsPanel({
 	const [saving, setSaving] = React.useState(false);
 	const [deleting, setDeleting] = React.useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+	const t = useTranslations("SettingsUI");
 
 	const [settings, setSettings] = React.useState<Settings>(() => ({
 		teamName: initialTeamName,
@@ -165,7 +167,7 @@ export default function TeamSettingsPanel({
 	async function handleDeleteTeam() {
 		if (!workspaceId) return;
 		if (isPersonalTeam) {
-			toast.error("Personal workspace cannot be deleted.");
+			toast.error(t("workspace.personalCannotDelete"));
 			return;
 		}
 		setDeleting(true);
@@ -207,18 +209,18 @@ export default function TeamSettingsPanel({
 							value={settings.teamName}
 							onChange={(event) => update("teamName", event.target.value)}
 							disabled={!canEdit}
-							placeholder="e.g. Engineering"
+							placeholder={t("workspace.namePlaceholder")}
 							maxLength={60}
 						/>
 					</div>
 				</div>
 				<div className="flex flex-col gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
 					<div className="min-w-0">
-						<Label htmlFor="publisherHandle" className="text-sm font-medium">Publisher Handle</Label>
+						<Label htmlFor="publisherHandle" className="text-sm font-medium">{t("workspace.publisherHandle")}</Label>
 						<p className="mt-0.5 text-sm text-muted-foreground">Used in public preset names such as @{settings.publisherHandle || "workspace"}/preset.</p>
 					</div>
 					<div className="w-full shrink-0 sm:w-[min(32rem,55%)]">
-						<Input id="publisherHandle" value={settings.publisherHandle} onChange={(event) => update("publisherHandle", event.target.value.toLowerCase())} disabled={!hasTeamControl} placeholder="workspace-handle" maxLength={40} />
+						<Input id="publisherHandle" value={settings.publisherHandle} onChange={(event) => update("publisherHandle", event.target.value.toLowerCase())} disabled={!hasTeamControl} placeholder={t("workspace.handlePlaceholder")} maxLength={40} />
 					</div>
 				</div>
 
@@ -280,7 +282,7 @@ export default function TeamSettingsPanel({
 				<div className="overflow-hidden rounded-xl border border-destructive/30 bg-background/40">
 					<div className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
 						<div className="min-w-0">
-							<p className="text-sm font-medium">Delete Workspace</p>
+							<p className="text-sm font-medium">{t("workspace.deleteWorkspace")}</p>
 							<p className="mt-0.5 text-sm text-muted-foreground">
 								{isPersonalTeam
 									? "Personal workspaces cannot be deleted."
@@ -303,7 +305,7 @@ export default function TeamSettingsPanel({
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Delete workspace?</AlertDialogTitle>
+									<AlertDialogTitle>{t("workspace.deleteWorkspaceQuestion")}</AlertDialogTitle>
 									<AlertDialogDescription>
 										This will permanently remove the workspace and all related data.
 										Type <span className="font-semibold">DELETE WORKSPACE</span> to
@@ -314,6 +316,7 @@ export default function TeamSettingsPanel({
 									onConfirm={handleDeleteTeam}
 									deleting={deleting}
 									remainingBalance={currentTeamBalance}
+									translate={(key) => t(key as never)}
 								/>
 							</AlertDialogContent>
 						</AlertDialog>
@@ -328,11 +331,14 @@ function ConfirmDeleteTeam({
 	onConfirm,
 	deleting,
 	remainingBalance,
+	translate,
 }: {
 	onConfirm: () => void;
 	deleting: boolean;
 	remainingBalance?: number;
+	translate: (key: string) => string;
 }) {
+	const t = translate;
 	const [text, setText] = React.useState("");
 	const [ackCredits, setAckCredits] = React.useState(false);
 	const ok = text.trim().toUpperCase() === "DELETE WORKSPACE";
@@ -350,10 +356,10 @@ function ConfirmDeleteTeam({
 	return (
 		<div className="grid gap-3">
 			<div className="grid gap-2">
-				<Label htmlFor="confirmDeleteTeam">Confirmation</Label>
+				<Label htmlFor="confirmDeleteTeam">{t("workspace.confirmation")}</Label>
 				<Input
 					id="confirmDeleteTeam"
-					placeholder='Type "DELETE WORKSPACE" to confirm'
+					placeholder={t("workspace.typeDeleteWorkspace")}
 					value={text}
 					onChange={(event) => setText(event.target.value)}
 					autoFocus

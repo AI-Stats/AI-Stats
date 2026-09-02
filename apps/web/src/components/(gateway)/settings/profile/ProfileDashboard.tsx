@@ -29,23 +29,18 @@ import {
 } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import type { ProfileMessages } from "@/i18n/profile"
 
 type Props = {
 	profile: ProfileSnapshot
 	publicView?: boolean
 	actions?: ReactNode
+	locale?: string
+	labels?: ProfileMessages
 }
 
 type TimeRange = "today" | "7d" | "30d" | "1y" | "all"
 type Metric = "tokens" | "spend" | "requests"
-
-const RANGE_LABELS: Record<TimeRange, string> = {
-	today: "Today",
-	"7d": "Last 7 Days",
-	"30d": "Last 30 Days",
-	"1y": "Last Year",
-	all: "All Time",
-}
 
 const METRIC_HSL: Record<Metric, string> = {
 	tokens: "199 89% 48%",
@@ -233,9 +228,11 @@ function getHeatmapLevel(value: number, max: number): number {
 function ActivityHeatmap({
 	profile,
 	metric,
+	labels,
 }: {
 	profile: ProfileSnapshot
 	metric: Metric
+	labels: ProfileMessages
 }) {
 	const days = profile.heatmapDays
 	const activeDays = days.filter((day) => day.inTrailingWindow && !day.isFuture)
@@ -260,7 +257,7 @@ function ActivityHeatmap({
 		return acc
 	}, {})
 	const mostActiveWeekday =
-		Object.entries(weekdayTotals).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "No activity yet"
+		Object.entries(weekdayTotals).sort((a, b) => b[1] - a[1])[0]?.[0] ?? labels.noActivityYet
 	const topModel = profile.topModels[0]
 	const topModelValue = topModel
 		? metric === "spend"
@@ -279,10 +276,10 @@ function ActivityHeatmap({
 		<section className="min-w-0 border-t border-border pt-6">
 			<div className="mb-4 flex items-start justify-between gap-4">
 				<div>
-					<h2 className="text-lg font-semibold text-foreground">Activity</h2>
+			<h2 className="text-lg font-semibold text-foreground">{labels.activity}</h2>
 				</div>
 				<div className="text-sm text-muted-foreground">
-					{metric === "tokens" ? "Tokens" : metric === "spend" ? "Spend" : "Requests"}
+					{metric === "tokens" ? labels.tokens : metric === "spend" ? labels.spend : labels.requests}
 				</div>
 			</div>
 
@@ -290,29 +287,29 @@ function ActivityHeatmap({
 				<div className="pr-4 sm:pr-6">
 					<div className="flex items-center gap-1.5 text-muted-foreground">
 						<Flame className="h-3.5 w-3.5" />
-						<span>Streak</span>
+						<span>{labels.streak}</span>
 					</div>
 					<div className="mt-1 text-base font-semibold text-foreground">
-						{profile.currentStreak.toLocaleString()} days
+						{profile.currentStreak.toLocaleString()} {labels.days}
 					</div>
 					<div className="mt-0.5 text-xs text-muted-foreground">
-						Best {profile.longestStreak.toLocaleString()}
+						{labels.best} {profile.longestStreak.toLocaleString()}
 					</div>
 				</div>
 				<div className="pl-4 sm:px-6">
-						<div className="text-muted-foreground">Avg / day</div>
+						<div className="text-muted-foreground">{labels.avgDay}</div>
 						<div className="mt-1 text-base font-semibold text-foreground">
 							{formatMetricValue(metric, avgDay)}
 						</div>
 				</div>
 				<div className="pr-4 sm:px-6">
-					<div className="text-muted-foreground">Avg / week</div>
+						<div className="text-muted-foreground">{labels.avgWeek}</div>
 					<div className="mt-1 text-base font-semibold text-foreground">
 						{formatMetricValue(metric, avgWeek)}
 					</div>
 				</div>
 				<div className="pl-4 sm:pl-6">
-					<div className="text-muted-foreground">Total</div>
+						<div className="text-muted-foreground">{labels.total}</div>
 					<div className="mt-1 text-base font-semibold text-foreground">
 						{formatMetricValue(metric, total)}
 					</div>
@@ -377,7 +374,7 @@ function ActivityHeatmap({
 			</ScrollArea>
 
 			<div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-				<span>Less</span>
+				<span>{labels.less}</span>
 				<div className="flex items-center gap-1">
 					{HEATMAP_LEVEL_OPACITIES.map((opacity, index) => (
 						<div
@@ -388,36 +385,36 @@ function ActivityHeatmap({
 						/>
 					))}
 				</div>
-				<span>More</span>
+				<span>{labels.more}</span>
 			</div>
 
 			<div className="mt-8 grid gap-10 lg:grid-cols-2">
 				<div>
-					<h3 className="text-sm font-semibold text-foreground">Activity Insights</h3>
+					<h3 className="text-sm font-semibold text-foreground">{labels.activityInsights}</h3>
 					<div className="mt-3 space-y-3 text-sm">
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Biggest day</span>
+							<span className="text-muted-foreground">{labels.biggestDay}</span>
 							<span className="text-right font-medium text-foreground">
 								{biggestDay
 									? `${formatLongDate(biggestDay.date)} · ${formatMetricValue(
 											metric,
 											biggestDay.metricValue,
 										)}`
-									: "No activity yet"}
+									: labels.noActivityYet}
 							</span>
 						</div>
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Most active weekday</span>
+							<span className="text-muted-foreground">{labels.mostActiveWeekday}</span>
 							<span className="font-medium text-foreground">{mostActiveWeekday}</span>
 						</div>
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Active days</span>
+							<span className="text-muted-foreground">{labels.activeDays}</span>
 							<span className="font-medium text-foreground">
 								{nonZeroDays.length.toLocaleString()} of {activeDays.length.toLocaleString()}
 							</span>
 						</div>
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Quiet days</span>
+							<span className="text-muted-foreground">{labels.quietDays}</span>
 							<span className="font-medium text-foreground">
 								{Math.max(0, activeDays.length - nonZeroDays.length).toLocaleString()}
 							</span>
@@ -426,22 +423,22 @@ function ActivityHeatmap({
 				</div>
 
 				<div>
-					<h3 className="text-sm font-semibold text-foreground">Usage Notes</h3>
+					<h3 className="text-sm font-semibold text-foreground">{labels.usageNotes}</h3>
 					<div className="mt-3 space-y-3 text-sm">
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Most used model</span>
+							<span className="text-muted-foreground">{labels.mostUsedModel}</span>
 							<span className="max-w-[14rem] truncate text-right font-medium text-foreground">
-								{topModel?.name ?? "No model activity"}
+								{topModel?.name ?? labels.noModelActivity}
 							</span>
 						</div>
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Top model share</span>
+							<span className="text-muted-foreground">{labels.topModelShare}</span>
 							<span className="font-medium text-foreground">
 								{topModel ? `${topModelShare}%` : "0%"}
 							</span>
 						</div>
 						<div className="flex items-center justify-between gap-6">
-							<span className="text-muted-foreground">Models used</span>
+							<span className="text-muted-foreground">{labels.modelsUsed}</span>
 							<span className="font-medium text-foreground">
 								{profile.topModels.length.toLocaleString()}
 							</span>
@@ -457,7 +454,11 @@ export default function ProfileDashboard({
 	profile,
 	publicView = false,
 	actions,
+	labels = {
+		usageSummary: "Usage Summary", topModels: "Top Models", openWorkspaceUsage: "Open workspace usage", by: "by", noModelActivity: "No model activity recorded yet.", activity: "Activity", streak: "Streak", days: "days", best: "Best", avgDay: "Avg / day", avgWeek: "Avg / week", total: "Total", less: "Less", more: "More", activityInsights: "Activity Insights", biggestDay: "Biggest day", mostActiveWeekday: "Most active weekday", activeDays: "Active days", quietDays: "Quiet days", usageNotes: "Usage Notes", mostUsedModel: "Most used model", topModelShare: "Top model share", modelsUsed: "Models used", noActivityYet: "No activity yet", noPriorData: "No prior data", vsPrior: "vs prior", changePhoto: "Change profile photo", uploadingPhoto: "Uploading profile photo", photoTooLarge: "Profile photos must be 5 MB or smaller.", invalidPhoto: "Choose a valid JPG, PNG, or WebP image.", photoUpdated: "Profile photo updated", updatePhotoFailed: "Could not update profile photo", periodToday: "Today", period7d: "Last 7 Days", period30d: "Last 30 Days", period1y: "Last Year", periodAll: "All Time", tokens: "Tokens", spend: "Spend", requests: "Requests"
+	},
 }: Props) {
+	const rangeLabels = useMemo<Record<TimeRange, string>>(() => ({ today: labels.periodToday, "7d": labels.period7d, "30d": labels.period30d, "1y": labels.period1y, all: labels.periodAll }), [labels])
 	const router = useRouter()
 	const avatarInputRef = useRef<HTMLInputElement>(null)
 	const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl)
@@ -469,12 +470,12 @@ export default function ProfileDashboard({
 		const file = event.target.files?.[0]
 		if (!file) return
 		if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-			toast.error("Choose a JPG, PNG, or WebP image.")
+			toast.error(labels.invalidPhoto)
 			event.target.value = ""
 			return
 		}
 		if (file.size > 5 * 1024 * 1024) {
-			toast.error("Profile photos must be 5 MB or smaller.")
+			toast.error(labels.photoTooLarge)
 			event.target.value = ""
 			return
 		}
@@ -497,19 +498,19 @@ export default function ProfileDashboard({
 			}
 			if (!response.ok || !payload.avatarUrl) {
 				const message = payload.error === "profile_photo_too_large"
-					? "Profile photos must be 5 MB or smaller."
+					? labels.photoTooLarge
 					: ["invalid_profile_photo", "unsupported_profile_photo", "empty_profile_photo"].includes(payload.error ?? "")
-						? "Choose a valid JPG, PNG, or WebP image."
-						: "Could not update profile photo"
+						? labels.invalidPhoto
+						: labels.updatePhotoFailed
 				throw new Error(message)
 			}
 			const nextAvatarUrl = payload.avatarUrl
 
 			setAvatarUrl(nextAvatarUrl)
-			toast.success("Profile photo updated")
+			toast.success(labels.photoUpdated)
 			router.refresh()
 		} catch (error) {
-			toast.error(error instanceof Error ? error.message : "Could not update profile photo")
+			toast.error(error instanceof Error ? error.message : labels.updatePhotoFailed)
 		} finally {
 			setAvatarUploading(false)
 			event.target.value = ""
@@ -528,13 +529,13 @@ export default function ProfileDashboard({
 		const totalRequests = selectedSeries.reduce((sum, point) => sum + point.requests, 0)
 		const totalTokens = selectedSeries.reduce((sum, point) => sum + point.tokens, 0)
 		return buildProfileShareCardPayload(profile, {
-			periodLabel: RANGE_LABELS[range],
+			periodLabel: rangeLabels[range],
 			totalRequests,
 			totalTokens,
 			longestStreak: getLongestStreak(selectedSeries),
 			avgPerWeek: totalRequests / Math.max(1, selectedSeries.length / 7),
 		})
-	}, [profile, range, selectedSeries])
+	}, [profile, range, selectedSeries, rangeLabels])
 
 	const total = chartPoints.reduce((sum, point) => sum + point.value, 0)
 	const previous =
@@ -576,7 +577,7 @@ export default function ProfileDashboard({
 							<button
 								type="button"
 								className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:text-foreground disabled:cursor-wait disabled:opacity-70"
-								aria-label={avatarUploading ? "Uploading profile photo" : "Change profile photo"}
+								aria-label={avatarUploading ? labels.uploadingPhoto : labels.changePhoto}
 								disabled={avatarUploading}
 								onClick={() => avatarInputRef.current?.click()}
 							>
@@ -613,15 +614,15 @@ export default function ProfileDashboard({
 				<div className="min-w-0">
 					<div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
 						<h2 className="mr-2 text-lg font-semibold text-foreground">
-							Usage Summary
+							{labels.usageSummary}
 						</h2>
 						<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
 							<Select value={range} onValueChange={(value) => setRange(value as TimeRange)}>
 								<SelectTrigger className="h-8 w-full rounded-lg border-border bg-input/50 text-xs text-foreground shadow-none sm:w-36">
-									<span data-slot="select-value">{RANGE_LABELS[range]}</span>
+									<span data-slot="select-value">{rangeLabels[range]}</span>
 								</SelectTrigger>
 								<SelectContent>
-									{Object.entries(RANGE_LABELS).map(([value, label]) => (
+									{Object.entries(rangeLabels).map(([value, label]) => (
 										<SelectItem key={value} value={value}>
 											{label}
 										</SelectItem>
@@ -642,10 +643,10 @@ export default function ProfileDashboard({
 									].join(" ")}
 								>
 									{nextMetric === "tokens"
-										? "Tokens"
+										? labels.tokens
 										: nextMetric === "spend"
-											? "Spend"
-											: "Requests"}
+											? labels.spend
+										: labels.requests}
 								</button>
 							))}
 							</div>
@@ -655,15 +656,15 @@ export default function ProfileDashboard({
 					<div className="grid min-w-0 gap-3">
 						<div className="w-fit">
 							<div className="text-xs text-muted-foreground">
-								{metric === "tokens" ? "Tokens" : metric === "spend" ? "Spend" : "Requests"} ·{" "}
-								{RANGE_LABELS[range].toLowerCase()}
+								{metric === "tokens" ? labels.tokens : metric === "spend" ? labels.spend : labels.requests} ·{" "}
+								{rangeLabels[range].toLowerCase()}
 							</div>
 							<div className="mt-1 text-4xl font-semibold tracking-tight text-foreground">
 								{formatMetricValue(metric, total)}
 							</div>
 							<div className="mt-1 text-sm text-muted-foreground">
 								{previous == null
-									? "No prior data"
+									? labels.noPriorData
 									: `${previous > 0 ? "+" : ""}${Math.round(previous)}% vs prior`}
 							</div>
 						</div>
@@ -673,10 +674,10 @@ export default function ProfileDashboard({
 								value: {
 									label:
 										metric === "tokens"
-											? "Tokens"
+											? labels.tokens
 											: metric === "spend"
-												? "Spend"
-												: "Requests",
+												? labels.spend
+												: labels.requests,
 									color: getMetricColor(metric),
 								},
 							}}
@@ -721,24 +722,24 @@ export default function ProfileDashboard({
 				<aside className="min-w-0 border-t border-border pt-5 xl:border-t-0 xl:border-l xl:pt-0 xl:pl-5">
 					<div className="mb-5 min-w-0">
 						<div className="flex items-center justify-between gap-4">
-							<h2 className="text-lg font-semibold text-foreground">Top Models</h2>
+							<h2 className="text-lg font-semibold text-foreground">{labels.topModels}</h2>
 							{publicView ? null : (
 								<Button asChild variant="ghost" size="xs" className="-mr-2 rounded-lg text-muted-foreground">
 									<Link href="/settings/usage/overview">
-										Open workspace usage <ExternalLink className="h-3 w-3" />
+										{labels.openWorkspaceUsage} <ExternalLink className="h-3 w-3" />
 									</Link>
 								</Button>
 							)}
 						</div>
 						<div className="mt-0.5 text-sm text-muted-foreground">
-							by {metric === "tokens" ? "tokens" : metric === "spend" ? "spend" : "requests"}
+					{labels.by} {metric === "tokens" ? labels.tokens.toLowerCase() : metric === "spend" ? labels.spend.toLowerCase() : labels.requests.toLowerCase()}
 						</div>
 					</div>
 
 					<div className="space-y-4">
 						{topModels.length === 0 ? (
 							<div className="rounded-lg bg-muted/50 px-3 py-4 text-sm text-muted-foreground">
-								No model activity recorded yet.
+								{labels.noModelActivity}
 							</div>
 						) : (
 							topModels.map((model) => {
@@ -789,7 +790,7 @@ export default function ProfileDashboard({
 				</aside>
 			</section>
 
-			<ActivityHeatmap profile={profile} metric={metric} />
+			<ActivityHeatmap profile={profile} metric={metric} labels={labels} />
 		</div>
 	)
 }

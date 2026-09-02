@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -59,6 +60,8 @@ export default function AccountPrivacySettingsClient({
 	inheritedAccountPolicy = null,
 	workspaceLogStorage = null,
 }: Props) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [policy, setPolicy] = useState<AccountPrivacyPolicy>(() => {
 		const legacy = initialPolicy as AccountPrivacyPolicy & { blockedProviderIds?: string[]; blockedApiModelIds?: string[] };
 		const legacyProviders = legacy.blockedProviderIds ?? [];
@@ -103,7 +106,7 @@ export default function AccountPrivacySettingsClient({
 			} catch (error) {
 				if (controller.signal.aborted) return;
 				setAutosaveStatus("error");
-				toast.error(`Could not save the ${scope} data policy`);
+				toast.error(`${s("Could not save the")} ${scope} ${s("data policy")}`);
 			}
 		}, 650);
 		return () => { window.clearTimeout(timer); controller.abort(); };
@@ -133,7 +136,7 @@ export default function AccountPrivacySettingsClient({
 			} catch {
 				if (controller.signal.aborted) return;
 				setAutosaveStatus("error");
-				toast.error("Could not save workspace log storage settings");
+				toast.error(s("Could not save workspace log storage settings"));
 			}
 		}, 650);
 		return () => { window.clearTimeout(timer); controller.abort(); };
@@ -209,32 +212,32 @@ export default function AccountPrivacySettingsClient({
 	const visibleProviderCoverageGroups = providerCoverageGroups.filter((group) => availabilityState === "all" || group.variants.some((variant) => (availabilityState === "available") === variant.available));
 	return <div className="space-y-8">
 		<section>
-			<h2 className="text-base font-semibold">Data Handling</h2>
-			<p className="mt-1 text-sm text-muted-foreground">{scope === "workspace" ? "Set the minimum privacy standard for every request in this workspace." : "Set the minimum privacy standard for interactive requests made as you, including Phaseo Chat."}</p>
+			<h2 className="text-base font-semibold">{s("Data Handling")}</h2>
+			<p className="mt-1 text-sm text-muted-foreground">{scope === "workspace" ? s("Set the minimum privacy standard for every request in this workspace.") : s("Set the minimum privacy standard for interactive requests made as you, including Phaseo Chat.")}</p>
 			<div className="mt-3 rounded-lg border px-4">
-				<SettingRow title="Allow paid routes that may train" description="Permit paid routes whose provider may use prompts or completions for training." checked={policy.privacyEnablePaidMayTrain} onCheckedChange={(value) => set("privacyEnablePaidMayTrain", value)} />
-				<SettingRow title="Allow free routes that may train" description="Permit free routes whose provider may use prompts or completions for training." checked={policy.privacyEnableFreeMayTrain} onCheckedChange={(value) => set("privacyEnableFreeMayTrain", value)} />
-				<SettingRow title="Allow prompt logging" description="Permit providers that may retain prompts but do not use them for training." checked={policy.privacyEnableInputOutputLogging} onCheckedChange={(value) => set("privacyEnableInputOutputLogging", value)} />
-				<SettingRow title="Require zero data retention" description="Only route requests where the selected capability is eligible for ZDR." checked={policy.privacyZdrOnly} onCheckedChange={(value) => set("privacyZdrOnly", value)} />
+				<SettingRow title={s("Allow paid routes that may train")} description={s("Permit paid routes whose provider may use prompts or completions for training.")} checked={policy.privacyEnablePaidMayTrain} onCheckedChange={(value) => set("privacyEnablePaidMayTrain", value)} />
+				<SettingRow title={s("Allow free routes that may train")} description={s("Permit free routes whose provider may use prompts or completions for training.")} checked={policy.privacyEnableFreeMayTrain} onCheckedChange={(value) => set("privacyEnableFreeMayTrain", value)} />
+				<SettingRow title={s("Allow prompt logging")} description={s("Permit providers that may retain prompts but do not use them for training.")} checked={policy.privacyEnableInputOutputLogging} onCheckedChange={(value) => set("privacyEnableInputOutputLogging", value)} />
+				<SettingRow title={s("Require zero data retention")} description={s("Only route requests where the selected capability is eligible for ZDR.")} checked={policy.privacyZdrOnly} onCheckedChange={(value) => set("privacyZdrOnly", value)} />
 			</div>
 		</section>
 		{scope === "workspace" && logStorage ? <section className="border-t pt-8">
 			<div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10">
 				<div>
-					<h2 className="text-base font-semibold">Gateway Log Storage</h2>
-					<p className="mt-1.5 text-sm leading-6 text-muted-foreground">Control private request and response payload storage for this workspace.</p>
+					<h2 className="text-base font-semibold">{s("Gateway Log Storage")}</h2>
+					<p className="mt-1.5 text-sm leading-6 text-muted-foreground">{s("Control private request and response payload storage for this workspace.")}</p>
 				</div>
 				<div className="min-w-0 rounded-lg border px-4">
-					<SettingRow title="Store request and response payloads" description="Keep private payload copies for request details and replay." checked={logStorage.enabled} onCheckedChange={(enabled) => setLogStorage((current) => current ? { ...current, enabled } : current)} />
+					<SettingRow title={s("Store request and response payloads")} description={s("Keep private payload copies for request details and replay.")} checked={logStorage.enabled} onCheckedChange={(enabled) => setLogStorage((current) => current ? { ...current, enabled } : current)} />
 					{logStorage.enabled ? <>
 						<div className="flex flex-col gap-3 border-b border-border/60 py-4 sm:flex-row sm:items-center sm:justify-between">
-							<div><div className="text-sm font-medium">Retention</div><p className="mt-0.5 text-sm text-muted-foreground">Choose how long private payload copies remain available.</p></div>
+							<div><div className="text-sm font-medium">{s("Retention")}</div><p className="mt-0.5 text-sm text-muted-foreground">{s("Choose how long private payload copies remain available.")}</p></div>
 							<Select value={String(logStorage.retentionDays)} onValueChange={(value) => setLogStorage((current) => current ? { ...current, retentionDays: Number(value) } : current)}>
 								<SelectTrigger className="w-full rounded-md sm:w-40"><SelectValue /></SelectTrigger>
 								<SelectContent><SelectItem value="90">90 days</SelectItem><SelectItem value="180">180 days</SelectItem><SelectItem value="365">365 days</SelectItem></SelectContent>
 							</Select>
 						</div>
-						<SettingRow title="Include provider payloads" description="Also retain the transformed upstream request and provider response." checked={logStorage.includeProviderPayloads} onCheckedChange={(includeProviderPayloads) => setLogStorage((current) => current ? { ...current, includeProviderPayloads } : current)} />
+						<SettingRow title={s("Include provider payloads")} description={s("Also retain the transformed upstream request and provider response.")} checked={logStorage.includeProviderPayloads} onCheckedChange={(includeProviderPayloads) => setLogStorage((current) => current ? { ...current, includeProviderPayloads } : current)} />
 					</> : null}
 				</div>
 			</div>
@@ -242,8 +245,8 @@ export default function AccountPrivacySettingsClient({
 		<section className="border-t pt-8">
 			<div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10">
 				<div>
-					<h2 className="text-base font-semibold">Route Access</h2>
-					<p className="mt-1.5 text-sm leading-6 text-muted-foreground">{scope === "workspace" ? "Control which providers and models this workspace may use. Scoped guardrails can restrict individual members and API keys further." : "Control which providers and models Phaseo may use for requests made as you. Workspace policy can restrict them further."}</p>
+					<h2 className="text-base font-semibold">{s("Route Access")}</h2>
+					<p className="mt-1.5 text-sm leading-6 text-muted-foreground">{scope === "workspace" ? s("Control which providers and models this workspace may use. Scoped guardrails can restrict individual members and API keys further.") : s("Control which providers and models Phaseo may use for requests made as you. Workspace policy can restrict them further.")}</p>
 				</div>
 				<div className="min-w-0">
 			<div className="grid gap-4 sm:grid-cols-2">

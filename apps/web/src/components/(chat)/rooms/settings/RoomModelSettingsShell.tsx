@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/Logo";
 import {
 	AlertDialog,
@@ -139,6 +140,7 @@ export function RoomModelSettingsShell({
 	onReset,
 	children,
 }: RoomModelSettingsShellProps) {
+	const t = useTranslations("Product.chatRooms");
 	const [modelPickerOpen, setModelPickerOpen] = useState(false);
 	const [modelSearchValue, setModelSearchValue] = useState("");
 	const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
@@ -208,7 +210,7 @@ export function RoomModelSettingsShell({
 					>
 						<div className="grid gap-3">
 							<div className="grid gap-1.5">
-								<Label>Model</Label>
+								<Label>{t("model")}</Label>
 								<Popover
 									open={modelPickerOpen}
 									onOpenChange={setModelPickerOpen}
@@ -249,12 +251,12 @@ export function RoomModelSettingsShell({
 									>
 										<Command className="max-h-[55vh]" shouldFilter={false}>
 											<CommandInput
-												placeholder="Search models..."
+													placeholder={t("searchModels")}
 												value={modelSearchValue}
 												onValueChange={setModelSearchValue}
 											/>
 											<CommandList>
-												<CommandEmpty>No models found.</CommandEmpty>
+										<CommandEmpty>{t("noModelsFound")}</CommandEmpty>
 												{hasModelSearchValue ? (
 													<CommandGroup
 														heading={`Results (${rankedModelChoices.length})`}
@@ -336,18 +338,18 @@ export function RoomModelSettingsShell({
 								</Popover>
 							</div>
 							<div className="grid gap-1.5">
-								<Label htmlFor="room-display-name">Display name</Label>
+								<Label htmlFor="room-display-name">{t("displayName")}</Label>
 								<Input
 									id="room-display-name"
 									value={settings.displayName}
 									onChange={(event) =>
 										onUpdateBase({ displayName: event.target.value })
 									}
-									placeholder="Optional model alias"
+									placeholder={t("optionalAlias")}
 								/>
 							</div>
 							<div className="grid gap-1.5">
-								<Label>Provider</Label>
+								<Label>{t("provider")}</Label>
 								<Select
 									value={providerValue}
 									onValueChange={(value) => onUpdateBase({ providerId: value })}
@@ -355,7 +357,7 @@ export function RoomModelSettingsShell({
 									<SelectTrigger className="w-full min-w-0">
 										<SelectValue
 											className="min-w-0"
-											placeholder="Auto (Gateway)"
+											placeholder={t("autoGateway")}
 										>
 											{selectedProviderLabel}
 										</SelectValue>
@@ -374,7 +376,7 @@ export function RoomModelSettingsShell({
 														<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
 													</svg>
 												</span>
-												<span className="truncate">Auto (Gateway)</span>
+											<span className="truncate">{t("autoGateway")}</span>
 											</div>
 										</SelectItem>
 										{filteredProviderOptions.map((provider) => (
@@ -396,7 +398,7 @@ export function RoomModelSettingsShell({
 							</div>
 							<div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
 								<div>
-									<p className="text-sm font-medium">Enabled</p>
+									<p className="text-sm font-medium">{t("enabled")}</p>
 									<p className="text-xs text-muted-foreground">
 										Disable to prevent sends with this model.
 									</p>
@@ -422,14 +424,14 @@ export function RoomModelSettingsShell({
 								</AlertDialogTrigger>
 								<AlertDialogContent>
 									<AlertDialogHeader>
-										<AlertDialogTitle>Reset model settings?</AlertDialogTitle>
+										<AlertDialogTitle>{t("resetSettings")}</AlertDialogTitle>
 										<AlertDialogDescription>
 											This will restore this model to its default provider,
 											display name, enabled state, and room parameters.
 										</AlertDialogDescription>
 									</AlertDialogHeader>
 									<AlertDialogFooter>
-										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
 										<AlertDialogAction
 											onClick={() => {
 												onReset();

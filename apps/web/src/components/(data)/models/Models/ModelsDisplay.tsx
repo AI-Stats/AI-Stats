@@ -11,6 +11,7 @@ import {
 	type ReactNode,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { debounce, useQueryState } from "nuqs";
 import { ModelsGrid } from "./ModelsGrid";
 import { ActiveModelFilters, type ActiveModelFilter } from "./ActiveModelFilters";
@@ -947,6 +948,7 @@ function ModelsDisplayContent({
 	showPrimaryHeader?: boolean;
 }) {
 	const { models, facets } = modelsPageData;
+	const t = useTranslations("Catalogue.models");
 	const [search, setSearch] = useQueryState("q", qParser);
 	const deferredSearch = useDeferredValue(search ?? "");
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -1637,7 +1639,7 @@ function ModelsDisplayContent({
 		setOpenFilterSections(sections);
 	};
 
-	const shownCountLabel = `${filteredModels.length.toLocaleString()} shown`;
+	const shownCountLabel = `${filteredModels.length.toLocaleString()} ${t("shown")}`;
 	const shownCountWithSearchLabel = search
 		? `${shownCountLabel} for "${search}"`
 		: shownCountLabel;
@@ -1681,7 +1683,7 @@ function ModelsDisplayContent({
 			onClick={() => setMobileFiltersOpen(true)}
 		>
 			<SlidersHorizontal className="h-3.5 w-3.5" />
-			<span className={compact ? "sr-only" : undefined}>Filters</span>
+			<span className={compact ? "sr-only" : undefined}>{t("filters")}</span>
 			{activeFilterCount > 0 ? (
 				<span
 					className={cn(
@@ -2083,7 +2085,7 @@ function ModelsDisplayContent({
 					<div className="md:hidden space-y-2">
 						{showPrimaryHeader ? (
 							<div className="flex items-center gap-2">
-								<h1 className="font-bold text-xl leading-8">Models</h1>
+								<h1 className="font-bold text-xl leading-8">{t("title")}</h1>
 							</div>
 						) : null}
 
@@ -2096,7 +2098,7 @@ function ModelsDisplayContent({
 						<div className="relative w-full">
 							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 							<Input
-								placeholder="Search"
+								placeholder={t("searchPlaceholder")}
 								value={search}
 								onChange={(e) =>
 									setSearch(e.target.value || null, {
@@ -2114,7 +2116,7 @@ function ModelsDisplayContent({
 							<div className="flex items-center justify-between gap-4">
 								<div className="flex h-8 min-w-0 shrink-0 items-center">
 									{showPrimaryHeader ? (
-										<h1 className="font-bold text-xl leading-8">Models</h1>
+										<h1 className="font-bold text-xl leading-8">{t("title")}</h1>
 									) : null}
 								</div>
 
@@ -2122,7 +2124,7 @@ function ModelsDisplayContent({
 									<div className="relative min-w-[15rem] max-w-[22rem] flex-1 2xl:max-w-[28rem]">
 										<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 										<Input
-											placeholder="Search"
+											placeholder={t("searchPlaceholder")}
 											value={search}
 											onChange={(e) =>
 												setSearch(e.target.value || null, {
@@ -2144,7 +2146,7 @@ function ModelsDisplayContent({
 						<div className="lg:hidden">
 							<div className="flex h-8 items-center justify-between gap-3">
 								{showPrimaryHeader ? (
-									<h1 className="font-bold text-xl leading-8">Models</h1>
+									<h1 className="font-bold text-xl leading-8">{t("title")}</h1>
 								) : (
 									<div />
 								)}
@@ -2158,7 +2160,7 @@ function ModelsDisplayContent({
 								<div className="relative min-w-0">
 									<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 									<Input
-										placeholder="Search"
+									placeholder={t("searchPlaceholder")}
 										value={search}
 										onChange={(e) =>
 											setSearch(e.target.value || null, {
@@ -2209,7 +2211,7 @@ function ModelsDisplayContent({
 						<DrawerHeader className="border-b border-border/70 px-4 py-3 !text-left">
 							<div className="flex items-start justify-between gap-3 pr-4">
 								<div className="text-left">
-									<DrawerTitle>Filters</DrawerTitle>
+										<DrawerTitle>{t("filters")}</DrawerTitle>
 									<DrawerDescription>Refine the models list.</DrawerDescription>
 								</div>
 								{activeFilterCount > 0 ? (
@@ -2242,7 +2244,7 @@ function ModelsDisplayContent({
 						<SheetHeader className="border-b border-border/70 px-4 py-3 text-left">
 							<div className="flex items-start justify-between gap-3 pr-8">
 								<div>
-									<SheetTitle>Filters</SheetTitle>
+											<SheetTitle>{t("filters")}</SheetTitle>
 									<SheetDescription>Refine the models list.</SheetDescription>
 								</div>
 								{activeFilterCount > 0 ? (

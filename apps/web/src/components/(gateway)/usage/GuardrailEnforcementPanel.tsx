@@ -1,4 +1,5 @@
 import { Ban, Flag, Scissors, ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GuardrailEnforcementMetricsResult } from "@/lib/gateway/usage/guardrailEnforcementMetrics";
 
@@ -13,6 +14,7 @@ function formatCount(value: number): string {
 export default function GuardrailEnforcementPanel({
 	metrics,
 }: GuardrailEnforcementPanelProps) {
+	const t = useTranslations("SettingsUI");
 	const trendMax = Math.max(
 		1,
 		...metrics.buckets.map((bucket) => bucket.total),
@@ -36,10 +38,9 @@ export default function GuardrailEnforcementPanel({
 						<ShieldAlert className="h-5 w-5" />
 					</div>
 					<div className="space-y-1">
-						<CardTitle>Guardrail enforcement</CardTitle>
+						<CardTitle>{t("strings.Guardrail enforcement" as never)}</CardTitle>
 						<p className="text-sm text-muted-foreground">
-							Tracks requests blocked, redacted, or flagged by workspace policy and
-							guardrail enforcement signals.
+							{t("strings.Tracks requests blocked, redacted, or flagged by workspace policy and guardrail enforcement signals." as never)}
 						</p>
 					</div>
 				</div>
@@ -49,7 +50,7 @@ export default function GuardrailEnforcementPanel({
 					<div className="rounded-xl border border-rose-200/70 bg-rose-50/70 p-4">
 						<div className="flex items-center gap-2 text-sm font-medium text-rose-900">
 							<Ban className="h-4 w-4" />
-							Blocked
+							{t("strings.Blocked" as never)}
 						</div>
 						<div className="mt-2 text-2xl font-semibold text-rose-950">
 							{formatCount(metrics.totals.blocked)}
@@ -58,7 +59,7 @@ export default function GuardrailEnforcementPanel({
 					<div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-4">
 						<div className="flex items-center gap-2 text-sm font-medium text-amber-900">
 							<Scissors className="h-4 w-4" />
-							Redacted
+							{t("strings.Redacted" as never)}
 						</div>
 						<div className="mt-2 text-2xl font-semibold text-amber-950">
 							{formatCount(metrics.totals.redacted)}
@@ -67,7 +68,7 @@ export default function GuardrailEnforcementPanel({
 					<div className="rounded-xl border border-sky-200/70 bg-sky-50/70 p-4">
 						<div className="flex items-center gap-2 text-sm font-medium text-sky-900">
 							<Flag className="h-4 w-4" />
-							Flagged
+							{t("strings.Flagged" as never)}
 						</div>
 						<div className="mt-2 text-2xl font-semibold text-sky-950">
 							{formatCount(metrics.totals.flagged)}
@@ -77,7 +78,7 @@ export default function GuardrailEnforcementPanel({
 
 				<div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(260px,1fr)]">
 					<div className="space-y-3">
-						<div className="text-sm font-medium">Trend</div>
+						<div className="text-sm font-medium">{t("strings.Trend" as never)}</div>
 						{hasEvents ? (
 							<div className="space-y-2">
 								{metrics.buckets
@@ -110,13 +111,13 @@ export default function GuardrailEnforcementPanel({
 							</div>
 						) : (
 							<div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">
-								No guardrail enforcement events were recorded in this window.
+								{t("strings.No guardrail enforcement events were recorded in this window." as never)}
 							</div>
 						)}
 					</div>
 
 					<div className="space-y-3">
-						<div className="text-sm font-medium">Most active guardrails</div>
+						<div className="text-sm font-medium">{t("strings.Most active guardrails" as never)}</div>
 						{metrics.topGuardrails.length > 0 ? (
 							<div className="space-y-2">
 								{metrics.topGuardrails.map((guardrail) => (
@@ -133,7 +134,7 @@ export default function GuardrailEnforcementPanel({
 							</div>
 						) : (
 							<div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">
-								No guardrail IDs were attached to the current enforcement events.
+								{t("strings.No guardrail IDs were attached to the current enforcement events." as never)}
 							</div>
 						)}
 

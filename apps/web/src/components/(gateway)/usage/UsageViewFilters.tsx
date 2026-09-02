@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { useQueryState } from "nuqs";
 import {
@@ -84,12 +85,12 @@ const SUPPORTED_CLIENT_SOURCES: ReadonlyArray<FilterOption> = [
 ];
 
 const OPERATOR_LABELS: Record<string, string> = {
-	is: "is",
-	is_not: "is not",
-	eq: "equals",
-	gte: "at least",
-	lte: "at most",
-	between: "between",
+	is: "Is",
+	is_not: "Is not",
+	eq: "Equals",
+	gte: "At least",
+	lte: "At most",
+	between: "Between",
 };
 
 function NumericFilterEditor({ label, initialValue, initialMax, initialOperator, onApply }: {
@@ -99,6 +100,7 @@ function NumericFilterEditor({ label, initialValue, initialMax, initialOperator,
 	initialOperator: string;
 	onApply: (value: string, max: string, operator: string) => void;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [value, setValue] = React.useState(initialValue);
 	const [max, setMax] = React.useState(initialMax);
 	const [operator, setOperator] = React.useState(initialOperator || "gte");
@@ -108,15 +110,15 @@ function NumericFilterEditor({ label, initialValue, initialMax, initialOperator,
 			<div className="grid grid-cols-2 gap-1 rounded-md bg-muted/40 p-1">
 				{["gte", "lte", "eq", "between"].map((item) => (
 					<button key={item} type="button" onClick={() => setOperator(item)} className={`h-8 rounded-md px-2 text-xs ${operator === item ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"}`}>
-						{OPERATOR_LABELS[item]}
+					{t(`strings.${OPERATOR_LABELS[item]}` as never)}
 					</button>
 				))}
 			</div>
 			<div className="flex items-center gap-2">
 				<input inputMode="numeric" pattern="[0-9]*" value={value} onChange={(event) => setValue(event.target.value.replace(/\D/g, ""))} placeholder="0" aria-label={`${label} value`} className="h-9 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
-				{operator === "between" ? <><span className="text-xs text-muted-foreground">and</span><input inputMode="numeric" pattern="[0-9]*" value={max} onChange={(event) => setMax(event.target.value.replace(/\D/g, ""))} placeholder="0" aria-label={`${label} maximum`} className="h-9 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm outline-none focus-visible:border-ring" /></> : null}
+				{operator === "between" ? <><span className="text-xs text-muted-foreground">{t("strings.and" as never)}</span><input inputMode="numeric" pattern="[0-9]*" value={max} onChange={(event) => setMax(event.target.value.replace(/\D/g, ""))} placeholder="0" aria-label={`${label} maximum`} className="h-9 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm outline-none focus-visible:border-ring" /></> : null}
 			</div>
-			<Button type="button" size="sm" className="w-full rounded-md" disabled={!valid} onClick={() => onApply(value, max, operator)}>Apply Filter</Button>
+			<Button type="button" size="sm" className="w-full rounded-md" disabled={!valid} onClick={() => onApply(value, max, operator)}>{t("strings.Apply Filter" as never)}</Button>
 		</div>
 	);
 }
@@ -168,6 +170,7 @@ function FilterChip({
 	operatorOptions?: string[];
 	defaultOperator?: string;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [operator, setOperator] = useQueryState(`${filterKey}_op`, {
 		defaultValue: defaultOperator,
 		shallow: false,
@@ -183,13 +186,13 @@ function FilterChip({
 			<Popover>
 				<PopoverTrigger asChild>
 					<button data-settings-segment type="button" className="inline-flex h-full appearance-none items-center rounded-none border-r border-border/70 px-2 text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-0">
-						{OPERATOR_LABELS[operator] ?? operator}
+						{OPERATOR_LABELS[operator] ? t(`strings.${OPERATOR_LABELS[operator]}` as never) : operator}
 					</button>
 				</PopoverTrigger>
 				<PopoverContent align="start" className="w-36 gap-0 rounded-md p-1">
 					{operatorOptions.map((nextOperator) => (
 						<button key={nextOperator} type="button" onClick={() => void setOperator(nextOperator)} className="flex h-8 w-full items-center rounded-sm px-2 text-left text-xs hover:bg-muted">
-							<span className="flex-1">{OPERATOR_LABELS[nextOperator] ?? nextOperator}</span>
+							<span className="flex-1">{OPERATOR_LABELS[nextOperator] ? t(`strings.${OPERATOR_LABELS[nextOperator]}` as never) : nextOperator}</span>
 							{operator === nextOperator ? <Check className="size-3.5" /> : null}
 						</button>
 					))}
@@ -208,7 +211,7 @@ function FilterChip({
 							<CommandInput placeholder={`Search ${label.toLowerCase()}…`} />
 							<CommandList className="max-h-none overflow-hidden">
 								<ScrollArea className="h-[320px]" keepScrollbarMounted viewportClassName="pr-2">
-									<CommandEmpty>No matching options.</CommandEmpty>
+								<CommandEmpty>{t("strings.No matching options." as never)}</CommandEmpty>
 									<CommandGroup>
 										{valueOptions.map((option) => (
 											<CommandItem key={option.value} value={`${option.label} ${option.value}`} data-checked={activeValue === option.value} onSelect={() => { void onValueSelect(option.value); setValuePickerOpen(false); }}>
@@ -281,6 +284,7 @@ export default function UsageViewFilters({
 	sessionProviderIds?: string[];
 	lockJobKind?: boolean;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [filtersPending, startFilterTransition] = React.useTransition();
 	const queryOptions = { shallow: false, startTransition: startFilterTransition } as const;
 	const [modelFilter, setModelFilter] = useQueryState("model", { ...queryOptions, defaultValue: "" });
@@ -652,9 +656,9 @@ export default function UsageViewFilters({
 			);
 		}
 		for (const tokenFilter of [
-			{ key: "input_tokens", label: "Input Tokens", value: inputTokensFilter, max: inputTokensMax, operator: inputTokensOperator, clear: () => { void setInputTokensFilter(""); void setInputTokensMax(""); } },
-			{ key: "output_tokens", label: "Output Tokens", value: outputTokensFilter, max: outputTokensMax, operator: outputTokensOperator, clear: () => { void setOutputTokensFilter(""); void setOutputTokensMax(""); } },
-			{ key: "total_tokens", label: "Total Tokens", value: totalTokensFilter, max: totalTokensMax, operator: totalTokensOperator, clear: () => { void setTotalTokensFilter(""); void setTotalTokensMax(""); } },
+			{ key: "input_tokens", label: t("strings.Input Tokens" as never), value: inputTokensFilter, max: inputTokensMax, operator: inputTokensOperator, clear: () => { void setInputTokensFilter(""); void setInputTokensMax(""); } },
+			{ key: "output_tokens", label: t("strings.Output Tokens" as never), value: outputTokensFilter, max: outputTokensMax, operator: outputTokensOperator, clear: () => { void setOutputTokensFilter(""); void setOutputTokensMax(""); } },
+			{ key: "total_tokens", label: t("strings.Total Tokens" as never), value: totalTokensFilter, max: totalTokensMax, operator: totalTokensOperator, clear: () => { void setTotalTokensFilter(""); void setTotalTokensMax(""); } },
 		]) {
 			if (!tokenFilter.value) continue;
 			activeChips.push(
@@ -774,38 +778,38 @@ export default function UsageViewFilters({
 	type FilterPicker = { id: string; label: string; options: FilterOption[]; activeValue: string; onSelect: (value: string) => void | Promise<unknown>; kind?: "numeric"; maxValue?: string; operator?: string; onNumericApply?: (value: string, max: string, operator: string) => void };
 	const filterPickers: FilterPicker[] = view === "logs"
 		? [
-			{ id: "source", label: "Source", options: clientSourceOptions, activeValue: sourceFilter, onSelect: setSourceFilter },
-			{ id: "model", label: "Model", options: modelOptions, activeValue: modelFilter, onSelect: setModelFilter },
-			{ id: "provider", label: "Provider", options: providerOptions, activeValue: providerFilter, onSelect: setProviderFilter },
-			{ id: "app", label: "App", options: logAppOptions, activeValue: appFilter, onSelect: setAppFilter },
-			{ id: "endpoint", label: "Endpoint", options: endpointOptions, activeValue: endpointFilter, onSelect: setEndpointFilter },
-			{ id: "finish", label: "Finish Reason", options: finishReasonOptions, activeValue: finishReasonFilter, onSelect: setFinishReasonFilter },
-			{ id: "stream", label: "Stream", options: streamOptions, activeValue: streamFilter === "all" ? "" : streamFilter, onSelect: (value) => setStreamFilter(value || "all") },
-			{ id: "error", label: "Error Code", options: errorCodeOptions, activeValue: errorCodeFilter, onSelect: setErrorCodeFilter },
-			{ id: "http", label: "HTTP Status", options: statusCodeOptions, activeValue: statusCodeFilter, onSelect: setStatusCodeFilter },
-			{ id: "key", label: "API Key", options: keyOptions, activeValue: keyFilter, onSelect: setKeyFilter },
-			{ id: "status", label: "Status", options: statusOptions, activeValue: statusFilter === "all" ? "" : statusFilter, onSelect: (value) => setStatusFilter(value || "all") },
-			{ id: "input_tokens", label: "Input Tokens", kind: "numeric", options: [], activeValue: inputTokensFilter, maxValue: inputTokensMax, operator: inputTokensOperator, onSelect: setInputTokensFilter, onNumericApply: (value, max, operator) => { void setInputTokensFilter(value); void setInputTokensMax(max); void setInputTokensOperator(operator); setPickerOpen(false); } },
-			{ id: "output_tokens", label: "Output Tokens", kind: "numeric", options: [], activeValue: outputTokensFilter, maxValue: outputTokensMax, operator: outputTokensOperator, onSelect: setOutputTokensFilter, onNumericApply: (value, max, operator) => { void setOutputTokensFilter(value); void setOutputTokensMax(max); void setOutputTokensOperator(operator); setPickerOpen(false); } },
-			{ id: "total_tokens", label: "Total Tokens", kind: "numeric", options: [], activeValue: totalTokensFilter, maxValue: totalTokensMax, operator: totalTokensOperator, onSelect: setTotalTokensFilter, onNumericApply: (value, max, operator) => { void setTotalTokensFilter(value); void setTotalTokensMax(max); void setTotalTokensOperator(operator); setPickerOpen(false); } },
+			{ id: "source", label: t("strings.Source" as never), options: clientSourceOptions, activeValue: sourceFilter, onSelect: setSourceFilter },
+			{ id: "model", label: t("strings.Model" as never), options: modelOptions, activeValue: modelFilter, onSelect: setModelFilter },
+			{ id: "provider", label: t("strings.Provider" as never), options: providerOptions, activeValue: providerFilter, onSelect: setProviderFilter },
+			{ id: "app", label: t("strings.App" as never), options: logAppOptions, activeValue: appFilter, onSelect: setAppFilter },
+			{ id: "endpoint", label: t("strings.Endpoint" as never), options: endpointOptions, activeValue: endpointFilter, onSelect: setEndpointFilter },
+			{ id: "finish", label: t("strings.Finish Reason" as never), options: finishReasonOptions, activeValue: finishReasonFilter, onSelect: setFinishReasonFilter },
+			{ id: "stream", label: t("strings.Stream" as never), options: streamOptions, activeValue: streamFilter === "all" ? "" : streamFilter, onSelect: (value) => setStreamFilter(value || "all") },
+			{ id: "error", label: t("strings.Error Code" as never), options: errorCodeOptions, activeValue: errorCodeFilter, onSelect: setErrorCodeFilter },
+			{ id: "http", label: t("strings.HTTP Status" as never), options: statusCodeOptions, activeValue: statusCodeFilter, onSelect: setStatusCodeFilter },
+			{ id: "key", label: t("strings.API Key" as never), options: keyOptions, activeValue: keyFilter, onSelect: setKeyFilter },
+			{ id: "status", label: t("strings.Status" as never), options: statusOptions, activeValue: statusFilter === "all" ? "" : statusFilter, onSelect: (value) => setStatusFilter(value || "all") },
+			{ id: "input_tokens", label: t("strings.Input Tokens" as never), kind: "numeric", options: [], activeValue: inputTokensFilter, maxValue: inputTokensMax, operator: inputTokensOperator, onSelect: setInputTokensFilter, onNumericApply: (value, max, operator) => { void setInputTokensFilter(value); void setInputTokensMax(max); void setInputTokensOperator(operator); setPickerOpen(false); } },
+			{ id: "output_tokens", label: t("strings.Output Tokens" as never), kind: "numeric", options: [], activeValue: outputTokensFilter, maxValue: outputTokensMax, operator: outputTokensOperator, onSelect: setOutputTokensFilter, onNumericApply: (value, max, operator) => { void setOutputTokensFilter(value); void setOutputTokensMax(max); void setOutputTokensOperator(operator); setPickerOpen(false); } },
+			{ id: "total_tokens", label: t("strings.Total Tokens" as never), kind: "numeric", options: [], activeValue: totalTokensFilter, maxValue: totalTokensMax, operator: totalTokensOperator, onSelect: setTotalTokensFilter, onNumericApply: (value, max, operator) => { void setTotalTokensFilter(value); void setTotalTokensMax(max); void setTotalTokensOperator(operator); setPickerOpen(false); } },
 		]
 		: view === "upstream"
 			? [
-				{ id: "model", label: "Model", options: modelOptions, activeValue: modelFilter, onSelect: setModelFilter },
-				{ id: "provider", label: "Provider", options: providerOptions, activeValue: providerFilter, onSelect: setProviderFilter },
-				{ id: "key", label: "API Key", options: keyOptions, activeValue: keyFilter, onSelect: setKeyFilter },
-				{ id: "status", label: "Status", options: statusOptions, activeValue: statusFilter === "all" ? "" : statusFilter, onSelect: (value) => setStatusFilter(value || "all") },
+				{ id: "model", label: t("strings.Model" as never), options: modelOptions, activeValue: modelFilter, onSelect: setModelFilter },
+				{ id: "provider", label: t("strings.Provider" as never), options: providerOptions, activeValue: providerFilter, onSelect: setProviderFilter },
+				{ id: "key", label: t("strings.API Key" as never), options: keyOptions, activeValue: keyFilter, onSelect: setKeyFilter },
+				{ id: "status", label: t("strings.Status" as never), options: statusOptions, activeValue: statusFilter === "all" ? "" : statusFilter, onSelect: (value) => setStatusFilter(value || "all") },
 			]
 			: view === "jobs"
 				? [
-					...(!lockJobKind ? [{ id: "kind", label: "Kind", options: jobKindOptions, activeValue: jobKindFilter, onSelect: setJobKindFilter }] : []),
-					{ id: "status", label: "Status", options: jobStatusOptions, activeValue: jobStatusFilter, onSelect: setJobStatusFilter },
-					{ id: "provider", label: "Provider", options: providerOptions, activeValue: jobProviderFilter, onSelect: setJobProviderFilter },
+					...(!lockJobKind ? [{ id: "kind", label: t("strings.Kind" as never), options: jobKindOptions, activeValue: jobKindFilter, onSelect: setJobKindFilter }] : []),
+					{ id: "status", label: t("strings.Status" as never), options: jobStatusOptions, activeValue: jobStatusFilter, onSelect: setJobStatusFilter },
+					{ id: "provider", label: t("strings.Provider" as never), options: providerOptions, activeValue: jobProviderFilter, onSelect: setJobProviderFilter },
 				]
 				: [
-					{ id: "app", label: "App", options: sessionAppOptions, activeValue: sessionAppFilter, onSelect: setSessionAppFilter },
-					{ id: "model", label: "Model", options: sessionModelOptions, activeValue: sessionModelFilter, onSelect: setSessionModelFilter },
-					{ id: "provider", label: "Provider", options: sessionProviderOptions, activeValue: sessionProviderFilter, onSelect: setSessionProviderFilter },
+					{ id: "app", label: t("strings.App" as never), options: sessionAppOptions, activeValue: sessionAppFilter, onSelect: setSessionAppFilter },
+					{ id: "model", label: t("strings.Model" as never), options: sessionModelOptions, activeValue: sessionModelFilter, onSelect: setSessionModelFilter },
+					{ id: "provider", label: t("strings.Provider" as never), options: sessionProviderOptions, activeValue: sessionProviderFilter, onSelect: setSessionProviderFilter },
 				];
 	const selectedPicker = filterPickers.find((picker) => picker.id === selectedFilterType) ?? null;
 	const SelectedFilterIcon = selectedPicker ? (FILTER_ICONS[selectedPicker.id] ?? ListFilter) : null;
@@ -830,12 +834,12 @@ export default function UsageViewFilters({
 				<PopoverTrigger asChild>
 					<Button type="button" variant="outline" className="h-9 gap-2 rounded-md px-3 text-xs font-medium">
 						<ListFilter className="size-3.5" />
-						Add Filter
+						{t("strings.Add Filter" as never)}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent align="end" className="w-[320px] gap-0 overflow-hidden rounded-md! p-0">
 					<Command className="rounded-md!">
-						{selectedPicker?.kind !== "numeric" ? <CommandInput placeholder={selectedPicker ? `Search ${selectedPicker.label.toLowerCase()}…` : "Search filters…"} /> : null}
+						{selectedPicker?.kind !== "numeric" ? <CommandInput placeholder={selectedPicker ? `${t("strings.Search" as never)} ${selectedPicker.label.toLowerCase()}…` : t("strings.Search filters…" as never)} /> : null}
 						{selectedPicker ? (
 							<button type="button" onClick={() => changeSelectedFilterType(null)} className="mt-1 flex h-10 w-full shrink-0 items-center gap-2 rounded-md border-b border-border/70 px-3 text-left text-xs font-medium hover:bg-muted/60">
 								<ArrowLeft className="size-3.5" />
@@ -879,12 +883,12 @@ export default function UsageViewFilters({
 							{filtersPending ? (
 								<span className="ml-auto inline-flex h-7 items-center gap-2 px-2 text-xs text-muted-foreground" role="status" aria-live="polite">
 									<Loader2 className="size-3.5 animate-spin" />
-									Updating requests…
+									{t("strings.Updating requests…" as never)}
 								</span>
 							) : activeChips.length > 0 ? (
 								<>
-									<button type="button" className="ml-auto px-2 text-xs text-muted-foreground hover:text-foreground" onClick={clearAll}>Clear</button>
-									<button type="button" className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => setPickerOpen(true)} aria-label="Add another filter"><Plus className="size-3.5" /></button>
+									<button type="button" className="ml-auto px-2 text-xs text-muted-foreground hover:text-foreground" onClick={clearAll}>{t("strings.Clear" as never)}</button>
+									<button type="button" className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => setPickerOpen(true)} aria-label={t("strings.Add another filter" as never)}><Plus className="size-3.5" /></button>
 								</>
 							) : null}
 						</div>,

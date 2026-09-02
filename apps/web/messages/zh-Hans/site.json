@@ -1,0 +1,370 @@
+{
+  "home": {
+    "title": "Phaseo：AI 网关与开放模型目录",
+    "description": "发现可信的模型数据，通过一个开源 AI 网关路由请求，并跨提供商观察成本、可靠性、用量和性能。",
+    "heroTitle": "一个平台，连接每个 AI 模型",
+    "heroDescription": "发现可信的模型数据，通过一个兼容 OpenAI 的网关路由请求，并跨支持的提供商观察成本、可靠性、用量和性能。",
+    "explore": "探索",
+    "models": "模型",
+    "getApiKey": "获取 API 密钥",
+    "viewGithub": "查看 GitHub",
+    "openModelDatabase": "开放模型数据库，统一网关",
+    "openModelDatabaseDescription": "探索更广泛的模型目录，然后在上线前筛选出具有活跃 Gateway 路由的模型。",
+    "transparentPricing": "透明定价",
+    "viewPricing": "查看定价",
+    "usePricingCalculator": "使用定价计算器",
+    "pricingPoints": {
+      "payAsYouGo": "用多少付多少，简单明了",
+      "payAsYouGoBody": "没有企业套餐、合同、订阅、最低消费，也没有按月或按年的承诺。",
+      "creditFee": "购买额度收取 {fee}% 手续费",
+      "creditFeeBody": "购买额度时收取，最低 1 美元。用量按目录中显示的模型价格计算。",
+      "managedCredits": "托管额度或 BYOK",
+      "managedCreditsBody": "BYOK 每月包含一百万次免手续费请求，之后按提供商等价成本收取 2.5% 的服务费。"
+    }
+  },
+  "about": {
+    "badge": "公司",
+    "title": "一个统一、开放的层，让你跨提供商访问模型并可靠地上线。",
+    "intro": "Phaseo 以实用的开放性为核心：广泛的模型与提供商访问、明确的发布、弃用和退役跟踪，以及清晰的可观测性，让团队能够以更少的意外运行生产工作负载。",
+    "exploreModels": "探索模型",
+    "pricing": "Phaseo 定价",
+    "documentation": "文档",
+    "howItWorks": "工作原理",
+    "howItWorksTitle": "从探索到生产运营的清晰路径。",
+    "howItWorksDescription": "研究模型，通过一个 API 层执行请求，持续了解生命周期变化，并长期监控行为。",
+    "whatWeBuild": "我们构建什么",
+    "whatWeBuildTitle": "随着 AI 变化依然有用的持久产品界面。",
+    "whatWeBuildDescription": "我们的目标很简单：保持访问广泛、接口稳定、运营易于理解。",
+    "open": "开放",
+    "step": "第 {number} 步"
+  },
+  "mission": {
+    "title": "我们的使命",
+    "intro": "Phaseo 的使命是让 AI 模型的访问更广泛、更实惠、更透明、更易迁移且更加开放。",
+    "principles": "我们的原则",
+    "broadAccess": "广泛访问",
+    "broadAccessBody": "通过一个一致的接口，在负责任的范围内支持尽可能多的实用模型、提供商、模态和能力。",
+    "lowestPrice": "可持续的最低价格",
+    "lowestPriceBody": "持续改进路由、基础设施和软件效率，再将这些收益用于降低价格并改善服务。",
+    "openByDefault": "默认开放",
+    "openByDefaultBody": "坚持 Phaseo 开源，让依赖网关的人可以检查、扩展、质疑并改进它。",
+    "usersFirst": "用户优先于投资者",
+    "usersFirstBody": "围绕长期用户利益、产品质量和公平访问做决策，而不是承受追求短期财务回报的压力。",
+    "transparency": "透明而不锁定",
+    "transparencyBody": "让定价、路由、可用性、生命周期变化和运营行为易于理解，同时保持数据和集成的可迁移性。",
+    "technicalExcellence": "技术卓越",
+    "technicalExcellenceBody": "通过准确的数据、可靠的路由、强大的兼容性、有用的可观测性，以及简洁易用的开发者体验来竞争。",
+    "builtWithEveryone": "与所有人共同构建",
+    "builtWithEveryoneBody": "为用户、贡献者、模型创建者和提供商提供有意义的方式，共同塑造平台及其周边标准。",
+    "principlesTitle": "指导我们如何构建的承诺。",
+    "principlesDescription": "随着 Phaseo 成长，这些原则将指导产品、定价、合作关系和业务决策。",
+    "exploreModels": "探索模型",
+    "viewSource": "查看源代码",
+    "roadmap": "阅读路线图"
+  },
+  "faq": {
+    "title": "AI 模型数据库与网关常见问题",
+    "intro": "这里有关于比较模型、理解数据和使用网关的实用答案。找不到答案？<support>联系我们的团队</support>。",
+    "items": [
+      {
+        "question": "如何在 Phaseo 上比较 AI 模型？",
+        "answer": "从<models>模型目录</models>开始，然后打开模型页面，比较其定价、提供商、基准测试结果、延迟信号和兼容性详情。页面展示的信息会因该模型可用的数据而异。"
+      },
+      {
+        "question": "模型页面能告诉我什么？",
+        "answer": "模型页面汇总特定模型的实用信息：创建者、提供该模型的提供商、列出的价格、基准测试覆盖范围和网关可用性。使用页面标签深入了解定价、提供商、性能和快速入门详情。"
+      },
+      {
+        "question": "Phaseo 如何计算模型定价？",
+        "answer": "Phaseo 保存每条提供商路由的计量方式、单位大小、货币、套餐和生效日期。输入和输出费率保持分开，令牌价格会按每 1M 个令牌标准化以便比较；它们不会合并成一个混合的总价。请阅读<pricingMethodology>定价方法</pricingMethodology>，或在<calculator>定价计算器</calculator>中输入自己的令牌用量。"
+      },
+      {
+        "question": "网关可用性是什么意思？",
+        "answer": "网关可用性表示 Phaseo 当前是否有符合条件的模型路由。它与模型质量或基准测试性能是分开的。提供商状态可能变化，因此在生产环境依赖某条路由前，请检查模型的提供商和可用性信息。"
+      },
+      {
+        "question": "我可以将 Phaseo 用作 AI 网关吗？",
+        "answer": "可以。Phaseo Gateway 为受支持的模型和提供商提供一个兼容 OpenAI 的接口。创建 API 密钥、选择模型，即可在保留模型和提供商选择权的同时使用同一套集成接口。"
+      },
+      {
+        "question": "我可以使用自己的提供商 API 密钥吗？",
+        "answer": "可以。当你希望保留与提供商的关系并直接向其结算时，可以携带自己的提供商密钥，同时继续使用 Phaseo 的路由、健康检查和策略层。"
+      },
+      {
+        "question": "我可以探索哪些提供商和模型类型？",
+        "answer": "浏览<providers>提供商目录</providers>了解覆盖范围，或按聊天、嵌入、图像、音频、视频和审核等能力筛选模型目录。提供商页面最适合查看其当前列出的模型目录。"
+      },
+      {
+        "question": "基准测试和性能数据是如何处理的？",
+        "answer": "基准测试分数会与对应的基准测试及其方法一起展示，以保留比较所需的上下文。在根据单个分数做出生产决策前，请阅读<benchmarkMethodology>Phaseo 如何标准化 AI 基准测试</benchmarkMethodology>以及<performanceMethodology>它如何衡量延迟和吞吐量</performanceMethodology>。"
+      },
+      {
+        "question": "如果某个条目看起来不正确或不完整，我该怎么办？",
+        "answer": "使用<contribute>贡献页面</contribute>报告更正或补充缺失信息。准确且有来源支持的报告有助于在提供商更新目录和定价时保持目录的实用性。"
+      }
+    ]
+  },
+  "methodology": {
+    "label": "方法论",
+    "title": "Phaseo 如何衡量所发布的内容",
+    "description": "四个参考页面，介绍公开目录中定价、性能、基准测试和提供商覆盖范围的定义方式。",
+    "lastUpdated": "最后更新于 {date}",
+    "readPage": "阅读页面",
+    "relatedPages": "相关页面",
+    "articleLastUpdated": "最后更新：{date}",
+    "entries": {
+      "how-phaseo-calculates-model-pricing": {
+        "shortTitle": "模型定价",
+        "title": "Phaseo 如何计算模型定价",
+        "description": "Phaseo 如何将提供商价目表、计量方式和路由规则映射为目录中公开显示的模型价格。",
+        "intro": "本页面说明 Phaseo 如何将提供商定价来源转换为模型页面和提供商页面上公开显示的定价值。",
+        "sections": {
+          "what": "我们衡量什么",
+          "inputs": "主要输入",
+          "normalised": "如何标准化价格",
+          "dates": "生效日期与变更处理",
+          "caveats": "注意事项"
+        },
+        "related": {
+          "gateway": "网关定价",
+          "calculator": "定价计算器",
+          "models": "模型数据库"
+        }
+      },
+      "how-phaseo-measures-latency-throughput": {
+        "shortTitle": "延迟与吞吐量",
+        "title": "Phaseo 如何衡量延迟与吞吐量",
+        "description": "Phaseo 如何定义排名以及模型或提供商性能页面中显示的延迟、吞吐量和请求性能指标。",
+        "intro": "本页面说明 Phaseo 如何计算延迟和吞吐量、如何汇总这些指标，以及为什么结果会因路由和时间范围而异。",
+        "sections": {
+          "what": "我们衡量什么",
+          "windows": "汇总时间窗口",
+          "eligibility": "筛选与纳入条件",
+          "move": "数值为何会变化",
+          "caveats": "注意事项"
+        },
+        "related": {
+          "rankings": "排名",
+          "models": "模型",
+          "providers": "提供商"
+        }
+      },
+      "how-phaseo-normalises-ai-benchmarks": {
+        "shortTitle": "基准测试标准化",
+        "title": "Phaseo 如何标准化 AI 基准测试",
+        "description": "Phaseo 如何存储基准测试分数、变体和排序方向，同时让不同来源的基准测试展示保持一致。",
+        "intro": "本页面说明 Phaseo 如何处理不同来源的基准测试数据，同时避免假装所有基准测试都能直接比较。",
+        "sections": {
+          "what": "我们存储什么",
+          "normalised": "这里的标准化是什么意思",
+          "ranking": "排名逻辑",
+          "source": "来源质量与披露",
+          "caveats": "注意事项"
+        },
+        "related": {
+          "benchmarks": "基准测试",
+          "models": "模型",
+          "compare": "比较模型"
+        }
+      },
+      "how-phaseo-tracks-provider-availability": {
+        "shortTitle": "提供商可用性",
+        "title": "Phaseo 如何跟踪提供商可用性",
+        "description": "Phaseo 如何将模型映射到提供商、跟踪网关可用性，并解读公开目录页面中的提供商覆盖范围。",
+        "intro": "本页面说明 Phaseo 如何判断模型是否在某个提供商处可用，以及公开的提供商覆盖视图 intended 表达什么。",
+        "sections": {
+          "what": "Phaseo 上的可用性是什么意思",
+          "mappings": "如何存储映射关系",
+          "active": "网关活跃与目录可见的区别",
+          "changes": "提供商页面何时变化",
+          "caveats": "注意事项"
+        },
+        "related": {
+          "providers": "提供商数据库",
+          "models": "模型",
+          "rankings": "排名"
+        }
+      }
+    }
+  },
+  "contact": {
+    "title": "联系 Phaseo 支持团队",
+    "intro": "告诉我们你的需求，我们会将你引导到合适的地方。私密账户问题会变成支持工单。公开 Bug、功能请求和简短问题则会进入最适合的渠道。",
+    "repliesResumeSoon": "支持回复即将恢复。",
+    "feedbackPrompt": "告诉我们 Phaseo 的哪些地方应该更清晰、更快或更有用。账户或账单问题请使用下方的支持选项。",
+    "sendFeedback": "发送产品反馈",
+    "stepOne": "第 1 步",
+    "stepTwo": "第 2 步",
+    "whatHelp": "你需要什么帮助？",
+    "chooseIssue": "选择问题类型",
+    "pickClosest": "选择最接近的选项，我们会在下方显示下一步。",
+    "recommended": "推荐：{method}",
+    "privateReply": "希望私下回复？",
+    "switchPrivate": "切换到私密工单",
+    "otherMethods": "其他支持方式",
+    "otherMethodsBody": "如果其他渠道更适合你的问题，请使用它。",
+    "yourTime": "你的时间 {time}",
+    "checking": "检查中……",
+    "supportTime": "Phaseo 支持时间：{time}",
+    "support": "支持",
+    "liveChatTitle": "在线聊天或电子邮件",
+    "liveChatDescription": "从此页面开始在线聊天，或打开一封已预填所需上下文的电子邮件。",
+    "signedInAs": "已登录账户：{email}",
+    "chatNotConfigured": "此部署未配置在线聊天。",
+    "chatOutsideHours": "在线聊天仅在支持时间内提供。电子邮件始终可用。",
+    "chatOffline": "在线聊天离线",
+    "loadingChat": "正在加载聊天……",
+    "startLiveChat": "开始在线聊天",
+    "chatUnavailable": "在线聊天不可用",
+    "sendEmail": "发送电子邮件",
+    "createTicket": "创建工单",
+    "openChatNewTab": "在新标签页中打开聊天",
+    "privateReplyBody": "如果内容包含账户详情、账单信息、请求 ID 或截图，请改选私密支持工单。",
+    "methods": {
+      "support": {
+        "title": "私密支持工单",
+        "description": "适用于账户、账单、数据或实施问题。",
+        "cta": "创建工单"
+      },
+      "github": {
+        "title": "GitHub",
+        "description": "适用于可复现的 Bug、功能请求和公开跟踪。",
+        "cta": "打开 GitHub"
+      },
+      "discord": {
+        "title": "Discord",
+        "description": "适用于快速设置问题和轻量的社区反馈。",
+        "cta": "加入 Discord"
+      },
+      "docs": {
+        "title": "文档",
+        "description": "适用于网关指南、SDK 示例、模型参考和快速入门。",
+        "cta": "阅读文档"
+      }
+    },
+    "issues": {
+      "billing": {
+        "label": "账单或账户问题",
+        "helper": "创建私密支持工单，我们会回复你提供的电子邮件地址。"
+      },
+      "bug": {
+        "label": "Bug 或服务中断",
+        "helper": "如果问题可复现且对其他用户跟踪有帮助，请使用 GitHub。"
+      },
+      "data": {
+        "label": "数据或指标问题",
+        "helper": "创建私密工单，并附上模型 ID、提供商名称、URL 和时间戳。"
+      },
+      "docs": {
+        "label": "文档或集成问题",
+        "helper": "先查看文档。如果缺少答案，请附上确切页面并发送工单。"
+      },
+      "feature": {
+        "label": "功能请求",
+        "helper": "在 GitHub 中提交 Issue，说明工作流程、预期行为以及它为何重要。"
+      },
+      "general": {
+        "label": "一般问题",
+        "helper": "创建私密支持工单，并提供足够的上下文以便直接回复。"
+      },
+      "community": {
+        "label": "社区或快速反馈",
+        "helper": "如果你想获得轻量的答复或与其他用户讨论，请使用 Discord。"
+      }
+    }
+  },
+  "profileShare": {
+    "titleSuffix": "Phaseo 分享卡片",
+    "description": "根据个人工作区活动生成的轻量摘要。",
+    "shareCard": "{name} 的分享卡片",
+    "downloadImage": "下载图像",
+    "openPhaseo": "打开 Phaseo",
+    "imageAlt": "{name} 的 Phaseo 分享卡片"
+  },
+  "profile": {
+    "title": "共享个人资料",
+    "loading": "正在加载个人资料……"
+  },
+  "trust": {
+    "trustCentre": "信任中心",
+    "phaseoTrustCentre": "Phaseo 信任中心",
+    "lastReviewed": "最后审核于 {date}",
+    "privacyPolicy": "隐私政策",
+    "termsOfService": "服务条款",
+    "privacyQuestions": "隐私问题",
+    "securityAndTrust": "Phaseo 的安全与信任",
+    "currentSafeguards": "当前的产品护栏、数据实践和保障状态。本页面的声明仅限于 Phaseo 今天能够支持的内容。",
+    "assurance": "保障",
+    "sections": "信任中心栏目",
+    "claimLabels": "声明标签",
+    "trustDocuments": "信任文档",
+    "trustDocumentsBody": "使用详细资料进行安全审查、供应商评估或 DPA 讨论。",
+    "security": "安全",
+    "securityBody": "当前代码和文档所支持的产品与运营护栏。",
+    "dataHandling": "数据处理",
+    "dataHandlingBody": "网关内容默认如何处理、哪些情况适用例外，以及哪些方面取决于提供商。",
+    "serviceProviders": "服务提供商",
+    "serviceProvidersBody": "Phaseo 当前隐私政策中披露的类别。",
+    "availability": "可用性与事件",
+    "compliance": "合规",
+    "responsibleDisclosure": "负责任披露",
+    "emailSecurity": "电子邮件安全",
+    "privateGithubReport": "私密 GitHub 报告",
+    "reviewedEvidence": "已根据代码仓库证据审核"
+  },
+  "pricing": {
+    "title": "定价",
+    "description": "简单的按量付费 AI 网关定价，可选自助式 Enterprise 身份、治理和包含支付的方案。",
+    "everythingIncluded": "全部包含",
+    "everythingIncludedBody": "在花费任何费用前探索模型目录、排名、SDK 和免费模型聊天。需要付费模型用量时再添加额度，无需更换方案。",
+    "swipeCompare": "横向滑动以比较提供商。",
+    "showFreeAccess": "显示免费访问",
+    "compareCompetitors": "比较竞争对手",
+    "competitorNote": "竞争对手详情反映了 2026 年 7 月 26 日核查的公开文档。“未宣传”表示无法在公开产品或定价文档中验证该功能。",
+    "selfServeEnterprise": "自助式 Enterprise",
+    "selfServeEnterpriseBody": "为 100 到 100,000 名成员的团队配置 Enterprise，查看确切月价，并无需销售通话或承诺模型支出即可订阅。",
+    "buildPlan": "构建我的方案",
+    "activeMembers": "活跃成员",
+    "users": "用户",
+    "enterpriseSubscription": "Enterprise 订阅",
+    "monthEstimated": "/月（预计）",
+    "whatYouGet": "你将获得",
+    "included": "包含",
+    "creditTopUpFee": "额度充值手续费",
+    "modelUsageCredits": "模型用量额度",
+    "purchasedSeparately": "单独购买",
+    "committedModelSpend": "承诺的模型支出",
+    "none": "无",
+    "usdNote": "按月以美元计费的订阅。额度购买保持独立，在所有受支持的支付方式中均采用标准 5% 充值手续费。模型用量可以按需消费多少或少消费多少——订阅价格不变。",
+    "features": {
+      "sso": "SAML SSO 与强制登录",
+      "scim": "SCIM 用户、群组和批量操作",
+      "departments": "部门与工作区角色",
+      "audit": "审计与治理控制",
+      "priority": "优先支持"
+    },
+    "paygHeadline": "默认按量付费。团队需要时再添加 Enterprise。",
+    "paygBody": "需要时购买额度，只为实际使用付费。Enterprise 身份和支付权益是可选的，价格公开透明，无需销售通话即可启用。",
+    "manageCredits": "管理额度",
+    "manageProviderKeys": "管理提供商密钥",
+    "modelPricingCalculator": "模型定价计算器",
+    "payg": "按量付费",
+    "paygBodyShort": "只在需要时充值额度。",
+    "enterpriseOptional": "Enterprise 为可选项",
+    "enterpriseOptionalBody": "添加 SSO、SCIM 和治理功能，不改变用量价格。",
+    "pricesPublic": "价格公开透明",
+    "pricesPublicBody": "回答简短问卷后立即订阅。",
+    "faqTitle": "常见问题",
+    "ready": "准备开始了吗？",
+    "readyBody": "免费开始，需要时添加额度，并在成长过程中保持相同的按量付费条款。",
+    "openPlatform": "开放平台",
+    "askPricing": "询问定价问题"
+  },
+  "legal": {
+    "lastUpdated": "最后更新：{date}",
+    "privacyTitle": "隐私政策",
+    "privacyIntro": "本隐私政策说明以 Phaseo 名义运营的 Daniel Butler（“Phaseo”“我们”）在你使用我们的网站、控制台和 API 网关（统称“服务”）时如何收集、使用和保护个人数据。",
+    "termsTitle": "服务条款",
+    "termsIntro": "这些服务条款（“条款”）适用于你对 Phaseo 网站、数据目录和统一 API 网关（统称“服务”）的使用。"
+  }
+}

@@ -1,0 +1,370 @@
+{
+  "home": {
+    "title": "Phaseo : passerelle d'IA et catalogue de modèles ouverts",
+    "description": "Découvrez des données fiables sur les modèles, acheminez vos requêtes via une passerelle d'IA open source unique et suivez les coûts, la fiabilité, l'utilisation et les performances de chaque fournisseur.",
+    "heroTitle": "Une plateforme pour chaque modèle d'IA",
+    "heroDescription": "Découvrez des données fiables sur les modèles, acheminez vos requêtes via une passerelle compatible avec OpenAI et suivez les coûts, la fiabilité, l'utilisation et les performances des fournisseurs pris en charge.",
+    "explore": "Explorer",
+    "models": "Modèles",
+    "getApiKey": "Obtenir une clé API",
+    "viewGithub": "Voir sur GitHub",
+    "openModelDatabase": "Base de modèles ouverte, passerelle unifiée",
+    "openModelDatabaseDescription": "Explorez le catalogue complet de modèles, puis filtrez ceux qui disposent d'une route Gateway active avant de les mettre en production.",
+    "transparentPricing": "Tarification transparente",
+    "viewPricing": "Voir les tarifs",
+    "usePricingCalculator": "Utiliser le calculateur de tarifs",
+    "pricingPoints": {
+      "payAsYouGo": "Payez à l'utilisation, tout simplement",
+      "payAsYouGoBody": "Aucun forfait entreprise, contrat, abonnement, montant minimum ni engagement mensuel ou annuel.",
+      "creditFee": "Frais de {fee} % sur l'achat de crédits",
+      "creditFeeBody": "Appliqués lors de l'achat de crédits, avec un minimum de 1 $. L'utilisation suit les tarifs des modèles affichés dans le catalogue.",
+      "managedCredits": "Crédits gérés ou BYOK",
+      "managedCreditsBody": "Le BYOK comprend un million de requêtes sans frais chaque mois, puis des frais de service de 2,5 % sur le coût équivalent du fournisseur."
+    }
+  },
+  "about": {
+    "badge": "Entreprise",
+    "title": "Une couche unifiée et ouverte pour accéder aux modèles de tous les fournisseurs et déployer en toute fiabilité.",
+    "intro": "Phaseo est conçu autour d'une ouverture concrète : un accès étendu aux modèles et aux fournisseurs, un suivi explicite des mises à disposition, dépréciations et retraits, ainsi qu'une observabilité claire pour exécuter des charges de production avec moins de surprises.",
+    "exploreModels": "Explorer les modèles",
+    "pricing": "Tarifs Phaseo",
+    "documentation": "Documentation",
+    "howItWorks": "Fonctionnement",
+    "howItWorksTitle": "Un parcours clair, de l'exploration à l'exploitation en production.",
+    "howItWorksDescription": "Recherchez des modèles, exécutez vos requêtes via une couche API unique, restez informé des changements de cycle de vie et surveillez les comportements dans le temps.",
+    "whatWeBuild": "Ce que nous construisons",
+    "whatWeBuildTitle": "Des surfaces produit durables, utiles à mesure que l'IA évolue.",
+    "whatWeBuildDescription": "Notre objectif est simple : préserver un accès étendu, des interfaces stables et des opérations compréhensibles.",
+    "open": "Ouvrir",
+    "step": "Étape {number}"
+  },
+  "mission": {
+    "title": "Notre mission",
+    "intro": "La mission de Phaseo est de rendre l'accès aux modèles d'IA vaste, abordable, transparent, portable et ouvert.",
+    "principles": "Nos principes",
+    "broadAccess": "Un accès étendu",
+    "broadAccessBody": "Prendre en charge autant de modèles, fournisseurs, modalités et capacités utiles que possible, de manière responsable, via une interface cohérente.",
+    "lowestPrice": "Le prix durablement le plus bas",
+    "lowestPriceBody": "Améliorer sans cesse le routage, l'infrastructure et l'efficacité logicielle, puis utiliser ces gains pour réduire les prix et améliorer le service.",
+    "openByDefault": "Ouvert par défaut",
+    "openByDefaultBody": "Maintenir Phaseo en open source afin que la passerelle puisse être inspectée, étendue, remise en question et améliorée par les personnes qui en dépendent.",
+    "usersFirst": "Les utilisateurs avant les investisseurs",
+    "usersFirstBody": "Prendre les décisions en fonction de l'intérêt à long terme des utilisateurs, de la qualité du produit et d'un accès équitable, plutôt que de la pression en faveur de rendements financiers à court terme.",
+    "transparency": "La transparence sans enfermement propriétaire",
+    "transparencyBody": "Rendre les tarifs, le routage, la disponibilité, les changements de cycle de vie et le fonctionnement compréhensibles, tout en gardant les données et les intégrations portables.",
+    "technicalExcellence": "L'excellence technique",
+    "technicalExcellenceBody": "Nous nous distinguons par la précision des données, la fiabilité du routage, une compatibilité solide, une observabilité utile et une expérience développeur qui reste simple.",
+    "builtWithEveryone": "Construit avec tout le monde",
+    "builtWithEveryoneBody": "Donner aux utilisateurs, contributeurs, créateurs de modèles et fournisseurs des moyens concrets de faire évoluer la plateforme et les standards qui l'entourent.",
+    "principlesTitle": "Les engagements qui guident notre façon de construire.",
+    "principlesDescription": "Ces principes doivent guider les décisions produit, tarifaires, partenariales et commerciales à mesure que Phaseo grandit.",
+    "exploreModels": "Explorer les modèles",
+    "viewSource": "Voir le code source",
+    "roadmap": "Lire la feuille de route"
+  },
+  "faq": {
+    "title": "FAQ sur la base de modèles d'IA et la passerelle",
+    "intro": "Des réponses concrètes pour comparer les modèles, comprendre les données et utiliser la passerelle. Vous ne trouvez pas la réponse ? <support>Contactez notre équipe</support>.",
+    "items": [
+      {
+        "question": "Comment comparer les modèles d'IA sur Phaseo ?",
+        "answer": "Commencez dans le <models>répertoire des modèles</models>, puis ouvrez la page d'un modèle pour comparer ses tarifs, ses fournisseurs, ses résultats de référence, ses indicateurs de latence et ses détails de compatibilité. Les informations affichées dépendent des données disponibles pour ce modèle."
+      },
+      {
+        "question": "Que m'indique la page d'un modèle ?",
+        "answer": "La page d'un modèle rassemble les informations utiles à son sujet : son créateur, les fournisseurs qui le proposent, les tarifs indiqués, la couverture des benchmarks et sa disponibilité sur la passerelle. Utilisez les onglets pour approfondir les tarifs, les fournisseurs, les performances et les détails de démarrage rapide."
+      },
+      {
+        "question": "Comment Phaseo calcule-t-il les tarifs des modèles ?",
+        "answer": "Phaseo enregistre le compteur, la taille d'unité, la devise, le forfait et les dates d'effet de chaque route fournisseur. Les tarifs d'entrée et de sortie restent séparés, et les prix des tokens sont normalisés par million de tokens pour permettre la comparaison ; ils ne sont pas fusionnés en un prix global composite. Consultez la <pricingMethodology>méthodologie tarifaire</pricingMethodology> ou saisissez vos propres volumes de tokens dans le <calculator>calculateur de tarifs</calculator>."
+      },
+      {
+        "question": "Que signifie la disponibilité sur la passerelle ?",
+        "answer": "La disponibilité sur la passerelle indique si Phaseo dispose actuellement d'une route éligible pour un modèle. Elle est indépendante de la qualité ou des performances de référence du modèle. Le statut d'un fournisseur peut changer : vérifiez donc les fournisseurs du modèle et les informations de disponibilité avant de vous appuyer sur une route en production."
+      },
+      {
+        "question": "Puis-je utiliser Phaseo comme passerelle d'IA ?",
+        "answer": "Oui. Phaseo Gateway fournit une interface compatible avec OpenAI pour les modèles et fournisseurs pris en charge. Créez une clé API, choisissez un modèle et utilisez la même interface d'intégration tout en conservant le choix du modèle et du fournisseur."
+      },
+      {
+        "question": "Puis-je utiliser mes propres clés API de fournisseur ?",
+        "answer": "Oui. Apportez vos propres clés de fournisseur lorsque vous souhaitez conserver la relation avec le fournisseur et gérer directement la facturation, tout en utilisant la couche de routage, de santé et de politiques de Phaseo."
+      },
+      {
+        "question": "Quels fournisseurs et types de modèles puis-je explorer ?",
+        "answer": "Consultez le <providers>répertoire des fournisseurs</providers> pour connaître la couverture, ou filtrez le répertoire des modèles selon des capacités comme le chat, les embeddings, l'image, l'audio, la vidéo et la modération. La page d'un fournisseur est le meilleur endroit pour vérifier son catalogue de modèles actuellement listé."
+      },
+      {
+        "question": "Comment les benchmarks et les données de performance sont-ils traités ?",
+        "answer": "Les scores de benchmark sont affichés avec le benchmark et sa méthodologie afin que les comparaisons conservent leur contexte. Consultez <benchmarkMethodology>la façon dont Phaseo normalise les benchmarks d'IA</benchmarkMethodology> et <performanceMethodology>la façon dont il mesure la latence et le débit</performanceMethodology> avant de prendre une décision de production sur la base d'un seul score."
+      },
+      {
+        "question": "Que faire si une fiche semble erronée ou incomplète ?",
+        "answer": "Utilisez la <contribute>page de contribution</contribute> pour signaler une correction ou ajouter une information manquante. Des signalements précis et sourcés contribuent à maintenir l'utilité du répertoire lorsque les fournisseurs modifient leurs catalogues et leurs tarifs."
+      }
+    ]
+  },
+  "methodology": {
+    "label": "Méthodologie",
+    "title": "Comment Phaseo mesure ce qu'il publie",
+    "description": "Quatre pages de référence qui expliquent comment sont définis les tarifs, les performances, les benchmarks et la couverture des fournisseurs dans le catalogue public.",
+    "lastUpdated": "Dernière mise à jour le {date}",
+    "readPage": "Lire la page",
+    "relatedPages": "Pages associées",
+    "articleLastUpdated": "Dernière mise à jour : {date}",
+    "entries": {
+      "how-phaseo-calculates-model-pricing": {
+        "shortTitle": "Tarifs des modèles",
+        "title": "Comment Phaseo calcule les tarifs des modèles",
+        "description": "Comment Phaseo transforme les grilles tarifaires, compteurs et règles de routage des fournisseurs en tarifs publics affichés pour les modèles dans tout le catalogue.",
+        "intro": "Cette page explique comment Phaseo transforme les sources tarifaires des fournisseurs en valeurs de prix publiques affichées sur les pages des modèles et des fournisseurs.",
+        "sections": {
+          "what": "Ce que nous mesurons",
+          "inputs": "Données principales",
+          "normalised": "Comment les prix sont normalisés",
+          "dates": "Dates d'effet et gestion des changements",
+          "caveats": "Points d'attention"
+        },
+        "related": {
+          "gateway": "Tarifs de la passerelle",
+          "calculator": "Calculateur de tarifs",
+          "models": "Base de modèles"
+        }
+      },
+      "how-phaseo-measures-latency-throughput": {
+        "shortTitle": "Latence et débit",
+        "title": "Comment Phaseo mesure la latence et le débit",
+        "description": "Comment Phaseo définit les indicateurs de latence, de débit et de performance des requêtes affichés dans les classements et sur les pages de performance des modèles ou des fournisseurs.",
+        "intro": "Cette page explique ce que Phaseo compte comme latence et comme débit, comment ces indicateurs sont agrégés et pourquoi les résultats peuvent varier selon la route et la période.",
+        "sections": {
+          "what": "Ce que nous mesurons",
+          "windows": "Fenêtres d'agrégation",
+          "eligibility": "Filtrage et éligibilité",
+          "move": "Pourquoi les valeurs évoluent",
+          "caveats": "Points d'attention"
+        },
+        "related": {
+          "rankings": "Classements",
+          "models": "Modèles",
+          "providers": "Fournisseurs"
+        }
+      },
+      "how-phaseo-normalises-ai-benchmarks": {
+        "shortTitle": "Normalisation des benchmarks",
+        "title": "Comment Phaseo normalise les benchmarks d'IA",
+        "description": "Comment Phaseo conserve les scores de benchmark, les variantes et le sens du tri, tout en harmonisant l'affichage des benchmarks issus de sources différentes.",
+        "intro": "Cette page explique comment Phaseo traite les données de benchmark provenant de sources différentes sans prétendre que tous les benchmarks sont directement comparables.",
+        "sections": {
+          "what": "Ce que nous conservons",
+          "normalised": "Ce que signifie ici la normalisation",
+          "ranking": "Logique de classement",
+          "source": "Qualité et transparence des sources",
+          "caveats": "Points d'attention"
+        },
+        "related": {
+          "benchmarks": "Benchmarks",
+          "models": "Modèles",
+          "compare": "Comparer les modèles"
+        }
+      },
+      "how-phaseo-tracks-provider-availability": {
+        "shortTitle": "Disponibilité des fournisseurs",
+        "title": "Comment Phaseo suit la disponibilité des fournisseurs",
+        "description": "Comment Phaseo associe les modèles aux fournisseurs, suit la disponibilité sur la passerelle et interprète la couverture propre à chaque fournisseur dans les pages publiques du catalogue.",
+        "intro": "Cette page explique comment Phaseo détermine si un modèle est disponible chez un fournisseur et ce que les vues publiques de couverture des fournisseurs sont censées signifier.",
+        "sections": {
+          "what": "Ce que signifie la disponibilité sur Phaseo",
+          "mappings": "Comment les associations sont conservées",
+          "active": "Actif sur la passerelle ou visible au catalogue",
+          "changes": "Quand les pages des fournisseurs changent",
+          "caveats": "Points d'attention"
+        },
+        "related": {
+          "providers": "Base de fournisseurs",
+          "models": "Modèles",
+          "rankings": "Classements"
+        }
+      }
+    }
+  },
+  "contact": {
+    "title": "Contacter l'assistance Phaseo",
+    "intro": "Expliquez-nous votre besoin et nous vous orienterons vers le bon canal. Les problèmes liés à un compte privé deviennent des tickets d'assistance. Les bugs publics, demandes de fonctionnalités et questions rapides sont dirigés vers le canal le plus adapté.",
+    "sendFeedback": "Envoyer un commentaire produit",
+    "stepOne": "Étape 1",
+    "stepTwo": "Étape 2",
+    "whatHelp": "De quelle aide avez-vous besoin ?",
+    "chooseIssue": "Choisir un type de problème",
+    "pickClosest": "Choisissez l'option la plus proche et nous afficherons l'étape suivante ci-dessous.",
+    "recommended": "Recommandé : {method}",
+    "privateReply": "Vous préférez une réponse privée ?",
+    "switchPrivate": "Passer à un ticket privé",
+    "otherMethods": "Autres moyens d'obtenir de l'aide",
+    "otherMethodsBody": "Utilisez un autre canal s'il correspond mieux à votre problème.",
+    "yourTime": "Votre heure : {time}",
+    "checking": "vérification...",
+    "supportTime": "Horaires de l'assistance Phaseo : {time}",
+    "support": "Assistance",
+    "liveChatTitle": "Chat en direct ou e-mail",
+    "liveChatDescription": "Démarrez un chat en direct depuis cette page ou ouvrez un e-mail prérempli avec le contexte dont nous avons besoin.",
+    "signedInAs": "Connecté en tant que {email}",
+    "chatNotConfigured": "Le chat en direct n'est pas configuré pour ce déploiement.",
+    "chatOutsideHours": "Le chat en direct est disponible pendant les horaires d'assistance. L'e-mail reste ouvert.",
+    "chatOffline": "Chat en direct hors ligne",
+    "loadingChat": "Chargement du chat...",
+    "startLiveChat": "Démarrer le chat en direct",
+    "chatUnavailable": "Chat en direct indisponible",
+    "sendEmail": "Envoyer un e-mail",
+    "createTicket": "Créer un ticket",
+    "openChatNewTab": "Ouvrir le chat dans un nouvel onglet",
+    "privateReplyBody": "Si votre message contient des informations de compte, de facturation, des identifiants de requête ou des captures d'écran, choisissez plutôt un ticket d'assistance privé.",
+    "methods": {
+      "support": {
+        "title": "Ticket d'assistance privé",
+        "description": "Idéal pour les problèmes de compte, de facturation, de données ou d'implémentation.",
+        "cta": "Créer un ticket"
+      },
+      "github": {
+        "title": "GitHub",
+        "description": "Idéal pour les bugs reproductibles, les demandes de fonctionnalités et le suivi public.",
+        "cta": "Ouvrir GitHub"
+      },
+      "discord": {
+        "title": "Discord",
+        "description": "Idéal pour les questions rapides de configuration et les retours légers de la communauté.",
+        "cta": "Rejoindre Discord"
+      },
+      "docs": {
+        "title": "Documentation",
+        "description": "Idéal pour les guides de la passerelle, les exemples de SDK, les références de modèles et les démarrages rapides.",
+        "cta": "Lire la documentation"
+      }
+    },
+    "issues": {
+      "billing": {
+        "label": "Problème de facturation ou de compte",
+        "helper": "Créez un ticket d'assistance privé et nous répondrons à l'adresse e-mail que vous indiquerez."
+      },
+      "bug": {
+        "label": "Bug ou panne",
+        "helper": "Utilisez GitHub lorsque le problème est reproductible et qu'il est utile que d'autres utilisateurs puissent le suivre."
+      },
+      "data": {
+        "label": "Problème de données ou de métriques",
+        "helper": "Créez un ticket privé avec les identifiants des modèles, les noms des fournisseurs, les URL et les horodatages."
+      },
+      "docs": {
+        "label": "Question sur la documentation ou l'intégration",
+        "helper": "Commencez par la documentation. Si la réponse manque, envoyez un ticket en indiquant la page exacte."
+      },
+      "feature": {
+        "label": "Demande de fonctionnalité",
+        "helper": "Ouvrez une issue GitHub avec le parcours, le comportement attendu et la raison de son importance."
+      },
+      "general": {
+        "label": "Question générale",
+        "helper": "Créez un ticket d'assistance privé et fournissez suffisamment de contexte pour obtenir une réponse directe."
+      },
+      "community": {
+        "label": "Communauté ou commentaire rapide",
+        "helper": "Utilisez Discord si vous souhaitez une réponse rapide ou échanger avec d'autres utilisateurs."
+      }
+    },
+    "repliesResumeSoon": "Les réponses de l'assistance reprendront bientôt.",
+    "feedbackPrompt": "Dites-nous ce qui devrait être plus clair, plus rapide ou plus utile dans Phaseo. Pour obtenir de l'aide concernant un compte ou la facturation, utilisez les options d'assistance ci-dessous."
+  },
+  "profileShare": {
+    "titleSuffix": "Carte de partage Phaseo",
+    "description": "Un aperçu synthétique généré à partir de l'activité de l'espace de travail personnel.",
+    "shareCard": "Carte de partage de {name}",
+    "downloadImage": "Télécharger l'image",
+    "openPhaseo": "Ouvrir Phaseo",
+    "imageAlt": "Carte de partage Phaseo de {name}"
+  },
+  "profile": {
+    "title": "Profil partagé",
+    "loading": "Chargement du profil..."
+  },
+  "trust": {
+    "trustCentre": "Centre de confiance",
+    "phaseoTrustCentre": "Centre de confiance Phaseo",
+    "lastReviewed": "Dernière vérification : {date}",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyQuestions": "Questions relatives à la confidentialité",
+    "securityAndTrust": "Sécurité et confiance chez Phaseo",
+    "currentSafeguards": "Garanties produit actuelles, pratiques relatives aux données et état des assurances. Les déclarations de cette page se limitent à ce que Phaseo peut soutenir aujourd'hui.",
+    "assurance": "Assurances",
+    "sections": "Sections du centre de confiance",
+    "claimLabels": "Libellés des déclarations",
+    "trustDocuments": "Documents de confiance",
+    "trustDocumentsBody": "Utilisez les informations détaillées pour une revue de sécurité, une évaluation fournisseur ou une discussion relative au DPA.",
+    "security": "Sécurité",
+    "securityBody": "Garanties produit et opérationnelles étayées par le code et la documentation actuels.",
+    "dataHandling": "Gestion des données",
+    "dataHandlingBody": "La manière dont le contenu de la passerelle est traité par défaut, les exceptions applicables et les éléments qui restent dépendants du fournisseur.",
+    "serviceProviders": "Fournisseurs de services",
+    "serviceProvidersBody": "Catégories indiquées dans la politique de confidentialité actuelle de Phaseo.",
+    "availability": "Disponibilité et incidents",
+    "compliance": "Conformité",
+    "responsibleDisclosure": "Divulgation responsable",
+    "emailSecurity": "Sécurité des e-mails",
+    "privateGithubReport": "Rapport GitHub privé",
+    "reviewedEvidence": "Vérifié au regard des éléments du dépôt"
+  },
+  "pricing": {
+    "title": "Tarifs",
+    "description": "Une tarification simple à l'utilisation pour la passerelle d'IA, avec une identité Enterprise en libre-service, une gouvernance et des forfaits de paiement inclus en option.",
+    "everythingIncluded": "Tout est inclus",
+    "everythingIncludedBody": "Explorez le catalogue de modèles, les classements, les SDK et le chat gratuit avec les modèles avant toute dépense. Ajoutez des crédits lorsque vous avez besoin d'utiliser des modèles payants, sans changer de forfait.",
+    "swipeCompare": "Faites défiler horizontalement pour comparer les fournisseurs.",
+    "showFreeAccess": "Afficher l'accès gratuit",
+    "compareCompetitors": "Comparer les concurrents",
+    "competitorNote": "Les informations sur les concurrents reflètent la documentation publiée vérifiée le 26 juillet 2026. « Non annoncé » signifie que la fonctionnalité n'a pas pu être vérifiée dans la documentation publique du produit ou des tarifs.",
+    "selfServeEnterprise": "Enterprise en libre-service",
+    "selfServeEnterpriseBody": "Configurez Enterprise pour des équipes de 100 à 100 000 membres, consultez le prix mensuel exact et abonnez-vous sans appel commercial ni engagement de dépenses en modèles.",
+    "buildPlan": "Créer mon forfait",
+    "activeMembers": "Membres actifs",
+    "users": "utilisateurs",
+    "enterpriseSubscription": "Abonnement Enterprise",
+    "monthEstimated": "/mois estimé",
+    "whatYouGet": "Ce que vous obtenez",
+    "included": "Inclus",
+    "creditTopUpFee": "Frais de recharge de crédits",
+    "modelUsageCredits": "Crédits d'utilisation des modèles",
+    "purchasedSeparately": "Achetés séparément",
+    "committedModelSpend": "Dépenses en modèles engagées",
+    "none": "Aucun",
+    "usdNote": "Abonnement mensuel en USD. Les achats de crédits restent séparés et utilisent les frais de recharge standard de 5 % avec les moyens de paiement pris en charge. Dépensez autant ou aussi peu que nécessaire pour utiliser les modèles : le prix de l'abonnement reste identique.",
+    "features": {
+      "sso": "SSO SAML et connexion obligatoire",
+      "scim": "Utilisateurs, groupes et opérations groupées SCIM",
+      "departments": "Départements et rôles d'espace de travail",
+      "audit": "Contrôles d'audit et de gouvernance",
+      "priority": "Assistance prioritaire"
+    },
+    "paygHeadline": "Payez à l'utilisation par défaut. Ajoutez Enterprise lorsque votre équipe en a besoin.",
+    "paygBody": "Achetez des crédits quand vous en avez besoin et payez ce que vous utilisez. L'identité et les avantages de paiement Enterprise sont facultatifs, tarifés ouvertement et activés sans appel commercial.",
+    "manageCredits": "Gérer les crédits",
+    "manageProviderKeys": "Gérer les clés de fournisseur",
+    "modelPricingCalculator": "Calculateur de tarifs des modèles",
+    "payg": "Payez à l'utilisation",
+    "paygBodyShort": "Rechargez vos crédits uniquement lorsque vous en avez besoin.",
+    "enterpriseOptional": "Enterprise est facultatif",
+    "enterpriseOptionalBody": "Ajoutez SSO, SCIM et gouvernance sans modifier les tarifs d'utilisation.",
+    "pricesPublic": "Les tarifs restent publics",
+    "pricesPublicBody": "Répondez à un court questionnaire et abonnez-vous immédiatement.",
+    "faqTitle": "Questions fréquentes",
+    "ready": "Prêt à commencer ?",
+    "readyBody": "Commencez gratuitement, ajoutez des crédits quand vous en avez besoin et conservez les mêmes conditions de paiement à l'utilisation en grandissant.",
+    "openPlatform": "Plateforme ouverte",
+    "askPricing": "Poser une question sur les tarifs"
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "privacyTitle": "Politique de confidentialité",
+    "privacyIntro": "Cette politique de confidentialité explique comment Daniel Butler, opérant sous le nom de Phaseo (« Phaseo », « nous », « notre » ou « nos »), collecte, utilise et protège les données personnelles lorsque vous utilisez nos sites web, tableaux de bord et passerelle API (ensemble, le « Service »).",
+    "termsTitle": "Conditions d'utilisation",
+    "termsIntro": "Ces conditions d'utilisation (« Conditions ») régissent votre utilisation du site web de Phaseo, de son répertoire de données et de sa passerelle API unifiée (collectivement, le « Service »)."
+  }
+}

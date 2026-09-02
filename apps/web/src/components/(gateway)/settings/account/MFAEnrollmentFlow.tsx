@@ -21,6 +21,7 @@ import {
     verifyMFAEnrollmentAction,
 } from '@/app/(dashboard)/settings/account/actions'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { Loader2, QrCode, Key, CheckCircle2, Copy } from 'lucide-react'
 import Image from 'next/image'
 
@@ -37,6 +38,8 @@ export function MFAEnrollmentFlow({
     onOpenChange,
     onSuccess,
 }: MFAEnrollmentFlowProps) {
+    const t = useTranslations('SettingsUI')
+    const s = (key: string) => t(`strings.${key}` as never)
     const [step, setStep] = React.useState<EnrollmentStep>('authenticate')
     const [loading, setLoading] = React.useState(false)
     const [qrCode, setQrCode] = React.useState<string | null>(null)
@@ -70,7 +73,7 @@ export function MFAEnrollmentFlow({
             setFactorId(result.factorId)
 			setStep('qr-code')
         } catch (error: any) {
-            toast.error(error.message || 'Failed to start MFA setup')
+            toast.error(error.message || s('Failed to start MFA setup'))
         } finally {
             setLoading(false)
         }
@@ -81,16 +84,16 @@ export function MFAEnrollmentFlow({
         try {
             await navigator.clipboard.writeText(secret)
             setSecretCopied(true)
-            toast.success('Secret copied to clipboard')
+            toast.success(s('Secret copied to clipboard'))
             setTimeout(() => setSecretCopied(false), 2000)
         } catch {
-            toast.error('Failed to copy secret')
+            toast.error(s('Failed to copy secret'))
         }
     }
 
     const verifyCode = async () => {
         if (!factorId || verificationCode.length !== 6) {
-            toast.error('Please enter a 6-digit code')
+            toast.error(s('Please enter a 6-digit code'))
             return
         }
 
@@ -103,7 +106,7 @@ export function MFAEnrollmentFlow({
             )
             setStep('success')
         } catch (error: any) {
-            toast.error(error.message || 'Invalid code. Please try again.')
+            toast.error(error.message || s('Invalid code. Please try again.'))
             setVerificationCode('')
         } finally {
             setLoading(false)
@@ -121,21 +124,21 @@ export function MFAEnrollmentFlow({
 				{step === 'authenticate' && (
 					<>
 						<DialogHeader>
-							<DialogTitle>Confirm your identity</DialogTitle>
+							<DialogTitle>{s('Confirm your identity')}</DialogTitle>
 							<DialogDescription>
-								Enter your current password, or continue after a recent provider sign-in.
+								{s('Enter your current password, or continue after a recent provider sign-in.')}
 							</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4">
 							<div className="space-y-2">
-								<Label htmlFor="mfa-current-password">Current password</Label>
+								<Label htmlFor="mfa-current-password">{s('Current password')}</Label>
 								<Input id="mfa-current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
 							</div>
 							<div className="flex justify-end gap-2">
-								<Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+								<Button variant="outline" onClick={() => onOpenChange(false)}>{s('Cancel')}</Button>
 								<Button onClick={() => void startEnrollment()} disabled={loading}>
 									{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-									Continue
+									{s('Continue')}
 								</Button>
 							</div>
 						</div>
@@ -147,11 +150,10 @@ export function MFAEnrollmentFlow({
                         <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                                 <QrCode className="h-5 w-5" />
-                                Set up two-factor authentication
+                                {s('Set up two-factor authentication')}
                             </DialogTitle>
                             <DialogDescription>
-                                Scan this QR code with your authenticator app
-                                (Google Authenticator, Authy, 1Password, etc.)
+                                {s('Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)')}
                             </DialogDescription>
                         </DialogHeader>
 
@@ -167,7 +169,7 @@ export function MFAEnrollmentFlow({
                                         <div className="rounded-lg border bg-white p-4">
                                             <Image
                                                 src={qrCode.trim()}
-                                                alt="MFA QR Code"
+                                                alt={s('MFA QR Code')}
                                                 width={200}
                                                 height={200}
                                                 className="h-48 w-48"
@@ -181,8 +183,7 @@ export function MFAEnrollmentFlow({
                                 {secret && (
                                     <div className="space-y-2">
                                         <Label className="text-xs text-muted-foreground">
-											Can&apos;t scan? Enter this code
-                                            manually:
+											{s('Can&apos;t scan? Enter this code manually:')}
                                         </Label>
                                         <div className="flex items-center gap-2">
                                             <code className="flex-1 rounded-md border bg-muted px-3 py-2 font-mono text-sm">
@@ -208,10 +209,10 @@ export function MFAEnrollmentFlow({
                                         variant="outline"
                                         onClick={() => onOpenChange(false)}
                                     >
-                                        Cancel
+                                        {s('Cancel')}
                                     </Button>
                                     <Button onClick={() => setStep('verify')}>
-                                        Next: Enter code
+                                        {s('Next: Enter code')}
                                     </Button>
                                 </div>
                             </div>
@@ -225,11 +226,10 @@ export function MFAEnrollmentFlow({
                         <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                                 <Key className="h-5 w-5" />
-                                Verify your code
+                                {s('Verify your code')}
                             </DialogTitle>
                             <DialogDescription>
-                                Enter the 6-digit code from your authenticator
-                                app
+                                {s('Enter the 6-digit code from your authenticator app')}
                             </DialogDescription>
                         </DialogHeader>
 
@@ -253,8 +253,7 @@ export function MFAEnrollmentFlow({
                             </div>
 
                             <p className="text-center text-xs text-muted-foreground">
-                                The code will auto-verify when you enter all 6
-                                digits
+                                {s('The code will auto-verify when you enter all 6 digits')}
                             </p>
 
                             <div className="flex justify-end gap-2 pt-2">
@@ -263,7 +262,7 @@ export function MFAEnrollmentFlow({
                                     onClick={() => setStep('qr-code')}
                                     disabled={loading}
                                 >
-                                    Back
+                                    {s('Back')}
                                 </Button>
                                 <Button
                                     onClick={verifyCode}
@@ -275,10 +274,10 @@ export function MFAEnrollmentFlow({
                                     {loading ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Verifying...
+                                            {s('Verifying...')}
                                         </>
                                     ) : (
-                                        'Verify code'
+                                        s('Verify code')
                                     )}
                                 </Button>
                             </div>
@@ -292,20 +291,17 @@ export function MFAEnrollmentFlow({
                         <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                                 <CheckCircle2 className="h-5 w-5 text-green-600" />
-                                Two-factor authentication enabled
+                                {s('Two-factor authentication enabled')}
                             </DialogTitle>
                             <DialogDescription>
-                                Your account is now protected with two-factor
-                                authentication
+                                {s('Your account is now protected with two-factor authentication')}
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="space-y-4 py-4">
                             <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900/50 dark:bg-green-900/10">
                                 <p className="text-sm text-green-900 dark:text-green-200">
-									You&apos;ll need your authenticator app to sign
-                                    in from now on. Keep a secure backup of the
-                                    authenticator configuration before changing devices.
+									{s('You&apos;ll need your authenticator app to sign in from now on. Keep a secure backup of the authenticator configuration before changing devices.')}
                                 </p>
                             </div>
 

@@ -9,6 +9,7 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 import { useInitialChatAuth } from "@/components/(chat)/ChatAuthProvider";
+import { useTranslations } from "next-intl";
 
 type DayPeriod = "morning" | "afternoon" | "evening";
 
@@ -52,6 +53,7 @@ export function ChatMessagesEmptyState({
 	temporaryMode?: boolean;
 }) {
 	const initialAuth = useInitialChatAuth();
+	const t = useTranslations("Product.chat");
 	const [period, setPeriod] = useState<DayPeriod>("morning");
 
 	useEffect(() => {
@@ -61,7 +63,6 @@ export function ChatMessagesEmptyState({
 	const displayName = initialAuth?.user?.displayName?.trim();
 	const firstName = displayName?.split(/\s+/)[0] || undefined;
 	const starters = PROMPT_STARTERS[period];
-	const periodLabel = period.charAt(0).toUpperCase() + period.slice(1);
 
 	return (
 		<div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col justify-center px-5 py-10 sm:px-8">
@@ -69,14 +70,14 @@ export function ChatMessagesEmptyState({
 				<div className="text-center">
 					{temporaryMode ? (
 						<p className="mb-3 inline-flex items-center rounded-md border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
-							Temporary Chat
+							{t("temporary")}
 						</p>
 					) : null}
 					<h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-						Good {periodLabel}{firstName ? `, ${firstName}` : ""}
+						{t("greeting", { period: t(period), name: firstName ? `, ${firstName}` : "" })}
 					</h1>
 					<p className="mt-2 text-sm text-muted-foreground">
-						What can I help you think through?
+						{t("greetingPrompt")}
 					</p>
 				</div>
 

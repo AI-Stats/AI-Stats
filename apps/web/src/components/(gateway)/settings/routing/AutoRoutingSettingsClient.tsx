@@ -19,6 +19,7 @@ import type { AutoRoutingObjective, AutoRoutingSpendProfile, SettingsAutoRouting
 import { publicSWRKeys } from "@/lib/swr/keys";
 import { publicSWRFetcher } from "@/lib/swr/publicFetcher";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type ModelOption = { id: string; label: string; organisationId: string; organisationName: string; releaseDate: string | null; releaseTimestamp: number | null; providerCount: number; inputPrice: number | null; outputPrice: number | null };
 const TEXT_CAPABILITIES = new Set(["responses", "chat/completions", "chat.completions", "messages", "text.generate"]);
@@ -99,6 +100,7 @@ function EligibleModelList({ models, loading, error }: { models: ModelOption[]; 
 }
 
 export default function AutoRoutingSettingsClient({ initialData }: { initialData: SettingsAutoRoutingInitialData }) {
+	const t = useTranslations("SettingsUI");
 	const initial = initialData.autoRouting;
 	const [objective, setObjective] = useState<AutoRoutingObjective>(initial.objective);
 	const [spendProfile, setSpendProfile] = useState<AutoRoutingSpendProfile>(initial.spendProfile);
@@ -135,14 +137,14 @@ export default function AutoRoutingSettingsClient({ initialData }: { initialData
 	}
 
 	function save() {
-		if (!validCustomLimits) { toast.error("Enter both custom price limits."); return; }
-		if (!modelCatalogLoading && !modelCatalogError && !eligibleModels.length) { toast.error("These limits and patterns do not leave any eligible text models."); return; }
+		if (!validCustomLimits) { toast.error(t("strings.Enter both custom price limits." as never)); return; }
+		if (!modelCatalogLoading && !modelCatalogError && !eligibleModels.length) { toast.error(t("strings.These limits and patterns do not leave any eligible text models." as never)); return; }
 		startTransition(async () => {
 			const result = await updateAutoRoutingSettings(current);
 			if (!result.ok) { toast.error(result.error); return; }
 			const saved = result.autoRouting;
 			setAllowedPatterns(saved.allowedPatterns); setSpendProfile(saved.spendProfile); setMaxInputPricePerMillion(saved.maxInputPricePerMillion); setMaxOutputPricePerMillion(saved.maxOutputPricePerMillion); setObjective(saved.objective); setAllowFallbacks(saved.allowFallbacks); setRevision(saved.revision); setUpdatedAt(saved.updatedAt); setSavedFingerprint(configurationFingerprint(saved));
-			toast.success(result.gatewayCacheInvalidated ? "Auto Routing updated" : "Auto Routing updated; gateway cache refresh pending");
+			toast.success(result.gatewayCacheInvalidated ? t("strings.Auto Routing updated" as never) : t("strings.Auto Routing updated; gateway cache refresh pending" as never));
 		});
 	}
 

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { deleteAccount } from "@/app/(dashboard)/settings/account/actions";
 
@@ -23,6 +24,8 @@ import {
 import { Loader2, ShieldAlert, Trash2 } from "lucide-react";
 
 export default function AccountDangerZoneClient() {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const router = useRouter();
 	const [deleting, setDeleting] = React.useState(false);
 
@@ -30,9 +33,9 @@ export default function AccountDangerZoneClient() {
 		setDeleting(true);
 		try {
 			await toast.promise(deleteAccount(confirmation, currentPassword || undefined), {
-				loading: "Starting account deletion...",
-				success: "Account access removed. Deletion is in progress.",
-				error: (err: any) => err?.message || "Could not delete account",
+				loading: s("Starting account deletion..."),
+				success: s("Account access removed. Deletion is in progress."),
+				error: (err: any) => err?.message || s("Could not delete account"),
 			});
 			router.replace("/");
 			router.refresh();
@@ -67,18 +70,18 @@ export default function AccountDangerZoneClient() {
 					</AlertDialogTrigger>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle>Delete account?</AlertDialogTitle>
+							<AlertDialogTitle>{s("Delete account?")}</AlertDialogTitle>
 							<AlertDialogDescription>
 								This removes your account, owned workspaces, keys, stored Gateway data,
 								and linked Stripe customer records. Other members will lose access to any
 								workspace you own. Database backups expire through the seven-day backup
 								cycle. Records that must be retained by law and data held by customer-directed
 								providers are handled separately. Type{" "}
-								<span className="font-semibold">DELETE</span> to confirm.
+						<span className="font-semibold">DELETE</span> {s("to confirm.")}
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 
-						<ConfirmDelete onConfirm={handleDeleteAccount} deleting={deleting} />
+						<ConfirmDelete onConfirm={handleDeleteAccount} deleting={deleting} translate={s} />
 					</AlertDialogContent>
 				</AlertDialog>
 			</div>
@@ -89,29 +92,32 @@ export default function AccountDangerZoneClient() {
 function ConfirmDelete({
 	onConfirm,
 	deleting,
+	translate,
 }: {
 	onConfirm: (confirmation: string, currentPassword: string) => void;
 	deleting: boolean;
+	translate: (key: string) => string;
 }) {
+	const s = translate;
 	const [text, setText] = React.useState("");
 	const [currentPassword, setCurrentPassword] = React.useState("");
 	const ok = text.trim().toUpperCase() === "DELETE";
 	return (
 		<div className="grid gap-3">
 			<div className="grid gap-2">
-				<Label htmlFor="confirmDelete">Confirmation</Label>
+						<Label htmlFor="confirmDelete">{s("Confirmation")}</Label>
 				<Input
 					id="confirmDelete"
-					placeholder='Type "DELETE" to confirm'
+						placeholder={s('Type "DELETE" to confirm')}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 					autoFocus
 				/>
 			</div>
 			<div className="grid gap-2">
-				<Label htmlFor="deleteCurrentPassword">Current password</Label>
+						<Label htmlFor="deleteCurrentPassword">{s("Current password")}</Label>
 				<Input id="deleteCurrentPassword" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
-				<p className="text-xs text-muted-foreground">Passwordless accounts require a recent provider sign-in.</p>
+					<p className="text-xs text-muted-foreground">{s("Passwordless accounts require a recent provider sign-in.")}</p>
 			</div>
 			<AlertDialogFooter>
 				<div className="flex w-full items-center justify-end gap-2">

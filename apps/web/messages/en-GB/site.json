@@ -1,0 +1,370 @@
+{
+  "home": {
+    "title": "Phaseo: AI Gateway and Open Model Catalog",
+    "description": "Discover trusted model data, route requests through one open-source AI gateway, and observe cost, reliability, usage, and performance across providers.",
+    "heroTitle": "One Platform for Every AI Model",
+    "heroDescription": "Discover trusted model data, route requests through one OpenAI-compatible gateway, and observe cost, reliability, usage, and performance across supported providers.",
+    "explore": "Explore",
+    "models": "Models",
+    "getApiKey": "Get API Key",
+    "viewGithub": "View GitHub",
+    "openModelDatabase": "Open model database, unified gateway",
+    "openModelDatabaseDescription": "Explore the broader model catalog, then filter to models with an active Gateway route before you ship.",
+    "transparentPricing": "Transparent pricing",
+    "viewPricing": "View pricing",
+    "usePricingCalculator": "Use pricing calculator",
+    "pricingPoints": {
+      "payAsYouGo": "Pay as you go, full stop",
+      "payAsYouGoBody": "No enterprise plan, contract, subscription, minimum spend, or monthly or annual commitment.",
+      "creditFee": "{fee}% credit purchase fee",
+      "creditFeeBody": "Applied when you purchase credits, with a $1 minimum. Usage follows the model prices shown in the catalog.",
+      "managedCredits": "Managed credits or BYOK",
+      "managedCreditsBody": "BYOK includes one million fee-free requests each month, then a 2.5% service fee on provider-equivalent cost."
+    }
+  },
+  "about": {
+    "badge": "Company",
+    "title": "One unified, open layer to access models across providers and ship reliably.",
+    "intro": "Phaseo is built around practical openness: broad model and provider access, explicit release, deprecation, and retirement tracking, and clear observability so teams can run production workloads with low surprise.",
+    "exploreModels": "Explore models",
+    "pricing": "Phaseo Pricing",
+    "documentation": "Documentation",
+    "howItWorks": "How It Works",
+    "howItWorksTitle": "A clear path from exploration to production operations.",
+    "howItWorksDescription": "Research models, execute through one API layer, stay current on lifecycle changes, and monitor behavior over time.",
+    "whatWeBuild": "What We Build",
+    "whatWeBuildTitle": "Durable product surfaces that stay useful as AI changes.",
+    "whatWeBuildDescription": "Our goal is simple: keep access broad, interfaces stable, and operations understandable.",
+    "open": "Open",
+    "step": "Step {number}"
+  },
+  "mission": {
+    "title": "Our Mission",
+    "intro": "Phaseo's mission is to make access to AI models broad, affordable, transparent, portable, and open.",
+    "principles": "Our principles",
+    "broadAccess": "Broad access",
+    "broadAccessBody": "Support as many useful models, providers, modalities, and capabilities as we responsibly can through one consistent interface.",
+    "lowestPrice": "The lowest sustainable price",
+    "lowestPriceBody": "Keep improving routing, infrastructure, and software efficiency, then use those gains to reduce prices and improve the service.",
+    "openByDefault": "Open by default",
+    "openByDefaultBody": "Keep Phaseo open source so the gateway can be inspected, extended, challenged, and improved by the people who depend on it.",
+    "usersFirst": "Users before investors",
+    "usersFirstBody": "Make decisions around long-term user benefit, product quality, and fair access rather than pressure for short-term financial returns.",
+    "transparency": "Transparency without lock-in",
+    "transparencyBody": "Make pricing, routing, availability, lifecycle changes, and operational behaviour understandable while keeping data and integrations portable.",
+    "technicalExcellence": "Technical excellence",
+    "technicalExcellenceBody": "Compete through accurate data, reliable routing, strong compatibility, useful observability, and a developer experience that feels simple.",
+    "builtWithEveryone": "Built with everyone",
+    "builtWithEveryoneBody": "Give users, contributors, model creators, and providers meaningful ways to shape the platform and the standards around it.",
+    "principlesTitle": "The commitments that guide how we build.",
+    "principlesDescription": "These principles are intended to guide product, pricing, partnership, and business decisions as Phaseo grows.",
+    "exploreModels": "Explore models",
+    "viewSource": "View the source",
+    "roadmap": "Read the roadmap"
+  },
+  "faq": {
+    "title": "AI model database and gateway FAQ",
+    "intro": "Practical answers for comparing models, understanding the data, and using the gateway. Cannot find an answer? <support>Reach out to our team</support>.",
+    "items": [
+      {
+        "question": "How can I compare AI models on Phaseo?",
+        "answer": "Start in the <models>model directory</models>, then open a model page to compare its pricing, providers, benchmark results, latency signals, and compatibility details. The information shown varies with the data available for that model."
+      },
+      {
+        "question": "What does a model page tell me?",
+        "answer": "A model page brings together the useful facts for a specific model: who created it, which providers offer it, the listed prices, benchmark coverage, and gateway availability. Use the page tabs to go deeper into pricing, providers, performance, and quickstart details."
+      },
+      {
+        "question": "How does Phaseo calculate model pricing?",
+        "answer": "Phaseo stores each provider route's meter, unit size, currency, plan, and effective dates. Input and output rates remain separate, and token prices are normalised per 1M tokens for comparison; they are not combined into a blended headline price. Read the <pricingMethodology>pricing methodology</pricingMethodology> or enter your own token volumes in the <calculator>pricing calculator</calculator>."
+      },
+      {
+        "question": "What does gateway availability mean?",
+        "answer": "Gateway availability describes whether Phaseo currently has an eligible route for a model. It is separate from a model's quality or benchmark performance. Provider status can change, so check the model's providers and availability information before relying on a route in production."
+      },
+      {
+        "question": "Can I use Phaseo as an AI gateway?",
+        "answer": "Yes. Phaseo Gateway provides one OpenAI-compatible interface for supported models and providers. Create an API key, choose a model, and use the same integration surface while retaining model and provider choice."
+      },
+      {
+        "question": "Can I use my own provider API keys?",
+        "answer": "Yes. Bring your own provider keys when you want to retain the provider relationship and billing directly, while still using Phaseo's routing, health, and policy layer."
+      },
+      {
+        "question": "Which providers and model types can I explore?",
+        "answer": "Browse the <providers>provider directory</providers> for provider coverage, or filter the model directory by capabilities such as chat, embeddings, image, audio, video, and moderation. A provider page is the best place to check its currently listed model catalogue."
+      },
+      {
+        "question": "How are benchmarks and performance data handled?",
+        "answer": "Benchmark scores are shown alongside the benchmark and its methodology so that comparisons retain their context. Read <benchmarkMethodology>how Phaseo normalises AI benchmarks</benchmarkMethodology> and <performanceMethodology>how it measures latency and throughput</performanceMethodology> before making a production decision from a single score."
+      },
+      {
+        "question": "What should I do if a listing looks wrong or incomplete?",
+        "answer": "Use the <contribute>contribution page</contribute> to report a correction or add missing information. Accurate, source-backed reports help keep the directory useful as providers change their catalogues and pricing."
+      }
+    ]
+  },
+  "methodology": {
+    "label": "Methodology",
+    "title": "How Phaseo measures what it publishes",
+    "description": "Four reference pages covering how pricing, performance, benchmarks, and provider coverage are defined across the public catalog.",
+    "lastUpdated": "Last updated {date}",
+    "readPage": "Read page",
+    "relatedPages": "Related pages",
+    "articleLastUpdated": "Last updated: {date}",
+    "entries": {
+      "how-phaseo-calculates-model-pricing": {
+        "shortTitle": "Model pricing",
+        "title": "How Phaseo calculates model pricing",
+        "description": "How Phaseo maps provider price sheets, meters, and routing rules into the public model pricing shown across the catalog.",
+        "intro": "This page explains how Phaseo turns provider pricing sources into the public pricing values shown on model and provider pages.",
+        "sections": {
+          "what": "What we are measuring",
+          "inputs": "Primary inputs",
+          "normalised": "How prices are normalised",
+          "dates": "Effective dates and change handling",
+          "caveats": "Caveats"
+        },
+        "related": {
+          "gateway": "Gateway pricing",
+          "calculator": "Pricing calculator",
+          "models": "Model database"
+        }
+      },
+      "how-phaseo-measures-latency-throughput": {
+        "shortTitle": "Latency and throughput",
+        "title": "How Phaseo measures latency and throughput",
+        "description": "How Phaseo defines the latency, throughput, and request-performance metrics shown in rankings and model or provider performance pages.",
+        "intro": "This page explains what Phaseo counts as latency and throughput, how those metrics are aggregated, and why results can vary by route and timeframe.",
+        "sections": {
+          "what": "What we are measuring",
+          "windows": "Aggregation windows",
+          "eligibility": "Filtering and eligibility",
+          "move": "Why values can move",
+          "caveats": "Caveats"
+        },
+        "related": {
+          "rankings": "Rankings",
+          "models": "Models",
+          "providers": "Providers"
+        }
+      },
+      "how-phaseo-normalises-ai-benchmarks": {
+        "shortTitle": "Benchmark normalisation",
+        "title": "How Phaseo normalises AI benchmarks",
+        "description": "How Phaseo stores benchmark scores, variants, and sort direction while keeping benchmark displays aligned across different sources.",
+        "intro": "This page explains how Phaseo treats benchmark data from different sources without pretending that every benchmark is directly comparable.",
+        "sections": {
+          "what": "What we store",
+          "normalised": "What normalisation means here",
+          "ranking": "Ranking logic",
+          "source": "Source quality and disclosure",
+          "caveats": "Caveats"
+        },
+        "related": {
+          "benchmarks": "Benchmarks",
+          "models": "Models",
+          "compare": "Compare models"
+        }
+      },
+      "how-phaseo-tracks-provider-availability": {
+        "shortTitle": "Provider availability",
+        "title": "How Phaseo tracks provider availability",
+        "description": "How Phaseo maps models to providers, tracks gateway availability, and interprets provider-specific coverage on public catalog pages.",
+        "intro": "This page explains how Phaseo decides whether a model is available on a provider and what the public provider coverage views are intended to mean.",
+        "sections": {
+          "what": "What availability means on Phaseo",
+          "mappings": "How mappings are stored",
+          "active": "Gateway-active versus catalog-visible",
+          "changes": "When provider pages change",
+          "caveats": "Caveats"
+        },
+        "related": {
+          "providers": "Provider database",
+          "models": "Models",
+          "rankings": "Rankings"
+        }
+      }
+    }
+  },
+  "contact": {
+    "title": "Contact Phaseo support",
+    "intro": "Tell us what you need, and we will route you to the right place. Private account issues become support tickets. Public bugs, feature requests, and quick questions go to the channel that fits.",
+    "sendFeedback": "Send Product Feedback",
+    "stepOne": "Step 1",
+    "stepTwo": "Step 2",
+    "whatHelp": "What do you need help with?",
+    "chooseIssue": "Choose an issue type",
+    "pickClosest": "Pick the closest option and we will show the next step below.",
+    "recommended": "Recommended: {method}",
+    "privateReply": "Prefer a private reply?",
+    "switchPrivate": "Switch to private ticket",
+    "otherMethods": "Other support methods",
+    "otherMethodsBody": "Use another channel if it fits your issue better.",
+    "yourTime": "Your time {time}",
+    "checking": "checking...",
+    "supportTime": "Phaseo support time: {time}",
+    "support": "Support",
+    "liveChatTitle": "Live chat or email",
+    "liveChatDescription": "Start a live chat from this page, or open a prefilled email with the context we need.",
+    "signedInAs": "Signed in as {email}",
+    "chatNotConfigured": "Live chat is not configured for this deployment.",
+    "chatOutsideHours": "Live chat is available during support hours. Email is still open.",
+    "chatOffline": "Live chat offline",
+    "loadingChat": "Loading chat...",
+    "startLiveChat": "Start live chat",
+    "chatUnavailable": "Live chat unavailable",
+    "sendEmail": "Send email",
+    "createTicket": "Create ticket",
+    "openChatNewTab": "Open chat in new tab",
+    "privateReplyBody": "If this includes account details, billing information, request IDs, or screenshots, choose a private support ticket instead.",
+    "repliesResumeSoon": "Support replies resume soon.",
+    "feedbackPrompt": "Tell us what should be clearer, faster, or more useful across Phaseo. For account or billing help, use the support options below.",
+    "methods": {
+      "support": {
+        "title": "Private support ticket",
+        "description": "Best for account, billing, data, or implementation issues.",
+        "cta": "Create ticket"
+      },
+      "github": {
+        "title": "GitHub",
+        "description": "Best for reproducible bugs, feature requests, and public tracking.",
+        "cta": "Open GitHub"
+      },
+      "discord": {
+        "title": "Discord",
+        "description": "Best for quick setup questions and lightweight community feedback.",
+        "cta": "Join Discord"
+      },
+      "docs": {
+        "title": "Docs",
+        "description": "Best for gateway guides, SDK examples, model references, and quick starts.",
+        "cta": "Read docs"
+      }
+    },
+    "issues": {
+      "billing": {
+        "label": "Billing or account issue",
+        "helper": "Create a private support ticket and we will reply to the email address you provide."
+      },
+      "bug": {
+        "label": "Bug or outage",
+        "helper": "Use GitHub when the issue is reproducible and useful for other users to track."
+      },
+      "data": {
+        "label": "Data or metrics issue",
+        "helper": "Create a private ticket with model IDs, provider names, URLs, and timestamps."
+      },
+      "docs": {
+        "label": "Docs or integration question",
+        "helper": "Start with the docs. If the answer is missing, send a ticket with the exact page."
+      },
+      "feature": {
+        "label": "Feature request",
+        "helper": "Open a GitHub issue with the workflow, expected behavior, and why it matters."
+      },
+      "general": {
+        "label": "General question",
+        "helper": "Create a private support ticket and include enough context for a direct reply."
+      },
+      "community": {
+        "label": "Community or quick feedback",
+        "helper": "Use Discord when you want a lightweight answer or discussion with other users."
+      }
+    }
+  },
+  "profileShare": {
+    "titleSuffix": "Phaseo Share Card",
+    "description": "A lightweight snapshot generated from personal workspace activity.",
+    "shareCard": "{name}’s share card",
+    "downloadImage": "Download image",
+    "openPhaseo": "Open Phaseo",
+    "imageAlt": "{name} Phaseo share card"
+  },
+  "profile": {
+    "title": "Shared Profile",
+    "loading": "Loading profile..."
+  },
+  "trust": {
+    "trustCentre": "Trust Centre",
+    "phaseoTrustCentre": "Phaseo Trust Centre",
+    "lastReviewed": "Last reviewed {date}",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "privacyQuestions": "Privacy questions",
+    "securityAndTrust": "Security and trust at Phaseo",
+    "currentSafeguards": "Current product safeguards, data practices, and assurance status. Claims on this page are limited to what Phaseo can support today.",
+    "assurance": "Assurance",
+    "sections": "Trust Centre sections",
+    "claimLabels": "Claim labels",
+    "trustDocuments": "Trust documents",
+    "trustDocumentsBody": "Use the detailed material for security review, vendor assessment, or DPA discussion.",
+    "security": "Security",
+    "securityBody": "Product and operational safeguards supported by current code and documentation.",
+    "dataHandling": "Data handling",
+    "dataHandlingBody": "How gateway content is handled by default, where exceptions apply, and what remains provider-dependent.",
+    "serviceProviders": "Service providers",
+    "serviceProvidersBody": "Categories disclosed in Phaseo's current privacy policy.",
+    "availability": "Availability and incidents",
+    "compliance": "Compliance",
+    "responsibleDisclosure": "Responsible disclosure",
+    "emailSecurity": "Email security",
+    "privateGithubReport": "Private GitHub report",
+    "reviewedEvidence": "Reviewed against repository evidence"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "description": "Simple pay-as-you-go AI gateway pricing with optional self-serve Enterprise identity, governance, and included-payment plans.",
+    "everythingIncluded": "Everything included",
+    "everythingIncludedBody": "Explore the model catalog, rankings, SDKs, and free model chat before spending anything. Add credits when you need paid model usage without changing plans.",
+    "swipeCompare": "Swipe horizontally to compare providers.",
+    "showFreeAccess": "Show free access",
+    "compareCompetitors": "Compare competitors",
+    "competitorNote": "Competitor details reflect published documentation checked 26 July 2026. ‘Not advertised’ means the feature could not be verified in public product or pricing documentation.",
+    "selfServeEnterprise": "Self Serve Enterprise",
+    "selfServeEnterpriseBody": "Configure Enterprise for teams from 100 to 100,000 members, see the exact monthly price, and subscribe without a sales call or committed model spend.",
+    "buildPlan": "Build my plan",
+    "activeMembers": "Active members",
+    "users": "users",
+    "enterpriseSubscription": "Enterprise subscription",
+    "monthEstimated": "/month estimated",
+    "whatYouGet": "What you get",
+    "included": "Included",
+    "creditTopUpFee": "Credit top-up fee",
+    "modelUsageCredits": "Model usage credits",
+    "purchasedSeparately": "Purchased separately",
+    "committedModelSpend": "Committed model spend",
+    "none": "None",
+    "usdNote": "USD monthly subscription. Credit purchases remain separate and use the standard 5% top-up fee across supported payment methods. Spend as much or as little on model usage as you need—the same subscription price applies.",
+    "features": {
+      "sso": "SAML SSO and enforced sign-in",
+      "scim": "SCIM users, groups and bulk operations",
+      "departments": "Departments and workspace roles",
+      "audit": "Audit and governance controls",
+      "priority": "Priority support"
+    },
+    "paygHeadline": "Pay as you go by default. Add Enterprise when your team needs it.",
+    "paygBody": "Buy credits when you need them and pay for what you use. Enterprise identity and payment benefits are optional, priced openly, and activated without a sales call.",
+    "manageCredits": "Manage Credits",
+    "manageProviderKeys": "Manage Provider Keys",
+    "modelPricingCalculator": "Model Pricing Calculator",
+    "payg": "Pay as you go",
+    "paygBodyShort": "Top up credits only when you need them.",
+    "enterpriseOptional": "Enterprise is optional",
+    "enterpriseOptionalBody": "Add SSO, SCIM and governance without changing usage pricing.",
+    "pricesPublic": "Prices stay public",
+    "pricesPublicBody": "Answer a short questionnaire and subscribe immediately.",
+    "faqTitle": "Frequently Asked Questions",
+    "ready": "Ready to get started?",
+    "readyBody": "Start free, add credits when you need them, and keep the same pay-as-you-go terms as you grow.",
+    "openPlatform": "Open Platform",
+    "askPricing": "Ask a pricing question"
+  },
+  "legal": {
+    "lastUpdated": "Last updated: {date}",
+    "privacyTitle": "Privacy Policy",
+    "privacyIntro": "This Privacy Policy explains how Daniel Butler operating under the name Phaseo (\"Phaseo\", \"we\", \"us\" or \"our\") collects, uses and protects personal data when you use our websites, dashboards and API gateway (together, the \"Service\").",
+    "termsTitle": "Terms of Service",
+    "termsIntro": "These Terms of Service (\"Terms\") govern your use of the Phaseo website, data directory and unified API gateway (collectively, the \"Service\")."
+  }
+}

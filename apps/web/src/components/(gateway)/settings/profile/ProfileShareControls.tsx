@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Check, Copy, Download, Share2 } from "lucide-react"
 
 import type { ProfileShareCardPayload } from "@/lib/profileShare"
@@ -24,6 +25,8 @@ type Props = {
 }
 
 export default function ProfileShareControls({ payload }: Props) {
+	const t = useTranslations("SettingsUI")
+	const s = (key: string) => t(`strings.${key}` as never)
 	const [copied, setCopied] = useState(false)
 	const sharePageUrl = buildProfileShareCardPageUrl(payload)
 	const shareImageUrl = buildProfileShareCardImageUrl(payload)
@@ -47,17 +50,17 @@ export default function ProfileShareControls({ payload }: Props) {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" aria-label="Share profile" className="h-8 rounded-lg px-2 sm:px-3">
+				<Button variant="outline" size="sm" aria-label={s("Share profile")} className="h-8 rounded-lg px-2 sm:px-3">
 					<Share2 className="h-4 w-4" />
-					<span className="hidden sm:inline">Share</span>
+					<span className="hidden sm:inline">{s("Share")}</span>
 				</Button>
 			</DialogTrigger>
 
 			<DialogContent className="gap-5 border border-border bg-popover p-4 text-popover-foreground sm:p-5 lg:max-w-lg">
 				<DialogHeader className="pr-8">
-					<DialogTitle>Share Card</DialogTitle>
+				<DialogTitle>{s("Share Card")}</DialogTitle>
 					<DialogDescription>
-						{payload.periodLabel} activity. Preview the image, then share or download it.
+						{payload.periodLabel} {s("activity. Preview the image, then share or download it.")}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -78,21 +81,21 @@ export default function ProfileShareControls({ payload }: Props) {
 							rel="noreferrer"
 						>
 							<Download className="h-4 w-4" />
-							Download
+							{s("Download")}
 						</a>
 					</Button>
 
 					<Button asChild variant="outline" className="h-9 justify-center rounded-lg">
 						<a href={twitterIntentUrl} target="_blank" rel="noreferrer" aria-label="Post share card on X">
 							<XBrandIcon className="h-4 w-4" />
-							Post
+											{s("Post")}
 						</a>
 					</Button>
 
 					<Button asChild variant="outline" className="h-9 justify-center rounded-lg">
 						<a href={linkedInIntentUrl} target="_blank" rel="noreferrer" aria-label="Share card on LinkedIn">
 							<LinkedInBrandIcon className="h-4 w-4" />
-							Share
+											{s("Share")}
 						</a>
 					</Button>
 
@@ -103,7 +106,7 @@ export default function ProfileShareControls({ payload }: Props) {
 						onClick={copyShareLink}
 					>
 						{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-						{copied ? "Copied" : "Copy Link"}
+						{copied ? s("Copied") : s("Copy Link")}
 					</Button>
 				</div>
 			</DialogContent>

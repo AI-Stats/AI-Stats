@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
 	Dialog,
 	DialogContent,
@@ -23,6 +24,8 @@ export default function AcceptInviteDialog({
 	open: boolean;
 	onOpenChange: (next: boolean) => void;
 }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [code, setCode] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
@@ -36,16 +39,16 @@ export default function AcceptInviteDialog({
 			// call server action to create a join request
 			const res = await acceptTeamInviteAction(code, currentUserId);
 			if (!res || !res.success)
-				throw new Error(res?.error || "Failed to submit request");
+				throw new Error(res?.error || s("Failed to submit request"));
 			setMessage(
 				res.requestId
-					? `Request submitted. ID: ${res.requestId}`
-					: "Request submitted."
+					? `${s("Request submitted. ID:")} ${res.requestId}`
+					: s("Request submitted.")
 			);
 			// close after a short delay
 			setTimeout(() => onOpenChange(false), 900);
 		} catch (err: any) {
-			setMessage(err?.message ?? "Could not submit request");
+			setMessage(err?.message ?? s("Could not submit request"));
 		} finally {
 			setLoading(false);
 		}
@@ -55,9 +58,9 @@ export default function AcceptInviteDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Request to Join a Workspace</DialogTitle>
+					<DialogTitle>{s("Request to Join a Workspace")}</DialogTitle>
 					<DialogDescription>
-						Enter an invite code to request to join a workspace.
+						{s("Enter an invite code to request to join a workspace.")}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -65,17 +68,17 @@ export default function AcceptInviteDialog({
 					<Input
 						value={code}
 						onChange={(e) => setCode(e.target.value)}
-						placeholder="Invite code"
+						placeholder={s("Invite code")}
 					/>
 					{message ? <div className="text-sm">{message}</div> : null}
 					<DialogFooter>
 						<DialogClose asChild>
 							<Button type="button" variant="ghost">
-								Cancel
+								{s("Cancel")}
 							</Button>
 						</DialogClose>
 						<Button type="submit" disabled={loading}>
-							{loading ? "Accepting..." : "Accept"}
+							{loading ? s("Accepting...") : s("Accept")}
 						</Button>
 					</DialogFooter>
 				</form>

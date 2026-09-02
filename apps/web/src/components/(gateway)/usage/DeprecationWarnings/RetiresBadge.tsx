@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import {
 	HoverCard,
@@ -54,6 +55,7 @@ export default function RetiresBadge(props: {
 	className?: string;
 }) {
 	const { label, retirementDate, className } = props;
+	const t = useTranslations("SettingsUI");
 	const parsed = retirementDate ? new Date(retirementDate) : null;
 	const valid = parsed && !Number.isNaN(parsed.getTime()) ? parsed : null;
 
@@ -82,7 +84,7 @@ export default function RetiresBadge(props: {
 			<HoverCardContent align="start" side="bottom" sideOffset={8} className="w-auto">
 				<div className="grid gap-2 text-xs">
 					<div className="grid grid-cols-[120px_1fr] gap-2">
-						<div className="text-muted-foreground">Your timezone</div>
+						<div className="text-muted-foreground">{t("strings.Your timezone" as never)}</div>
 						<div className="font-mono">{formatShortDate(valid)}</div>
 					</div>
 					<div className="grid grid-cols-[120px_1fr] gap-2">
@@ -94,4 +96,3 @@ export default function RetiresBadge(props: {
 		</HoverCard>
 	);
 }
-

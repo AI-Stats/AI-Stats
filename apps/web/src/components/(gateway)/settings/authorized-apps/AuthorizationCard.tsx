@@ -21,6 +21,7 @@ import { oauthScopeLabel } from "@/lib/oauth/scopes";
 import { groupConsentScopes } from "@/components/(gateway)/oauth/consentScopeGroups";
 import { updateAuthorizationScopesAction } from "@/app/(dashboard)/settings/authorized-apps/actions";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface AuthorizationCardProps {
 	authorization: any;
@@ -44,6 +45,8 @@ function scopeToneBadge(tone: ScopeTone) {
 }
 
 export default function AuthorizationCard({ authorization }: AuthorizationCardProps) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const isPhaseoCli = authorization.app_name === "Phaseo CLI";
 	const grantedScopes: string[] = Array.isArray(authorization.scopes)
 		? authorization.scopes.filter((scope: unknown): scope is string => typeof scope === "string")
@@ -84,7 +87,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 			toast.error(result.error);
 			return;
 		}
-		toast.success("Permissions updated");
+	toast.success(s("Permissions updated"));
 		setEditingScopes(false);
 		router.refresh();
 	};
@@ -125,11 +128,11 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 								) : authorization.app_name}
 							</CardTitle>
 							<CardDescription className="mt-1 wrap-break-word">
-								{authorization.app_description || "No description provided"}
+								{authorization.app_description || s("No description provided")}
 							</CardDescription>
 							{authorization.app_is_identified === false && authorization.app_client_id && (
 								<p className="mt-1 break-all font-mono text-xs text-muted-foreground">
-									Client {authorization.app_client_id}
+									{s("Client")} {authorization.app_client_id}
 								</p>
 							)}
 						</div>
@@ -156,10 +159,10 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 					<AccordionItem value="permissions" className="border-0">
 						<AccordionTrigger className="gap-3 px-3 py-3 hover:bg-muted/40">
 							<div className="min-w-0 flex-1 text-left">
-								<div className="text-sm font-medium">Permissions</div>
+								<div className="text-sm font-medium">{s("Permissions")}</div>
 								<p className="mt-0.5 text-xs font-normal text-muted-foreground">
-									{scopeGroups.length} group{scopeGroups.length === 1 ? "" : "s"} /{" "}
-									{scopeGroups.reduce((total, group) => total + group.scopes.length, 0)} permissions
+									{scopeGroups.length} {s(scopeGroups.length === 1 ? "group" : "groups")} /{" "}
+									{scopeGroups.reduce((total, group) => total + group.scopes.length, 0)} {s("permissions")}
 								</p>
 							</div>
 						</AccordionTrigger>
@@ -167,16 +170,16 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 							<div className="mb-3 flex flex-col gap-2 rounded-md bg-muted/35 p-2.5 sm:flex-row sm:items-center sm:justify-between">
 								<p className="text-xs text-muted-foreground">
 									{editingScopes
-										? "Deselect permissions to reduce this app's access. New access requires authorization through the app."
-										: "You can reduce this app's access without revoking it entirely."}
+										? s("Deselect permissions to reduce this app's access. New access requires authorization through the app.")
+										: s("You can reduce this app's access without revoking it entirely.")}
 								</p>
 								{editingScopes ? (
 									<div className="flex shrink-0 gap-2">
 										<Button type="button" size="sm" variant="ghost" className="rounded-md" disabled={savingScopes} onClick={cancelScopeEditing}>
-											Cancel
+											{s("Cancel")}
 										</Button>
 										<Button type="button" size="sm" className="rounded-md" disabled={savingScopes || selectedScopes.length === 0 || !hasScopeChanges} onClick={saveScopes}>
-											{savingScopes ? "Saving..." : "Save changes"}
+										{savingScopes ? s("Saving...") : s("Save changes")}
 										</Button>
 									</div>
 								) : (
@@ -225,7 +228,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 																<Checkbox
 																	checked={selectedScopes.includes(scope)}
 																	onCheckedChange={(checked) => toggleScope(scope, checked === true)}
-																	aria-label={`Allow ${oauthScopeLabel(scope)}`}
+												aria-label={`${s("Allow")} ${oauthScopeLabel(scope)}`}
 																/>
 															) : null}
 															<span className="min-w-0 break-words text-xs font-medium">{oauthScopeLabel(scope)}</span>
@@ -259,7 +262,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 						<div className="flex items-start gap-2">
 							<AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300" />
 							<div className="min-w-0 space-y-2">
-								<div className="text-sm font-medium text-amber-900 dark:text-amber-100">Additional permissions available</div>
+								<div className="text-sm font-medium text-amber-900 dark:text-amber-100">{s("Additional permissions available")}</div>
 								<p className="text-xs text-amber-800 dark:text-amber-200">
 									This app can now request more permissions. Your existing access has not changed; use Reauthorize above to start a new request from the app.
 								</p>
@@ -290,7 +293,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 				{/* Metadata */}
 				<div className="grid grid-cols-3 gap-3 border-t pt-4 text-sm">
 					<div className="min-w-0">
-						<div className="mb-1 text-xs font-medium text-foreground">Team</div>
+								<div className="mb-1 text-xs font-medium text-foreground">{s("Team")}</div>
 						<div className="truncate text-xs text-muted-foreground" title={authorization.team_name}>
 							{authorization.team_name}
 						</div>
@@ -298,7 +301,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 					<div>
 						<div className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
 							<Calendar className="size-3" />
-							<span>Authorized</span>
+							<span>{s("Authorized")}</span>
 						</div>
 						<div className="text-xs font-medium leading-snug">
 							{formatDistanceToNow(new Date(authorization.authorized_at), {
@@ -309,7 +312,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 					<div>
 						<div className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
 							<Activity className="size-3" />
-							<span>Last Used</span>
+							<span>{s("Last Used")}</span>
 						</div>
 						<div className="text-xs font-medium leading-snug">
 							{authorization.last_used_at

@@ -9,6 +9,7 @@ import {
 	type ReactNode,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { debounce, useQueryState } from "nuqs";
 import { Input } from "@/components/ui/input";
 import {
@@ -668,6 +669,7 @@ export default function ModelsTableDisplay({
 	allModalities,
 	allFeatures,
 }: ModelsTableDisplayProps) {
+	const t = useTranslations("Catalogue.models");
 	const [search, setSearch] = useQueryState("search", {
 		defaultValue: "",
 		parse: (value) => value || "",
@@ -1588,7 +1590,7 @@ export default function ModelsTableDisplay({
 				>
 					<div className="md:hidden space-y-2">
 						<div className="flex items-center gap-2">
-							<h1 className="font-bold text-xl leading-8">Models</h1>
+							<h1 className="font-bold text-xl leading-8">{t("title")}</h1>
 						</div>
 
 						<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
@@ -1600,7 +1602,7 @@ export default function ModelsTableDisplay({
 						<div className="relative w-full">
 							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 							<Input
-								placeholder="Search"
+								placeholder={t("searchPlaceholder")}
 								value={search}
 								onChange={(e) =>
 									setSearch(e.target.value || "", {
@@ -1617,14 +1619,14 @@ export default function ModelsTableDisplay({
 						<div className="hidden lg:block">
 							<div className="flex items-center justify-between gap-4">
 								<div className="flex h-8 min-w-0 shrink-0 items-center">
-									<h1 className="font-bold text-xl leading-8">Models</h1>
+									<h1 className="font-bold text-xl leading-8">{t("title")}</h1>
 								</div>
 
 								<div className="flex min-w-0 flex-1 items-center justify-end gap-3">
 									<div className="relative min-w-[15rem] max-w-[22rem] flex-1 2xl:max-w-[28rem]">
 										<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 										<Input
-											placeholder="Search"
+											placeholder={t("searchPlaceholder")}
 											value={search}
 											onChange={(e) =>
 												setSearch(e.target.value || "", {
@@ -1645,7 +1647,7 @@ export default function ModelsTableDisplay({
 
 						<div className="lg:hidden">
 							<div className="flex h-8 items-center justify-between gap-3">
-								<h1 className="font-bold text-xl leading-8">Models</h1>
+								<h1 className="font-bold text-xl leading-8">{t("title")}</h1>
 								<div className="flex shrink-0 items-center justify-end gap-2">
 									{filterButton()}
 									{viewSwitcher}
@@ -1656,7 +1658,7 @@ export default function ModelsTableDisplay({
 								<div className="relative min-w-0">
 									<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 									<Input
-										placeholder="Search"
+									placeholder={t("searchPlaceholder")}
 										value={search}
 										onChange={(e) =>
 											setSearch(e.target.value || "", {

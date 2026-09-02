@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
 	Dialog,
 	DialogTrigger,
@@ -29,6 +30,7 @@ export default function CreateTeamDialog({
 }: {
 	currentUserId?: string;
 }) {
+	const t = useTranslations("SettingsUI");
 	const [open, setOpen] = useState(false);
 	const [acceptOpen, setAcceptOpen] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -67,7 +69,7 @@ export default function CreateTeamDialog({
 						className="flex items-center !rounded-l-lg !rounded-r-none border-r-0"
 					>
 						<Plus className="h-4 w-4" />
-						<span className="mr-2 select-none">Create Workspace</span>
+							<span className="mr-2 select-none">{t("teams.createWorkspace")}</span>
 					</Button>
 				</DialogTrigger>
 				<DropdownMenu
@@ -94,7 +96,7 @@ export default function CreateTeamDialog({
 							onClick={() => setAcceptOpen(true)}
 							className="text-sm"
 						>
-							Got an invite code?
+							{t("teams.gotInviteCode")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -109,21 +111,21 @@ export default function CreateTeamDialog({
 
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create Workspace</DialogTitle>
+					<DialogTitle>{t("teams.createWorkspace")}</DialogTitle>
 					<DialogDescription>
-						Enter a name for your new workspace.
+						{t("teams.createWorkspaceDescription")}
 					</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={onCreate} className="space-y-4">
 					<Input
 						value={name}
 						onChange={(e) => setName(e.target.value)}
-						placeholder="Workspace Name"
+						placeholder={t("teams.workspaceName")}
 					/>
 					<DialogFooter>
 						<DialogClose asChild>
 							<Button type="button" variant="ghost">
-								Cancel
+								{t("labels.cancel")}
 							</Button>
 						</DialogClose>
 						{/* disabled until name has at least 2 chars or while loading */}
@@ -131,7 +133,7 @@ export default function CreateTeamDialog({
 							type="submit"
 							disabled={loading || name.trim().length < 2}
 						>
-							{loading ? "Creating..." : "Create"}
+							{loading ? t("labels.creating") : t("labels.create")}
 						</Button>
 					</DialogFooter>
 				</form>

@@ -6,6 +6,7 @@ import { RankingsEmptyState } from "@/components/(rankings)/RankingsEmptyState";
 import { Logo } from "@/components/Logo";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
 import { fetchFrontendModelRetentionRankings } from "@/lib/fetchers/frontend/fetchRankingSections";
+import { getTranslations } from "next-intl/server";
 
 function numeric(value: number | string) {
 	const parsed = Number(value);
@@ -17,6 +18,7 @@ function percent(value: number | string) {
 }
 
 export async function ModelRetentionSection() {
+	const t = await getTranslations("Catalogue.rankings");
 	const result = await fetchFrontendModelRetentionRankings(20).catch(() => ({
 		data: [],
 		methodology: {
@@ -45,9 +47,9 @@ export async function ModelRetentionSection() {
 		<section id="retention" className="scroll-mt-32 space-y-8 border-t border-border pt-12">
 			<SectionHeader />
 			<div className="grid overflow-hidden rounded-xl border border-border/80 bg-card sm:grid-cols-3">
-				<SummaryMetric label="Leading model" value={percent(rows[0].retention_rate)} detail={rows[0].model_name} />
-				<SummaryMetric label="Observed return rate" value={`${weightedReturnRate.toFixed(1)}%`} detail={`${totalWorkspaceWeeks.toLocaleString()} eligible workspace-weeks`} />
-				<SummaryMetric label="Observation window" value={`${maxWeeks} weeks`} detail="Completed UTC week transitions" last />
+				<SummaryMetric label={t("leadingModel")} value={percent(rows[0].retention_rate)} detail={rows[0].model_name} />
+				<SummaryMetric label={t("observedReturnRate")} value={`${weightedReturnRate.toFixed(1)}%`} detail={`${totalWorkspaceWeeks.toLocaleString()} ${t("workspaceWeeks")}`} />
+				<SummaryMetric label={t("observationWindow")} value={`${maxWeeks} weeks`} detail={t("completedTransitions")} last />
 			</div>
 			<div className="space-y-3">
 				<div className="flex items-baseline justify-between gap-4">
@@ -85,16 +87,17 @@ export async function ModelRetentionSection() {
 	);
 }
 
-function SectionHeader() {
+async function SectionHeader() {
+	const t = await getTranslations("Catalogue.rankings");
 	return (
 		<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 			<div className="space-y-0.5">
 				<div className="flex items-center gap-2">
 					<span className="flex size-7 items-center justify-center rounded-md border border-border/80 bg-muted/50"><Repeat2 className="size-3.5" /></span>
-					<h2 className="text-2xl font-semibold leading-8">Weekly Return Rate</h2>
+					<h2 className="text-2xl font-semibold leading-8">{t("weeklyReturnRate")}</h2>
 				</div>
 				<p className="max-w-3xl text-sm text-muted-foreground">
-					The share of Phaseo workspaces that use the same model again in the following week.{" "}
+					{t("returnDescription")} {" "}
 					<InlineInfoTooltip label="How return rate is calculated" description="Each active model-workspace week is eligible once its following UTC week is complete. A return is counted when that privacy-safe workspace uses the same canonical model in the next week. Rates are pooled across up to 10 transitions; the smaller range below each score is an approximate 95% confidence interval." />
 				</p>
 			</div>

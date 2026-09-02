@@ -21,9 +21,19 @@ import {
 	Bell,
 	Gauge,
 	FlaskConical,
+	Languages,
 } from "lucide-react";
 
 const internalTools = [
+	{
+		id: "localisation-preview",
+		title: "Localisation Preview",
+		description:
+			"Review staged auth translations, regional variants, plural rules, and RTL layout without publishing them.",
+		icon: Languages,
+		href: "/internal/localisation-preview",
+		comingSoon: false,
+	},
 	{
 		id: "model-test-playground",
 		title: "Model Test Lab",

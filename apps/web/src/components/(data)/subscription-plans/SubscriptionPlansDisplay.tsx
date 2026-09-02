@@ -9,10 +9,12 @@ import type { SubscriptionPlanSummary } from "@/lib/fetchers/subscription-plans/
 
 interface SubscriptionPlansDisplayProps {
 	plans: SubscriptionPlanSummary[];
+	labels?: { title: string; description?: string; search: string; empty: string };
 }
 
 export default function SubscriptionPlansDisplay({
 	plans,
+	labels = { title: "Subscription Plans", search: "Search plans...", empty: "No subscription plans found for the selected filters." },
 }: SubscriptionPlansDisplayProps) {
 	// State for filters
 	const [search, setSearch] = useQueryState("search", {
@@ -51,13 +53,13 @@ export default function SubscriptionPlansDisplay({
 			{/* Title and Search Bar Row */}
 			<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
 				<h1 className="font-bold text-xl mb-2 md:mb-0">
-					Subscription Plans
+					{labels.title}
 				</h1>
 				<div className="flex-1 flex justify-end">
 					<div className="relative w-full max-w-xs">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
-							placeholder="Search plans..."
+							placeholder={labels.search}
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
 							className="pl-9 pr-2 py-1.5 text-sm rounded-full bg-background border focus:outline-hidden focus:ring-2 focus:ring-primary w-full"
@@ -78,7 +80,7 @@ export default function SubscriptionPlansDisplay({
 					))
 				) : (
 					<div className="col-span-full text-center text-muted-foreground py-12">
-						No subscription plans found for the selected filters.
+						{labels.empty}
 					</div>
 				)}
 			</div>

@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Users, Activity } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface OAuthAppCardProps {
 	app: any;
 }
 
 export default function OAuthAppCard({ app }: OAuthAppCardProps) {
+	const t = useTranslations("SettingsUI");
 	const statusColor = {
 		active: "bg-emerald-500",
 		suspended: "bg-amber-500",
@@ -20,10 +22,10 @@ export default function OAuthAppCard({ app }: OAuthAppCardProps) {
 	}[(app.status as string)] || "bg-gray-500";
 
 	const statusText = {
-		active: "Active",
-		suspended: "Suspended",
-		deleted: "Deleted",
-	}[(app.status as string)] || "Unknown";
+		active: t("labels.active"),
+		suspended: t("strings.Suspended" as never),
+		deleted: t("strings.Deleted" as never),
+	}[(app.status as string)] || t("strings.Unknown" as never);
 
 	return (
 		<Card className="flex flex-col hover:shadow-md transition-shadow">
@@ -76,23 +78,22 @@ export default function OAuthAppCard({ app }: OAuthAppCardProps) {
 						className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 underline decoration-transparent hover:decoration-current transition-colors duration-200"
 					>
 						<ExternalLink className="size-3" />
-						<span>Visit website</span>
+						<span>{t("strings.Visit website" as never)}</span>
 					</a>
 				)}
 
 				<div className="text-xs text-muted-foreground pt-2">
-					Created {formatDistanceToNow(new Date(app.created_at), { addSuffix: true })}
+					{t("strings.Created" as never)} {formatDistanceToNow(new Date(app.created_at), { addSuffix: true })}
 				</div>
 			</CardContent>
 
 			<CardFooter>
 				<Button variant="outline" size="sm" asChild className="w-full">
 					<Link href={`/settings/oauth-apps/${app.client_id}`}>
-						View Details
+						{t("strings.View Details" as never)}
 					</Link>
 				</Button>
 			</CardFooter>
 		</Card>
 	);
 }
-

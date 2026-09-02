@@ -29,6 +29,7 @@ import {
 	FREE_ROUTER_ORGANISATION_ID,
 	isFreeRouterModelId,
 } from "@/lib/models/freeRouter";
+import { getTranslations } from "next-intl/server";
 
 interface ModelDetailShellProps {
 	modelId: string;
@@ -73,6 +74,7 @@ export default async function ModelDetailShell({
 	header: prefetchedHeader,
 	modelOverview: prefetchedModelOverview,
 }: ModelDetailShellProps) {
+	const t = await getTranslations("Catalogue.models");
 	const isFreeRouter = isFreeRouterModelId(modelId);
 	const [header, modelOverview, modelPageNotice, gatewayMetadata] = isFreeRouter
 		? [
@@ -170,7 +172,7 @@ export default async function ModelDetailShell({
 									<span>{header.name}</span>
 								</h1>
 								{includeHidden && header.hidden ? (
-									<Badge variant="secondary">Hidden</Badge>
+									<Badge variant="secondary">{t("hidden")}</Badge>
 								) : null}
 							</div>
 							<div className="mt-2 flex w-full flex-col items-start gap-2">
@@ -188,14 +190,14 @@ export default async function ModelDetailShell({
 							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg xl:flex-none">
 								<Link href={`/chat?model=${modelId}`}>
 									<MessageSquare className="h-4 w-4" />
-									Chat
+									{t("chat")}
 								</Link>
 							</Button>
 						) : null}
 						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg xl:flex-none">
 							<Link href={`/compare?models=${modelId}`}>
 								<Scale className="h-4 w-4" />
-								Compare
+								{t("compareButton")}
 							</Link>
 						</Button>
 						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} triggerId="quickstart" className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 xl:flex-none" /> : null}

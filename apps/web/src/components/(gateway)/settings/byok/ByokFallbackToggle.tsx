@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { updateByokFallbackAction } from "@/app/(dashboard)/settings/byok/actions";
@@ -10,6 +11,8 @@ export default function ByokFallbackToggle({
 }: {
 	initialEnabled: boolean;
 }) {
+	const t = useTranslations("SettingsUI");
+	const s = (key: string) => t(`strings.${key}` as never);
 	const [enabled, setEnabled] = React.useState(initialEnabled);
 	const [saving, setSaving] = React.useState(false);
 
@@ -18,9 +21,9 @@ export default function ByokFallbackToggle({
 		setSaving(true);
 		try {
 			await toast.promise(updateByokFallbackAction(next), {
-				loading: "Saving fallback setting...",
-				success: "Fallback setting updated",
-				error: (err) => err?.message ?? "Failed to update setting",
+				loading: s("Saving fallback setting..."),
+				success: s("Fallback setting updated"),
+				error: (err) => err?.message ?? s("Failed to update setting"),
 			});
 		} finally {
 			setSaving(false);
@@ -35,7 +38,7 @@ export default function ByokFallbackToggle({
 				onCheckedChange={handleChange}
 			/>
 			<span>
-				Try fallback BYOK keys after managed providers
+				{s("Try fallback BYOK keys after managed providers")}
 			</span>
 		</label>
 	);

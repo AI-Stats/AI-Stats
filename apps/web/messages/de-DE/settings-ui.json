@@ -1,0 +1,2156 @@
+{
+  "headers": {
+    "settings": "Einstellungen",
+    "apiKeys": "API-Schlüssel",
+    "apiKeysDescription": "Gateway-API-Schlüssel für diesen Arbeitsbereich erstellen und verwalten.",
+    "managementApiKeys": "Management-API-Schlüssel",
+    "managementApiKeysDescription": "Verwalten Sie privilegierte Schlüssel für die automatisierte Arbeitsbereichs- und Schlüsselverwaltung.",
+    "apps": "Apps",
+    "appsDescription": "Anwendungsmetadaten und öffentliche Sichtbarkeit für Ihren Arbeitsbereich verwalten.",
+    "oauthIntegrations": "OAuth-Integrationen",
+    "oauthApps": "OAuth-Apps",
+    "oauthAppsDescription": "OAuth-Anwendungen erstellen, um Drittanbieter-Integrationen mit Ihrem Phaseo-Konto zu ermöglichen.",
+    "oauthApplication": "OAuth-Anwendung",
+    "oauthApplicationDetails": "Details zur OAuth-Anwendung",
+    "oauthComingSoon": "OAuth-Apps folgen in Kürze",
+    "oauthDisabled": "Die Verwaltung von OAuth-Clients ist für diese Bereitstellung deaktiviert.",
+    "notifications": "Benachrichtigungen",
+    "notificationsDescription": "Legen Sie fest, worüber Ihr Arbeitsbereich informiert wird und wohin Warnungen zugestellt werden.",
+    "guardrails": "Leitplanken",
+    "guardrailsDescription": "Arbeitsbereichsrichtlinien für Mitglieder und API-Schlüssel festlegen.",
+    "guardrail": "Leitplanke",
+    "guardrailDescription": "Eine vorhandene Leitplankenrichtlinie bearbeiten.",
+    "byok": "Eigenen Schlüssel verwenden",
+    "byokWorkspaceRequired": "Wählen Sie einen Arbeitsbereich, um die BYOK-Einstellungen zu verwalten.",
+    "byokDescription": "Anbieterzugangsdaten verbinden und festlegen, wie Phaseo Anfragen weiterleitet.",
+    "routing": "Routing",
+    "routingDescription": "Arbeitsbereichsstandards festlegen, wenn eine Anfrage keiner dynamischen Route entspricht.",
+    "dynamicRouting": "Dynamisches Routing",
+    "dynamicRoutingDescription": "Anfrageabläufe erstellen und bestimmten API-Schlüsseln zuweisen.",
+    "broadcast": "Broadcast",
+    "broadcastWorkspaceRequired": "Wählen Sie einen Arbeitsbereich, um die Broadcast-Einstellungen zu verwalten.",
+    "dynamicRoutingPreview": "Lokaler Vorschaumodus – Änderungen bleiben in diesem Browser und berühren die Datenbank nicht.",
+    "autoRouting": "Automatisches Routing",
+    "autoRoutingDescription": "Steuern Sie, wie phaseo/auto Modellqualität, Kosten und Geschwindigkeit für diesen Arbeitsbereich ausbalanciert.",
+    "presets": "Voreinstellungen",
+    "presetsDescription": "Wiederverwendbare Anfragekonfigurationen für Ihre API-Aufrufe verwalten.",
+    "newPreset": "Neue Voreinstellung",
+    "createNewPreset": "Neue Voreinstellung erstellen",
+    "newPresetDescription": "Konfigurieren Sie Ihre Voreinstellung mit Modellen, Parametern und Präferenzen",
+    "presetIntro": "Voreinstellungen sind benannte Konfigurationen, die mit @ beginnen und in Ihren API-Aufrufen referenziert werden können. Speichern Sie Ihr bevorzugtes Modell, System-Prompt und Parameter, um wiederverwendbare Anfragevorlagen zu erstellen.",
+    "editPreset": "Voreinstellung bearbeiten",
+    "presetDraftDescription": "Änderungen bleiben ein Entwurf, bis Sie eine neue Version veröffentlichen.",
+    "presetFeedback": "Voreinstellungsfeedback",
+    "presetFeedbackCompareDescription": "Voreinstellungsqualität anhand von Feedback-API-Ereignissen, Zeitfenstern und Metadatengruppen vergleichen.",
+    "presetFeedbackMeasureDescription": "Messen Sie die Leistung jeder Voreinstellung anhand von Bewertungen und Ergebnissignalen Ihrer Anwendung.",
+    "privacy": "Datenschutz",
+    "privacyDescription": "Datenverarbeitung, Protokollspeicherung und Routenzugriff für jede Anfrage in diesem Arbeitsbereich festlegen.",
+    "dangerZone": "Gefahrenzone",
+    "dangerZoneDescription": "Nicht rückgängig zu machende Aktionen für Ihr Benutzerkonto.",
+    "mfa": "MFA",
+    "mfaDescription": "Zwei-Faktor-Authentifizierung für Ihr Benutzerkonto verwalten.",
+    "providerOnboarding": "Anbieter-Onboarding",
+    "providerOnboardingDescription": "Ihren Anbieterkatalog verbinden und Ihr Konto mit dem öffentlichen Anbieterprofil verknüpft halten.",
+    "workspaces": "Arbeitsbereiche",
+    "workspacesDescription": "Arbeitsbereiche erstellen und auswählen, welche Sie verwalten möchten.",
+    "billingOnboarding": "Abrechnungs-Onboarding",
+    "billingOnboardingSignIn": "Melden Sie sich an, um die Abrechnung des Arbeitsbereichs einzurichten.",
+    "billingOnboardingWorkspace": "Wählen Sie einen Arbeitsbereich, um mit der Einrichtung fortzufahren.",
+    "billingOnboardingError": "Der aktive Arbeitsbereich konnte nicht geladen werden.",
+    "invoices": "Rechnungen",
+    "invoicesDescription": "Enterprise-Abrechnungsdatensätze und Rechnungsdokumente.",
+    "transactions": "Transaktionen",
+    "lifecycleAlerts": "Lebenszyklus-Warnungen",
+    "lifecycleAlertsDescription": "Kürzlich verwendete Modelle, die abgekündigt oder eingestellt wurden, sowie mögliche Ersatzmodelle.",
+    "geography": "Geografie",
+    "geographyDescription": "Sehen Sie, woher Arbeitsbereichsanfragen stammen, ohne rohe IP-Adressen zu speichern.",
+    "observability": "Beobachtbarkeit",
+    "logsUnavailable": "Protokolle nicht verfügbar",
+    "logsUnavailableDescription": "Anfrageprotokolle konnten nicht geladen werden. Versuchen Sie es gleich noch einmal.",
+    "workspaceAccessChanged": "Arbeitsbereichszugriff geändert",
+    "workspaceAccessChangedDescription": "Sie haben keinen Zugriff mehr auf diesen Arbeitsbereich. Wählen Sie einen anderen Arbeitsbereich, um dessen Protokolle anzuzeigen.",
+    "noWorkspaceAvailable": "Kein Arbeitsbereich verfügbar",
+    "asyncJobs": "Asynchrone Aufgaben",
+    "asyncJobsDescription": "Aktuelle lang laufende Video- und Batch-Aufgaben einschließlich Status, Abrechnung und Webhook-Zustellungsverlauf.",
+    "webhooks": "Webhooks",
+    "webhooksDescription": "Webhook-Einstellungen",
+    "enterprise": "Enterprise",
+    "directory": "Verzeichnis",
+    "departments": "Abteilungen",
+    "singleSignOn": "Single Sign-On",
+    "scim": "SCIM",
+    "enterpriseOverviewDescription": "Übersicht über Abonnement, Kontingent und Arbeitsbereichsidentität.",
+    "directoryDescription": "Arbeitsbereichszugriff, Rollen und Abteilungszuweisungen verwalten.",
+    "departmentsDescription": "Mitglieder organisieren und Gruppen Ihres Identitätsanbieters zuordnen.",
+    "ssoDescription": "Einen SAML-Identitätsanbieter für diesen Arbeitsbereich verbinden und erzwingen.",
+    "scimDescription": "Benutzer und Gruppen aus Ihrem Identitätsanbieter bereitstellen.",
+    "chooseSharedWorkspace": "Gemeinsamen Arbeitsbereich auswählen",
+    "sharedWorkspaceRequired": "Enterprise-Identität wird pro gemeinsamem Arbeitsbereich konfiguriert, nicht für Ihren persönlichen Arbeitsbereich.",
+    "membersCount": "{count} Mitglieder"
+  },
+  "labels": {
+    "save": "Speichern", "saving": "Wird gespeichert …", "cancel": "Abbrechen", "close": "Schließen", "create": "Erstellen", "creating": "Wird erstellt …", "update": "Aktualisieren", "updating": "Wird aktualisiert …", "delete": "Löschen", "deleting": "Wird gelöscht …", "edit": "Bearbeiten", "details": "Details", "actions": "Aktionen", "done": "Fertig", "loading": "Wird geladen …", "active": "Aktiv", "disabled": "Deaktiviert", "expired": "Abgelaufen", "never": "Nie", "noExpiry": "Kein Ablaufdatum", "default": "Standard", "personal": "Persönlich", "workspace": "Arbeitsbereich", "member": "Mitglied", "admin": "Administrator", "owner": "Eigentümer", "read": "Lesen", "write": "Schreiben", "off": "Aus", "on": "An", "enabled": "Aktiviert", "used": "Verwendet", "limit": "Limit", "remaining": "Verbleibend", "reset": "Zurücksetzen", "today": "Heute", "thisWeek": "Diese Woche", "thisMonth": "Diesen Monat", "noResults": "Keine Ergebnisse gefunden", "selectWorkspace": "Arbeitsbereich auswählen", "noWorkspaceSelected": "Kein Arbeitsbereich ausgewählt", "viewDetails": "Details anzeigen", "testConnection": "Verbindung testen", "tryAgain": "Erneut versuchen"
+  },
+  "keys": {
+    "keyName": "Schlüsselname", "newKeyName": "Neuer Schlüsselname", "rotate": "Rotieren", "rotateApiKey": "API-Schlüssel rotieren", "rotating": "Wird rotiert …", "deleteApiKey": "API-Schlüssel löschen", "deleteSelectedQuestion": "Ausgewählte API-Schlüssel löschen?", "deleteSelected": "Ausgewählte löschen", "typeKeyName": "Schlüsselnamen zur Bestätigung eingeben", "selectExpiry": "Ablaufzeitpunkt auswählen", "expireImmediately": "Sofort ablaufen lassen", "expireOneHour": "In 1 Stunde ablaufen lassen", "expireOneDay": "In 24 Stunden ablaufen lassen", "expireSevenDays": "In 7 Tagen ablaufen lassen", "customDateTime": "Benutzerdefiniertes Datum / Uhrzeit", "neverExpire": "Nicht automatisch ablaufen lassen", "noGuardrails": "Keine Leitplanken", "readOnlyDescription": "Alle Control-Plane-Ressourcen anzeigen, ohne sie zu ändern.", "readWriteDescription": "Ressourcen lesen und ändern, ohne Löschzugriff.", "fullControlDescription": "Alle Management-API-Funktionen.", "keyShownOnce": "Dieser Schlüssel wird nur einmal angezeigt", "optionalExpiry": "Optionales Ablaufdatum", "createKey": "Schlüssel erstellen", "deleteKey": "Schlüssel löschen", "creatingKey": "Wird erstellt …", "deletingKey": "Wird gelöscht …", "failedDelete": "Schlüssel konnte nicht gelöscht werden", "failedRotate": "Schlüssel konnte nicht rotiert werden", "rotated": "Schlüssel rotiert", "deleted": "Management-API-Schlüssel gelöscht"
+  },
+  "teams": {
+    "createInvite": "Arbeitsbereichseinladung erstellen", "createInviteDescription": "Erstellen Sie einen Einladungscode, den Sie mit Ihrem Arbeitsbereich teilen können.", "createInviteButton": "Einladung erstellen", "selectedWorkspace": "Ausgewählter Arbeitsbereich", "selectWorkspace": "Arbeitsbereich auswählen", "workspace": "Arbeitsbereich", "inviteCode": "Einladungscode", "copyInviteCode": "Einladungscode kopieren", "shareCode": "Diesen Code teilen:", "roleForInvitees": "Rolle für Eingeladene", "adminRole": "Administrator", "memberRole": "Mitglied", "expiresDays": "Läuft ab (Tage)", "maxUsesOptional": "Maximale Verwendungen (optional)", "creatingInvite": "Wird erstellt …", "unlimited": "Unbegrenzt", "createdBy": "Erstellt von", "created": "Erstellt", "expiry": "Ablauf", "uses": "Verwendungen", "maxUses": "Maximale Verwendungen", "deleteFailed": "Löschen fehlgeschlagen", "approve": "Genehmigen", "reject": "Ablehnen", "approveRequest": "Anfrage genehmigen", "rejectRequest": "Anfrage ablehnen", "requestApproved": "Anfrage genehmigt", "requestRejected": "Anfrage abgelehnt", "joinRequest": "Beitrittsanfrage", "leaveWorkspace": "Arbeitsbereich verlassen", "revokeAccess": "Zugriff entziehen", "invites": "Einladungen", "invitesDescription": "Einladungen für diesen Arbeitsbereich anzeigen und verwalten.", "total": "{count} gesamt", "active": "{count} aktiv", "noWorkspaces": "Keine Arbeitsbereiche verfügbar.", "noInvites": "Noch keine Einladungen für {workspace}.", "statusActive": "Aktiv", "statusExpired": "Abgelaufen", "failedCreateInvite": "Einladung konnte nicht erstellt werden", "requestJoinTitle": "Beitritt zu einem Arbeitsbereich anfragen", "requestJoinDescription": "Geben Sie einen Einladungscode ein, um den Beitritt zu einem Arbeitsbereich anzufragen.", "requestSubmitted": "Anfrage gesendet.", "requestSubmittedId": "Anfrage gesendet. ID: {id}", "failedSubmitRequest": "Anfrage konnte nicht gesendet werden", "couldNotSubmitRequest": "Anfrage konnte nicht gesendet werden", "accept": "Annehmen", "accepting": "Wird angenommen …", "gotInviteCode": "Sie haben einen Einladungscode?", "createWorkspace": "Arbeitsbereich erstellen", "createWorkspaceDescription": "Geben Sie einen Namen für Ihren neuen Arbeitsbereich ein.", "workspaceName": "Name des Arbeitsbereichs", "couldNotCreateWorkspace": "Arbeitsbereich konnte nicht erstellt werden. Bitte versuchen Sie es erneut.", "activeMembers": "Aktive Mitglieder", "changeAnswers": "Antworten ändern", "monthlyEnterpriseSubscription": "Ihr monatliches Enterprise-Abonnement", "selfServeEnterprise": "Enterprise im Self-Service", "month": "Monat", "subscribe": "Abonnieren", "quoteValidUntil": "Angebot gültig bis {date}. Abrechnung nur in USD.", "buildEnterprisePlan": "Ihren Enterprise-Plan erstellen", "enterprisePlanDescription": "Beschreiben Sie die Anforderungen Ihres Arbeitsbereichs. Sie erhalten sofort einen festen USD-Preis – ohne Verkaufsgespräch und ohne individuellen Vertrag.", "volumeDiscounts": "Mengenrabatte werden automatisch angewendet. Die Guthabenfinanzierung wird separat abgerechnet.", "whatWillYouUse": "Wofür werden Sie es nutzen?", "singleSignOn": "Single Sign-on", "scimProvisioning": "SCIM-Provisionierung", "slackConnect": "Slack-Connect-Unterstützung", "allFeaturesIncluded": "Alle Enterprise-Funktionen sind in einem Abonnement enthalten.", "calculatePrice": "Meinen Preis berechnen", "couldNotCalculatePricing": "Preise konnten nicht berechnet werden", "couldNotStartCheckout": "Checkout konnte nicht gestartet werden", "samlScimFeature": "SAML-SSO und SCIM-Provisionierung", "activeMembersIncluded": "{count} aktive Mitglieder enthalten", "additionalMembers": "Geschätzte {count} zusätzliche Mitglieder zu ${price}/Mitglied/Monat", "estimatedMonthlyTotal": "Geschätzte monatliche Gesamtsumme: ${total}", "departmentsGovernance": "Abteilungen, Rollen und Governance", "creditTopUpFee": "Standardgebühr von 5 % für Guthabenaufladungen", "memberActions": "Mitgliederaktionen", "userRole": "Benutzerrolle", "approveRequestAria": "Anfrage genehmigen", "rejectRequestAria": "Anfrage ablehnen", "sortSpend": "Nach Ausgaben der letzten 30 Tage sortieren", "actionsFor": "Aktionen für {name}", "ownerAccessError": "Der Zugriff des Eigentümers kann nicht entzogen werden.", "unableRevokeAccess": "Zugriff kann derzeit nicht entzogen werden.", "copiedUserId": "Benutzer-ID kopiert", "unableCopyUserId": "Benutzer-ID konnte nicht kopiert werden"
+  },
+  "apps": {
+    "appName": "App-Name", "appId": "App-ID", "unknownApp": "Unbekannte App", "viewApp": "App anzeigen", "appUpdated": "App aktualisiert", "updatingApp": "App wird aktualisiert …", "unableToUpdate": "App konnte nicht aktualisiert werden"
+  },
+  "oauth": {
+    "unknownUser": "Unbekannter Benutzer", "unknownWorkspace": "Unbekannter Arbeitsbereich", "redirectUri": "Weiterleitungs-URI", "addRedirectUri": "Weiterleitungs-URI hinzufügen", "removeRedirectUri": "Weiterleitungs-URI entfernen", "invalidRedirectUri": "Mindestens eine Weiterleitungs-URI ist erforderlich", "regenerateSecret": "Secret neu generieren", "clientSecret": "Client-Secret", "copySecret": "Secret kopieren"
+  },
+  "workspace": {
+    "name": "Arbeitsbereichsname", "namePlaceholder": "z. B. Entwicklung", "publisherHandle": "Publisher-Handle", "handlePlaceholder": "arbeitsbereich-handle", "deleteWorkspace": "Arbeitsbereich löschen", "deleteWorkspaceQuestion": "Arbeitsbereich löschen?", "personalCannotDelete": "Der persönliche Arbeitsbereich kann nicht gelöscht werden.", "confirmation": "Bestätigung", "typeDeleteWorkspace": "Geben Sie \"DELETE WORKSPACE\" zur Bestätigung ein"
+  },
+  "byok": {
+    "monthlyUsage": "Monatliche BYOK-Nutzung", "usedRequests": "Verwendete Anfragen", "freeRemaining": "Verbleibendes kostenloses Kontingent", "paidTierRequests": "Anfragen der kostenpflichtigen Stufe", "providerKeys": "Anbieterschlüssel", "providerKeysDescription": "Diese Zugangsdaten werden nur verwendet, wenn die verwaltete Route die Anfrage nicht abschließen kann."
+  },
+  "enterpriseIdentity": {
+    "enterprise": "Enterprise", "active": "Aktiv", "preview": "Vorschau", "activeDescription": "Identität, Provisionierung und Enterprise-Abrechnung verwalten.", "previewDescription": "SSO, SCIM, Verzeichnisrollen und Governance zu diesem Arbeitsbereich hinzufügen.", "readOnlyDescription": "Erkunden Sie die Einrichtung vor dem Abonnement. Die Steuerelemente sind schreibgeschützt.", "manageEnterprise": "Enterprise verwalten", "configure": "Enterprise konfigurieren", "subscription": "Abonnement", "plan": "Plan", "selfServePlan": "Self-Service-Enterprise", "membersIncluded": "Enthaltene Mitglieder", "creditTopUpFee": "Gebühr für Guthabenaufladung", "includedAllowance": "Inklusives Kontingent", "renewal": "Verlängerung", "administration": "Verwaltung", "viewDirectory": "Verzeichnis anzeigen", "manageDepartments": "Abteilungen verwalten", "manageSubscription": "Abonnement verwalten", "singleSignOn": "Single Sign-on", "singleSignOnDetail": "SAML für Ihren Identitätsanbieter", "provisioning": "Provisionierung", "provisioningDetail": "SCIM-Benutzer, Gruppen und Massensynchronisierung", "directoryDetail": "Abteilungen, Rollen und Verantwortliche", "includedWorkspace": "Für diesen Arbeitsbereich enthalten", "subscriptionActive": "Abonnement aktiv"
+  },
+  "directory": {
+    "follow": "Verzeichnis übernehmen", "accessRole": "Zugriffsrolle", "department": "Abteilung", "noDepartment": "Keine Abteilung", "createDepartment": "Abteilung erstellen", "createDepartmentTitle": "Abteilung erstellen", "createDepartmentDescription": "Eine manuell verwaltete Abteilung hinzufügen. SCIM-bereitgestellte Abteilungen erscheinen automatisch.", "name": "Name", "departmentCreated": "Abteilung erstellt", "departmentCreateFailed": "Abteilung konnte nicht erstellt werden", "manualMappingNote": "Das Umbenennen oder Gestalten einer Abteilung entfernt ihre SCIM-Gruppenzuordnung nicht.", "member": "Mitglied", "access": "Zugriff", "directoryOverrideNote": "Eine manuelle Auswahl überschreibt den effektiven Wert, während die letzte Verzeichniszuweisung erhalten bleibt.", "icon": { "users": "Personen", "briefcase": "Aktenkoffer", "megaphone": "Megafon", "code": "Code", "palette": "Palette", "headphones": "Kopfhörer", "landmark": "Finanzen", "scale": "Recht", "heart-pulse": "Gesundheitswesen", "globe": "Global", "flask": "Forschung", "graduation-cap": "Bildung", "shield-check": "Sicherheit", "shopping-bag": "Vertrieb", "wrench": "IT und Betrieb", "truck": "Logistik", "handshake": "Partnerschaften", "chart": "Analysen" }
+  },
+  "scim": {
+    "settingsUnavailable": "SCIM-Einstellungen sind nicht verfügbar", "enabled": "SCIM-Provisionierung aktiviert", "disabled": "SCIM-Provisionierung deaktiviert", "updateFailed": "SCIM konnte nicht aktualisiert werden", "tokenCreated": "SCIM-Token erstellt", "tokenCreateFailed": "SCIM-Token konnte nicht erstellt werden", "tokenRevoked": "SCIM-Token widerrufen", "tokenRevokeFailed": "SCIM-Token konnte nicht widerrufen werden", "baseUrl": "Basis-URL", "enableProvisioning": "Provisionierung aktivieren", "usersGroups": "{users} Benutzer · {groups} Gruppen", "copyNow": "Token jetzt kopieren", "notShownAgain": "Er wird nicht erneut angezeigt.", "tokenLabel": "SCIM-Token-Bezeichnung", "createToken": "Token erstellen", "activeTokensEmpty": "Keine aktiven Provisionierungs-Token", "ready": "Bereit für SCIM-Anfragen"
+  },
+  "saml": {
+    "metadataUrl": "Phaseo-Metadaten-URL", "enabled": "Aktiviert", "ready": "Bereit", "notConfigured": "Nicht konfiguriert", "copyMetadata": "SAML-Metadaten-URL kopieren", "metadataHelp": "Fügen Sie diese Dienstanbieter-Metadaten-URL zu Ihrem Identitätsanbieter hinzu.", "verifiedDomains": "Verifizierte Domains", "domainsPlaceholder": "beispiel.de, beispiel.org", "domainsHelp": "Kommagetrennte Domains, mit denen diese Verbindung bei der Anmeldung erkannt wird.", "providerId": "Supabase-SSO-Anbieter-ID", "providerIdHelp": "Die Anbieterkennung, die beim Erstellen der SAML-Verbindung zurückgegeben wird.", "enableSignIn": "SAML-Anmeldung aktivieren", "enableHelp": "Eine Anbieter-ID und mindestens eine verifizierte Domain sind erforderlich.", "availableRollout": "Während des Rollouts für jeden Arbeitsbereich verfügbar.", "save": "SAML-Einstellungen speichern", "urlCopied": "Metadaten-URL kopiert", "saved": "SAML-Einstellungen gespeichert", "saveFailed": "SAML-Einstellungen konnten nicht gespeichert werden", "unavailable": "In dieser Umgebung nicht verfügbar"
+  },
+  "routingStudioLegacy": {"start": "Start", "startDescription": "Eingehende Anfrage", "condition": "Wenn / sonst", "conditionDescription": "Body, Header oder Metadaten", "percentage": "Datenverkehr aufteilen", "percentageDescription": "A/B- oder schrittweiser Rollout", "model": "Modell aufrufen", "modelDescription": "Modell- und Anbieterregeln", "rateLimit": "Ratenlimit", "rateLimitDescription": "Anfragen pro Schlüssel und Zeitraum", "budgetLimit": "Budgetlimit", "budgetLimitDescription": "Ausgaben pro Schlüssel und Zeitraum", "end": "Ende", "endDescription": "Modellantwort zurückgeben", "requestReceived": "Anfrage empfangen", "checkRequestValue": "Anfragewert prüfen", "splitTraffic": "Datenverkehr aufteilen", "primary": "Primär", "experiment": "Experiment", "callModel": "Modell aufrufen", "limitRequests": "Anfragen begrenzen", "limitSpend": "Ausgaben begrenzen", "returnResponse": "Antwort zurückgeben", "chooseModel": "Modell auswählen", "earlierModels": "Ältere Modelle", "true": "Wahr", "false": "Falsch", "withinLimit": "Innerhalb des Limits", "exceeded": "Überschritten", "label": "Bezeichnung", "readFrom": "Lesen aus", "customMetadata": "Benutzerdefinierte Metadaten", "requestBody": "Anfrage-Body", "requestHeader": "Anfrage-Header", "endpoint": "Endpunkt", "requestedModel": "Angefordertes Modell", "sessionId": "Sitzungs-ID", "headerName": "Headername", "fieldPath": "Feldpfad", "operator": "Operator", "equals": "Ist gleich", "doesNotEqual": "Ist nicht gleich", "contains": "Enthält", "startsWith": "Beginnt mit", "exists": "Ist vorhanden", "greaterThan": "Größer als", "lessThan": "Kleiner als", "isOneOf": "Ist eines von", "value": "Wert", "trafficAllocation": "Datenverkehrsverteilung", "allocationsTotal": "Die Verteilungen müssen insgesamt 100 % ergeben.", "primaryModel": "Primäres Modell", "routingStrategy": "Routing-Strategie", "balanced": "Ausgewogen", "lowestLatency": "Niedrigste Latenz", "lowestPrice": "Niedrigster Preis", "highestThroughput": "Höchster Durchsatz", "preferredProvider": "Bevorzugter Anbieter", "anyProvider": "Beliebiger geeigneter Anbieter", "providerFallbacks": "Anbieter-Fallbacks", "providerFallbacksDescription": "Einen anderen geeigneten Anbieter für dieses Modell versuchen.", "modelFallbacks": "Modell-Fallbacks", "modelFallbacksDescription": "In dieser Reihenfolge versuchen, wenn das primäre Modell die Anfrage nicht abschließen kann.", "compatibleCapability": "Kompatible Fähigkeit: {capabilities}", "fallbackModel": "Fallback-Modell {index}", "removeFallbackModel": "Fallback-Modell {index} entfernen", "addFallbackModel": "Fallback-Modell hinzufügen", "window": "Zeitraum", "perDay": "Pro Tag", "perWeek": "Pro Woche", "perMonth": "Pro Monat", "maximumRequests": "Maximale Anfragen", "maximumSpend": "Maximale Ausgaben (USD)", "selectNode": "Wählen Sie einen Knoten zur Konfiguration aus.", "dragHint": "Auf die Fläche ziehen oder anklicken, um ihn anzuhängen", "addStep": "Schritt hinzufügen", "canvasHint": "Ziehen Sie einen Schritt auf die Fläche und verbinden Sie anschließend die Anschlüsse. Mit einem Klick wird er am ausgewählten Zweig angehängt.", "dragToPan": "Zum Verschieben ziehen", "zoomHint": "Scrollen zum Zoomen · Knotenanschlüsse verbinden", "closeInspector": "Inspektor schließen", "openInspector": "Inspektor öffnen", "editingRoute": "Route wird bearbeitet", "noDescription": "Keine Routenbeschreibung", "apiKeys": "{count} API-Schlüssel{suffix}", "version": "Version {version}", "deployed": "bereitgestellt", "draft": "Entwurf", "newRoute": "Neue Route", "save": "Speichern", "saveVersion": "Version speichern", "routeSections": "Routenbereiche", "flow": "Ablauf", "versions": "Versionen", "configuration": "Konfiguration", "versionHistory": "Versionsverlauf", "versionHistoryDescription": "Jedes Speichern erstellt einen unveränderlichen Entwurf. Stellen Sie ihn bereit oder setzen Sie ihn zurück, ohne den Ablauf neu aufzubauen.", "deployVersion": "v{version} bereitstellen", "deploy": "Bereitstellen", "live": "Live", "routeDetails": "Routendetails", "routeDetailsDescription": "Name, Lebenszyklus und Anfragebindung.", "name": "Name", "description": "Beschreibung", "cacheAwareRouting": "Cache-bewusstes Routing", "cacheAwareRoutingDescription": "Cache-erzeugende Anfragen 15 Minuten bei einem Anbieter halten.", "sessionAffinity": "Sitzungsbindung", "sessionAffinityDescription": "Anbieterbindung für gecachte Sitzungen beibehalten.", "attachApiKeys": "API-Schlüssel zuweisen", "attachApiKeysDescription": "Mit diesen Schlüsseln authentifizierte Anfragen verwenden diese Route.", "deleteRoute": "Route löschen", "createFirstTitle": "Erstellen Sie Ihre erste dynamische Route", "createFirstDescription": "Nach Anfragekontext verzweigen, Datenverkehr aufteilen und das passende Modell aufrufen.", "titleNewRoute": "Unbenannte Route {number}", "draftCreated": "Routenentwurf erstellt", "draftSaved": "Entwurfsversion gespeichert", "routeDeleted": "Route gelöscht", "versionDeployed": "Version {version} bereitgestellt", "versionDeployedLocally": "Version {version} lokal bereitgestellt", "couldNotCreate": "Route konnte nicht erstellt werden", "couldNotSave": "Route konnte nicht gespeichert werden", "couldNotDelete": "Route konnte nicht gelöscht werden", "couldNotDeploy": "Route konnte nicht bereitgestellt werden", "searchModels": "Modelle, Anbieter oder IDs suchen …", "loadingModels": "Gateway-Modelle werden geladen …", "modelCatalogueError": "Modellkatalog konnte nicht geladen werden.", "noCompatibleModels": "Keine kompatiblen Modelle gefunden.", "unconnected": "Nicht verbunden"
+ },
+  "routingStudio": {"start":"Start","startDescription":"Eingehende Anfrage","condition":"Wenn / sonst","conditionDescription":"Body, Header oder Metadaten","percentage":"Datenverkehr aufteilen","percentageDescription":"A/B- oder schrittweiser Rollout","model":"Modell aufrufen","modelDescription":"Modell- und Anbieterregeln","rateLimit":"Ratenlimit","rateLimitDescription":"Anfragen pro Schlüssel und Zeitraum","budgetLimit":"Budgetlimit","budgetLimitDescription":"Ausgaben pro Schlüssel und Zeitraum","end":"Ende","endDescription":"Modellantwort zurückgeben","requestReceived":"Anfrage empfangen","checkRequestValue":"Anfragewert prüfen","splitTraffic":"Datenverkehr aufteilen","primary":"Primär","experiment":"Experiment","callModel":"Modell aufrufen","limitRequests":"Anfragen begrenzen","limitSpend":"Ausgaben begrenzen","returnResponse":"Antwort zurückgeben","chooseModel":"Modell auswählen","earlierModels":"Ältere Modelle","true":"Wahr","false":"Falsch","withinLimit":"Innerhalb des Limits","exceeded":"Überschritten","label":"Bezeichnung","readFrom":"Lesen aus","customMetadata":"Benutzerdefinierte Metadaten","requestBody":"Anfrage-Body","requestHeader":"Anfrage-Header","endpoint":"Endpunkt","requestedModel":"Angefordertes Modell","sessionId":"Sitzungs-ID","headerName":"Headername","fieldPath":"Feldpfad","operator":"Operator","equals":"Ist gleich","doesNotEqual":"Ist nicht gleich","contains":"Enthält","startsWith":"Beginnt mit","exists":"Ist vorhanden","greaterThan":"Größer als","lessThan":"Kleiner als","isOneOf":"Ist eines von","value":"Wert","trafficAllocation":"Datenverkehrsverteilung","allocationsTotal":"Die Verteilungen müssen insgesamt 100 % ergeben.","primaryModel":"Primäres Modell","routingStrategy":"Routing-Strategie","balanced":"Ausgewogen","lowestLatency":"Niedrigste Latenz","lowestPrice":"Niedrigster Preis","highestThroughput":"Höchster Durchsatz","preferredProvider":"Bevorzugter Anbieter","anyProvider":"Beliebiger geeigneter Anbieter","providerFallbacks":"Anbieter-Fallbacks","providerFallbacksDescription":"Einen anderen geeigneten Anbieter für dieses Modell versuchen.","modelFallbacks":"Modell-Fallbacks","modelFallbacksDescription":"In dieser Reihenfolge versuchen, wenn das primäre Modell die Anfrage nicht abschließen kann.","compatibleCapability":"Kompatible Fähigkeit: {capabilities}","fallbackModel":"Fallback-Modell {index}","removeFallbackModel":"Fallback-Modell {index} entfernen","addFallbackModel":"Fallback-Modell hinzufügen","window":"Zeitraum","perDay":"Pro Tag","perWeek":"Pro Woche","perMonth":"Pro Monat","maximumRequests":"Maximale Anfragen","maximumSpend":"Maximale Ausgaben (USD)","selectNode":"Wählen Sie einen Knoten zur Konfiguration aus.","dragHint":"Auf die Fläche ziehen oder anklicken, um ihn anzuhängen","addStep":"Schritt hinzufügen","canvasHint":"Ziehen Sie einen Schritt auf die Fläche und verbinden Sie anschließend die Anschlüsse. Mit einem Klick wird er am ausgewählten Zweig angehängt.","dragToPan":"Zum Verschieben ziehen","zoomHint":"Scrollen zum Zoomen · Knotenanschlüsse verbinden","closeInspector":"Inspektor schließen","openInspector":"Inspektor öffnen","editingRoute":"Route wird bearbeitet","noDescription":"Keine Routenbeschreibung","apiKeys":"{count} API-Schlüssel{suffix}","version":"Version {version}","deployed":"bereitgestellt","draft":"Entwurf","newRoute":"Neue Route","save":"Speichern","saveVersion":"Version speichern","routeSections":"Routenbereiche","flow":"Ablauf","versions":"Versionen","configuration":"Konfiguration","versionHistory":"Versionsverlauf","versionHistoryDescription":"Jedes Speichern erstellt einen unveränderlichen Entwurf. Stellen Sie ihn bereit oder setzen Sie ihn zurück, ohne den Ablauf neu aufzubauen.","deployVersion":"v{version} bereitstellen","deploy":"Bereitstellen","live":"Live","routeDetails":"Routendetails","routeDetailsDescription":"Name, Lebenszyklus und Anfragebindung.","name":"Name","description":"Beschreibung","cacheAwareRouting":"Cache-bewusstes Routing","cacheAwareRoutingDescription":"Cache-erzeugende Anfragen 15 Minuten bei einem Anbieter halten.","sessionAffinity":"Sitzungsbindung","sessionAffinityDescription":"Anbieterbindung für gecachte Sitzungen beibehalten.","attachApiKeys":"API-Schlüssel zuweisen","attachApiKeysDescription":"Mit diesen Schlüsseln authentifizierte Anfragen verwenden diese Route.","deleteRoute":"Route löschen","createFirstTitle":"Erstellen Sie Ihre erste dynamische Route","createFirstDescription":"Nach Anfragekontext verzweigen, Datenverkehr aufteilen und das passende Modell aufrufen.","titleNewRoute":"Unbenannte Route {number}","draftCreated":"Routenentwurf erstellt","draftSaved":"Entwurfsversion gespeichert","routeDeleted":"Route gelöscht","versionDeployed":"Version {version} bereitgestellt","versionDeployedLocally":"Version {version} lokal bereitgestellt","couldNotCreate":"Route konnte nicht erstellt werden","couldNotSave":"Route konnte nicht gespeichert werden","couldNotDelete":"Route konnte nicht gelöscht werden","couldNotDeploy":"Route konnte nicht bereitgestellt werden","searchModels":"Modelle, Anbieter oder IDs suchen …","loadingModels":"Gateway-Modelle werden geladen …","modelCatalogueError":"Modellkatalog konnte nicht geladen werden.","noCompatibleModels":"Keine kompatiblen Modelle gefunden.","unconnected":"Nicht verbunden","deleteNode":"Knoten löschen","triggerBranch":"Diesen Zweig auslösen","copyRequestExample":"Beispielanfrage kopieren","limitBranchHelp":"Verwenden Sie die Ausgabe innerhalb des Limits für normalen Datenverkehr und überschritten für Fallback oder Ablehnung."},
+ "byokControls": {
+   "neverUsed": "Nie verwendet", "lastUsed": "Zuletzt verwendet: {date}", "disabled": "Deaktiviert", "needsAttention": "Aufmerksamkeit erforderlich", "sample": "Beispiel", "models": "{count} Modelle", "allModels": "Alle Modelle", "apiKeys": "{count} API-Schlüssel", "allApiKeys": "Alle API-Schlüssel", "dragKey": "{name} zum Neuordnen ziehen", "moveUp": "Schlüssel nach oben", "moveDown": "Schlüssel nach unten", "collapseKey": "Schlüssel einklappen", "expandKey": "Schlüssel ausklappen", "testKey": "Diesen Schlüssel testen", "testKeyDescription": "Ein von diesem Schlüssel abgedecktes Modell im Chat öffnen.", "test": "Testen", "sampleReadOnly": "Beispielschlüssel sind schreibgeschützt. Fügen Sie einen echten Schlüssel hinzu, um seine Einstellungen und Routing-Bereiche zu verwalten.", "prioritized": "Priorisiert", "fallback": "Fallback", "prioritizedDescription": "Phaseo versucht diese Zugangsdaten von oben nach unten zuerst.", "fallbackDescription": "Diese Zugangsdaten greifen nur, wenn die verwaltete Route die Anfrage nicht abschließen kann.", "keyLimitReached": "Schlüssellimit erreicht", "addKey": "Schlüssel hinzufügen", "noKeys": "Keine {mode}-Schlüssel", "dropOrAdd": "Legen Sie hier einen Schlüssel ab oder fügen Sie neue Zugangsdaten hinzu.", "newKey": "Neu", "key": "{mode}-Schlüssel", "failedReorder": "Schlüssel konnte nicht neu geordnet werden"
+  },
+  "guardrailsControls": { "all": "Alle", "search": "Suchen …", "select": "Auswählen", "selected": "Ausgewählt", "noMatches": "Keine Treffer.", "allowAll": "Alle zulassen", "noRestrictions": "Keine Einschränkungen", "allowlist": "Zulassungsliste", "blocklist": "Sperrliste", "untitled": "Unbenannt", "noDescription": "Keine Beschreibung.", "zdr": "ZDR", "members": "Mitglieder", "keys": "Schlüssel", "models": "Modelle", "providers": "Anbieter", "promptInjection": "Prompt-Injection: {action}", "sensitiveInfo": "Sensible Informationen: {count} Regeln", "allowed": "{count} zugelassen", "blocked": "{count} blockiert", "rules": "Regeln", "flag": "Markieren", "redact": "Schwärzen", "block": "Blockieren" },
+  "broadcastControls": { "optional": "(optional)", "noMatchingOptions": "Keine passenden Optionen.", "selectedKeys": "{count} Schlüssel ausgewählt", "selectApiKeys": "API-Schlüssel auswählen", "searchApiKeys": "API-Schlüssel suchen …", "noApiKeys": "Keine API-Schlüssel gefunden.", "selectedOpposite": "Im anderen Bereich ausgewählt", "remove": "{label} entfernen", "destinationSaved": "Ziel gespeichert", "failedSave": "Ziel konnte nicht gespeichert werden", "connected": "Verbunden", "connectionCheckFailed": "Verbindungstest fehlgeschlagen", "destinationName": "Name des Ziels", "save": "Ziel speichern", "saving": "Wird gespeichert …", "test": "Verbindung testen", "testing": "Wird getestet …", "saveBeforeSample": "Speichern Sie das Ziel, bevor Sie einen Beispiel-Trace senden.", "selectMethod": "Methode auswählen", "privacyMode": "Datenschutzmodus", "rate": "Rate", "samplingRateError": "Die Sampling-Rate muss zwischen 0 und 1 liegen.", "noKeysWorkspace": "Keine API-Schlüssel für diesen Arbeitsbereich gefunden.", "betweenGroups": "Zwischen Gruppen", "allGroups": "Alle Gruppen (UND)", "anyGroup": "Beliebige Gruppe (ODER)", "allRules": "Alle Regeln müssen zutreffen (UND)", "anyRule": "Beliebige Regel kann zutreffen (ODER)", "selectField": "Feld auswählen", "searchFields": "Felder suchen …", "selectValue": "Wert auswählen", "searchProviders": "Anbieter suchen …", "searchModels": "Modelle suchen …", "value": "Wert", "and": "UND", "or": "ODER", "generationMetadata": "Generierungsmetadaten", "generationMetadataDescription": "Modell, Anbieter, Routing-Ergebnis, Token-Nutzung und Generierungsdauer.", "cost": "Kosten", "costDescription": "Berechnete Anfragekosten und Abrechnungswährung.", "identity": "Identität", "identityDescription": "Anwendung, API-Schlüssel, Benutzerherkunft und Anfrageidentitätsfelder.", "requestContext": "Anfragekontext", "requestContextDescription": "Korrelation, Endpunkt, Modell, Routing und Anfragekontext.", "connection": "Verbindung", "additionalMetadata": "Zusätzliche Metadaten", "metadataDescription": "Wählen Sie den strukturierten Kontext aus, der jeden Trace begleitet.", "privacy": "Datenschutz", "privacyDescription": "Steuern Sie, welche Daten an dieses Ziel gesendet werden.", "excludeSensitive": "Wenn aktiviert, werden Prompt- und Abschlussdaten aus Traces ausgeschlossen.", "sampling": "Sampling", "samplingDescription": "Legen Sie die Wahrscheinlichkeit fest, mit der ein geeigneter Trace an dieses Ziel gesendet wird.", "apiKeyFilter": "API-Schlüsselfilter", "apiKeyFilterDescription": "Traces optional nach API-Schlüssel filtern.", "filterRules": "Filterregeln", "filterRulesDescription": "Nur Traces, die diesen Regelgruppen entsprechen, werden gesendet.", "noRuleGroups": "Noch keine Regelgruppen. Fügen Sie eine Regelgruppe hinzu, um Traces zu filtern.", "ruleGroup": "Regelgruppe {index}", "noValueRequired": "Kein Wert erforderlich", "addRule": "Regel hinzufügen", "addRuleGroup": "Regelgruppe hinzufügen", "sendSample": "Beispiel-Trace senden", "model": "Modell", "provider": "Anbieter", "sessionId": "Sitzungs-ID", "userId": "Benutzer-ID", "apiKeyName": "API-Schlüsselname", "finishReason": "Abschlussgrund", "input": "Eingabe", "output": "Ausgabe", "tokenCost": "Tokenkosten", "totalCost": "Gesamtkosten", "totalTokens": "Gesamte Tokens", "promptTokens": "Prompt-Tokens", "completionTokens": "Abschluss-Tokens", "doesNotEqual": "Ist nicht gleich", "doesNotContain": "Enthält nicht", "startsWith": "Beginnt mit", "doesNotExist": "Ist nicht vorhanden", "matchesRegex": "Entspricht regulärem Ausdruck" },
+  "oauthDetail": { "never": "Nie", "active": "Aktiv", "suspended": "Pausiert", "deleted": "Gelöscht", "unknown": "Unbekannt", "saving": "Wird gespeichert …", "saveScopes": "Bereiche speichern", "unknownUser": "Unbekannter Benutzer", "unknownWorkspace": "Unbekannter Arbeitsbereich", "neverUsed": "Nie verwendet", "user": "Benutzer", "requests": "Anfragen", "success": "Erfolgreich", "errors": "Fehler", "spend": "Ausgaben", "lastUsed": "Zuletzt verwendet", "noLogs": "Noch keine Anfrageprotokolle", "time": "Zeit", "endpoint": "Endpunkt", "model": "Modell", "provider": "Anbieter", "status": "Status", "cost": "Kosten", "latency": "Latenz", "errorStatus": "FEHLER", "deleteApp": "OAuth-App löschen", "clientIdCopied": "Client-ID in die Zwischenablage kopiert", "scopesUpdated": "OAuth-Bereiche aktualisiert", "scopesUpdateFailed": "OAuth-Bereiche konnten nicht aktualisiert werden" },
+  "oauthDetailCopy": {
+    "credentials": "Zugangsdaten",
+    "credentialsDescription": "Verwenden Sie diese Zugangsdaten, um Ihren OAuth-Client zu verbinden.",
+    "secretWarning": "Bewahren Sie das Client-Geheimnis sicher auf. Es wird nur bei der Erstellung angezeigt.",
+    "hiddenSecret": "Das Client-Geheimnis wird aus Sicherheitsgründen ausgeblendet.",
+    "authorizedCallbacks": "Autorisierte Callback-URLs",
+    "scopesDescription": "Wählen Sie die Berechtigungen aus, die diese Anwendung anfordern darf.",
+    "scopeWarning": "Geänderte Berechtigungen können eine erneute Autorisierung durch Benutzer erfordern.",
+    "authorizedUsers": "Autorisierte Benutzer",
+    "noAuthorizations": "Keine autorisierten Benutzer",
+    "authorizationEmpty": "Benutzer, die diese Anwendung autorisieren, werden hier angezeigt.",
+    "activityDescription": "Letzte Autorisierungs- und Nutzungsaktivitäten.",
+    "noActivity": "Noch keine Aktivität",
+    "activityEmpty": "Aktivitäten werden angezeigt, nachdem die Anwendung verwendet wurde.",
+    "you": "Sie",
+    "requestLogs": "Anfrageprotokolle",
+    "latestRequests": "Letzte Anfragen über diese OAuth-Anwendung.",
+    "logsEmpty": "Noch keine Anfrageprotokolle",
+    "logsEmptyDescription": "Anfragen werden hier angezeigt, sobald die Anwendung Phaseo verwendet.",
+    "deleteDescription": "Löschen Sie diese OAuth-Anwendung dauerhaft und widerrufen Sie ihre Zugangsdaten.",
+    "validRedirect": "Geben Sie eine gültige Weiterleitungs-URI ein.",
+    "duplicateRedirect": "Diese Weiterleitungs-URI ist bereits konfiguriert.",
+    "redirectAdded": "Weiterleitungs-URI hinzugefügt",
+    "oneRedirect": "Mindestens eine Weiterleitungs-URI ist erforderlich.",
+    "redirectRemoved": "Weiterleitungs-URI entfernt",
+    "add": "Hinzufügen",
+    "noRedirects": "Keine Weiterleitungs-URIs",
+    "redirectEmpty": "Fügen Sie die Callback-URLs hinzu, die Ihr OAuth-Client verwenden darf.",
+    "redirectHelp": "Weiterleitungs-URIs müssen einschließlich Schema, Host, Pfad und Port exakt übereinstimmen."
+  },
+  "strings": {
+    "Usage Dashboard": "Nutzungs-Dashboard",
+    "Last 1 Hour": "Letzte 1 Stunde",
+    "Last 1 Day": "Letzter Tag",
+    "Last 1 Week": "Letzte Woche",
+    "Last 1 Month": "Letzter Monat",
+    "Last 1 Year": "Letztes Jahr",
+    "By model": "Nach Modell",
+    "By API key": "Nach API-Schlüssel",
+    "By Key": "Nach Schlüssel",
+    "By Model": "Nach Modell",
+    "Breakdown view": "Aufschlüsselungsansicht",
+    "All keys": "Alle Schlüssel",
+    "No API keys available": "Keine API-Schlüssel verfügbar",
+    "Range": "Zeitraum",
+    "Refresh": "Aktualisieren",
+    "Refresh Successful": "Aktualisierung erfolgreich",
+    "Refresh Failed": "Aktualisierung fehlgeschlagen",
+    "Export": "Exportieren",
+    "Clear filters": "Filter löschen",
+    "Model filter": "Modellfilter",
+    "Model (all)": "Modell (alle)",
+    "Provider filter": "Anbieterfilter",
+    "Provider (all)": "Anbieter (alle)",
+    "API key filter": "API-Schlüsselfilter",
+    "Key (all)": "Schlüssel (alle)",
+    "Status filter": "Statusfilter",
+    "Webhook endpoint created": "Webhook-Endpunkt erstellt",
+    "Signing secret rotated": "Signaturgeheimnis rotiert",
+    "Webhook endpoint updated": "Webhook-Endpunkt aktualisiert",
+    "Failed to create webhook": "Webhook konnte nicht erstellt werden",
+    "Name": "Name",
+    "Could not open the Stripe portal": "Stripe-Portal konnte nicht geöffnet werden",
+    "Please try again.": "Bitte versuchen Sie es erneut.",
+    "Failed to refresh": "Aktualisierung fehlgeschlagen",
+    "Default payment method updated": "Standardzahlungsmethode aktualisiert",
+    "Payment method removed": "Zahlungsmethode entfernt",
+    "Unable to add card": "Karte konnte nicht hinzugefügt werden",
+    "Update failed": "Aktualisierung fehlgeschlagen",
+    "Removal failed": "Entfernen fehlgeschlagen",
+    "Copy job id": "Auftrags-ID kopieren",
+    "Copy request id": "Anfrage-ID kopieren",
+    "Copy session id": "Sitzungs-ID kopieren",
+    "Copy app id": "App-ID kopieren",
+    "Copy generation id": "Generierungs-ID kopieren",
+    "Copy content url": "Inhalts-URL kopieren",
+    "Job details": "Auftragsdetails",
+    "Batch settlement": "Batch-Abrechnung",
+    "Create request execution": "Anfrageausführung erstellen",
+    "Job failure diagnostics": "Diagnose fehlgeschlagener Auftrag",
+    "Artifacts and actions": "Artefakte und Aktionen",
+    "Webhook configuration": "Webhook-Konfiguration",
+    "Webhook summary": "Webhook-Zusammenfassung",
+    "Webhook attempts": "Webhook-Versuche",
+    "Refresh jobs": "Aufträge aktualisieren",
+    "Request ID": "Anfrage-ID",
+    "Please enter a request ID": "Geben Sie eine Anfrage-ID ein",
+    "Failed to fetch request": "Anfrage konnte nicht abgerufen werden",
+    "Failed to load generation": "Generierung konnte nicht geladen werden",
+    "All requests": "Alle Anfragen",
+    "Successful only": "Nur erfolgreiche",
+    "Errors only": "Nur Fehler",
+    "Other": "Andere",
+    "All models": "Alle Modelle",
+    "All providers": "Alle Anbieter",
+    "Status": "Status",
+    "copied": "kopiert",
+    "Unable to copy": "Kopieren nicht möglich:",
+    "Webhook name": "Webhook-Name",
+    "Webhook URL": "Webhook-URL",
+    "Signing secret": "Signaturgeheimnis",
+    "Copy": "Kopieren",
+    "Updated": "Aktualisiert",
+    "Rotate signing secret": "Signaturgeheimnis rotieren",
+    "Endpoint ID": "Endpunkt-ID",
+    "Copy endpoint ID": "Endpunkt-ID kopieren",
+    "Disable": "Deaktivieren",
+    "Enable": "Aktivieren",
+    "No webhook endpoints configured.": "Keine Webhook-Endpunkte konfiguriert.",
+    "Failed to refresh payment methods": "Zahlungsmethoden konnten nicht aktualisiert werden",
+    "Default payment method updated": "Standardzahlungsmethode aktualisiert",
+    "Payment method removed": "Zahlungsmethode entfernt",
+    "Removal failed": "Entfernen fehlgeschlagen",
+    "Add Card": "Karte hinzufügen",
+    "No cards yet. Add one to use it for credits and auto top-ups.": "Noch keine Karten. Fügen Sie eine hinzu, um sie für Guthaben und automatische Aufladungen zu verwenden.",
+    "Added": "Hinzugefügt",
+    "Set default": "Als Standard festlegen",
+    "Cards are stored securely by Stripe. Use Customer Portal for billing details and other advanced changes.": "Karten werden sicher von Stripe gespeichert. Verwenden Sie das Kundenportal für Abrechnungsdetails und weitere erweiterte Änderungen.",
+    "ending": "endet auf",
+    "unknown": "unbekannt",
+    "This payment method will no longer be available for credits and auto top-ups.": "Diese Zahlungsmethode steht für Guthaben und automatische Aufladungen nicht mehr zur Verfügung.",
+    "will no longer be available for credits and auto top-ups.": "steht für Guthaben und automatische Aufladungen nicht mehr zur Verfügung.",
+    "Removing...": "Wird entfernt …",
+    "Opening portal…": "Portal wird geöffnet …",
+    "Export as CSV": "Als CSV exportieren",
+    "Export as PDF": "Als PDF exportieren",
+    "Please enter a request ID": "Geben Sie eine Anfrage-ID ein",
+    "Investigate": "Untersuchen",
+    "Investigate generation": "Generierung untersuchen",
+    "Enter a request ID to inspect its generation details.": "Geben Sie eine Anfrage-ID ein, um die Details ihrer Generierung zu prüfen.",
+    "Loading...": "Wird geladen …",
+    "Lookup": "Nachschlagen",
+    "Breakdown for": "Aufschlüsselung für",
+    "Export CSV": "CSV exportieren",
+    "Export PDF": "PDF exportieren",
+    "Model": "Modell",
+    "Requests": "Anfragen",
+    "Tokens": "Token",
+    "Cost": "Kosten",
+    "Total": "Gesamt",
+    "Time": "Zeit",
+    "Share": "Anteil",
+    "Spend": "Ausgaben",
+    "Average latency": "Durchschnittliche Latenz",
+    "Country": "Land",
+    "requests": "Anfragen",
+    "tokens": "Token",
+    "No geographic usage yet": "Noch keine geografische Nutzung",
+    "Countries will appear after requests in the selected period include geographic metadata.": "Länder werden angezeigt, sobald Anfragen im ausgewählten Zeitraum geografische Metadaten enthalten.",
+    "Country usage will appear after gateway requests include sufficient geographic metadata.": "Die Ländernutzung wird angezeigt, sobald Gateway-Anfragen ausreichende geografische Metadaten enthalten.",
+    "Top Model": "Top-Modell",
+    "Top Provider": "Top-Anbieter",
+    "Most Expensive": "Am teuersten",
+    "Fastest Model": "Schnellstes Modell",
+    "No data": "Keine Daten",
+    "vs. direct provider pricing": "gegenüber direkter Anbieterpreisgestaltung",
+    "days": "Tage",
+    "Insights & Trends": "Einblicke & Trends",
+    "Top Models by Spend": "Top-Modelle nach Ausgaben",
+    "No data available": "Keine Daten verfügbar",
+    "total spend": "Gesamtausgaben",
+    "Top Models": "Top-Modelle",
+    "Unlimited": "Unbegrenzt",
+    "Key name is required.": "Schlüsselname ist erforderlich.",
+    "Saving key...": "Schlüssel wird gespeichert …",
+    "Key updated": "Schlüssel aktualisiert",
+    "Failed to update key": "Schlüssel konnte nicht aktualisiert werden",
+    "Edit API Key": "API-Schlüssel bearbeiten",
+    "Manage the key name, availability, and usage limits.": "Schlüsselname, Verfügbarkeit und Nutzungslimits verwalten.",
+    "General": "Allgemein",
+    "Key Name": "Schlüsselname",
+    "Disabled keys cannot make gateway requests.": "Deaktivierte Schlüssel können keine Gateway-Anfragen stellen.",
+    "Key enabled": "Schlüssel aktiviert",
+    "Limits": "Limits",
+    "Leave a field blank for unlimited.": "Feld für unbegrenzte Nutzung leer lassen.",
+    "Saving...": "Wird gespeichert …",
+    "Save Changes": "Änderungen speichern",
+    "Create Key": "Schlüssel erstellen",
+    "Create a new API key for a workspace.": "Neuen API-Schlüssel für einen Arbeitsbereich erstellen.",
+    "The key will be shown only once - copy it and store it somewhere safe.": "Der Schlüssel wird nur einmal angezeigt – kopieren Sie ihn und bewahren Sie ihn sicher auf.",
+    "Personal": "Persönlich",
+    "Preset": "Voreinstellung",
+    "This key will not be shown again and gives anyone access to your credits for your workspace. Keep this code secret at all times.": "Dieser Schlüssel wird nicht erneut angezeigt und gewährt Zugriff auf das Guthaben Ihres Arbeitsbereichs. Bewahren Sie diesen Code stets geheim auf.",
+    "Could not copy to clipboard": "Kopieren in die Zwischenablage nicht möglich",
+    "Copied": "Kopiert",
+    "The key could not be verified right now.": "Der Schlüssel konnte derzeit nicht überprüft werden.",
+    "Key works": "Schlüssel funktioniert",
+    "Could not test API key": "API-Schlüssel konnte nicht getestet werden",
+    "Copied key": "Schlüssel kopiert",
+    "Copy key": "Schlüssel kopieren",
+    "Copied .env": ".env kopiert",
+    "Copy .env": ".env kopieren",
+    "Copy config": "Konfiguration kopieren",
+    "Could not copy config": "Konfiguration konnte nicht kopiert werden",
+    "Downloaded": "Heruntergeladen",
+    "collection": "Sammlung",
+    "Testing...": "Wird getestet …",
+    "Test key": "Schlüssel testen",
+    "Exports use placeholders so downloaded collections do not contain the secret.": "Exporte verwenden Platzhalter, damit heruntergeladene Sammlungen das Geheimnis nicht enthalten.",
+    "No usage yet.": "Noch keine Nutzung.",
+    "Change label filter": "Label-Filter ändern",
+    "Filter requests by label": "Anfragen nach Label filtern",
+    "Label": "Label",
+    "Search labels…": "Labels suchen …",
+    "No matching labels.": "Keine passenden Labels.",
+    "No request labels in this time range.": "Keine Anfrage-Labels in diesem Zeitraum.",
+    "Request labels": "Anfrage-Labels",
+    "Clear label filter": "Label-Filter löschen",
+    "Request details unavailable": "Anfragedetails nicht verfügbar",
+    "We couldn't load this request. Try again or return to the request logs.": "Diese Anfrage konnte nicht geladen werden. Versuchen Sie es erneut oder kehren Sie zu den Anfrageprotokollen zurück.",
+    "Back to request logs": "Zurück zu den Anfrageprotokollen",
+    "Open previous request": "Vorherige Anfrage öffnen",
+    "No previous request": "Keine vorherige Anfrage",
+    "Open next request": "Nächste Anfrage öffnen",
+    "No next request": "Keine nächste Anfrage",
+    "Your timezone": "Ihre Zeitzone",
+    "Top Models (by spend)": "Top-Modelle (nach Ausgaben)",
+    "Top API Keys (by spend)": "Top-API-Schlüssel (nach Ausgaben)",
+    "API Key": "API-Schlüssel",
+    "Avg Latency (ms)": "Durchschn. Latenz (ms)",
+    "Observability": "Beobachtbarkeit",
+    "Unable to load observability": "Beobachtbarkeit konnte nicht geladen werden",
+    "Upstream Requests": "Upstream-Anfragen",
+    "Videos": "Videos",
+    "Batches": "Batches",
+    "Jobs": "Aufträge",
+    "Sessions": "Sitzungen",
+    "Inspect gateway requests, routing decisions, usage, and errors.": "Gateway-Anfragen, Routing-Entscheidungen, Nutzung und Fehler prüfen.",
+    "Inspect each provider attempt made while serving gateway requests.": "Jeden Anbieter-Versuch bei der Verarbeitung von Gateway-Anfragen prüfen.",
+    "Inspect asynchronous video generation jobs.": "Asynchrone Videogenerierungsaufträge prüfen.",
+    "Inspect asynchronous batch processing jobs.": "Asynchrone Batch-Verarbeitungsaufträge prüfen.",
+    "Inspect asynchronous video and batch jobs.": "Asynchrone Video- und Batch-Aufträge prüfen.",
+    "Inspect grouped request activity across apps and models.": "Gruppierte Anfrageaktivität über Apps und Modelle hinweg prüfen.",
+    "API key": "API-Schlüssel",
+    "Is": "ist",
+    "Is not": "ist nicht",
+    "Equals": "gleich",
+    "At least": "mindestens",
+    "At most": "höchstens",
+    "Between": "zwischen",
+    "and": "und",
+    "Apply Filter": "Filter anwenden",
+    "No matching options.": "Keine passenden Optionen.",
+    "Search": "Suchen",
+    "Clear": "Löschen",
+    "filter": "Filter",
+    "Add Filter": "Filter hinzufügen",
+    "Search filters…": "Filter suchen …",
+    "Add another filter": "Weiteren Filter hinzufügen",
+    "Updating requests…": "Anfragen werden aktualisiert …",
+    "Source": "Quelle",
+    "Provider": "Anbieter",
+    "App": "App",
+    "Endpoint": "Endpunkt",
+    "Finish Reason": "Abschlussgrund",
+    "Stream": "Stream",
+    "Error Code": "Fehlercode",
+    "HTTP Status": "HTTP-Status",
+    "API Key": "API-Schlüssel",
+    "Input Tokens": "Eingabe-Token",
+    "Output Tokens": "Ausgabe-Token",
+    "Total Tokens": "Token gesamt",
+    "Kind": "Art",
+    "Is": "ist",
+    "Is not": "ist nicht",
+    "Equals": "gleich",
+    "At least": "mindestens",
+    "At most": "höchstens",
+    "Between": "zwischen",
+    "and": "und",
+    "Apply Filter": "Filter anwenden",
+    "No matching options.": "Keine passenden Optionen.",
+    "Search": "Suchen",
+    "Clear": "Löschen",
+    "filter": "Filter",
+    "Add Filter": "Filter hinzufügen",
+    "Search filters…": "Filter suchen …",
+    "Add another filter": "Weiteren Filter hinzufügen",
+    "Updating requests…": "Anfragen werden aktualisiert …",
+    "Source": "Quelle",
+    "Provider": "Anbieter",
+    "App": "App",
+    "Endpoint": "Endpunkt",
+    "Finish Reason": "Abschlussgrund",
+    "Stream": "Stream",
+    "Error Code": "Fehlercode",
+    "HTTP Status": "HTTP-Status",
+    "Input Tokens": "Eingabe-Token",
+    "Output Tokens": "Ausgabe-Token",
+    "Total Tokens": "Token gesamt",
+    "Kind": "Art",
+    "Use shorthand like 2mo, 4w, 36h, or a range like 2026-05-11 09:00 -> 2026-05-12 18:30.": "Verwenden Sie Kürzel wie 2mo, 4w, 36h oder einen Zeitraum wie 11.05.2026 09:00 -> 12.05.2026 18:30.",
+    "Failed to revalidate usage data.": "Nutzungsdaten konnten nicht erneut validiert werden.",
+    "Refreshing usage data...": "Nutzungsdaten werden aktualisiert …",
+    "Usage data refreshed.": "Nutzungsdaten aktualisiert.",
+    "Refresh current view": "Aktuelle Ansicht aktualisieren",
+    "Usage time range": "Nutzungszeitraum",
+    "YYYY-MM-DD HH:mm – YYYY-MM-DD HH:mm": "JJJJ-MM-TT HH:mm – JJJJ-MM-TT HH:mm",
+    "Open range presets": "Zeitraumvorgaben öffnen",
+    "Back": "Zurück",
+    "Custom Range": "Benutzerdefinierter Zeitraum",
+    "Min": "Min.",
+    "Max": "Max.",
+    "Avg": "Durchschn.",
+    "Sum": "Summe",
+    "Date": "Datum",
+    "Generation ID": "Generierungs-ID",
+    "Attempts": "Versuche",
+    "Key used": "Verwendeter Schlüssel",
+    "Throughput": "Durchsatz",
+    "Latency": "Latenz",
+    "Request payload": "Anfrage-Payload",
+    "Response payload": "Antwort-Payload",
+    "Usage": "Nutzung",
+    "Metadata": "Metadaten",
+    "About": "Über",
+    "Selected": "Ausgewählt",
+    "Attempted": "Versucht",
+    "Excluded": "Ausgeschlossen",
+    "Deranked": "Herabgestuft",
+    "Score": "Bewertung",
+    "Routing observability": "Routing-Beobachtbarkeit",
+    "Selection method": "Auswahlmethode",
+    "Exclusion Reason": "Ausschlussgrund",
+    "Routing Status": "Routing-Status",
+    "Calculation": "Berechnung",
+    "Weighted Contributions": "Gewichtete Beiträge",
+    "Score Factors": "Bewertungsfaktoren",
+    "Recorded Context": "Aufgezeichneter Kontext",
+    "Recorded Inputs": "Aufgezeichnete Eingaben",
+    "Weights": "Gewichtungen",
+    "Model Lifecycle Alerts": "Modell-Lebenszyklus-Warnungen",
+    "Retired": "Eingestellt",
+    "Last used": "Zuletzt verwendet",
+    "This model is retired and no longer usable.": "Dieses Modell wurde eingestellt und kann nicht mehr verwendet werden.",
+    "Recommended replacement:": "Empfohlener Ersatz:",
+    "No recommended replacement yet.": "Noch kein empfohlener Ersatz.",
+    "Models You Use": "Von Ihnen verwendete Modelle",
+    "Models You Don't Use": "Nicht von Ihnen verwendete Modelle",
+    "Recent Retirements": "Kürzliche Einstellungen",
+    "No app metadata recorded.": "Keine App-Metadaten erfasst.",
+    "In": "Eingang",
+    "Out": "Ausgang",
+    "Refresh sessions": "Sitzungen aktualisieren",
+    "Loading session details...": "Sitzungsdetails werden geladen …",
+    "Filtered spend": "Gefilterte Ausgaben",
+    "Spend is calculated from a 5,000-request sample.": "Die Ausgaben werden anhand einer Stichprobe von 5.000 Anfragen berechnet.",
+    "Req": "Anfr.",
+    "Session": "Sitzung",
+    "Guardrail enforcement": "Leitplanken-Durchsetzung",
+    "Tracks requests blocked, redacted, or flagged by workspace policy and guardrail enforcement signals.": "Erfasst von Arbeitsbereichsrichtlinien und Leitplankensignalen blockierte, redigierte oder markierte Anfragen.",
+    "Blocked": "Blockiert",
+    "Redacted": "Redigiert",
+    "Flagged": "Markiert",
+    "Trend": "Trend",
+    "No guardrail enforcement events were recorded in this window.": "In diesem Zeitraum wurden keine Leitplanken-Durchsetzungsereignisse erfasst.",
+    "Most active guardrails": "Aktivste Leitplanken",
+    "No guardrail IDs were attached to the current enforcement events.": "Den aktuellen Durchsetzungsereignissen sind keine Leitplanken-IDs zugeordnet.",
+    "Alerts": "Warnungen",
+    "You need to be signed in and have a team selected to view alerts.": "Sie müssen angemeldet sein und ein Team ausgewählt haben, um Warnungen anzuzeigen.",
+    "No lifecycle alerts": "Keine Lebenszyklus-Warnungen",
+    "You have no upcoming deprecations or recent retirements for models used by this workspace.": "Für die von diesem Arbeitsbereich verwendeten Modelle gibt es keine bevorstehenden Abkündigungen oder kürzlich erfolgten Einstellungen.",
+    "Logs unavailable": "Protokolle nicht verfügbar",
+    "We couldn't load request logs. Try again in a moment.": "Anfrageprotokolle konnten nicht geladen werden. Versuchen Sie es gleich noch einmal.",
+    "You no longer have access to this workspace. Select another workspace to view its logs.": "Sie haben keinen Zugriff mehr auf diesen Arbeitsbereich. Wählen Sie einen anderen Arbeitsbereich, um dessen Protokolle anzuzeigen.",
+    "Join or create a workspace to view request logs.": "Treten Sie einem Arbeitsbereich bei oder erstellen Sie einen, um Anfrageprotokolle anzuzeigen.",
+    "Fetching routing, attempts, pricing, and stored payloads.": "Routing, Versuche, Preise und gespeicherte Payloads werden abgerufen.",
+    "Generation details": "Generierungsdetails",
+    "Provider response": "Antwort des Anbieters",
+    "Generation": "Generierung",
+    "Routing details": "Routingdetails",
+    "Routed model": "Geroutetes Modell",
+    "Requested model": "Angefordertes Modell",
+    "Model ID": "Modell-ID",
+    "Organisation": "Organisation",
+    "Native request ID": "Native Anfrage-ID",
+    "Provider ID": "Anbieter-ID",
+    "Upstream model ID": "Upstream-Modell-ID",
+    "App where used": "Verwendete App",
+    "App ID": "App-ID",
+    "Type": "Typ",
+    "Workspace app": "Workspace-App",
+    "Session ID": "Sitzungs-ID",
+    "Copy Session ID": "Sitzungs-ID kopieren",
+    "Filter by Session": "Nach Sitzung filtern",
+    "Streaming": "Streaming",
+    "True": "Ja",
+    "False": "Nein",
+    "Status code": "Statuscode",
+    "Error code": "Fehlercode",
+    "Error message": "Fehlermeldung",
+    "Data training": "Datentraining",
+    "Phaseo data retention": "Datenaufbewahrung durch Phaseo",
+    "Retained Until": "Aufbewahrung bis {date}",
+    "No Retained Payload": "Keine aufbewahrte Payload",
+    "Client": "Client",
+    "Client version": "Clientversion",
+    "Client type": "Clienttyp",
+    "Detected from": "Erkannt über",
+    "User agent": "User-Agent",
+    "Code:": "Code:",
+    "Message:": "Nachricht:",
+    "Hint:": "Hinweis:",
+    "Reason:": "Grund:",
+    "Attempts:": "Versuche:",
+    "Failed providers:": "Fehlgeschlagene Anbieter:",
+    "Failed statuses:": "Fehlgeschlagene Status:",
+    "Category:": "Kategorie:",
+    "Detail:": "Detail:",
+    "Param:": "Parameter:",
+    "Routing failure summary": "Zusammenfassung des Routingfehlers",
+    "Provider diagnostics": "Anbieterdiagnose",
+    "Provider candidates": "Anbieterkandidaten",
+    "Providers considered": "Berücksichtigte Anbieter",
+    "Ranked providers": "Gerankte Anbieter",
+    "Workspace policy": "Workspace-Richtlinie",
+    "Resolved model:": "Aufgelöstes Modell:",
+    "Candidate count:": "Anzahl Kandidaten:",
+    "Request provider only": "Nur Anfrageanbieter",
+    "Request provider ignore": "Anfrageanbieter ignorieren",
+    "Guardrail enforcement": "Leitplanken-Durchsetzung",
+    "Action:": "Aktion:",
+    "Source:": "Quelle:",
+    "Detections:": "Erkennungen:",
+    "Redactions:": "Schwärzungen:",
+    "Guardrails": "Leitplanken",
+    "Detectors": "Detektoren",
+    "Plugin execution": "Plugin-Ausführung",
+    "Changed:": "Geändert:",
+    "Attempted:": "Versucht:",
+    "Healed:": "Repariert:",
+    "Mode:": "Modus:",
+    "Failure reason:": "Fehlergrund:",
+    "Execution reason:": "Ausführungsgrund:",
+    "Skip reason:": "Übersprunggrund:",
+    "Transforms applied": "Angewendete Transformationen",
+    "Validation errors": "Validierungsfehler",
+    "Web search observability": "Beobachtbarkeit der Websuche",
+    "Native search:": "Native Suche:",
+    "Managed search:": "Verwaltete Suche:",
+    "Results:": "Ergebnisse:",
+    "Citations:": "Zitate:",
+    "Native searches": "Native Suchen",
+    "Fetches:": "Abrufe:",
+    "Truncated:": "Gekürzt:",
+    "Performance": "Leistung",
+    "Provider latency": "Anbieterlatenz",
+    "Generation time": "Generierungszeit",
+    "Stop reason": "Beendigungsgrund",
+    "Provider Responses": "Antworten der Anbieter",
+    "Native": "Nativ",
+    "Internal measures": "Interne Messgrößen",
+    "No usage metrics available.": "Keine Nutzungskennzahlen verfügbar.",
+    "Data Policy": "Datenrichtlinie",
+    "Gateway I/O": "Gateway-I/O",
+    "Status:": "Status:",
+    "Retained until": "Aufbewahrt bis {date}",
+    "Prompt": "Prompt",
+    "Completion": "Vervollständigung",
+    "No I/O payload is available for this request.": "Für diese Anfrage ist keine I/O-Payload verfügbar.",
+    "Technical Details": "Technische Details",
+    "Pricing": "Preise",
+    "Direct HTTP": "Direktes HTTP",
+    "Data policy": "Datenrichtlinie",
+    "The canonical Phaseo model selected after aliases, presets, and router expansion are resolved.": "Das kanonische Phaseo-Modell, das nach der Auflösung von Aliasen, Presets und Router-Erweiterungen ausgewählt wurde.",
+    "The exact model ID or alias supplied by the client in the original request.": "Die exakte vom Client in der ursprünglichen Anfrage übermittelte Modell-ID oder der Alias.",
+    "The provider-facing model identifier sent upstream for the successful attempt.": "Die an den Anbieter gesendete, anbieterspezifische Modellkennung des erfolgreichen Versuchs.",
+    "Capability:": "Fähigkeit:",
+    "Failure sample": "Fehlerbeispiel",
+    "Provider enablement": "Anbieteraktivierung",
+    "Routing diagnostics": "Routingdiagnose",
+    "All models": "Alle Modelle",
+    "All providers": "Alle Anbieter",
+    "Generation ID:": "Generierungs-ID:",
+    "Upstream error": "Upstream-Fehler",
+    "Request details": "Anfragedetails",
+    "Error:": "Fehler:",
+    "Loading request details": "Anfragedetails werden geladen",
+    "Async job webhooks": "Async-Job-Webhooks",
+    "Recent video and batch jobs with webhook delivery history, pending retries, and failures.": "Aktuelle Video- und Batch-Jobs mit Webhook-Zustellverlauf, ausstehenden Wiederholungen und Fehlern.",
+    "No async jobs with webhook activity yet.": "Noch keine Async-Jobs mit Webhook-Aktivität.",
+    "Job ID": "Job-ID",
+    "Native ID": "Native ID",
+    "Source": "Quelle",
+    "Lifecycle state": "Lebenszyklusstatus",
+    "Job type": "Jobtyp",
+    "Total duration": "Gesamtdauer",
+    "Output access": "Ausgabezugriff",
+    "Key source": "Schlüsselquelle",
+    "BYOK key ID": "BYOK-Schlüssel-ID",
+    "Reservation ID": "Reservierungs-ID",
+    "Reservation status": "Reservierungsstatus",
+    "Finalized": "Abgeschlossen",
+    "Last polled": "Zuletzt abgefragt",
+    "Polled status": "Abgefragter Status",
+    "Last reconciled": "Zuletzt abgeglichen",
+    "Created": "Erstellt",
+    "Updated": "Aktualisiert",
+    "Billed": "Abgerechnet",
+    "Billing reason": "Abrechnungsgrund",
+    "Charged": "Belastet",
+    "Settled cost": "Abgerechnete Kosten",
+    "Request created": "Anfrage erstellt",
+    "Batch request counts": "Batch-Anfragezahlen",
+    "Pricing total nanos": "Preisgesamtbetrag in Nanos",
+    "Completed requests": "Abgeschlossene Anfragen",
+    "Failed requests": "Fehlgeschlagene Anfragen",
+    "Total requests": "Anfragen gesamt",
+    "Pricing total USD": "Preisgesamtbetrag in USD",
+    "Pricing lines": "Preiszeilen",
+    "Batch pricing lines": "Batch-Preiszeilen",
+    "Request endpoint": "Anfrageendpunkt",
+    "Request model ID": "Modell-ID der Anfrage",
+    "Request success": "Anfrage erfolgreich",
+    "Request latency": "Anfragelatenz",
+    "Request generation": "Anfragegenerierung",
+    "Provider attempts": "Anbieterversuche",
+    "Request pricing lines": "Preiszeilen der Anfrage",
+    "Attempt": "Versuch",
+    "Outcome": "Ergebnis",
+    "Duration": "Dauer",
+    "Upstream error": "Upstream-Fehler",
+    "Failure category": "Fehlerkategorie",
+    "Failure provider": "Fehleranbieter",
+    "Failure hint": "Fehlerhinweis",
+    "Failure samples": "Fehlerbeispiele",
+    "Candidate diagnostics": "Kandidatendiagnose",
+    "Output file ID": "Ausgabedatei-ID",
+    "Output content endpoint": "Inhaltsendpunkt der Ausgabe",
+    "Error file ID": "Fehlerdatei-ID",
+    "Error content endpoint": "Inhaltsendpunkt des Fehlers",
+    "Content URL": "Inhalts-URL",
+    "Cancel endpoint": "Abbruchendpunkt",
+    "Subscribed events": "Abonnierte Ereignisse",
+    "Signing": "Signierung",
+    "Last attempt": "Letzter Versuch",
+    "Last attempt status": "Status des letzten Versuchs",
+    "Last response status": "Status der letzten Antwort",
+    "Last delivered": "Zuletzt zugestellt",
+    "Last failure": "Letzter Fehler",
+    "Last dispatched": "Zuletzt ausgelöst",
+    "Last progress": "Letzter Fortschritt",
+    "Last progress update": "Letzte Fortschrittsaktualisierung",
+    "Delivered events": "Zugestellte Ereignisse",
+    "Delivered event types": "Zugestellte Ereignistypen",
+    "Pending retries": "Ausstehende Wiederholungen",
+    "Attempts recorded": "Erfasste Versuche",
+    "Event": "Ereignis",
+    "Tried": "Versucht",
+    "Response": "Antwort",
+    "Error": "Fehler",
+    "Timestamp": "Zeitstempel",
+    "Job": "Job",
+    "Webhook": "Webhook",
+    "No webhook configured": "Kein Webhook konfiguriert",
+    "No pending retries": "Keine ausstehenden Wiederholungen",
+    "Loading async job details...": "Details des Async-Jobs werden geladen ...",
+    "Loading request details...": "Anfragedetails werden geladen ...",
+    "Click to copy": "Zum Kopieren klicken",
+    "Unknown provider": "Unbekannter Anbieter",
+    "Yes": "Ja",
+    "No": "Nein",
+    "Save destination before sending a sample trace.": "Ziel speichern, bevor eine Beispielspur gesendet wird.",
+    "Included API Keys": "Einbezogene API-Schlüssel",
+    "When selected, only these keys send traces.": "Wenn ausgewählt, senden nur diese Schlüssel Spuren.",
+    "Excluded API Keys": "Ausgeschlossene API-Schlüssel",
+    "These keys never send traces to this destination.": "Diese Schlüssel senden niemals Spuren an dieses Ziel.",
+    "Provider mode": "Anbietermodus",
+    "Allow all providers": "Alle Anbieter erlauben",
+    "Only allow selected providers": "Nur ausgewählte Anbieter erlauben",
+    "Allow all except selected providers": "Alle Anbieter außer ausgewählten erlauben",
+    "Providers": "Anbieter",
+    "Choose the providers this guardrail allows or blocks.": "Anbieter auswählen, die diese Leitplanke erlaubt oder blockiert.",
+    "Model mode": "Modellmodus",
+    "Allow all models": "Alle Modelle erlauben",
+    "Only allow selected models": "Nur ausgewählte Modelle erlauben",
+    "Models": "Modelle",
+    "Choose the models this guardrail allows or blocks after provider filtering.": "Modelle auswählen, die diese Leitplanke nach der Anbieterfilterung erlaubt oder blockiert.",
+    "Model coverage": "Modellabdeckung",
+    "Prompt Injection": "Prompt-Injection",
+    "Scan request content before routing.": "Anfrageinhalt vor dem Routing prüfen.",
+    "Prompt injection": "Prompt-Injection",
+    "Scan user-supplied request content for common prompt injection patterns before it reaches the model.": "Vom Benutzer bereitgestellten Anfrageinhalt vor dem Modell auf gängige Prompt-Injection-Muster prüfen.",
+    "Handling": "Verarbeitung",
+    "Disabled": "Deaktiviert",
+    "Flag": "Markieren",
+    "Redact": "Schwärzen",
+    "Block": "Blockieren",
+    "Sensitive Info Detection": "Erkennung sensibler Informationen",
+    "Detect and handle sensitive data before requests leave Phaseo.": "Sensible Daten erkennen und verarbeiten, bevor Anfragen Phaseo verlassen.",
+    "Sensitive info": "Sensible Informationen",
+    "Detect and handle common sensitive data before the request reaches the model.": "Gängige sensible Daten erkennen und verarbeiten, bevor die Anfrage das Modell erreicht.",
+    "Default handling": "Standardverarbeitung",
+    "Patterns": "Muster",
+    "Adds latency": "Fügt Latenz hinzu",
+    "Custom patterns": "Benutzerdefinierte Muster",
+    "e.g. Internal ticket ID": "z. B. interne Ticket-ID",
+    "e.g. i": "z. B. i",
+    "e.g. ACCT-[0-9]{6}": "z. B. ACCT-[0-9]{6}",
+    "Action": "Aktion",
+    "Preview": "Vorschau",
+    "e.g. My email is test@example.com and my card is 4242 4242 4242 4242": "z. B. Meine E-Mail ist test@example.com und meine Karte ist 4242 4242 4242 4242",
+    "Budget Policies": "Budgetrichtlinien",
+    "Set request and spend ceilings by time window.": "Anfrage- und Ausgabenlimits nach Zeitfenster festlegen.",
+    "Budgets": "Budgets",
+    "Leave a field blank for unlimited.": "Feld leer lassen für unbegrenzt.",
+    "Aggregate guardrail budgets are not yet enforced": "Aggregierte Leitplankenbudgets werden noch nicht durchgesetzt",
+    "Daily requests": "Tägliche Anfragen",
+    "Weekly requests": "Wöchentliche Anfragen",
+    "Monthly requests": "Monatliche Anfragen",
+    "Daily spend (USD)": "Tägliche Ausgaben (USD)",
+    "Weekly spend (USD)": "Wöchentliche Ausgaben (USD)",
+    "Monthly spend (USD)": "Monatliche Ausgaben (USD)",
+    "Unlimited": "Unbegrenzt",
+    "must be a positive number.": "muss eine positive Zahl sein.",
+    "Failed to save guardrail.": "Leitplanke konnte nicht gespeichert werden.",
+    "Failed to delete guardrail.": "Leitplanke konnte nicht gelöscht werden.",
+    "Overview": "Übersicht",
+    "Guardrail name": "Name der Leitplanke",
+    "New Guardrail": "Neue Leitplanke",
+    "Who is this for? What does it restrict?": "Für wen ist dies gedacht? Was wird eingeschränkt?",
+    "Status & Assignments": "Status und Zuweisungen",
+    "Enable this guardrail and choose who it protects.": "Leitplanke aktivieren und Schutzempfänger auswählen.",
+    "Disabled guardrails remain configured but are not enforced.": "Deaktivierte Leitplanken bleiben konfiguriert, werden aber nicht durchgesetzt.",
+    "Apply to members": "Auf Mitglieder anwenden",
+    "Enforce this policy on API keys created for selected members.": "Diese Richtlinie auf von ausgewählten Mitgliedern erstellte API-Schlüssel anwenden.",
+    "Select members": "Mitglieder auswählen",
+    "Members cannot edit or remove policies assigned by workspace owners or admins.": "Mitglieder können von Arbeitsbereichsbesitzern oder Administratoren zugewiesene Richtlinien nicht bearbeiten oder entfernen.",
+    "No members selected yet.": "Noch keine Mitglieder ausgewählt.",
+    "Apply to keys": "Auf Schlüssel anwenden",
+    "Attach this guardrail during creation instead of after the fact.": "Diese Leitplanke bei der Erstellung statt nachträglich zuweisen.",
+    "Select keys": "Schlüssel auswählen",
+    "Apply this guardrail to one or more keys.": "Diese Leitplanke auf einen oder mehrere Schlüssel anwenden.",
+    "No keys selected yet.": "Noch keine Schlüssel ausgewählt.",
+    "Configuration Groups": "Konfigurationsgruppen",
+    "Configure access, safety, and spending policies.": "Zugriffs-, Sicherheits- und Ausgabenrichtlinien konfigurieren.",
+    "Access": "Zugriff",
+    "Control privacy, provider access, and model access.": "Datenschutz sowie Anbieter- und Modellzugriff steuern.",
+    "Data handling": "Datenverarbeitung",
+    "Set the minimum privacy requirements every routed request must meet.": "Mindestanforderungen an den Datenschutz für jede weitergeleitete Anfrage festlegen.",
+    "Allow input/output logging": "Protokollierung von Eingaben und Ausgaben erlauben",
+    "Disabling indicates this guardrail should avoid body logging where supported.": "Deaktivierung bedeutet, dass diese Leitplanke, sofern unterstützt, keine Body-Protokollierung verwenden soll.",
+    "ZDR only": "Nur ZDR",
+    "Further restrict routing to endpoints that meet ZDR requirements.": "Routing weiter auf Endpunkte beschränken, die ZDR-Anforderungen erfüllen.",
+    "Route access": "Routenzugriff",
+    "Narrow eligible routes by provider or model.": "Geeignete Routen nach Anbieter oder Modell einschränken.",
+    "Account Privacy applies first; blocked routes remain unavailable here.": "Kontodatenschutz wird zuerst angewendet; blockierte Routen bleiben hier nicht verfügbar.",
+    "Review workspace privacy": "Arbeitsbereichsdatenschutz prüfen",
+    "Could not load passkeys": "Passkeys konnten nicht geladen werden",
+    "Data Handling": "Datenverarbeitung",
+    "Add your catalog URL first.": "Fügen Sie zuerst die Katalog-URL hinzu.",
+    "Catalog checked": "Katalog geprüft",
+    "models found": "Modelle gefunden",
+    "catalog issue found": "Katalogproblem gefunden",
+    "catalog issues found": "Katalogprobleme gefunden",
+    "Could not check catalog": "Katalog konnte nicht geprüft werden",
+    "Check a valid catalog before submitting.": "Prüfen Sie vor dem Absenden einen gültigen Katalog.",
+    "Provider profile submitted": "Anbieterprofil übermittelt",
+    "Could not submit provider": "Anbieter konnte nicht übermittelt werden",
+    "Enter the provider slug and website first.": "Geben Sie zuerst den Anbieter-Slug und die Website ein.",
+    "Ownership proof created": "Eigentumsnachweis erstellt",
+    "Could not create ownership proof": "Eigentumsnachweis konnte nicht erstellt werden",
+    "Webhook signing secret rotated": "Webhook-Signaturgeheimnis erneuert",
+    "Could not rotate webhook secret": "Webhook-Geheimnis konnte nicht erneuert werden",
+    "Classifiers": "Klassifikatoren",
+    "Run asynchronously on a deterministic upstream sample, using Flex by default.": "Asynchron über eine deterministische Upstream-Stichprobe ausführen, standardmäßig mit Flex.",
+    "Custom classifier": "Benutzerdefinierten Klassifikator",
+    "Create classifier": "Klassifikator erstellen",
+    "Define private labels for your own domain. The built-in task classifier remains the recommended baseline.": "Private Bezeichnungen für Ihre Domäne definieren. Der integrierte Aufgabenklassifikator bleibt die empfohlene Grundlage.",
+    "Classifier deleted": "Klassifikator gelöscht",
+    "Enable contribution to install the starter taxonomy.": "Beitrag aktivieren, um die Starter-Taxonomie zu installieren.",
+    "Top tasks": "Häufigste Aufgaben",
+    "Private classification rollups retained after raw I/O expires.": "Private Klassifikationssummen, die nach Ablauf der Rohdaten aufbewahrt werden.",
+    "Classifications will appear after sampled requests are processed.": "Klassifikationen erscheinen nach der Verarbeitung von Stichprobenanfragen.",
+    "Product alerts": "Produktwarnungen",
+    "Model Deprecation Alerts": "Warnungen zur Modellablösung",
+    "Get notice before a model your workspace uses is retired.": "Benachrichtigung erhalten, bevor ein verwendetes Modell eingestellt wird.",
+    "Destinations": "Ziele",
+    "Create reusable channels, then choose them on each alert above.": "Wiederverwendbare Kanäle erstellen und sie anschließend oben für Warnungen auswählen.",
+    "Add destination": "Ziel hinzufügen",
+    "No destinations yet": "Noch keine Ziele",
+    "Add a destination to route alerts to the tools your team already watches.": "Ein Ziel hinzufügen, um Warnungen an die von Ihrem Team überwachten Tools zu senden.",
+    "Add notifier": "Benachrichtigungskanal hinzufügen",
+    "Ping user IDs": "Benutzer-IDs anpingen",
+    "Ping role IDs": "Rollen-IDs anpingen",
+    "Ping user group IDs": "Benutzergruppen-IDs anpingen",
+    "Ping users": "Benutzer anpingen",
+    "optional": "optional",
+    "Use Microsoft 365 email addresses or Entra object IDs. Teams webhooks cannot mention roles or everyone.": "Microsoft 365-E-Mail-Adressen oder Entra-Objekt-IDs verwenden. Teams-Webhooks können keine Rollen oder alle Personen erwähnen.",
+    "Sending": "Wird gesendet",
+    "channel": "Kanal",
+    "test": "Test",
+    "Test notification delivered": "Testbenachrichtigung zugestellt",
+    "Could not send test": "Test konnte nicht gesendet werden",
+    "Enter a valid email address": "Gültige E-Mail-Adresse eingeben",
+    "Destination removed": "Ziel entfernt",
+    "Could not remove destination": "Ziel konnte nicht entfernt werden",
+    "Destination created": "Ziel erstellt",
+    "destinations created": "Ziele erstellt",
+    "Could not create destination": "Ziel konnte nicht erstellt werden",
+    "Channels": "Kanäle",
+    "UTC": "UTC",
+    "Relative": "Relativ",
+    "Saving fallback setting...": "Fallback-Einstellung wird gespeichert ...",
+    "Fallback setting updated": "Fallback-Einstellung aktualisiert",
+    "Failed to update setting": "Einstellung konnte nicht aktualisiert werden",
+    "Try fallback BYOK keys after managed providers": "Fallback-BYOK-Schlüssel nach verwalteten Anbietern verwenden",
+    "Draft route created": "Entwurfsroute erstellt",
+    "Could not create route": "Route konnte nicht erstellt werden",
+    "Production key": "Produktionsschlüssel",
+    "Credential setup info": "Informationen zur Zugangsdaten-Einrichtung",
+    "Access Key ID": "Zugriffsschlüssel-ID",
+    "Secret Access Key": "Geheimer Zugriffsschlüssel",
+    "AWS Region (for example us-east-1)": "AWS-Region (zum Beispiel us-east-1)",
+    "Bedrock API key": "Bedrock-API-Schlüssel",
+    "Cloudflare Account ID": "Cloudflare-Konto-ID",
+    "Cloudflare API Token": "Cloudflare-API-Token",
+    "Phaseo model slug (for example openai/gpt-4o-mini)": "Phaseo-Modell-Slug (zum Beispiel openai/gpt-4o-mini)",
+    "Azure Foundry endpoint URL": "Azure-Foundry-Endpunkt-URL",
+    "Azure endpoint API key": "API-Schlüssel des Azure-Endpunkts",
+    "Model ID for this endpoint": "Modell-ID für diesen Endpunkt",
+    "Connect one or more channels to workspace alerts.": "Einen oder mehrere Kanäle mit Arbeitsbereichswarnungen verbinden.",
+    "Set the minimum privacy standard for every request in this workspace.": "Mindeststandard für Datenschutz bei jeder Anfrage in diesem Arbeitsbereich festlegen.",
+    "Set the minimum privacy standard for interactive requests made as you, including Phaseo Chat.": "Mindeststandard für interaktive Anfragen in Ihrem Namen einschließlich Phaseo Chat festlegen.",
+    "Allow paid routes that may train": "Bezahlte Routen mit möglichem Training erlauben",
+    "Permit paid routes whose provider may use prompts or completions for training.": "Bezahlte Routen erlauben, deren Anbieter Eingaben oder Ausgaben zum Trainieren verwenden kann.",
+    "Allow free routes that may train": "Kostenlose Routen mit möglichem Training erlauben",
+    "Permit free routes whose provider may use prompts or completions for training.": "Kostenlose Routen erlauben, deren Anbieter Eingaben oder Ausgaben zum Trainieren verwenden kann.",
+    "Allow prompt logging": "Protokollierung von Eingaben erlauben",
+    "Permit providers that may retain prompts but do not use them for training.": "Anbieter erlauben, die Eingaben speichern, aber nicht zum Trainieren verwenden.",
+    "Require zero data retention": "Keine Datenaufbewahrung verlangen",
+    "Only route requests where the selected capability is eligible for ZDR.": "Nur Anfragen an für ZDR geeignete Fähigkeiten weiterleiten.",
+    "Gateway Log Storage": "Gateway-Protokollspeicher",
+    "Control private request and response payload storage for this workspace.": "Speicherung privater Anfrage- und Antwortdaten für diesen Arbeitsbereich steuern.",
+    "Store request and response payloads": "Anfrage- und Antwortdaten speichern",
+    "Keep private payload copies for request details and replay.": "Private Kopien für Anfragedetails und Wiederholung aufbewahren.",
+    "Could not save the": "Konnte nicht speichern:",
+    "data policy": "Datenrichtlinie",
+    "Could not save workspace log storage settings": "Arbeitsbereichseinstellungen für Protokollspeicher konnten nicht gespeichert werden",
+    "Allow": "Erlauben",
+    "Additional permissions available": "Zusätzliche Berechtigungen verfügbar",
+    "Authorized": "Autorisiert",
+    "Last Used": "Zuletzt verwendet",
+    "Permissions updated": "Berechtigungen aktualisiert",
+    "group": "Gruppe",
+    "groups": "Gruppen",
+    "permissions": "Berechtigungen",
+    "Deselect permissions to reduce this app's access. New access requires authorization through the app.": "Berechtigungen abwählen, um den Zugriff dieser App zu reduzieren. Neuer Zugriff erfordert eine Autorisierung über die App.",
+    "You can reduce this app's access without revoking it entirely.": "Sie können den Zugriff dieser App reduzieren, ohne ihn vollständig zu widerrufen.",
+    "Copied phaseo login": "phaseo login kopiert",
+    "CLI permissions restored": "CLI-Berechtigungen wiederhergestellt",
+    "Reauthorize": "Erneut autorisieren",
+    "Reauthorize app": "App erneut autorisieren",
+    "Restore removed permissions on the web, or start a genuinely fresh session from the CLI.": "Entfernte Berechtigungen im Web wiederherstellen oder eine wirklich neue CLI-Sitzung starten.",
+    "OAuth must be restarted by the application so it can create a fresh, secure PKCE request.": "OAuth muss von der Anwendung neu gestartet werden, damit eine neue sichere PKCE-Anfrage erstellt wird.",
+    "CLI permissions": "CLI-Berechtigungen",
+    "Select permissions you previously removed. Restored access applies when the CLI next refreshes its session.": "Zuvor entfernte Berechtigungen auswählen. Der wiederhergestellte Zugriff gilt, wenn die CLI ihre Sitzung aktualisiert.",
+    "Restoring...": "Wird wiederhergestellt ...",
+    "Restore selected permissions": "Ausgewählte Berechtigungen wiederherstellen",
+    "All available CLI permissions are currently authorized.": "Alle verfügbaren CLI-Berechtigungen sind derzeit autorisiert.",
+    "Open the application and sign in with Phaseo again to review its requested permissions.": "Anwendung öffnen und erneut mit Phaseo anmelden, um ihre angeforderten Berechtigungen zu prüfen.",
+    "Open this application where you originally connected it, then choose its Phaseo sign-in or reconnect option.": "Diese Anwendung dort öffnen, wo Sie sie ursprünglich verbunden haben, und die Phaseo-Anmeldung oder erneute Verbindung wählen.",
+    "Open application": "Anwendung öffnen",
+    "Data contribution enabled": "Datenbeitrag aktiviert",
+    "Data contribution disabled": "Datenbeitrag deaktiviert",
+    "Could not update data contribution": "Datenbeitrag konnte nicht aktualisiert werden",
+    "Classifier created": "Klassifikator erstellt",
+    "Could not create classifier": "Klassifikator konnte nicht erstellt werden",
+    "Contribute data, save": "Daten beitragen, sparen",
+    "Active": "Aktiv",
+    "Opt in": "Teilnehmen",
+    "Disable contribution": "Beitrag deaktivieren",
+    "Review and enable": "Prüfen und aktivieren",
+    "Enable discounted data contribution?": "Vergünstigten Datenbeitrag aktivieren?",
+    "Passkey registration was cancelled": "Passkey-Registrierung wurde abgebrochen",
+    "Passkey added": "Passkey hinzugefügt",
+    "Passkey removed": "Passkey entfernt",
+    "Enter your current password": "Aktuelles Passwort eingeben",
+    "Could not add passkey": "Passkey konnte nicht hinzugefügt werden",
+    "Could not remove passkey": "Passkey konnte nicht entfernt werden",
+    "Passkeys are not enabled for this environment yet.": "Passkeys sind in dieser Umgebung noch nicht aktiviert.",
+    "Passkeys": "Passkeys",
+    "Device Passkeys": "Geräte-Passkeys",
+    "Sign in with your device biometrics, PIN, or security key.": "Mit Biometrie, PIN oder Sicherheitsschlüssel Ihres Geräts anmelden.",
+    "Add Passkey": "Passkey hinzufügen",
+    "Loading passkeys...": "Passkeys werden geladen ...",
+    "No passkeys added yet.": "Noch keine Passkeys hinzugefügt.",
+    "Passkey": "Passkey",
+    "Remove passkey": "Passkey entfernen",
+    "Verify it&apos;s you": "Bestätigen Sie Ihre Identität",
+    "Adding or removing a passkey changes how your account can be accessed, so recent authentication is required.": "Das Hinzufügen oder Entfernen eines Passkeys ändert den Kontozugriff. Daher ist eine kürzliche Authentifizierung erforderlich.",
+    "Your last sign-in is too old for this security change. Sign in again, then return here to continue.": "Ihre letzte Anmeldung ist für diese Sicherheitsänderung zu lange her. Melden Sie sich erneut an und kehren Sie dann hierher zurück.",
+    "Sign in again": "Erneut anmelden",
+    "Continue using your recent social, SSO, or passkey sign-in.": "Mit Ihrer kürzlichen Social-, SSO- oder Passkey-Anmeldung fortfahren.",
+    "Starting account deletion...": "Kontolöschung wird gestartet ...",
+    "Account access removed. Deletion is in progress.": "Kontozugriff entfernt. Die Löschung läuft.",
+    "Could not delete account": "Konto konnte nicht gelöscht werden",
+    "Delete account?": "Konto löschen?",
+    "to confirm.": "zur Bestätigung.",
+    "Confirmation": "Bestätigung",
+    "Type \"DELETE\" to confirm": "Zur Bestätigung „DELETE“ eingeben",
+    "Passwordless accounts require a recent provider sign-in.": "Passwortlose Konten benötigen eine kürzliche Anbieter-Anmeldung.",
+    "No MFA factor found": "Kein MFA-Faktor gefunden",
+    "Disabling MFA...": "MFA wird deaktiviert ...",
+    "Two-factor authentication disabled": "Zwei-Faktor-Authentifizierung deaktiviert",
+    "Could not disable MFA": "MFA konnte nicht deaktiviert werden",
+    "MFA enabled successfully!": "MFA erfolgreich aktiviert!",
+    "Authenticator App": "Authentifizierungs-App",
+    "Two-Factor Authentication": "Zwei-Faktor-Authentifizierung",
+    "Require a code from your authenticator app when signing in.": "Bei der Anmeldung einen Code aus Ihrer Authentifizierungs-App verlangen.",
+    "Enable MFA": "MFA aktivieren",
+    "Disable Two-Factor Authentication": "Zwei-Faktor-Authentifizierung deaktivieren",
+    "Remove the additional sign-in verification from your account.": "Zusätzliche Anmeldebestätigung aus Ihrem Konto entfernen.",
+    "Disable MFA?": "MFA deaktivieren?",
+    "This will remove the extra security layer from your account.": "Dadurch wird die zusätzliche Sicherheitsebene Ihres Kontos entfernt.",
+    "Disabling...": "Wird deaktiviert ...",
+    "Disable MFA": "MFA deaktivieren",
+    "Failed to start MFA setup": "MFA-Einrichtung konnte nicht gestartet werden",
+    "Secret copied to clipboard": "Geheimnis in Zwischenablage kopiert",
+    "Failed to copy secret": "Geheimnis konnte nicht kopiert werden",
+    "Please enter a 6-digit code": "Bitte einen 6-stelligen Code eingeben",
+    "Invalid code. Please try again.": "Ungültiger Code. Bitte erneut versuchen.",
+    "Confirm your identity": "Identität bestätigen",
+    "Enter your current password, or continue after a recent provider sign-in.": "Aktuelles Passwort eingeben oder nach einer kürzlichen Anbieter-Anmeldung fortfahren.",
+    "Set up two-factor authentication": "Zwei-Faktor-Authentifizierung einrichten",
+    "Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)": "Diesen QR-Code mit Ihrer Authentifizierungs-App scannen (Google Authenticator, Authy, 1Password usw.).",
+    "MFA QR Code": "MFA-QR-Code",
+    "Can&apos;t scan? Enter this code manually:": "Scannen nicht möglich? Diesen Code manuell eingeben:",
+    "Next: Enter code": "Weiter: Code eingeben",
+    "Verify your code": "Code bestätigen",
+    "Enter the 6-digit code from your authenticator app": "Den 6-stelligen Code aus Ihrer Authentifizierungs-App eingeben",
+    "The code will auto-verify when you enter all 6 digits": "Der Code wird automatisch bestätigt, sobald alle 6 Stellen eingegeben sind",
+    "Verifying...": "Wird bestätigt ...",
+    "Verify code": "Code bestätigen",
+    "Two-factor authentication enabled": "Zwei-Faktor-Authentifizierung aktiviert",
+    "Your account is now protected with two-factor authentication": "Ihr Konto ist jetzt durch Zwei-Faktor-Authentifizierung geschützt",
+    "You&apos;ll need your authenticator app to sign in from now on. Keep a secure backup of the authenticator configuration before changing devices.": "Sie benötigen künftig Ihre Authentifizierungs-App zur Anmeldung. Sichern Sie die Konfiguration, bevor Sie das Gerät wechseln.",
+    "Public": "Öffentlich",
+    "Private": "Privat",
+    "Unable to update app": "App konnte nicht aktualisiert werden",
+    "Could not save settings": "Einstellungen konnten nicht gespeichert werden",
+    "Chat completion notifications enabled": "Chat-Completion-Benachrichtigungen aktiviert",
+    "Password is required": "Passwort erforderlich",
+    "Account details": "Kontodetails",
+    "Default workspace": "Standard-Arbeitsbereich",
+    "Search workspaces…": "Arbeitsbereiche durchsuchen …",
+    "No workspace found.": "Kein Arbeitsbereich gefunden.",
+    "Email": "E-Mail",
+    "Analytics Cookies": "Analyse-Cookies",
+    "Toggle analytics cookies": "Analyse-Cookies umschalten",
+    "Obfuscate Info": "Informationen verschleiern",
+    "Toggle obfuscation": "Verschleierung umschalten",
+    "Unsaved changes": "Ungespeicherte Änderungen",
+    "Chat Completion": "Chat-Completion",
+    "Enable chat completion browser notifications": "Browser-Benachrichtigungen für Chat-Completion aktivieren",
+    "Enter your new password": "Neues Passwort eingeben",
+    "Confirm your new password": "Neues Passwort bestätigen",
+    "Current email": "Aktuelle E-Mail-Adresse",
+    "Enter your new email address": "Neue E-Mail-Adresse eingeben",
+    "Enter your password to confirm": "Passwort zur Bestätigung eingeben",
+    "Could not update destinations": "Ziele konnten nicht aktualisiert werden",
+    "No destinations": "Keine Ziele",
+    "destination": "Ziel",
+    "destinations": "Ziele",
+    "Deliver this alert to": "Diesen Hinweis zustellen an",
+    "Share profile": "Profil teilen",
+    "Share Card": "Teilkarte",
+    "activity. Preview the image, then share or download it.": "Aktivität. Bild ansehen und anschließend teilen oder herunterladen.",
+    "Download": "Herunterladen",
+    "Post": "Posten",
+    "Copied": "Kopiert",
+    "Copy Link": "Link kopieren",
+    "Played": "Gespielt",
+    "Wins": "Siege",
+    "Streak": "Serie",
+    "Average Score": "Durchschnittspunktzahl",
+    "Catalogue Games": "Katalog-Spiele",
+    "Daily results from your signed-in games, grouped by game.": "Tägliche Ergebnisse Ihrer angemeldeten Spiele, nach Spiel gruppiert.",
+    "Play Today": "Heute spielen",
+    "Best Score": "Beste Punktzahl",
+    "Not played yet": "Noch nicht gespielt",
+    "Last played": "Zuletzt gespielt",
+    "No authorized apps": "Keine autorisierten Apps",
+    "You haven&apos;t authorized any third-party applications yet. When you do, they&apos;ll appear here.": "Sie haben noch keine Drittanbieter-Apps autorisiert. Sobald Sie dies tun, erscheinen sie hier.",
+    "Access revoked for app": "Zugriff für {appName} widerrufen",
+    "Failed to revoke access": "Zugriff konnte nicht widerrufen werden",
+    "Revoke Access": "Zugriff widerrufen",
+    "Revoke Access?": "Zugriff widerrufen?",
+    "This will immediately prevent {appName} from accessing your Phaseo account. Any active tokens will be invalidated.": "Dadurch wird {appName} sofort der Zugriff auf Ihr Phaseo-Konto entzogen. Aktive Token werden ungültig.",
+    "The application will no longer be able to make API requests on your behalf. You can re-authorize the app later if needed.": "Die Anwendung kann dann keine API-Anfragen mehr in Ihrem Namen stellen. Sie können die App bei Bedarf später erneut autorisieren.",
+    "Revoking...": "Wird widerrufen ...",
+    "Merge": "Zusammenführen",
+    "Merging apps...": "Apps werden zusammengeführt ...",
+    "Apps merged": "Apps zusammengeführt",
+    "Failed to merge apps": "Apps konnten nicht zusammengeführt werden",
+    "Merge apps": "Apps zusammenführen",
+    "Move all requests from this app into another and remove the source afterwards.": "Alle Anfragen dieser App in eine andere verschieben und die Quelle anschließend entfernen.",
+    "Merge into": "Zusammenführen mit",
+    "Choose target app": "Ziel-App auswählen",
+    "This will move all historical requests to the selected app and delete {appName}.": "Alle bisherigen Anfragen werden in die ausgewählte App verschoben und „{appName}“ gelöscht.",
+    "Merging...": "Wird zusammengeführt ...",
+    "Merge app": "App zusammenführen",
+    "More actions": "Weitere Aktionen",
+    "View Stats": "Statistiken anzeigen",
+    "Make Private": "Privat machen",
+    "Make Public": "Öffentlich machen",
+    "Attribution headers copied": "Attributions-Header kopiert",
+    "Failed to copy headers": "Header konnten nicht kopiert werden",
+    "Copy Headers": "Header kopieren",
+    "Edit": "Bearbeiten",
+    "No apps found": "Keine Apps gefunden",
+    "App attribution records will appear here after your requests include app headers.": "App-Attributions erscheinen hier, sobald Ihre Anfragen App-Header enthalten.",
+    "App": "App",
+    "Visibility": "Sichtbarkeit",
+    "Last Seen": "Zuletzt gesehen",
+    "Created": "Erstellt",
+    "No public URL set": "Keine öffentliche URL festgelegt",
+    "Managed by Phaseo": "Von Phaseo verwaltet",
+    "private": "privat",
+    "public": "öffentlich",
+    "Saving changes...": "Änderungen werden gespeichert ...",
+    "App updated": "App aktualisiert",
+    "Failed to update app": "App konnte nicht aktualisiert werden",
+    "Edit app": "App bearbeiten",
+    "Update the metadata shown on your app profile.": "Metadaten aktualisieren, die in Ihrem App-Profil angezeigt werden.",
+    "App name": "App-Name",
+    "App URL": "App-URL",
+    "Docs URL": "Dokumentations-URL",
+    "Image URL": "Bild-URL",
+    "Checking image…": "Bild wird geprüft …",
+    "This URL did not load a valid image.": "Diese URL hat kein gültiges Bild geladen.",
+    "App logo preview": "Vorschau des App-Logos",
+    "Image loaded": "Bild geladen",
+    "Leave empty to use the app initial.": "Leer lassen, um den Anfangsbuchstaben der App zu verwenden.",
+    "Categories": "Kategorien",
+    "Saving...": "Wird gespeichert ...",
+    "Save": "Speichern",
+    "Choose up to 3 categories": "Bis zu 3 Kategorien auswählen",
+    "Discount": "Rabatt",
+    "per request": "pro Anfrage",
+    "Retained (30 days)": "Gespeichert (30 Tage)",
+    "Discount earned": "Erzielter Rabatt",
+    "Instructions": "Anweisungen",
+    "Categories (JSON)": "Kategorien (JSON)",
+    "Enable model deprecation alerts": "Warnungen zu Modellstilllegungen aktivieren",
+    "Could not save alert": "Warnung konnte nicht gespeichert werden",
+    "Send test": "Test senden",
+    "Delete {name}": "{name} löschen",
+    "Saved": "Gespeichert",
+    "Retention": "Aufbewahrung",
+    "Choose how long private payload copies remain available.": "Legen Sie fest, wie lange private Payload-Kopien verfügbar bleiben.",
+    "Include provider payloads": "Provider-Payloads einschließen",
+    "Also retain the transformed upstream request and provider response.": "Auch die umgewandelte Upstream-Anfrage und die Provider-Antwort speichern.",
+    "Route Access": "Routenzugriff",
+    "Control which providers and models this workspace may use. Scoped guardrails can restrict individual members and API keys further.": "Legen Sie fest, welche Provider und Modelle dieser Arbeitsbereich verwenden darf. Bereichsbezogene Leitplanken können einzelne Mitglieder und API-Schlüssel zusätzlich einschränken.",
+    "Control which providers and models Phaseo may use for requests made as you. Workspace policy can restrict them further.": "Legen Sie fest, welche Provider und Modelle Phaseo für Anfragen in Ihrem Namen verwenden darf. Die Arbeitsbereichsrichtlinie kann dies weiter einschränken.",
+    "Approve request": "Anfrage genehmigen",
+    "Approve": "Genehmigen",
+    "Reject request": "Anfrage ablehnen",
+    "Reject": "Ablehnen",
+    "Approving…": "Wird genehmigt …",
+    "Rejecting…": "Wird abgelehnt …",
+    "Request approved": "Anfrage genehmigt",
+    "Request rejected": "Anfrage abgelehnt",
+    "Join requests": "Beitrittsanfragen",
+    "Approve or ignore requests to join this workspace.": "Anfragen zum Beitritt zu diesem Arbeitsbereich genehmigen oder ignorieren.",
+    "pending": "ausstehend",
+    "request": "Anfrage",
+    "Select workspace…": "Arbeitsbereich auswählen …",
+    "No workspaces available.": "Keine Arbeitsbereiche verfügbar.",
+    "No pending requests for": "Keine ausstehenden Anfragen für",
+    "Join request": "Beitrittsanfrage",
+    "Requested": "Angefragt",
+    "Failed:": "Fehlgeschlagen:",
+    "requested to join": "möchte beitreten",
+    "member": "Mitglied",
+    "members": "Mitglieder",
+    "Sample preview": "Beispielvorschau",
+    "Hide Samples": "Beispiele ausblenden",
+    "No workspace is currently selected.": "Derzeit ist kein Arbeitsbereich ausgewählt.",
+    "No members in {workspace} yet.": "Noch keine Mitglieder in {workspace}.",
+    "Role": "Rolle",
+    "Actions": "Aktionen",
+    "Spend (30d)": "Ausgaben (30 Tage)",
+    "Sort by 30-day spend": "Nach Ausgaben der letzten 30 Tage sortieren",
+    "currently descending": "derzeit absteigend",
+    "currently ascending": "derzeit aufsteigend",
+    "You": "Sie",
+    "Sample": "Beispiel",
+    "Actions for {member}": "Aktionen für {member}",
+    "Change Role": "Rolle ändern",
+    "Copy User ID": "Benutzer-ID kopieren",
+    "Remove Member": "Mitglied entfernen",
+    "Member actions": "Mitgliederaktionen",
+    "User Role": "Benutzerrolle",
+    "Only workspace owners can change member roles.": "Nur Arbeitsbereichsinhaber können Mitgliedsrollen ändern.",
+    "The workspace owner role is fixed and cannot be edited.": "Die Rolle des Arbeitsbereichsinhabers ist festgelegt und kann nicht bearbeitet werden.",
+    "Working...": "Wird ausgeführt …",
+    "You can only revoke members with an equal or lower role.": "Sie können nur Mitgliedern mit einer gleichrangigen oder niedrigeren Rolle den Zugriff entziehen.",
+    "Leaving...": "Wird verlassen …",
+    "Are you sure you want to leave {workspace}?": "Möchten Sie {workspace} wirklich verlassen?",
+    "You can't revoke access for someone with a higher role than yours.": "Sie können einer Person mit einer höheren Rolle als Ihrer den Zugriff nicht entziehen.",
+    "Are you sure you want to revoke access for {member}?": "Möchten Sie {member} wirklich den Zugriff entziehen?",
+    "Updated {member}'s sample role.": "Die Beispielrolle von {member} wurde aktualisiert.",
+    "Unable to update the member role right now.": "Die Mitgliedsrolle kann derzeit nicht aktualisiert werden.",
+    "You can't revoke access for members with a higher role than yours.": "Sie können Mitgliedern mit einer höheren Rolle als Ihrer den Zugriff nicht entziehen.",
+    "Removed sample member {member}.": "Beispielmitglied {member} wurde entfernt.",
+    "Unable to revoke access.": "Der Zugriff kann nicht entzogen werden.",
+    "You can't revoke the owner's access.": "Dem Inhaber kann der Zugriff nicht entzogen werden.",
+    "You left {workspace}.": "Sie haben {workspace} verlassen.",
+    "Revoked access for {member}.": "Der Zugriff für {member} wurde entzogen.",
+    "Unable to revoke access right now.": "Der Zugriff kann derzeit nicht entzogen werden.",
+    "Copied user ID": "Benutzer-ID kopiert",
+    "Unable to copy user ID": "Benutzer-ID konnte nicht kopiert werden",
+    "Invites": "Einladungen",
+    "View and manage invites for this workspace.": "Einladungen für diesen Arbeitsbereich anzeigen und verwalten.",
+    "{count} total": "{count} insgesamt",
+    "{count} active": "{count} aktiv",
+    "No invites for {workspace} yet.": "Noch keine Einladungen für {workspace}.",
+    "Created by": "Erstellt von",
+    "Unknown": "Unbekannt",
+    "Expires": "Läuft ab",
+    "No expiry": "Kein Ablauf",
+    "Uses:": "Verwendungen:",
+    "active": "aktiv",
+    "expired": "abgelaufen",
+    "Your monthly Enterprise subscription": "Ihr monatliches Enterprise-Abonnement",
+    "Change answers": "Antworten ändern",
+    "Self Serve Enterprise": "Self-Service-Enterprise",
+    " / month": " / Monat",
+    "Subscribe": "Abonnieren",
+    "Quote valid until {date}. USD billing only.": "Angebot gültig bis {date}. Abrechnung nur in USD.",
+    "Build your Enterprise plan": "Erstellen Sie Ihren Enterprise-Plan",
+    "Tell us the shape of your workspace. You will get a fixed USD price immediately—no sales call and no custom contract.": "Beschreiben Sie Ihren Arbeitsbereich. Sie erhalten sofort einen festen Preis in USD – ohne Verkaufsgespräch und ohne individuellen Vertrag.",
+    "Active members": "Aktive Mitglieder",
+    "Volume discounts are applied automatically. Credit funding is billed separately.": "Mengenrabatte werden automatisch angewendet. Die Guthabenaufladung wird separat abgerechnet.",
+    "What will you use?": "Wofür werden Sie es nutzen?",
+    "Single sign-on": "Single Sign-on",
+    "SCIM provisioning": "SCIM-Bereitstellung",
+    "Slack Connect support": "Slack-Connect-Unterstützung",
+    "All Enterprise features are included in one subscription.": "Alle Enterprise-Funktionen sind in einem Abonnement enthalten.",
+    "Calculate my price": "Meinen Preis berechnen",
+    "Enterprise pricing is unavailable": "Enterprise-Preise sind nicht verfügbar",
+    "Could not calculate pricing": "Preis konnte nicht berechnet werden",
+    "Could not start checkout": "Kaufvorgang konnte nicht gestartet werden",
+    "SAML SSO and SCIM provisioning": "SAML-SSO und SCIM-Bereitstellung",
+    "{count} active members included": "{count} aktive Mitglieder enthalten",
+    "Estimated {count} additional members at ${price}/member/month": "Geschätzt {count} zusätzliche Mitglieder zu ${price}/Mitglied/Monat",
+    "Estimated monthly total: ${amount}": "Geschätzte monatliche Gesamtsumme: ${amount}",
+    "Departments, roles and governance": "Abteilungen, Rollen und Governance",
+    "Standard 5% credit top-up fee": "Standardgebühr von 5 % für Guthabenaufladungen",
+    "Owner": "Inhaber",
+    "Admin": "Administrator",
+    "this workspace": "dieser Arbeitsbereich",
+    "this member": "dieses Mitglied",
+    "the workspace": "der Arbeitsbereich",
+    "Settings": "Einstellungen",
+    "Account": "Konto",
+    "Workspace": "Arbeitsbereich",
+    "Profile": "Profil",
+    "Account details": "Kontodetails",
+    "Account navigation": "Kontonavigation",
+    "API Keys": "API-Schlüssel",
+    "API Keys - Settings": "API-Schlüssel – Einstellungen",
+    "Create and manage gateway API keys for this workspace.": "Gateway-API-Schlüssel für diesen Arbeitsbereich erstellen und verwalten.",
+    "Quick start": "Schnellstart",
+    "Add key": "Schlüssel hinzufügen",
+    "Management API Keys": "Management-API-Schlüssel",
+    "Manage elevated keys for automated workspace and key management.": "Verwalten Sie privilegierte Schlüssel für die automatisierte Arbeitsbereichs- und Schlüsselverwaltung.",
+    "No workspace selected": "Kein Arbeitsbereich ausgewählt",
+    "Apps": "Apps",
+    "Apps - Settings": "Apps – Einstellungen",
+    "Manage application metadata and public visibility for your workspace.": "Anwendungsmetadaten und öffentliche Sichtbarkeit für Ihren Arbeitsbereich verwalten.",
+    "OAuth Integrations": "OAuth-Integrationen",
+    "OAuth Apps": "OAuth-Apps",
+    "Create OAuth applications to enable third-party integrations with your Phaseo account.": "OAuth-Anwendungen erstellen, um Drittanbieter-Integrationen mit Ihrem Phaseo-Konto zu ermöglichen.",
+    "OAuth Application": "OAuth-Anwendung",
+    "OAuth apps are coming soon": "OAuth-Apps folgen in Kürze",
+    "Please sign in": "Bitte melden Sie sich an",
+    "Notifications": "Benachrichtigungen",
+    "Choose what your workspace hears about and where alerts are delivered.": "Legen Sie fest, worüber Ihr Arbeitsbereich informiert wird und wohin Warnungen zugestellt werden.",
+    "Guardrails": "Leitplanken",
+    "Guardrail": "Leitplanke",
+    "Set workspace policies for members and API keys.": "Arbeitsbereichsrichtlinien für Mitglieder und API-Schlüssel festlegen.",
+    "Edit an existing guardrail policy.": "Eine vorhandene Leitplankenrichtlinie bearbeiten.",
+    "Select a workspace": "Arbeitsbereich auswählen",
+    "Bring Your Own Key": "Eigenen Schlüssel verwenden",
+    "Connect provider credentials and control how Phaseo routes requests.": "Anbieterzugangsdaten verbinden und festlegen, wie Phaseo Anfragen weiterleitet.",
+    "Provider Keys": "Anbieterschlüssel",
+    "BYOK monthly usage": "Monatliche BYOK-Nutzung",
+    "Used requests": "Verwendete Anfragen",
+    "Free remaining": "Verbleibendes kostenloses Kontingent",
+    "Paid-tier requests": "Anfragen der kostenpflichtigen Stufe",
+    "Routing": "Routing",
+    "Set the workspace defaults used when a request does not match a dynamic route.": "Arbeitsbereichsstandards festlegen, wenn eine Anfrage keiner dynamischen Route entspricht.",
+    "Dynamic routing": "Dynamisches Routing",
+    "Build request flows and attach them to specific API keys.": "Anfrageabläufe erstellen und bestimmten API-Schlüsseln zuweisen.",
+    "Local preview mode — changes stay in this browser and do not touch the database.": "Lokaler Vorschaumodus – Änderungen bleiben in diesem Browser und berühren die Datenbank nicht.",
+    "Auto routing": "Automatisches Routing",
+    "Control how phaseo/auto balances model quality, cost, and speed for this workspace.": "Steuern Sie, wie phaseo/auto Modellqualität, Kosten und Geschwindigkeit für diesen Arbeitsbereich ausbalanciert.",
+    "Presets": "Voreinstellungen",
+    "Manage reusable request configurations for your API calls.": "Wiederverwendbare Anfragekonfigurationen für Ihre API-Aufrufe verwalten.",
+    "New Preset": "Neue Voreinstellung",
+    "Edit Preset": "Voreinstellung bearbeiten",
+    "Changes remain a draft until you publish a new version.": "Änderungen bleiben ein Entwurf, bis Sie eine neue Version veröffentlichen.",
+    "Unpublished Changes": "Unveröffentlichte Änderungen",
+    "Preset Feedback": "Voreinstellungsfeedback",
+    "Compare preset quality from feedback API events, date windows, and metadata cohorts.": "Voreinstellungsqualität anhand von Feedback-API-Ereignissen, Zeitfenstern und Metadatengruppen vergleichen.",
+    "Measure how each preset performs using ratings and outcome signals from your application.": "Messen Sie die Leistung jeder Voreinstellung anhand von Bewertungen und Ergebnissignalen Ihrer Anwendung.",
+    "No presets yet": "Noch keine Voreinstellungen",
+    "No feedback in this window": "Kein Feedback in diesem Zeitraum",
+    "Baseline": "Basislinie",
+    "Feedback": "Feedback",
+    "Positive": "Positiv",
+    "Partial": "Teilweise",
+    "Negative": "Negativ",
+    "Privacy": "Datenschutz",
+    "Set data handling, log storage, and route access for every request in this workspace.": "Datenverarbeitung, Protokollspeicherung und Routenzugriff für jede Anfrage in diesem Arbeitsbereich festlegen.",
+    "Danger Zone": "Gefahrenzone",
+    "Destructive actions for your user.": "Nicht rückgängig zu machende Aktionen für Ihr Benutzerkonto.",
+    "MFA": "MFA",
+    "Manage two-factor authentication for your user.": "Zwei-Faktor-Authentifizierung für Ihr Benutzerkonto verwalten.",
+    "Provider onboarding": "Anbieter-Onboarding",
+    "Connect your provider catalog and keep your account linked to the public provider profile.": "Ihren Anbieterkatalog verbinden und Ihr Konto mit dem öffentlichen Anbieterprofil verknüpft halten.",
+    "Workspaces": "Arbeitsbereiche",
+    "Create workspaces and choose which ones you want to manage.": "Arbeitsbereiche erstellen und auswählen, welche Sie verwalten möchten.",
+    "Personal": "Persönlich",
+    "Billing onboarding": "Abrechnungs-Onboarding",
+    "Sign in to continue setting up workspace billing.": "Melden Sie sich an, um die Abrechnung des Arbeitsbereichs einzurichten.",
+    "Select a workspace to continue setup.": "Wählen Sie einen Arbeitsbereich, um mit der Einrichtung fortzufahren.",
+    "Could not load the active workspace.": "Der aktive Arbeitsbereich konnte nicht geladen werden.",
+    "Invoices": "Rechnungen",
+    "Enterprise billing records and invoice documents.": "Enterprise-Abrechnungsdatensätze und Rechnungsdokumente.",
+    "Transactions": "Transaktionen",
+    "Alerts": "Warnungen",
+    "Lifecycle Alerts": "Lebenszyklus-Warnungen",
+    "Models you used recently that are deprecated or retired, and what to swap to.": "Kürzlich verwendete Modelle, die abgekündigt oder eingestellt wurden, sowie mögliche Ersatzmodelle.",
+    "No lifecycle alerts": "Keine Lebenszyklus-Warnungen",
+    "Observability": "Beobachtbarkeit",
+    "Unable to load observability": "Beobachtbarkeit konnte nicht geladen werden",
+    "Logs unavailable": "Protokolle nicht verfügbar",
+    "We couldn't load request logs. Try again in a moment.": "Anfrageprotokolle konnten nicht geladen werden. Versuchen Sie es gleich noch einmal.",
+    "Workspace access changed": "Arbeitsbereichszugriff geändert",
+    "You no longer have access to this workspace. Select another workspace to view its logs.": "Sie haben keinen Zugriff mehr auf diesen Arbeitsbereich. Wählen Sie einen anderen Arbeitsbereich, um dessen Protokolle anzuzeigen.",
+    "No workspace available": "Kein Arbeitsbereich verfügbar",
+    "Async jobs": "Asynchrone Aufgaben",
+    "Recent long-running video and batch jobs, including status, billing, and webhook delivery history.": "Aktuelle lang laufende Video- und Batch-Aufgaben einschließlich Status, Abrechnung und Webhook-Zustellungsverlauf.",
+    "Filtered spend": "Gefilterte Ausgaben",
+    "Requests": "Anfragen",
+    "Spend": "Ausgaben",
+    "Spend is calculated from a 5,000-request sample.": "Die Ausgaben werden anhand einer Stichprobe von 5.000 Anfragen berechnet.",
+    "Geography": "Geografie",
+    "See where workspace requests originate without storing raw IP addresses.": "Sehen Sie, woher Arbeitsbereichsanfragen stammen, ohne rohe IP-Adressen zu speichern.",
+    "Workspace Access - Settings": "Arbeitsbereichszugriff – Einstellungen",
+    "Workspace Members - Settings": "Arbeitsbereichsmitglieder – Einstellungen",
+    "Workspace Settings - Settings": "Arbeitsbereichseinstellungen – Einstellungen",
+    "Teams - Settings": "Teams – Einstellungen",
+    "Team Access - Settings": "Teamzugriff – Einstellungen",
+    "Team Members - Settings": "Teammitglieder – Einstellungen",
+    "Team Settings - Settings": "Teameinstellungen – Einstellungen",
+    "Enterprise": "Enterprise",
+    "Directory": "Verzeichnis",
+    "Departments": "Abteilungen",
+    "Single Sign-On": "Single Sign-On",
+    "SCIM": "SCIM",
+    "Webhooks - Settings": "Webhooks – Einstellungen",
+    "Webhook settings": "Webhook-Einstellungen",
+    "Webhook events": "Webhook-Ereignisse",
+    "Webhook URL": "Webhook-URL",
+    "Webhook name": "Webhook-Name",
+    "Create": "Erstellen",
+    "Save": "Speichern",
+    "Cancel": "Abbrechen",
+    "Close": "Schließen",
+    "Delete": "Löschen",
+    "Edit": "Bearbeiten",
+    "Details": "Details",
+    "Actions": "Aktionen",
+    "View details": "Details anzeigen",
+    "View members": "Mitglieder anzeigen",
+    "View stats": "Statistiken anzeigen",
+    "Default": "Standard",
+    "Expires": "Läuft ab",
+    "Card type": "Kartentyp",
+    "Remove payment method?": "Zahlungsmethode entfernen?",
+    "Remove": "Entfernen",
+    "Loading…": "Wird geladen …",
+    "Saving…": "Wird gespeichert …",
+    "No results found": "Keine Ergebnisse gefunden",
+    "Active": "Aktiv",
+    "Disabled": "Deaktiviert",
+    "Limits Reached": "Limits erreicht",
+    "Expired": "Abgelaufen",
+    "Never": "Nie",
+    "No expiry": "Kein Ablaufdatum",
+    "No guardrails": "Keine Leitplanken",
+    "Today": "Heute",
+    "This week": "Diese Woche",
+    "This month": "Diesen Monat",
+    "Used": "Verwendet",
+    "Limit": "Limit",
+    "Remaining": "Verbleibend",
+    "Reset": "Zurücksetzen",
+    "Resets in": "Zurücksetzung in",
+    "No cap": "Kein Limit",
+    "Delete selected API keys?": "Ausgewählte API-Schlüssel löschen?",
+    "Delete selected": "Ausgewählte löschen",
+    "Type key name to confirm": "Schlüsselnamen zur Bestätigung eingeben",
+    "Rotate API key": "API-Schlüssel rotieren",
+    "New key name": "Neuer Schlüsselname",
+    "Key name": "Schlüsselname",
+    "Select expiry timing": "Ablaufzeitpunkt auswählen",
+    "Expire immediately": "Sofort ablaufen lassen",
+    "Expire in 1 hour": "In 1 Stunde ablaufen lassen",
+    "Expire in 24 hours": "In 24 Stunden ablaufen lassen",
+    "Expire in 7 days": "In 7 Tagen ablaufen lassen",
+    "Custom date/time": "Benutzerdefiniertes Datum / Uhrzeit",
+    "Do not expire automatically": "Nicht automatisch ablaufen lassen",
+    "Create Workspace Invite": "Arbeitsbereichseinladung erstellen",
+    "Selected workspace": "Ausgewählter Arbeitsbereich",
+    "Share this code:": "Diesen Code teilen:",
+    "Copy invite code": "Einladungscode kopieren",
+    "Invite code": "Einladungscode",
+    "Unlimited": "Unbegrenzt",
+    "No expiry": "Kein Ablaufdatum",
+    "Created by": "Erstellt von",
+    "Created": "Erstellt",
+    "Expiry": "Ablauf",
+    "Uses": "Verwendungen",
+    "Max uses": "Maximale Verwendungen",
+    "Usage": "Nutzung",
+    "Delete failed": "Löschen fehlgeschlagen",
+    "Approve": "Genehmigen",
+    "Reject": "Ablehnen",
+    "Approve request": "Anfrage genehmigen",
+    "Reject request": "Anfrage ablehnen",
+    "Request approved": "Anfrage genehmigt",
+    "Request rejected": "Anfrage abgelehnt",
+    "Join request": "Beitrittsanfrage",
+    "Member": "Mitglied",
+    "Admin": "Administrator",
+    "Owner": "Eigentümer",
+    "Leave workspace": "Arbeitsbereich verlassen",
+    "Revoke access": "Zugriff entziehen",
+    "Type \"DELETE\" to confirm": "Geben Sie \"DELETE\" zur Bestätigung ein",
+    "Yes, delete my account": "Ja, mein Konto löschen",
+    "Yes, delete this workspace": "Ja, diesen Arbeitsbereich löschen",
+    "Try again": "Erneut versuchen",
+    "Action failed": "Aktion fehlgeschlagen",
+    "Update failed": "Aktualisierung fehlgeschlagen",
+    "Authentication failed": "Authentifizierung fehlgeschlagen",
+    "Unable to update app": "App konnte nicht aktualisiert werden",
+    "Updating app...": "App wird aktualisiert …",
+    "App updated": "App aktualisiert",
+    "Unknown app": "Unbekannte App",
+    "Unknown key": "Unbekannter Schlüssel",
+    "Unknown provider": "Unbekannter Anbieter",
+    "Unknown Workspace": "Unbekannter Arbeitsbereich",
+    "Unknown User": "Unbekannter Benutzer",
+    "Token copied": "Token kopiert",
+    "Copied user ID": "Benutzer-ID kopiert",
+    "Unable to copy user ID": "Benutzer-ID konnte nicht kopiert werden",
+    "Test Connection": "Verbindung testen",
+    "Test notification delivered": "Testbenachrichtigung zugestellt",
+    "Test key": "Schlüssel testen",
+    "No API keys yet": "Noch keine API-Schlüssel",
+    "No apps yet": "Noch keine Apps",
+    "No webhooks yet": "Noch keine Webhooks",
+    "Publish new version": "Neue Version veröffentlichen",
+    "Publishing…": "Wird veröffentlicht …",
+    "Preset reference copied": "Voreinstellungsreferenz kopiert",
+    "What changed in this version? (optional)": "Was hat sich in dieser Version geändert? (optional)",
+    "Semantic version (for example 1.2.0 or 2.0.0-beta.1)": "Semantische Version (z. B. 1.2.0 oder 2.0.0-beta.1)",
+    "No presets for this workspace": "Keine Voreinstellungen für diesen Arbeitsbereich",
+    "Invoke with": "Aufrufen mit",
+    "Apply patch requests": "Patch-Anfragen anwenden",
+    "Routing settings could not be updated.": "Routing-Einstellungen konnten nicht aktualisiert werden.",
+    "Auto Routing updated": "Automatisches Routing aktualisiert",
+    "Auto Routing could not be updated.": "Automatisches Routing konnte nicht aktualisiert werden.",
+    "Auto Routing is not enabled for this workspace.": "Automatisches Routing ist für diesen Arbeitsbereich nicht aktiviert.",
+    "Saving privacy settings...": "Datenschutzeinstellungen werden gespeichert …",
+    "Saving your settings...": "Ihre Einstellungen werden gespeichert …",
+    "Saving workspace settings...": "Arbeitsbereichseinstellungen werden gespeichert …",
+    "Failed to delete key": "Schlüssel konnte nicht gelöscht werden",
+    "Failed to rotate key": "Schlüssel konnte nicht rotiert werden",
+    "Failed to create invite": "Einladung konnte nicht erstellt werden",
+    "Unable to revoke access right now.": "Zugriff kann derzeit nicht entzogen werden.",
+    "Unable to revoke access.": "Zugriff konnte nicht entzogen werden.",
+    "Unable to update the member role right now.": "Mitgliederrolle kann derzeit nicht aktualisiert werden.",
+    "Failed to create management API key": "Management-API-Schlüssel konnte nicht erstellt werden",
+    "Could not create management API key right now. Please try again.": "Management-API-Schlüssel konnte derzeit nicht erstellt werden. Bitte versuchen Sie es erneut.",
+    "Missing workspace context. Select a workspace in the header and try again.": "Arbeitsbereichskontext fehlt. Wählen Sie im Kopfbereich einen Arbeitsbereich und versuchen Sie es erneut.",
+    "This key will be shown only once": "Dieser Schlüssel wird nur einmal angezeigt",
+    "All management API capabilities.": "Alle Management-API-Funktionen.",
+    "Read": "Lesen",
+    "Write": "Schreiben",
+    "View all control-plane resources without changing them.": "Alle Control-Plane-Ressourcen anzeigen, ohne sie zu ändern.",
+    "Read and change resources, without delete access.": "Ressourcen lesen und ändern, ohne Löschzugriff.",
+    "This key will be shown only once and grants": "Dieser Schlüssel wird nur einmal angezeigt und gewährt",
+    "Creating...": "Wird erstellt …",
+    "Deleting...": "Wird gelöscht …",
+    "Rotating...": "Wird rotiert …",
+    "Done": "Fertig",
+    "Error": "Fehler",
+    "Success": "Erfolg",
+    "Enabled": "Aktiviert",
+    "Off": "Aus",
+    "On": "An",
+    "Choose the comparison baseline and narrow the feedback included below.": "Wählen Sie die Vergleichsbasis und schränken Sie das unten enthaltene Feedback ein.",
+    "No Baseline": "Keine Basis",
+    "Last 7 Days": "Letzte 7 Tage",
+    "All Ratings": "Alle Bewertungen",
+    "Comparisons use explicit ratings. Positive means thumbs up or correct; negative means thumbs down, incorrect, or unsafe. Numeric scores are optional detail only.": "Vergleiche verwenden explizite Bewertungen. Positiv bedeutet Daumen hoch oder korrekt; negativ bedeutet Daumen runter, inkorrekt oder unsicher. Numerische Bewertungen sind nur optionale Details.",
+    "Reset": "Zurücksetzen",
+    "Apply filters": "Filter anwenden",
+    "Provider Routing": "Provider-Routing",
+    "Choose provider fallback order, exclusions, and routing performance thresholds.": "Wählen Sie die Fallback-Reihenfolge, Ausschlüsse und Leistungsschwellen für das Routing.",
+    "Set routing behavior, response caching, and prompt defaults.": "Legen Sie Routing-Verhalten, Antwort-Caching und Prompt-Standardwerte fest.",
+    "Plugins": "Plugins",
+    "Enable deterministic gateway plugins for this preset.": "Deterministische Gateway-Plugins für dieses Preset aktivieren.",
+    "Generation Parameters": "Generierungsparameter",
+    "Set sampling and deterministic defaults.": "Sampling- und deterministische Standardwerte festlegen.",
+    "Model defaults": "Modellstandardwerte",
+    "Reasoning Configuration": "Konfiguration der Schlussfolgerung",
+    "Configure reasoning-specific behavior when supported.": "Modellspezifisches Schlussfolgerungsverhalten konfigurieren, sofern unterstützt.",
+    "No preset plugins enabled": "Keine Preset-Plugins aktiviert",
+    "Disabled": "Deaktiviert",
+    "Response Healing": "Antwortreparatur",
+    "Healing Mode": "Reparaturmodus",
+    "Safe": "Sicher",
+    "Strict": "Strikt",
+    "Strict mode only unwraps already-valid JSON from fences or surrounding text.": "Der strikte Modus entfernt nur bereits gültiges JSON aus Codeblöcken oder umgebendem Text.",
+    "Safe mode enables the full bounded JSON repair path for structured-output workflows.": "Der sichere Modus aktiviert die vollständige, begrenzte JSON-Reparatur für Workflows mit strukturierten Ausgaben.",
+    "Provider order": "Provider-Reihenfolge",
+    "Select Providers": "Provider auswählen",
+    "Search providers...": "Provider suchen …",
+    "No matching routable providers": "Keine passenden routbaren Provider",
+    "No provider order configured. Any eligible provider may be used.": "Keine Provider-Reihenfolge konfiguriert. Jeder geeignete Provider kann verwendet werden.",
+    "Blocked Providers": "Blockierte Provider",
+    "These providers will never be used, even if they support the selected model.": "Diese Provider werden niemals verwendet, selbst wenn sie das ausgewählte Modell unterstützen.",
+    "No providers blocked.": "Keine Provider blockiert.",
+    "Residency requirements": "Residenzanforderungen",
+    "Required execution region": "Erforderliche Ausführungsregion",
+    "Required data region": "Erforderliche Datenregion",
+    "Any Region": "Beliebige Region",
+    "Any region": "Beliebige Region",
+    "Performance routing": "Leistungsrouting",
+    "Maximum Price": "Maximaler Preis",
+    "Prompt": "Prompt",
+    "Completion": "Vervollständigung",
+    "Preferred Minimum Throughput": "Bevorzugter Mindestdurchsatz",
+    "Preferred Maximum Latency": "Bevorzugte maximale Latenz",
+    "Overview / Provider Routing": "Übersicht / Provider-Routing",
+    "Overview / Generation Parameters": "Übersicht / Generierungsparameter",
+    "Overview / Reasoning Configuration": "Übersicht / Schlussfolgerungskonfiguration",
+    "Set deterministic and sampling defaults that apply to requests using this preset.": "Deterministische und Sampling-Standardwerte für Anfragen mit diesem Preset festlegen.",
+    "Configure reasoning settings for models that expose reasoning-specific controls.": "Schlussfolgerungseinstellungen für Modelle mit entsprechenden Steuerelementen konfigurieren.",
+    "Temperature": "Temperatur",
+    "Top P": "Top-P",
+    "Top K": "Top-K",
+    "Max Tokens": "Maximale Tokens",
+    "Frequency Penalty": "Häufigkeitsstrafe",
+    "Presence Penalty": "Präsenzstrafe",
+    "Repetition Penalty": "Wiederholungsstrafe",
+    "Seed": "Startwert",
+    "Random": "Zufällig",
+    "Enable Reasoning": "Schlussfolgerung aktivieren",
+    "Reasoning Effort": "Schlussfolgerungsaufwand",
+    "None": "Keine",
+    "Minimal": "Minimal",
+    "Low": "Niedrig",
+    "Medium": "Mittel",
+    "High": "Hoch",
+    "Extra High": "Sehr hoch",
+    "Maximum": "Maximum",
+    "Reasoning Max Tokens": "Maximale Tokens für Schlussfolgerung",
+    "Leave empty for model default": "Für den Modellstandard leer lassen",
+    "Exclude Reasoning from Output": "Schlussfolgerung aus Ausgabe ausschließen",
+    "Actions": "Aktionen",
+    "Create your first key to start sending gateway requests.": "Erstellen Sie Ihren ersten Schlüssel, um Gateway-Anfragen zu senden.",
+    "Create an API key to manage access and usage limits.": "Erstellen Sie einen API-Schlüssel, um Zugriff und Nutzungslimits zu verwalten.",
+    "key selected": "Schlüssel ausgewählt",
+    "keys selected": "Schlüssel ausgewählt",
+    "Activate": "Aktivieren",
+    "Pause": "Pausieren",
+    "Key": "Schlüssel",
+    "Details": "Details",
+    "Rotate": "Rotieren",
+    "No cap": "Kein Limit",
+    "requests": "Anfragen",
+    "spend": "Ausgaben",
+    "Resets in {time}": "Zurücksetzung in {time}",
+    "This will delete {count} {unit} and remove linked guardrail assignments from those keys.": "Dadurch werden {count} {unit} gelöscht und verknüpfte Guardrail-Zuweisungen von diesen Schlüsseln entfernt.",
+    "key": "Schlüssel",
+    "keys": "Schlüsseln",
+    "Deleting...": "Wird gelöscht …",
+    "Delete selected": "Ausgewählte löschen",
+    "Pausing selected keys...": "Ausgewählte Schlüssel werden pausiert …",
+    "Activating selected keys...": "Ausgewählte Schlüssel werden aktiviert …",
+    "Selected keys paused": "Ausgewählte Schlüssel pausiert",
+    "Selected keys activated": "Ausgewählte Schlüssel aktiviert",
+    "Failed to update selected keys": "Ausgewählte Schlüssel konnten nicht aktualisiert werden",
+    "Deleting selected keys...": "Ausgewählte Schlüssel werden gelöscht …",
+    "Selected keys deleted": "Ausgewählte Schlüssel gelöscht",
+    "Failed to delete selected keys": "Ausgewählte Schlüssel konnten nicht gelöscht werden",
+    "API Key": "API-Schlüssel",
+    "Detailed usage, spend, metadata, and guardrail coverage for this key.": "Detaillierte Nutzung, Ausgaben, Metadaten und Guardrail-Abdeckung für diesen Schlüssel.",
+    "Metadata": "Metadaten",
+    "Key ID": "Schlüssel-ID",
+    "Key Ref": "Schlüsselreferenz",
+    "Updated": "Aktualisiert",
+    "Limits": "Limits",
+    "Unlimited": "Unbegrenzt",
+    "Guardrail": "Guardrail",
+    "Recent window": "Letztes Zeitfenster",
+    "Blocked": "Blockiert",
+    "Redacted": "Redigiert",
+    "Flagged": "Markiert",
+    "Last triggered": "Zuletzt ausgelöst",
+    "Most active guardrails": "Aktivste Guardrails",
+    "Guardrail activity was recorded, but the source rule could not be resolved from current workspace mappings.": "Guardrail-Aktivität wurde aufgezeichnet, aber die Quellregel konnte anhand der aktuellen Arbeitsbereichszuordnungen nicht ermittelt werden.",
+    "No recorded blocked, redacted, or flagged requests for this key in the last 30 days.": "In den letzten 30 Tagen wurden für diesen Schlüssel keine blockierten, redigierten oder markierten Anfragen aufgezeichnet.",
+    "Activity": "Aktivität",
+    "Logs": "Protokolle",
+    "Any eligible provider": "Jeder geeignete Provider",
+    "Response healing": "Antwortreparatur",
+    "Restrict routing to providers that advertise matching execution or data residency metadata.": "Routing auf Provider mit passenden Ausführungs- oder Datenresidenz-Metadaten beschränken.",
+    "Require zero data retention support": "Unterstützung für Null-Datenaufbewahrung erforderlich",
+    "Only route to providers that advertise default or optional zero-retention support.": "Nur Provider verwenden, die standardmäßige oder optionale Null-Aufbewahrung unterstützen.",
+    "Maximum price per million tokens for prompt and completion before the provider is deprioritized.": "Maximaler Preis pro Million Tokens für Prompt und Vervollständigung, bevor der Provider zurückgestuft wird.",
+    "Preferred minimum throughput in tokens per second. Endpoints below these thresholds may still be used, but are deprioritized in routing.": "Bevorzugter Mindestdurchsatz in Tokens pro Sekunde. Endpunkte unter diesen Schwellen können weiterhin verwendet, beim Routing jedoch zurückgestuft werden.",
+    "Preferred maximum latency in seconds. Endpoints above these thresholds may still be used, but are deprioritized in routing.": "Bevorzugte maximale Latenz in Sekunden. Endpunkte über diesen Schwellen können weiterhin verwendet, beim Routing jedoch zurückgestuft werden.",
+    "This preset will be published to the Marketplace and can be invoked using": "Dieses Preset wird im Marketplace veröffentlicht und kann aufgerufen werden mit",
+    "Public": "Öffentlich",
+    "Select providers in order. The router will prefer the first available provider from this ordered subset.": "Provider in Reihenfolge auswählen. Der Router bevorzugt den ersten verfügbaren Provider dieser Auswahl.",
+    "No models selected yet.": "Noch keine Modelle ausgewählt.",
+    "Thumbs Up": "Daumen hoch",
+    "Thumbs Down": "Daumen runter",
+    "Correct": "Korrekt",
+    "Partly Correct": "Teilweise korrekt",
+    "Incorrect": "Inkorrekt",
+    "Unsafe": "Unsicher",
+    "Unrated": "Nicht bewertet"
+  },
+  "identity": {
+    "openReviewQueue": "Interne Prüfwarteschlange öffnen",
+    "profile": "Profil",
+    "catalog": "Katalog",
+    "submit": "Absenden",
+    "providerProfile": "Providerprofil",
+    "providerProfileDescription": "Dies ist die öffentliche Identität, die mit Ihrer Einreichung verknüpft ist.",
+    "providerName": "Providername",
+    "providerSlug": "Provider-Slug",
+    "providerSlugDescription": "Wird in Provider-URLs und Routing-Metadaten verwendet.",
+    "website": "Website",
+    "logoUrl": "Logo-URL",
+    "logoUrlDescription": "Verwenden Sie eine stabile HTTPS-Bild-URL. Wir prüfen sie mit dem Providerprofil.",
+    "liveCatalog": "Live-Katalog",
+    "liveCatalogDescription": "Geben Sie die HTTPS-URL an, die Ihre Modellliste zurückgibt.",
+    "modelsListUrl": "URL der Modellliste",
+    "checkCatalog": "Katalog prüfen",
+    "whatWeCheck": "Was wir prüfen",
+    "noPaymentRequired": "Keine Zahlung erforderlich",
+    "catalogPreview": "Katalogvorschau",
+    "reviewOutcomes": "Prüfergebnisse",
+    "yourProviderActivity": "Ihre Provideraktivität",
+    "noProviderActivity": "Noch keine Provideraktivität",
+    "discount": "Rabatt",
+    "retained30Days": "Gespeichert (30 Tage)",
+    "discountEarned": "Erzielter Rabatt",
+    "instructions": "Anweisungen",
+    "categoriesJson": "Kategorien (JSON)",
+    "deleteClassifier": "{name} löschen"
+  },
+  "observability": {
+    "activity": "Aktivität",
+    "yourUsage": "Ihre Nutzung auf Phaseo.",
+    "sampledRequests": "Diese Ansicht basiert auf den ersten {count} Anfragen im ausgewählten Zeitraum.",
+    "noUsagePeriod": "Keine Nutzung in diesem Zeitraum.",
+    "toks": "Tokens",
+    "chartOptions": "Diagrammoptionen",
+    "showOther": "Weitere anzeigen",
+    "cumulativeSum": "Kumulative Summe",
+    "chartType": "Diagrammtyp",
+    "barChart": "Balkendiagramm",
+    "lineChart": "Liniendiagramm",
+    "dotPlot": "Punktdiagramm",
+    "new": "Neu",
+    "topByTokens": "Nach Tokens an erster Stelle",
+    "topGuardrails": "Aktivste Leitplanken",
+    "noGuardrailEvents": "Keine Leitplankenereignisse in diesem Zeitraum.",
+    "top": "Höchste",
+    "bottom": "Niedrigste",
+    "rollupTotal": "Zusammenfassung: Gesamt",
+    "rollupAverage": "Zusammenfassung: Durchschnitt",
+    "guardrailBreakdown": "Aufschlüsselung der Leitplanken",
+    "guardrailEventsOverTime": "Leitplankenereignisse im Zeitverlauf",
+    "filteredSpend": "Gefilterte Ausgaben",
+    "requests": "Anfragen",
+    "spend": "Ausgaben",
+    "sampledSpend": "Die Ausgaben werden anhand einer Stichprobe von 5.000 Anfragen berechnet."
+  },
+  "credits": {
+    "currentBalance": "Aktueller Kontostand",
+    "refreshBalance": "Kontostand aktualisieren",
+    "refreshing": "Guthaben wird aktualisiert…",
+    "refreshed": "Guthaben aktualisiert",
+    "refreshFailed": "Guthaben konnte nicht aktualisiert werden",
+    "notifications": "Benachrichtigungen",
+    "lowBalanceAlerts": "Warnungen bei niedrigem Guthaben",
+    "lowBalanceDescription": "Benachrichtigen, wenn das Arbeitsbereichsguthaben den festgelegten Schwellenwert erreicht.",
+    "enableLowBalance": "Warnungen bei niedrigem Guthaben aktivieren",
+    "creditThreshold": "Guthabenschwellenwert",
+    "thresholdDescription": "Bei diesem Kontostand oder darunter warnen. Auf eine E-Mail alle sechs Stunden begrenzt.",
+    "thresholdInvalid": "Verwenden Sie einen nicht negativen Betrag mit höchstens zwei Dezimalstellen.",
+    "autoTopUpFailed": "Automatische Aufladung fehlgeschlagen",
+    "autoTopUpDescription": "Benachrichtigen, wenn eine automatische Guthabenabbuchung fehlschlägt.",
+    "enableAutoTopUp": "Warnungen bei fehlgeschlagener automatischer Aufladung aktivieren",
+    "paymentMethodExpiring": "Zahlungsmethode läuft ab",
+    "paymentMethodExpiringDescription": "Vor dem Ablauf einer gespeicherten Zahlungsmethode warnen.",
+    "enablePaymentMethodExpiring": "Warnungen zum Ablauf der Zahlungsmethode aktivieren",
+    "savingAlert": "Warnung bei niedrigem Guthaben wird gespeichert…",
+    "savingPreference": "Benachrichtigungseinstellung wird gespeichert…",
+    "saved": "Gespeichert",
+    "saveAlertFailed": "Warnung konnte nicht gespeichert werden",
+    "savePreferenceFailed": "Benachrichtigungseinstellung konnte nicht gespeichert werden",
+    "currentTier": "Aktuelle Stufe",
+    "topUpFee": "Aufladegebühr für Guthaben",
+    "lastMonthSpend": "Ausgaben im letzten Monat",
+    "progressThisMonth": "Fortschritt in diesem Monat",
+    "spendMoreToThreshold": "Geben Sie diesen Monat noch {amount} aus, um den nächsten Schwellenwert zu erreichen",
+    "thresholdReached": "Schwellenwert für diesen Monat erreicht.",
+    "learnPricing": "Mehr über Preise erfahren",
+    "spendingTrends": "Ausgabentrends",
+    "thisMonth": "Dieser Monat",
+    "lastMonth": "Letzter Monat",
+    "vsLastMonth": "gegenüber dem letzten Monat",
+    "sameAsLastMonth": "Wie im letzten Monat",
+    "pricingWorks": "So funktioniert die Preisgestaltung:",
+    "pricingExplanation": "Ihre Nutzung wird monatlich aktualisiert; die angezeigte Gebühr wird beim Kauf von Guthaben angewendet.",
+    "savingVsBasic": "Diesen Monat etwa {amount} gegenüber Basic gespart",
+    "headsUp": "Hinweis:",
+    "spendingBelowThreshold": "Ihre Ausgaben liegen diesen Monat unter 10.000 $. Der Enterprise-Status bleibt mit einer dreimonatigen Kulanzfrist erhalten.",
+    "standard": "Standard",
+    "basic": "Basic",
+    "enterprise": "Enterprise"
+    ,"pricing": "Preisgestaltung"
+    ,"lastMonth": "Letzter Monat"
+    ,"currentTopUpFee": "Aktuelle Aufladegebühr"
+    ,"pricingTier": "Preisstufe"
+    ,"currentTierLower": "Aktuelle Stufe"
+    ,"premium": "Premium"
+    ,"saveVsBasic": "{percent}% gegenüber Basic sparen"
+    ,"standardPricing": "Standardpreis"
+    ,"onlyAway": "Nur noch {amount} bis zur Enterprise-Stufe!"
+    ,"qualifyNextMonth": "Geben Sie diesen Monat {amount}+ aus, um sich im nächsten Monat für die Enterprise-Stufe zu qualifizieren."
+    ,"belowThreshold": "Ihre Ausgaben seit Monatsbeginn ({amount}) liegen unter dem Enterprise-Schwellenwert."
+    ,"maintainPricing": "Geben Sie {amount}+ aus, um die Enterprise-Aufladegebühr beizubehalten."
+    ,"downgradeNote": "Hinweis: Herabstufungen erfolgen nach drei aufeinanderfolgenden Monaten unter dem Schwellenwert."
+    ,"thisMonthAmount": "Diesen Monat: {amount}"
+    ,"toEnterprise": "{percent}% bis Enterprise"
+    ,"topUpFeePercent": "{percent}% Aufladegebühr"
+    ,"perMonth": "{amount}+/Monat"
+    ,"unlocking": "Wird freigeschaltet"
+    ,"howItWorks": "So funktioniert es"
+    ,"basicTierFee": "Basic-Stufe (5 %)"
+    ,"basicTierDescription": "Alle Teams starten hier. Automatisches Upgrade nach Ausgaben von mindestens {amount} in einem beliebigen Monat."
+    ,"enterpriseTierFee": "Enterprise-Stufe (5 %)"
+    ,"enterpriseTierDescription": "Die Enterprise-Qualifikation bleibt bei monatlichen Ausgaben von mindestens {amount} erhalten. Herabstufung auf Basic nach drei aufeinanderfolgenden Monaten unter dem Schwellenwert."
+    ,"tiersUpdated": "Stufen werden am 1. jedes Monats anhand der Ausgaben des Vormonats automatisch aktualisiert."
+    ,"questionsContact": "Fragen? Wenden Sie sich an den Support für individuelle Preise oder Mengenrabatte."
+    ,"refundConfirmed": "Ihre Rückerstattung ist bestätigt. Die meisten Banken buchen Rückerstattungen innerhalb von 5–10 Werktagen."
+    ,"refundProcessing": "Ihre Rückerstattungsanfrage wird bearbeitet. Nach der Bestätigung buchen die meisten Banken den Betrag innerhalb von 5–10 Werktagen."
+    ,"paymentConfirmed": "Zahlung bestätigt. Ihr Guthaben wurde hinzugefügt."
+    ,"paymentProcessing": "Zahlung wird verarbeitet – wir versuchen, Ihre Karte zu belasten. Klicken Sie auf Aktualisieren, um den aktuellen Status zu prüfen."
+    ,"cardSaved": "Karte erfolgreich gespeichert."
+    ,"checkoutProcessing": "Checkout abgeschlossen. Auf Zahlungsbestätigung wird gewartet. Klicken Sie auf Aktualisieren, um den aktuellen Status zu prüfen."
+    ,"checkoutCancelled": "Checkout abgebrochen. Es wurden keine Gebühren berechnet."
+    ,"dismiss": "Schließen"
+    ,"dismissCountdown": "Schließen (automatisch in {seconds}s)"
+    ,"redeemCreditCode": "Guthabencode einlösen"
+    ,"redeemCreditDescription": "Geben Sie einen Aktionscode ein, um dem ausgewählten Team Guthaben gutzuschreiben."
+    ,"redeemCode": "Code einlösen"
+    ,"promoDisclaimer": "Aktionsguthaben wird nach unserem alleinigen Ermessen gewährt und kann jederzeit ohne Vorankündigung geändert oder zurückgezogen werden."
+    ,"team": "Team"
+    ,"selectTeam": "Team auswählen"
+    ,"code": "Code"
+    ,"creditCodesInvoiceDisabled": "Guthabencodes sind für Teams mit Rechnungsabrechnung deaktiviert."
+    ,"enterCreditCode": "Geben Sie einen Guthabencode ein."
+    ,"selectTeamError": "Wählen Sie ein Team aus."
+    ,"selectedTeam": "ausgewählten Team"
+    ,"redeeming": "Wird eingelöst…"
+    ,"redeemed": "Eingelöst"
+    ,"redeemAgain": "Erneut einlösen"
+    ,"surveySetup": "Die Einrichtung ist unklar"
+    ,"surveyPricing": "Die Preisgestaltung ist unklar"
+    ,"surveyModel": "Ich weiß nicht, welches Modell ich auswählen soll"
+    ,"surveyPayment": "Ich hatte ein Zahlungsproblem"
+    ,"surveyExploring": "Ich sehe mich nur um"
+    ,"surveyNotReady": "Ich bin noch nicht bereit"
+    ,"other": "Andere"
+    ,"feedbackReceived": "Feedback erhalten"
+    ,"surveyThanks": "Danke, dass Sie uns zeigen, wo es hakt."
+    ,"surveyThanksBody": "Wir nutzen dies, um Einrichtung, Preisklarheit, Modellberatung und Checkout zu verbessern."
+    ,"surveyBadge": "15-Sekunden-Umfrage"
+    ,"surveyTitle": "Was hält Sie vom Kauf von Guthaben ab?"
+    ,"surveyDescription": "Wenn etwas Ihre erste Aufladung verhindert, sagen Sie uns, welcher Teil Schwierigkeiten bereitet. Diese Umfrage wird nur bei Arbeitsbereichen mit null Guthaben angezeigt, die noch kein Guthaben gekauft haben."
+    ,"optionalDetail": "Optionales Detail"
+    ,"surveyPlaceholder": "Was hat Sie konkret aufgehalten?"
+    ,"surveyPrivacy": "Die Antworten werden diesem Arbeitsbereich zugeordnet, damit wir den richtigen Teil des Ablaufs verbessern können."
+    ,"thanksFeedback": "Danke für Ihr Feedback"
+    ,"sending": "Wird gesendet…"
+    ,"sendFeedback": "Feedback senden"
+    ,"authorizedSigner": "Zeichnungsberechtigter"
+    ,"invoicedBilling": "Rechnungsabrechnung"
+    ,"invoicedActive": "Rechnungsabrechnung ist aktiv"
+    ,"startInvoiced": "Rechnungsabrechnung starten"
+    ,"configurePostUsage": "Richten Sie die Abrechnung nach Nutzung für {team} ein."
+    ,"teamTierMessage": "Dieses Team nutzt die Stufe {tier}. Rechnungsabrechnung ist für Enterprise verfügbar."
+    ,"enterpriseOnly": "Rechnungsabrechnung ist nur für Enterprise-Teams verfügbar."
+    ,"startInvoicedBilling": "Rechnungsabrechnung starten"
+    ,"invoicedPermanent": "Die Rechnungsabrechnung ist nach der Aktivierung dauerhaft."
+    ,"billingDay": "Abrechnungstag"
+    ,"chooseBillingDay": "Abrechnungstag auswählen"
+    ,"day": "Tag {day}"
+    ,"paymentTerms": "Zahlungsbedingungen"
+    ,"chooseTerms": "Bedingungen auswählen"
+    ,"netDays": "Netto {days}"
+    ,"billingAgreement": "Mit der Aktivierung der Rechnungsabrechnung stimmen Sie Folgendem zu:"
+    ,"monthlyInvoices": "Rechnungen werden monatlich auf Grundlage der Gateway-Nutzung ausgestellt."
+    ,"paymentDue": "Die Zahlung ist gemäß den ausgewählten Netto-Bedingungen fällig."
+    ,"cannotSwitchWallet": "Die Rechnungsabrechnung kann nicht wieder auf den Wallet-Modus umgestellt werden."
+    ,"delinquentRestrictions": "Überfällige Rechnungen können zu Nutzungseinschränkungen führen."
+    ,"signature": "Unterschrift"
+    ,"signaturePreview": "Vorschau der Unterschrift"
+    ,"signingAs": "Unterschrift von {name}"
+    ,"signatureCaptured": "Unterschrift erfasst"
+    ,"pressHoldToSign": "Zum Unterschreiben gedrückt halten ({percent} %)"
+    ,"updateBilling": "Abrechnungstag und Zahlungsbedingungen können jederzeit aktualisiert werden."
+    ,"enableAfterSignature": "Aktivieren Sie die Rechnungsabrechnung, sobald Ihre Unterschrift erfasst wurde."
+    ,"savingBilling": "Abrechnungseinrichtung wird gespeichert…"
+    ,"billingSaved": "Abrechnungseinrichtung gespeichert"
+    ,"billingSaveFailed": "Abrechnungseinrichtung konnte nicht gespeichert werden"
+    ,"saveInvoiceSettings": "Rechnungseinstellungen speichern"
+    ,"enableInvoicedBilling": "Rechnungsabrechnung aktivieren"
+    ,"invoiceHistory": "Rechnungsverlauf"
+    ,"invoiceHistoryDescription": "Ausgestellte Rechnungen, Status, Fälligkeiten und detaillierte Datensätze verfolgen."
+    ,"noInvoices": "Noch keine Rechnungen. Ihre erste Rechnung erscheint nach Abschluss eines Abrechnungszeitraums."
+    ,"invoice": "Rechnung"
+    ,"internalInvoice": "Interne Rechnung"
+    ,"details": "Details"
+    ,"opening": "Wird geöffnet…"
+    ,"invoiceDetails": "Rechnungsdetails"
+    ,"invoiceDetailsDescription": "Detaillierter Abrechnungsdatensatz für diese Enterprise-Rechnung."
+    ,"invoiceNumber": "Rechnungsnummer"
+    ,"status": "Status"
+    ,"billingPeriod": "Abrechnungszeitraum"
+    ,"amount": "Betrag"
+    ,"issued": "Ausgestellt"
+    ,"due": "Fällig"
+    ,"stripeInvoiceId": "Stripe-Rechnungs-ID"
+    ,"close": "Schließen"
+    ,"openInvoice": "Rechnung öffnen"
+    ,"paid": "Bezahlt"
+    ,"open": "Offen"
+    ,"void": "Ungültig"
+    ,"uncollectible": "Uneinbringlich"
+    ,"draft": "Entwurf"
+    ,"unableLoadInvoice": "Rechnungsdokument konnte nicht geladen werden"
+    ,"failedOpenInvoice": "Rechnungsdokument konnte nicht geöffnet werden"
+    ,"Request cost": "Anfragekosten"
+    ,"Reservation": "Reservierung"
+    ,"Resolution": "Auflösung"
+    ,"Output duration": "Ausgabedauer"
+    ,"Completion window": "Abschlussfenster"
+    ,"Request counts": "Anfrageanzahlen"
+    ,"Inspect": "Prüfen"
+    ,"Copy native id": "Native ID kopieren"
+    ,"Copy BYOK key id": "BYOK-Schlüssel-ID kopieren"
+    ,"Copy reservation id": "Reservierungs-ID kopieren"
+    ,"Copy native request id": "Native Anfrage-ID kopieren"
+    ,"Copy request model id": "Anfragemodell-ID kopieren"
+    ,"Copy output file id": "Ausgabedatei-ID kopieren"
+    ,"Copy output file content endpoint": "Inhalt-Endpunkt der Ausgabedatei kopieren"
+    ,"Copy error file id": "Fehlerdatei-ID kopieren"
+    ,"Copy error file content endpoint": "Inhalt-Endpunkt der Fehlerdatei kopieren"
+    ,"Copy cancel endpoint": "Abbruch-Endpunkt kopieren"
+    ,"No webhook attempts recorded yet.": "Noch keine Webhook-Versuche erfasst."
+    ,"No webhook configured": "Kein Webhook konfiguriert"
+    ,"Retryable": "Wiederholbar"
+    ,"Enabled": "Aktiviert"
+    ,"Disabled": "Deaktiviert"
+    ,"Next retry": "Nächster Versuch"
+    ,"Finish reason": "Abschlussgrund"
+    ,"Hint": "Hinweis"
+    ,"Type:": "Typ:"
+    ,"actions": "Aktionen"
+    ,"Missing workspace context. Select a workspace in the header and try again.": "Arbeitsbereichskontext fehlt. Wählen Sie im Header einen Arbeitsbereich aus und versuchen Sie es erneut."
+    ,"Could not create management API key right now. Please try again.": "Der Management-API-Schlüssel konnte gerade nicht erstellt werden. Bitte versuchen Sie es erneut."
+    ,"Create Management API Key": "Management-API-Schlüssel erstellen"
+    ,"Choose the minimum access this management API key needs.": "Wählen Sie den geringsten erforderlichen Zugriff für diesen Management-API-Schlüssel."
+    ,"once": "einmal"
+    ,"and grants elevated privileges. Store it securely.": "und gewährt erweiterte Berechtigungen. Bewahren Sie ihn sicher auf."
+    ,"Key name (e.g. production management)": "Schlüsselname (z. B. Produktionsverwaltung)"
+    ,"Access template": "Zugriffsvorlage"
+    ,"Optional. Leave blank to keep this management key active until you revoke or pause it.": "Optional. Leer lassen, damit dieser Management-Schlüssel aktiv bleibt, bis Sie ihn widerrufen oder pausieren."
+    ,"This key will not be shown again and grants elevated privileges. Keep this code secret at all times.": "Dieser Schlüssel wird nicht erneut angezeigt und gewährt erweiterte Berechtigungen. Halten Sie diesen Code stets geheim."
+    ,"AI Stats management API key": "AI-Stats-Management-API-Schlüssel"
+    ,"This action is permanent. This key has elevated privileges.": "Diese Aktion ist dauerhaft. Dieser Schlüssel verfügt über erweiterte Berechtigungen."
+    ,"To confirm, type the key name": "Geben Sie zur Bestätigung den Schlüsselnamen ein"
+    ,"Saving management API key...": "Management-API-Schlüssel wird gespeichert …"
+    ,"Management API key updated": "Management-API-Schlüssel aktualisiert"
+    ,"Edit Management API Key": "Management-API-Schlüssel bearbeiten"
+    ,"Update the lifecycle and access level for this elevated-privilege key.": "Lebenszyklus und Zugriffsebene dieses Schlüssels mit erweiterten Berechtigungen aktualisieren."
+    ,"Access level": "Zugriffsebene"
+    ,"Management key access level": "Zugriffsebene des Management-Schlüssels"
+    ,"Custom scopes are preserved until you select a new access level.": "Benutzerdefinierte Bereiche bleiben erhalten, bis Sie eine neue Zugriffsebene auswählen."
+    ,"Optional. Clear this field to remove the expiry date.": "Optional. Feld leeren, um das Ablaufdatum zu entfernen."
+    ,"Paused": "Pausiert"
+    ,"Saving limits...": "Limits werden gespeichert …"
+    ,"Limits updated": "Limits aktualisiert"
+    ,"Failed to update limits": "Limits konnten nicht aktualisiert werden"
+    ,"Management API Key Limits": "Limits für Management-API-Schlüssel"
+    ,"Set request limits for this elevated-privilege key.": "Legen Sie Anfrage-Limits für diesen Schlüssel mit erweiterten Berechtigungen fest."
+    ,"Daily": "Täglich"
+    ,"Weekly": "Wöchentlich"
+    ,"Monthly": "Monatlich"
+    ,"Usage": "Nutzung"
+    ,"Usage for": "Nutzung für"
+    ,"Request usage and cost for this management API key.": "Anfragenutzung und Kosten für diesen Management-API-Schlüssel."
+    ,"Total Requests": "Anfragen gesamt"
+    ,"Total Cost": "Gesamtkosten"
+    ,"All": "Alle"
+    ,"No management keys yet": "Noch keine Management-Schlüssel vorhanden"
+    ,"Create a management key when you need elevated automation access.": "Erstellen Sie einen Management-Schlüssel, wenn Sie Zugriff für Automatisierung mit erweiterten Rechten benötigen."
+    ,"Unknown": "Unbekannt"
+    ,"Created": "Erstellt"
+    ,"Expires": "Läuft ab"
+    ,"Limits must be zero or a positive number.": "Limits müssen null oder eine positive Zahl sein."
+    ,"UTC": "UTC"
+    ,"Relative": "Relativ"
+    ,"Timestamp": "Zeitstempel"
+    ,"Status": "Status"
+    ,"Requests Today": "Anfragen heute"
+    ,"Spend Today": "Ausgaben heute"
+    ,"Scopes": "Bereiche"
+    ,"No explicit scopes configured.": "Keine expliziten Bereiche konfiguriert."
+    ,"Applied guardrails": "Angewendete Guardrails"
+    ,"No guardrails applied.": "Keine Guardrails angewendet."
+    ,"Guardrail activity": "Guardrail-Aktivität"
+    ,"Requests": "Anfragen"
+    ,"Spend": "Ausgaben"
+    ,"No API keys yet": "Noch keine API-Schlüssel vorhanden"
+    ,"Create a key to start making gateway requests.": "Erstellen Sie einen Schlüssel, um Gateway-Anfragen zu stellen."
+    ,"No keys for this workspace": "Keine Schlüssel für diesen Arbeitsbereich"
+    ,"Provider Routing": "Provider-Routing"
+    ,"Choose how the Gateway prioritizes providers": "Wählen Sie, wie das Gateway Provider priorisiert"
+    ,"for": "für"
+    ,"for this workspace": "für diesen Arbeitsbereich"
+    ,"Routing Preference": "Routing-Präferenz"
+    ,"Select a routing mode": "Routing-Modus auswählen"
+    ,"Beta Channel": "Beta-Kanal"
+    ,"Include beta providers in a small share of production traffic.": "Beta-Provider in einen kleinen Teil des Produktionsverkehrs aufnehmen."
+    ,"Enable beta channel": "Beta-Kanal aktivieren"
+    ,"Alpha Channel": "Alpha-Kanal"
+    ,"Include alpha providers within beta canary traffic.": "Alpha-Provider in den Beta-Canary-Verkehr aufnehmen."
+    ,"Enable alpha channel": "Alpha-Kanal aktivieren"
+    ,"Response Healing": "Response-Healing"
+    ,"Set the workspace default for repairing structured model output.": "Arbeitsbereichsstandard für die Reparatur strukturierter Modellausgaben festlegen."
+    ,"Enable by Default": "Standardmäßig aktivieren"
+    ,"Repair compatible structured-output responses for this workspace.": "Kompatible strukturierte Antworten für diesen Arbeitsbereich reparieren."
+    ,"Enable default response healing": "Standardmäßiges Response-Healing aktivieren"
+    ,"Healing Mode": "Healing-Modus"
+    ,"Only unwrap already-valid JSON from fences or surrounding text.": "Nur gültiges JSON aus Codeblöcken oder umgebendem Text herauslösen."
+    ,"Apply bounded repairs such as trailing-comma cleanup and safe closer recovery.": "Begrenzte Reparaturen wie das Entfernen nachgestellter Kommas und das sichere Ergänzen von Abschlusszeichen anwenden."
+    ,"Select a healing mode": "Healing-Modus auswählen"
+    ,"Lock Workspace Policy": "Arbeitsbereichsrichtlinie sperren"
+    ,"Prevent presets and requests from overriding this default.": "Verhindern, dass Presets und Anfragen diesen Standard überschreiben."
+    ,"Lock default response healing policy": "Standardrichtlinie für Response-Healing sperren"
+    ,"Routing Preview": "Routing-Vorschau"
+    ,"An illustrative distribution for the current policy. Live routing also considers compatibility, health, availability, and failover signals.": "Eine beispielhafte Verteilung für die aktuelle Richtlinie. Das Live-Routing berücksichtigt zusätzlich Kompatibilität, Gesundheit, Verfügbarkeit und Failover-Signale."
+    ,"Updating routing policy...": "Routing-Richtlinie wird aktualisiert …"
+    ,"Routing policy updated": "Routing-Richtlinie aktualisiert"
+    ,"Routing policy updated; gateway cache refresh pending": "Routing-Richtlinie aktualisiert; Aktualisierung des Gateway-Cache steht noch aus"
+    ,"Failed to update routing policy": "Routing-Richtlinie konnte nicht aktualisiert werden"
+    ,"Pending sync": "Synchronisierung ausstehend"
+    ,"Synced": "Synchronisiert"
+    ,"Key name is required": "Schlüsselname ist erforderlich"
+    ,"Please provide a key value": "Geben Sie einen Schlüsselwert ein"
+    ,"Missing provider id": "Provider-ID fehlt"
+    ,"Key updated": "Schlüssel aktualisiert"
+    ,"Key updated and replaced": "Schlüssel aktualisiert und ersetzt"
+    ,"Key saved": "Schlüssel gespeichert"
+    ,"Failed to save key": "Schlüssel konnte nicht gespeichert werden"
+    ,"Info": "Info"
+    ,"Use IAM credentials": "IAM-Anmeldedaten verwenden"
+    ,"Key scope": "Schlüsselbereich"
+    ,"Leave a list empty to allow every option.": "Lassen Sie eine Liste leer, um jede Option zuzulassen."
+    ,"Models": "Modelle"
+    ,"Phaseo API keys": "Phaseo-API-Schlüssel"
+    ,"Preset name is required": "Presetname ist erforderlich"
+    ,"Preset slug is required": "Preset-Slug ist erforderlich"
+    ,"Select at least one model for this preset.": "Wählen Sie mindestens ein Modell für dieses Preset aus."
+    ,"You must be signed in and in a workspace to save a preset.": "Sie müssen angemeldet sein und sich in einem Arbeitsbereich befinden, um ein Preset zu speichern."
+    ,"Draft saved": "Entwurf gespeichert"
+    ,"Preset created": "Preset erstellt"
+    ,"Failed to save preset": "Preset konnte nicht gespeichert werden"
+    ,"Deleting preset...": "Preset wird gelöscht …"
+    ,"Preset deleted": "Preset gelöscht"
+    ,"Failed to delete preset": "Preset konnte nicht gelöscht werden"
+    ,"Delete Preset": "Preset löschen"
+    ,"This action is permanent and cannot be undone.": "Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
+    ,"To confirm, type the preset name": "Geben Sie zur Bestätigung den Preset-Namen ein"
+    ,"Type preset name to confirm": "Preset-Namen zur Bestätigung eingeben"
+    ,"Preset reference copied": "Preset-Referenz kopiert"
+    ,"No presets yet": "Noch keine Presets vorhanden"
+    ,"OAuth app": "OAuth-App"
+    ,"created successfully": "erfolgreich erstellt"
+    ,"Client secret copied to clipboard": "Client-Secret in die Zwischenablage kopiert"
+    ,"OAuth App Created": "OAuth-App erstellt"
+    ,"Important:": "Wichtig:"
+    ,"Copy your client secret now. You won&apos;t be able to see it again!": "Kopieren Sie jetzt Ihr Client-Secret. Es wird nicht erneut angezeigt!"
+    ,"Application Name": "Anwendungsname"
+    ,"Client ID": "Client-ID"
+    ,"Client Secret": "Client-Secret"
+    ,"Create OAuth App": "OAuth-App erstellen"
+    ,"Scopes this app may request": "Bereiche, die diese App anfordern darf"
+    ,"Description": "Beschreibung"
+    ,"Homepage URL": "Homepage-URL"
+    ,"Save your client credentials now. The client secret will not be shown again.": "Speichern Sie jetzt Ihre Client-Anmeldedaten. Das Client-Secret wird nicht erneut angezeigt."
+    ,"None": "Keine"
+    ,"Create a new OAuth application for third-party integrations.": "Neue OAuth-Anwendung für Integrationen von Drittanbietern erstellen."
+    ,"Create App": "App erstellen"
+    ,"Failed to create OAuth app": "OAuth-App konnte nicht erstellt werden"
+    ,"No OAuth apps yet": "Noch keine OAuth-Apps vorhanden"
+    ,"Create your first OAuth app to enable third-party integrations with your Phaseo account.": "Erstellen Sie Ihre erste OAuth-App, um Integrationen von Drittanbietern mit Ihrem Phaseo-Konto zu ermöglichen."
+    ,"Configured Destinations": "Konfigurierte Ziele"
+    ,"Connection disabled": "Verbindung deaktiviert"
+    ,"Connection enabled": "Verbindung aktiviert"
+    ,"Available": "Verfügbar"
+    ,"Coming Soon": "Demnächst verfügbar"
+    ,"Delete destination?": "Ziel löschen?"
+    ,"Destination deleted": "Ziel gelöscht"
+    ,"Key deleted": "Schlüssel gelöscht"
+    ,"Delete key?": "Schlüssel löschen?"
+    ,"Needs attention": "Aufmerksamkeit erforderlich"
+    ,"Sample": "Beispiel"
+    ,"Move key up": "Schlüssel nach oben verschieben"
+    ,"Move key down": "Schlüssel nach unten verschieben"
+    ,"Collapse key": "Schlüssel einklappen"
+    ,"Expand key": "Schlüssel ausklappen"
+    ,"Failed to reorder key": "Schlüssel konnte nicht neu angeordnet werden"
+    ,"Previous key expiry": "Ablauf des vorherigen Schlüssels"
+    ,"New": "Neu"
+    ,"OAuth App": "OAuth-App"
+    ,"deleted successfully": "erfolgreich gelöscht"
+    ,"App name doesn't match": "App-Name stimmt nicht überein"
+    ,"Failed to delete OAuth app": "OAuth-App konnte nicht gelöscht werden"
+    ,"Delete App": "App löschen"
+    ,"Delete OAuth App": "OAuth-App löschen"
+    ,"This will permanently delete": "Dadurch wird dauerhaft gelöscht"
+    ,"and revoke all user authorizations.": "und alle Benutzerautorisierungen werden widerrufen."
+    ,"Warning:": "Warnung:"
+    ,"This action cannot be undone. All users who authorized this app will lose access immediately.": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Benutzer, die diese App autorisiert haben, verlieren sofort den Zugriff."
+    ,"Type": "Geben Sie"
+    ,"to confirm": "zur Bestätigung ein"
+    ,"Client secret regenerated successfully": "Client-Secret erfolgreich neu generiert"
+    ,"Failed to regenerate secret": "Secret konnte nicht neu generiert werden"
+    ,"New client secret copied to clipboard": "Neues Client-Secret in die Zwischenablage kopiert"
+    ,"Regenerate": "Neu generieren"
+    ,"New Client Secret": "Neues Client-Secret"
+    ,"Save your new secret now. It will not be shown again.": "Speichern Sie jetzt Ihr neues Secret. Es wird nicht erneut angezeigt."
+    ,"Copy your new secret now. The old secret has been invalidated.": "Kopieren Sie jetzt Ihr neues Secret. Das alte Secret wurde ungültig gemacht."
+    ,"Regenerate Client Secret?": "Client-Secret neu generieren?"
+    ,"This action cannot be undone. The old secret will be immediately invalidated.": "Diese Aktion kann nicht rückgängig gemacht werden. Das alte Secret wird sofort ungültig."
+    ,"Destination saved": "Ziel gespeichert"
+    ,"Connected": "Verbunden"
+    ,"Connection check failed": "Verbindungsprüfung fehlgeschlagen"
+    ,"Connection": "Verbindung"
+    ,"Destination Name": "Zielname"
+    ,"Additional Metadata": "Zusätzliche Metadaten"
+    ,"Choose which structured context accompanies each trace.": "Wählen Sie, welcher strukturierte Kontext jeden Trace begleitet."
+    ,"Sampling": "Sampling"
+    ,"API Key Filter": "API-Schlüsselfilter"
+    ,"Name is required.": "Name ist erforderlich."
+    ,"Guardrail saved": "Guardrail gespeichert"
+    ,"Creating guardrail...": "Guardrail wird erstellt …"
+    ,"Saving guardrail...": "Guardrail wird gespeichert …"
+    ,"Deleting guardrail...": "Guardrail wird gelöscht …"
+    ,"Guardrail deleted": "Guardrail gelöscht"
+    ,"Search...": "Suchen …"
+    ,"No guardrails yet": "Noch keine Guardrails vorhanden"
+    ,"Search presets": "Presets suchen"
+    ,"Clear preset search": "Preset-Suche leeren"
+    ,"No presets match": "Keine Presets entsprechen"
+    ,"View": "Anzeigen"
+    ,"Feedback detail": "Feedback-Details"
+    ,"optional score": "optionale Bewertung"
+    ,"raw": "roh"
+    ,"No comment provided": "Kein Kommentar angegeben"
+    ,"No request id": "Keine Anfrage-ID"
+    ,"No session id": "Keine Sitzungs-ID"
+    ,"Not supplied": "Nicht angegeben"
+    ,"No metadata": "Keine Metadaten"
+    ,"Analysis": "Analyse"
+    ,"Comparison Baseline": "Vergleichsbasis"
+    ,"Optional. Select a control only for A/B tests or staged rollouts.": "Optional. Wählen Sie eine Kontrollversion nur für A/B-Tests oder stufenweise Einführungen aus."
+    ,"Baseline preset": "Basis-Preset"
+    ,"Date Window": "Datumsbereich"
+    ,"Limit feedback to a recent or custom period.": "Feedback auf einen aktuellen oder benutzerdefinierten Zeitraum begrenzen."
+    ,"Date window": "Datumsbereich"
+    ,"Rating": "Bewertung"
+    ,"Focus the analysis on a specific response outcome.": "Analyse auf ein bestimmtes Antwortergebnis fokussieren."
+    ,"Rating filter": "Bewertungsfilter"
+    ,"must be a positive number.": "muss eine positive Zahl sein."
+    ,"Enter both custom price limits.": "Geben Sie beide benutzerdefinierten Preislimits ein."
+    ,"These limits and patterns do not leave any eligible text models.": "Diese Limits und Muster lassen keine geeigneten Textmodelle übrig."
+    ,"Auto Routing updated": "Auto-Routing aktualisiert"
+    ,"Auto Routing updated; gateway cache refresh pending": "Auto-Routing aktualisiert; Aktualisierung des Gateway-Cache steht noch aus"
+    ,"Select all API keys": "Alle API-Schlüssel auswählen"
+    ,"Preset Name": "Preset-Name"
+    ,"Concise Support Assistant": "Präziser Support-Assistent"
+    ,"Invocation Slug": "Aufruf-Slug"
+    ,"concise-support-assistant": "praeziser-support-assistent"
+    ,"When should this preset be used?": "Wann soll dieses Preset verwendet werden?"
+    ,"Visibility": "Sichtbarkeit"
+    ,"Control who can discover and use this preset.": "Steuern Sie, wer dieses Preset entdecken und verwenden kann."
+    ,"Preset Access": "Preset-Zugriff"
+    ,"Private presets are only visible to you. Workspace presets can be used by members. Public presets appear in the marketplace.": "Private Presets sind nur für Sie sichtbar. Arbeitsbereichs-Presets können von Mitgliedern verwendet werden. Öffentliche Presets erscheinen im Marketplace."
+    ,"Only Me": "Nur ich"
+    ,"Share With Workspace": "Mit Arbeitsbereich teilen"
+    ,"Publish to Marketplace": "Im Marketplace veröffentlichen"
+    ,"Drag to set the default model and fallback order.": "Ziehen Sie, um das Standardmodell und die Fallback-Reihenfolge festzulegen."
+    ,"Add Model": "Modell hinzufügen"
+    ,"Search models...": "Modelle suchen …"
+    ,"No matching models": "Keine passenden Modelle"
+    ,"Clear": "Leeren"
+    ,"Configuration groups": "Konfigurationsgruppen"
+    ,"Overview / Request Defaults": "Übersicht / Anfrage-Standards"
+    ,"Preferred Routing Profile": "Bevorzugtes Routing-Profil"
+    ,"Balanced": "Ausgewogen"
+    ,"Lowest cost": "Niedrigste Kosten"
+    ,"Lowest latency": "Niedrigste Latenz"
+    ,"Highest throughput": "Höchster Durchsatz"
+    ,"Enable Response Caching": "Response-Caching aktivieren"
+    ,"Cache TTL (seconds)": "Cache-TTL (Sekunden)"
+    ,"System Prompt": "System-Prompt"
+    ,"Published": "Veröffentlicht"
+    ,"release": "Version"
+    ,"next": "nächste"
+    ,"Failed to publish version": "Version konnte nicht veröffentlicht werden"
+    ,"Upstream": "Upstream"
+    ,"applied to your draft": "auf Ihren Entwurf angewendet"
+    ,"Failed to apply upstream update": "Upstream-Aktualisierung konnte nicht angewendet werden"
+    ,"No presets for this workspace": "Keine Presets für diesen Arbeitsbereich"
+    ,"Publishing…": "Wird veröffentlicht …"
+    ,"Publish new version": "Neue Version veröffentlichen"
+    ,"Apply upstream": "Upstream anwenden"
+    ,"to draft": "auf Entwurf"
+    ,"Last 7 days": "Letzte 7 Tage"
+    ,"Last 30 days": "Letzte 30 Tage"
+    ,"Last 90 days": "Letzte 90 Tage"
+    ,"Custom": "Benutzerdefiniert"
+    ,"Custom Dates": "Benutzerdefinierte Daten"
+    ,"Include feedback created within this range.": "Feedback aus diesem Zeitraum einschließen."
+    ,"All ratings": "Alle Bewertungen"
+    ,"Thumbs up": "Daumen hoch"
+    ,"Thumbs down": "Daumen runter"
+    ,"Correct": "Richtig"
+    ,"Partly correct": "Teilweise richtig"
+    ,"Incorrect": "Falsch"
+    ,"Unsafe": "Unsicher"
+    ,"Unrated": "Nicht bewertet"
+    ,"Metadata Cohort": "Metadaten-Kohorte"
+    ,"Group or filter feedback using an indexed metadata dimension.": "Feedback mithilfe einer indizierten Metadatendimension gruppieren oder filtern."
+    ,"Regenerating...": "Wird neu generiert …"
+    ,"Regenerate Secret": "Secret neu generieren"
+    ,"Client ID copied to clipboard": "Client-ID in die Zwischenablage kopiert"
+    ,"OAuth scopes updated": "OAuth-Bereiche aktualisiert"
+    ,"Failed to update OAuth scopes": "OAuth-Bereiche konnten nicht aktualisiert werden"
+    ,"Active Users": "Aktive Benutzer"
+    ,"Requests (30d)": "Anfragen (30 Tage)"
+    ,"Visit website": "Website besuchen"
+    ,"Recent Authorizations": "Letzte Autorisierungen"
+    ,"No authorizations yet": "Noch keine Autorisierungen"
+    ,"User Activity (Recent)": "Letzte Benutzeraktivität"
+    ,"No user activity yet": "Noch keine Benutzeraktivität"
+    ,"Suspended": "Ausgesetzt"
+    ,"Deleted": "Gelöscht"
+    ,"View Details": "Details anzeigen"
+    ,"Failed to update redirect URIs. Please try again.": "Redirect-URIs konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+    ,"Please enter a redirect URI": "Geben Sie eine Redirect-URI ein"
+    ,"No redirect URIs configured": "Keine Redirect-URIs konfiguriert"
+    ,"Enable all": "Alle aktivieren"
+    ,"Add pattern": "Muster hinzufügen"
+    ,"Pattern {index}": "Muster {index}"
+    ,"Flags": "Flags"
+    ,"Supported: g, i, m, s, u. Global matching is always applied automatically.": "Unterstützt: g, i, m, s, u. Globale Übereinstimmung wird immer automatisch angewendet."
+    ,"Regex pattern": "Regex-Muster"
+    ,"Matches will redact to a placeholder derived from the pattern name.": "Treffer werden durch einen aus dem Musternamen abgeleiteten Platzhalter ersetzt."
+    ,"No custom patterns configured yet.": "Noch keine benutzerdefinierten Muster konfiguriert."
+    ,"Test sample text to see what would be flagged, redacted, or blocked.": "Testen Sie Beispieltext, um zu sehen, was markiert, unkenntlich gemacht oder blockiert würde."
+    ,"Result": "Ergebnis"
+    ,"Enter sample text": "Beispieltext eingeben"
+    ,"Detection disabled": "Erkennung deaktiviert"
+    ,"No matches": "Keine Treffer"
+    ,"Would block": "Würde blockieren"
+    ,"Would redact": "Würde unkenntlich machen"
+    ,"Would flag": "Würde markieren"
+    ,"Nothing to preview yet.": "Noch nichts zur Vorschau vorhanden."
+    ,"Transformed text": "Umgewandelter Text"
+    ,"Effective availability": "Effektive Verfügbarkeit"
+    ,"{count} limits configured": "{count} Limits konfiguriert"
+    ,"No limits": "Keine Limits"
+    ,"Use API key limits for hard request and spend enforcement while member and workspace aggregation is completed.": "Verwenden Sie API-Schlüssel-Limits für die verbindliche Durchsetzung von Anfragen und Ausgaben, solange die Aggregation für Mitglieder und Arbeitsbereiche noch fertiggestellt wird."
+    ,"All ({count})": "Alle ({count})"
+    ,"Available ({count})": "Verfügbar ({count})"
+    ,"Unavailable ({count})": "Nicht verfügbar ({count})"
+    ,"No models are currently available.": "Derzeit sind keine Modelle verfügbar."
+    ,"No models are currently unavailable.": "Derzeit sind keine Modelle nicht verfügbar."
+    ,"No active models are available.": "Keine aktiven Modelle verfügbar."
+    ,"If multiple guardrails apply to the same key, the most restrictive action wins: Block, then Redact, then Flag.": "Wenn mehrere Guardrails für denselben Schlüssel gelten, gewinnt die strengste Aktion: Blockieren, dann Unkenntlichmachen, dann Markieren."
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "help": {
+    "title": "ヘルプセンター",
+    "description": "アカウントアクセス、MFA の設定、請求、セキュリティ、API 統合のトラブルシューティングに関するサポート記事をご覧いただけます。",
+    "supportResources": "サポートリソース",
+    "articleCount": "{count, plural, =0 {記事はありません} one {# 件の記事} other {# 件の記事}}",
+    "viewAll": "{category} のすべてを見る",
+    "updated": "更新日：{date}",
+    "moreIn": "{category} のその他の記事"
+  },
+  "blog": {
+    "title": "Phaseo ブログ",
+    "categories": { "all": "すべての記事", "announcements": "お知らせ", "guides": "ガイド", "data": "データ" },
+    "preview": "プレビュー",
+    "pinned": "ピン留めされた記事",
+    "recent": "最新の記事",
+    "showAll": "すべての記事を見る",
+    "emptyTitle": "記事はまだありません。",
+    "emptyDescription": "新しい更新情報は公開されるとここに表示されます。",
+    "emptyCategory": "このカテゴリにはまだ記事がありません。",
+    "back": "ブログに戻る",
+    "englishBodyNotice": "この編集コンテンツは現在英語で提供されています。周囲のインターフェースは翻訳されていますが、意味を保つため原文の記事を表示しています。"
+  },
+  "roadmap": {
+    "title": "Phaseo ロードマップ",
+    "description": "次に開発するものを透明性のある形で紹介します。AI モデルデータベース、gateway、分析ツールの今後の機能と提供済みのマイルストーンを確認できます。",
+    "intro": "次に開発するものを透明性のある形で紹介します。より速く提供したり、フィードバックを取り入れたりする中で、予定は変更される場合があります。",
+    "feedback": "アイデアや誤りの報告、機能の優先順位に関するご意見はありますか？すべて確認し、迅速に提供します。",
+    "giveFeedback": "フィードバックを送る",
+    "upcoming": "今後の予定",
+    "shipped": "提供済み",
+    "latestShipped": "最新の提供項目",
+    "target": "目標：{date}",
+    "continuous": "継続中",
+    "learnMore": "詳しく見る",
+    "nothingShipped": "まだ提供されたものはありません。近日中にもう一度ご確認ください。",
+    "shippedDate": "提供日：{date}",
+    "view": "表示",
+    "comingSoon": "近日公開",
+    "activeDevelopment": "このページは現在積極的に開発中です。",
+    "shippingFast": "迅速に開発しています。まもなく再度ご確認いただくか、完全なロードマップをご覧ください。",
+    "viewRoadmap": "ロードマップを見る",
+    "continuousImprovements": "継続的な改善を予定しています",
+    "currentlyBuilt": "現在開発中",
+    "availableBeta": "ベータ版で利用可能",
+    "plannedFeature": "計画中の機能",
+    "seeRoadmapItem": "ロードマップ項目を見る",
+    "goHome": "ホームへ戻る",
+    "status": { "Planned": "計画中", "In Progress": "進行中", "Beta": "ベータ", "Shipped": "提供済み", "Ongoing": "継続中" },
+    "milestones": {
+      "gateway": { "title": "Gateway 対応範囲の拡大", "description": "より賢いルーティングのデフォルト設定とともに、対応プロバイダー、モデル、モダリティを継続的に拡大します。" },
+      "expanded-database": { "title": "データベース対応範囲", "description": "カタログ全体でモデル、プロバイダー、料金、リリースデータの取り込みと検証を継続します。" },
+      "usage-limits": { "title": "利用上限", "description": "キーごとの支出・利用管理により、意図しない使い過ぎを抑え、チームの予算を適用します。" },
+      "guardrails": { "title": "ガードレール", "description": "gateway を通過するトラフィック全体で、安全性、ポリシー、モデレーションの管理機能を拡充します。" },
+      "privacy-settings": { "title": "プライバシー設定", "description": "Phaseo Gateway を利用するチーム向けに、より細かなプライバシーと保持期間の管理機能を提供します。" },
+      "provisioning-keys": { "title": "管理 API キー", "description": "権限の高い管理認証情報を自動で作成し、ライフサイクルを管理できるようにします。" },
+      "presets": { "title": "プリセットマーケットプレイス", "description": "本番環境で使えるプリセット設定を、より簡単に共有、発見、ワンクリックで導入できるようにします。" },
+      "anthropic-compatibility": { "title": "Anthropic 互換性", "description": "gateway の /messages エンドポイントから Anthropic Messages API 互換機能を提供します。" },
+      "organisation-page": { "title": "組織ページ", "description": "関連するモデルとメタデータを掲載した、専用の組織ページを提供します。" },
+      "model-page": { "title": "モデルページ", "description": "料金、利用可能状況、クイックスタートの詳細を掲載した、専用のモデルページを提供します。" },
+      "benchmarks": { "title": "ベンチマークページ", "description": "順位の変動とモデルごとの性能比較を確認できるベンチマークページを提供します。" },
+      "api-providers": { "title": "API プロバイダーページ", "description": "対応モデル、料金の参照情報、機能の対応範囲を掲載したプロバイダーページを提供します。" },
+      "latest-updates": { "title": "最新の更新", "description": "リリース、お知らせ、データベースの更新をまとめて確認できるストリームを提供します。" },
+      "countries-pages": { "title": "国別ページ", "description": "組織とモデルの利用状況をつなぐ、国単位のビューを提供します。" },
+      "revamped-pricing-page": { "title": "料金リファレンスの刷新", "description": "モデルとプロバイダーを中心にナビゲーションできる、より見やすい料金リファレンスを提供します。" },
+      "database-updates": { "title": "データベース更新フィード", "description": "データベースレベルで継続している変更を表示する、拡充された更新フィードを提供します。" },
+      "sources": { "title": "インラインソース", "description": "関連するモデルやプロバイダーのデータの横に、出典情報を直接表示します。" },
+      "compare": { "title": "モデル比較", "description": "料金、機能、主要なメタデータをモデル同士で並べて比較できるようにします。" }
+    }
+  },
+  "migrate": {
+    "title": "移行",
+    "description": "OpenRouter、Vercel AI Gateway、Requesty、LLMGateway、OpenAI 互換ライブラリから Phaseo Gateway へ移行するためのインタラクティブなガイドです。",
+    "heading": "移行アシスタント",
+    "intro": "現在の構成を選択すると、最適な移行ガイドが表示されます。",
+    "englishBodyNotice": "この移行ガイドは現在英語で提供されています。周囲のインターフェースは翻訳されていますが、技術的な正確さを保つため原文のガイドを表示しています。"
+  },
+  "worksWith": {
+    "title": "Phaseo 対応アプリ",
+    "description": "Phaseo Gateway で構築されたアプリや統合機能をご覧ください。本番ツール、オープンソースプロジェクト、さまざまなワークフローやチームから生まれたコミュニティの取り組みを紹介しています。",
+    "intro": "Phaseo Gateway を利用するアプリ、ツール、統合機能をご覧ください。チームは Phaseo のルーティング、料金、モデルアクセスを基盤に構築でき、ユーザーは自分の Phaseo API キーを利用できます。",
+    "community": "コミュニティ", "submitApp": "アプリを登録", "contribute": "Phaseo に貢献する",
+    "emptyTitle": "アプリはまだありません", "emptyDescription": "この一覧はコミュニティからの登録を受け付けています。最初のアプリを追加してください。", "addApp": "アプリを追加",
+    "added": "追加日：{date}", "visitSite": "サイトを見る", "setupDocs": "セットアップドキュメント", "openSource": "オープンソース",
+    "contributing": "貢献する", "contributingDescription": "以下の手順に従って、Phaseo 対応アプリの一覧にアプリを追加してください。", "requirements": "要件",
+    "tags": { "chat": "チャット", "coding": "コーディング", "productivity": "生産性", "creative": "クリエイティブ", "research": "リサーチ", "other": "その他" }
+  },
+  "acknowledgements": {
+    "title": "謝辞", "description": "Phaseo が依存し、そこから学んでいるオープンソースプロジェクト、プラットフォーム、デザインの取り組みを紹介します。",
+    "heading": "多くの人の仕事によって築かれています。", "intro": "Phaseo はオープンソースソフトウェア、思慮深いデザイン、信頼できるインフラの上に成り立っています。このページでは、私たちが作るものに大きな影響を与えているプロジェクトとチームを紹介します。",
+    "thanks": "Phaseo を可能にしているすべてのメンテナー、コントリビューター、研究者、デザイナーに感謝します。", "howUsed": "Phaseo での利用方法", "disclaimer": "これは管理対象の製品謝辞であり、完全なソフトウェア部品表やライセンス通知ではありません。パッケージごとの著作権およびライセンス条件は、それぞれのプロジェクトに帰属します。", "continue": "続行", "review": "確認", "accessibleStates": "アクセシブルな状態", "streamingResponse": "ストリーミングレスポンス", "searchExample": "検索例"
+  },
+  "contribute": {
+    "title": "貢献する", "description": "Phaseo を支えるコントリビューターとスポンサーを紹介し、コミュニティのプロフィールや貢献履歴を確認できます。参加、スポンサー、プラットフォーム改善の方法もわかりやすく案内します。",
+    "heading": "コントリビューターとスポンサー", "intro": "私たちはオープンに開発しています。この一覧には Phaseo リポジトリに貢献したすべての人と、GitHub Sponsors を通じて開発を支援している人が掲載されています。素晴らしい人たちです！", "contributors": "リポジトリのコントリビューター", "contributorCount": "{count} 人のコントリビューター", "sponsors": "スポンサー", "listed": "{count} 件を掲載"
+  }
+}

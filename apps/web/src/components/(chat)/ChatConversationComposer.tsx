@@ -105,6 +105,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type SendGateType = "auth" | null;
 
@@ -926,6 +927,7 @@ interface ChatConversationComposerProps {
 }
 
 export function ChatConversationComposer(props: ChatConversationComposerProps) {
+	const t = useTranslations("Product.chat");
 	const {
 		sendGateType,
 		isSending,
@@ -2756,13 +2758,13 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 			aria-label={
 				hasSelectedModel
 					? isSending
-						? "Queue message"
-						: "Send message"
-					: "Choose a model to send"
+						? t("stop")
+						: t("send")
+				: t("selectModel")
 			}
 			aria-disabled={!canActivateSendButton}
 			data-chat-send-button="true"
-			title={showChooseModelTooltip ? "Choose a model" : undefined}
+			title={showChooseModelTooltip ? t("selectModel") : undefined}
 			className={cn(
 				canActivateSendButton
 					? "cursor-pointer border-transparent hover:brightness-95"
@@ -2788,7 +2790,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 				<ThinkingOrb
 					state="working"
 					size={20}
-					aria-label="Queue message"
+				aria-label={t("stop")}
 				/>
 			) : (
 				<SendHorizontal className="h-4 w-4" />
@@ -2798,10 +2800,10 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 
 	const renderAudioButton = () => {
 		const label = isRecording
-			? "Stop recording"
+			? t("stop")
 			: recordingSupported
-				? "Record audio"
-				: "Add audio file";
+				? t("record")
+				: t("addAudio");
 		const Icon = isRecording ? Square : recordingSupported ? Mic : AudioLines;
 
 		return (

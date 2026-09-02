@@ -1,13 +1,21 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { canUpgradeCookieAuth } from './cookieAuthRequest'
+import { isPublicLocale } from '@/i18n/routing'
+
+function withoutLocalePrefix(pathname: string): string {
+    const segments = pathname.split('/').filter(Boolean)
+    if (isPublicLocale(segments[0])) segments.shift()
+    return `/${segments.join('/')}`
+}
 
 export async function updateSession(request: NextRequest) {
     const forwardedHeaders = new Headers(request.headers)
     let supabaseResponse = NextResponse.next({
         request: { headers: forwardedHeaders },
     })
-    const pathname = request.nextUrl.pathname
+    const requestPathname = request.nextUrl.pathname
+    const pathname = withoutLocalePrefix(requestPathname)
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -88,7 +96,7 @@ export async function updateSession(request: NextRequest) {
         if (mustVerifyMfa) {
             const url = request.nextUrl.clone()
             url.pathname = '/auth/verify-mfa'
-            url.searchParams.set('returnUrl', pathname + request.nextUrl.search)
+            url.searchParams.set('returnUrl', requestPathname + request.nextUrl.search)
             return NextResponse.redirect(url)
         }
     }

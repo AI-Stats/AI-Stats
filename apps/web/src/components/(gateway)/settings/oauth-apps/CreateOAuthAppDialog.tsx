@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import OAuthScopeSelector from "./OAuthScopeSelector";
 import { DEFAULT_THIRD_PARTY_OAUTH_SCOPES } from "@/lib/oauth/scopes";
+import { useTranslations } from "next-intl";
 
 interface CreateOAuthAppDialogProps {
 	currentTeamId: string | null;
@@ -35,6 +36,7 @@ export default function CreateOAuthAppDialog({
 	const [createdApp, setCreatedApp] = useState<any>(null);
 	const [copiedSecret, setCopiedSecret] = useState(false);
 	const router = useRouter();
+	const t = useTranslations("SettingsUI");
 
 	const [formData, setFormData] = useState({
 		name: "",
@@ -73,12 +75,12 @@ export default function CreateOAuthAppDialog({
 			// Show the created app with client secret (only shown once!)
 			setCreatedApp(result.data);
 
-			toast.success(`OAuth app "${formData.name}" created successfully`);
+			toast.success(`${t("strings.OAuth app" as never)} "${formData.name}" ${t("strings.created successfully" as never)}`);
 
 			// Refresh the page data
 			router.refresh();
 		} catch (err: any) {
-			setError(err.message || "Failed to create OAuth app");
+		setError(err.message || t("strings.Failed to create OAuth app" as never));
 		} finally {
 			setLoading(false);
 		}
@@ -102,7 +104,7 @@ export default function CreateOAuthAppDialog({
 		if (createdApp?.client_secret) {
 			navigator.clipboard.writeText(createdApp.client_secret);
 			setCopiedSecret(true);
-			toast.success("Client secret copied to clipboard");
+			toast.success(t("strings.Client secret copied to clipboard" as never));
 			setTimeout(() => setCopiedSecret(false), 2000);
 		}
 	};
@@ -114,39 +116,39 @@ export default function CreateOAuthAppDialog({
 				<DialogTrigger asChild>
 					<Button disabled={!currentTeamId}>
 						<Plus className="h-4 w-4 mr-2" />
-						Create OAuth App
+						{t("strings.Create OAuth App" as never)}
 					</Button>
 				</DialogTrigger>
 				<DialogContent className="max-w-2xl">
 					<DialogHeader>
-						<DialogTitle>OAuth App Created</DialogTitle>
+				<DialogTitle>{t("strings.OAuth App Created" as never)}</DialogTitle>
 						<DialogDescription>
-							Save your client credentials now. The client secret will not be shown again.
+				{t("strings.Save your client credentials now. The client secret will not be shown again." as never)}
 						</DialogDescription>
 					</DialogHeader>
 
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
 						<AlertDescription>
-							<strong>Important:</strong> Copy your client secret now. You won&apos;t be able to see it again!
+				<strong>{t("strings.Important:" as never)}</strong> {t("strings.Copy your client secret now. You won&apos;t be able to see it again!" as never)}
 						</AlertDescription>
 					</Alert>
 
 					<div className="space-y-4">
 						<div>
-							<Label>Application Name</Label>
+				<Label>{t("strings.Application Name" as never)}</Label>
 							<div className="text-sm font-medium mt-1">{createdApp.name}</div>
 						</div>
 
 						<div>
-							<Label>Client ID</Label>
+				<Label>{t("strings.Client ID" as never)}</Label>
 							<Card className="p-3 mt-1">
 								<code className="text-xs break-all">{createdApp.client_id}</code>
 							</Card>
 						</div>
 
 						<div>
-							<Label>Client Secret</Label>
+				<Label>{t("strings.Client Secret" as never)}</Label>
 							<Card className="p-3 mt-1 bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
 								<div className="flex items-center justify-between gap-2">
 									<code className="text-xs break-all flex-1">{createdApp.client_secret}</code>
@@ -170,16 +172,16 @@ export default function CreateOAuthAppDialog({
 						</div>
 
 						<div>
-							<Label>Redirect URIs</Label>
+				<Label>{t("oauth.redirectUri")}</Label>
 							<div className="text-sm text-muted-foreground mt-1">
-								{createdApp.redirect_uris?.join(", ") || "None"}
+								{createdApp.redirect_uris?.join(", ") || t("strings.None" as never)}
 							</div>
 						</div>
 					</div>
 
 					<DialogFooter>
 						<Button onClick={handleClose} variant="default">
-							Done
+								{t("labels.done")}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -192,14 +194,14 @@ export default function CreateOAuthAppDialog({
 			<DialogTrigger asChild>
 				<Button disabled={!currentTeamId}>
 					<Plus className="h-4 w-4 mr-2" />
-					Create OAuth App
+						{t("strings.Create OAuth App" as never)}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Create OAuth App</DialogTitle>
+				<DialogTitle>{t("strings.Create OAuth App" as never)}</DialogTitle>
 					<DialogDescription>
-						Create a new OAuth application for third-party integrations.
+					{t("strings.Create a new OAuth application for third-party integrations." as never)}
 						You&apos;ll receive a client ID and secret to use in your application.
 					</DialogDescription>
 				</DialogHeader>
@@ -224,7 +226,7 @@ export default function CreateOAuthAppDialog({
 					</div>
 
 					<div>
-						<Label>Scopes this app may request</Label>
+					<Label>{t("strings.Scopes this app may request" as never)}</Label>
 						<p className="mb-3 text-xs text-muted-foreground">
 							Select the least access your integration needs. Users must still approve any requested permissions during OAuth consent.
 						</p>
@@ -235,7 +237,7 @@ export default function CreateOAuthAppDialog({
 					</div>
 
 					<div>
-						<Label htmlFor="description">Description</Label>
+					<Label htmlFor="description">{t("strings.Description" as never)}</Label>
 						<Textarea
 							id="description"
 							placeholder="Describe what your app does..."
@@ -248,7 +250,7 @@ export default function CreateOAuthAppDialog({
 					</div>
 
 					<div>
-						<Label htmlFor="homepageUrl">Homepage URL</Label>
+					<Label htmlFor="homepageUrl">{t("strings.Homepage URL" as never)}</Label>
 						<Input
 							id="homepageUrl"
 							type="url"
@@ -288,13 +290,13 @@ export default function CreateOAuthAppDialog({
 
 				<DialogFooter>
 					<Button variant="outline" onClick={() => setOpen(false)}>
-						Cancel
+							{t("labels.cancel")}
 					</Button>
 					<Button
 						onClick={handleCreate}
 						disabled={loading || !formData.name.trim() || !formData.redirectUris.trim() || formData.allowedScopes.length === 0}
 					>
-						{loading ? "Creating..." : "Create App"}
+							{loading ? t("labels.creating") : t("strings.Create App" as never)}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

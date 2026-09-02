@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Logo } from "@/components/Logo";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
@@ -424,6 +425,7 @@ function safeParsePinned(value: string | null): Record<string, boolean> {
 }
 
 export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) {
+	const t = useTranslations("Product.chatRooms");
 	const { toggleSidebar, state: sidebarState, isMobile } = useSidebar();
 	const collapsed = sidebarState === "collapsed" && !isMobile;
 	const filteredModels = useMemo(
@@ -1186,7 +1188,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								aria-label="New Chat"
 							>
 								<SquarePen className="h-4 w-4 shrink-0" />
-								<span className="truncate text-left">New Chat</span>
+								<span className="truncate text-left">{t("newChat")}</span>
 							</Button>
 						)}
 						{collapsed ? (
@@ -1219,7 +1221,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							>
 								<Link href="/" className="group/db flex w-full min-w-0 items-center gap-2">
 									<Database className="h-4 w-4 shrink-0" />
-									<span className="flex-1 min-w-0 truncate text-left">Database</span>
+									<span className="flex-1 min-w-0 truncate text-left">{t("database")}</span>
 									<ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover/db:opacity-100" />
 								</Link>
 							</Button>
@@ -1248,14 +1250,14 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								aria-label="Search Chats"
 							>
 								<Search className="h-4 w-4 shrink-0" />
-								<span className="truncate text-left">Search Chats</span>
+								<span className="truncate text-left">{t("searchChats")}</span>
 							</Button>
 						)}
 					</div>
 					<SidebarSeparator className="mx-0 my-0 w-full" />
 					<ScrollArea className="h-full group-data-[collapsible=icon]:hidden">
 						<SidebarGroup className={CHAT_SIDEBAR_HISTORY_GROUP_CLASS}>
-							<SidebarGroupLabel>Chats</SidebarGroupLabel>
+						<SidebarGroupLabel>{t("chats")}</SidebarGroupLabel>
 							<SidebarGroupContent className="overflow-hidden">
 								<SidebarMenu>
 									{renderConversationSection("Pinned", groupedConversations.pinned)}
@@ -1300,7 +1302,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							)}
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
+							<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>{t("toggleSidebar")}</TooltipContent>
 					</Tooltip>
 						<RoomModelSelector
 							models={filteredModels}
@@ -1322,7 +1324,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 									<MessageCircleDashed className="h-4 w-4" />
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Temporary chat</TooltipContent>
+							<TooltipContent>{t("temporaryChat")}</TooltipContent>
 						</Tooltip>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -1338,7 +1340,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 									<SettingsIcon className="h-5 w-5" />
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Settings</TooltipContent>
+							<TooltipContent>{t("settings")}</TooltipContent>
 						</Tooltip>
 					</div>
 				</div>
@@ -1504,7 +1506,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 														<PencilLine className="h-3.5 w-3.5" />
 													</Button>
 												</TooltipTrigger>
-												<TooltipContent side="top">Edit prompt</TooltipContent>
+										<TooltipContent side="top">{t("editPrompt")}</TooltipContent>
 											</Tooltip>
 										</div>
 									</div>
@@ -1656,7 +1658,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 														<RotateCcw className="h-3.5 w-3.5" />
 													</Button>
 												</TooltipTrigger>
-												<TooltipContent side="top">Retry</TooltipContent>
+										<TooltipContent side="top">{t("retry")}</TooltipContent>
 											</Tooltip>
 											<Tooltip>
 												<TooltipTrigger asChild>
@@ -1710,12 +1712,12 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 															</Button>
 														</PopoverTrigger>
 													</TooltipTrigger>
-													<TooltipContent side="top">Metadata</TooltipContent>
+										<TooltipContent side="top">{t("metadata")}</TooltipContent>
 												</Tooltip>
 												<PopoverContent align="start" className="w-72">
 													<div className="grid gap-1.5 text-sm">
 														<div className="flex items-center justify-between">
-															<span className="text-muted-foreground">Total tokens</span>
+										<span className="text-muted-foreground">{t("totalTokens")}</span>
 															<span>
 																{typeof rawResponse?.usage?.total_tokens === "number"
 																	? rawResponse.usage.total_tokens
@@ -1723,7 +1725,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 															</span>
 														</div>
 														<div className="flex items-center justify-between">
-															<span className="text-muted-foreground">Generation</span>
+										<span className="text-muted-foreground">{t("generation")}</span>
 															<span>
 																{typeof rawResponse?.meta?.generation_ms === "number"
 																	? `${(rawResponse.meta.generation_ms / 1000).toFixed(1)} s`
@@ -1767,7 +1769,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							value={textInput}
 							onChange={(event) => setTextInput(event.target.value)}
 							rows={1}
-							placeholder="Embed anything"
+								placeholder={t("embedAnything")}
 							className={cn(
 								"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
 								showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error
@@ -1787,7 +1789,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 										ref={imageUrlInputRef}
 										value={imageUrl}
 										onChange={(event) => setImageUrl(event.target.value)}
-										placeholder="Image URL"
+										placeholder={t("imageUrl")}
 										className="h-8"
 									/>
 								) : null}
@@ -1796,7 +1798,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 										ref={audioUrlInputRef}
 										value={audioUrl}
 										onChange={(event) => setAudioUrl(event.target.value)}
-										placeholder="Audio URL"
+										placeholder={t("audioUrl")}
 										className="h-8"
 									/>
 								) : null}
@@ -1805,7 +1807,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 										ref={videoUrlInputRef}
 										value={videoUrl}
 										onChange={(event) => setVideoUrl(event.target.value)}
-										placeholder="Video URL"
+										placeholder={t("videoUrl")}
 										className="h-8"
 									/>
 								) : null}
@@ -1819,7 +1821,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 										className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
 										onClick={() => setImageUrl("")}
 									>
-										<span className="max-w-[220px] truncate">Image URL</span>
+										<span className="max-w-[220px] truncate">{t("imageUrl")}</span>
 										<X className="h-3 w-3" />
 									</button>
 								) : null}
@@ -1829,7 +1831,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 										className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
 										onClick={() => setAudioUrl("")}
 									>
-										<span className="max-w-[220px] truncate">Audio URL</span>
+										<span className="max-w-[220px] truncate">{t("audioUrl")}</span>
 										<X className="h-3 w-3" />
 									</button>
 								) : null}
@@ -1839,7 +1841,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 										className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
 										onClick={() => setVideoUrl("")}
 									>
-										<span className="max-w-[220px] truncate">Video URL</span>
+										<span className="max-w-[220px] truncate">{t("videoUrl")}</span>
 										<X className="h-3 w-3" />
 									</button>
 								) : null}
@@ -1903,7 +1905,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								}}
 								disabled={isLoading || !modelId || !selectedModelEnabled}
 							>
-								{isLoading ? <RoomWorkingIndicator label="Generating embeddings..." /> : "Embed"}
+								{isLoading ? <RoomWorkingIndicator label={t("generatingEmbeddings")} /> : t("embed")}
 							</Button>
 						</div>
 					</RoomComposerSurface>
