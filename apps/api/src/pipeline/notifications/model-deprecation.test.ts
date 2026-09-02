@@ -20,10 +20,14 @@ describe("model deprecation email", () => {
 		expect(content.message).toContain("scheduled for deprecation on September 8, 2026");
 		expect(content.message).toContain("Recommended replacement: New Model (openai/new-model)");
 		expect(content.message).toContain("retire on October 1, 2026");
+		expect(content.emailMessage).toBe("Old <Model> is scheduled for deprecation on September 8, 2026. The model is scheduled to retire on October 1, 2026.");
+		expect(content.replacementModelName).toBe("New Model");
 		expect(email.subject).toBe(content.title);
 		expect(email.html).toContain("Old &lt;Model&gt;");
 		expect(email.html).toContain("Compare models");
 		expect(email.html).toContain("View recommended model");
+		expect(email.html).toContain("-webkit-text-size-adjust:100%");
+		expect(email.html).toContain("white-space:nowrap");
 		expect(email.text).toContain("Compare models: https://phaseo.app/compare?models=openai%2Fold-model&models=openai%2Fnew-model");
 		expect(email.text).toContain("View recommended model: https://phaseo.app/models/openai/new-model");
 	});

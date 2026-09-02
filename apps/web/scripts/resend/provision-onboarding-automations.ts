@@ -136,16 +136,16 @@ function renderEmailHtml(args: {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 </head>
-<body style="margin-top:0;margin-right:0;margin-bottom:0;margin-left:0;background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#18181b;">
+<body style="margin-top:0;margin-right:0;margin-bottom:0;margin-left:0;background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#18181b;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%;">
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;background-color:#ffffff;">
 		<tr>
 			<td align="center" style="padding-top:40px;padding-right:20px;padding-bottom:40px;padding-left:20px;">
-				<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:600px;background-color:#ffffff;">
-					<tr><td style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0;font-family:Arial,Helvetica,sans-serif;color:#18181b;">
+				<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:600px;min-width:0;background-color:#ffffff;">
+				<tr><td style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0;font-family:Arial,Helvetica,sans-serif;color:#18181b;font-size:16px;line-height:26px;">
 						<table role="presentation" align="center" width="147" cellpadding="0" cellspacing="0" border="0" bgcolor="#0284c7" style="width:147px;margin-bottom:28px;background-color:#0284c7;border-radius:8px;"><tr>
 							<td style="padding-top:14px;padding-right:16px;padding-bottom:14px;padding-left:16px;vertical-align:middle;"><img src="https://phaseo.app/wordmark_dark.svg" width="115" height="24" border="0" alt="Phaseo" style="display:block;width:115px;height:24px;border:0;"></td>
 						</tr></table>
-						<h1 align="center" style="margin-top:0;margin-right:0;margin-bottom:18px;margin-left:0;font-size:30px;line-height:36px;letter-spacing:-.02em;color:#09090b;font-weight:500;">${args.title}</h1>
+						<h1 align="center" style="margin-top:0;margin-right:0;margin-bottom:18px;margin-left:0;font-size:28px;line-height:34px;letter-spacing:-.02em;color:#09090b;font-weight:500;">${args.title}</h1>
 						<p align="center" style="margin-top:0;margin-right:0;margin-bottom:10px;margin-left:0;font-size:15px;line-height:26px;color:#18181b;font-weight:600;">Hi {{{user_name}}},</p>
 						<p align="center" style="margin-top:0;margin-right:0;margin-bottom:26px;margin-left:0;font-size:16px;line-height:26px;color:#3f3f46;font-weight:400;">${args.intro}</p>
 						<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:26px;"><tr>
@@ -362,23 +362,23 @@ function buildTemplates(args: {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	</head>
-<body style="margin-top:0;margin-right:0;margin-bottom:0;margin-left:0;background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#18181b;">
+<body style="margin-top:0;margin-right:0;margin-bottom:0;margin-left:0;background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#18181b;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;text-size-adjust:100%;">
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;background-color:#ffffff;">
 		<tr><td align="center" style="padding-top:40px;padding-right:20px;padding-bottom:40px;padding-left:20px;">
-			<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:600px;background-color:#ffffff;">
-				<tr><td style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0;font-family:Arial,Helvetica,sans-serif;color:#18181b;">
+			<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:600px;min-width:0;background-color:#ffffff;">
+				<tr><td style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0;font-family:Arial,Helvetica,sans-serif;color:#18181b;font-size:16px;line-height:26px;">
 					<table role="presentation" align="center" width="147" cellpadding="0" cellspacing="0" border="0" bgcolor="#0284c7" style="width:147px;margin-bottom:28px;background-color:#0284c7;border-radius:8px;"><tr>
 						<td style="padding-top:14px;padding-right:16px;padding-bottom:14px;padding-left:16px;vertical-align:middle;"><img src="https://phaseo.app/wordmark_dark.svg" width="115" height="24" border="0" alt="Phaseo" style="display:block;width:115px;height:24px;border:0;"></td>
 					</tr></table>
-					<h1 align="center" style="margin-top:0;margin-right:0;margin-bottom:18px;margin-left:0;font-size:30px;line-height:36px;letter-spacing:-.02em;color:#09090b;font-weight:500;">{{{model_name}}} is changing</h1>
+					<h1 align="center" style="margin-top:0;margin-right:0;margin-bottom:18px;margin-left:0;font-size:28px;line-height:34px;letter-spacing:-.02em;color:#09090b;font-weight:500;">{{{model_name}}} is changing</h1>
 					<p align="center" style="margin-top:0;margin-right:0;margin-bottom:10px;margin-left:0;font-size:15px;line-height:26px;color:#18181b;font-weight:600;">Hi {{{user_name}}},</p>
 					<p style="margin-top:0;margin-right:0;margin-bottom:26px;margin-left:0;font-size:16px;line-height:26px;color:#3f3f46;font-weight:400;">{{{message}}}</p>
-					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f0f9ff" style="margin-bottom:22px;background-color:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;"><tr><td style="padding-top:14px;padding-right:16px;padding-bottom:14px;padding-left:16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;color:#0c4a6e;font-weight:600;">Recommended successor: {{{replacement_model_name}}}</td></tr></table>
-					<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr>
-						<td style="border-radius:6px;background-color:#0369a1;" bgcolor="#0369a1"><a href="{{{compare_url}}}" style="display:inline-block;padding-top:11px;padding-right:15px;padding-bottom:11px;padding-left:15px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:16px;text-decoration:none;color:#ffffff;font-weight:600;">Compare models</a></td>
-						<td width="8" style="width:8px;font-size:0;line-height:0;">&nbsp;</td>
-						<td style="border:1px solid #bae6fd;border-radius:6px;background-color:#ffffff;" bgcolor="#ffffff"><a href="{{{replacement_model_url}}}" style="display:inline-block;padding-top:10px;padding-right:14px;padding-bottom:10px;padding-left:14px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:16px;text-decoration:none;color:#0369a1;font-weight:600;">View recommended model</a></td>
-					</tr></table>
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f7f8" style="margin-bottom:22px;background-color:#f6f7f8;border:1px solid #e4e4e7;border-radius:10px;"><tr><td style="padding-top:14px;padding-right:16px;padding-bottom:14px;padding-left:16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;color:#3f3f46;font-weight:600;">Recommended successor: {{{replacement_model_name}}}</td></tr></table>
+					<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+						<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-radius:6px;background-color:#0369a1;" bgcolor="#0369a1"><a href="{{{compare_url}}}" style="display:inline-block;padding-top:11px;padding-right:15px;padding-bottom:11px;padding-left:15px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:16px;text-decoration:none;color:#ffffff;font-weight:600;white-space:nowrap;">Compare models</a></td></tr></table>
+						<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td height="8" style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+						<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td style="border:1px solid #bae6fd;border-radius:6px;background-color:#ffffff;" bgcolor="#ffffff"><a href="{{{replacement_model_url}}}" style="display:inline-block;padding-top:10px;padding-right:14px;padding-bottom:10px;padding-left:14px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:16px;text-decoration:none;color:#0369a1;font-weight:600;white-space:nowrap;">View recommended model</a></td></tr></table>
+					</td></tr></table>
 					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:28px;"><tr><td style="padding-top:18px;padding-right:0;padding-bottom:0;padding-left:0;border-top:1px solid #e4e4e7;">
 						<p style="margin-top:0;margin-right:0;margin-bottom:4px;margin-left:0;font-size:12px;line-height:18px;color:#71717a;font-weight:600;">Need help?</p>
 						<p style="margin-top:0;margin-right:0;margin-bottom:0;margin-left:0;font-size:13px;line-height:21px;color:#52525b;font-weight:400;">Reply to this email and we&rsquo;ll get back to you at <a href="mailto:${args.replyToEmail}" style="font-size:13px;line-height:21px;color:#3f3f46;text-decoration:underline;font-weight:600;">${args.replyToEmail}</a>.</p>
