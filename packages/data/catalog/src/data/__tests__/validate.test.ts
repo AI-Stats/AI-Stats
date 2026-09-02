@@ -440,6 +440,24 @@ describe('pricing safety checks', () => {
 });
 
 describe('api provider model safety checks', () => {
+    it('rejects internal routes whose Phaseo integration is not testing or enabled', () => {
+        const result = checkApiProviderModelEntrySafety({
+            api_model_id: 'anthropic/claude-mythos-5.1',
+            provider_api_model_id: 'anthropic:anthropic/claude-mythos-5.1',
+            provider_model_slug: 'claude-mythos-5-1',
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            access_scope: 'internal',
+            input_modalities: 'text,image',
+            output_modalities: 'text',
+        }, { providerId: 'anthropic' });
+
+        expect(result.errors).toContain(
+            'API provider model anthropic (anthropic:anthropic/claude-mythos-5.1) with internal access_scope must set phaseo_status to testing or enabled'
+        );
+    });
+
     test('Venice E2EE models remain unroutable until the encryption protocol is implemented', () => {
         const rows = readProviderModels('venice-e2ee');
         expect(rows.length).toBeGreaterThan(0);

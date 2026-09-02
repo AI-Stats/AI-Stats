@@ -366,6 +366,19 @@ describe("explicit catalogue statuses", () => {
         expect(phaseoRoutingEnabled(offer)).toBe(false);
     });
 
+    it("keeps withheld catalogue routes discoverable without enabling routing", () => {
+        const offer = {
+            provider_status: "limited_access",
+            is_active_gateway: false,
+            routable: false,
+            routing_status: "disabled",
+            capabilities: [{ capability_id: "text.generate", status: "inactive" }],
+        };
+        expect(phaseoStatus(offer)).toBe("unsupported");
+        expect(routeAccessScope(offer)).toBe("public");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
     it("fails closed to internal access for an unrecognised explicit scope", () => {
         const offer = {
             provider_status: "available",
