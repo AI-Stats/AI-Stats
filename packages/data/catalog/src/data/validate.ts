@@ -337,6 +337,14 @@ export function checkApiProviderModelEntrySafety(
         errors.push(`API provider model ${rowLabel} missing provider_model_slug`);
     }
 
+    const accessScope = normalizeReference(row?.access_scope)?.toLowerCase();
+    const integrationStatus = normalizeReference(row?.phaseo_status)?.toLowerCase();
+    if (accessScope === 'internal' && integrationStatus !== 'testing' && integrationStatus !== 'enabled') {
+        errors.push(
+            `API provider model ${rowLabel} with internal access_scope must set phaseo_status to testing or enabled`
+        );
+    }
+
     if (row?.availability !== undefined && row?.availability !== null) {
         const availability = row.availability;
         if (!isPlainObject(availability)) {
