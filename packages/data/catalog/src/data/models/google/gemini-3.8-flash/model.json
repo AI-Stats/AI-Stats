@@ -16,6 +16,11 @@
   "api_model_id": "google/gemini-3.8-flash",
   "links": [
     {
+      "title": "Gemini API model documentation",
+      "kind": "documentation",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash"
+    },
+    {
       "title": "Vertex AI model documentation",
       "kind": "documentation",
       "url": "https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-8-flash"
@@ -29,7 +34,7 @@
   "details": [
     {
       "name": "availability",
-      "value": "Generally available on Vertex AI in global, US, and EU locations. Phaseo displays the verified provider support while gateway routing remains disabled."
+      "value": "Generally available through the Gemini API and Vertex AI. Gemini API supports Standard, Batch, Flex, and Priority inference; Vertex AI additionally supports Provisioned Throughput. Phaseo displays verified provider availability while gateway routing remains disabled."
     }
   ],
   "benchmarks": [],
@@ -54,19 +59,20 @@
     "attachment": true,
     "tool_call": true,
     "structured_output": true,
-    "temperature": true,
-    "streaming": null,
+    "temperature": false,
+    "streaming": true,
     "web_search": true
   },
   "open_weights": false,
   "sources": [
+    { "kind": "documentation", "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Official stable Gemini API model ID, modalities, token limits, capabilities, and Batch/Flex/Priority consumption options." },
     { "kind": "documentation", "url": "https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-8-flash", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Official GA model ID, release date, modalities, token limits, capabilities, service options, and regions." },
     { "kind": "pricing", "url": "https://cloud.google.com/skus?filter=3.8%20Flash&currency=USD", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Google's public billing catalogue contains model-specific Gemini 3.8 Flash SKUs for Gemini API and Vertex AI." }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-09-02T00:00:00Z",
-    "notes": "Google's Vertex AI documentation verifies the GA release, callable model ID, modalities, limits, capabilities, locations, and consumption options; billing SKUs verify provider pricing."
+    "notes": "Google's Gemini API and Vertex AI documentation verify the GA release, callable model ID, modalities, limits, capabilities, locations, and consumption options; billing SKUs verify provider pricing."
   },
   "last_updated": "2026-09-02T00:00:00",
   "removal_date": null,
