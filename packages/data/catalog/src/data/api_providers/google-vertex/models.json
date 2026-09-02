@@ -39,10 +39,13 @@
     "routing_status": "disabled",
     "routable": false,
     "regions": { "execution": null, "data": null },
-    "service_tiers": [],
+    "provider_status": "coming_soon",
+    "phaseo_status": "planned",
+    "access_scope": "public",
+    "service_tiers": ["standard", "batch", "flex", "priority"],
     "api": { "formats": [], "endpoint": null, "deployment": null },
-    "sources": [],
-    "verification": { "status": "unverified", "checked_at": "2026-09-01T00:00:00Z", "notes": "Pre-launch placeholder; enable only after Google confirms the API slug and availability." },
+    "sources": [{ "kind": "pricing", "url": "https://cloud.google.com/skus?filter=3.8%20Flash&currency=USD", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Google's public Vertex AI SKU catalogue lists Gemini 3.8 Flash global and regional standard, batch, flex, priority, cached-input, and cache-storage SKUs." }],
+    "verification": { "status": "partial", "checked_at": "2026-09-02T00:00:00Z", "notes": "Official public billing SKUs verify planned Vertex AI product support and rates, but not callable availability. Routing remains disabled until Google publishes the model documentation and the Vertex model slug is confirmed live." },
     "rate_limits": []
   },
   {
