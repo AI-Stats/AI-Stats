@@ -4760,7 +4760,7 @@
           {
             "param_id": "temperature",
             "provider_min": 0,
-            "provider_max": 2,
+            "provider_max": null,
             "provider_default": null,
             "notes": "Qwen Cloud documents the range as [0, 2)."
           },
@@ -4773,7 +4773,7 @@
           },
           {
             "param_id": "top_p",
-            "provider_min": 0,
+            "provider_min": null,
             "provider_max": 1,
             "provider_default": null,
             "notes": "Qwen Cloud documents the range as (0, 1]."
@@ -4801,10 +4801,10 @@
           },
           {
             "param_id": "repetition_penalty",
-            "provider_min": 0,
+            "provider_min": null,
             "provider_max": null,
             "provider_default": null,
-            "notes": null
+            "notes": "Qwen Cloud requires a value greater than 0."
           },
           {
             "param_id": "stop",

@@ -193,6 +193,33 @@ export function applyReasoningParams(args: {
 		}
 		return;
 	}
+	if (args.providerId === "alibaba-cloud") {
+		const rawEffort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		const effort = rawEffort === "minimal" || rawEffort === "low"
+			? "low"
+			: rawEffort === "medium"
+				? "medium"
+				: rawEffort === "high" || rawEffort === "xhigh" || rawEffort === "max"
+					? "xhigh"
+					: undefined;
+		const disabled = reasoning.enabled === false || rawEffort === "none";
+
+		if (disabled) {
+			args.request.enable_thinking = false;
+			return;
+		}
+		if (reasoning.enabled === true) args.request.enable_thinking = true;
+		if ("input" in args.request) {
+			if (effort !== undefined) args.request.reasoning = { effort };
+			return;
+		}
+		if (typeof reasoning.maxTokens === "number") {
+			args.request.thinking_budget = reasoning.maxTokens;
+		} else if (effort !== undefined) {
+			args.request.reasoning_effort = effort;
+		}
+		return;
+	}
 
 	const config = resolveReasoningConfig(args.providerId);
 	if (!config) return;
