@@ -184,6 +184,8 @@ export type KnownModelId =
   | "meta/muse-glimmer-30b"
   | "meta/muse-image-1.0"
   | "meta/muse-spark-1.2"
+  | "meta/muse-spark-1.3"
+  | "meta/muse-spark-1.3-contributor"
   | "meta/muse-voice-transcribe-1.0"
   | "microsoft/phi-4"
   | "microsoft/wizardlm-2-8x22b"

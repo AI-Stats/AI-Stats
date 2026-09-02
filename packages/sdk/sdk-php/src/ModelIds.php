@@ -554,6 +554,12 @@ final class ModelIds
     /** Model ID: meta/muse-spark-1.2. Model page: https://phaseo.app/models/meta/muse-spark-1.2 */
     public const META_MUSE_SPARK_1_2 = 'meta/muse-spark-1.2';
 
+    /** Model ID: meta/muse-spark-1.3. Model page: https://phaseo.app/models/meta/muse-spark-1.3 */
+    public const META_MUSE_SPARK_1_3 = 'meta/muse-spark-1.3';
+
+    /** Model ID: meta/muse-spark-1.3-contributor. Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor */
+    public const META_MUSE_SPARK_1_3_CONTRIBUTOR = 'meta/muse-spark-1.3-contributor';
+
     /** Model ID: meta/muse-voice-transcribe-1.0. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0 */
     public const META_MUSE_VOICE_TRANSCRIBE_1_0 = 'meta/muse-voice-transcribe-1.0';
 
@@ -1357,6 +1363,9 @@ final class ModelIds
 
     /** Model ID: qwen/qwen3.8-max. Model page: https://phaseo.app/models/qwen/qwen3.8-max */
     public const QWEN_QWEN3_8_MAX = 'qwen/qwen3.8-max';
+
+    /** Model ID: qwen/qwen3.8-max-0902. Model page: https://phaseo.app/models/qwen/qwen3.8-max-0902 */
+    public const QWEN_QWEN3_8_MAX_0902 = 'qwen/qwen3.8-max-0902';
 
     /** Model ID: qwen/qwq-32b. Model page: https://phaseo.app/models/qwen/qwq-32b */
     public const QWEN_QWQ_32B = 'qwen/qwq-32b';

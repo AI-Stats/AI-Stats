@@ -370,6 +370,10 @@ namespace PhaseoSdk
         public const string MetaMuseImage10 = "meta/muse-image-1.0";
         /// <summary>Model ID: <c>meta/muse-spark-1.2</c>. Model page: https://phaseo.app/models/meta/muse-spark-1.2</summary>
         public const string MetaMuseSpark12 = "meta/muse-spark-1.2";
+        /// <summary>Model ID: <c>meta/muse-spark-1.3</c>. Model page: https://phaseo.app/models/meta/muse-spark-1.3</summary>
+        public const string MetaMuseSpark13 = "meta/muse-spark-1.3";
+        /// <summary>Model ID: <c>meta/muse-spark-1.3-contributor</c>. Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor</summary>
+        public const string MetaMuseSpark13Contributor = "meta/muse-spark-1.3-contributor";
         /// <summary>Model ID: <c>meta/muse-voice-transcribe-1.0</c>. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0</summary>
         public const string MetaMuseVoiceTranscribe10 = "meta/muse-voice-transcribe-1.0";
         /// <summary>Model ID: <c>microsoft/phi-4</c>. Model page: https://phaseo.app/models/microsoft/phi-4</summary>
@@ -906,6 +910,8 @@ namespace PhaseoSdk
         public const string QwenQwen38Flash = "qwen/qwen3.8-flash";
         /// <summary>Model ID: <c>qwen/qwen3.8-max</c>. Model page: https://phaseo.app/models/qwen/qwen3.8-max</summary>
         public const string QwenQwen38Max = "qwen/qwen3.8-max";
+        /// <summary>Model ID: <c>qwen/qwen3.8-max-0902</c>. Model page: https://phaseo.app/models/qwen/qwen3.8-max-0902</summary>
+        public const string QwenQwen38Max0902 = "qwen/qwen3.8-max-0902";
         /// <summary>Model ID: <c>qwen/qwq-32b</c>. Model page: https://phaseo.app/models/qwen/qwq-32b</summary>
         public const string QwenQwq32b = "qwen/qwq-32b";
         /// <summary>Model ID: <c>qwen/qwq-plus</c>. Model page: https://phaseo.app/models/qwen/qwq-plus</summary>

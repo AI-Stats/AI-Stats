@@ -552,6 +552,12 @@ inline constexpr std::string_view META_MUSE_IMAGE_1_0 = "meta/muse-image-1.0";
 // Model ID: meta/muse-spark-1.2
 // Model page: https://phaseo.app/models/meta/muse-spark-1.2
 inline constexpr std::string_view META_MUSE_SPARK_1_2 = "meta/muse-spark-1.2";
+// Model ID: meta/muse-spark-1.3
+// Model page: https://phaseo.app/models/meta/muse-spark-1.3
+inline constexpr std::string_view META_MUSE_SPARK_1_3 = "meta/muse-spark-1.3";
+// Model ID: meta/muse-spark-1.3-contributor
+// Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor
+inline constexpr std::string_view META_MUSE_SPARK_1_3_CONTRIBUTOR = "meta/muse-spark-1.3-contributor";
 // Model ID: meta/muse-voice-transcribe-1.0
 // Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
 inline constexpr std::string_view META_MUSE_VOICE_TRANSCRIBE_1_0 = "meta/muse-voice-transcribe-1.0";
@@ -1356,6 +1362,9 @@ inline constexpr std::string_view QWEN_QWEN3_8_FLASH = "qwen/qwen3.8-flash";
 // Model ID: qwen/qwen3.8-max
 // Model page: https://phaseo.app/models/qwen/qwen3.8-max
 inline constexpr std::string_view QWEN_QWEN3_8_MAX = "qwen/qwen3.8-max";
+// Model ID: qwen/qwen3.8-max-0902
+// Model page: https://phaseo.app/models/qwen/qwen3.8-max-0902
+inline constexpr std::string_view QWEN_QWEN3_8_MAX_0902 = "qwen/qwen3.8-max-0902";
 // Model ID: qwen/qwq-32b
 // Model page: https://phaseo.app/models/qwen/qwq-32b
 inline constexpr std::string_view QWEN_QWQ_32B = "qwen/qwq-32b";
@@ -1677,7 +1686,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 556> ALL = {
+inline constexpr std::array<std::string_view, 559> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1860,6 +1869,8 @@ inline constexpr std::array<std::string_view, 556> ALL = {
 	META_MUSE_GLIMMER_30B,
 	META_MUSE_IMAGE_1_0,
 	META_MUSE_SPARK_1_2,
+	META_MUSE_SPARK_1_3,
+	META_MUSE_SPARK_1_3_CONTRIBUTOR,
 	META_MUSE_VOICE_TRANSCRIBE_1_0,
 	MICROSOFT_PHI_4,
 	MICROSOFT_WIZARDLM_2_8X22B,
@@ -2128,6 +2139,7 @@ inline constexpr std::array<std::string_view, 556> ALL = {
 	QWEN_QWEN3_8_27B,
 	QWEN_QWEN3_8_FLASH,
 	QWEN_QWEN3_8_MAX,
+	QWEN_QWEN3_8_MAX_0902,
 	QWEN_QWQ_32B,
 	QWEN_QWQ_PLUS,
 	QWEN_TEXT_EMBEDDING_V3,

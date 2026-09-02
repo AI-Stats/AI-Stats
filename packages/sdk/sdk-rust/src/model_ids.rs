@@ -549,6 +549,12 @@ pub mod model_ids {
     /// Model ID: `meta/muse-spark-1.2`.
     /// Model page: https://phaseo.app/models/meta/muse-spark-1.2
     pub const META_MUSE_SPARK_1_2: &str = "meta/muse-spark-1.2";
+    /// Model ID: `meta/muse-spark-1.3`.
+    /// Model page: https://phaseo.app/models/meta/muse-spark-1.3
+    pub const META_MUSE_SPARK_1_3: &str = "meta/muse-spark-1.3";
+    /// Model ID: `meta/muse-spark-1.3-contributor`.
+    /// Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor
+    pub const META_MUSE_SPARK_1_3_CONTRIBUTOR: &str = "meta/muse-spark-1.3-contributor";
     /// Model ID: `meta/muse-voice-transcribe-1.0`.
     /// Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
     pub const META_MUSE_VOICE_TRANSCRIBE_1_0: &str = "meta/muse-voice-transcribe-1.0";
@@ -1353,6 +1359,9 @@ pub mod model_ids {
     /// Model ID: `qwen/qwen3.8-max`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.8-max
     pub const QWEN_QWEN3_8_MAX: &str = "qwen/qwen3.8-max";
+    /// Model ID: `qwen/qwen3.8-max-0902`.
+    /// Model page: https://phaseo.app/models/qwen/qwen3.8-max-0902
+    pub const QWEN_QWEN3_8_MAX_0902: &str = "qwen/qwen3.8-max-0902";
     /// Model ID: `qwen/qwq-32b`.
     /// Model page: https://phaseo.app/models/qwen/qwq-32b
     pub const QWEN_QWQ_32B: &str = "qwen/qwq-32b";
@@ -1858,6 +1867,8 @@ pub mod model_ids {
         META_MUSE_GLIMMER_30B,
         META_MUSE_IMAGE_1_0,
         META_MUSE_SPARK_1_2,
+        META_MUSE_SPARK_1_3,
+        META_MUSE_SPARK_1_3_CONTRIBUTOR,
         META_MUSE_VOICE_TRANSCRIBE_1_0,
         MICROSOFT_PHI_4,
         MICROSOFT_WIZARDLM_2_8X22B,
@@ -2126,6 +2137,7 @@ pub mod model_ids {
         QWEN_QWEN3_8_27B,
         QWEN_QWEN3_8_FLASH,
         QWEN_QWEN3_8_MAX,
+        QWEN_QWEN3_8_MAX_0902,
         QWEN_QWQ_32B,
         QWEN_QWQ_PLUS,
         QWEN_TEXT_EMBEDDING_V3,
