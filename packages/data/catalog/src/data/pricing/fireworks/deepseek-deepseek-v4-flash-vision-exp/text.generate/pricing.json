@@ -55,7 +55,7 @@
     }
   ],
   "regions": [],
-  "service_tiers": ["standard", "priority"],
+  "service_tiers": ["standard"],
   "sources": [
     {
       "kind": "pricing",

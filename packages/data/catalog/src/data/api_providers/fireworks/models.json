@@ -482,8 +482,7 @@
       "data": null
     },
     "service_tiers": [
-      "standard",
-      "priority"
+      "standard"
     ],
     "api": {
       "formats": [],
