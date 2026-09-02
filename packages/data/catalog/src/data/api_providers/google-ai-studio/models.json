@@ -16,10 +16,13 @@
     "routing_status": "disabled",
     "routable": false,
     "regions": { "execution": null, "data": null },
-    "service_tiers": [],
+    "provider_status": "available",
+    "phaseo_status": "planned",
+    "access_scope": "public",
+    "service_tiers": ["standard", "batch", "flex", "priority"],
     "api": { "formats": [], "endpoint": null, "deployment": null },
-    "sources": [],
-    "verification": { "status": "unverified", "checked_at": "2026-09-01T00:00:00Z", "notes": "Pre-launch placeholder; enable only after Google confirms the API slug and availability." },
+    "sources": [{ "kind": "pricing", "url": "https://cloud.google.com/skus?filter=3.8%20Flash&currency=USD", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Google's public Gemini API SKU catalogue lists Gemini 3.8 Flash standard, batch, flex, priority, cached-input, and cache-storage SKUs." }],
+    "verification": { "status": "partial", "checked_at": "2026-09-02T00:00:00Z", "notes": "Official public billing SKUs verify Gemini API product support and rates. Routing remains disabled until Google publishes the model documentation and the API slug is confirmed live." },
     "rate_limits": []
   },
   {
