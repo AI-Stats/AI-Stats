@@ -742,10 +742,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/meta/muse-spark-1.3
     META_MUSE_SPARK_1_3: Final[str] = "meta/muse-spark-1.3"
 
-    # Model ID: meta/muse-spark-1.3-contributor
-    # Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor
-    META_MUSE_SPARK_1_3_CONTRIBUTOR: Final[str] = "meta/muse-spark-1.3-contributor"
-
     # Model ID: meta/muse-voice-transcribe-1.0
     # Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
     META_MUSE_VOICE_TRANSCRIBE_1_0: Final[str] = "meta/muse-voice-transcribe-1.0"
@@ -2435,7 +2431,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.META_MUSE_IMAGE_1_0,
         ModelIds.META_MUSE_SPARK_1_2,
         ModelIds.META_MUSE_SPARK_1_3,
-        ModelIds.META_MUSE_SPARK_1_3_CONTRIBUTOR,
         ModelIds.META_MUSE_VOICE_TRANSCRIBE_1_0,
         ModelIds.MICROSOFT_PHI_4,
         ModelIds.MICROSOFT_WIZARDLM_2_8X22B,

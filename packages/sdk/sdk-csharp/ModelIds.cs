@@ -372,8 +372,6 @@ namespace PhaseoSdk
         public const string MetaMuseSpark12 = "meta/muse-spark-1.2";
         /// <summary>Model ID: <c>meta/muse-spark-1.3</c>. Model page: https://phaseo.app/models/meta/muse-spark-1.3</summary>
         public const string MetaMuseSpark13 = "meta/muse-spark-1.3";
-        /// <summary>Model ID: <c>meta/muse-spark-1.3-contributor</c>. Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor</summary>
-        public const string MetaMuseSpark13Contributor = "meta/muse-spark-1.3-contributor";
         /// <summary>Model ID: <c>meta/muse-voice-transcribe-1.0</c>. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0</summary>
         public const string MetaMuseVoiceTranscribe10 = "meta/muse-voice-transcribe-1.0";
         /// <summary>Model ID: <c>microsoft/phi-4</c>. Model page: https://phaseo.app/models/microsoft/phi-4</summary>

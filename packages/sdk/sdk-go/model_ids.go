@@ -556,9 +556,6 @@ const (
 	// Model ID: meta/muse-spark-1.3
 	// Model page: https://phaseo.app/models/meta/muse-spark-1.3
 	ModelIDMetaMuseSpark13 gen.ModelId = "meta/muse-spark-1.3"
-	// Model ID: meta/muse-spark-1.3-contributor
-	// Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor
-	ModelIDMetaMuseSpark13Contributor gen.ModelId = "meta/muse-spark-1.3-contributor"
 	// Model ID: meta/muse-voice-transcribe-1.0
 	// Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
 	ModelIDMetaMuseVoiceTranscribe10 gen.ModelId = "meta/muse-voice-transcribe-1.0"
@@ -1872,7 +1869,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMetaMuseImage10,
 	ModelIDMetaMuseSpark12,
 	ModelIDMetaMuseSpark13,
-	ModelIDMetaMuseSpark13Contributor,
 	ModelIDMetaMuseVoiceTranscribe10,
 	ModelIDMicrosoftPhi4,
 	ModelIDMicrosoftWizardlm28x22b,

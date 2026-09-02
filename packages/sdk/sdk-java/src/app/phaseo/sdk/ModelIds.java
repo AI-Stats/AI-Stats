@@ -556,9 +556,6 @@ public final class ModelIds {
     /** Model ID: <code>meta/muse-spark-1.3</code>. Model page: https://phaseo.app/models/meta/muse-spark-1.3 */
     public static final String META_MUSE_SPARK_1_3 = "meta/muse-spark-1.3";
 
-    /** Model ID: <code>meta/muse-spark-1.3-contributor</code>. Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor */
-    public static final String META_MUSE_SPARK_1_3_CONTRIBUTOR = "meta/muse-spark-1.3-contributor";
-
     /** Model ID: <code>meta/muse-voice-transcribe-1.0</code>. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0 */
     public static final String META_MUSE_VOICE_TRANSCRIBE_1_0 = "meta/muse-voice-transcribe-1.0";
 
