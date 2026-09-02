@@ -549,9 +549,15 @@ pub mod model_ids {
     /// Model ID: `meta/muse-spark-1.2`.
     /// Model page: https://phaseo.app/models/meta/muse-spark-1.2
     pub const META_MUSE_SPARK_1_2: &str = "meta/muse-spark-1.2";
+    /// Model ID: `meta/muse-spark-1.2-contributor`.
+    /// Model page: https://phaseo.app/models/meta/muse-spark-1.2-contributor
+    pub const META_MUSE_SPARK_1_2_CONTRIBUTOR: &str = "meta/muse-spark-1.2-contributor";
     /// Model ID: `meta/muse-spark-1.3`.
     /// Model page: https://phaseo.app/models/meta/muse-spark-1.3
     pub const META_MUSE_SPARK_1_3: &str = "meta/muse-spark-1.3";
+    /// Model ID: `meta/muse-spark-1.3-contributor`.
+    /// Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor
+    pub const META_MUSE_SPARK_1_3_CONTRIBUTOR: &str = "meta/muse-spark-1.3-contributor";
     /// Model ID: `meta/muse-voice-transcribe-1.0`.
     /// Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
     pub const META_MUSE_VOICE_TRANSCRIBE_1_0: &str = "meta/muse-voice-transcribe-1.0";
@@ -1864,7 +1870,9 @@ pub mod model_ids {
         META_MUSE_GLIMMER_30B,
         META_MUSE_IMAGE_1_0,
         META_MUSE_SPARK_1_2,
+        META_MUSE_SPARK_1_2_CONTRIBUTOR,
         META_MUSE_SPARK_1_3,
+        META_MUSE_SPARK_1_3_CONTRIBUTOR,
         META_MUSE_VOICE_TRANSCRIBE_1_0,
         MICROSOFT_PHI_4,
         MICROSOFT_WIZARDLM_2_8X22B,

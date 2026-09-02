@@ -554,8 +554,14 @@ final class ModelIds
     /** Model ID: meta/muse-spark-1.2. Model page: https://phaseo.app/models/meta/muse-spark-1.2 */
     public const META_MUSE_SPARK_1_2 = 'meta/muse-spark-1.2';
 
+    /** Model ID: meta/muse-spark-1.2-contributor. Model page: https://phaseo.app/models/meta/muse-spark-1.2-contributor */
+    public const META_MUSE_SPARK_1_2_CONTRIBUTOR = 'meta/muse-spark-1.2-contributor';
+
     /** Model ID: meta/muse-spark-1.3. Model page: https://phaseo.app/models/meta/muse-spark-1.3 */
     public const META_MUSE_SPARK_1_3 = 'meta/muse-spark-1.3';
+
+    /** Model ID: meta/muse-spark-1.3-contributor. Model page: https://phaseo.app/models/meta/muse-spark-1.3-contributor */
+    public const META_MUSE_SPARK_1_3_CONTRIBUTOR = 'meta/muse-spark-1.3-contributor';
 
     /** Model ID: meta/muse-voice-transcribe-1.0. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0 */
     public const META_MUSE_VOICE_TRANSCRIBE_1_0 = 'meta/muse-voice-transcribe-1.0';
