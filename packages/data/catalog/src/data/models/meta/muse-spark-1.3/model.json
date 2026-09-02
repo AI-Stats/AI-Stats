@@ -29,7 +29,7 @@
   "limits": { "context": 1048576, "input": null, "output": null },
   "modalities": { "input": ["text", "image/*", "video/*", "audio/*", "application/pdf"], "output": ["text"] },
   "reasoning": { "supported": true, "options": [] },
-  "capabilities": { "attachment": null, "tool_call": true, "structured_output": true, "temperature": true, "streaming": true, "web_search": true },
+  "capabilities": { "attachment": true, "tool_call": true, "structured_output": true, "temperature": true, "streaming": true, "web_search": true },
   "open_weights": false,
   "sources": [
     { "kind": "api_reference", "url": "https://dev.meta.ai/models", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Authenticated Meta Model API catalogue verified model IDs, availability, context window, description, and pricing." },
