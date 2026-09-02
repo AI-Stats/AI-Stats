@@ -2631,6 +2631,7 @@ const (
 	KnownModelIdQwenQwen3827b KnownModelId = "qwen/qwen3.8-27b"
 	KnownModelIdQwenQwen38Flash KnownModelId = "qwen/qwen3.8-flash"
 	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
+	KnownModelIdQwenQwen38Max0902 KnownModelId = "qwen/qwen3.8-max-0902"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
