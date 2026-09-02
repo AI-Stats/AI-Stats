@@ -5,7 +5,7 @@
   "status": "Rumoured",
   "hidden": true,
   "previous_model_id": "google/gemini-3.7-flash",
-  "description": "Gemini 3.8 Flash is an anticipated successor to Google's Gemini 3.7 Flash model. Phaseo is tracking the name for launch readiness; capabilities, availability, and pricing remain unconfirmed.",
+  "description": "Gemini 3.8 Flash is an anticipated successor to Google's Gemini 3.7 Flash model. Google's public billing catalogue now lists Gemini API and Vertex AI SKUs, while the model release, capabilities, limits, and callable API identifiers remain unconfirmed.",
   "announced_date": null,
   "release_date": "2026-09-02T00:00:00",
   "deprecation_date": null,
@@ -18,7 +18,7 @@
   "details": [
     {
       "name": "availability",
-      "value": "Pre-launch placeholder. Google has not confirmed the model name, API slug, release date, modalities, limits, capabilities, or pricing. Phaseo has pre-seeded disabled Google AI Studio and Vertex AI mappings so they can be verified and enabled quickly if the model launches under the anticipated slug."
+      "value": "Pre-launch placeholder. Public Google billing SKUs confirm planned Gemini API and Vertex AI pricing, but Google has not confirmed the callable model slug, release, modalities, limits, or capabilities. Phaseo keeps both provider mappings disabled until the official model documentation is published."
     }
   ],
   "benchmarks": [],
@@ -51,13 +51,13 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://cloud.google.com/skus?filter=3.8%20Flash&currency=USD", "accessed_at": "2026-09-02T00:00:00Z", "notes": "Google's public billing catalogue contains model-specific Gemini 3.8 Flash SKUs for Gemini API and Vertex AI." }],
   "verification": {
-    "status": "unverified",
-    "checked_at": "2026-09-01T00:00:00Z",
-    "notes": "No official Google announcement, model documentation, or pricing was found as of the checked date."
+    "status": "partial",
+    "checked_at": "2026-09-02T00:00:00Z",
+    "notes": "Official Google billing SKUs verify provider-specific pricing. The release, callable model identifiers, capabilities, and limits remain unverified."
   },
-  "last_updated": "2026-09-01T00:00:00",
+  "last_updated": "2026-09-02T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
