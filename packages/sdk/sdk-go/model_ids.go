@@ -553,6 +553,9 @@ const (
 	// Model ID: meta/muse-spark-1.2
 	// Model page: https://phaseo.app/models/meta/muse-spark-1.2
 	ModelIDMetaMuseSpark12 gen.ModelId = "meta/muse-spark-1.2"
+	// Model ID: meta/muse-spark-1.3
+	// Model page: https://phaseo.app/models/meta/muse-spark-1.3
+	ModelIDMetaMuseSpark13 gen.ModelId = "meta/muse-spark-1.3"
 	// Model ID: meta/muse-voice-transcribe-1.0
 	// Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0
 	ModelIDMetaMuseVoiceTranscribe10 gen.ModelId = "meta/muse-voice-transcribe-1.0"
@@ -1357,6 +1360,9 @@ const (
 	// Model ID: qwen/qwen3.8-max
 	// Model page: https://phaseo.app/models/qwen/qwen3.8-max
 	ModelIDQwenQwen38Max gen.ModelId = "qwen/qwen3.8-max"
+	// Model ID: qwen/qwen3.8-max-0902
+	// Model page: https://phaseo.app/models/qwen/qwen3.8-max-0902
+	ModelIDQwenQwen38Max0902 gen.ModelId = "qwen/qwen3.8-max-0902"
 	// Model ID: qwen/qwq-32b
 	// Model page: https://phaseo.app/models/qwen/qwq-32b
 	ModelIDQwenQwq32b gen.ModelId = "qwen/qwq-32b"
@@ -1862,6 +1868,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMetaMuseGlimmer30b,
 	ModelIDMetaMuseImage10,
 	ModelIDMetaMuseSpark12,
+	ModelIDMetaMuseSpark13,
 	ModelIDMetaMuseVoiceTranscribe10,
 	ModelIDMicrosoftPhi4,
 	ModelIDMicrosoftWizardlm28x22b,
@@ -2130,6 +2137,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen3827b,
 	ModelIDQwenQwen38Flash,
 	ModelIDQwenQwen38Max,
+	ModelIDQwenQwen38Max0902,
 	ModelIDQwenQwq32b,
 	ModelIDQwenQwqPlus,
 	ModelIDQwenTextEmbeddingV3,

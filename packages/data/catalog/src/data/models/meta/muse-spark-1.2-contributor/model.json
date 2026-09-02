@@ -107,6 +107,6 @@
   },
   "last_updated": "2026-08-07T00:00:00",
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "meta/muse-spark-1.3-contributor",
   "license_url": null
 }

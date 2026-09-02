@@ -553,6 +553,9 @@ public final class ModelIds {
     /** Model ID: <code>meta/muse-spark-1.2</code>. Model page: https://phaseo.app/models/meta/muse-spark-1.2 */
     public static final String META_MUSE_SPARK_1_2 = "meta/muse-spark-1.2";
 
+    /** Model ID: <code>meta/muse-spark-1.3</code>. Model page: https://phaseo.app/models/meta/muse-spark-1.3 */
+    public static final String META_MUSE_SPARK_1_3 = "meta/muse-spark-1.3";
+
     /** Model ID: <code>meta/muse-voice-transcribe-1.0</code>. Model page: https://phaseo.app/models/meta/muse-voice-transcribe-1.0 */
     public static final String META_MUSE_VOICE_TRANSCRIBE_1_0 = "meta/muse-voice-transcribe-1.0";
 
@@ -1356,6 +1359,9 @@ public final class ModelIds {
 
     /** Model ID: <code>qwen/qwen3.8-max</code>. Model page: https://phaseo.app/models/qwen/qwen3.8-max */
     public static final String QWEN_QWEN3_8_MAX = "qwen/qwen3.8-max";
+
+    /** Model ID: <code>qwen/qwen3.8-max-0902</code>. Model page: https://phaseo.app/models/qwen/qwen3.8-max-0902 */
+    public static final String QWEN_QWEN3_8_MAX_0902 = "qwen/qwen3.8-max-0902";
 
     /** Model ID: <code>qwen/qwq-32b</code>. Model page: https://phaseo.app/models/qwen/qwq-32b */
     public static final String QWEN_QWQ_32B = "qwen/qwq-32b";
