@@ -13,5 +13,5 @@
   "regions": [],
   "service_tiers": ["contributor"],
   "sources": [{ "kind": "pricing", "url": "https://dev.meta.ai/models", "accessed_at": "2026-09-02T00:00:00Z" }],
-  "verification": { "status": "verified", "checked_at": "2026-09-02T00:00:00Z", "notes": "Verified in the authenticated Meta Model API catalogue; availability is limited to select countries." }
+  "verification": { "status": "verified", "checked_at": "2026-09-02T00:00:00Z", "notes": "Pricing is verified for the route available to the Phaseo Meta gateway account." }
 }
