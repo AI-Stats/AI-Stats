@@ -452,6 +452,7 @@ export type KnownModelId =
   | "qwen/qwen3.8-27b"
   | "qwen/qwen3.8-flash"
   | "qwen/qwen3.8-max"
+  | "qwen/qwen3.8-max-0902"
   | "qwen/qwq-32b"
   | "qwen/qwq-plus"
   | "qwen/text-embedding-v3"
