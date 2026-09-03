@@ -41,6 +41,7 @@ import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 import { getWebhookEndpointSigningConfig } from "@core/webhook-endpoints";
 import { parseRequestLabels } from "./request-labels";
 import { generatePublicId } from "./genId";
+import { applyDeploymentRegionPolicy, validateRegionalTextRequest } from "./deployment-region";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
@@ -852,6 +853,61 @@ export async function beforeRequest(
             resolvedRoutingMode = dynamicRouteEvaluation.action.routingMode;
         }
     }
+
+	const regionalRequestViolation = validateRegionalTextRequest(
+		endpoint,
+		mergedBody,
+		bindings.GATEWAY_ROUTING_REGION,
+	);
+	if (regionalRequestViolation) {
+		return {
+			ok: false,
+			response: err("not_supported", {
+				reason: `regional_${regionalRequestViolation.reason}`,
+				description:
+					"Regional gateways currently support text-only Chat Completions, Responses, and Messages requests.",
+				details: [{
+					message: "This request uses a feature that is not available on a regional gateway.",
+					path: regionalRequestViolation.path,
+					keyword: `regional_${regionalRequestViolation.reason}`,
+					params: { value: regionalRequestViolation.value ?? null },
+				}],
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+
+	const deploymentRegionResult = applyDeploymentRegionPolicy(
+		mergedBody,
+		bindings.GATEWAY_ROUTING_REGION,
+	);
+	if (deploymentRegionResult.ok === false) {
+		return {
+			ok: false,
+			response: err("validation_error", {
+				reason: "deployment_region_conflict",
+				description:
+					`This gateway only routes requests whose execution and data regions are ${deploymentRegionResult.region.toUpperCase()}.`,
+				error_type: "user",
+				error_origin: "user",
+				error_operational_kind: "deployment_region_conflict",
+				details: [{
+					message:
+						`Requested region "${deploymentRegionResult.requestedRegion}" conflicts with the ${deploymentRegionResult.region.toUpperCase()} gateway.`,
+					path: ["provider", deploymentRegionResult.field],
+					keyword: "deployment_region_conflict",
+					params: {
+						gateway_region: deploymentRegionResult.region,
+						requested_region: deploymentRegionResult.requestedRegion,
+					},
+				}],
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+	mergedBody = deploymentRegionResult.body;
 
     // Keep this as the final request-level provider constraint before workspace
     // policy enforcement. A provider-qualified model is an exact pair, not a

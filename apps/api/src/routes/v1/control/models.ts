@@ -20,6 +20,8 @@ import {
 } from "./models.catalogue";
 import { buildFeedResponse, parseFeedFormat, type FeedItem } from "./models.feeds";
 import { getEndpointMetadata } from "./endpoint-metadata";
+import { getBindingsIfConfigured } from "@/runtime/env";
+import { normalizeGatewayRoutingRegion } from "@pipeline/before/deployment-region";
 
 type LifecycleStatus = "active" | "deprecated" | "retired" | null;
 type AvailabilityMode = "active" | "all";
@@ -256,7 +258,7 @@ function cloneJsonObject<T>(value: T): T {
     return JSON.parse(JSON.stringify(value ?? {}));
 }
 
-function toModelOffer(model: CatalogueModel, provider: CatalogueModel["providers"][number]) {
+function toModelOffer(model: CatalogueModel, provider: CatalogueModel["providers"][number], regional = false) {
     return {
         provider: {
             id: provider.api_provider_id,
@@ -268,8 +270,12 @@ function toModelOffer(model: CatalogueModel, provider: CatalogueModel["providers
         routable: provider.is_active_gateway,
         endpoints: [...(provider.endpoints ?? [])],
         modalities: {
-            input: provider.input_modalities?.length ? [...provider.input_modalities] : [...model.input_types],
-            output: provider.output_modalities?.length ? [...provider.output_modalities] : [...model.output_types],
+            input: regional ? ["text"] : provider.input_modalities?.length ? [...provider.input_modalities] : [...model.input_types],
+            output: regional ? ["text"] : provider.output_modalities?.length ? [...provider.output_modalities] : [...model.output_types],
+        },
+        residency: {
+            execution_regions: [...(provider.execution_regions ?? [])],
+            data_regions: [...(provider.data_regions ?? [])],
         },
         capabilities: {
             parameters: [...(provider.params ?? [])],
@@ -475,6 +481,7 @@ function toPhaseoModel(
     model: CatalogueModel,
     replacementModelId: string | null,
     variants: ModelVariantLinks,
+	regional = false,
 ) {
     const lifecycleStatus = normalizeLifecycleStatus(model.status, model.deprecation_date, model.retirement_date);
     return {
@@ -504,8 +511,8 @@ function toPhaseoModel(
             ),
         },
         modalities: {
-            input: [...model.input_types],
-            output: [...model.output_types],
+            input: regional ? ["text"] : [...model.input_types],
+            output: regional ? ["text"] : [...model.output_types],
         },
         limits: {
             input_tokens: detailNumber(model, ["input_context_length", "context_length"]),
@@ -524,12 +531,15 @@ function toPhaseoModel(
             inactive_provider_count: model.availability.inactive_provider_count,
         },
         pricing: cloneJsonObject(model.pricing),
-        offers: model.providers.map((provider) => toModelOffer(model, provider)),
+        offers: model.providers.map((provider) => toModelOffer(model, provider, regional)),
     };
 }
 
 export async function handleModels(req: Request) {
     const url = new URL(req.url);
+    const gatewayRegion = normalizeGatewayRoutingRegion(
+		getBindingsIfConfigured()?.GATEWAY_ROUTING_REGION,
+	);
     if (hasDeprecatedPrivacyScopeQuery(url)) {
         return json(
             {
@@ -644,6 +654,7 @@ export async function handleModels(req: Request) {
             outputTypes,
             params,
             availability: availabilityMode,
+			...(gatewayRegion ? { region: gatewayRegion, textOnly: true } : {}),
         });
         const freeRouterModel = await buildFreeRouterCatalogueModel({
             workspaceId: auth.value.workspaceId,
@@ -664,6 +675,7 @@ export async function handleModels(req: Request) {
                     model,
                     replacementByPreviousModel.get(model.model_id) ?? null,
                     variantsByBaseModel.get(model.base_model_id || model.model_id) ?? {},
+					gatewayRegion !== null,
                 )
             );
         const paged = models.slice(offset, offset + limit);
@@ -688,6 +700,7 @@ export async function handleModels(req: Request) {
             {
                 ok: true,
                 availability_mode: availabilityMode,
+                gateway_region: gatewayRegion,
                 limit,
                 offset,
                 total: models.length,
@@ -898,4 +911,3 @@ export const modelsRoutes = new Hono<Env>();
 modelsRoutes.get("/me", withRuntime((req) => handleMyModels(req)));
 modelsRoutes.get("/:author/:slug/endpoints", withRuntime((req) => handleModelEndpoints(req)));
 modelsRoutes.get("/", withRuntime((req) => handleModels(req)));
-

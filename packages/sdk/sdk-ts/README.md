@@ -41,6 +41,22 @@ const client = new Phaseo({
 
 App attribution is optional and is never inferred from the SDK itself.
 
+## Regional text routing
+
+Select `eu` or `us` to restrict Chat Completions, Responses, and Messages to
+matching regional provider routes:
+
+```ts
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
+  region: "eu",
+});
+```
+
+Regional endpoints currently accept text-only requests. This is regional
+provider routing, not an end-to-end data residency guarantee. `region` cannot be
+combined with a custom `baseUrl`.
+
 ## Streaming example
 
 ```ts

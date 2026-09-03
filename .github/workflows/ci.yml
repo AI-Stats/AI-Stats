@@ -920,6 +920,7 @@ jobs:
             needs.migrate-production.result == 'success')
         permissions:
             contents: read
+            id-token: write
         strategy:
             fail-fast: false
             matrix:
@@ -928,6 +929,10 @@ jobs:
                       name: Deploy Web
                     - target: api
                       name: Deploy API
+                    - target: api-eu
+                      name: Deploy API (EU)
+                    - target: api-us
+                      name: Deploy API (US)
                     - target: web-api
                       name: Deploy Web API
                     - target: mcp
@@ -977,11 +982,11 @@ jobs:
               run: git checkout -- pnpm-lock.yaml
 
             - name: Install dependencies (for Cloudflare Workers)
-              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
+              if: matrix.target == 'api' || matrix.target == 'api-eu' || matrix.target == 'api-us' || matrix.target == 'web-api' || matrix.target == 'mcp'
               run: corepack pnpm install --frozen-lockfile
 
             - name: Validate Cloudflare API deploy secrets
-              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
+              if: matrix.target == 'api' || matrix.target == 'api-eu' || matrix.target == 'api-us' || matrix.target == 'web-api' || matrix.target == 'mcp'
               shell: bash
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -1020,6 +1025,27 @@ jobs:
                   apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                   accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   workingDirectory: apps/api
+
+            - name: Load regional gateway secrets from Infisical
+              if: matrix.target == 'api-eu' || matrix.target == 'api-us'
+              uses: Infisical/secrets-action@v1.0.16
+              with:
+                  method: oidc
+                  identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+                  project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+                  env-slug: prod
+                  secret-path: /
+
+            - name: Deploy regional API Worker to Cloudflare
+              if: matrix.target == 'api-eu' || matrix.target == 'api-us'
+              shell: pwsh
+              working-directory: apps/api
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+              run: |
+                  $region = if ("${{ matrix.target }}" -eq "api-eu") { "eu" } else { "us" }
+                  ./scripts/deploy-regional.ps1 -Region $region -SecretsFromEnvironment -Deploy
 
             - name: Deploy Web API Worker to Cloudflare
               if: matrix.target == 'web-api'

@@ -5,6 +5,7 @@ import type { GatewayBindings } from "./env.types";
 export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
+	"GATEWAY_ROUTING_REGION",
     "GATEWAY_CACHE",
 	"GATEWAY_IO_LOGS_BUCKET",
 	"GATEWAY_IO_LOGS_BUCKET_NAME",

@@ -11,6 +11,11 @@ info:
     email: danielbutler500@gmail.com
 servers:
   - url: https://api.phaseo.app/v1
+    description: Global routing
+  - url: https://eu.api.phaseo.app/v1
+    description: EU regional provider routing (text only)
+  - url: https://us.api.phaseo.app/v1
+    description: US regional provider routing (text only)
 security:
   - BearerAuth: []
 paths:
