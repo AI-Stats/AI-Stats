@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/phaseoteam/terraform-provider-phaseo/internal/client"
 )
@@ -60,10 +63,10 @@ func (r *apiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 		Description: "Creates and manages a Phaseo Gateway API key. The plaintext key is returned only on creation and stored as sensitive Terraform state.",
 		Attributes: map[string]schema.Attribute{
 			"id":           schema.StringAttribute{Computed: true, Description: "API key UUID."},
-			"name":         schema.StringAttribute{Required: true, Description: "Human-readable key name."},
+			"name":         schema.StringAttribute{Required: true, Description: "Human-readable key name.", Validators: []validator.String{stringvalidator.LengthAtLeast(1)}},
 			"workspace_id": schema.StringAttribute{Optional: true, Computed: true, Description: "Workspace UUID. Defaults to the management key workspace."},
-			"limit":        schema.Float64Attribute{Optional: true, Computed: true, Description: "Spend limit in USD."},
-			"limit_reset":  schema.StringAttribute{Optional: true, Computed: true, Description: "Spend-limit window: daily, weekly, or monthly."},
+			"limit":        schema.Float64Attribute{Optional: true, Computed: true, Description: "Spend limit in USD.", Validators: []validator.Float64{float64validator.AtLeast(0)}},
+			"limit_reset":  schema.StringAttribute{Optional: true, Computed: true, Description: "Spend-limit window: daily, weekly, or monthly.", Validators: []validator.String{stringvalidator.OneOf("daily", "weekly", "monthly")}},
 			"expires_at":   schema.StringAttribute{Optional: true, Computed: true, Description: "RFC 3339 expiry timestamp."},
 			"disabled":     schema.BoolAttribute{Optional: true, Computed: true, Description: "Whether the key is disabled."},
 			"soft_blocked": schema.BoolAttribute{Optional: true, Computed: true, Description: "Whether the key is soft-blocked."},

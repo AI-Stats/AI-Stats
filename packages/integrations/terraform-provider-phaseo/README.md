@@ -23,7 +23,7 @@ The catalogue data sources currently return canonical API output through a compu
 ## Requirements
 
 - Terraform 1.5 or later
-- Go 1.23 or later (to build the provider)
+- Go 1.25 or later (to build or test the provider)
 - A Phaseo management API key
 
 ## Example
