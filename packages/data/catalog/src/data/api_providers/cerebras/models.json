@@ -642,7 +642,6 @@
           "logprobs",
           "top_logprobs",
           "frequency_penalty",
-          "presence_penalty",
           "logit_bias"
         ],
         "reasoning": null,
