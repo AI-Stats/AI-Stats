@@ -3482,6 +3482,9 @@ public sealed class ImagesEditRequest
 	[JsonPropertyName("provider")]
 	public Dictionary<string, object>? Provider { get; set; }
 
+	[JsonPropertyName("resolution")]
+	public string? Resolution { get; set; }
+
 	[JsonPropertyName("size")]
 	public string? Size { get; set; }
 
@@ -3519,6 +3522,9 @@ public sealed class ImagesGenerationRequest
 
 	[JsonPropertyName("quality")]
 	public string? Quality { get; set; }
+
+	[JsonPropertyName("resolution")]
+	public string? Resolution { get; set; }
 
 	[JsonPropertyName("response_format")]
 	public string? ResponseFormat { get; set; }

@@ -309,6 +309,10 @@ export const ModelIds = {
   INCLUSIONAI_LING_3_0_FLASH: "inclusionai/ling-3.0-flash",
   /** Model ID: `inclusionai/ling-3.0-flash-fin`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin */
   INCLUSIONAI_LING_3_0_FLASH_FIN: "inclusionai/ling-3.0-flash-fin",
+  /** Model ID: `inclusionai/ling-3.0-flash-sante`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante */
+  INCLUSIONAI_LING_3_0_FLASH_SANTE: "inclusionai/ling-3.0-flash-sante",
+  /** Model ID: `inclusionai/ling-3.0-flash-vl`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl */
+  INCLUSIONAI_LING_3_0_FLASH_VL: "inclusionai/ling-3.0-flash-vl",
   /** Model ID: `inclusionai/ling-flash-2.0`. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0 */
   INCLUSIONAI_LING_FLASH_2_0: "inclusionai/ling-flash-2.0",
   /** Model ID: `inclusionai/ring-2.6-1t`. Model page: https://phaseo.app/models/inclusionai/ring-2.6-1t */
@@ -957,8 +961,6 @@ export const ModelIds = {
   SPACEX_AI_GROK_IMAGINE_IMAGE: "spacex-ai/grok-imagine-image",
   /** Model ID: `spacex-ai/grok-imagine-image-2.0`. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0 */
   SPACEX_AI_GROK_IMAGINE_IMAGE_2_0: "spacex-ai/grok-imagine-image-2.0",
-  /** Model ID: `spacex-ai/grok-imagine-image-quality`. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality */
-  SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY: "spacex-ai/grok-imagine-image-quality",
   /** Model ID: `spacex-ai/grok-transcribe`. Model page: https://phaseo.app/models/spacex-ai/grok-transcribe */
   SPACEX_AI_GROK_TRANSCRIBE: "spacex-ai/grok-transcribe",
   /** Model ID: `spacex-ai/grok-tts`. Model page: https://phaseo.app/models/spacex-ai/grok-tts */

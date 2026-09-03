@@ -1275,6 +1275,7 @@ class ImagesEditRequest(TypedDict):
 	n: NotRequired[int]
 	prompt: str
 	provider: NotRequired[ProviderRoutingOptions]
+	resolution: NotRequired[str]
 	size: NotRequired[str]
 	usage: NotRequired[bool]
 	user: NotRequired[str]
@@ -1289,6 +1290,7 @@ class ImagesGenerationRequest(TypedDict):
 	prompt: str
 	provider: NotRequired[ProviderRoutingOptions]
 	quality: NotRequired[str]
+	resolution: NotRequired[str]
 	response_format: NotRequired[str]
 	size: NotRequired[str]
 	style: NotRequired[str]

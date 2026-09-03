@@ -217,28 +217,31 @@ describe("OpenAI media endpoints", () => {
 			onRequest: (call) => { capturedBody = call.bodyJson; },
 		}]);
 
-		const result = await execImages({
-			endpoint: "images.generations",
-			model: "spacex-ai/grok-imagine-image-2.0",
-			body: {
+		let result;
+		try {
+			result = await execImages({
+				endpoint: "images.generations",
 				model: "spacex-ai/grok-imagine-image-2.0",
-				prompt: "A cinematic mountain landscape",
-				n: 2,
-				quality: "medium",
-				aspect_ratio: "21:9",
-				resolution: "2k",
-				response_format: "url",
-			},
-			meta: REQUEST_META,
-			workspaceId: "team_test",
-			providerId: "spacex-ai",
-			byokMeta: [],
-			pricingCard: PRICING_CARD,
-			providerModelSlug: "grok-imagine-image-2.0",
-			stream: false,
-		} as any);
-
-		mock.restore();
+				body: {
+					model: "spacex-ai/grok-imagine-image-2.0",
+					prompt: "A cinematic mountain landscape",
+					n: 2,
+					quality: "medium",
+					aspect_ratio: "21:9",
+					resolution: "2k",
+					response_format: "url",
+				},
+				meta: REQUEST_META,
+				workspaceId: "team_test",
+				providerId: "spacex-ai",
+				byokMeta: [],
+				pricingCard: PRICING_CARD,
+				providerModelSlug: "grok-imagine-image-2.0",
+				stream: false,
+			} as any);
+		} finally {
+			mock.restore();
+		}
 
 		expect(result.upstream.status).toBe(200);
 		expect(capturedBody).toMatchObject({

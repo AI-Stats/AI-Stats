@@ -22,6 +22,12 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const keyInfo = await resolveOpenAICompatKey(args);
 	const body = buildAdapterPayload(ImagesEditSchema, args.body, ["meta", "usage"]).adapterPayload as ImagesEditRequest;
 	const images = Array.isArray(body.image) ? body.image : [body.image];
+	const model = args.providerModelSlug || body.model;
+	const supportsMultiImage = model === "grok-imagine-image-2.0";
+	if (images.length > 1 && !supportsMultiImage) {
+		const upstream = invalidParameterResponse("image", "xAI image editing accepts multiple source images only for Grok Imagine Image 2.0.");
+		return { kind: "completed", upstream, bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null }, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
+	}
 	if (images.length > 5) {
 		const upstream = invalidParameterResponse("image", "xAI image editing accepts at most five source images for Grok Imagine Image 2.0.");
 		return { kind: "completed", upstream, bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null }, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
@@ -31,7 +37,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		const upstream = invalidParameterResponse(unsupported, `xAI image editing does not support ${unsupported}.`);
 		return { kind: "completed", upstream, bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null }, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
 	}
-	const model = args.providerModelSlug || body.model;
 	const imagePayloads = await Promise.all(images.map(async (image) => ({
 		type: "image_url",
 		url: await imageUrl(image),
@@ -52,7 +57,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const normalized = await res.clone().json().catch(() => undefined);
 	const usageMeters: Record<string, unknown> = normalized?.usage && typeof normalized.usage === "object" ? { ...normalized.usage } : {};
 	usageMeters.requests = 1;
-	usageMeters.input_image = 1;
+	usageMeters.input_image = images.length;
 	usageMeters.output_image = Array.isArray(normalized?.data) && normalized.data.length > 0 ? normalized.data.length : body.n ?? 1;
 	let cost_cents = 0;
 	let currency: "USD" | "EUR" = "USD";

@@ -10664,6 +10664,8 @@ components:
           type: string
         size:
           type: string
+        resolution:
+          type: string
         'n':
           type: integer
           minimum: 1
@@ -10712,6 +10714,8 @@ components:
         prompt:
           type: string
         size:
+          type: string
+        resolution:
           type: string
         'n':
           type: integer

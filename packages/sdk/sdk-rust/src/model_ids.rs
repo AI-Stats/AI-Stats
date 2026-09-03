@@ -462,6 +462,12 @@ pub mod model_ids {
     /// Model ID: `inclusionai/ling-3.0-flash-fin`.
     /// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
     pub const INCLUSIONAI_LING_3_0_FLASH_FIN: &str = "inclusionai/ling-3.0-flash-fin";
+    /// Model ID: `inclusionai/ling-3.0-flash-sante`.
+    /// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante
+    pub const INCLUSIONAI_LING_3_0_FLASH_SANTE: &str = "inclusionai/ling-3.0-flash-sante";
+    /// Model ID: `inclusionai/ling-3.0-flash-vl`.
+    /// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl
+    pub const INCLUSIONAI_LING_3_0_FLASH_VL: &str = "inclusionai/ling-3.0-flash-vl";
     /// Model ID: `inclusionai/ling-flash-2.0`.
     /// Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     pub const INCLUSIONAI_LING_FLASH_2_0: &str = "inclusionai/ling-flash-2.0";
@@ -1434,9 +1440,6 @@ pub mod model_ids {
     /// Model ID: `spacex-ai/grok-imagine-image-2.0`.
     /// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0
     pub const SPACEX_AI_GROK_IMAGINE_IMAGE_2_0: &str = "spacex-ai/grok-imagine-image-2.0";
-    /// Model ID: `spacex-ai/grok-imagine-image-quality`.
-    /// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality
-    pub const SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY: &str = "spacex-ai/grok-imagine-image-quality";
     /// Model ID: `spacex-ai/grok-transcribe`.
     /// Model page: https://phaseo.app/models/spacex-ai/grok-transcribe
     pub const SPACEX_AI_GROK_TRANSCRIBE: &str = "spacex-ai/grok-transcribe";
@@ -1841,6 +1844,8 @@ pub mod model_ids {
         INCLUSIONAI_LING_2_6_FLASH,
         INCLUSIONAI_LING_3_0_FLASH,
         INCLUSIONAI_LING_3_0_FLASH_FIN,
+        INCLUSIONAI_LING_3_0_FLASH_SANTE,
+        INCLUSIONAI_LING_3_0_FLASH_VL,
         INCLUSIONAI_LING_FLASH_2_0,
         INCLUSIONAI_RING_2_6_1T,
         INCLUSIONAI_RING_FLASH_2_0,
@@ -2165,7 +2170,6 @@ pub mod model_ids {
         SPACEX_AI_GROK_BUILD_0_1,
         SPACEX_AI_GROK_IMAGINE_IMAGE,
         SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
-        SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
         SPACEX_AI_GROK_TRANSCRIBE,
         SPACEX_AI_GROK_TTS,
         STEPFUN_STEP_3_5_FLASH,

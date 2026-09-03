@@ -462,6 +462,12 @@ module PhaseoSdk
     # Model ID: inclusionai/ling-3.0-flash-fin
     # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
     INCLUSIONAI_LING_3_0_FLASH_FIN = "inclusionai/ling-3.0-flash-fin"
+    # Model ID: inclusionai/ling-3.0-flash-sante
+    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante
+    INCLUSIONAI_LING_3_0_FLASH_SANTE = "inclusionai/ling-3.0-flash-sante"
+    # Model ID: inclusionai/ling-3.0-flash-vl
+    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl
+    INCLUSIONAI_LING_3_0_FLASH_VL = "inclusionai/ling-3.0-flash-vl"
     # Model ID: inclusionai/ling-flash-2.0
     # Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0"
@@ -1434,9 +1440,6 @@ module PhaseoSdk
     # Model ID: spacex-ai/grok-imagine-image-2.0
     # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0
     SPACEX_AI_GROK_IMAGINE_IMAGE_2_0 = "spacex-ai/grok-imagine-image-2.0"
-    # Model ID: spacex-ai/grok-imagine-image-quality
-    # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality
-    SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY = "spacex-ai/grok-imagine-image-quality"
     # Model ID: spacex-ai/grok-transcribe
     # Model page: https://phaseo.app/models/spacex-ai/grok-transcribe
     SPACEX_AI_GROK_TRANSCRIBE = "spacex-ai/grok-transcribe"
@@ -1841,6 +1844,8 @@ module PhaseoSdk
     ModelIds::INCLUSIONAI_LING_2_6_FLASH,
     ModelIds::INCLUSIONAI_LING_3_0_FLASH,
     ModelIds::INCLUSIONAI_LING_3_0_FLASH_FIN,
+    ModelIds::INCLUSIONAI_LING_3_0_FLASH_SANTE,
+    ModelIds::INCLUSIONAI_LING_3_0_FLASH_VL,
     ModelIds::INCLUSIONAI_LING_FLASH_2_0,
     ModelIds::INCLUSIONAI_RING_2_6_1T,
     ModelIds::INCLUSIONAI_RING_FLASH_2_0,
@@ -2165,7 +2170,6 @@ module PhaseoSdk
     ModelIds::SPACEX_AI_GROK_BUILD_0_1,
     ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE,
     ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
-    ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
     ModelIds::SPACEX_AI_GROK_TRANSCRIBE,
     ModelIds::SPACEX_AI_GROK_TTS,
     ModelIds::STEPFUN_STEP_3_5_FLASH,

@@ -3338,6 +3338,7 @@ export type CreateImageParams = {
       zdr?: boolean | null;
     };
     quality?: string;
+    resolution?: string;
     response_format?: string;
     size?: string;
     style?: string;
@@ -3425,6 +3426,7 @@ export type CreateImageEditParams = {
           };
       zdr?: boolean | null;
     };
+    resolution?: string;
     size?: string;
     usage?: boolean;
     user?: string;

@@ -466,6 +466,12 @@ public final class ModelIds {
     /** Model ID: <code>inclusionai/ling-3.0-flash-fin</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin */
     public static final String INCLUSIONAI_LING_3_0_FLASH_FIN = "inclusionai/ling-3.0-flash-fin";
 
+    /** Model ID: <code>inclusionai/ling-3.0-flash-sante</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante */
+    public static final String INCLUSIONAI_LING_3_0_FLASH_SANTE = "inclusionai/ling-3.0-flash-sante";
+
+    /** Model ID: <code>inclusionai/ling-3.0-flash-vl</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl */
+    public static final String INCLUSIONAI_LING_3_0_FLASH_VL = "inclusionai/ling-3.0-flash-vl";
+
     /** Model ID: <code>inclusionai/ling-flash-2.0</code>. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0 */
     public static final String INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0";
 
@@ -1437,9 +1443,6 @@ public final class ModelIds {
 
     /** Model ID: <code>spacex-ai/grok-imagine-image-2.0</code>. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0 */
     public static final String SPACEX_AI_GROK_IMAGINE_IMAGE_2_0 = "spacex-ai/grok-imagine-image-2.0";
-
-    /** Model ID: <code>spacex-ai/grok-imagine-image-quality</code>. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality */
-    public static final String SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY = "spacex-ai/grok-imagine-image-quality";
 
     /** Model ID: <code>spacex-ai/grok-transcribe</code>. Model page: https://phaseo.app/models/spacex-ai/grok-transcribe */
     public static final String SPACEX_AI_GROK_TRANSCRIBE = "spacex-ai/grok-transcribe";

@@ -78,4 +78,65 @@ describe("xAI image editing", () => {
 
 		expect(result.upstream.status).toBe(400);
 	});
+
+	it("keeps legacy Grok image editing single-image only", async () => {
+		const mock = installFetchMock([]);
+		const result = await exec({
+			endpoint: "images.edits",
+			model: "spacex-ai/grok-imagine-image",
+			body: {
+				model: "spacex-ai/grok-imagine-image",
+				prompt: "edit",
+				image: ["1", "2"],
+			},
+			meta: { requestId: "req_xai_legacy_multi", apiKeyId: "key", apiKeyRef: "kid", apiKeyKid: "kid" },
+			workspaceId: "team_test",
+			providerId: "x-ai",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "grok-imagine-image",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(400);
+	});
+
+	it("prices each source image in a multi-image edit", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.x.ai/v1/images/edits",
+			response: jsonResponse({ data: [{ url: "https://imgen.x.ai/output.jpeg" }] }),
+		}]);
+		const result = await exec({
+			endpoint: "images.edits",
+			model: "spacex-ai/grok-imagine-image-2.0",
+			body: {
+				model: "spacex-ai/grok-imagine-image-2.0",
+				prompt: "Combine the references",
+				image: ["https://example.com/one.png", "https://example.com/two.png"],
+				quality: "low",
+				resolution: "1k",
+			},
+			meta: { requestId: "req_xai_priced_multi_edit", apiKeyId: "key", apiKeyRef: "kid", apiKeyKid: "kid" },
+			workspaceId: "team_test",
+			providerId: "x-ai",
+			byokMeta: [],
+			pricingCard: {
+				key: "spacex-ai:spacex-ai/grok-imagine-image-2.0:image.edit",
+				currency: "USD",
+				rules: [
+					{ meter: "input_image", unit: "image", unit_size: 1, price_per_unit: 0.01, pricing_plan: "standard" },
+					{ meter: "output_image", unit: "image", unit_size: 1, price_per_unit: 0.04, pricing_plan: "standard", match: [{ path: "image_params.resolution", op: "eq", value: "1k" }, { path: "image_params.quality", op: "eq", value: "low" }] },
+				],
+			},
+			providerModelSlug: "grok-imagine-image-2.0",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.bill.usage?.input_image).toBe(2);
+		expect(result.bill.usage?.pricing?.lines).toEqual(expect.arrayContaining([
+			expect.objectContaining({ dimension: "input_image", line_nanos: 20_000_000 }),
+		]));
+	});
 });
