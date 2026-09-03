@@ -443,7 +443,8 @@
       "google/veo-3.1-fast",
       "google/gemma-4-12b",
       "google/gemini-3.5-transcribe",
-      "google/gemini-3.5-transcribe-live"
+      "google/gemini-3.5-transcribe-live",
+      "google/gemini-3.8-flash"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
