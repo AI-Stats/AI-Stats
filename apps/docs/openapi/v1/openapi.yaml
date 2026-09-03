@@ -17,7 +17,7 @@ security:
 paths:
   /models:
     get:
-      servers: &regionalTextServers
+      servers: &ref_0
         - url: https://api.phaseo.app/v1
           description: Global routing
         - url: https://eu.api.phaseo.app/v1
@@ -648,7 +648,7 @@ paths:
                     type: string
   /chat/completions:
     post:
-      servers: *regionalTextServers
+      servers: *ref_0
       tags:
         - Gateway
       operationId: createChatCompletion
@@ -685,7 +685,7 @@ paths:
           $ref: '#/components/responses/UpstreamRateLimited'
   /responses:
     post:
-      servers: *regionalTextServers
+      servers: *ref_0
       tags:
         - Gateway
       operationId: createResponse
@@ -798,7 +798,7 @@ paths:
                 $ref: '#/components/schemas/AsyncJobWebSocketUpgradeRequiredResponse'
   /messages:
     post:
-      servers: *regionalTextServers
+      servers: *ref_0
       tags:
         - Gateway
       operationId: createAnthropicMessage
@@ -6602,7 +6602,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /health:
     get:
-      servers: *regionalTextServers
+      servers: *ref_0
       x-beta: true
       tags:
         - Gateway
