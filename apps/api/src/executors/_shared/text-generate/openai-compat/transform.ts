@@ -156,7 +156,9 @@ export function irToOpenAIResponses(
 	providerModelSlug?: string | null,
 	providerId?: string,
 	capabilityParams?: Record<string, any> | null,
+	actualProviderId?: string,
 ): any {
+	const asyncToolProviderId = actualProviderId ?? providerId;
 	// Xiaomi uses messages instead of input_items for responses
 	// This is a fallback path - normally Xiaomi uses Chat Completions route
 	if (providerId === 'xiaomi') {
@@ -194,7 +196,7 @@ export function irToOpenAIResponses(
 		if (ir.seed !== undefined) request.seed = ir.seed;
 		if (ir.webSearchOptions !== undefined) request.web_search_options = ir.webSearchOptions;
 		if (ir.tools && ir.tools.length > 0) {
-			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false, providerId));
+			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false, asyncToolProviderId));
 		}
 
 		// Apply reasoning params - Xiaomi not configured, so this won't add anything
@@ -295,9 +297,9 @@ export function irToOpenAIResponses(
 	// Add tool configuration
 	if (ir.tools && ir.tools.length > 0) {
 		if (useOpenAIShape) {
-			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, true, providerId));
+			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, true, asyncToolProviderId));
 		} else {
-			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false, providerId));
+			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false, asyncToolProviderId));
 		}
 	}
 

@@ -1111,12 +1111,16 @@ describe("irToOpenAIResponses", () => {
 
 		const openAIRequest = irToOpenAIResponses(ir, "gpt-6-astra", "openai");
 		const compatibleRequest = irToOpenAIResponses(ir, "gpt-6-astra", "deepseek");
+		const azureRequest = irToOpenAIResponses(ir, "gpt-6-astra", "openai", null, "azure");
+		const xAIRequest = irToOpenAIResponses(ir, "gpt-6-astra", "openai", null, "x-ai");
 
 		expect(openAIRequest.tools).toEqual([
 			expect.objectContaining({ type: "function", name: "lookup", async: true }),
 			expect.objectContaining({ type: "custom", name: "wait", async: true }),
 		]);
 		expect(compatibleRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
+		expect(azureRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
+		expect(xAIRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
 	});
 
 	it("round-trips Responses custom tool calls and outputs", () => {
