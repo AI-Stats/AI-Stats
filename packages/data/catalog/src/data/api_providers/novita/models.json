@@ -11288,5 +11288,157 @@
       "notes": "Verified from Novita's first-party live model payload."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash-sante",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash-sante",
+    "provider_model_slug": "inclusionai/ling-3.0-flash-sante",
+    "internal_model_id": "inclusionai/ling-3.0-flash-sante",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-09-03T03:39:27Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "tools",
+          "tool_choice",
+          "reasoning",
+          "include_reasoning"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-09-03T03:39:27Z",
+        "notes": "Novita's live model catalogue reports the exact slug, description, 256K context, 32K maximum output, text modalities, function calling, reasoning, serverless chat endpoint, and zero token prices."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-03T03:39:27Z",
+      "notes": "Verified from Novita's first-party OpenAI-compatible model inventory."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash-vl",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash-vl",
+    "provider_model_slug": "inclusionai/ling-3.0-flash-vl",
+    "internal_model_id": "inclusionai/ling-3.0-flash-vl",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-09-03T03:37:52Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "tools",
+          "tool_choice",
+          "reasoning",
+          "include_reasoning"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-09-03T03:37:52Z",
+        "notes": "Novita's live model catalogue reports the exact slug, description, 256K context, 32K maximum output, text/image/video modalities, function calling, reasoning, serverless chat endpoint, and zero token prices."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-03T03:37:52Z",
+      "notes": "Verified from Novita's first-party OpenAI-compatible model inventory."
+    },
+    "rate_limits": []
   }
 ]
