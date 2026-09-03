@@ -56,7 +56,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const url = resolveAzureTextUrl({ route, deployment, baseUrl: config.baseUrl, apiVersion: config.apiVersion });
 
 	const requestPayload = route === "responses"
-		? irToOpenAIResponses(args.ir, args.providerModelSlug, "openai", args.capabilityParams)
+		? irToOpenAIResponses(args.ir, args.providerModelSlug, "openai", args.capabilityParams, args.providerId)
 		: irToOpenAIChat(args.ir, args.providerModelSlug, args.providerId, args.capabilityParams);
 	const payload = {
 		...(route === "chat" ? normalizeAzureChatRequest(requestPayload, args) : requestPayload),

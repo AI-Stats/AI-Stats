@@ -70,6 +70,7 @@ export type IRTool = {
 	description?: string;
 	parameters: Record<string, any>; // JSON Schema
 	strict?: boolean; // OpenAI/xAI function-schema strictness
+	async?: boolean; // OpenAI Responses async function/custom tool execution
 	cacheControl?: IRCacheControl;
 	raw?: Record<string, any>; // Original provider-native tool payload for passthrough
 };

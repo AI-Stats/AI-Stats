@@ -60,6 +60,7 @@ const OPENAI_REASONING_EFFORT_SUPPORT: Record<string, Set<ReasoningEffort>> = {
 	"gpt-5.6-sol-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
 	"gpt-5.6-terra": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
 	"gpt-5.6-terra-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-6-astra": new Set(["low", "medium", "high", "xhigh", "max"]),
 	"o1": new Set(["low", "medium", "high"]),
 	"o1-preview": new Set(["low", "medium", "high"]),
 	"o1-mini": new Set(["low", "medium", "high"]),
