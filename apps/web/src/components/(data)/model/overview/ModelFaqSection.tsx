@@ -121,6 +121,11 @@ function getStatusDescription(status: ModelOverviewPage["status"]): string {
 	}
 }
 
+function ensureSentencePunctuation(value: string): string {
+	const trimmed = value.trim();
+	return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
 type PricingHighlight = {
 	key: string;
 	label: string;
@@ -290,6 +295,10 @@ export default function ModelFaqSection({
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
+	const modelDescription = model.description?.trim();
+	const aboutAnswerText = modelDescription
+		? `${modelName} is ${ensureSentencePunctuation(modelDescription)}`
+		: `${modelName} is ${getStatusDescription(model.status)} from ${organisationName}.`;
 	const releaseDate = model.release_date ?? model.announcement_date ?? null;
 	const inputTypes = parseTypes(model.input_types);
 	const outputTypes = parseTypes(model.output_types);
@@ -316,7 +325,7 @@ export default function ModelFaqSection({
 	const items = [
 		{
 			question: `What is ${modelName}?`,
-			answer: (
+			answer: modelDescription ? aboutAnswerText : (
 				<>
 					{modelName} is {getStatusDescription(model.status)} from{" "}
 					<Link
@@ -534,7 +543,7 @@ export default function ModelFaqSection({
 				name: `What is ${modelName}?`,
 				acceptedAnswer: {
 					"@type": "Answer",
-					text: `${modelName} is ${getStatusDescription(model.status)} from ${organisationName}.`,
+					text: aboutAnswerText,
 				},
 			},
 			...(inputContextLength || outputContextLength

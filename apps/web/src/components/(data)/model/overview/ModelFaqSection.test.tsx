@@ -93,6 +93,7 @@ const model: ModelOverviewPage = {
 	model_id: "acme/alpha-1",
 	name: "Alpha 1",
 	organisation_id: "acme",
+	description: "A multimodal model for reasoning across text and images.",
 	status: "Available",
 	release_date: "2026-07-01",
 	input_types: "text,image",
@@ -146,6 +147,7 @@ describe("ModelFaqSection", () => {
 		);
 
 		expect(html).toContain("What is Alpha 1?");
+		expect(html).toContain("Alpha 1 is A multimodal model for reasoning across text and images.");
 		expect(html).toContain("Does Alpha 1 support tool calling?");
 		expect(html).toContain("Does Alpha 1 support structured outputs?");
 		expect(html).toContain("At least one active provider route for Alpha 1 currently advertises tool calling support");
