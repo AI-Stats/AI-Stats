@@ -46,6 +46,22 @@ import {
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
 import { supportsProvenanceVerification } from "@/components/(data)/model/overview/ModelVerificationSection";
 
+const MODEL_PROVIDER_VISIBILITY_TIMEOUT_MS = 1_000;
+
+function withOptionalProviderVisibilityTimeout<T>(
+	promise: Promise<T>,
+	fallback: T,
+): Promise<T> {
+	let timeout: ReturnType<typeof setTimeout> | null = null;
+	const timeoutPromise = new Promise<T>((resolve) => {
+		timeout = setTimeout(() => resolve(fallback), MODEL_PROVIDER_VISIBILITY_TIMEOUT_MS);
+	});
+
+	return Promise.race([promise, timeoutPromise]).finally(() => {
+		if (timeout) clearTimeout(timeout);
+	});
+}
+
 async function ModelCreatorModelsSectionContent({
 	modelId,
 	includeHidden,
@@ -278,12 +294,17 @@ export default async function Page({
 	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId).catch(
 		() => null,
 	);
-	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
+	const gatewayMetadataForVisibilityPromise = withOptionalProviderVisibilityTimeout(
+		gatewayMetadataPromise,
+		null,
+	);
+	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, gatewayMetadata] =
 		await Promise.all([
 			modelPromise,
 			benchmarkPromise,
 			subscriptionPromise,
 			availabilityPromise,
+			gatewayMetadataForVisibilityPromise,
 		]);
 	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
@@ -292,7 +313,8 @@ export default async function Page({
 		availability?.isGatewayActive ?? true;
 	const showProviders =
 		modelOverview.status === "Announced" ||
-		(availability?.activeProviderCount ?? 0) > 0;
+		(availability?.activeProviderCount ?? 0) > 0 ||
+		(gatewayMetadata?.providers.length ?? 0) > 0;
 	const resolvedPerformancePromise = isGatewayActive
 		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
 		: Promise.resolve(null);

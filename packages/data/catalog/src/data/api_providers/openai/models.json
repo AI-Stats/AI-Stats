@@ -13195,9 +13195,26 @@
     "max_output_tokens": null,
     "effective_from": "2026-09-03T00:00:00Z",
     "effective_to": null,
-    "capabilities": [],
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
     "routing_status": "disabled",
     "routable": false,
+    "provider_status": "limited_access",
+    "phaseo_status": "planned",
+    "access_scope": "public",
     "regions": { "execution": [], "data": [] },
     "service_tiers": [],
     "api": { "formats": [], "endpoint": null, "deployment": null },
