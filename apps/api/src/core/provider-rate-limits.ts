@@ -7,6 +7,7 @@ import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import type { PipelineContext } from "@pipeline/before/types";
 
 const CONFIG_CACHE_TTL_MS = 60_000;
+const PRE_INFERENCE_REJECTION_STATUSES = new Set([400, 401, 403, 404, 405, 413, 415, 422]);
 
 export type ProviderRateLimitConfig = {
 	providerId: string;
@@ -222,6 +223,37 @@ export async function releaseManagedProviderReservation(
 			reservationId: reservation.id,
 			error: error instanceof Error ? error.message : String(error),
 		});
+	}
+}
+
+export async function settleFailedManagedProviderReservation(args: {
+	reservation: ProviderTokenReservation | null | undefined;
+	status: number;
+	usageCandidates: unknown[];
+	upstreamRequestCount: number;
+}): Promise<void> {
+	if (!args.reservation) return;
+	const tokens = args.usageCandidates.reduce<number>(
+		(max, usage) => Math.max(max, resolveCanonicalTokenUsage(usage).totalTokens),
+		0,
+	);
+	if (tokens > 0) {
+		try {
+			await getStub(args.reservation.providerId)?.reconcileTokens(args.reservation, tokens);
+		} catch (error) {
+			console.error("[gateway] failed provider token reservation reconciliation failed", {
+				provider: args.reservation.providerId,
+				reservationId: args.reservation.id,
+				error: error instanceof Error ? error.message : String(error),
+			});
+		}
+		return;
+	}
+
+	// Release only statuses that unambiguously reject the request before inference.
+	// Throttling, conflicts, timeouts, and server errors may follow provider work.
+	if (args.upstreamRequestCount === 1 && PRE_INFERENCE_REJECTION_STATUSES.has(args.status)) {
+		await releaseManagedProviderReservation(args.reservation);
 	}
 }
 
