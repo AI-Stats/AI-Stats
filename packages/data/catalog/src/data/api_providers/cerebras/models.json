@@ -613,21 +613,38 @@
   {
     "api_model_id": "qwen/qwen3.8-27b",
     "provider_api_model_id": "cerebras:qwen/qwen3.8-27b",
-    "provider_model_slug": null,
+    "provider_model_slug": "qwen-3.8-27b",
     "internal_model_id": "qwen/qwen3.8-27b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
+    "is_active_gateway": true,
+    "quantization_scheme": "FP16/FP8",
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
+    "context_length": 65536,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-09-03T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
-        "params": [],
+        "status": "active",
+        "params": [
+          "reasoning",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "parallel_tool_calls",
+          "response_format",
+          "temperature",
+          "top_p",
+          "seed",
+          "stop",
+          "max_tokens",
+          "logprobs",
+          "top_logprobs",
+          "frequency_penalty",
+          "presence_penalty",
+          "logit_bias"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -638,23 +655,30 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard", "auto"],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.cerebras.ai/public/v1/models/qwen-3.8-27b",
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "The live public model record confirms the shared-tier slug, text and image input, capabilities, limits, quantization, and zero-cost pricing."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Public launch schedule, provider slug, endpoint limits, and pricing remain to be verified before activation."
+      "status": "verified",
+      "checked_at": "2026-09-03T00:00:00Z",
+      "notes": "Active shared-tier route, modalities, capabilities, limits, quantization, and pricing verified against the live Cerebras public model endpoint."
     },
     "rate_limits": []
   }
