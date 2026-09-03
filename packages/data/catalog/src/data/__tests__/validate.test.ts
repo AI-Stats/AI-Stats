@@ -468,7 +468,7 @@ describe('api provider model safety checks', () => {
         );
     });
 
-    test('Astra keeps its limited-access OpenAI provider mapping without asserting pricing', () => {
+    test('Astra keeps its documented OpenAI contract and pricing while Phaseo support is coming soon', () => {
         const row = readProviderModels('openai').find(
             (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
         );
@@ -479,6 +479,8 @@ describe('api provider model safety checks', () => {
             routing_status: 'disabled',
             provider_status: 'limited_access',
             phaseo_status: 'planned',
+            context_length: 1050000,
+            max_output_tokens: 128000,
         });
         expect(row?.capabilities).toEqual(
             expect.arrayContaining([
@@ -488,7 +490,36 @@ describe('api provider model safety checks', () => {
                 }),
             ])
         );
-        expect(fs.existsSync(path.join(DATA_ROOT, 'pricing', 'openai', 'openai-gpt-6-astra'))).toBe(false);
+        const pricingPath = path.join(
+            DATA_ROOT,
+            'pricing',
+            'openai',
+            'openai-gpt-6-astra',
+            'text.generate',
+            'pricing.json'
+        );
+        const pricing = JSON.parse(fs.readFileSync(pricingPath, 'utf8'));
+        expect(pricing.rules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    meter: 'input_text_tokens',
+                    pricing_plan: 'standard',
+                    price_per_unit: 10,
+                    match: [{ path: 'input_tokens', op: 'lte', value: 272000 }],
+                }),
+                expect.objectContaining({
+                    meter: 'output_text_tokens',
+                    pricing_plan: 'standard',
+                    price_per_unit: 75,
+                    match: [{ path: 'input_tokens', op: 'gt', value: 272000 }],
+                }),
+                expect.objectContaining({
+                    meter: 'native_web_search_requests',
+                    pricing_plan: 'standard',
+                    price_per_unit: 0.01,
+                }),
+            ])
+        );
     });
 
     it('rejects internal routes whose Phaseo integration is not testing or enabled', () => {

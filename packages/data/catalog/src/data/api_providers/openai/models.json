@@ -13191,22 +13191,31 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
     "effective_from": "2026-09-03T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
+        "params": [
+          { "param_id": "max_tokens", "provider_min": null, "provider_max": 128000, "provider_default": null, "notes": null },
+          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "values": ["low", "medium", "high", "xhigh", "max"], "notes": null },
+          { "param_id": "response_format", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "structured_outputs", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "tool_choice", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "reasoning_effort", "provider_min": null, "provider_max": null, "provider_default": null, "values": ["low", "medium", "high", "xhigh", "max"], "notes": null },
+          { "param_id": "stream", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
         "modes": []
       }
     ],
@@ -13216,10 +13225,16 @@
     "phaseo_status": "planned",
     "access_scope": "public",
     "regions": { "execution": [], "data": [] },
-    "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
-    "sources": ["https://github.com/openai/openai-cua-sample-app/blob/4e4a6ae43e572e115ca4f7c5a5c1239f9f3aa969/containers/README.md", "https://openai.com/index/legora-financial-statement-review-with-astra/", "https://openai.com/index/playco-game-prototyping-with-astra/"],
-    "verification": { "status": "partial", "checked_at": "2026-09-03T00:00:00Z", "notes": "OpenAI has confirmed live GPT-6 Astra API deployments for selected customers. Phaseo routing remains disabled pending public API documentation, authenticated contract verification, and billing details." },
-    "rate_limits": []
+    "service_tiers": ["standard", "flex", "priority", "batch"],
+    "api": { "formats": ["responses", "chat_completions"], "endpoint": null, "deployment": null },
+    "sources": ["https://openai.com/index/gpt-6-astra/", "https://developers.openai.com/api/docs/models/gpt-6-astra"],
+    "verification": { "status": "verified", "checked_at": "2026-09-03T00:00:00Z", "notes": "OpenAI documents the model contract and says API access is rolling out over the coming days. Phaseo routing remains disabled and marked planned until live access, request compatibility, and billing are tested." },
+    "rate_limits": [
+      { "scope": "usage_tier", "tier": 1, "requests_per_minute": 500, "tokens_per_minute": 500000, "batch_queue_limit_tokens": 1500000 },
+      { "scope": "usage_tier", "tier": 2, "requests_per_minute": 5000, "tokens_per_minute": 1000000, "batch_queue_limit_tokens": 3000000 },
+      { "scope": "usage_tier", "tier": 3, "requests_per_minute": 5000, "tokens_per_minute": 2000000, "batch_queue_limit_tokens": 100000000 },
+      { "scope": "usage_tier", "tier": 4, "requests_per_minute": 10000, "tokens_per_minute": 4000000, "batch_queue_limit_tokens": 200000000 },
+      { "scope": "usage_tier", "tier": 5, "requests_per_minute": 15000, "tokens_per_minute": 40000000, "batch_queue_limit_tokens": 15000000000 }
+    ]
   }
 ]
