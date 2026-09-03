@@ -99,7 +99,7 @@ describe("provider token reservation accounting", () => {
 		await settleFailedManagedProviderReservation({
 			reservation: value,
 			status: 400,
-			usage: null,
+			usageCandidates: [null],
 			upstreamRequestCount: 1,
 		});
 		expect(mocks.reconcileTokens).toHaveBeenCalledWith(value, 0);
@@ -110,7 +110,7 @@ describe("provider token reservation accounting", () => {
 		await settleFailedManagedProviderReservation({
 			reservation: value,
 			status: 400,
-			usage: { total_tokens: 37 },
+			usageCandidates: [null, { total_tokens: 37 }],
 			upstreamRequestCount: 1,
 		});
 		expect(mocks.reconcileTokens).toHaveBeenCalledWith(value, 37);
@@ -120,7 +120,7 @@ describe("provider token reservation accounting", () => {
 		await settleFailedManagedProviderReservation({
 			reservation: reservation(`reservation-ambiguous-${status}`),
 			status,
-			usage: null,
+			usageCandidates: [null],
 			upstreamRequestCount: 1,
 		});
 		expect(mocks.reconcileTokens).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe("provider token reservation accounting", () => {
 		await settleFailedManagedProviderReservation({
 			reservation: reservation("reservation-multiple-dispatches"),
 			status: 400,
-			usage: null,
+			usageCandidates: [null],
 			upstreamRequestCount: 2,
 		});
 		expect(mocks.reconcileTokens).not.toHaveBeenCalled();

@@ -1018,13 +1018,16 @@ async function attemptProviderWithIR(
 			});
 		}
 		if (!executorResult.upstream.ok) {
+			const upstreamFailure = await readUpstreamFailurePayload(executorResult);
+			const payloadUsage = upstreamFailure.payload && typeof upstreamFailure.payload === "object"
+				? (upstreamFailure.payload as Record<string, unknown>).usage
+				: null;
 			await settleFailedManagedProviderReservation({
 				reservation: providerRateLimitReservation,
 				status: executorResult.upstream.status,
-				usage: executorResult.bill?.usage,
+				usageCandidates: [executorResult.bill?.usage, payloadUsage, upstreamFailure.payload],
 				upstreamRequestCount: upstreamTiming.upstreamRequestCount,
 			});
-			const upstreamFailure = await readUpstreamFailurePayload(executorResult);
 			const upstreamSummary = extractUpstreamErrorSummary(
 				upstreamFailure.payload,
 				executorResult.upstream.headers,

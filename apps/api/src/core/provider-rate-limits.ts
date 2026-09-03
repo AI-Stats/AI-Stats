@@ -229,11 +229,14 @@ export async function releaseManagedProviderReservation(
 export async function settleFailedManagedProviderReservation(args: {
 	reservation: ProviderTokenReservation | null | undefined;
 	status: number;
-	usage: unknown;
+	usageCandidates: unknown[];
 	upstreamRequestCount: number;
 }): Promise<void> {
 	if (!args.reservation) return;
-	const tokens = resolveCanonicalTokenUsage(args.usage).totalTokens;
+	const tokens = args.usageCandidates.reduce<number>(
+		(max, usage) => Math.max(max, resolveCanonicalTokenUsage(usage).totalTokens),
+		0,
+	);
 	if (tokens > 0) {
 		try {
 			await getStub(args.reservation.providerId)?.reconcileTokens(args.reservation, tokens);
