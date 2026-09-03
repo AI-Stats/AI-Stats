@@ -1199,7 +1199,9 @@
       "suno/suno-v4.5",
       "suno/suno-v4.5-",
       "suno/suno-v4.5-all",
-      "suno/suno-v5"
+      "suno/suno-v5",
+      "suno/suno-v6",
+      "suno/suno-v6-mini"
     ],
     "tencent": [
       "tencent/hy3",
