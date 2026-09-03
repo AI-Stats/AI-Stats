@@ -689,6 +689,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "arcee-ai:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek/deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-09-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.arcee.ai/get-started/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "Listed in Arcee AI's official pricing documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-03T00:00:00Z",
+      "notes": "Model and exact provider slug are listed in Arcee's official pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.2",
     "provider_api_model_id": "arcee-ai:zai-org/glm-5.2",
     "provider_model_slug": "zai-org/glm-5.2",
