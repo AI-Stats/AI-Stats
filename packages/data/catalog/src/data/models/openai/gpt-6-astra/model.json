@@ -2,7 +2,7 @@
   "model_id": "openai/gpt-6-astra",
   "organisation_id": "openai",
   "name": "GPT-6 Astra",
-  "status": "Limited Access",
+  "status": "Rumoured",
   "previous_model_id": "openai/gpt-5.6-sol",
   "description": "GPT-6 Astra is OpenAI's next major frontier model and is expected to become the largest and most capable model in the GPT series. It represents a substantial step forward from GPT-5.6 Sol in agentic work, computer use, token efficiency, alignment, and cybersecurity, with stronger ability to complete complex tasks with less human guidance. A broader release is expected imminently, potentially as early as September 3, 2026, although OpenAI has not confirmed a launch date.",
   "announced_date": null,
@@ -30,7 +30,7 @@
   "benchmarks": [],
   "page_notice": {
     "tone": "warning",
-    "markdown": "OpenAI says Astra will be available soon, but has not confirmed a launch date. Access is currently limited to approved projects, and public pricing and token limits have not been announced."
+    "markdown": "OpenAI has not confirmed Astra's public release, launch date, pricing, or token limits. Treat this model as rumoured until official availability is announced."
   },
   "model_type": null,
   "knowledge_cutoff": null,
