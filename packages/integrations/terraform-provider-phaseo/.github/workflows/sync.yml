@@ -1,0 +1,36 @@
+name: Sync from Phaseo monorepo
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-from-phaseo-monorepo
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Phaseo monorepo
+        uses: actions/checkout@v4
+        with:
+          repository: phaseoteam/Phaseo
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+          path: phaseo
+
+      - name: Export provider history
+        working-directory: phaseo
+        run: git subtree split --prefix=packages/integrations/terraform-provider-phaseo --branch=terraform-provider-export
+
+      - name: Push provider repository
+        working-directory: phaseo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" terraform-provider-export:main
