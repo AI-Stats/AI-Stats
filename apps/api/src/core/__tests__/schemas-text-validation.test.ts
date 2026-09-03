@@ -48,6 +48,33 @@ describe("text request schema validation", () => {
 		expect(parsed.success).toBe(true);
 	});
 
+	it("preserves optional async tool declarations on every text surface", () => {
+		const chat = ChatCompletionsSchema.parse({
+			model: "openai/gpt-6-astra",
+			messages: [{ role: "user", content: "hello" }],
+			tools: [{
+				type: "function",
+				async: true,
+				function: { name: "lookup", parameters: { type: "object" } },
+			}],
+		});
+		const responses = ResponsesSchema.parse({
+			model: "openai/gpt-6-astra",
+			input: "hello",
+			tools: [{ type: "function", name: "lookup", parameters: { type: "object" }, async: true }],
+		});
+		const messages = AnthropicMessagesSchema.parse({
+			model: "openai/gpt-6-astra",
+			max_tokens: 128,
+			messages: [{ role: "user", content: "hello" }],
+			tools: [{ name: "lookup", input_schema: { type: "object" }, async: true }],
+		});
+
+		expect(chat.tools?.[0]).toMatchObject({ async: true });
+		expect(responses.tools?.[0]).toMatchObject({ async: true });
+		expect(messages.tools?.[0]).toMatchObject({ async: true });
+	});
+
 	it("accepts gateway datetime server tool on chat requests", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",
