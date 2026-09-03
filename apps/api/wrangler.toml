@@ -126,6 +126,14 @@ period = 60
 name = "REALTIME_RELAY"
 class_name = "RealtimeRelayDurableObject"
 
+[[durable_objects.bindings]]
+name = "PROVIDER_RATE_LIMITS"
+class_name = "ProviderRateLimitDurableObject"
+
 [[migrations]]
 tag = "v1-realtime-relay"
 new_sqlite_classes = ["RealtimeRelayDurableObject"]
+
+[[migrations]]
+tag = "v2-provider-rate-limits"
+new_sqlite_classes = ["ProviderRateLimitDurableObject"]

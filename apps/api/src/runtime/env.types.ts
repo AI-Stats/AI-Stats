@@ -33,6 +33,7 @@ export type GatewayBindings = {
     OAUTH_TOKEN_RATE_LIMITER?: RateLimit;
 	REALTIME_RELAY_RATE_LIMITER?: RateLimit;
     REALTIME_RELAY?: DurableObjectNamespace;
+	PROVIDER_RATE_LIMITS?: DurableObjectNamespace;
     KV?: KVNamespace;
     DB?: D1Database;
     PHASEO_CONTROL_SECRET?: string;

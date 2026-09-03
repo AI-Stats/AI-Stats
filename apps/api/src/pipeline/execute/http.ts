@@ -9,6 +9,7 @@ export type ExecuteErrorCode =
     | "pricing_not_configured"
     | "provider_payment_required"
     | "model_region_unavailable"
+	| "provider_capacity_exhausted"
     | "upstream_error";
 
 export function json(data: unknown, status = 200) {
@@ -24,6 +25,7 @@ const STATUS: Record<ExecuteErrorCode, number> = {
     pricing_not_configured: 402,
     provider_payment_required: 502,
     model_region_unavailable: 403,
+	provider_capacity_exhausted: 429,
     upstream_error: 502,
 };
 
@@ -40,7 +42,6 @@ export function err(code: ExecuteErrorCode, payload: Record<string, unknown>) {
     if (description && typeof body.description !== "string") body.description = description;
     return json(body, STATUS[code]);
 }
-
 
 
 
