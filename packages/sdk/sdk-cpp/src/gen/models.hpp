@@ -1428,6 +1428,7 @@ struct ImagesEditRequest {
 	std::optional<int> n;
 	std::string prompt;
 	std::map<std::string, std::any> provider;
+	std::string resolution;
 	std::string size;
 	std::optional<bool> usage;
 	std::string user;
@@ -1444,6 +1445,7 @@ struct ImagesGenerationRequest {
 	std::string prompt;
 	std::map<std::string, std::any> provider;
 	std::string quality;
+	std::string resolution;
 	std::string response_format;
 	std::string size;
 	std::string style;

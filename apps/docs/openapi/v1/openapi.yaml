@@ -10664,6 +10664,8 @@ components:
           type: string
         size:
           type: string
+        resolution:
+          type: string
         'n':
           type: integer
           minimum: 1
@@ -10712,6 +10714,8 @@ components:
         prompt:
           type: string
         size:
+          type: string
+        resolution:
           type: string
         'n':
           type: integer
@@ -19876,6 +19880,8 @@ components:
         - inclusionai/ling-2.6-flash
         - inclusionai/ling-3.0-flash
         - inclusionai/ling-3.0-flash-fin
+        - inclusionai/ling-3.0-flash-sante
+        - inclusionai/ling-3.0-flash-vl
         - inclusionai/ling-flash-2.0
         - inclusionai/ring-2.6-1t
         - inclusionai/ring-flash-2.0
@@ -20200,7 +20206,6 @@ components:
         - spacex-ai/grok-build-0.1
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-2.0
-        - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-transcribe
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash

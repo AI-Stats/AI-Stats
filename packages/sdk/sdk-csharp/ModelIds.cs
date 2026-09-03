@@ -312,6 +312,10 @@ namespace PhaseoSdk
         public const string InclusionaiLing30Flash = "inclusionai/ling-3.0-flash";
         /// <summary>Model ID: <c>inclusionai/ling-3.0-flash-fin</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin</summary>
         public const string InclusionaiLing30FlashFin = "inclusionai/ling-3.0-flash-fin";
+        /// <summary>Model ID: <c>inclusionai/ling-3.0-flash-sante</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante</summary>
+        public const string InclusionaiLing30FlashSante = "inclusionai/ling-3.0-flash-sante";
+        /// <summary>Model ID: <c>inclusionai/ling-3.0-flash-vl</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl</summary>
+        public const string InclusionaiLing30FlashVl = "inclusionai/ling-3.0-flash-vl";
         /// <summary>Model ID: <c>inclusionai/ling-flash-2.0</c>. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0</summary>
         public const string InclusionaiLingFlash20 = "inclusionai/ling-flash-2.0";
         /// <summary>Model ID: <c>inclusionai/ring-2.6-1t</c>. Model page: https://phaseo.app/models/inclusionai/ring-2.6-1t</summary>
@@ -960,8 +964,6 @@ namespace PhaseoSdk
         public const string SpacexAiGrokImagineImage = "spacex-ai/grok-imagine-image";
         /// <summary>Model ID: <c>spacex-ai/grok-imagine-image-2.0</c>. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0</summary>
         public const string SpacexAiGrokImagineImage20 = "spacex-ai/grok-imagine-image-2.0";
-        /// <summary>Model ID: <c>spacex-ai/grok-imagine-image-quality</c>. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality</summary>
-        public const string SpacexAiGrokImagineImageQuality = "spacex-ai/grok-imagine-image-quality";
         /// <summary>Model ID: <c>spacex-ai/grok-transcribe</c>. Model page: https://phaseo.app/models/spacex-ai/grok-transcribe</summary>
         public const string SpacexAiGrokTranscribe = "spacex-ai/grok-transcribe";
         /// <summary>Model ID: <c>spacex-ai/grok-tts</c>. Model page: https://phaseo.app/models/spacex-ai/grok-tts</summary>

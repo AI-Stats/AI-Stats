@@ -2530,6 +2530,8 @@ class ImagesEditRequest
 	/** @var array<string, mixed>|null */
 	public $provider;
 	/** @var string|null */
+	public $resolution;
+	/** @var string|null */
 	public $size;
 	/** @var bool|null */
 	public $usage;
@@ -2557,6 +2559,8 @@ class ImagesGenerationRequest
 	public $provider;
 	/** @var string|null */
 	public $quality;
+	/** @var string|null */
+	public $resolution;
 	/** @var string|null */
 	public $response_format;
 	/** @var string|null */

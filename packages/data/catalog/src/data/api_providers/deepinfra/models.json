@@ -1590,6 +1590,95 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "deepinfra:deepseek/deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-09-03T03:27:20Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logit_bias",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard",
+      "priority",
+      "flex"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.deepinfra.com/models/list",
+        "accessed_at": "2026-09-03T03:27:20Z",
+        "notes": "DeepInfra's live model inventory reports the exact multimodal slug, context and output limits, capabilities, quantisation, and standard/priority/flex pricing multipliers."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-03T03:27:20Z",
+      "notes": "Verified against DeepInfra's first-party models endpoint."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "deepinfra:deepseek/deepseek-v4-flash-0731",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",

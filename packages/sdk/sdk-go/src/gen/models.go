@@ -2138,6 +2138,7 @@ type ImagesEditRequest struct {
 	N *int `json:"n,omitempty"`
 	Prompt string `json:"prompt"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
+	Resolution *string `json:"resolution,omitempty"`
 	Size *string `json:"size,omitempty"`
 	Usage *bool `json:"usage,omitempty"`
 	User *string `json:"user,omitempty"`
@@ -2154,6 +2155,7 @@ type ImagesGenerationRequest struct {
 	Prompt string `json:"prompt"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
 	Quality *string `json:"quality,omitempty"`
+	Resolution *string `json:"resolution,omitempty"`
 	ResponseFormat *string `json:"response_format,omitempty"`
 	Size *string `json:"size,omitempty"`
 	Style *string `json:"style,omitempty"`
@@ -2334,6 +2336,8 @@ const (
 	KnownModelIdInclusionaiLing26Flash KnownModelId = "inclusionai/ling-2.6-flash"
 	KnownModelIdInclusionaiLing30Flash KnownModelId = "inclusionai/ling-3.0-flash"
 	KnownModelIdInclusionaiLing30FlashFin KnownModelId = "inclusionai/ling-3.0-flash-fin"
+	KnownModelIdInclusionaiLing30FlashSante KnownModelId = "inclusionai/ling-3.0-flash-sante"
+	KnownModelIdInclusionaiLing30FlashVl KnownModelId = "inclusionai/ling-3.0-flash-vl"
 	KnownModelIdInclusionaiLingFlash20 KnownModelId = "inclusionai/ling-flash-2.0"
 	KnownModelIdInclusionaiRing261t KnownModelId = "inclusionai/ring-2.6-1t"
 	KnownModelIdInclusionaiRingFlash20 KnownModelId = "inclusionai/ring-flash-2.0"
@@ -2658,7 +2662,6 @@ const (
 	KnownModelIdSpacexAiGrokBuild01 KnownModelId = "spacex-ai/grok-build-0.1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
 	KnownModelIdSpacexAiGrokImagineImage20 KnownModelId = "spacex-ai/grok-imagine-image-2.0"
-	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
 	KnownModelIdSpacexAiGrokTranscribe KnownModelId = "spacex-ai/grok-transcribe"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"

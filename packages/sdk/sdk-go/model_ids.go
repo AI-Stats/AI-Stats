@@ -466,6 +466,12 @@ const (
 	// Model ID: inclusionai/ling-3.0-flash-fin
 	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
 	ModelIDInclusionaiLing30FlashFin gen.ModelId = "inclusionai/ling-3.0-flash-fin"
+	// Model ID: inclusionai/ling-3.0-flash-sante
+	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante
+	ModelIDInclusionaiLing30FlashSante gen.ModelId = "inclusionai/ling-3.0-flash-sante"
+	// Model ID: inclusionai/ling-3.0-flash-vl
+	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl
+	ModelIDInclusionaiLing30FlashVl gen.ModelId = "inclusionai/ling-3.0-flash-vl"
 	// Model ID: inclusionai/ling-flash-2.0
 	// Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
 	ModelIDInclusionaiLingFlash20 gen.ModelId = "inclusionai/ling-flash-2.0"
@@ -1438,9 +1444,6 @@ const (
 	// Model ID: spacex-ai/grok-imagine-image-2.0
 	// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0
 	ModelIDSpacexAiGrokImagineImage20 gen.ModelId = "spacex-ai/grok-imagine-image-2.0"
-	// Model ID: spacex-ai/grok-imagine-image-quality
-	// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality
-	ModelIDSpacexAiGrokImagineImageQuality gen.ModelId = "spacex-ai/grok-imagine-image-quality"
 	// Model ID: spacex-ai/grok-transcribe
 	// Model page: https://phaseo.app/models/spacex-ai/grok-transcribe
 	ModelIDSpacexAiGrokTranscribe gen.ModelId = "spacex-ai/grok-transcribe"
@@ -1845,6 +1848,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDInclusionaiLing26Flash,
 	ModelIDInclusionaiLing30Flash,
 	ModelIDInclusionaiLing30FlashFin,
+	ModelIDInclusionaiLing30FlashSante,
+	ModelIDInclusionaiLing30FlashVl,
 	ModelIDInclusionaiLingFlash20,
 	ModelIDInclusionaiRing261t,
 	ModelIDInclusionaiRingFlash20,
@@ -2169,7 +2174,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDSpacexAiGrokBuild01,
 	ModelIDSpacexAiGrokImagineImage,
 	ModelIDSpacexAiGrokImagineImage20,
-	ModelIDSpacexAiGrokImagineImageQuality,
 	ModelIDSpacexAiGrokTranscribe,
 	ModelIDSpacexAiGrokTts,
 	ModelIDStepfunStep35Flash,

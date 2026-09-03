@@ -102,6 +102,10 @@ function mapGatewayToOpenAIImages(body: ImagesGenerationRequest, rawBody: Record
         reference_images: rawBody.reference_images ?? providerParams.reference_images,
         disable_safety_checker: rawBody.disable_safety_checker ?? providerParams.disable_safety_checker,
     } : {};
+    const xAiParams = ["spacex-ai", "x-ai", "xai"].includes(providerId) ? {
+        aspect_ratio: rawBody.aspect_ratio,
+        resolution: rawBody.resolution,
+    } : {};
     return {
         prompt: body.prompt,
         model: body.model,
@@ -117,6 +121,7 @@ function mapGatewayToOpenAIImages(body: ImagesGenerationRequest, rawBody: Record
         size: body.size,
         style: body.style,
         user: body.user,
+        ...Object.fromEntries(Object.entries(xAiParams).filter(([, value]) => value !== undefined)),
         ...Object.fromEntries(Object.entries(togetherParams).filter(([, value]) => value !== undefined)),
     };
 }
@@ -286,7 +291,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     
     return { kind: "completed", upstream: res, bill, normalized, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
 }
-
 
 
 

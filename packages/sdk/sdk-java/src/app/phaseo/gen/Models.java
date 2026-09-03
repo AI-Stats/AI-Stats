@@ -1433,6 +1433,7 @@ public final class Models {
 		public Integer n;
 		public String prompt;
 		public Object provider;
+		public String resolution;
 		public String size;
 		public Boolean usage;
 		public String user;
@@ -1449,6 +1450,7 @@ public final class Models {
 		public String prompt;
 		public Object provider;
 		public String quality;
+		public String resolution;
 		public String response_format;
 		public String size;
 		public String style;

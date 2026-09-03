@@ -40,6 +40,7 @@ export interface ImagesGenerationRequest {
     zdr?: boolean | null;
   };
   quality?: string;
+  resolution?: string;
   response_format?: string;
   size?: string;
   style?: string;

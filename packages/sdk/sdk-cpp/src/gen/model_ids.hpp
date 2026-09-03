@@ -465,6 +465,12 @@ inline constexpr std::string_view INCLUSIONAI_LING_3_0_FLASH = "inclusionai/ling
 // Model ID: inclusionai/ling-3.0-flash-fin
 // Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
 inline constexpr std::string_view INCLUSIONAI_LING_3_0_FLASH_FIN = "inclusionai/ling-3.0-flash-fin";
+// Model ID: inclusionai/ling-3.0-flash-sante
+// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-sante
+inline constexpr std::string_view INCLUSIONAI_LING_3_0_FLASH_SANTE = "inclusionai/ling-3.0-flash-sante";
+// Model ID: inclusionai/ling-3.0-flash-vl
+// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-vl
+inline constexpr std::string_view INCLUSIONAI_LING_3_0_FLASH_VL = "inclusionai/ling-3.0-flash-vl";
 // Model ID: inclusionai/ling-flash-2.0
 // Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
 inline constexpr std::string_view INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0";
@@ -1437,9 +1443,6 @@ inline constexpr std::string_view SPACEX_AI_GROK_IMAGINE_IMAGE = "spacex-ai/grok
 // Model ID: spacex-ai/grok-imagine-image-2.0
 // Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0
 inline constexpr std::string_view SPACEX_AI_GROK_IMAGINE_IMAGE_2_0 = "spacex-ai/grok-imagine-image-2.0";
-// Model ID: spacex-ai/grok-imagine-image-quality
-// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality
-inline constexpr std::string_view SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY = "spacex-ai/grok-imagine-image-quality";
 // Model ID: spacex-ai/grok-transcribe
 // Model page: https://phaseo.app/models/spacex-ai/grok-transcribe
 inline constexpr std::string_view SPACEX_AI_GROK_TRANSCRIBE = "spacex-ai/grok-transcribe";
@@ -1689,7 +1692,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 560> ALL = {
+inline constexpr std::array<std::string_view, 561> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1843,6 +1846,8 @@ inline constexpr std::array<std::string_view, 560> ALL = {
 	INCLUSIONAI_LING_2_6_FLASH,
 	INCLUSIONAI_LING_3_0_FLASH,
 	INCLUSIONAI_LING_3_0_FLASH_FIN,
+	INCLUSIONAI_LING_3_0_FLASH_SANTE,
+	INCLUSIONAI_LING_3_0_FLASH_VL,
 	INCLUSIONAI_LING_FLASH_2_0,
 	INCLUSIONAI_RING_2_6_1T,
 	INCLUSIONAI_RING_FLASH_2_0,
@@ -2167,7 +2172,6 @@ inline constexpr std::array<std::string_view, 560> ALL = {
 	SPACEX_AI_GROK_BUILD_0_1,
 	SPACEX_AI_GROK_IMAGINE_IMAGE,
 	SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
-	SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
 	SPACEX_AI_GROK_TRANSCRIBE,
 	SPACEX_AI_GROK_TTS,
 	STEPFUN_STEP_3_5_FLASH,
