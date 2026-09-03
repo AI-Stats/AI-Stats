@@ -34,10 +34,7 @@
     }
   ],
   "benchmarks": [],
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Claude Fable 5.1 is currently routable through the direct Anthropic provider. Amazon Bedrock, Claude Platform on AWS, Google Cloud, and Microsoft Foundry support is tracked but remains disabled pending provider-specific verification."
-  },
+  "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": "2026-06-01T00:00:00",
   "limits": {
