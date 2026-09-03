@@ -59,7 +59,7 @@ Before deployment, provision the same required gateway secrets separately for
 `phaseo-gateway-eu` and `phaseo-gateway-us`. Provider credentials must point to
 the regional offers represented by the provider catalog.
 
-See [docs/regional-deployment.md](docs/regional-deployment.md) for the complete
+See [docs/internal/regional-deployment.md](docs/internal/regional-deployment.md) for the complete
 Cloudflare setup, secret preparation, deployment, and non-inference verification
 runbook.
 
