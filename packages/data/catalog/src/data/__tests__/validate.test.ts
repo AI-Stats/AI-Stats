@@ -477,7 +477,7 @@ describe('api provider model safety checks', () => {
             is_active_gateway: false,
             routable: false,
             routing_status: 'disabled',
-            provider_status: 'coming_soon',
+            provider_status: 'limited_access',
             phaseo_status: 'planned',
             context_length: 1050000,
             max_output_tokens: 128000,
@@ -512,6 +512,11 @@ describe('api provider model safety checks', () => {
                     pricing_plan: 'standard',
                     price_per_unit: 75,
                     match: [{ path: 'input_tokens', op: 'gt', value: 272000 }],
+                }),
+                expect.objectContaining({
+                    meter: 'native_web_search_requests',
+                    pricing_plan: 'standard',
+                    price_per_unit: 0.01,
                 }),
             ])
         );
