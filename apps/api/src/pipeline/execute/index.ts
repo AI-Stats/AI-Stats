@@ -104,6 +104,7 @@ import {
 	admitManagedProvider,
 	estimateProviderTokenReservation,
 	releaseManagedProviderReservation,
+	settleFailedManagedProviderReservation,
 	type ProviderTokenReservation,
 } from "@core/provider-rate-limits";
 
@@ -1017,6 +1018,12 @@ async function attemptProviderWithIR(
 			});
 		}
 		if (!executorResult.upstream.ok) {
+			await settleFailedManagedProviderReservation({
+				reservation: providerRateLimitReservation,
+				status: executorResult.upstream.status,
+				usage: executorResult.bill?.usage,
+				upstreamRequestCount: upstreamTiming.upstreamRequestCount,
+			});
 			const upstreamFailure = await readUpstreamFailurePayload(executorResult);
 			const upstreamSummary = extractUpstreamErrorSummary(
 				upstreamFailure.payload,

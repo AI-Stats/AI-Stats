@@ -37,6 +37,7 @@ import {
 	clearProviderRateLimitConfigCacheForTests,
 	recordManagedProviderTokensOnce,
 	releaseManagedProviderReservation,
+	settleFailedManagedProviderReservation,
 	type ProviderTokenReservation,
 } from "./provider-rate-limits";
 
@@ -89,6 +90,48 @@ describe("provider token reservation accounting", () => {
 			keySource: "gateway",
 			usage: null,
 			reservation: reservation("reservation-unknown"),
+		});
+		expect(mocks.reconcileTokens).not.toHaveBeenCalled();
+	});
+
+	it("releases reservations for upstream client rejections with no usage", async () => {
+		const value = reservation("reservation-client-rejection");
+		await settleFailedManagedProviderReservation({
+			reservation: value,
+			status: 400,
+			usage: null,
+			upstreamRequestCount: 1,
+		});
+		expect(mocks.reconcileTokens).toHaveBeenCalledWith(value, 0);
+	});
+
+	it("reconciles failed responses when the provider reports token usage", async () => {
+		const value = reservation("reservation-failed-with-usage");
+		await settleFailedManagedProviderReservation({
+			reservation: value,
+			status: 400,
+			usage: { total_tokens: 37 },
+			upstreamRequestCount: 1,
+		});
+		expect(mocks.reconcileTokens).toHaveBeenCalledWith(value, 37);
+	});
+
+	it.each([408, 409, 425, 429, 499, 500, 503])("retains reservations for ambiguous status %s", async (status) => {
+		await settleFailedManagedProviderReservation({
+			reservation: reservation(`reservation-ambiguous-${status}`),
+			status,
+			usage: null,
+			upstreamRequestCount: 1,
+		});
+		expect(mocks.reconcileTokens).not.toHaveBeenCalled();
+	});
+
+	it("retains a client-rejection reservation after multiple upstream dispatches", async () => {
+		await settleFailedManagedProviderReservation({
+			reservation: reservation("reservation-multiple-dispatches"),
+			status: 400,
+			usage: null,
+			upstreamRequestCount: 2,
 		});
 		expect(mocks.reconcileTokens).not.toHaveBeenCalled();
 	});
