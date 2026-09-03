@@ -74,6 +74,7 @@ async function ModelFaqSectionContent({
 	benchmarkCount,
 	activeProviderCount,
 	isGatewayActive,
+	showProviders,
 	pricingPromise,
 	gatewayMetadataPromise,
 }: {
@@ -81,6 +82,7 @@ async function ModelFaqSectionContent({
 	benchmarkCount: number;
 	activeProviderCount: number;
 	isGatewayActive: boolean;
+	showProviders: boolean;
 	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
 	gatewayMetadataPromise: Promise<
 		Awaited<ReturnType<typeof fetchFrontendModelGatewayMetadata>> | null
@@ -104,6 +106,7 @@ async function ModelFaqSectionContent({
 			benchmarkCount={benchmarkCount}
 			activeProviderCount={activeProviderCount}
 			isGatewayActive={isGatewayActive}
+			showProviders={showProviders}
 			pricing={pricing}
 			relatedModels={relatedModels}
 			gatewayMetadata={gatewayMetadata}
@@ -130,12 +133,14 @@ function getModelPageTocItems({
 	showSubscriptions,
 	status,
 	isGatewayActive,
+	showProviders,
 	showVerification,
 }: {
 	showBenchmarks: boolean;
 	showSubscriptions: boolean;
 	status?: string | null;
 	isGatewayActive: boolean;
+	showProviders: boolean;
 	showVerification: boolean;
 }): ModelPageTocItem[] {
 	if (status === "Retired") {
@@ -148,6 +153,7 @@ function getModelPageTocItems({
 	}
 
 	return baseModelPageTocItems.filter((item) => {
+		if (item.id === "providers") return showProviders;
 		if (
 			!isGatewayActive &&
 			["performance", "pricing", "activity", "apps", "uptime"].includes(item.id)
@@ -284,6 +290,9 @@ export default async function Page({
 	const showSubscriptions = subscriptionPlans.length > 0;
 	const isGatewayActive =
 		availability?.isGatewayActive ?? true;
+	const showProviders =
+		modelOverview.status === "Announced" ||
+		(availability?.activeProviderCount ?? 0) > 0;
 	const resolvedPerformancePromise = isGatewayActive
 		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
 		: Promise.resolve(null);
@@ -293,6 +302,7 @@ export default async function Page({
 		showSubscriptions,
 		status: modelOverview?.status,
 		isGatewayActive,
+		showProviders,
 		showVerification: supportsProvenanceVerification(modelOverview.output_types),
 	});
 	const modelName = modelOverview?.name ?? modelId.split("/").slice(-1)[0] ?? modelId;
@@ -382,6 +392,7 @@ export default async function Page({
 								includeHidden={includeHidden}
 								showBenchmarks={showBenchmarks}
 								showSubscriptions={showSubscriptions}
+								showProviders={showProviders}
 								status={modelOverview?.status}
 								isGatewayActive={isGatewayActive}
 								performancePromise={resolvedPerformancePromise}
@@ -393,6 +404,7 @@ export default async function Page({
 										benchmarkCount={benchmarkHighlights.length}
 										activeProviderCount={availability?.activeProviderCount ?? 0}
 										isGatewayActive={isGatewayActive}
+										showProviders={showProviders}
 										pricingPromise={pricingPromise}
 										gatewayMetadataPromise={gatewayMetadataPromise}
 									/>

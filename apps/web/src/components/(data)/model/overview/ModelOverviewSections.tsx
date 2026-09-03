@@ -80,6 +80,7 @@ type ModelOverviewSectionsProps = {
 	includeHidden: boolean;
 	showBenchmarks?: boolean;
 	showSubscriptions?: boolean;
+	showProviders?: boolean;
 	status?: string | null;
 	isGatewayActive?: boolean;
 	performancePromise?: Promise<ModelPerformanceMetrics | null>;
@@ -211,8 +212,9 @@ export async function ModelProvidersSection({
 	modelStatus,
 	modelName,
 	creatorOrganisationId,
+	creatorOrganisationName,
 	description = "API providers, route pricing, availability, and recent reliability signals.",
-}: ModelSectionSharedProps & { modelStatus?: string | null; modelName?: string | null; creatorOrganisationId?: string | null; description?: string | null }) {
+}: ModelSectionSharedProps & { modelStatus?: string | null; modelName?: string | null; creatorOrganisationId?: string | null; creatorOrganisationName?: string | null; description?: string | null }) {
 	await connection();
 	return (
 		<ModelPricing
@@ -223,6 +225,7 @@ export async function ModelProvidersSection({
 			modelStatus={modelStatus}
 			modelName={modelName}
 			creatorOrganisationId={creatorOrganisationId}
+			creatorOrganisationName={creatorOrganisationName}
 		/>
 	);
 }
@@ -1266,6 +1269,7 @@ export default function ModelOverviewSections({
 	includeHidden,
 	showBenchmarks = true,
 	showSubscriptions = true,
+	showProviders = true,
 	status,
 	isGatewayActive = true,
 	performancePromise,
@@ -1329,18 +1333,21 @@ export default function ModelOverviewSections({
 	if (!isGatewayActive) {
 		return (
 			<div className="space-y-10">
-				<Section id="providers" showDivider={false}>
-					<Suspense fallback={<ProvidersSectionSkeleton />}>
-						<ModelProvidersSection
-							modelId={modelId}
-							includeHidden={includeHidden}
-							modelStatus={status}
-							modelName={model?.name}
-							creatorOrganisationId={model?.organisation_id}
-							description="Provider listings and known route availability for this model."
-						/>
-					</Suspense>
-				</Section>
+				{showProviders ? (
+					<Section id="providers" showDivider={false}>
+						<Suspense fallback={<ProvidersSectionSkeleton />}>
+							<ModelProvidersSection
+								modelId={modelId}
+								includeHidden={includeHidden}
+								modelStatus={status}
+								modelName={model?.name}
+								creatorOrganisationId={model?.organisation_id}
+								creatorOrganisationName={model?.organisation?.name}
+								description="Provider listings and known route availability for this model."
+							/>
+						</Suspense>
+					</Section>
+				) : null}
 				{showBenchmarks ? (
 					<Section id="benchmarks">
 						<SectionHeader title="Benchmarks" />
@@ -1392,18 +1399,21 @@ export default function ModelOverviewSections({
 
 	return (
 		<div className="space-y-10">
-			<Section id="providers" showDivider={false}>
-				<Suspense fallback={<ProvidersSectionSkeleton />}>
-					<ModelProvidersSection
-						modelId={modelId}
-						includeHidden={includeHidden}
-						modelStatus={status}
-						modelName={model?.name}
-						creatorOrganisationId={model?.organisation_id}
-						description="API providers, route pricing, availability, and recent reliability signals."
-					/>
-				</Suspense>
-			</Section>
+			{showProviders ? (
+				<Section id="providers" showDivider={false}>
+					<Suspense fallback={<ProvidersSectionSkeleton />}>
+						<ModelProvidersSection
+							modelId={modelId}
+							includeHidden={includeHidden}
+							modelStatus={status}
+							modelName={model?.name}
+							creatorOrganisationId={model?.organisation_id}
+							creatorOrganisationName={model?.organisation?.name}
+							description="API providers, route pricing, availability, and recent reliability signals."
+						/>
+					</Suspense>
+				</Section>
+			) : null}
 			<Suspense
 				fallback={
 					<Section id="performance">

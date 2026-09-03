@@ -299,6 +299,7 @@ export default function ModelFaqSection({
 	pricing,
 	relatedModels,
 	gatewayMetadata,
+	showProviders = true,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
@@ -307,6 +308,7 @@ export default function ModelFaqSection({
 	pricing: ProviderPricing[];
 	relatedModels?: ModelLineageLinks;
 	gatewayMetadata?: ModelGatewayMetadata | null;
+	showProviders?: boolean;
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
@@ -409,53 +411,57 @@ export default function ModelFaqSection({
 					},
 				]
 			: []),
-		{
-			question: `What providers serve ${modelName}, and can I use it via API?`,
-			answer: (
-				<>
-					{isGatewayActive && activeProviderCount > 0
-						? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded. `
-						: `${modelName} is not currently marked as active in the Phaseo Gateway. `}
-					{faqProviders.visible.length > 0 ? (
+		...(showProviders
+			? [
+					{
+						question: `What providers serve ${modelName}, and can I use it via API?`,
+						answer: (
 						<>
-							Recorded providers include{" "}
-							{faqProviders.visible.map((provider, index) => {
-								const isLast = index === faqProviders.visible.length - 1;
-								const separator =
-									index === 0
-										? ""
-										: faqProviders.remainingCount > 0
-											? ", "
-											: faqProviders.visible.length === 2
-												? " and "
-												: isLast
-													? ", and "
-													: ", ";
-								return (
-									<span key={provider.id}>
-										{separator}
-										<Link
-											href={`/api-providers/${provider.id}`}
-											className="font-medium underline underline-offset-4"
-										>
-											{provider.name}
-										</Link>
-									</span>
-								);
-							})}
-							{faqProviders.remainingCount > 0
-								? `, and ${faqProviders.remainingCount} more. `
-								: ". "}
+							{isGatewayActive && activeProviderCount > 0
+								? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded. `
+								: `${modelName} is not currently marked as active in the Phaseo Gateway. `}
+							{faqProviders.visible.length > 0 ? (
+								<>
+									Recorded providers include{" "}
+									{faqProviders.visible.map((provider, index) => {
+										const isLast = index === faqProviders.visible.length - 1;
+										const separator =
+											index === 0
+												? ""
+												: faqProviders.remainingCount > 0
+													? ", "
+													: faqProviders.visible.length === 2
+														? " and "
+														: isLast
+															? ", and "
+															: ", ";
+										return (
+											<span key={provider.id}>
+												{separator}
+												<Link
+													href={`/api-providers/${provider.id}`}
+													className="font-medium underline underline-offset-4"
+												>
+													{provider.name}
+												</Link>
+											</span>
+										);
+									})}
+									{faqProviders.remainingCount > 0
+										? `, and ${faqProviders.remainingCount} more. `
+										: ". "}
+								</>
+							) : null}
+							The{" "}
+							<Link href="#providers" className="font-medium underline underline-offset-4">
+								providers section
+							</Link>{" "}
+							shows the routes and availability currently recorded by Phaseo.
 						</>
-					) : null}
-					The{" "}
-					<Link href="#providers" className="font-medium underline underline-offset-4">
-						providers section
-					</Link>{" "}
-					shows the routes and availability currently recorded by Phaseo.
-				</>
-			),
-		},
+						),
+					},
+				]
+			: []),
 		{
 			question: `Does ${modelName} support tool calling?`,
 			answer: capabilityAnswer({
@@ -586,14 +592,18 @@ export default function ModelFaqSection({
 					},
 				}]
 				: []),
-			{
-				"@type": "Question",
-				name: `What providers serve ${modelName}, and can I use it via API?`,
-				acceptedAnswer: {
-					"@type": "Answer",
-					text: `${isGatewayActive && activeProviderCount > 0 ? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded.` : `${modelName} is not currently marked as active in the Phaseo Gateway.`}${faqProviders.visible.length > 0 ? ` Recorded providers include ${joinNaturalList(faqProviders.visible.map((provider) => provider.name))}${faqProviders.remainingCount > 0 ? ` and ${faqProviders.remainingCount} more` : ""}.` : ""}`,
-				},
-			},
+			...(showProviders
+				? [
+						{
+							"@type": "Question",
+							name: `What providers serve ${modelName}, and can I use it via API?`,
+							acceptedAnswer: {
+								"@type": "Answer",
+								text: `${isGatewayActive && activeProviderCount > 0 ? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded.` : `${modelName} is not currently marked as active in the Phaseo Gateway.`}${faqProviders.visible.length > 0 ? ` Recorded providers include ${joinNaturalList(faqProviders.visible.map((provider) => provider.name))}${faqProviders.remainingCount > 0 ? ` and ${faqProviders.remainingCount} more` : ""}.` : ""}`,
+							},
+						},
+					]
+				: []),
 			{
 				"@type": "Question",
 				name: `Does ${modelName} support tool calling?`,
