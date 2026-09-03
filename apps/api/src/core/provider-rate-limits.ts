@@ -21,6 +21,15 @@ export type ProviderRateLimitAdmission = {
 	allowed: boolean;
 	reason: "requests_per_minute" | "requests_per_day" | "tokens_per_minute" | "tokens_per_day" | null;
 	retryAfterSeconds: number | null;
+	reservation: ProviderTokenReservation | null;
+};
+
+export type ProviderTokenReservation = {
+	id: string;
+	providerId: string;
+	tokens: number;
+	minuteWindow: number;
+	dayWindow: number;
 };
 
 export type ProviderRateLimitCounters = {
@@ -43,6 +52,7 @@ export function resolveProviderRateLimitDenial(
 	config: ProviderRateLimitConfig,
 	counters: ProviderRateLimitCounters,
 	nowMs: number,
+	reservationTokens = 0,
 ): ProviderRateLimitAdmission | null {
 	const violations: Array<{ reason: NonNullable<ProviderRateLimitAdmission["reason"]>; resetMs: number }> = [];
 	const minuteResetMs = (counters.minuteWindow + 1) * 60_000;
@@ -54,11 +64,11 @@ export function resolveProviderRateLimitDenial(
 		violations.push({ reason: "requests_per_day", resetMs: dayResetMs });
 	}
 	const tokensPerMinute = effectiveTokenLimit(config.tokensPerMinute, config.headroomBps);
-	if (tokensPerMinute != null && counters.minuteTokens >= tokensPerMinute) {
+	if (tokensPerMinute != null && counters.minuteTokens + reservationTokens > tokensPerMinute) {
 		violations.push({ reason: "tokens_per_minute", resetMs: minuteResetMs });
 	}
 	const tokensPerDay = effectiveTokenLimit(config.tokensPerDay, config.headroomBps);
-	if (tokensPerDay != null && counters.dayTokens >= tokensPerDay) {
+	if (tokensPerDay != null && counters.dayTokens + reservationTokens > tokensPerDay) {
 		violations.push({ reason: "tokens_per_day", resetMs: dayResetMs });
 	}
 	if (!violations.length) return null;
@@ -67,7 +77,66 @@ export function resolveProviderRateLimitDenial(
 		allowed: false,
 		reason: blocking.reason,
 		retryAfterSeconds: Math.max(1, Math.ceil((blocking.resetMs - nowMs) / 1000)),
+		reservation: null,
 	};
+}
+
+const REQUEST_TOKEN_OVERHEAD = 16;
+const UNBOUNDED_TOKEN_INPUT_KEYS = new Set([
+	"audio",
+	"image",
+	"image_url",
+	"input_audio",
+	"input_image",
+	"input_video",
+	"video",
+	"web_search_options",
+	"websearchoptions",
+]);
+
+function containsUnboundedTokenInput(value: unknown): boolean {
+	if (!value || typeof value !== "object") return false;
+	if (Array.isArray(value)) return value.some(containsUnboundedTokenInput);
+	for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+		if (UNBOUNDED_TOKEN_INPUT_KEYS.has(key.toLowerCase())) return true;
+		if (containsUnboundedTokenInput(entry)) return true;
+	}
+	return false;
+}
+
+function positiveSafeInteger(value: unknown): number | null {
+	const parsed = Number(value);
+	return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function serializedInputTokenUpperBound(body: unknown): number | null {
+	try {
+		const bytes = new TextEncoder().encode(JSON.stringify(body ?? {})).byteLength;
+		return Math.max(1, bytes + REQUEST_TOKEN_OVERHEAD);
+	} catch {
+		return null;
+	}
+}
+
+export function estimateProviderTokenReservation(args: {
+	capability: string;
+	body: unknown;
+	requestedMaxOutputTokens?: number | null;
+	providerMaxInputTokens?: number | null;
+	providerMaxOutputTokens?: number | null;
+}): number | null {
+	const inputUpperBound = containsUnboundedTokenInput(args.body)
+		? positiveSafeInteger(args.providerMaxInputTokens)
+		: serializedInputTokenUpperBound(args.body);
+	if (inputUpperBound == null) return null;
+
+	if (args.capability === "embeddings" || args.capability === "moderations") return inputUpperBound;
+	if (args.capability !== "text.generate") return null;
+	const outputUpperBound =
+		positiveSafeInteger(args.requestedMaxOutputTokens) ??
+		positiveSafeInteger(args.providerMaxOutputTokens);
+	if (outputUpperBound == null || inputUpperBound > Number.MAX_SAFE_INTEGER - outputUpperBound) return null;
+	return inputUpperBound + outputUpperBound;
 }
 
 type CachedConfig = { expiresAt: number; value: ProviderRateLimitConfig | null };
@@ -110,8 +179,9 @@ async function loadConfig(providerId: string): Promise<ProviderRateLimitConfig |
 }
 
 type ProviderRateLimitStub = {
-	admit(config: ProviderRateLimitConfig, nowMs?: number): Promise<ProviderRateLimitAdmission>;
+	admit(config: ProviderRateLimitConfig, reservationTokens: number | null, reservationId: string, nowMs?: number): Promise<ProviderRateLimitAdmission>;
 	recordTokens(tokens: number, nowMs?: number): Promise<void>;
+	reconcileTokens(reservation: ProviderTokenReservation, actualTokens: number, nowMs?: number): Promise<void>;
 };
 
 function getStub(providerId: string): ProviderRateLimitStub | null {
@@ -120,13 +190,17 @@ function getStub(providerId: string): ProviderRateLimitStub | null {
 	return namespace.getByName(`managed:${providerId}`) as unknown as ProviderRateLimitStub;
 }
 
-export async function admitManagedProvider(providerId: string): Promise<ProviderRateLimitAdmission> {
-	const fallback: ProviderRateLimitAdmission = { allowed: true, reason: null, retryAfterSeconds: null };
+export async function admitManagedProvider(
+	providerId: string,
+	reservationTokens: number | null,
+	reservationId = crypto.randomUUID(),
+): Promise<ProviderRateLimitAdmission> {
+	const fallback: ProviderRateLimitAdmission = { allowed: true, reason: null, retryAfterSeconds: null, reservation: null };
 	try {
 		const config = await loadConfig(providerId);
 		if (!config) return fallback;
 		const stub = getStub(providerId);
-		return stub ? await stub.admit(config) : fallback;
+		return stub ? await stub.admit(config, reservationTokens, reservationId) : fallback;
 	} catch (error) {
 		console.error("[gateway] provider rate-limit admission failed open", {
 			provider: providerId,
@@ -136,22 +210,49 @@ export async function admitManagedProvider(providerId: string): Promise<Provider
 	}
 }
 
+export async function releaseManagedProviderReservation(
+	reservation: ProviderTokenReservation | null | undefined,
+): Promise<void> {
+	if (!reservation) return;
+	try {
+		await getStub(reservation.providerId)?.reconcileTokens(reservation, 0);
+	} catch (error) {
+		console.error("[gateway] provider token reservation release failed", {
+			provider: reservation.providerId,
+			reservationId: reservation.id,
+			error: error instanceof Error ? error.message : String(error),
+		});
+	}
+}
+
 export async function recordManagedProviderTokensOnce(args: {
 	ctx: PipelineContext;
 	providerId: string;
 	keySource: "gateway" | "byok" | undefined;
 	usage: unknown;
+	reservation?: ProviderTokenReservation | null;
 }): Promise<void> {
 	if (args.keySource === "byok" || args.ctx.testingMode) return;
 	const meta = args.ctx.meta as Record<string, unknown>;
-	if (meta.__providerRateLimitTokensRecorded === true) return;
+	const accountingKey = args.reservation?.id ?? `legacy:${args.providerId}`;
+	const recorded = Array.isArray(meta.__providerRateLimitTokensRecorded)
+		? meta.__providerRateLimitTokensRecorded as string[]
+		: [];
+	if (recorded.includes(accountingKey)) return;
 	const tokens = resolveCanonicalTokenUsage(args.usage).totalTokens;
+	// Once dispatch may have occurred, missing usage is not evidence of zero provider consumption.
+	// Keep the conservative reservation until its fixed window expires rather than reopening capacity.
 	if (tokens <= 0) return;
-	meta.__providerRateLimitTokensRecorded = true;
 	try {
 		const config = await loadConfig(args.providerId);
 		if (!config || (!config.tokensPerMinute && !config.tokensPerDay)) return;
-		await getStub(args.providerId)?.recordTokens(tokens);
+		const stub = getStub(args.providerId);
+		if (args.reservation?.providerId === args.providerId) {
+			await stub?.reconcileTokens(args.reservation, tokens);
+		} else {
+			await stub?.recordTokens(tokens);
+		}
+		meta.__providerRateLimitTokensRecorded = [...recorded, accountingKey];
 	} catch (error) {
 		console.error("[gateway] provider token accounting failed", {
 			provider: args.providerId,

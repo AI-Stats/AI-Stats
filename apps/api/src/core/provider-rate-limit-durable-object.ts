@@ -8,6 +8,7 @@ import {
 	resolveProviderRateLimitDenial,
 	type ProviderRateLimitAdmission,
 	type ProviderRateLimitConfig,
+	type ProviderTokenReservation,
 } from "@core/provider-rate-limits";
 
 type CounterRow = {
@@ -78,8 +79,19 @@ export class ProviderRateLimitDurableObject extends DurableObject<GatewayBinding
 		);
 	}
 
-	async admit(config: ProviderRateLimitConfig, nowMs = Date.now()): Promise<ProviderRateLimitAdmission> {
+	async admit(
+		config: ProviderRateLimitConfig,
+		reservationTokens: number | null,
+		reservationId: string,
+		nowMs = Date.now(),
+	): Promise<ProviderRateLimitAdmission> {
 		const row = this.current(nowMs);
+		const hasTokenLimit = config.tokensPerMinute != null || config.tokensPerDay != null;
+		const requestedTokens = hasTokenLimit
+			? (Number.isSafeInteger(reservationTokens) && Number(reservationTokens) > 0
+				? Number(reservationTokens)
+				: Number.MAX_SAFE_INTEGER)
+			: 0;
 		const denial = resolveProviderRateLimitDenial(config, {
 			minuteWindow: row.minute_window,
 			dayWindow: row.day_window,
@@ -87,13 +99,28 @@ export class ProviderRateLimitDurableObject extends DurableObject<GatewayBinding
 			dayRequests: row.day_requests,
 			minuteTokens: row.minute_tokens,
 			dayTokens: row.day_tokens,
-		}, nowMs);
+		}, nowMs, requestedTokens);
 		if (denial) return denial;
 
 		row.minute_requests += 1;
 		row.day_requests += 1;
+		row.minute_tokens += requestedTokens;
+		row.day_tokens += requestedTokens;
 		this.persist(row);
-		return { allowed: true, reason: null, retryAfterSeconds: null };
+		return {
+			allowed: true,
+			reason: null,
+			retryAfterSeconds: null,
+			reservation: requestedTokens > 0
+				? {
+					id: reservationId,
+					providerId: config.providerId,
+					tokens: requestedTokens,
+					minuteWindow: row.minute_window,
+					dayWindow: row.day_window,
+				}
+				: null,
+		};
 	}
 
 	async recordTokens(tokens: number, nowMs = Date.now()): Promise<void> {
@@ -101,6 +128,24 @@ export class ProviderRateLimitDurableObject extends DurableObject<GatewayBinding
 		const row = this.current(nowMs);
 		row.minute_tokens += tokens;
 		row.day_tokens += tokens;
+		this.persist(row);
+	}
+
+	async reconcileTokens(
+		reservation: ProviderTokenReservation,
+		actualTokens: number,
+		nowMs = Date.now(),
+	): Promise<void> {
+		if (!Number.isSafeInteger(reservation.tokens) || reservation.tokens <= 0) return;
+		if (!Number.isSafeInteger(actualTokens) || actualTokens < 0) return;
+		const row = this.current(nowMs);
+		const delta = actualTokens - reservation.tokens;
+		if (row.minute_window === reservation.minuteWindow) {
+			row.minute_tokens = Math.max(0, row.minute_tokens + delta);
+		}
+		if (row.day_window === reservation.dayWindow) {
+			row.day_tokens = Math.max(0, row.day_tokens + delta);
+		}
 		this.persist(row);
 	}
 }

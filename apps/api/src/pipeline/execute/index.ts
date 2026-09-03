@@ -100,7 +100,12 @@ import { stripUsagePricing } from "../usage";
 import { getEffectiveRoutingHints } from "../requestRouting";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
 import { extractDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
-import { admitManagedProvider } from "@core/provider-rate-limits";
+import {
+	admitManagedProvider,
+	estimateProviderTokenReservation,
+	releaseManagedProviderReservation,
+	type ProviderTokenReservation,
+} from "@core/provider-rate-limits";
 
 const ATTEMPT_PREVIEW_LIMIT = 320;
 const MAX_UPSTREAM_ERROR_BODY_BYTES = 32 * 1024;
@@ -395,6 +400,7 @@ export type IRRequestResult = {
 	bill: Bill;
 	keySource?: "gateway" | "byok";
 	byokKeyId?: string | null;
+	providerRateLimitReservation?: ProviderTokenReservation | null;
 	mappedRequest?: string;
 	rawResponse?: any;
 };
@@ -681,45 +687,10 @@ async function attemptProviderWithIR(
 		return { ok: false, skip: "no_pricing" };
 	}
 
-	if (credential.kind === "gateway" && !ctx.testingMode) {
-		const rateLimit = await timing.timer.span(`${attemptPrefix}_provider_rate_limit`, () =>
-			admitManagedProvider(candidate.providerId),
-		);
-		if (!rateLimit.allowed) {
-			const retryAfter = rateLimit.retryAfterSeconds != null
-				? String(rateLimit.retryAfterSeconds)
-				: null;
-			attemptErrors.push({
-				...credentialLog,
-				provider: candidate.providerId,
-				endpoint: ctx.endpoint,
-				attempt_number: attemptNumber,
-				type: "provider_rate_limited",
-				status: 429,
-				rate_limit_reason: rateLimit.reason,
-				upstream_rate_limit_headers: retryAfter ? { "Retry-After": retryAfter } : null,
-			});
-			recordProviderAttempt(ctx, {
-				...credentialLog,
-				attempt_number: attemptNumber,
-				provider: candidate.providerId,
-				endpoint: ctx.endpoint,
-				model: baseModel,
-				api_model_id: candidateApiModelId,
-				provider_model_slug: providerModelSlug ?? null,
-				outcome: "rate_limited",
-				type: rateLimit.reason,
-				duration_ms: Math.round(performance.now() - attemptStartedAt),
-				status: 429,
-				key_source: "gateway",
-				was_probe: isProbe,
-			});
-			return { ok: false, skip: "provider_rate_limit" };
-		}
-	}
-
 	// Execute using provider-capability executor
 	let t0 = performance.now();
+	const upstreamTracker = createUpstreamTimingTracker();
+	let providerRateLimitReservation: ProviderTokenReservation | null = null;
 	try {
 		timing.timer.mark("adapter_start");
 		if (!timing.internal.adapterMarked) {
@@ -770,7 +741,6 @@ async function attemptProviderWithIR(
 		}
 
 		const normalizedCapability = normalizeCapability(ctx.capability);
-		const upstreamTracker = createUpstreamTimingTracker();
 		const isTextGenerate = normalizedCapability === "text.generate";
 		const modelForReasoning = providerModelSlug?.trim() || baseModel;
 		const captureProviderPayloads =
@@ -791,6 +761,52 @@ async function attemptProviderWithIR(
 				)
 				: ir,
 		);
+		if (credential.kind === "gateway" && !ctx.testingMode) {
+			const reservationTokens = estimateProviderTokenReservation({
+				capability: normalizedCapability,
+				body: ctx.rawBody,
+				requestedMaxOutputTokens: isTextGenerate
+					? (normalizedIr as IRChatRequest).maxTokens
+					: null,
+				providerMaxInputTokens: candidate.maxInputTokens,
+				providerMaxOutputTokens: candidate.maxOutputTokens,
+			});
+			const rateLimit = await timing.timer.span(`${attemptPrefix}_provider_rate_limit`, () =>
+				admitManagedProvider(candidate.providerId, reservationTokens),
+			);
+			if (!rateLimit.allowed) {
+				const retryAfter = rateLimit.retryAfterSeconds != null
+					? String(rateLimit.retryAfterSeconds)
+					: null;
+				attemptErrors.push({
+					...credentialLog,
+					provider: candidate.providerId,
+					endpoint: ctx.endpoint,
+					attempt_number: attemptNumber,
+					type: "provider_rate_limited",
+					status: 429,
+					rate_limit_reason: rateLimit.reason,
+					upstream_rate_limit_headers: retryAfter ? { "Retry-After": retryAfter } : null,
+				});
+				recordProviderAttempt(ctx, {
+					...credentialLog,
+					attempt_number: attemptNumber,
+					provider: candidate.providerId,
+					endpoint: ctx.endpoint,
+					model: baseModel,
+					api_model_id: candidateApiModelId,
+					provider_model_slug: providerModelSlug ?? null,
+					outcome: "rate_limited",
+					type: rateLimit.reason,
+					duration_ms: Math.round(performance.now() - attemptStartedAt),
+					status: 429,
+					key_source: "gateway",
+					was_probe: isProbe,
+				});
+				return { ok: false, skip: "provider_rate_limit" };
+			}
+			providerRateLimitReservation = rateLimit.reservation;
+		}
 		const buildExecutorArgs = () =>
 			({
 				ir: normalizedIr,
@@ -1095,6 +1111,7 @@ async function attemptProviderWithIR(
 			},
 			keySource: executorResult.keySource ?? credentialLog.key_source,
 			byokKeyId: executorResult.byokKeyId ?? credentialLog.byok_key_id,
+			providerRateLimitReservation,
 			mappedRequest: executorResult.mappedRequest,
 			rawResponse: executorResult.rawResponse,
 		};
@@ -1155,6 +1172,11 @@ async function attemptProviderWithIR(
 
 		return { ok: true, result };
 	} catch (err) {
+		// Only release when the shared tracker proves no upstream request was dispatched.
+		// Dispatched failures can still consume provider tokens even when no usage is returned.
+		if (providerRateLimitReservation && upstreamTracker.snapshot().upstreamRequestCount === 0) {
+			await releaseManagedProviderReservation(providerRateLimitReservation);
+		}
 		console.error(`Executor execution failed for ${candidate.providerId}:`, err);
 		const message = err instanceof Error ? err.message : String(err);
 		const stackPreview = truncateAttemptText(
