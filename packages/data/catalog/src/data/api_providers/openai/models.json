@@ -13144,5 +13144,42 @@
     "sources": ["https://developers.openai.com/api/docs/models/gpt-5.6-cyber"],
     "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-6-astra",
+    "provider_api_model_id": "openai:openai/gpt-6-astra",
+    "provider_model_slug": "gpt-6-astra",
+    "internal_model_id": "openai/gpt-6-astra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-09-03T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["tools", "tool_choice", "reasoning"],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": [], "data": [] },
+    "service_tiers": [],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/gpt-6-astra"],
+    "verification": { "status": "partial", "checked_at": "2026-09-03T00:00:00Z", "notes": "Exact model ID and restricted project availability are documented by OpenAI; routing remains disabled pending authenticated contract and billing verification." },
+    "rate_limits": []
   }
 ]
