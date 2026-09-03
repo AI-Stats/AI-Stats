@@ -78,6 +78,14 @@ export function validateRegionalTextRequest(
 	if (!REGIONAL_TEXT_ENDPOINTS.has(endpoint)) {
 		return { reason: "endpoint_not_supported", path: [] };
 	}
+	for (const key of ["web_search_options", "webSearchOptions"] as const) {
+		if (body?.[key] !== undefined && body[key] !== null) {
+			return {
+				reason: "hosted_tool_not_supported",
+				path: [key],
+			};
+		}
+	}
 
 	if (Array.isArray(body?.modalities)) {
 		const nonText = body.modalities.find(
