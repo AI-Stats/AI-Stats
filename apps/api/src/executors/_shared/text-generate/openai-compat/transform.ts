@@ -97,6 +97,11 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 	);
 }
 
+function supportsOpenAIAsyncToolCalling(providerId?: string): boolean {
+	const canonicalProviderId = providerId ? normalizeProviderId(providerId) : providerId;
+	return canonicalProviderId === "openai" || canonicalProviderId === "openai-eu";
+}
+
 function addMetaWebSearchTool(request: any, ir: IRChatRequest): void {
 	if (ir.webSearchOptions === undefined) return;
 	const tools = Array.isArray(request.tools) ? [...request.tools] : [];
@@ -189,7 +194,7 @@ export function irToOpenAIResponses(
 		if (ir.seed !== undefined) request.seed = ir.seed;
 		if (ir.webSearchOptions !== undefined) request.web_search_options = ir.webSearchOptions;
 		if (ir.tools && ir.tools.length > 0) {
-			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false));
+			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false, providerId));
 		}
 
 		// Apply reasoning params - Xiaomi not configured, so this won't add anything
@@ -290,9 +295,9 @@ export function irToOpenAIResponses(
 	// Add tool configuration
 	if (ir.tools && ir.tools.length > 0) {
 		if (useOpenAIShape) {
-			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, true));
+			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, true, providerId));
 		} else {
-			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false));
+			request.tools = ir.tools.map((tool) => toOpenAIResponsesTool(tool, false, providerId));
 		}
 	}
 
@@ -462,11 +467,15 @@ export function irToOpenAIResponses(
 	return request;
 }
 
-function toOpenAIResponsesTool(tool: IRTool, useOpenAIShape: boolean): any {
+function toOpenAIResponsesTool(tool: IRTool, useOpenAIShape: boolean, providerId?: string): any {
+	const supportsAsync = supportsOpenAIAsyncToolCalling(providerId);
 	if (isIRNativeToolDefinition(tool)) {
+		const raw = { ...(tool.raw ?? {}) };
+		delete raw.async;
 		return {
-			...(tool.raw ?? {}),
+			...raw,
 			type: tool.type,
+			...(supportsAsync && tool.async !== undefined ? { async: tool.async } : {}),
 		};
 	}
 
@@ -477,6 +486,7 @@ function toOpenAIResponsesTool(tool: IRTool, useOpenAIShape: boolean): any {
 			description: tool.description,
 			parameters: tool.parameters,
 			...(tool.strict !== undefined ? { strict: tool.strict } : {}),
+			...(supportsAsync && tool.async !== undefined ? { async: tool.async } : {}),
 		};
 	}
 

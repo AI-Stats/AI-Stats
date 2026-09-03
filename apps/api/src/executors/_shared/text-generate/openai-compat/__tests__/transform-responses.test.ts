@@ -1098,6 +1098,27 @@ describe("irToOpenAIResponses", () => {
 		]);
 	});
 
+	it("passes async tools only to first-party OpenAI Responses providers", () => {
+		const ir = {
+			model: "openai/gpt-6-astra",
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+			stream: false,
+			tools: [
+				{ name: "lookup", parameters: { type: "object" }, async: true },
+				{ name: "wait", type: "custom", parameters: {}, async: true, raw: { type: "custom", name: "wait", format: { type: "text" }, async: true } },
+			],
+		} as any;
+
+		const openAIRequest = irToOpenAIResponses(ir, "gpt-6-astra", "openai");
+		const compatibleRequest = irToOpenAIResponses(ir, "gpt-6-astra", "deepseek");
+
+		expect(openAIRequest.tools).toEqual([
+			expect.objectContaining({ type: "function", name: "lookup", async: true }),
+			expect.objectContaining({ type: "custom", name: "wait", async: true }),
+		]);
+		expect(compatibleRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
+	});
+
 	it("round-trips Responses custom tool calls and outputs", () => {
 		const decoded = openAIResponsesToIR({
 			id: "resp_custom",

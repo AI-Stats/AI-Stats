@@ -55,7 +55,7 @@
     "attachment": true,
     "tool_call": true,
     "structured_output": true,
-    "temperature": null,
+    "temperature": false,
     "streaming": true,
     "web_search": true
   },

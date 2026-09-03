@@ -535,6 +535,41 @@ describe("openai text executor HTTP mode", () => {
 		});
 	});
 
+	it("preserves Astra max reasoning effort", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.openai.com/v1/responses",
+			response: jsonResponse({
+				id: "resp_astra_max",
+				object: "response",
+				created_at: Math.floor(Date.now() / 1000),
+				model: "gpt-6-astra",
+				status: "completed",
+				output: [{
+					type: "message",
+					role: "assistant",
+					content: [{ type: "output_text", text: "ok" }],
+				}],
+				usage: { input_tokens: 2, output_tokens: 1, total_tokens: 3 },
+			}, { status: 200 }),
+		}]);
+
+		const result = await executor({
+			...buildArgs({
+				model: "openai/gpt-6-astra",
+				reasoning: { effort: "max" },
+			}),
+			providerModelSlug: "gpt-6-astra",
+			capabilityParams: {
+				request: { allowlist: ["reasoning.effort", "max_tokens"] },
+			},
+		});
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.reasoning).toMatchObject({ effort: "max" });
+	});
+
 	it("preserves pro mode when requested on the canonical GPT-5.6 slug", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url === "https://api.openai.com/v1/responses",
