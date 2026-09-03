@@ -5987,5 +5987,60 @@
       "notes": "Exact model ID, realtime audio-to-text capability, Live route, and pricing verified against Google's current model and pricing pages; gateway routing remains disabled because no Google Live transcription executor is registered."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "google/lyria-3.5",
+    "provider_api_model_id": "google-ai-studio:google/lyria-3.5",
+    "provider_model_slug": null,
+    "internal_model_id": "google/lyria-3.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text,audio_music",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-29T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "music.generate",
+      "status": "disabled",
+      "params": [],
+      "reasoning": null,
+      "tool_call": false,
+      "structured_output": false,
+      "temperature": null,
+      "attachment": true,
+      "input_modalities": ["text", "image"],
+      "output_modalities": ["text", "audio_music"],
+      "modes": []
+    }],
+    "provider_status": "unknown",
+    "phaseo_status": "blocked",
+    "access_scope": "public",
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "official",
+        "url": "https://deepmind.google/models/lyria/",
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "Google lists Lyria 3.5 for Flow Music and links Google AI Studio as a Lyria surface, but does not publish a Lyria 3.5 API model identifier."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://ai.google.dev/gemini-api/docs/music-generation",
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "The current Gemini API music guide documents only lyria-3-clip-preview and lyria-3-pro-preview."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-03T00:00:00Z",
+      "notes": "No public Google API model identifier is documented for Lyria 3.5, so the provider offer is recorded but cannot be routed."
+    },
+    "rate_limits": []
   }
 ]

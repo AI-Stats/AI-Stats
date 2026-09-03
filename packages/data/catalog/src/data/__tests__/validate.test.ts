@@ -440,6 +440,33 @@ describe('pricing safety checks', () => {
 });
 
 describe('api provider model safety checks', () => {
+    test('Lyria 3.5 remains unroutable until Google publishes an API model identifier', () => {
+        const row = readProviderModels('google-ai-studio').find(
+            (candidate: any) => candidate.api_model_id === 'google/lyria-3.5'
+        );
+
+        expect(row).toMatchObject({
+            provider_model_slug: null,
+            is_active_gateway: false,
+            provider_status: 'unknown',
+            phaseo_status: 'blocked',
+            routing_status: 'disabled',
+            routable: false,
+            verification: {
+                status: 'verified',
+                checked_at: '2026-09-03T00:00:00Z',
+            },
+        });
+        expect(row.capabilities).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    capability_id: 'music.generate',
+                    status: 'disabled',
+                }),
+            ])
+        );
+    });
+
     test('Astra keeps its OpenAI provider mapping without asserting pricing', () => {
         const row = readProviderModels('openai').find(
             (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
