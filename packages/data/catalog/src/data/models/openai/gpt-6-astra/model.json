@@ -1,0 +1,88 @@
+{
+  "model_id": "openai/gpt-6-astra",
+  "organisation_id": "openai",
+  "name": "GPT-6 Astra",
+  "status": "Limited Access",
+  "previous_model_id": "openai/gpt-5.6-sol",
+  "description": "GPT-6 Astra is OpenAI's next major frontier model and is expected to become the largest and most capable model in the GPT series. It represents a substantial step forward from GPT-5.6 Sol in agentic work, computer use, token efficiency, alignment, and cybersecurity, with stronger ability to complete complex tasks with less human guidance. A broader release is expected imminently, potentially as early as September 3, 2026, although OpenAI has not confirmed a launch date.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "openai/gpt-6-astra",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Path to Astra",
+      "kind": "announcement",
+      "url": "https://openai.com/index/path-to-astra/"
+    },
+    {
+      "title": "GPT-6 Astra model documentation",
+      "kind": "api_reference",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-astra"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": {
+    "tone": "warning",
+    "markdown": "OpenAI says Astra will be available soon, but has not confirmed a launch date. Access is currently limited to approved projects, and public pricing and token limits have not been announced."
+  },
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": null,
+    "output": null
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://github.com/openai/openai-cua-sample-app/blob/4e4a6ae43e572e115ca4f7c5a5c1239f9f3aa969/containers/README.md",
+      "accessed_at": "2026-09-03T00:00:00Z",
+      "notes": "Official OpenAI repository names gpt-6-astra as the API client model for projects with access."
+    },
+    {
+      "kind": "announcement",
+      "url": "https://openai.com/index/path-to-astra/",
+      "accessed_at": "2026-09-03T00:00:00Z",
+      "notes": "OpenAI describes Astra as a significant capability increase over GPT-5.6 Sol, its most aligned model to date, and its first model to reach the Critical cybersecurity capability threshold."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "accessed_at": null,
+      "notes": "Conventional OpenAI model documentation URL reserved for the upcoming API reference page."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-09-03T00:00:00Z",
+    "notes": "Exact ID and restricted project access are verified from OpenAI's repository. Live API access, pricing, limits, and full capabilities remain unverified."
+  },
+  "last_updated": "2026-09-03T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
