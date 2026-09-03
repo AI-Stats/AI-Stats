@@ -19,6 +19,11 @@ from .model_ids import MODEL_IDS, ModelIds
 from .webhooks import compute_async_webhook_signature, verify_async_webhook_signature
 
 DEFAULT_BASE_URL = "https://api.phaseo.app/v1"
+REGIONAL_BASE_URLS = {
+    "global": DEFAULT_BASE_URL,
+    "eu": "https://eu.api.phaseo.app/v1",
+    "us": "https://us.api.phaseo.app/v1",
+}
 DEFAULT_USER_AGENT = "phaseo-python/2.0.7"
 
 
@@ -343,12 +348,17 @@ class Phaseo:
         app: Optional[dict[str, str]] = None,
         client_source: Optional[str] = None,
         client_source_version: Optional[str] = None,
+        region: Optional[Literal["global", "eu", "us"]] = None,
     ):
         api_key = api_key or os.getenv("PHASEO_API_KEY")
         if not api_key:
             raise ValueError("api_key is required (pass api_key or set PHASEO_API_KEY)")
 
-        host = (base_url or DEFAULT_BASE_URL).rstrip("/")
+        if base_url is not None and region is not None:
+            raise ValueError("base_url and region cannot be used together")
+        if region is not None and region not in REGIONAL_BASE_URLS:
+            raise ValueError("region must be one of: global, eu, us")
+        host = (base_url or REGIONAL_BASE_URLS[region or "global"]).rstrip("/")
         self._base_url = host
         self._headers = {
             "Authorization": f"Bearer {api_key}",

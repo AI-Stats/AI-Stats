@@ -14,6 +14,7 @@ import { internalRouter } from "@/routes/internal";
 import { handleScheduledEvent } from "@/scheduled";
 import { sendAxiomWideEvent } from "@/observability/axiom";
 import { requestIdFor } from "@/runtime/request-id";
+import { enforceRegionalSurface } from "@/regional-surface";
 export { RealtimeRelayDurableObject } from "@core/realtime-relay-durable-object";
 
 const app = new Hono<Env>();
@@ -31,6 +32,7 @@ app.use("*", async (c, next) => {
 		headers,
 	});
 });
+app.use("*", enforceRegionalSurface);
 
 app.route("/", rootRouter);
 app.route("/auth", authRouter);
@@ -83,7 +85,6 @@ export default {
 	fetch: app.fetch,
 	scheduled: handleScheduledEvent,
 };
-
 
 
 

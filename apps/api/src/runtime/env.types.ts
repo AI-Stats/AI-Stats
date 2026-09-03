@@ -3,6 +3,7 @@
 export type GatewayBindings = {
     SUPABASE_URL: string;
     SUPABASE_SERVICE_ROLE_KEY: string;
+	GATEWAY_ROUTING_REGION?: "eu" | "us";
     GATEWAY_CACHE: KVNamespace;
 	GATEWAY_IO_LOGS_BUCKET?: R2Bucket;
 	GATEWAY_IO_LOGS_BUCKET_NAME?: string;

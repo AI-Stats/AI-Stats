@@ -75,6 +75,8 @@ export type AppAttribution = {
 type Options = {
   apiKey?: string;
   baseUrl?: string;
+  /** Select a Phaseo regional provider-routing endpoint. Cannot be combined with baseUrl. */
+  region?: PhaseoRegion;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
   devtools?: Partial<DevToolsConfig>;
@@ -293,6 +295,20 @@ export type ChatCompletionsParams = Omit<ChatCompletionsRequest, "model" | "mess
 };
 
 const DEFAULT_BASE_URL = "https://api.phaseo.app/v1";
+const REGIONAL_BASE_URLS = {
+  global: DEFAULT_BASE_URL,
+  eu: "https://eu.api.phaseo.app/v1",
+  us: "https://us.api.phaseo.app/v1",
+} as const;
+
+export type PhaseoRegion = keyof typeof REGIONAL_BASE_URLS;
+
+function resolveBaseUrl(options: Pick<Options, "baseUrl" | "region">): string {
+  if (options.baseUrl !== undefined && options.region !== undefined) {
+    throw new Error("baseUrl and region cannot be used together");
+  }
+  return options.baseUrl ?? REGIONAL_BASE_URLS[options.region ?? "global"];
+}
 
 function trimTrailingSlashes(value: string): string {
   let end = value.length;
@@ -481,7 +497,7 @@ export class Phaseo {
 
   constructor(private readonly opts: Options = {}) {
     const apiKey = resolveApiKey(opts.apiKey);
-    this.basePath = trimTrailingSlashes(opts.baseUrl ?? DEFAULT_BASE_URL);
+    this.basePath = trimTrailingSlashes(resolveBaseUrl(opts));
     this.headers = {
       Authorization: `Bearer ${apiKey}`,
       "X-Phaseo-Client": "phaseo-typescript",
