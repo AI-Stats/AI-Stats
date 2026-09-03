@@ -298,6 +298,22 @@ describe("ModelFaqSection", () => {
 		expect(html).not.toContain('href="#benchmarks"');
 	});
 
+	it("omits provider FAQ content when the provider section is hidden", () => {
+		const html = renderToStaticMarkup(
+			<ModelFaqSection
+				model={model}
+				benchmarkCount={0}
+				activeProviderCount={0}
+				isGatewayActive={false}
+				pricing={[]}
+				showProviders={false}
+			/>,
+		);
+
+		expect(html).not.toContain("What providers serve Alpha 1, and can I use it via API?");
+		expect(html).not.toContain('href="#providers"');
+	});
+
 	it("explains previous, next, and family relationships", () => {
 		const html = renderToStaticMarkup(
 			<ModelFaqSection
