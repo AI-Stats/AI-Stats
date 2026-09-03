@@ -2673,5 +2673,71 @@
         "notes": "Availability, limits, quantization, and current pricing verified against CrofAI's live model and pricing payloads."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "crofai:deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "deepseek-v4-flash-vision-exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q8_0",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-09-03T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://crof.ai/v1/models",
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "Live CrofAI model payload lists deepseek-v4-flash-vision-exp with Q8_0 quantization, a 1M context window, 131,072 maximum output tokens, reasoning support, and token rates."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "Current CrofAI pricing lists $0.08 input, $0.007 cached input, and $0.20 output per 1M tokens."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-03T00:00:00Z",
+      "notes": "Availability, slug, limits, quantization, reasoning support, and current pricing verified against CrofAI's live model payload; image input follows the canonical vision model contract."
+    },
+    "rate_limits": []
   }
 ]
