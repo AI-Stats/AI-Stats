@@ -52,6 +52,24 @@ describe("google-ai-studio irToGemini", () => {
 		expect(request.generation_config?.thinking_level).toBe("medium");
 	});
 
+	it("maps Gemini 3.8 service tier and structured output through Interactions", async () => {
+		const schema = { type: "object", properties: { answer: { type: "string" } } };
+		const request = await irToGemini({
+			model: "gemini-3.8-flash",
+			stream: false,
+			serviceTier: "priority",
+			responseFormat: { type: "json_schema", name: "result", schema },
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+		} as any);
+
+		expect(request.service_tier).toBe("priority");
+		expect(request.response_format).toMatchObject({
+			type: "text",
+			mime_type: "application/json",
+			schema,
+		});
+	});
+
 	it("maps system and developer roles into system_instruction", async () => {
 		const request = await irToGemini({
 			model: "gemini-2.5-flash",

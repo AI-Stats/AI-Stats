@@ -425,6 +425,7 @@ export async function irToGemini(ir: IRChatRequest, modelOverride?: string | nul
 	}
 
 	const request: any = { contents };
+	if (ir.serviceTier) request.serviceTier = ir.serviceTier;
 
 	if (ir.googleCachedContent !== undefined) {
 		request.cachedContent = ir.googleCachedContent;
@@ -772,4 +773,3 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-

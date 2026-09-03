@@ -38,7 +38,7 @@
     "max_output_tokens": 65536,
     "effective_from": "2026-09-02T00:00:00",
     "effective_to": null,
-    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": ["max_tokens", "stop", "reasoning_effort", "tool_choice", "tools"], "reasoning": true, "tool_call": true, "structured_output": true, "temperature": false, "attachment": true, "input_modalities": ["text", "image", "video", "audio"], "output_modalities": ["text"], "modes": [] }],
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": ["max_tokens", "stop", "reasoning_effort", "tool_choice", "tools", "response_format", "structured_outputs", "service_tier"], "reasoning": true, "tool_call": true, "structured_output": true, "temperature": false, "attachment": true, "input_modalities": ["text", "image", "video", "audio"], "output_modalities": ["text"], "modes": [] }],
     "routing_status": "active",
     "routable": true,
     "regions": { "execution": ["global", "us", "eu"], "data": ["us", "eu"] },
