@@ -139,4 +139,70 @@ describe("xAI image editing", () => {
 			expect.objectContaining({ dimension: "input_image", line_nanos: 20_000_000 }),
 		]));
 	});
+
+	it("rejects conflicting size aliases before calling xAI", async () => {
+		let called = false;
+		const result = await exec({
+			endpoint: "images.edits", model: "gateway/image-edit-alias",
+			body: { model: "gateway/image-edit-alias", prompt: "edit", image: "https://example.com/input.png", size: "3k", resolution: "2k" },
+			meta: { requestId: "req_xai_conflict", apiKeyId: "key", apiKeyRef: "kid", apiKeyKid: "kid" },
+			workspaceId: "team_test", providerId: "x-ai", byokMeta: [], pricingCard: null,
+			providerModelSlug: "grok-imagine-image-2.0", stream: false,
+			upstreamTiming: { fetch: async () => { called = true; return jsonResponse({ data: [] }); } },
+		} as any);
+
+		expect(result.upstream.status).toBe(400);
+		expect(called).toBe(false);
+	});
+
+	it("uses the size alias consistently for xAI and billing", async () => {
+		let request: any;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.x.ai/v1/images/edits",
+			response: jsonResponse({ data: [{ url: "https://imgen.x.ai/output.jpeg" }] }),
+			onRequest: (call) => { request = call.bodyJson; },
+		}]);
+		const result = await exec({
+			endpoint: "images.edits", model: "spacex-ai/grok-imagine-image-2.0",
+			body: { model: "spacex-ai/grok-imagine-image-2.0", prompt: "edit", image: "https://example.com/input.png", size: "2K", quality: "medium" },
+			meta: { requestId: "req_xai_size_alias", apiKeyId: "key", apiKeyRef: "kid", apiKeyKid: "kid" },
+			workspaceId: "team_test", providerId: "x-ai", byokMeta: [],
+			pricingCard: { rules: [
+				{ meter: "input_image", unit: "image", unit_size: 1, price_per_unit: 0.01, currency: "USD", pricing_plan: "standard", match: [], priority: 100 },
+				{ meter: "output_image", unit: "image", unit_size: 1, price_per_unit: 0.08, currency: "USD", pricing_plan: "standard", match: [
+					{ path: "image_params.resolution", op: "eq", value: "2k" },
+					{ path: "image_params.quality", op: "eq", value: "medium" },
+				], priority: 100 },
+			] },
+			providerModelSlug: "grok-imagine-image-2.0", stream: false,
+		} as any);
+		mock.restore();
+
+		expect(request.resolution).toBe("2k");
+		expect(result.bill.cost_cents).toBe(9);
+	});
+
+	it("prices Grok Imagine Image 2.0 defaults after resolving a model alias", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.x.ai/v1/images/edits",
+			response: jsonResponse({ data: [{ url: "https://imgen.x.ai/output.jpeg" }] }),
+		}]);
+		const result = await exec({
+			endpoint: "images.edits", model: "gateway/image-edit-alias",
+			body: { model: "gateway/image-edit-alias", prompt: "edit", image: "https://example.com/input.png" },
+			meta: { requestId: "req_xai_alias_defaults", apiKeyId: "key", apiKeyRef: "kid", apiKeyKid: "kid" },
+			workspaceId: "team_test", providerId: "x-ai", byokMeta: [],
+			pricingCard: { rules: [
+				{ meter: "input_image", unit: "image", unit_size: 1, price_per_unit: 0.01, currency: "USD", pricing_plan: "standard", match: [], priority: 100 },
+				{ meter: "output_image", unit: "image", unit_size: 1, price_per_unit: 0.06, currency: "USD", pricing_plan: "standard", match: [
+					{ path: "image_params.resolution", op: "eq", value: "1k" },
+					{ path: "image_params.quality", op: "eq", value: "medium" },
+				], priority: 100 },
+			] },
+			providerModelSlug: "grok-imagine-image-2.0", stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.bill.cost_cents).toBe(7);
+	});
 });

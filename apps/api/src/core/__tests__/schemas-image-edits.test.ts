@@ -126,4 +126,19 @@ describe("OpenAI image edit schema", () => {
 			height: 4096,
 		}).success).toBe(true);
 	});
+
+	it("rejects conflicting or unsupported Grok Imagine Image 2.0 size aliases", () => {
+		const base = {
+			model: "spacex-ai/grok-imagine-image-2.0",
+			image: "image",
+			prompt: "edit",
+		};
+
+		expect(ImagesEditSchema.safeParse({ ...base, size: "1k", resolution: "2k" }).success).toBe(false);
+		expect(ImagesEditSchema.safeParse({ ...base, size: "3k" }).success).toBe(false);
+		expect(ImagesEditSchema.safeParse({ ...base, resolution: "4k" }).success).toBe(false);
+		expect(ImagesEditSchema.safeParse({ ...base, size: "2K", resolution: "2k" }).success).toBe(true);
+		expect(ImagesEditSchema.safeParse({ ...base, size: "1k" }).success).toBe(true);
+		expect(ImagesEditSchema.safeParse({ ...base, resolution: "2k" }).success).toBe(true);
+	});
 });

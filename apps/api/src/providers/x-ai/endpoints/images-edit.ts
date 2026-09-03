@@ -24,6 +24,17 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const images = Array.isArray(body.image) ? body.image : [body.image];
 	const model = args.providerModelSlug || body.model;
 	const supportsMultiImage = model === "grok-imagine-image-2.0";
+	const size = body.size?.toLowerCase();
+	const resolution = body.resolution?.toLowerCase();
+	if (supportsMultiImage && size && resolution && size !== resolution) {
+		const upstream = invalidParameterResponse("size", "Grok Imagine Image 2.0 size and resolution must match when both are provided.");
+		return { kind: "completed", upstream, bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null }, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
+	}
+	const canonicalResolution = resolution ?? size;
+	if (supportsMultiImage && canonicalResolution && canonicalResolution !== "1k" && canonicalResolution !== "2k") {
+		const upstream = invalidParameterResponse(body.resolution ? "resolution" : "size", "Grok Imagine Image 2.0 resolution must be 1k or 2k.");
+		return { kind: "completed", upstream, bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null }, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
+	}
 	if (images.length > 1 && !supportsMultiImage) {
 		const upstream = invalidParameterResponse("image", "xAI image editing accepts multiple source images only for Grok Imagine Image 2.0.");
 		return { kind: "completed", upstream, bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null }, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
@@ -49,7 +60,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		...(body.quality ? { quality: body.quality } : {}),
 		...(body.response_format ? { response_format: body.response_format } : {}),
 		...(body.aspect_ratio ? { aspect_ratio: body.aspect_ratio } : {}),
-		...(body.resolution ? { resolution: body.resolution } : {}),
+		...(canonicalResolution ? { resolution: canonicalResolution } : {}),
 	};
 	const res = await (args.upstreamTiming?.fetch ?? fetch)(openAICompatUrl(args.providerId, "/images/edits"), {
 		method: "POST", headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)), body: JSON.stringify(request),
@@ -63,7 +74,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	let currency: "USD" | "EUR" = "USD";
 	let usage: any = usageMeters;
 	if (res.ok && args.pricingCard) {
-		const priced = computeBill(usageMeters, args.pricingCard, buildImagePricingRequestOptions({ ...body, capability_id: "image.edit" }, usageMeters));
+		const priced = computeBill(usageMeters, args.pricingCard, buildImagePricingRequestOptions({ ...body, model, size: canonicalResolution, resolution: canonicalResolution, capability_id: "image.edit" }, usageMeters));
 		cost_cents = priced.pricing.total_cents;
 		currency = priced.pricing.currency;
 		usage = priced;
