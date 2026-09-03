@@ -3,12 +3,15 @@ package provider
 import (
 	"context"
 	"os"
+	"regexp"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	providerschema "github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/phaseoteam/terraform-provider-phaseo/internal/client"
 )
@@ -33,7 +36,7 @@ func (p *phaseoProvider) Schema(_ context.Context, _ provider.SchemaRequest, res
 		Description: "Manage Phaseo workspaces and gateway resources.",
 		Attributes: map[string]providerschema.Attribute{
 			"api_key":  providerschema.StringAttribute{Description: "Phaseo management API key. May also be set with PHASEO_API_KEY.", Optional: true, Sensitive: true},
-			"base_url": providerschema.StringAttribute{Description: "Phaseo API base URL. Defaults to https://api.phaseo.app/v1 and may be set with PHASEO_BASE_URL.", Optional: true},
+			"base_url": providerschema.StringAttribute{Description: "Phaseo API base URL. Defaults to https://api.phaseo.app/v1 and may be set with PHASEO_BASE_URL.", Optional: true, Validators: []validator.String{stringvalidator.RegexMatches(regexp.MustCompile(`^https?://`), "must be an HTTP or HTTPS URL")}},
 		},
 	}
 }

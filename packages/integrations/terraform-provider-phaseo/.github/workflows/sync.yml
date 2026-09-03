@@ -39,6 +39,7 @@ jobs:
         working-directory: phaseo/packages/integrations/terraform-provider-phaseo
         run: |
           go test -race ./...
+          TF_ACC=1 go test ./internal/provider -run '^TestAcc' -count=1
           go vet ./...
           go build .
 

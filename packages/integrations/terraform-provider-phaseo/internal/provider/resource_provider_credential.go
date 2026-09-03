@@ -21,7 +21,7 @@ type providerCredentialResource struct{ client *client.Client }
 type providerCredentialModel struct {
 	ID                 types.String `tfsdk:"id"`
 	WorkspaceID        types.String `tfsdk:"workspace_id"`
-	Provider           types.String `tfsdk:"provider"`
+	Provider           types.String `tfsdk:"provider_id"`
 	Name               types.String `tfsdk:"name"`
 	Key                types.String `tfsdk:"key"`
 	Enabled            types.Bool   `tfsdk:"enabled"`
@@ -66,7 +66,7 @@ func (r *providerCredentialResource) Metadata(_ context.Context, req resource.Me
 func (r *providerCredentialResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{Description: "Manages a write-only BYOK provider credential.", Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{Computed: true}, "workspace_id": schema.StringAttribute{Computed: true},
-		"provider": schema.StringAttribute{Required: true, Description: "Phaseo provider identifier.", PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}}, "name": schema.StringAttribute{Required: true},
+		"provider_id": schema.StringAttribute{Required: true, Description: "Phaseo provider identifier.", PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}}, "name": schema.StringAttribute{Required: true},
 		"key":     schema.StringAttribute{Required: true, Sensitive: true, Description: "Raw provider credential. Phaseo encrypts it and never returns it."},
 		"enabled": schema.BoolAttribute{Optional: true, Computed: true}, "routing_mode": schema.StringAttribute{Optional: true, Computed: true, Description: "priority or fallback."},
 		"allowed_models": schema.SetAttribute{Optional: true, Computed: true, ElementType: types.StringType}, "allowed_api_key_ids": schema.SetAttribute{Optional: true, Computed: true, ElementType: types.StringType},
