@@ -8,39 +8,46 @@ container directories named `gpt6-js-image` and `gpt6-py-image` in commit
 The container README also names `gpt-6-astra` as the model selected by the API
 client "for projects with access." This verifies the exact model ID and
 restricted availability. It does not establish pricing, limits, general public
-availability, a release date, regions, or the model's full capability set.
+availability, regions, or the model's full capability set.
 
 OpenAI's [Path to Astra](https://openai.com/index/path-to-astra/) update describes
 Astra as a significant increase over GPT-5.6 Sol in cybersecurity capability and
 token efficiency, its most aligned model to date, and its first model to reach
-the Critical cybersecurity capability threshold. OpenAI says availability is
-coming soon but does not give a launch date. A September 3 release remains an
-expectation, not a confirmed catalog fact.
+the Critical cybersecurity capability threshold. This is the September 1
+announcement date recorded in the catalog.
+
+On September 3, OpenAI published customer stories documenting live GPT-6 Astra
+API deployments at [Legora](https://openai.com/index/legora-financial-statement-review-with-astra/)
+and [Playco](https://openai.com/index/playco-game-prototyping-with-astra/). These
+confirm a limited-access release, but OpenAI has not yet published public API
+pricing, limits, regions, full endpoint support, or broader availability.
 
 ## What is ready
 
 - The authenticated OpenAI `/v1/models` watcher accepts model IDs without a
   GPT-version allowlist.
 - A partially verified, non-routable `openai/gpt-6-astra` catalog entry records
-  only facts supported by OpenAI's documentation.
+  the confirmed limited-access release and only facts supported by OpenAI's
+  documentation.
 - Provider validation includes a future-major-version fixture so a later
   refactor cannot silently filter GPT-6 IDs.
 - Unknown upstream IDs are included in private GitHub triage issues even though
   routine Discord alerts are restricted to known catalog models.
 
-## Launch gates
+## Remaining availability gates
 
 Do not add a price card, enable a provider route, or publish unsupported model
-claims until OpenAI publishes the corresponding fact. At launch:
+claims until OpenAI publishes the corresponding fact. Before broader routing:
 
 1. Confirm `gpt-6-astra` through an authenticated OpenAI `/v1/models` response
-   and retain the official repository reference as the initial source.
+   for the Phaseo account and retain the official repository and customer-story
+   references as sources.
 2. Verify supported endpoints, input/output modalities, context and output
    limits, tool and structured-output support, reasoning controls, regions, and
    service tiers against official documentation and a live API probe.
-3. Add the canonical model, OpenAI and OpenAI EU provider routes only where
-   documented, and exact price cards. Keep routing disabled until contract and
-   billing tests pass.
+3. Add OpenAI EU provider routes only where documented and exact price cards
+   only when published. Keep routing disabled until contract and billing tests
+   pass.
 4. Run `pnpm data:prep-pr` to sync the manifest and generated SDK surfaces and
    validate catalog, pricing, gateway, and documentation data.
 5. Enable routing only after an authenticated smoke test confirms request,

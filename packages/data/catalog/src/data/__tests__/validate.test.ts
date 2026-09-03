@@ -468,7 +468,7 @@ describe('api provider model safety checks', () => {
         );
     });
 
-    test('Astra keeps its OpenAI provider mapping without asserting pricing', () => {
+    test('Astra keeps its limited-access OpenAI provider mapping without asserting pricing', () => {
         const row = readProviderModels('openai').find(
             (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
         );
@@ -484,7 +484,7 @@ describe('api provider model safety checks', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     capability_id: 'text.generate',
-                    status: 'coming_soon',
+                    status: 'active',
                 }),
             ])
         );
