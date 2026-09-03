@@ -54,14 +54,20 @@
       "url": "https://api.orcarouter.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "OrcaRouter live model catalogue metadata."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "accessed_at": "2026-09-03T00:00:00Z",
+      "notes": "Official OpenAI deprecations page lists the June 11, 2026 deprecation and December 11, 2026 shutdown for this exact snapshot, and recommends openai/gpt-5.6-terra."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+    "checked_at": "2026-09-03T00:00:00Z",
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue. Lifecycle dates and replacement model verified against OpenAI's official deprecations page."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-09-03T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": "openai/gpt-5.6-terra",
   "license_url": null
