@@ -1106,6 +1106,7 @@ describe("irToOpenAIResponses", () => {
 			tools: [
 				{ name: "lookup", parameters: { type: "object" }, async: true },
 				{ name: "wait", type: "custom", parameters: {}, async: true, raw: { type: "custom", name: "wait", format: { type: "text" }, async: true } },
+				{ name: "shell", type: "custom", parameters: {}, async: true, raw: { type: "custom", async: true, custom: { name: "shell", description: "Run a command", format: { type: "text" } } } },
 			],
 		} as any;
 
@@ -1117,7 +1118,9 @@ describe("irToOpenAIResponses", () => {
 		expect(openAIRequest.tools).toEqual([
 			expect.objectContaining({ type: "function", name: "lookup", async: true }),
 			expect.objectContaining({ type: "custom", name: "wait", async: true }),
+			expect.objectContaining({ type: "custom", name: "shell", description: "Run a command", format: { type: "text" }, async: true }),
 		]);
+		expect(openAIRequest.tools[2].custom).toBeUndefined();
 		expect(compatibleRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
 		expect(azureRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
 		expect(xAIRequest.tools.every((tool: any) => tool.async === undefined)).toBe(true);
