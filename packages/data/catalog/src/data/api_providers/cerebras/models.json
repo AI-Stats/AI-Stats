@@ -4,6 +4,7 @@
     "provider_api_model_id": "cerebras:google/gemma-4-31b",
     "provider_model_slug": "gemma-4-31b",
     "internal_model_id": "google/gemma-4-31b",
+    "provider_status": "deprecated",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
