@@ -56,10 +56,10 @@
     },
     "sources": [
       {
-        "kind": "announcement",
+        "kind": "deprecation",
         "url": null,
-        "accessed_at": "2026-08-15T00:00:00Z",
-        "notes": "Cerebras customer announcement schedules removal from the shared tier during the first week of September 2026; no exact retirement timestamp was provided."
+        "accessed_at": "2026-09-03T00:00:00Z",
+        "notes": "Cerebras announced that Gemma 4 31B support on the shared cloud is deprecated as of September 3, 2026, and named Qwen 3.8 27B as its replacement. No retirement timestamp was provided."
       },
       {
         "kind": "provider_models",
@@ -70,8 +70,8 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-21T00:00:00Z",
-      "notes": "Active public route, modalities, capabilities, limits, and pricing verified against the live Cerebras public model endpoint."
+      "checked_at": "2026-09-03T00:00:00Z",
+      "notes": "The route remains callable, but Cerebras has deprecated Gemma 4 31B support on the shared cloud and recommends Qwen 3.8 27B as its replacement."
     },
     "rate_limits": []
   },
