@@ -17,6 +17,10 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: "1.15.8"
+          terraform_wrapper: false
       - run: go test -race ./...
       - name: Terraform acceptance tests
         run: go test ./internal/provider -run '^TestAcc' -count=1
