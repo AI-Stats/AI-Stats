@@ -1,12 +1,11 @@
 # Terraform Provider for Phaseo
 
-Manage Phaseo infrastructure with Terraform. The provider currently supports workspaces, Gateway API keys, guardrails, BYOK provider credentials, SCIM group mappings, and observability destinations through Phaseo's management API. Read-only data sources expose models, providers, and credits.
+Manage Phaseo infrastructure with Terraform. The provider currently supports Gateway API keys, guardrails, BYOK provider credentials, SCIM group mappings, and observability destinations through Phaseo's management API. Read-only data sources expose models, providers, and credits.
 
 ## Supported surface
 
 Resources:
 
-- `phaseo_workspace`
 - `phaseo_api_key`
 - `phaseo_guardrail`
 - `phaseo_provider_credential`
@@ -40,15 +39,8 @@ terraform {
 
 provider "phaseo" {}
 
-resource "phaseo_workspace" "production" {
-  name = "Production"
-  slug = "production"
-}
-
 resource "phaseo_api_key" "application" {
   name         = "Production application"
-  workspace_id = phaseo_workspace.production.id
-  scopes       = ["chat.completions", "responses"]
   limit        = 250
   limit_reset  = "monthly"
 }
@@ -75,6 +67,5 @@ This directory is the source of truth. Merges to the Phaseo monorepo are tested 
 Both resources support import by UUID:
 
 ```shell
-terraform import phaseo_workspace.production 33333333-3333-4333-8333-333333333333
 terraform import phaseo_api_key.application 11111111-1111-4111-8111-111111111111
 ```

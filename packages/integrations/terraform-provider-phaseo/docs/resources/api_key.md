@@ -9,8 +9,6 @@ description: |-
 ```terraform
 resource "phaseo_api_key" "application" {
   name         = "Production application"
-  workspace_id = phaseo_workspace.production.id
-  scopes       = ["chat.completions", "responses"]
   limit        = 250
   limit_reset  = "monthly"
 }
@@ -27,7 +25,6 @@ The plaintext `key` is returned only during creation. Terraform marks it sensiti
 ### Optional
 
 - `workspace_id` (String) Workspace UUID. Defaults to the management key workspace.
-- `scopes` (Set of String) Gateway scopes granted to the key.
 - `limit` (Number) Spend limit in USD.
 - `limit_reset` (String) Spend-limit window: `daily`, `weekly`, or `monthly`.
 - `expires_at` (String) RFC 3339 expiry timestamp.

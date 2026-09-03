@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 
@@ -22,7 +21,6 @@ type apiKeyModel struct {
 	ID          types.String  `tfsdk:"id"`
 	Name        types.String  `tfsdk:"name"`
 	WorkspaceID types.String  `tfsdk:"workspace_id"`
-	Scopes      types.Set     `tfsdk:"scopes"`
 	Limit       types.Float64 `tfsdk:"limit"`
 	LimitReset  types.String  `tfsdk:"limit_reset"`
 	ExpiresAt   types.String  `tfsdk:"expires_at"`
@@ -38,7 +36,6 @@ type apiKeyAPIModel struct {
 	ID          string   `json:"id"`
 	Name        *string  `json:"name"`
 	WorkspaceID string   `json:"workspace_id"`
-	Scopes      any      `json:"scopes"`
 	Limit       *float64 `json:"limit"`
 	LimitReset  *string  `json:"limit_reset"`
 	ExpiresAt   *string  `json:"expires_at"`
@@ -65,7 +62,6 @@ func (r *apiKeyResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"id":           schema.StringAttribute{Computed: true, Description: "API key UUID."},
 			"name":         schema.StringAttribute{Required: true, Description: "Human-readable key name."},
 			"workspace_id": schema.StringAttribute{Optional: true, Computed: true, Description: "Workspace UUID. Defaults to the management key workspace."},
-			"scopes":       schema.SetAttribute{Optional: true, Computed: true, ElementType: types.StringType, Description: "Gateway scopes granted to the key."},
 			"limit":        schema.Float64Attribute{Optional: true, Computed: true, Description: "Spend limit in USD."},
 			"limit_reset":  schema.StringAttribute{Optional: true, Computed: true, Description: "Spend-limit window: daily, weekly, or monthly."},
 			"expires_at":   schema.StringAttribute{Optional: true, Computed: true, Description: "RFC 3339 expiry timestamp."},
@@ -159,11 +155,6 @@ func apiKeyPayload(ctx context.Context, model apiKeyModel, diags *diag.Diagnosti
 	if !model.WorkspaceID.IsNull() && !model.WorkspaceID.IsUnknown() {
 		body["workspace_id"] = model.WorkspaceID.ValueString()
 	}
-	if !model.Scopes.IsNull() && !model.Scopes.IsUnknown() {
-		var scopes []string
-		diags.Append(model.Scopes.ElementsAs(ctx, &scopes, false)...)
-		body["scopes"] = scopes
-	}
 	if !model.Limit.IsNull() && !model.Limit.IsUnknown() {
 		body["limit"] = model.Limit.ValueFloat64()
 	}
@@ -198,32 +189,6 @@ func setAPIKeyModel(ctx context.Context, model *apiKeyModel, data apiKeyAPIModel
 	if includeSecret && data.Key != nil {
 		model.Key = types.StringValue(*data.Key)
 	}
-	scopes := normalizeScopes(data.Scopes)
-	set, setDiags := types.SetValueFrom(ctx, types.StringType, scopes)
-	diags.Append(setDiags...)
-	model.Scopes = set
-}
-
-func normalizeScopes(raw any) []string {
-	switch value := raw.(type) {
-	case []any:
-		result := make([]string, 0, len(value))
-		for _, item := range value {
-			if scope, ok := item.(string); ok {
-				result = append(result, scope)
-			}
-		}
-		return result
-	case string:
-		var result []string
-		if json.Unmarshal([]byte(value), &result) == nil {
-			return result
-		}
-		if value != "" {
-			return []string{value}
-		}
-	}
-	return []string{}
 }
 
 func nullableFloat(value *float64) types.Float64 {

@@ -70,7 +70,7 @@ func (p *phaseoProvider) Configure(ctx context.Context, req provider.ConfigureRe
 }
 
 func (p *phaseoProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{NewAPIKeyResource, NewWorkspaceResource, NewProviderCredentialResource, NewGroupMappingResource, NewObservabilityDestinationResource, NewGuardrailResource}
+	return []func() resource.Resource{NewAPIKeyResource, NewProviderCredentialResource, NewGroupMappingResource, NewObservabilityDestinationResource, NewGuardrailResource}
 }
 func (p *phaseoProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{NewModelsDataSource, NewProvidersDataSource, NewCreditsDataSource}
@@ -86,4 +86,11 @@ func configureClient(data any, diags *diag.Diagnostics) *client.Client {
 		return nil
 	}
 	return apiClient
+}
+
+func nullableString(value *string) types.String {
+	if value == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(*value)
 }
