@@ -1574,6 +1574,7 @@
 								"icon": "calendar-days",
 								"pages": [
 									"v1/changelog",
+									"v1/changelog/2026-08",
 									"v1/changelog/2026-07",
 									"v1/changelog/2026-06",
 									"v1/changelog/2026-05",
