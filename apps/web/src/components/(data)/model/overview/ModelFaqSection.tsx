@@ -1,4 +1,6 @@
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
@@ -8,7 +10,9 @@ import type {
 	ProviderPricing,
 } from "@/lib/fetchers/models/getModelPricing";
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
+import { markdownToPlainText } from "@/lib/models/modelDescription";
 import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters";
+import { modelMarkdownComponents } from "../modelMarkdown";
 import type { ModelLineageLinks } from "./modelOverviewMetadata";
 import ModelFaqAccordion from "./ModelFaqAccordion";
 
@@ -119,6 +123,22 @@ function getStatusDescription(status: ModelOverviewPage["status"]): string {
 		default:
 			return "an AI model";
 	}
+}
+
+function ensureSentencePunctuation(value: string): string {
+	const trimmed = value.trim();
+	return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+function descriptionStartsWithModelName(
+	description: string,
+	modelName: string,
+): boolean {
+	const normalizedDescription = description.toLocaleLowerCase();
+	const normalizedModelName = modelName.trim().toLocaleLowerCase();
+	return Boolean(
+		normalizedModelName && normalizedDescription.startsWith(normalizedModelName),
+	);
 }
 
 type PricingHighlight = {
@@ -290,6 +310,15 @@ export default function ModelFaqSection({
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
+	const modelDescription = model.description?.trim();
+	const plainModelDescription = markdownToPlainText(modelDescription);
+	const descriptionPrefix =
+		plainModelDescription && descriptionStartsWithModelName(plainModelDescription, modelName)
+			? ""
+			: `${modelName} is `;
+	const aboutAnswerText = plainModelDescription
+		? `${descriptionPrefix}${ensureSentencePunctuation(plainModelDescription)}`
+		: `${modelName} is ${getStatusDescription(model.status)} from ${organisationName}.`;
 	const releaseDate = model.release_date ?? model.announcement_date ?? null;
 	const inputTypes = parseTypes(model.input_types);
 	const outputTypes = parseTypes(model.output_types);
@@ -316,7 +345,17 @@ export default function ModelFaqSection({
 	const items = [
 		{
 			question: `What is ${modelName}?`,
-			answer: (
+			answer: modelDescription && plainModelDescription ? (
+				<>
+					{descriptionPrefix}
+					<ReactMarkdown
+						remarkPlugins={[remarkGfm]}
+						components={modelMarkdownComponents}
+					>
+						{modelDescription}
+					</ReactMarkdown>
+				</>
+			) : (
 				<>
 					{modelName} is {getStatusDescription(model.status)} from{" "}
 					<Link
@@ -534,7 +573,7 @@ export default function ModelFaqSection({
 				name: `What is ${modelName}?`,
 				acceptedAnswer: {
 					"@type": "Answer",
-					text: `${modelName} is ${getStatusDescription(model.status)} from ${organisationName}.`,
+					text: aboutAnswerText,
 				},
 			},
 			...(inputContextLength || outputContextLength
