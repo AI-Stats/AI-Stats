@@ -9589,6 +9589,43 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-image-2.5",
+    "provider_api_model_id": "openai:openai/gpt-image-2.5",
+    "provider_model_slug": "gpt-image-2.5",
+    "internal_model_id": "openai/gpt-image-2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [],
+    "provider_status": "unknown",
+    "phaseo_status": "planned",
+    "access_scope": "public",
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "OpenAI GPT Image 2.5 is being tracked as an unverified provider mapping; no official API listing or request contract has been confirmed. Do not present this as a coming-soon offer until OpenAI confirms it."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-live-1",
     "provider_api_model_id": "openai:openai/gpt-live-1",
     "provider_model_slug": "gpt-live-1",
