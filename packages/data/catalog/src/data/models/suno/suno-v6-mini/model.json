@@ -12,7 +12,7 @@
   "license": null,
   "input_types": null,
   "output_types": null,
-  "api_model_id": "suno/suno-v6-mini",
+  "api_model_id": null,
   "links": [
     {
       "title": "Suno upcoming models announcement",
