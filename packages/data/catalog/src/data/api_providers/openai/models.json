@@ -9602,10 +9602,10 @@
     "effective_from": null,
     "effective_to": null,
     "capabilities": [],
-    "provider_status": "coming_soon",
+    "provider_status": "unknown",
     "phaseo_status": "planned",
     "access_scope": "public",
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -9621,7 +9621,7 @@
     "verification": {
       "status": "unverified",
       "checked_at": null,
-      "notes": "OpenAI GPT Image 2.5 is being tracked as a coming-soon provider offer; no official API listing or request contract has been confirmed."
+      "notes": "OpenAI GPT Image 2.5 is being tracked as an unverified provider mapping; no official API listing or request contract has been confirmed. Do not present this as a coming-soon offer until OpenAI confirms it."
     },
     "rate_limits": []
   },
