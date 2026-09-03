@@ -474,6 +474,20 @@ function toOpenAIResponsesTool(tool: IRTool, useOpenAIShape: boolean, providerId
 	if (isIRNativeToolDefinition(tool)) {
 		const raw = { ...(tool.raw ?? {}) };
 		delete raw.async;
+		if (supportsAsync && tool.type === "custom") {
+			const nestedCustom = raw.custom && typeof raw.custom === "object"
+				? raw.custom as Record<string, any>
+				: {};
+			delete raw.custom;
+			return {
+				...raw,
+				type: "custom",
+				name: tool.name,
+				description: tool.description ?? nestedCustom.description,
+				format: raw.format ?? nestedCustom.format,
+				...(tool.async !== undefined ? { async: tool.async } : {}),
+			};
+		}
 		return {
 			...raw,
 			type: tool.type,
