@@ -1300,7 +1300,7 @@ export default function ModelOverviewSections({
 								<ModelVerificationSection outputTypes={model?.output_types} />
 							</Section>
 						) : null}
-						<Section id="about" showDivider={showBenchmarks || showVerification}>
+						<Section id="about" showDivider={false}>
 							<SectionHeader
 								title="About"
 								description="Archived dates, capabilities, links, and model metadata."
