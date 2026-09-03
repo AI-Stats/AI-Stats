@@ -10,6 +10,8 @@ type DbClient = ReturnType<typeof client>;
 
 const PAGE_SIZE = 1_000;
 let catalogueOverrideIndex: Map<string, Set<string>> | null = null;
+// These legacy rows predate JSON ownership metadata, so retire them explicitly when removed from the catalog.
+const RETIRED_CATALOGUE_ALIAS_SLUGS = new Set(["openai/gpt-latest"]);
 
 export const PROTECTED_CATALOGUE_DISPOSITIONS = ["database_managed", "database", "suppressed", "stealth"] as const;
 
@@ -594,6 +596,15 @@ export function staleModelSlugs(
         .filter(row => !desiredModelSlugs.has(String(row.model_slug)))
         .filter(row => !protectedModelSlugs.has(String(row.model_slug)))
         .map(row => String(row.model_slug));
+}
+
+export function explicitlyRetiredAliasSlugs(
+    existingRows: Record<string, any>[],
+    retiredAliasSlugs: Set<string>,
+): string[] {
+    return [...new Set(existingRows
+        .map(row => String(row.alias_slug ?? "").trim().toLowerCase())
+        .filter(aliasSlug => retiredAliasSlugs.has(aliasSlug)))];
 }
 
 export function staleBenchmarkResultIds(
@@ -1394,6 +1405,13 @@ export async function syncV2Catalogue(): Promise<void> {
         "v2_model_aliases",
         [...v2AliasRows.values()],
         "alias_slug",
+    );
+    const existingAliasRows = await fetchAll(supa, "v2_model_aliases", "alias_slug");
+    await deleteByIds(
+        supa,
+        "v2_model_aliases",
+        "alias_slug",
+        explicitlyRetiredAliasSlugs(existingAliasRows, RETIRED_CATALOGUE_ALIAS_SLUGS),
     );
 
     const routeByProviderModelId = new Map<string, Record<string, any>>();
