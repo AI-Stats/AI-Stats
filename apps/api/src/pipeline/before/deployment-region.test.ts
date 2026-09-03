@@ -20,6 +20,9 @@ describe("deployment region policy", () => {
 			body,
 			region: null,
 		});
+		expect(validateRegionalTextRequest("chat.completions", {
+			web_search_options: { search_context_size: "high" },
+		}, undefined)).toBeNull();
 	});
 
 	it("injects immutable execution and data requirements", () => {
@@ -86,6 +89,19 @@ describe("deployment region policy", () => {
 			input: [{ role: "user", content: [{ type: "input_text", text: "hello" }] }],
 			tools: [{ type: "function", name: "weather" }],
 		}, "eu")).toBeNull();
+	});
+
+	it("rejects hosted search options in both public spellings on every regional text endpoint", () => {
+		for (const endpoint of ["chat.completions", "responses", "messages"] as const) {
+			for (const key of ["web_search_options", "webSearchOptions"] as const) {
+				expect(validateRegionalTextRequest(endpoint, {
+					[key]: { search_context_size: "high" },
+				}, "eu")).toMatchObject({
+					reason: "hosted_tool_not_supported",
+					path: [key],
+				});
+			}
+		}
 	});
 
 	it("rejects non-text endpoints, content, outputs, and hosted tools", () => {
