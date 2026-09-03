@@ -1,0 +1,69 @@
+name: Sync from Phaseo monorepo
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-from-phaseo-monorepo
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Phaseo monorepo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: phaseoteam/Phaseo
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+          path: phaseo
+
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: phaseo/packages/integrations/terraform-provider-phaseo/go.mod
+          cache-dependency-path: phaseo/packages/integrations/terraform-provider-phaseo/go.sum
+
+      - name: Export provider history
+        working-directory: phaseo
+        run: git subtree split --prefix=packages/integrations/terraform-provider-phaseo --branch=terraform-provider-export
+
+      - name: Test provider export
+        working-directory: phaseo/packages/integrations/terraform-provider-phaseo
+        run: |
+          go test -race ./...
+          go vet ./...
+          go build .
+
+      - name: Push provider repository
+        working-directory: phaseo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" terraform-provider-export:main
+
+      - name: Keep scheduled synchronization active
+        working-directory: phaseo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git remote add generated "$remote"
+          if git fetch generated sync-heartbeat; then
+            last_activity=$(git show -s --format=%ct FETCH_HEAD)
+            age=$(( $(date +%s) - last_activity ))
+            if [ "$age" -lt 2592000 ]; then
+              exit 0
+            fi
+            git switch --detach FETCH_HEAD
+          else
+            git switch --orphan sync-heartbeat
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --allow-empty -m "chore: keep provider sync active"
+          git push generated HEAD:sync-heartbeat
