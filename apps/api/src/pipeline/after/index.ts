@@ -242,6 +242,7 @@ function dispatchNonStreamSuccessSideEffects(args: {
 				providerId: result.provider,
 				keySource: result.keySource,
 				usage: usageForBilling,
+				reservation: result.providerRateLimitReservation,
 			});
 
             await handleSuccessAudit(
@@ -616,7 +617,6 @@ async function handleNonStreamResponse(
     const responseStatus = result.upstream.status;
     return ctx.timer.span("after_create_response", () => createResponse(responseBody, responseStatus, headers));
 }
-
 
 
 

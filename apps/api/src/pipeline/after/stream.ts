@@ -538,6 +538,7 @@ export async function handleStreamResponse(
 					providerId: result.provider,
 					keySource: result.keySource,
 					usage: shapedUsage,
+					reservation: result.providerRateLimitReservation,
 				});
 				suppressFailedResponseBilling({ ctx, result, usage: shapedUsage, reason });
 				await handleFailureAudit(
@@ -664,7 +665,7 @@ export async function handleStreamResponse(
                     costNanos: pricedWithByok.totalNanos,
                     endpoint: ctx.endpoint,
                 });
-				await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: result.bill.usage });
+				await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: result.bill.usage, reservation: result.providerRateLimitReservation });
 
                 await handleSuccessAudit(
                     ctx,
@@ -723,7 +724,7 @@ export async function handleStreamResponse(
                     costNanos: pricedWithByok.totalNanos,
                     endpoint: ctx.endpoint,
                 });
-				await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: pricedWithByok.pricedUsage });
+				await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: pricedWithByok.pricedUsage, reservation: result.providerRateLimitReservation });
                 await handleSuccessAudit(
                     ctx,
                     result,
@@ -799,7 +800,7 @@ export async function handleStreamResponse(
                 costNanos: pricedWithByok.totalNanos,
                 endpoint: ctx.endpoint,
             });
-			await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: result.bill.usage });
+			await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: result.bill.usage, reservation: result.providerRateLimitReservation });
 
             await handleSuccessAudit(
                 ctx,
@@ -828,7 +829,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
 
 
 
