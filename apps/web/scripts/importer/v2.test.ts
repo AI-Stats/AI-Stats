@@ -26,6 +26,7 @@ import {
     protectedCatalogueIndex,
     staleBenchmarkResultIds,
     staleModelSlugs,
+    explicitlyRetiredAliasSlugs,
     stalePricingSkuIds,
     staleRouteVariantIds,
     stealthRouteIds,
@@ -175,6 +176,19 @@ describe("V2 provider route reconciliation", () => {
             new Set(),
             new Set(["private-provider:hidden-model"]),
         )).toEqual([]);
+    });
+});
+
+describe("V2 alias reconciliation", () => {
+    it("removes explicitly retired aliases even without ownership metadata", () => {
+        expect(explicitlyRetiredAliasSlugs(
+            [
+                { alias_slug: "openai/gpt-latest" },
+                { alias_slug: "openai/gpt-astra-latest" },
+                { alias_slug: "openai/gpt-latest", metadata: { source: "json" } },
+            ],
+            new Set(["openai/gpt-latest"]),
+        )).toEqual(["openai/gpt-latest"]);
     });
 });
 
