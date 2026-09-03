@@ -450,6 +450,7 @@ describe('api provider model safety checks', () => {
             is_active_gateway: false,
             provider_status: 'unknown',
             phaseo_status: 'blocked',
+            effective_from: null,
             routing_status: 'disabled',
             routable: false,
             verification: {
