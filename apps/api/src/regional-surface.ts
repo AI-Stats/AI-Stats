@@ -20,6 +20,7 @@ export const enforceRegionalSurface: MiddlewareHandler<Env> = async (c, next) =>
 
 	const allowedMethods = REGIONAL_ROUTES.get(c.req.path);
 	if (allowedMethods?.has(c.req.method)) {
+		c.header("X-Phaseo-Gateway-Region", region);
 		await next();
 		return;
 	}

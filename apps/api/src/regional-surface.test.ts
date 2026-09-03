@@ -22,6 +22,7 @@ describe("regional Worker surface", () => {
 			GATEWAY_ROUTING_REGION: "eu",
 		} as Env["Bindings"]);
 		expect(response.status).toBe(200);
+		expect(response.headers.get("x-phaseo-gateway-region")).toBe("eu");
 	});
 
 	it.each([
