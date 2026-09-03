@@ -72,7 +72,13 @@ jobs:
         working-directory: phaseo
         env:
           GH_TOKEN: ${{ github.token }}
-        run: git -c core.hooksPath=/dev/null push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" terraform-provider-export:main
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch "$remote" main
+          expected=$(git rev-parse FETCH_HEAD)
+          git -c core.hooksPath=/dev/null push \
+            --force-with-lease="refs/heads/main:${expected}" \
+            "$remote" terraform-provider-export:main
 
       - name: Keep scheduled synchronization active
         working-directory: phaseo
