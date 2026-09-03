@@ -40,6 +40,7 @@ import {
 import { applyResponsePlugins } from "@/plugins/registry";
 import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
 import { calculateOutputPerformanceMetrics } from "./performance-metrics";
+import { recordManagedProviderTokensOnce } from "@core/provider-rate-limits";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -532,6 +533,12 @@ export async function handleStreamResponse(
 					await maybeOpenOnRecentErrors(ctx.endpoint, result.provider, baseModel);
 				}
 				const reason = info?.aborted ? "incomplete_stream" : "upstream_failure";
+				await recordManagedProviderTokensOnce({
+					ctx,
+					providerId: result.provider,
+					keySource: result.keySource,
+					usage: shapedUsage,
+				});
 				suppressFailedResponseBilling({ ctx, result, usage: shapedUsage, reason });
 				await handleFailureAudit(
 					ctx,
@@ -657,6 +664,7 @@ export async function handleStreamResponse(
                     costNanos: pricedWithByok.totalNanos,
                     endpoint: ctx.endpoint,
                 });
+				await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: result.bill.usage });
 
                 await handleSuccessAudit(
                     ctx,
@@ -715,6 +723,7 @@ export async function handleStreamResponse(
                     costNanos: pricedWithByok.totalNanos,
                     endpoint: ctx.endpoint,
                 });
+				await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: pricedWithByok.pricedUsage });
                 await handleSuccessAudit(
                     ctx,
                     result,
@@ -790,6 +799,7 @@ export async function handleStreamResponse(
                 costNanos: pricedWithByok.totalNanos,
                 endpoint: ctx.endpoint,
             });
+			await recordManagedProviderTokensOnce({ ctx, providerId: result.provider, keySource: result.keySource, usage: result.bill.usage });
 
             await handleSuccessAudit(
                 ctx,
@@ -818,8 +828,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
-
 
 
 

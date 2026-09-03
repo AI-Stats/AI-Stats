@@ -39,3 +39,8 @@ invocation_logs = true
 binding = "GATEWAY_CACHE"
 id = "f5e23068fcd94125ad9860c817c543d9"
 preview_id = "f5e23068fcd94125ad9860c817c543d9"
+
+[[durable_objects.bindings]]
+name = "PROVIDER_RATE_LIMITS"
+class_name = "ProviderRateLimitDurableObject"
+script_name = "phaseo-gateway"

@@ -100,6 +100,7 @@ import { stripUsagePricing } from "../usage";
 import { getEffectiveRoutingHints } from "../requestRouting";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
 import { extractDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
+import { admitManagedProvider } from "@core/provider-rate-limits";
 
 const ATTEMPT_PREVIEW_LIMIT = 320;
 const MAX_UPSTREAM_ERROR_BODY_BYTES = 32 * 1024;
@@ -678,6 +679,43 @@ async function attemptProviderWithIR(
 			was_probe: isProbe,
 		});
 		return { ok: false, skip: "no_pricing" };
+	}
+
+	if (credential.kind === "gateway" && !ctx.testingMode) {
+		const rateLimit = await timing.timer.span(`${attemptPrefix}_provider_rate_limit`, () =>
+			admitManagedProvider(candidate.providerId),
+		);
+		if (!rateLimit.allowed) {
+			const retryAfter = rateLimit.retryAfterSeconds != null
+				? String(rateLimit.retryAfterSeconds)
+				: null;
+			attemptErrors.push({
+				...credentialLog,
+				provider: candidate.providerId,
+				endpoint: ctx.endpoint,
+				attempt_number: attemptNumber,
+				type: "provider_rate_limited",
+				status: 429,
+				rate_limit_reason: rateLimit.reason,
+				upstream_rate_limit_headers: retryAfter ? { "Retry-After": retryAfter } : null,
+			});
+			recordProviderAttempt(ctx, {
+				...credentialLog,
+				attempt_number: attemptNumber,
+				provider: candidate.providerId,
+				endpoint: ctx.endpoint,
+				model: baseModel,
+				api_model_id: candidateApiModelId,
+				provider_model_slug: providerModelSlug ?? null,
+				outcome: "rate_limited",
+				type: rateLimit.reason,
+				duration_ms: Math.round(performance.now() - attemptStartedAt),
+				status: 429,
+				key_source: "gateway",
+				was_probe: isProbe,
+			});
+			return { ok: false, skip: "provider_rate_limit" };
+		}
 	}
 
 	// Execute using provider-capability executor

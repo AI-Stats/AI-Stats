@@ -465,6 +465,7 @@ export type ProviderAttemptLog = {
         | "upstream_non_2xx"
         | "error"
         | "retryable_error"
+		| "rate_limited"
         | "blocked"
         | "no_pricing"
         | "unsupported_executor";

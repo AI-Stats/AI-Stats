@@ -16,6 +16,7 @@ import { sendAxiomWideEvent } from "@/observability/axiom";
 import { requestIdFor } from "@/runtime/request-id";
 import { enforceRegionalSurface } from "@/regional-surface";
 export { RealtimeRelayDurableObject } from "@core/realtime-relay-durable-object";
+export { ProviderRateLimitDurableObject } from "@core/provider-rate-limit-durable-object";
 
 const app = new Hono<Env>();
 
@@ -85,6 +86,5 @@ export default {
 	fetch: app.fetch,
 	scheduled: handleScheduledEvent,
 };
-
 
 

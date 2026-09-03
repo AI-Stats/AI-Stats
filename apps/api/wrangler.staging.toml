@@ -81,6 +81,14 @@ namespace_id = "41002"
 limit = 60
 period = 60
 
+[[durable_objects.bindings]]
+name = "PROVIDER_RATE_LIMITS"
+class_name = "ProviderRateLimitDurableObject"
+
+[[migrations]]
+tag = "v1-provider-rate-limits"
+new_sqlite_classes = ["ProviderRateLimitDurableObject"]
+
 [[ratelimits]]
 name = "REALTIME_RELAY_RATE_LIMITER"
 namespace_id = "41003"
