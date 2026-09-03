@@ -656,6 +656,11 @@ export async function handleStreamResponse(
                     ctx,
                     costNanos: pricedWithByok.totalNanos,
                     endpoint: ctx.endpoint,
+					card,
+					pricedUsage: pricedWithByok.pricedUsage,
+					provider: result.provider,
+					model: ctx.model,
+					isByok,
                 });
 
                 await handleSuccessAudit(
@@ -714,6 +719,11 @@ export async function handleStreamResponse(
                     ctx,
                     costNanos: pricedWithByok.totalNanos,
                     endpoint: ctx.endpoint,
+					card,
+					pricedUsage: pricedWithByok.pricedUsage,
+					provider: result.provider,
+					model: ctx.model,
+					isByok,
                 });
                 await handleSuccessAudit(
                     ctx,
@@ -789,6 +799,11 @@ export async function handleStreamResponse(
                 ctx,
                 costNanos: pricedWithByok.totalNanos,
                 endpoint: ctx.endpoint,
+				card,
+				pricedUsage: pricedWithByok.pricedUsage,
+				provider: result.provider,
+				model: ctx.model,
+				isByok,
             });
 
             await handleSuccessAudit(
@@ -818,7 +833,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
 
 
 
