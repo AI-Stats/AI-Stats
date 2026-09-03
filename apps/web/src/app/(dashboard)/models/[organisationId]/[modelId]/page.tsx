@@ -278,12 +278,13 @@ export default async function Page({
 	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId).catch(
 		() => null,
 	);
-	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
+	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, gatewayMetadata] =
 		await Promise.all([
 			modelPromise,
 			benchmarkPromise,
 			subscriptionPromise,
 			availabilityPromise,
+			gatewayMetadataPromise,
 		]);
 	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
@@ -292,7 +293,7 @@ export default async function Page({
 		availability?.isGatewayActive ?? true;
 	const showProviders =
 		modelOverview.status === "Announced" ||
-		(availability?.activeProviderCount ?? 0) > 0;
+		(gatewayMetadata?.providers.length ?? 0) > 0;
 	const resolvedPerformancePromise = isGatewayActive
 		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
 		: Promise.resolve(null);

@@ -440,6 +440,29 @@ describe('pricing safety checks', () => {
 });
 
 describe('api provider model safety checks', () => {
+    test('Astra keeps its OpenAI provider mapping without asserting pricing', () => {
+        const row = readProviderModels('openai').find(
+            (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
+        );
+
+        expect(row).toMatchObject({
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            provider_status: 'limited_access',
+            phaseo_status: 'planned',
+        });
+        expect(row?.capabilities).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    capability_id: 'text.generate',
+                    status: 'coming_soon',
+                }),
+            ])
+        );
+        expect(fs.existsSync(path.join(DATA_ROOT, 'pricing', 'openai', 'openai-gpt-6-astra'))).toBe(false);
+    });
+
     it('rejects internal routes whose Phaseo integration is not testing or enabled', () => {
         const result = checkApiProviderModelEntrySafety({
             api_model_id: 'anthropic/claude-mythos-5.1',
