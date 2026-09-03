@@ -10,8 +10,8 @@
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": "text,image",
-  "output_types": "text",
+  "input_types": null,
+  "output_types": null,
   "api_model_id": "openai/gpt-6-astra",
   "family_id": null,
   "links": [
@@ -40,21 +40,16 @@
     "output": null
   },
   "modalities": {
-    "input": [
-      "text",
-      "image/*"
-    ],
-    "output": [
-      "text"
-    ]
+    "input": null,
+    "output": null
   },
   "reasoning": {
     "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": true,
-    "tool_call": true,
+    "attachment": null,
+    "tool_call": null,
     "structured_output": null,
     "temperature": null,
     "streaming": null,
@@ -62,6 +57,12 @@
   },
   "open_weights": null,
   "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://github.com/openai/openai-cua-sample-app/blob/4e4a6ae43e572e115ca4f7c5a5c1239f9f3aa969/containers/README.md",
+      "accessed_at": "2026-09-03T00:00:00Z",
+      "notes": "Official OpenAI repository names gpt-6-astra as the API client model for projects with access."
+    },
     {
       "kind": "announcement",
       "url": "https://openai.com/index/path-to-astra/",

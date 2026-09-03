@@ -120,7 +120,7 @@ function payloadForProvider(providerId: string): unknown {
         // Deliberately use a future major-version shape here. OpenAI model discovery
         // must remain version-agnostic so launch-day IDs are not hidden by an
         // allowlist that only knows about the current GPT generation.
-        return { data: [{ id: "gpt-6-astra" }] };
+        return { data: [{ id: "gpt-next-readiness-test" }] };
     }
 
     if (providerId === "google-ai-studio") {
@@ -261,7 +261,7 @@ async function validateProviderEndpoint(
 
     if (
         provider.id === "openai" &&
-        !discoveredModels.some((model) => model.id === "gpt-6-astra")
+        !discoveredModels.some((model) => model.id === "gpt-next-readiness-test")
     ) {
         errors.push("Provider openai filtered an unknown future GPT model id.");
     }
