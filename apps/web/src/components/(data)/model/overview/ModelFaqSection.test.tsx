@@ -171,6 +171,28 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain('href="/organisations/acme"');
 	});
 
+	it("does not repeat the model name and renders description markdown", () => {
+		const html = renderToStaticMarkup(
+			<ModelFaqSection
+				model={{
+					...model,
+					description: "**Alpha 1** is a [multimodal model](https://example.com).",
+				}}
+				benchmarkCount={0}
+				activeProviderCount={0}
+				isGatewayActive={false}
+				pricing={[]}
+			/>,
+		);
+
+		expect(html).not.toContain("Alpha 1 is Alpha 1 is");
+		expect(html).toContain("multimodal model");
+		expect(html).toContain('href="https://example.com"');
+		expect(html).toContain(
+			"Alpha 1 is a multimodal model.",
+		);
+	});
+
 	it("caps the provider-name summary and reports the remainder", () => {
 		const providerNames = [
 			"Alpha",
