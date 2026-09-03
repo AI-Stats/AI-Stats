@@ -1452,14 +1452,13 @@ export async function syncV2Catalogue(): Promise<void> {
         });
     }
     const pricingRows = [...pricingRowsByKey.values()];
-    const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex", "provisioned"]);
+    const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
     const serviceTierDisplayNames: Record<string, string> = {
         standard: "Standard",
         fast: "Fast",
         priority: "Fast",
         batch: "Batch",
         flex: "Flex",
-        provisioned: "Provisioned Throughput",
     };
     const routeServiceTiers = [...source.providerModels.values()].flatMap((providerModel) => {
         const tiers = asTextArray(providerModel.service_tiers).map((tier) => canonicalServiceTierSlug(tier));

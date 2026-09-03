@@ -6,7 +6,7 @@ import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { fetchModelPricingSources } from "@/models/pricing";
 import { z } from "zod";
 
-const CANONICAL_SERVICE_TIERS = ["standard", "priority", "batch", "flex", "provisioned"] as const;
+const CANONICAL_SERVICE_TIERS = ["standard", "priority", "batch", "flex"] as const;
 
 const catalogMutationSchemas = {
 	organisations: z.object({ organisation_id: z.string().trim().min(1).optional(), name: z.string().trim().min(1), description: z.string().nullable().optional(), country_code: z.string().trim().min(2).max(3).nullable().optional(), colour: z.string().nullable().optional(), social_links: z.array(z.object({ platform: z.string().trim().min(1), url: z.url() })).default([]) }),
