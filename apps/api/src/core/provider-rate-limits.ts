@@ -23,6 +23,53 @@ export type ProviderRateLimitAdmission = {
 	retryAfterSeconds: number | null;
 };
 
+export type ProviderRateLimitCounters = {
+	minuteWindow: number;
+	dayWindow: number;
+	minuteRequests: number;
+	dayRequests: number;
+	minuteTokens: number;
+	dayTokens: number;
+};
+
+const DAY_MS = 86_400_000;
+
+function effectiveTokenLimit(limit: number | null, headroomBps: number): number | null {
+	if (limit == null) return null;
+	return Math.max(1, Math.floor(limit * (10_000 - headroomBps) / 10_000));
+}
+
+export function resolveProviderRateLimitDenial(
+	config: ProviderRateLimitConfig,
+	counters: ProviderRateLimitCounters,
+	nowMs: number,
+): ProviderRateLimitAdmission | null {
+	const violations: Array<{ reason: NonNullable<ProviderRateLimitAdmission["reason"]>; resetMs: number }> = [];
+	const minuteResetMs = (counters.minuteWindow + 1) * 60_000;
+	const dayResetMs = (counters.dayWindow + 1) * DAY_MS;
+	if (config.requestsPerMinute != null && counters.minuteRequests >= config.requestsPerMinute) {
+		violations.push({ reason: "requests_per_minute", resetMs: minuteResetMs });
+	}
+	if (config.requestsPerDay != null && counters.dayRequests >= config.requestsPerDay) {
+		violations.push({ reason: "requests_per_day", resetMs: dayResetMs });
+	}
+	const tokensPerMinute = effectiveTokenLimit(config.tokensPerMinute, config.headroomBps);
+	if (tokensPerMinute != null && counters.minuteTokens >= tokensPerMinute) {
+		violations.push({ reason: "tokens_per_minute", resetMs: minuteResetMs });
+	}
+	const tokensPerDay = effectiveTokenLimit(config.tokensPerDay, config.headroomBps);
+	if (tokensPerDay != null && counters.dayTokens >= tokensPerDay) {
+		violations.push({ reason: "tokens_per_day", resetMs: dayResetMs });
+	}
+	if (!violations.length) return null;
+	const blocking = violations.sort((left, right) => right.resetMs - left.resetMs)[0];
+	return {
+		allowed: false,
+		reason: blocking.reason,
+		retryAfterSeconds: Math.max(1, Math.ceil((blocking.resetMs - nowMs) / 1000)),
+	};
+}
+
 type CachedConfig = { expiresAt: number; value: ProviderRateLimitConfig | null };
 const configCache = new Map<string, CachedConfig>();
 

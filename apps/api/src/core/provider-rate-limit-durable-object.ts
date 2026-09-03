@@ -4,7 +4,11 @@
 
 import { DurableObject } from "cloudflare:workers";
 import type { GatewayBindings } from "@/runtime/env.types";
-import type { ProviderRateLimitAdmission, ProviderRateLimitConfig } from "@core/provider-rate-limits";
+import {
+	resolveProviderRateLimitDenial,
+	type ProviderRateLimitAdmission,
+	type ProviderRateLimitConfig,
+} from "@core/provider-rate-limits";
 
 type CounterRow = {
 	id: number;
@@ -18,10 +22,6 @@ type CounterRow = {
 
 const DAY_MS = 86_400_000;
 
-function effectiveLimit(limit: number | null, headroomBps: number): number | null {
-	if (limit == null) return null;
-	return Math.max(1, Math.floor(limit * (10_000 - headroomBps) / 10_000));
-}
 export class ProviderRateLimitDurableObject extends DurableObject<GatewayBindings> {
 	constructor(ctx: DurableObjectState, env: GatewayBindings) {
 		super(ctx, env);
@@ -80,24 +80,15 @@ export class ProviderRateLimitDurableObject extends DurableObject<GatewayBinding
 
 	async admit(config: ProviderRateLimitConfig, nowMs = Date.now()): Promise<ProviderRateLimitAdmission> {
 		const row = this.current(nowMs);
-		const limits = {
-			requests_per_minute: config.requestsPerMinute,
-			requests_per_day: config.requestsPerDay,
-			tokens_per_minute: effectiveLimit(config.tokensPerMinute, config.headroomBps),
-			tokens_per_day: effectiveLimit(config.tokensPerDay, config.headroomBps),
-		};
-		let reason: ProviderRateLimitAdmission["reason"] = null;
-		if (limits.requests_per_minute != null && row.minute_requests >= limits.requests_per_minute) reason = "requests_per_minute";
-		else if (limits.requests_per_day != null && row.day_requests >= limits.requests_per_day) reason = "requests_per_day";
-		else if (limits.tokens_per_minute != null && row.minute_tokens >= limits.tokens_per_minute) reason = "tokens_per_minute";
-		else if (limits.tokens_per_day != null && row.day_tokens >= limits.tokens_per_day) reason = "tokens_per_day";
-
-		if (reason) {
-			const resetMs = reason.endsWith("minute")
-				? (row.minute_window + 1) * 60_000
-				: (row.day_window + 1) * DAY_MS;
-			return { allowed: false, reason, retryAfterSeconds: Math.max(1, Math.ceil((resetMs - nowMs) / 1000)) };
-		}
+		const denial = resolveProviderRateLimitDenial(config, {
+			minuteWindow: row.minute_window,
+			dayWindow: row.day_window,
+			minuteRequests: row.minute_requests,
+			dayRequests: row.day_requests,
+			minuteTokens: row.minute_tokens,
+			dayTokens: row.day_tokens,
+		}, nowMs);
+		if (denial) return denial;
 
 		row.minute_requests += 1;
 		row.day_requests += 1;

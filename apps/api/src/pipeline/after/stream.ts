@@ -533,6 +533,12 @@ export async function handleStreamResponse(
 					await maybeOpenOnRecentErrors(ctx.endpoint, result.provider, baseModel);
 				}
 				const reason = info?.aborted ? "incomplete_stream" : "upstream_failure";
+				await recordManagedProviderTokensOnce({
+					ctx,
+					providerId: result.provider,
+					keySource: result.keySource,
+					usage: shapedUsage,
+				});
 				suppressFailedResponseBilling({ ctx, result, usage: shapedUsage, reason });
 				await handleFailureAudit(
 					ctx,
@@ -822,7 +828,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
 
 
 
