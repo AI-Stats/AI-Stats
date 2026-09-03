@@ -1245,7 +1245,7 @@ export function ModelOverviewSectionsSkeleton() {
 				/>
 				<UptimeSectionSkeleton />
 			</Section>
-			<Section id="about">
+			<Section id="about" showDivider={false}>
 				<SectionHeader
 					title="About"
 					description="Key dates, capabilities, and model metadata."
@@ -1300,7 +1300,7 @@ export default function ModelOverviewSections({
 								<ModelVerificationSection outputTypes={model?.output_types} />
 							</Section>
 						) : null}
-						<Section id="about" showDivider={showBenchmarks || showVerification}>
+						<Section id="about" showDivider={false}>
 							<SectionHeader
 								title="About"
 								description="Archived dates, capabilities, links, and model metadata."
@@ -1367,7 +1367,7 @@ export default function ModelOverviewSections({
 				) : null}
 				{hasInternalModelData ? (
 					<>
-						<Section id="about">
+						<Section id="about" showDivider={false}>
 							<SectionHeader
 								title="About"
 								description="Key dates, capabilities, and model metadata."
@@ -1492,7 +1492,7 @@ export default function ModelOverviewSections({
 			) : null}
 			{hasInternalModelData ? (
 				<>
-					<Section id="about">
+					<Section id="about" showDivider={false}>
 						<SectionHeader
 							title="About"
 							description="Key dates, capabilities, and model metadata."
