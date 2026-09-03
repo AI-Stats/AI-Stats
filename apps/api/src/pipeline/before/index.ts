@@ -468,6 +468,13 @@ export async function beforeRequest(
 
 	let c: Awaited<ReturnType<typeof guardContext>>;
 	if (isAutoRouterModel(model)) {
+		const regionalAutoRouterBody = applyDeploymentRegionPolicy(
+			body,
+			bindings.GATEWAY_ROUTING_REGION,
+		);
+		const autoRouterBody = regionalAutoRouterBody.ok
+			? regionalAutoRouterBody.body
+			: body;
 		if (body?.routing?.auto != null || body?.provider?.auto != null) {
 			return {
 				ok: false,
@@ -484,11 +491,11 @@ export async function beforeRequest(
 				}),
 			};
 		}
-		const deterministicClassification = deterministicAutoRouterClassification(body);
+		const deterministicClassification = deterministicAutoRouterClassification(autoRouterBody);
 		const classifierPromise = options?.autoRouterClassificationOverride
 			? Promise.resolve(options.autoRouterClassificationOverride)
 			: options?.classifyAutoRouterRequest && !options?.autoRouterModelOverride
-				? timer.span("classifyAutoRouterRequest", () => options.classifyAutoRouterRequest!({ endpoint, body }))
+				? timer.span("classifyAutoRouterRequest", () => options.classifyAutoRouterRequest!({ endpoint, body: autoRouterBody }))
 					.catch((error) => {
 						console.warn("[beforeRequest] auto_router_classifier_failed", {
 							workspaceId,
@@ -509,10 +516,10 @@ export async function beforeRequest(
 			});
 			return { ok: false, response: err("gateway_error", { reason: "auto_router_config_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
 		}
-		const classification = applyAutoRouterHardRequirements(body, await classifierPromise ?? deterministicClassification);
+		const classification = applyAutoRouterHardRequirements(autoRouterBody, await classifierPromise ?? deterministicClassification);
 		let candidateUniverse: Awaited<ReturnType<typeof loadManagedAutoRouterCandidates>>;
 		try {
-			candidateUniverse = await timer.span("loadManagedAutoRouterCandidates", () => loadManagedAutoRouterCandidates(config, body, classification));
+			candidateUniverse = await timer.span("loadManagedAutoRouterCandidates", () => loadManagedAutoRouterCandidates(config, autoRouterBody, classification));
 		} catch (error) {
 			console.error("[beforeRequest] auto_router_candidates_fetch_failed", {
 				workspaceId,
@@ -537,7 +544,7 @@ export async function beforeRequest(
 		}
 		const selection = await timer.span("selectAutoRouterModel", () => selectAutoRouterModel({
 			endpoint,
-			body,
+			body: autoRouterBody,
 			config: selectionConfig,
 			classification,
 			modelOverride: options?.autoRouterModelOverride,
@@ -549,7 +556,7 @@ export async function beforeRequest(
 				const policyResult = applyWorkspacePolicy({
 					providers: candidateContext.value.providers,
 					resolvedModel: candidateResolvedModel,
-					body,
+					body: autoRouterBody,
 					workspacePolicy: policyLoad.value,
 					teamSettings: candidateContext.value.context.teamSettings ?? null,
 				});
@@ -566,7 +573,7 @@ export async function beforeRequest(
 				const capabilityResult = await validateCapabilities({
 					endpoint,
 					rawBody,
-					body,
+					body: autoRouterBody,
 					requestId,
 					workspaceId,
 					providers: executableProviders,
@@ -577,7 +584,7 @@ export async function beforeRequest(
 				}
 				const quantizationResult = filterQuantizationCandidates(
 					capabilityResult.providers,
-					getEffectiveRoutingHints(body).quantizations,
+					getEffectiveRoutingHints(autoRouterBody).quantizations,
 				);
 				if (!quantizationResult.ok || !quantizationResult.providers.length) {
 					return { ok: false as const, reason: "request_quantization_unsupported" };

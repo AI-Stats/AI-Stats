@@ -304,7 +304,7 @@ const REGIONAL_BASE_URLS = {
 export type PhaseoRegion = keyof typeof REGIONAL_BASE_URLS;
 
 function resolveBaseUrl(options: Pick<Options, "baseUrl" | "region">): string {
-  if (options.baseUrl && options.region) {
+  if (options.baseUrl !== undefined && options.region !== undefined) {
     throw new Error("baseUrl and region cannot be used together");
   }
   return options.baseUrl ?? REGIONAL_BASE_URLS[options.region ?? "global"];

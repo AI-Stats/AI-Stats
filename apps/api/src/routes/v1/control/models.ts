@@ -204,7 +204,7 @@ function detailNumber(model: CatalogueModel, names: string[]): number | null {
     return null;
 }
 
-function buildDescription(model: CatalogueModel): string {
+function buildDescription(model: CatalogueModel, regional = false): string {
     if (model.model_id === FREE_ROUTER_MODEL_ID) {
         return "Routes each request to an eligible free model pool with provider-aware balancing.";
     }
@@ -213,8 +213,8 @@ function buildDescription(model: CatalogueModel): string {
     const displayName = model.name?.trim() || model.model_id;
     const organization = model.organisation_name?.trim();
     const owner = organization ? ` by ${organization}` : "";
-    const input = model.input_types.length ? model.input_types.join(", ") : "unspecified";
-    const output = model.output_types.length ? model.output_types.join(", ") : "unspecified";
+    const input = regional ? "text" : model.input_types.length ? model.input_types.join(", ") : "unspecified";
+    const output = regional ? "text" : model.output_types.length ? model.output_types.join(", ") : "unspecified";
     const availability = model.availability.active_provider_count > 0
         ? `${model.availability.active_provider_count} active provider${model.availability.active_provider_count === 1 ? "" : "s"}`
         : model.availability.status.replace(/_/g, " ");
@@ -490,7 +490,7 @@ function toPhaseoModel(
         variant: model.variant_kind || "standard",
         variants,
         name: model.name?.trim() || model.model_id,
-        description: buildDescription(model),
+        description: buildDescription(model, regional),
         organization: model.organisation_id ? {
             id: model.organisation_id,
             name: model.organisation_name,

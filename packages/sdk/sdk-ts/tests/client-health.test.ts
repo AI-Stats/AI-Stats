@@ -25,6 +25,14 @@ describe("Phaseo health helper", () => {
 		})).toThrow("baseUrl and region cannot be used together");
 	});
 
+	test("rejects an explicitly empty base URL with a region", () => {
+		expect(() => new Phaseo({
+			apiKey: "sk_test_123",
+			baseUrl: "",
+			region: "eu",
+		})).toThrow("baseUrl and region cannot be used together");
+	});
+
   test("calls /health through getHealth", async () => {
     const fetchImpl: typeof fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe("https://example.test/health");
