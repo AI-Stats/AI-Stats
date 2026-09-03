@@ -1318,6 +1318,27 @@ export const ImagesEditSchema = z.object({
     const model = body.model.split("/").pop()?.toLowerCase();
     const isDallE2 = model === "dall-e-2";
     const isGptImage = model?.startsWith("gpt-image-") || model === "chatgpt-image-latest";
+    const isGrokImagineImage2 = model === "grok-imagine-image-2.0";
+    if (isGrokImagineImage2) {
+        const size = body.size?.toLowerCase();
+        const resolution = body.resolution?.toLowerCase();
+        if (size && resolution && size !== resolution) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["size"],
+                message: "Grok Imagine Image 2.0 size and resolution must match when both are provided",
+            });
+        }
+        for (const [field, value] of [["size", size], ["resolution", resolution]] as const) {
+            if (value && value !== "1k" && value !== "2k") {
+                ctx.addIssue({
+                    code: "custom",
+                    path: [field],
+                    message: `Grok Imagine Image 2.0 ${field} must be 1k or 2k`,
+                });
+            }
+        }
+    }
     if (isDallE2) {
         if (body.prompt.length > 1000) {
             ctx.addIssue({
