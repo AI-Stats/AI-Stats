@@ -4,13 +4,14 @@ import { irToGemini, supportsGoogleInteractions } from "../index";
 describe("google-ai-studio irToGemini", () => {
 	it("matches Google's documented Interactions model allowlist", () => {
 		expect(supportsGoogleInteractions("google/gemini-3.7-flash")).toBe(true);
+		expect(supportsGoogleInteractions("google/gemini-3.8-flash")).toBe(true);
 		expect(supportsGoogleInteractions("gemma-4-31b-it")).toBe(true);
 		expect(supportsGoogleInteractions("gemma-3-27b-it")).toBe(false);
 		expect(supportsGoogleInteractions("gemini-robotics-er-2-preview")).toBe(true);
 		expect(supportsGoogleInteractions("gemini-robotics-er-1.6-preview")).toBe(false);
 		expect(supportsGoogleInteractions("gemini-3.1-flash-lite-image")).toBe(false);
 	});
-	it.each(["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-robotics-er-1.6-preview"])(
+	it.each(["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash", "gemini-robotics-er-1.6-preview"])(
 		"uses the Interactions request shape for %s",
 		async (model) => {
 			const request = await irToGemini({
