@@ -34,7 +34,7 @@
   "details": [
     {
       "name": "availability",
-      "value": "Generally available through the Gemini API and Vertex AI. Gemini API supports Standard, Batch, Flex, and Priority inference; Vertex AI additionally supports Provisioned Throughput. Phaseo displays verified provider availability while gateway routing remains disabled."
+      "value": "Generally available through the Gemini API and Vertex AI with Standard, Batch, Flex, and Priority inference. Phaseo displays verified provider availability while gateway routing remains disabled."
     }
   ],
   "benchmarks": [],
