@@ -278,23 +278,21 @@ export default async function Page({
 	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId).catch(
 		() => null,
 	);
-	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, pricing] =
+	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,
 			benchmarkPromise,
 			subscriptionPromise,
 			availabilityPromise,
-			pricingPromise,
 		]);
 	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
 	const showSubscriptions = subscriptionPlans.length > 0;
 	const isGatewayActive =
 		availability?.isGatewayActive ?? true;
-	const hasProviderData = pricing.some(
-		(provider) => provider.provider_models.length > 0,
-	);
-	const showProviders = hasProviderData || modelOverview.status === "Announced";
+	const showProviders =
+		modelOverview.status === "Announced" ||
+		(availability?.activeProviderCount ?? 0) > 0;
 	const resolvedPerformancePromise = isGatewayActive
 		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
 		: Promise.resolve(null);
