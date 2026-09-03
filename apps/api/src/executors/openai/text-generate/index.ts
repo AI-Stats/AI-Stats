@@ -763,10 +763,12 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 	const requestedRoutingModel = args.providerModelSlug ?? (args.ir as IRChatRequest).model;
 	const normalizedRoutingModel = normalizeOpenAIGpt56ProModelSlug(requestedRoutingModel);
 	const modelForRouting = normalizedRoutingModel.model ?? requestedRoutingModel;
+	const hasAsyncTool = (args.ir as IRChatRequest).tools?.some((tool) => tool.async === true) ?? false;
 	const useNativeChatRoute =
 		isOpenAIProviderOffer(args.providerId) &&
 		args.protocol === "openai.chat.completions" &&
-		!(args.ir as IRChatRequest).reasoning;
+		!(args.ir as IRChatRequest).reasoning &&
+		!hasAsyncTool;
 	const irWithRequestMetadata = withOpenAIRequestMetadata(
 		args.ir as IRChatRequest,
 		args.providerId,

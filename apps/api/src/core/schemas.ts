@@ -572,6 +572,7 @@ const ToolCallSchema = z.object({
 
 const FunctionToolSchema = z.object({
 	type: z.literal("function"),
+	async: z.boolean().optional(),
 	function: z.object({
 		name: z.string(),
 		description: z.string().optional(),
@@ -582,6 +583,7 @@ const FunctionToolSchema = z.object({
 
 const OpenAICustomToolSchema = z.object({
 	type: z.literal("custom"),
+	async: z.boolean().optional(),
 	custom: z.object({
 		name: z.string().min(1),
 		description: z.string().optional(),
@@ -989,6 +991,7 @@ const AnthropicToolSchema = z.object({
     input_schema: z.record(z.string(), z.any()),
     cache_control: CacheControlSchema.optional(),
 	strict: z.boolean().optional(),
+	async: z.boolean().optional(),
 });
 
 const AnthropicNativeToolSchema = z.object({
