@@ -1440,6 +1440,13 @@ function collectDiscountEntriesFromSections(
 	];
 }
 
+export function getProviderTableDiscountBadge(
+	sections: ReturnType<typeof buildProviderSections>,
+): string | null {
+	const entries = collectDiscountEntriesFromSections(sections);
+	return entries.length ? formatDiscountBadge(entries) : null;
+}
+
 function parseRuleAudioMode(value: unknown): "with-audio" | "without-audio" | null {
 	const values = parseRuleConditionValues(value);
 	const parsed = values
@@ -1579,6 +1586,7 @@ export default function ProviderCard({
 	showCacheReadColumn = false,
 	isLastVisible = false,
 	serviceTiersExpanded = false,
+	showServiceTierDisclosureGutter = false,
 	onToggleServiceTiers,
 	isSummaryActive,
 }: {
@@ -1597,6 +1605,7 @@ export default function ProviderCard({
 	showCacheReadColumn?: boolean;
 	isLastVisible?: boolean;
 	serviceTiersExpanded?: boolean;
+	showServiceTierDisclosureGutter?: boolean;
 	onToggleServiceTiers?: () => void;
 	isSummaryActive?: boolean;
 }) {
@@ -2136,17 +2145,13 @@ export default function ProviderCard({
 	// A promotion can have an open-ended published duration. Show its discount
 	// without fabricating a deadline; the countdown remains conditional below.
 	const activePromotionEntries = activeDiscountEntries;
-	const tableActiveDiscountEntries = collectDiscountEntriesFromSections(tableSec);
 	const discountCount = activePromotionEntries.length;
-	const tableDiscountCount = tableActiveDiscountEntries.length;
 	const soonestDiscountEnd = activePromotionEntries
 		.map((entry) => entry.endsAt)
 		.filter((value): value is string => Boolean(value))
 		.sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
 	const discountBadge = discountCount ? formatDiscountBadge(activePromotionEntries) : null;
-	const tableDiscountBadge = tableDiscountCount
-		? formatDiscountBadge(tableActiveDiscountEntries)
-		: null;
+	const tableDiscountBadge = getProviderTableDiscountBadge(tableSec);
 	const discountTimeRemaining =
 		discountCount && soonestDiscountEnd
 			? formatDiscountTimeRemaining(soonestDiscountEnd)
@@ -2925,16 +2930,18 @@ export default function ProviderCard({
 						/>
 					) : null}
 					<div className="flex items-center gap-1.5">
-						{availablePlans.length > 1 && onToggleServiceTiers ? (
+						{showServiceTierDisclosureGutter && availablePlans.length > 1 && onToggleServiceTiers ? (
 							<button
 								type="button"
 								aria-expanded={serviceTiersExpanded}
 								aria-label={`${serviceTiersExpanded ? "Collapse" : "Expand"} ${displayName} service tiers`}
 								onClick={onToggleServiceTiers}
-								className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+								className="inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
 							>
-								<ChevronDown className={cn("size-3.5 transition-transform", !serviceTiersExpanded && "-rotate-90")} aria-hidden="true" />
+								<ChevronDown className={cn("size-3 transition-transform", !serviceTiersExpanded && "-rotate-90")} aria-hidden="true" />
 							</button>
+						) : showServiceTierDisclosureGutter ? (
+							<span aria-hidden="true" className="size-5 shrink-0" />
 						) : null}
 						<div>
 						<div className="flex items-center gap-2.5">

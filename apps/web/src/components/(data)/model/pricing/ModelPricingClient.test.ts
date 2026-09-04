@@ -4,6 +4,8 @@ import {
 	resolveRuntimeStatsPercentileAfterError,
 } from "./ModelPricingClient";
 import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
+import { getProviderTableDiscountBadge } from "./ProviderCard";
+import { buildProviderSections } from "./pricingHelpers";
 
 describe("runtime pricing percentile retries", () => {
 	it("keeps the attempted percentile selected through transient failures", () => {
@@ -33,5 +35,22 @@ describe("provider service tier display names", () => {
 		} as ProviderPricing;
 
 		expect(getProviderServiceTierDisplayName(provider)).toBe("OpenAI (EU)");
+	});
+
+	it("shows active discounts on generated service tier rows", () => {
+		const sections = {
+			textTokens: {
+				in: [
+					{
+						basePer1M: 6,
+						per1M: 4,
+						price: 4,
+						discountEndsAt: null,
+					},
+				],
+			},
+		} as unknown as ReturnType<typeof buildProviderSections>;
+
+		expect(getProviderTableDiscountBadge(sections)).toBe("33% Off");
 	});
 });
