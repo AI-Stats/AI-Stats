@@ -77,6 +77,7 @@ import ProviderCard, {
 	PROVIDER_STATUS_META,
 } from "@/components/(data)/model/pricing/ProviderCard";
 import ProviderInfoHoverIcons from "@/components/(data)/model/ProviderInfoHoverIcons";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { normalizeProviderPromptTrainingPolicy } from "@/lib/providers/promptTrainingPolicy";
 import { mergeProviderPricingOffers } from "@/lib/providers/providerFamilyGroups";
@@ -654,8 +655,8 @@ function ProviderServiceTierRow({
 		? buildProviderTablePriceSummary(sections, "cached")
 		: null;
 	const tierMeta = getTierFilterMeta(plan);
-	const TierIcon = tierMeta.icon;
 	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
+	const logoProviderId = sections[0]?.logoProviderId ?? provider.provider.api_provider_id;
 	const openTier = () => {
 		dispatchProviderInspectorOpen(
 			provider.provider.api_provider_id,
@@ -678,15 +679,23 @@ function ProviderServiceTierRow({
 				openTier();
 			}}
 			className={cn(
-				"cursor-pointer bg-muted/20 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+				"group cursor-pointer hover:bg-zinc-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring dark:hover:bg-zinc-900/30",
 				isActive && "bg-primary/[0.06]",
 			)}
 		>
-			<TableCell className="relative min-w-[280px] py-1 pl-[2.625rem] pr-2">
+			<TableCell className="relative min-w-[280px] py-1 pl-3 pr-2">
 				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
 				<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
-					<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
-						<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
+					<span className="relative flex size-6 shrink-0 items-center justify-center rounded-md border border-zinc-200/80 bg-background transition-colors group-hover:border-zinc-300 dark:border-zinc-800 dark:group-hover:border-zinc-700">
+						<span className="relative size-3.5">
+							<Logo
+								id={logoProviderId}
+								alt={`${providerName} logo`}
+								className="object-contain"
+								fill
+								sizes="18px"
+							/>
+						</span>
 					</span>
 					<span>{providerName} ({formatServiceTierLabel(plan)})</span>
 					<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
