@@ -468,17 +468,17 @@ describe('api provider model safety checks', () => {
         );
     });
 
-    test('Astra keeps its documented OpenAI contract and pricing while Phaseo support is coming soon', () => {
+    test('Astra keeps its documented OpenAI contract and pricing while routing limited-access accounts', () => {
         const row = readProviderModels('openai').find(
             (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
         );
 
         expect(row).toMatchObject({
-            is_active_gateway: false,
-            routable: false,
-            routing_status: 'disabled',
+            is_active_gateway: true,
+            routable: true,
+            routing_status: 'active',
             provider_status: 'limited_access',
-            phaseo_status: 'planned',
+            phaseo_status: 'enabled',
             context_length: 1050000,
             max_output_tokens: 128000,
         });

@@ -13187,7 +13187,7 @@
     "provider_api_model_id": "openai:openai/gpt-6-astra",
     "provider_model_slug": "gpt-6-astra",
     "internal_model_id": "openai/gpt-6-astra",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -13219,18 +13219,42 @@
         "input_modalities": ["text", "image"],
         "output_modalities": ["text"],
         "modes": []
+      },
+      {
+        "capability_id": "batch",
+        "status": "active",
+        "params": {
+          "endpoint": {
+            "type": "enum",
+            "values": ["/v1/responses", "/v1/chat/completions"],
+            "default": "/v1/responses"
+          },
+          "completion_window": {
+            "type": "enum",
+            "values": ["24h"],
+            "default": "24h"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
-    "provider_status": "coming_soon",
-    "phaseo_status": "planned",
+    "routing_status": "active",
+    "routable": true,
+    "provider_status": "limited_access",
+    "phaseo_status": "enabled",
     "access_scope": "public",
-    "regions": { "execution": [], "data": [] },
+    "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard", "flex", "priority", "batch"],
     "api": { "formats": ["responses", "chat_completions"], "endpoint": null, "deployment": null },
     "sources": ["https://openai.com/index/gpt-6-astra/", "https://developers.openai.com/api/docs/models/gpt-6-astra"],
-    "verification": { "status": "verified", "checked_at": "2026-09-03T00:00:00Z", "notes": "OpenAI documents the model contract and says API access is rolling out over the coming days. Phaseo routing remains disabled and marked planned until live access, request compatibility, and billing are tested." },
+    "verification": { "status": "verified", "checked_at": "2026-09-04T00:00:00Z", "notes": "OpenAI documents the model contract and API model ID. Phaseo routing is enabled for OpenAI accounts included in the limited-access rollout." },
     "rate_limits": [
       { "scope": "usage_tier", "tier": 1, "requests_per_minute": 500, "tokens_per_minute": 500000, "batch_queue_limit_tokens": 1500000 },
       { "scope": "usage_tier", "tier": 2, "requests_per_minute": 5000, "tokens_per_minute": 1000000, "batch_queue_limit_tokens": 3000000 },
