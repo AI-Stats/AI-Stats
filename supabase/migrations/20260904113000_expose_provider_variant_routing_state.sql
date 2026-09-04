@@ -11,22 +11,24 @@ begin
     'public.get_v2_model_pricing_without_stealth_redaction(text,text,text)'::regprocedure
   ) into definition;
 
-  patched := replace(
-    definition,
-    'select variant.variant_id, variant.provider_model_id, variant.service_tier_slug,
+  if position('variant.status, variant.routing_enabled' in definition) = 0 then
+    patched := replace(
+      definition,
+      'select variant.variant_id, variant.provider_model_id, variant.service_tier_slug,
       variant.execution_region, variant.data_region',
-    'select variant.variant_id, variant.provider_model_id, variant.service_tier_slug,
+      'select variant.variant_id, variant.provider_model_id, variant.service_tier_slug,
       variant.execution_region, variant.data_region,
       variant.status, variant.routing_enabled'
-  );
+    );
 
-  if patched = definition
-    or position('variant.status, variant.routing_enabled' in patched) = 0
-  then
-    raise exception 'get_v2_model_pricing_without_stealth_redaction has an unexpected definition';
+    if patched = definition
+      or position('variant.status, variant.routing_enabled' in patched) = 0
+    then
+      raise exception 'get_v2_model_pricing_without_stealth_redaction has an unexpected definition';
+    end if;
+
+    execute patched;
   end if;
-
-  execute patched;
 end;
 $$;
 
