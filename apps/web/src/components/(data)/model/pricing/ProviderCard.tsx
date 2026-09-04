@@ -1571,6 +1571,7 @@ export default function ProviderCard({
 	navigationProviders,
 	privacyIgnoredReasons,
 	runtimeStats,
+	runtimeStatsByServiceTier,
 	routingStatus,
 	pricingTimeMs,
 	displayNameOverride,
@@ -1579,6 +1580,7 @@ export default function ProviderCard({
 	isLastVisible = false,
 	serviceTiersExpanded = false,
 	onToggleServiceTiers,
+	isSummaryActive,
 }: {
 	provider: ProviderPricing;
 	defaultPlan: string;
@@ -1587,6 +1589,7 @@ export default function ProviderCard({
 	navigationProviders: ProviderPricing[];
 	privacyIgnoredReasons?: string[] | null;
 	runtimeStats: ProviderRuntimeStats | null;
+	runtimeStatsByServiceTier?: Record<string, ProviderRuntimeStats | null>;
 	routingStatus: ProviderRoutingStatus | null;
 	pricingTimeMs: number;
 	displayNameOverride?: string | null;
@@ -1595,6 +1598,7 @@ export default function ProviderCard({
 	isLastVisible?: boolean;
 	serviceTiersExpanded?: boolean;
 	onToggleServiceTiers?: () => void;
+	isSummaryActive?: boolean;
 }) {
 	const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
 	const [expanded, setExpanded] = useState(false);
@@ -2118,9 +2122,16 @@ export default function ProviderCard({
 
 	if (allEmpty && !isFreePlan && hasPlanPricing) return null;
 
-	const uptimePct = getDisplayedUptimePct(runtimeStats);
-	const uptimeTrendPoints = getUptimeTrendPoints(runtimeStats);
-	const throughputValue = formatThroughputValue(runtimeStats?.throughput30m);
+	const selectedRuntimeStats = selectedPlan === "batch"
+		? null
+		: runtimeStatsByServiceTier?.[selectedPlan] ??
+			(selectedPlan === tablePlan ? runtimeStats : null);
+	const uptimePct = getDisplayedUptimePct(selectedRuntimeStats);
+	const uptimeTrendPoints = getUptimeTrendPoints(selectedRuntimeStats);
+	const throughputValue = formatThroughputValue(selectedRuntimeStats?.throughput30m);
+	const tableUptimePct = getDisplayedUptimePct(runtimeStats);
+	const tableUptimeTrendPoints = getUptimeTrendPoints(runtimeStats);
+	const tableThroughputValue = formatThroughputValue(runtimeStats?.throughput30m);
 	const activeDiscountEntries = collectDiscountEntriesFromSections(sec);
 	// A promotion can have an open-ended published duration. Show its discount
 	// without fabricating a deadline; the countdown remains conditional below.
@@ -2148,8 +2159,8 @@ export default function ProviderCard({
 			key: "latency",
 			label: "Latency",
 			value:
-				runtimeStats?.latencyMs30m != null
-					? formatLatencySeconds(runtimeStats.latencyMs30m)
+				selectedRuntimeStats?.latencyMs30m != null
+					? formatLatencySeconds(selectedRuntimeStats.latencyMs30m)
 					: "--",
 			valueClassName:
 				hasSelectedAlternativeServiceTier(selectedPlan, planComparisonBase)
@@ -2167,6 +2178,26 @@ export default function ProviderCard({
 			label: "Uptime",
 			value: formatPercent(uptimePct),
 			valueClassName: selectedPlanTheme.accent,
+		},
+	] as const;
+	const tablePerformanceMetrics = [
+		{
+			value:
+				tablePlan === "batch" || runtimeStats?.latencyMs30m == null
+					? "--"
+					: formatLatencySeconds(runtimeStats.latencyMs30m),
+			valueClassName: tablePlanTheme.accent,
+		},
+		{
+			value:
+				tablePlan === "batch" || !tableThroughputValue
+					? "--"
+					: `${tableThroughputValue} tps`,
+			valueClassName: tablePlanTheme.accent,
+		},
+		{
+			value: tablePlan === "batch" ? "--" : formatPercent(tableUptimePct),
+			valueClassName: tablePlanTheme.accent,
 		},
 	] as const;
 	const formattedDisplayName =
@@ -2326,6 +2357,7 @@ export default function ProviderCard({
 			),
 		});
 	};
+	const summaryActive = isSummaryActive ?? expanded;
 	const handleSummaryRowClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
 		const interactiveTarget = (event.target as HTMLElement).closest(
 			"a, button, input, select, textarea, [role='button']",
@@ -2866,7 +2898,7 @@ export default function ProviderCard({
 			<TableRow
 				role="button"
 				tabIndex={0}
-				aria-selected={expanded}
+				aria-pressed={summaryActive}
 				aria-expanded={expanded}
 				data-provider-inspector-open={expanded ? "true" : undefined}
 				onPointerDownCapture={handleSummaryRowPointerDownCapture}
@@ -2878,7 +2910,7 @@ export default function ProviderCard({
 				)}
 			>
 				<TableCell className="relative min-w-[280px] py-1 pl-3 pr-2">
-					{expanded ? (
+					{summaryActive ? (
 						<motion.span
 							aria-hidden="true"
 							className="absolute inset-y-0 left-0 w-0.5 bg-primary"
@@ -3047,20 +3079,20 @@ export default function ProviderCard({
 					</TableCell>
 				) : null}
 				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
-					<div className="font-medium text-foreground">{performanceMetrics[0].value}</div>
+					<div className="font-medium text-foreground">{tablePerformanceMetrics[0].value}</div>
 				</TableCell>
 				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
-					<div className="font-medium text-foreground">{performanceMetrics[1].value}</div>
+					<div className="font-medium text-foreground">{tablePerformanceMetrics[1].value}</div>
 				</TableCell>
 				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
 					<div
 						className={cn(
 							"inline-flex items-center justify-end gap-2 font-medium tabular-nums",
-							performanceMetrics[2].valueClassName,
+							tablePerformanceMetrics[2].valueClassName,
 						)}
 					>
-						<span>{performanceMetrics[2].value}</span>
-						<UptimeSparkline points={uptimeTrendPoints} />
+						<span>{tablePerformanceMetrics[2].value}</span>
+						<UptimeSparkline points={tableUptimeTrendPoints} />
 					</div>
 				</TableCell>
 			</TableRow>
@@ -3423,7 +3455,7 @@ export default function ProviderCard({
 														>
 															<UptimeHoverContent
 																uptimePct={uptimePct}
-																runtimeStats={runtimeStats}
+																runtimeStats={selectedRuntimeStats}
 															/>
 														</HoverCardContent>
 													</HoverCard>

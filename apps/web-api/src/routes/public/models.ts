@@ -1367,14 +1367,27 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 		const stealthProviderIds = await stealthProviderIdsForModel(c.env, modelId);
 		const providerIds = internalProviderFilters(requestedProviderIds, stealthProviderIds);
 		const windowDays = Math.max(1, Math.min(90, parseBoundedInt(c.req.query("window_days"), 3, 90)));
-		const v2 = await getDataClient(c.env).rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
-		if (!v2.error && Array.isArray(v2.data)) {
-			const rows = (v2.data as Array<Record<string, unknown>>)
+		const client = getDataClient(c.env);
+		const v2 = await client.rpc("get_v2_model_provider_tier_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
+		let healthError = v2.error;
+		let healthData = v2.data;
+		if (healthError && /could not find|does not exist|PGRST202/i.test(healthError.message ?? "")) {
+			const legacy = await client.rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
+			healthError = legacy.error;
+			healthData = Array.isArray(legacy.data)
+				? (legacy.data as Array<Record<string, unknown>>).map((row) => ({
+						...row,
+						service_tier: "standard",
+					}))
+				: legacy.data;
+		}
+		if (!healthError && Array.isArray(healthData)) {
+			const rows = (healthData as Array<Record<string, unknown>>)
 				.filter((row) => providerIds.includes(String(row.provider_id ?? "")) && hasPublicPerformanceSample(row.health_requests ?? row.requests))
 				.map((row) => ({ ...row, provider_id: publicProviderId(row.provider_id, stealthProviderIds) }));
 			return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
 		}
-		throw v2.error ?? new Error("V2 provider health query returned an invalid payload");
+		throw healthError ?? new Error("V2 provider health query returned an invalid payload");
 	} catch (error) {
 		console.error("[web-api/models] provider health failed", { modelId, error });
 		return withPublicCache(c.json({ rows: [], source: "unavailable" }), sectionPolicy("providerHealth", modelId));
