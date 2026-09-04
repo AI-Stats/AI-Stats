@@ -468,7 +468,7 @@ describe('api provider model safety checks', () => {
         );
     });
 
-    test('Astra keeps its documented OpenAI contract and pricing while routing limited-access accounts', () => {
+    test('Astra keeps its documented OpenAI contract and pricing while available', () => {
         const row = readProviderModels('openai').find(
             (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
         );
@@ -477,7 +477,7 @@ describe('api provider model safety checks', () => {
             is_active_gateway: true,
             routable: true,
             routing_status: 'active',
-            provider_status: 'limited_access',
+            provider_status: 'available',
             phaseo_status: 'enabled',
             context_length: 1050000,
             max_output_tokens: 128000,
