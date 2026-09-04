@@ -107,6 +107,7 @@ import {
     subscribeProviderInspectorSelection,
     type ProviderInspectorSelection,
 } from "@/components/(data)/model/pricing/providerInspectorSync";
+import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
 const PROVIDER_QUERY_KEY = "provider";
@@ -652,6 +653,7 @@ function ProviderServiceTierRow({
 	const cacheReadPrice = showCacheReadColumn
 		? buildProviderTablePriceSummary(sections, "cached")
 		: null;
+	const tierMeta = getTierFilterMeta(plan);
 	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
 	const logoProviderId = sections.logoProviderId;
 	const openTier = () => {
@@ -694,9 +696,11 @@ function ProviderServiceTierRow({
 							/>
 						</span>
 					</span>
-					<span>{providerName}</span>
-					<span className="rounded-md border border-border/80 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
-						{formatServiceTierLabel(plan)}
+					<span>
+						{providerName}{" "}
+						<span className={cn("font-medium", tierMeta.iconClassName)}>
+							({formatServiceTierLabel(plan)})
+						</span>
 					</span>
 					<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
 				</span>

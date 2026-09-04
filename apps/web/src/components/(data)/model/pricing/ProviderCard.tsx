@@ -2953,15 +2953,17 @@ export default function ProviderCard({
 										/>
 									</div>
 								</div>
-								<span className="whitespace-nowrap font-semibold text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] group-hover/provider:text-foreground group-hover/provider:decoration-current">
-									{displayName}
+								<span className="inline-flex items-baseline gap-1 whitespace-nowrap">
+									<span className="font-semibold text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] group-hover/provider:text-foreground group-hover/provider:decoration-current">
+										{displayName}
+									</span>
+									{availablePlans.length > 1 ? (
+										<span className={cn("font-medium", tablePlanTheme.accent)}>
+											({tablePlanLabel})
+										</span>
+									) : null}
 								</span>
 							</Link>
-							{availablePlans.length > 1 ? (
-								<span className="rounded-md border border-border/80 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
-									{tablePlanLabel}
-								</span>
-							) : null}
 
 							<div className="flex shrink-0 items-center gap-1">
 								<HoverCard openDelay={120} closeDelay={80}>
