@@ -14,6 +14,14 @@ begin
 
   patched := replace(
     definition,
+    'select variant.variant_id, variant.provider_model_id, variant.service_tier_slug,
+      variant.execution_region, variant.data_region',
+    'select variant.variant_id, variant.provider_model_id, variant.service_tier_slug,
+      variant.execution_region, variant.data_region,
+      variant.status, variant.routing_enabled'
+  );
+  patched := replace(
+    patched,
     'where variant.status <> ''disabled''
       and (p_region is null',
     'where (p_region is null'
@@ -46,6 +54,7 @@ begin
   if patched = definition
     or position('where variant.status <> ''disabled''' in patched) > 0
     or position('and route.status <> ''disabled''' in patched) > 0
+    or position('variant.status, variant.routing_enabled' in patched) = 0
     or position('variant.status as variant_status' in patched) = 0
     or position('and model.variant_routing_enabled' in patched) = 0
   then

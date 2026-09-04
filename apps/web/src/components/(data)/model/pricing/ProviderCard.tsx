@@ -2309,6 +2309,10 @@ export default function ProviderCard({
 			options.serviceTier,
 		);
 	};
+	const selectServiceTier = (serviceTier: string) => {
+		setSelectedPlan(serviceTier);
+		openInspectorForProvider(inspectorProviderId, { serviceTier });
+	};
 	const toggleExpanded = () => {
 		if (expanded) {
 			window[PROVIDER_INSPECTOR_STATE_KEY] = null;
@@ -3254,7 +3258,7 @@ export default function ProviderCard({
 									</ProviderSheetSectionLink>
 									<PricingPlanSelect
 										value={selectedPlan}
-										onChange={setSelectedPlan}
+										onChange={selectServiceTier}
 										plans={availablePlans}
 										planMetaLabels={planMultiplierLabels}
 										compact
