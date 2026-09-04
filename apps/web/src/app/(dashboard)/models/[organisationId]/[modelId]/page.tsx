@@ -298,13 +298,18 @@ export default async function Page({
 		gatewayMetadataPromise,
 		null,
 	);
-	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, gatewayMetadata] =
+	const pricingForVisibilityPromise = withOptionalProviderVisibilityTimeout(
+		pricingPromise,
+		[],
+	);
+	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, gatewayMetadata, pricingProviders] =
 		await Promise.all([
 			modelPromise,
 			benchmarkPromise,
 			subscriptionPromise,
 			availabilityPromise,
 			gatewayMetadataForVisibilityPromise,
+			pricingForVisibilityPromise,
 		]);
 	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
@@ -314,7 +319,8 @@ export default async function Page({
 	const showProviders =
 		modelOverview.status === "Announced" ||
 		(availability?.activeProviderCount ?? 0) > 0 ||
-		(gatewayMetadata?.providers.length ?? 0) > 0;
+		(gatewayMetadata?.providers.length ?? 0) > 0 ||
+		pricingProviders.some((provider) => provider.provider_models.length > 0);
 	const resolvedPerformancePromise = isGatewayActive
 		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
 		: Promise.resolve(null);
