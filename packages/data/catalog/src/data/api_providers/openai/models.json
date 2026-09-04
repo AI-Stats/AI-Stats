@@ -13247,7 +13247,7 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "provider_status": "limited_access",
+    "provider_status": "available",
     "phaseo_status": "enabled",
     "access_scope": "public",
     "regions": { "execution": ["global"], "data": ["global"] },
