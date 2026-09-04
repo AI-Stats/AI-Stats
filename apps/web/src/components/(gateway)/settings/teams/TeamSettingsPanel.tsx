@@ -148,7 +148,7 @@ export default function TeamSettingsPanel({
 				})(),
 				{
 					loading: "Saving workspace settings...",
-					success: "Saved.",
+					success: "Workspace settings updated",
 					error: (error: any) =>
 						error?.message || "Could not save settings",
 				},
