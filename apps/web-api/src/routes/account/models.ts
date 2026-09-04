@@ -226,6 +226,26 @@ accountModelsRouter.get("/catalog/counts", async (c) => {
 	return c.json({ models: models.count ?? 0, organisations: organisations.count ?? 0, providers: providers.count ?? 0, benchmarks: benchmarks.count ?? 0 }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
+accountModelsRouter.get("/catalog/overview", async (c) => {
+	const user = await requireUser(c.req.raw, c.env);
+	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const client = await requireAdmin(c.req.raw, c.env);
+	if (!client) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const [hiddenModels, modelsWithoutLab, routes, routableRoutes, recentChanges] = await Promise.all([
+		client.from("v2_models").select("*", { count: "exact", head: true }).eq("hidden", true),
+		client.from("v2_models").select("*", { count: "exact", head: true }).is("lab_slug", null),
+		client.from("v2_model_provider_routes").select("*", { count: "exact", head: true }),
+		client.from("v2_model_provider_routes").select("*", { count: "exact", head: true }).eq("routing_enabled", true),
+		client.from("v2_catalogue_admin_changes").select("change_id,resource_type,resource_id,action,created_at").order("created_at", { ascending: false }).limit(8),
+	]);
+	if ([hiddenModels, modelsWithoutLab, routes, routableRoutes, recentChanges].some((result) => result.error)) return c.json({ error: "admin_catalog_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({
+		attention: { hiddenModels: hiddenModels.count ?? 0, modelsWithoutLab: modelsWithoutLab.count ?? 0 },
+		routes: { total: routes.count ?? 0, routable: routableRoutes.count ?? 0 },
+		recentChanges: recentChanges.data ?? [],
+	}, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
 accountModelsRouter.get("/catalog/list", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);

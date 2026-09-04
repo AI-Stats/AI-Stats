@@ -7,6 +7,7 @@ describe("account model source routes", () => {
 	it.each([
 		"/api/account/models/audit/source",
 		"/api/account/models/provider-audit/source",
+		"/api/account/models/catalog/overview",
 		"/api/account/models/openai%2Fgpt-test/source",
 		"/api/account/models/openai%2Fgpt-test/pricing-editor",
 	])("rejects unauthenticated access to %s with private cache headers", async (path) => {
@@ -18,6 +19,7 @@ describe("account model source routes", () => {
 
 	it.each([
 		"/api/account/models/audit/source",
+		"/api/account/models/catalog/overview",
 		"/api/account/models/openai%2Fgpt-test/pricing-editor",
 	])("rejects authenticated non-admin access to %s", async (path) => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
