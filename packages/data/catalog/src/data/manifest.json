@@ -955,7 +955,8 @@
       "openai/whisper-large-v3-turbo",
       "openai/daybreak-blue-latest",
       "openai/daybreak-red-latest",
-      "openai/gpt-5.6-cyber"
+      "openai/gpt-5.6-cyber",
+      "openai/gpt-6-astra"
     ],
     "perplexity": [
       "perplexity/pplx-embed-v1-0.6b",
