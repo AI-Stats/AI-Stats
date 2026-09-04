@@ -393,6 +393,31 @@ describe("explicit catalogue statuses", () => {
         expect(phaseoRoutingEnabled(offer)).toBe(false);
     });
 
+    it("keeps deprecated provider routes routable until their retirement window ends", () => {
+        const offer = {
+            provider_status: "deprecated",
+            phaseo_status: "enabled",
+            routing_status: "deprecated",
+            effective_to: "2099-01-01T00:00:00Z",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("deprecated");
+        expect(phaseoRoutingEnabled(offer)).toBe(true);
+    });
+
+    it("disables deprecated provider routes after their retirement window ends", () => {
+        const offer = {
+            provider_status: "deprecated",
+            phaseo_status: "enabled",
+            routing_status: "deprecated",
+            effective_to: "2000-01-01T00:00:00Z",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
     it("fails closed to internal access for an unrecognised explicit scope", () => {
         const offer = {
             provider_status: "available",
