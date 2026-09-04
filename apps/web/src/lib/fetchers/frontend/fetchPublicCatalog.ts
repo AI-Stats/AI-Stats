@@ -358,8 +358,9 @@ export async function fetchFrontendModelPendingApiReleaseState(
 
 export async function fetchFrontendModelPricing(
 	modelId: string,
+	signal?: AbortSignal,
 ): Promise<ProviderPricing[]> {
-	return getModelPricing(modelId, false);
+	return getModelPricing(modelId, false, false, signal);
 }
 
 export async function fetchFrontendModelPricingHistory(
