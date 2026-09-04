@@ -113,7 +113,7 @@ export default function NotificationDestinationsClient({ initialDestinations, in
 						<div><h3 className="text-sm font-medium">Model Deprecation Alerts</h3><p className="mt-0.5 text-sm text-muted-foreground">Get notice before a model your workspace uses is retired.</p></div>
 						<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto"><NotificationRouteSelector destinations={destinations} eventKind="model_deprecation" initialDestinationIds={initialNotificationRoutes.model_deprecation ?? []} /><Switch checked={modelDeprecationEnabled} aria-label="Enable model deprecation alerts" onCheckedChange={(checked) => {
 							const next = Boolean(checked); setModelDeprecationEnabled(next);
-							toast.promise(setBillingNotificationPreference({ preference: "modelDeprecationAlerts", enabled: next }), { loading: "Saving alert…", success: "Saved", error: "Could not save alert" });
+							toast.promise(setBillingNotificationPreference({ preference: "modelDeprecationAlerts", enabled: next }), { loading: "Saving alert…", success: "Model deprecation alerts updated", error: "Could not save alert" });
 						}} /></div>
 					</div>
 				</div>
