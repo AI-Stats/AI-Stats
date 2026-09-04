@@ -74,6 +74,7 @@ import {
 } from "@/lib/fetchers/models/getModelProviderRuntimeStats";
 import type { ProviderRoutingStatusMap } from "@/lib/fetchers/models/getModelProviderRoutingHealth";
 import ProviderCard, {
+	getProviderTableDiscountBadge,
 	PROVIDER_STATUS_META,
 } from "@/components/(data)/model/pricing/ProviderCard";
 import ProviderInfoHoverIcons from "@/components/(data)/model/ProviderInfoHoverIcons";
@@ -81,6 +82,7 @@ import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { normalizeProviderPromptTrainingPolicy } from "@/lib/providers/promptTrainingPolicy";
 import { mergeProviderPricingOffers } from "@/lib/providers/providerFamilyGroups";
+import { formatProviderOfferDisplayName } from "@/lib/providers/providerOffers";
 import {
     getProviderAvailablePlans,
     getProviderModelScopeForPlan,
@@ -635,6 +637,7 @@ function ProviderServiceTierRow({
 	navigationProviderIds,
 	isActive,
 	runtimeStats,
+	showDisclosureGutter,
 }: {
 	provider: ProviderPricing;
 	plan: string;
@@ -643,6 +646,7 @@ function ProviderServiceTierRow({
 	navigationProviderIds: string[];
 	isActive: boolean;
 	runtimeStats: ProviderRuntimeStats | null;
+	showDisclosureGutter: boolean;
 }) {
 	const sections = useMemo(
 		() => buildProviderSections(provider, plan, pricingTimeMs),
@@ -654,8 +658,9 @@ function ProviderServiceTierRow({
 		? buildProviderTablePriceSummary(sections, "cached")
 		: null;
 	const tierMeta = getTierFilterMeta(plan);
-	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
+	const providerName = getProviderServiceTierDisplayName(provider);
 	const logoProviderId = sections.logoProviderId;
+	const discountBadge = getProviderTableDiscountBadge(sections);
 	const openTier = () => {
 		dispatchProviderInspectorOpen(
 			provider.provider.api_provider_id,
@@ -684,26 +689,34 @@ function ProviderServiceTierRow({
 		>
 			<TableCell className="relative min-w-[280px] py-1 pl-3 pr-2">
 				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
-				<span className="inline-flex items-center gap-2.5 whitespace-nowrap font-semibold text-foreground">
-					<span className="relative flex size-6 shrink-0 items-center justify-center rounded-md border border-zinc-200/80 bg-background transition-colors group-hover:border-zinc-300 dark:border-zinc-800 dark:group-hover:border-zinc-700">
-						<span className="relative size-3.5">
-							<Logo
-								id={logoProviderId}
-								alt={`${providerName} logo`}
-								className="object-contain"
-								fill
-								sizes="18px"
-							/>
+				<div className="flex items-center gap-1.5 whitespace-nowrap">
+					{showDisclosureGutter ? <span aria-hidden="true" className="size-5 shrink-0" /> : null}
+					<span className="inline-flex items-center gap-2.5 font-semibold text-foreground">
+						<span className="relative flex size-6 shrink-0 items-center justify-center rounded-md border border-zinc-200/80 bg-background transition-colors group-hover:border-zinc-300 dark:border-zinc-800 dark:group-hover:border-zinc-700">
+							<span className="relative size-3.5">
+								<Logo
+									id={logoProviderId}
+									alt={`${providerName} logo`}
+									className="object-contain"
+									fill
+									sizes="18px"
+								/>
+							</span>
 						</span>
-					</span>
-					<span>
-						{providerName}{" "}
-						<span className={cn("font-medium", tierMeta.iconClassName)}>
-							({formatServiceTierLabel(plan)})
+						<span>
+							{providerName}{" "}
+							<span className={cn("font-medium", tierMeta.iconClassName)}>
+								({formatServiceTierLabel(plan)})
+							</span>
 						</span>
+						<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
+						{discountBadge ? (
+							<span className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400">
+								{discountBadge}
+							</span>
+						) : null}
 					</span>
-					<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
-				</span>
+				</div>
 			</TableCell>
 			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
 				{renderTierTablePrice(inputPrice)}
@@ -727,6 +740,17 @@ function ProviderServiceTierRow({
 			</TableCell>
 		</TableRow>
 	);
+}
+
+export function getProviderServiceTierDisplayName(provider: ProviderPricing): string {
+	return formatProviderOfferDisplayName({
+		providerId: provider.provider.api_provider_id,
+		providerName:
+			provider.provider.api_provider_name ||
+			provider.provider.api_provider_id,
+		offerLabel: provider.provider.offer_label ?? null,
+		offerScope: provider.provider.offer_scope ?? null,
+	});
 }
 
 export default function ModelPricingClient({
@@ -763,6 +787,9 @@ export default function ModelPricingClient({
     const [selectedPercentile, setSelectedPercentile] = useState<ModelPercentile>(
         DEFAULT_MODEL_PERCENTILE,
     );
+	const [expandedServiceTierProviderIds, setExpandedServiceTierProviderIds] = useState<Set<string>>(
+		() => new Set(),
+	);
     const displayProviders = useMemo(
         () => mergeProviderPricingOffers(providers),
         [providers]
@@ -1209,8 +1236,7 @@ export default function ModelPricingClient({
 			return 4;
 		};
 		const offeringName = (offering: ProviderOffering) =>
-			offering.provider.provider.api_provider_name ||
-			offering.provider.provider.api_provider_id;
+			getProviderServiceTierDisplayName(offering.provider);
 		const fallbackCompare = (a: ProviderOffering, b: ProviderOffering) => {
 			const nameComparison = offeringName(a).localeCompare(offeringName(b));
 			if (nameComparison !== 0) return nameComparison;
@@ -1227,7 +1253,6 @@ export default function ModelPricingClient({
 				buildProviderSections(offering.provider, offering.plan, pricingTimeMs),
 				direction,
 			).sortValue;
-
 		return offerings.sort((a, b) => {
 			const fallback = fallbackCompare(a, b);
 			if (sort === "provider") {
@@ -1272,6 +1297,27 @@ export default function ModelPricingClient({
 			);
 		});
 	}, [liveRuntimeStats, pricingTimeMs, privacyFilter, requestedProviderId, sort, sortDirection, visibleProviders, workspacePrivacySettings]);
+	const isGroupedProviderView = sort === "default";
+	const displayedOfferings = useMemo(
+		() => sort === "default"
+			? visibleOfferings.filter(
+				(offering) =>
+					offering.isPrimary ||
+					expandedServiceTierProviderIds.has(
+						offering.provider.provider.api_provider_id,
+					),
+			)
+			: visibleOfferings,
+		[expandedServiceTierProviderIds, sort, visibleOfferings],
+	);
+	const toggleServiceTiers = useCallback((providerId: string) => {
+		setExpandedServiceTierProviderIds((current) => {
+			const next = new Set(current);
+			if (next.has(providerId)) next.delete(providerId);
+			else next.add(providerId);
+			return next;
+		});
+	}, []);
     const showCacheReadColumn = useMemo(() => {
         return visibleOfferings.some(({ provider, plan }) => {
             const sections = buildProviderSections(
@@ -1748,7 +1794,7 @@ export default function ModelPricingClient({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {visibleOfferings.map(({ provider: prov, plan, isPrimary }, index) => {
+                                        {displayedOfferings.map(({ provider: prov, plan, isPrimary }, index) => {
                                             const providerId = prov.provider.api_provider_id;
                                             const runtimeStatsForTier = getProviderRuntimeStats(
 											liveRuntimeStats,
@@ -1772,6 +1818,7 @@ export default function ModelPricingClient({
 													)}
 													isActive={isActive}
 													runtimeStats={runtimeStatsForTier ?? null}
+													showDisclosureGutter={isGroupedProviderView}
 												/>
 											);
 										}
@@ -1796,9 +1843,12 @@ export default function ModelPricingClient({
 												pricingTimeMs={pricingTimeMs}
 												variantLabels={providerVariantLabelsById.get(providerId) ?? null}
 												showCacheReadColumn={showCacheReadColumn}
-												isLastVisible={index === visibleOfferings.length - 1}
-												isSummaryActive={isActive}
-											/>
+													isLastVisible={index === displayedOfferings.length - 1}
+													isSummaryActive={isActive}
+													serviceTiersExpanded={expandedServiceTierProviderIds.has(providerId)}
+													showServiceTierDisclosureGutter={isGroupedProviderView}
+													onToggleServiceTiers={isGroupedProviderView ? () => toggleServiceTiers(providerId) : undefined}
+												/>
 										);
 									})}
                                     </TableBody>
