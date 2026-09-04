@@ -9,6 +9,7 @@ import { parseRouteAvailabilityPolicy } from "@/lib/config/routeAvailability";
 import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
+import { normalizePrivateModelBaseUrl } from "@/core/private-models";
 import { bytesToString, decryptBYOK } from "@pipeline/byok/decrypt";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT, isByokKeyEligible } from "@/core/byok";
 import { contextSchema } from "./schemas";
@@ -172,7 +173,9 @@ async function hydrateByokKeys(
 	if (!providerIds.length) return context;
 	const keyIds = Array.from(new Set(
 		(context.providers ?? []).flatMap((provider) =>
-			(provider.byokMeta ?? []).map((key) => key.id).filter(Boolean),
+			provider.privateEndpoint
+				? []
+				: (provider.byokMeta ?? []).map((key) => key.id).filter(Boolean),
 		),
 	));
 	// The cached/RPC context contains only metadata. Avoid a Supabase read entirely
@@ -194,7 +197,7 @@ async function hydrateByokKeys(
 			...context,
 			providers: (context.providers ?? []).map((provider) => ({
 				...provider,
-				byokMeta: [],
+				byokMeta: provider.privateEndpoint ? provider.byokMeta : [],
 			})),
 		};
 	}
@@ -272,8 +275,119 @@ async function hydrateByokKeys(
 		...context,
 		providers: (context.providers ?? []).map((provider) => ({
 			...provider,
-			byokMeta: byProvider.get(provider.providerId) ?? [],
+			byokMeta: provider.privateEndpoint
+				? provider.byokMeta
+				: byProvider.get(provider.providerId) ?? [],
 		})),
+	};
+}
+
+type WorkspacePrivateModelRow = {
+	id: string;
+	workspace_id: string;
+	model_id: string;
+	base_url: string;
+	upstream_model_id: string;
+	supports_responses: boolean;
+	input_modalities: string[] | null;
+	output_modalities: string[] | null;
+	context_length: number | null;
+	max_output_tokens: number | null;
+	catalog_model_id: string | null;
+	host_provider_id: string | null;
+	custom_provider_name: string | null;
+	routing_policy: "preferred" | "balanced" | "fallback";
+	provider_id: string;
+	enc_value: string;
+	enc_iv: string;
+	enc_tag: string;
+	key_version: number;
+	enc_aad_version: number;
+	fingerprint_sha256: string;
+};
+
+export async function loadWorkspacePrivateModel(args: {
+	workspaceId: string;
+	model: string;
+	endpoint: string;
+}): Promise<{ provider: GatewayProviderSnapshot; pricingKey: string; pricing: GatewayContextData["pricing"][string]; attached: boolean } | null> {
+	if (args.endpoint !== "text.generate") return null;
+	const { data, error } = await getSupabaseAdmin().from("workspace_private_models")
+		.select("id,workspace_id,model_id,base_url,upstream_model_id,supports_responses,input_modalities,output_modalities,context_length,max_output_tokens,catalog_model_id,host_provider_id,custom_provider_name,routing_policy,provider_id,enc_value,enc_iv,enc_tag,key_version,enc_aad_version,fingerprint_sha256")
+		.eq("workspace_id", args.workspaceId)
+		.eq("model_id", args.model)
+		.eq("enabled", true)
+		.maybeSingle();
+	if (error) throw new Error(`private_model_lookup_failed:${error.message ?? "unknown"}`);
+	if (!data) return null;
+	const row = data as WorkspacePrivateModelRow;
+	const decrypted = await decryptBYOK(row);
+	let credential: string;
+	try {
+		credential = bytesToString(decrypted);
+	} finally {
+		decrypted.fill(0);
+	}
+	const pricingKey = `private-model:${row.id}`;
+	return {
+		attached: Boolean(row.catalog_model_id),
+		provider: {
+			providerId: "private-model",
+			providerFamilyId: "private-model",
+			offerScope: "specialized",
+			offerLabel: "Private",
+			apiModelId: row.model_id,
+			pricingKey,
+			providerStatus: "active",
+			providerRoutingStatus: "active",
+			modelRoutingStatus: "active",
+			capabilityStatus: "active",
+			residencyMode: "customer_selectable",
+			executionRegions: null,
+			dataRegions: null,
+			zeroDataRetention: true,
+			promptTrainingPolicy: "enterprise_no_train",
+			dataPolicyTier: "private",
+			dataPolicyConfidence: "confirmed",
+			dataPolicyContractMode: "customer_agreement",
+			supportsEndpoint: true,
+			baseWeight: 1,
+			byokMeta: [{
+				id: row.id,
+				providerId: "private-model",
+				fingerprintSha256: row.fingerprint_sha256,
+				keyVersion: String(row.key_version),
+				alwaysUse: row.routing_policy === "preferred",
+				routingMode: row.routing_policy === "fallback" ? "fallback" : "priority",
+				sortOrder: row.routing_policy === "fallback" ? 10_000 : 0,
+				key: credential,
+				value: credential,
+			}],
+			providerModelSlug: row.upstream_model_id,
+			privateEndpoint: {
+				baseUrl: normalizePrivateModelBaseUrl(row.base_url),
+				supportsResponses: row.supports_responses,
+			},
+			inputModalities: row.input_modalities ?? ["text"],
+			outputModalities: row.output_modalities ?? ["text"],
+			capabilityParams: {},
+			maxInputTokens: row.context_length,
+			maxOutputTokens: row.max_output_tokens,
+		},
+		pricingKey,
+		pricing: {
+			provider: "private-model",
+			model: row.model_id,
+			endpoint: args.endpoint,
+			effective_from: null,
+			effective_to: null,
+			currency: "USD",
+			version: "workspace-private-v1",
+			rules: [
+				{ pricing_plan: "standard", meter: "input_tokens", unit: "token", unit_size: 1, price_per_unit: "0", currency: "USD", match: [], priority: 100 },
+				{ pricing_plan: "standard", meter: "output_tokens", unit: "token", unit_size: 1, price_per_unit: "0", currency: "USD", match: [], priority: 100 },
+			],
+		},
 	};
 }
 
@@ -949,6 +1063,7 @@ export async function fetchGatewayContext(args: {
     disableCache?: boolean;
 }): Promise<GatewayContextData> {
 	await assertPresetAccess(args);
+	const privateModel = await loadWorkspacePrivateModel(args);
     const supabase = getSupabaseAdmin();
     const cache = getCache();
     const fetchStartedAt = performance.now();
@@ -965,7 +1080,7 @@ export async function fetchGatewayContext(args: {
     };
     // Check if model is a preset
     const isPreset = args.model.startsWith("@");
-    const shouldUseCache = !args.disableCache;
+    const shouldUseCache = !args.disableCache && !privateModel;
     const needsVersionToken = shouldUseCache;
     let versionToken = "v0";
     if (needsVersionToken) {
@@ -1192,6 +1307,20 @@ export async function fetchGatewayContext(args: {
                 };
             }
         }
+
+		if (privateModel) {
+			parsed = {
+				...parsed,
+				resolvedModel: args.model,
+				providers: privateModel.attached
+					? [privateModel.provider, ...(parsed.providers ?? [])]
+					: [privateModel.provider],
+				pricing: {
+					...(parsed.pricing ?? {}),
+					[privateModel.pricingKey]: privateModel.pricing,
+				},
+			};
+		}
 
         parsed = applyNebiusRegionalModelAllowlist({
             parsed,
@@ -1781,10 +1910,3 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
-
-
-
-
-
-

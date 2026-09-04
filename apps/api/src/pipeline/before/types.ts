@@ -234,6 +234,10 @@ export type GatewayProviderSnapshot = {
     baseWeight: number;
     byokMeta: ByokKeyMeta[];
     providerModelSlug: string | null;
+    privateEndpoint?: {
+        baseUrl: string;
+        supportsResponses: boolean;
+    } | null;
     quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
@@ -389,6 +393,10 @@ export type ProviderCandidate = {
     byokMeta: ByokKeyMeta[];
     pricingCard: PriceCard | null;
     providerModelSlug: string | null;
+    privateEndpoint?: {
+        baseUrl: string;
+        supportsResponses: boolean;
+    } | null;
     quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;

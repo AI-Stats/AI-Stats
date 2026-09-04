@@ -3,6 +3,21 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const guardAuthMock = vi.fn();
 const fetchCatalogueMock = vi.fn();
 const fetchGatewayContextMock = vi.fn();
+const privateModelRows = vi.hoisted(() => ({ rows: [] as any[] }));
+
+vi.mock("@/runtime/env", () => ({
+    getBindingsIfConfigured: () => null,
+    getSupabaseAdmin: () => ({
+        from: () => {
+            const query: any = {
+                select: () => query,
+                eq: () => query,
+                order: async () => ({ data: privateModelRows.rows, error: null }),
+            };
+            return query;
+        },
+    }),
+}));
 
 vi.mock("@pipeline/before/guards", () => ({
     guardAuth: (...args: any[]) => guardAuthMock(...args),
@@ -121,6 +136,32 @@ describe("handleModels", () => {
             providers: [],
             pricing: {},
         });
+        privateModelRows.rows = [];
+    });
+
+    it("adds only the authenticated workspace's private model metadata", async () => {
+        privateModelRows.rows = [{
+            model_id: "acme/legal-assistant",
+            name: "Legal Assistant",
+            description: "Internal legal model.",
+            supports_responses: true,
+            input_modalities: ["text"],
+            output_modalities: ["text"],
+            context_length: 32_000,
+            max_output_tokens: 4_096,
+            created_at: "2026-09-04T00:00:00Z",
+        }];
+        const response = await handleModels(new Request("https://api.example.com/"));
+        const payload = await response.json() as any;
+
+        expect(payload.models[0]).toMatchObject({
+            id: "acme/legal-assistant",
+            organization: { id: "private", name: "Private" },
+            capabilities: { endpoints: ["chat/completions", "messages", "responses"] },
+        });
+        expect(JSON.stringify(payload)).not.toContain("base_url");
+        expect(JSON.stringify(payload)).not.toContain("upstream_model_id");
+        expect(response.headers.get("vary")).toBe("Authorization");
     });
 
     it("rejects invalid availability filters", async () => {

@@ -5,10 +5,12 @@ const REGIONAL_SUFFIXES = ["-eu", "-us"] as const;
 const KNOWN_PROVIDER_DISPLAY_NAME_OVERRIDES = new Map<string, string>([
     ["openai", "OpenAI"],
     ["openai-eu", "OpenAI"],
+	["openrouter", "OpenRouter"],
     ["anthropic", "Anthropic"],
     ["anthropic-us", "Anthropic"],
     ["anthropic-aws", "Claude Platform for AWS"],
     ["anthropic-aws-us", "Claude Platform for AWS"],
+	["private-model", "Private endpoint"],
 ]);
 const KNOWN_PROVIDER_LOGO_ID_OVERRIDES = new Map<string, string>([
     ["anthropic-aws", "aws"],

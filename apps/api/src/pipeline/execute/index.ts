@@ -818,6 +818,7 @@ async function attemptProviderWithIR(
 				protocol: ctx.protocol as any,
 				capability: ctx.capability,
 				providerModelSlug,
+				privateEndpoint: candidate.privateEndpoint ?? null,
 				capabilityParams: candidate.capabilityParams,
 				maxInputTokens: candidate.maxInputTokens,
 				maxOutputTokens: candidate.maxOutputTokens,

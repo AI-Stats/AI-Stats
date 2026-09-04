@@ -94,6 +94,7 @@ struct AnthropicMessagesResponse {
 };
 
 struct AnthropicTool {
+	std::optional<bool> async;
 	std::string description;
 	std::map<std::string, std::any> input_schema;
 	std::string name;
@@ -944,6 +945,7 @@ struct FileUploadRequest {
 };
 
 struct FunctionToolDefinition {
+	std::optional<bool> async;
 	std::map<std::string, std::any> function;
 	std::any type;
 };
@@ -2197,6 +2199,79 @@ struct PresetVersionResponse {
 };
 
 using PresetVisibility = std::any;
+
+struct PrivateModel {
+	std::string base_url;
+	std::optional<std::string> catalog_model_id;
+	std::optional<int> context_length;
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	std::optional<std::string> credential_prefix;
+	std::optional<std::string> credential_suffix;
+	std::optional<std::string> custom_provider_name;
+	std::optional<std::string> custom_provider_url;
+	std::optional<std::string> description;
+	bool enabled;
+	std::optional<std::string> host_provider_id;
+	std::string id;
+	std::vector<std::string> input_modalities;
+	std::string local_slug;
+	std::optional<int> max_output_tokens;
+	std::string model_id;
+	std::string name;
+	std::vector<std::string> output_modalities;
+	std::any routing_policy;
+	bool supports_responses;
+	std::optional<std::string> updated_at;
+	std::string upstream_model_id;
+	std::string workspace_id;
+};
+
+struct PrivateModelCreateRequest {
+	std::string base_url;
+	std::optional<int> context_length;
+	std::string credential;
+	std::optional<std::string> custom_provider_name;
+	std::optional<std::string> custom_provider_url;
+	std::string description;
+	std::optional<bool> enabled;
+	std::optional<std::string> host_provider_id;
+	std::optional<int> max_output_tokens;
+	std::string model_reference;
+	std::string name;
+	std::any routing_policy;
+	std::optional<bool> supports_responses;
+	std::string upstream_model_id;
+};
+
+struct PrivateModelDeleteResponse {
+	bool deleted;
+};
+
+struct PrivateModelListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct PrivateModelResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PrivateModelUpdateRequest {
+	std::string base_url;
+	std::optional<int> context_length;
+	std::string credential;
+	std::optional<std::string> custom_provider_name;
+	std::optional<std::string> custom_provider_url;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::optional<std::string> host_provider_id;
+	std::optional<int> max_output_tokens;
+	std::string model_reference;
+	std::string name;
+	std::any routing_policy;
+	std::optional<bool> supports_responses;
+	std::string upstream_model_id;
+};
 
 struct Provider {
 	std::string api_provider_id;

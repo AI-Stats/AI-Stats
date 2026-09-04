@@ -161,6 +161,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object createPrivateModel(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/private-models";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object createProviderCredential(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/byok";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -293,6 +298,11 @@ public final class Operations {
 
 	public static Object deletePreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Object deletePrivateModel(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/private-models/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -478,6 +488,11 @@ public final class Operations {
 
 	public static Object getPresetTestRun(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/preset-test-runs/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getPrivateModel(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/private-models/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -708,6 +723,11 @@ public final class Operations {
 
 	public static Object listPricingModels(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/pricing/models";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listPrivateModels(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/private-models";
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -993,6 +1013,11 @@ public final class Operations {
 
 	public static Object updatePresetTestRun(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/preset-test-runs/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updatePrivateModel(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/private-models/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
 	}
 

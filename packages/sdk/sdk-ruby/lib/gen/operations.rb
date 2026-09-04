@@ -189,6 +189,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createPrivateModel(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/private-models"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/byok"
@@ -348,6 +354,12 @@ module Phaseo
       def self.deletePreset(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deletePrivateModel(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/private-models/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -570,6 +582,12 @@ module Phaseo
       def self.getPresetTestRun(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/preset-test-runs/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getPrivateModel(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/private-models/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -846,6 +864,12 @@ module Phaseo
       def self.listPricingModels(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/pricing/models"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listPrivateModels(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/private-models"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -1188,6 +1212,12 @@ module Phaseo
       def self.updatePresetTestRun(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/preset-test-runs/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updatePrivateModel(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/private-models/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
