@@ -33,7 +33,17 @@ vi.mock("./upstream-requests", () => ({
 	persistGatewayUpstreamRequests: (...args: any[]) => persistGatewayUpstreamRequestsMock(...args),
 }));
 
-import { auditFailure, auditSuccess } from "./index";
+import { auditFailure, auditSuccess, resolveAuditServiceTiers } from "./index";
+
+describe("audit service tier attribution", () => {
+	it("keeps requests without requested or observed tier evidence unclassified", () => {
+		expect(resolveAuditServiceTiers({ endpoint: "chat.completions" })).toEqual({
+			requested: null,
+			observed: null,
+			effective: null,
+		});
+	});
+});
 
 describe("audit request detail persistence", () => {
 	beforeEach(() => {

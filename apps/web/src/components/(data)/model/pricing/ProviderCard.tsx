@@ -2197,7 +2197,7 @@ export default function ProviderCard({
 			valueClassName: tablePlanTheme.accent,
 		},
 		{
-			value: tablePlan === "batch" ? "--" : formatPercent(tableUptimePct),
+			value: formatPercent(tableUptimePct),
 			valueClassName: tablePlanTheme.accent,
 		},
 	] as const;

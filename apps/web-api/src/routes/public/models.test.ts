@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "@/index";
-import { CATALOGUE_CACHE_SCHEMA_VERSION, fetchGatewayMonitorRows, internalProviderFilters, publicProviderId } from "@/routes/public/models";
+import { CATALOGUE_CACHE_SCHEMA_VERSION, fetchGatewayMonitorRows, internalProviderFilters, isMissingTierHealthRpcError, publicProviderId } from "@/routes/public/models";
 
 const env = {
 	ENV: "development" as const,
@@ -11,6 +11,23 @@ const env = {
 afterEach(() => {
 	vi.unstubAllGlobals();
 	vi.useRealTimers();
+});
+
+describe("provider health RPC fallback", () => {
+	it("falls back only when PostgREST reports the tiered RPC itself as missing", () => {
+		expect(isMissingTierHealthRpcError({
+			code: "PGRST202",
+			message: "Could not find the function public.get_v2_model_provider_tier_health_metrics",
+		})).toBe(true);
+		expect(isMissingTierHealthRpcError({
+			code: "42703",
+			message: "column v2_request_facts.service_tier_slug does not exist",
+		})).toBe(false);
+		expect(isMissingTierHealthRpcError({
+			code: "PGRST202",
+			message: "Could not find the function public.some_other_function",
+		})).toBe(false);
+	});
 });
 
 describe("stealth provider filters", () => {

@@ -69,7 +69,7 @@ function nestedValue(root: unknown, path: string[]): unknown {
     return current;
 }
 
-function resolveAuditServiceTiers(args: {
+export function resolveAuditServiceTiers(args: {
     endpoint: Endpoint;
     requestPayload?: unknown;
     usage?: unknown;
@@ -77,7 +77,7 @@ function resolveAuditServiceTiers(args: {
 }): {
     requested: CanonicalServiceTier | null;
     observed: CanonicalServiceTier | null;
-    effective: CanonicalServiceTier;
+    effective: CanonicalServiceTier | null;
 } {
     const requested = args.endpoint === "batch"
         ? "batch"
@@ -96,7 +96,7 @@ function resolveAuditServiceTiers(args: {
     return {
         requested,
         observed,
-        effective: observed ?? requested ?? "standard",
+        effective: observed ?? requested,
     };
 }
 
@@ -1642,5 +1642,4 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
         releaseRuntime();
     }
 }
-
 

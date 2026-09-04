@@ -1358,6 +1358,11 @@ publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
 	}
 });
 
+export function isMissingTierHealthRpcError(error: { code?: string | null; message?: string | null }): boolean {
+	return error.code === "PGRST202" &&
+		String(error.message ?? "").includes("get_v2_model_provider_tier_health_metrics");
+}
+
 publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 	const modelId = c.req.param("modelId");
 	const percentile = parsePercentile(c.req.query("percentile"));
@@ -1371,7 +1376,7 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 		const v2 = await client.rpc("get_v2_model_provider_tier_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
 		let healthError = v2.error;
 		let healthData = v2.data;
-		if (healthError && /could not find|does not exist|PGRST202/i.test(healthError.message ?? "")) {
+		if (healthError && isMissingTierHealthRpcError(healthError)) {
 			const legacy = await client.rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
 			healthError = legacy.error;
 			healthData = Array.isArray(legacy.data)
