@@ -499,6 +499,8 @@ function getPlanZdrEligibility(
 }
 
 function formatServiceTierLabel(plan: string): string {
+	if (plan === "priority") return "Fast";
+
 	return plan
 		.replace(/[_-]+/g, " ")
 		.replace(/\b\w/g, (character) => character.toUpperCase());
@@ -656,13 +658,15 @@ function ProviderServiceTierRow({
 		>
 			<TableCell className="relative min-w-[280px] py-1 pl-[3.75rem] pr-2">
 				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
-					<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
-						<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
-							<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
-						</span>
-						<span>{providerName} ({formatServiceTierLabel(plan)})</span>
-						<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
+				<div className="flex w-full items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
+					<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
+						<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
 					</span>
+					<span>{providerName} ({formatServiceTierLabel(plan)})</span>
+					<div className="ml-auto">
+						<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
+					</div>
+				</div>
 			</TableCell>
 			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
 				{renderTierTablePrice(inputPrice, tierMeta.iconClassName)}
