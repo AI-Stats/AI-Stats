@@ -9270,7 +9270,8 @@ components:
           type: boolean
           description: >-
             Lets supported OpenAI models continue while the caller executes this
-            tool. Accepted on all text API surfaces and ignored by other providers.
+            tool. Accepted on all text API surfaces and ignored by other
+            providers.
         function:
           type: object
           required:

@@ -45,22 +45,9 @@ import {
 	resolveModelLineageNames,
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
 import { supportsProvenanceVerification } from "@/components/(data)/model/overview/ModelVerificationSection";
+import { withOptionalProviderVisibilityTimeout } from "./providerVisibilityTimeout";
 
 const MODEL_PROVIDER_VISIBILITY_TIMEOUT_MS = 1_000;
-
-function withOptionalProviderVisibilityTimeout<T>(
-	promise: Promise<T>,
-	fallback: T,
-): Promise<T> {
-	let timeout: ReturnType<typeof setTimeout> | null = null;
-	const timeoutPromise = new Promise<T>((resolve) => {
-		timeout = setTimeout(() => resolve(fallback), MODEL_PROVIDER_VISIBILITY_TIMEOUT_MS);
-	});
-
-	return Promise.race([promise, timeoutPromise]).finally(() => {
-		if (timeout) clearTimeout(timeout);
-	});
-}
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -290,21 +277,33 @@ export default async function Page({
 	const benchmarkPromise = fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []);
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
-	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
+	const pricingAbortController = new AbortController();
+	const pricingPromise = fetchFrontendModelPricing(
+		modelId,
+		pricingAbortController.signal,
+	).catch(() => []);
 	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId).catch(
 		() => null,
 	);
 	const gatewayMetadataForVisibilityPromise = withOptionalProviderVisibilityTimeout(
 		gatewayMetadataPromise,
 		null,
+		MODEL_PROVIDER_VISIBILITY_TIMEOUT_MS,
 	);
-	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, gatewayMetadata] =
+	const pricingForVisibilityPromise = withOptionalProviderVisibilityTimeout(
+		pricingPromise,
+		[],
+		MODEL_PROVIDER_VISIBILITY_TIMEOUT_MS,
+		() => pricingAbortController.abort(),
+	);
+	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability, gatewayMetadata, pricingProviders] =
 		await Promise.all([
 			modelPromise,
 			benchmarkPromise,
 			subscriptionPromise,
 			availabilityPromise,
 			gatewayMetadataForVisibilityPromise,
+			pricingForVisibilityPromise,
 		]);
 	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
@@ -314,7 +313,8 @@ export default async function Page({
 	const showProviders =
 		modelOverview.status === "Announced" ||
 		(availability?.activeProviderCount ?? 0) > 0 ||
-		(gatewayMetadata?.providers.length ?? 0) > 0;
+		(gatewayMetadata?.providers.length ?? 0) > 0 ||
+		pricingProviders.some((provider) => provider.provider_models.length > 0);
 	const resolvedPerformancePromise = isGatewayActive
 		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
 		: Promise.resolve(null);

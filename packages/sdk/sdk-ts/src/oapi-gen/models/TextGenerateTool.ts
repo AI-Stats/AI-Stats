@@ -1,5 +1,6 @@
 export type TextGenerateTool =
   | {
+      async?: boolean;
       function: {
         description?: string;
         name: string;

@@ -88,6 +88,7 @@ type AnthropicMessagesResponse struct {
 }
 
 type AnthropicTool struct {
+	Async *bool `json:"async,omitempty"`
 	Description *string `json:"description,omitempty"`
 	InputSchema *map[string]interface{} `json:"input_schema,omitempty"`
 	Name string `json:"name"`
@@ -1609,6 +1610,7 @@ type FileUploadRequest struct {
 }
 
 type FunctionToolDefinition struct {
+	Async *bool `json:"async,omitempty"`
 	Function map[string]interface{} `json:"function"`
 	Type string `json:"type"`
 }

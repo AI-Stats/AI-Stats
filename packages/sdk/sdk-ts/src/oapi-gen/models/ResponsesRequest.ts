@@ -136,6 +136,7 @@ export interface ResponsesRequest {
     | {};
   tools?: (
     | {
+        async?: boolean;
         function: {
           description?: string;
           name: string;

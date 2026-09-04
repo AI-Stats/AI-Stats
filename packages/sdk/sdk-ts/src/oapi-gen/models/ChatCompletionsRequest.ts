@@ -216,6 +216,7 @@ export interface ChatCompletionsRequest {
     | {};
   tools?: (
     | {
+        async?: boolean;
         function: {
           description?: string;
           name: string;

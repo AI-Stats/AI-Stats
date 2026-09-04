@@ -129,13 +129,15 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     AnthropicMessagesResponse = Struct.new(:content, :id, :model, :role, :stop_reason, :stop_sequence, :type, :usage, keyword_init: true)
+    # @!attribute [rw] async
+    #   @return [Boolean, nil]
     # @!attribute [rw] description
     #   @return [String, nil]
     # @!attribute [rw] input_schema
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] name
     #   @return [String]
-    AnthropicTool = Struct.new(:description, :input_schema, :name, keyword_init: true)
+    AnthropicTool = Struct.new(:async, :description, :input_schema, :name, keyword_init: true)
     # @!attribute [rw] input_tokens
     #   @return [Integer, nil]
     # @!attribute [rw] output_tokens
@@ -1360,11 +1362,13 @@ module Phaseo
     # @!attribute [rw] purpose
     #   @return [String]
     FileUploadRequest = Struct.new(:file, :purpose, keyword_init: true)
+    # @!attribute [rw] async
+    #   @return [Boolean, nil]
     # @!attribute [rw] function
     #   @return [Hash{String => Object}]
     # @!attribute [rw] type
     #   @return [String]
-    FunctionToolDefinition = Struct.new(:function, :type, keyword_init: true)
+    FunctionToolDefinition = Struct.new(:async, :function, :type, keyword_init: true)
     # @!attribute [rw] parameters
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] type
