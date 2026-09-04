@@ -2152,6 +2152,7 @@ export default function ProviderCard({
 			? formatDiscountTimeRemaining(soonestDiscountEnd)
 			: null;
 	const selectedPlanLabel = getPricingPlanLabel(selectedPlan);
+	const tablePlanLabel = getPricingPlanLabel(tablePlan);
 	const selectedPlanTheme = getPlanTheme(selectedPlan);
 	const tablePlanTheme = getPlanTheme(tablePlan);
 	const performanceMetrics = [
@@ -2956,6 +2957,11 @@ export default function ProviderCard({
 									{displayName}
 								</span>
 							</Link>
+							{availablePlans.length > 1 ? (
+								<span className="rounded-md border border-border/80 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
+									{tablePlanLabel}
+								</span>
+							) : null}
 
 							<div className="flex shrink-0 items-center gap-1">
 								<HoverCard openDelay={120} closeDelay={80}>

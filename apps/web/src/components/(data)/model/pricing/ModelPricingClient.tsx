@@ -107,7 +107,6 @@ import {
     subscribeProviderInspectorSelection,
     type ProviderInspectorSelection,
 } from "@/components/(data)/model/pricing/providerInspectorSync";
-import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
 const PROVIDER_QUERY_KEY = "provider";
@@ -532,10 +531,9 @@ function formatTierUptime(stats: ProviderRuntimeStats | null): string {
 
 function renderTierTablePrice(
 	summary: ReturnType<typeof buildProviderTablePriceSummary>,
-	accentClassName: string,
 ) {
 	return summary.primary ? (
-		<div className={cn("font-medium tabular-nums", accentClassName)}>
+		<div className="font-medium tabular-nums text-foreground">
 			{summary.primary.formattedPrice}
 		</div>
 	) : (
@@ -654,9 +652,8 @@ function ProviderServiceTierRow({
 	const cacheReadPrice = showCacheReadColumn
 		? buildProviderTablePriceSummary(sections, "cached")
 		: null;
-	const tierMeta = getTierFilterMeta(plan);
 	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
-	const logoProviderId = sections[0]?.logoProviderId ?? provider.provider.api_provider_id;
+	const logoProviderId = sections.logoProviderId;
 	const openTier = () => {
 		dispatchProviderInspectorOpen(
 			provider.provider.api_provider_id,
@@ -685,7 +682,7 @@ function ProviderServiceTierRow({
 		>
 			<TableCell className="relative min-w-[280px] py-1 pl-3 pr-2">
 				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
-				<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
+				<span className="inline-flex items-center gap-2.5 whitespace-nowrap font-semibold text-foreground">
 					<span className="relative flex size-6 shrink-0 items-center justify-center rounded-md border border-zinc-200/80 bg-background transition-colors group-hover:border-zinc-300 dark:border-zinc-800 dark:group-hover:border-zinc-700">
 						<span className="relative size-3.5">
 							<Logo
@@ -697,19 +694,22 @@ function ProviderServiceTierRow({
 							/>
 						</span>
 					</span>
-					<span>{providerName} ({formatServiceTierLabel(plan)})</span>
+					<span>{providerName}</span>
+					<span className="rounded-md border border-border/80 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
+						{formatServiceTierLabel(plan)}
+					</span>
 					<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
 				</span>
 			</TableCell>
 			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
-				{renderTierTablePrice(inputPrice, tierMeta.iconClassName)}
+				{renderTierTablePrice(inputPrice)}
 			</TableCell>
 			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
-				{renderTierTablePrice(outputPrice, tierMeta.iconClassName)}
+				{renderTierTablePrice(outputPrice)}
 			</TableCell>
 			{showCacheReadColumn ? (
 				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
-					{cacheReadPrice ? renderTierTablePrice(cacheReadPrice, tierMeta.iconClassName) : "--"}
+					{cacheReadPrice ? renderTierTablePrice(cacheReadPrice) : "--"}
 				</TableCell>
 			) : null}
 			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
