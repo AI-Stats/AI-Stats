@@ -4131,6 +4131,137 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /private-models:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listPrivateModels
+      summary: List private models
+      description: >-
+        Lists private model metadata for the authenticated workspace. Requires
+        `private_models:read` and an owner or admin identity.
+      responses:
+        '200':
+          description: Private models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivateModelListResponse'
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: createPrivateModel
+      summary: Create a private model
+      description: >-
+        Creates a workspace-only OpenAI-compatible model endpoint. Requires
+        `private_models:write` and an owner or admin identity.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivateModelCreateRequest'
+      responses:
+        '201':
+          description: Private model created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivateModelResponse'
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /private-models/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: getPrivateModel
+      summary: Get a private model
+      description: >-
+        Returns endpoint metadata for one private model in the authenticated
+        workspace without returning its credential.
+      responses:
+        '200':
+          description: Private model metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivateModelResponse'
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: updatePrivateModel
+      summary: Update a private model
+      description: >-
+        Updates private model metadata or replaces its write-only encrypted
+        credential.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivateModelUpdateRequest'
+      responses:
+        '200':
+          description: Private model updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivateModelResponse'
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: deletePrivateModel
+      summary: Delete a private model
+      description: >-
+        Permanently deletes a private model owned by the authenticated
+        workspace. Repeated deletion is safe.
+      responses:
+        '200':
+          description: Private model deleted or already absent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivateModelDeleteResponse'
+        default:
+          description: Request failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /budgets:
     get:
       x-beta: true
@@ -13758,7 +13889,7 @@ components:
       required:
         - id
         - name
-        - slug
+        - model_id
         - created_by
         - created_at
         - updated_at
@@ -17332,6 +17463,268 @@ components:
       enum:
         - priority
         - fallback
+    PrivateModel:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - model_id
+        - name
+        - base_url
+        - upstream_model_id
+        - supports_responses
+        - enabled
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        model_id:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9._-]{0,62}/[a-z0-9][a-z0-9._:-]{0,126}$
+          description: >-
+            Workspace-visible owner/model slug used in normal inference
+            requests.
+          readOnly: true
+        local_slug:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9._:-]{0,126}$
+          description: Workspace-local slug used to derive the model identity.
+          readOnly: true
+        catalog_model_id:
+          type: string
+          nullable: true
+          pattern: ^[a-z0-9][a-z0-9._-]{0,62}/[a-z0-9][a-z0-9._:-]{0,126}$
+          description: Catalogue model this endpoint is attached to, when any.
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          nullable: true
+          maxLength: 500
+        base_url:
+          type: string
+          format: uri
+          description: Workspace-confidential HTTPS endpoint base URL.
+        upstream_model_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        supports_responses:
+          type: boolean
+        enabled:
+          type: boolean
+        input_modalities:
+          type: array
+          items:
+            type: string
+        output_modalities:
+          type: array
+          items:
+            type: string
+        context_length:
+          type: integer
+          nullable: true
+          minimum: 1
+        max_output_tokens:
+          type: integer
+          nullable: true
+          minimum: 1
+        host_provider_id:
+          type: string
+          nullable: true
+          description: Existing Phaseo provider that operates the deployment.
+        custom_provider_name:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 120
+        custom_provider_url:
+          type: string
+          nullable: true
+          format: uri
+        routing_policy:
+          type: string
+          enum:
+            - preferred
+            - balanced
+            - fallback
+        credential_prefix:
+          type: string
+          nullable: true
+        credential_suffix:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+      additionalProperties: false
+    PrivateModelCreateRequest:
+      type: object
+      required:
+        - model_reference
+        - name
+        - base_url
+        - upstream_model_id
+        - credential
+      properties:
+        model_reference:
+          type: string
+          description: >-
+            An exact catalogue model ID to attach this endpoint as a provider,
+            or a short slug for automatic matching/workspace namespacing.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 500
+        base_url:
+          type: string
+          format: uri
+        upstream_model_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        credential:
+          type: string
+          minLength: 8
+          writeOnly: true
+        supports_responses:
+          type: boolean
+          default: false
+        enabled:
+          type: boolean
+          default: true
+        context_length:
+          type: integer
+          minimum: 1
+          nullable: true
+        max_output_tokens:
+          type: integer
+          minimum: 1
+          nullable: true
+        host_provider_id:
+          type: string
+          nullable: true
+          description: Existing Phaseo provider that operates the deployment.
+        custom_provider_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          nullable: true
+        custom_provider_url:
+          type: string
+          format: uri
+          nullable: true
+        routing_policy:
+          type: string
+          enum:
+            - preferred
+            - balanced
+            - fallback
+          default: preferred
+      additionalProperties: false
+    PrivateModelUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        model_reference:
+          type: string
+          description: >-
+            An exact catalogue model ID to attach this endpoint as a provider,
+            or a short slug for automatic matching/workspace namespacing.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        base_url:
+          type: string
+          format: uri
+        upstream_model_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        credential:
+          type: string
+          minLength: 8
+          writeOnly: true
+        supports_responses:
+          type: boolean
+        enabled:
+          type: boolean
+        context_length:
+          type: integer
+          minimum: 1
+          nullable: true
+        max_output_tokens:
+          type: integer
+          minimum: 1
+          nullable: true
+        host_provider_id:
+          type: string
+          nullable: true
+        custom_provider_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          nullable: true
+        custom_provider_url:
+          type: string
+          format: uri
+          nullable: true
+        routing_policy:
+          type: string
+          enum:
+            - preferred
+            - balanced
+            - fallback
+      additionalProperties: false
+    PrivateModelResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PrivateModel'
+      additionalProperties: false
+    PrivateModelListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrivateModel'
+      additionalProperties: false
+    PrivateModelDeleteResponse:
+      type: object
+      required:
+        - deleted
+      properties:
+        deleted:
+          type: boolean
+      additionalProperties: false
     ProviderCredential:
       type: object
       required:

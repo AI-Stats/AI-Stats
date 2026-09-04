@@ -4488,6 +4488,100 @@ export async function createPresetTestRun(
   });
 }
 
+export type CreatePrivateModelParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    base_url: string;
+    context_length?: number | null;
+    credential: string;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string;
+    enabled?: boolean;
+    host_provider_id?: string | null;
+    max_output_tokens?: number | null;
+    model_reference: string;
+    name: string;
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses?: boolean;
+    upstream_model_id: string;
+  };
+};
+
+/**
+ * Creates a workspace-only OpenAI-compatible model endpoint. Requires `private_models:write` and an owner or admin identity.
+ */
+export async function createPrivateModel(
+  client: Client,
+  args: CreatePrivateModelParams = {},
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/private-models";
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateProviderCredentialParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -6223,7 +6317,7 @@ export async function createWorkspace(
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   };
 }> {
@@ -6235,7 +6329,7 @@ export async function createWorkspace(
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     };
   }>({
@@ -6884,6 +6978,37 @@ export async function deletePreset(
   const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeletePrivateModelParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently deletes a private model owned by the authenticated workspace. Repeated deletion is safe.
+ */
+export async function deletePrivateModel(
+  client: Client,
+  args: DeletePrivateModelParams,
+): Promise<{
+  deleted: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/private-models/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: boolean;
   }>({
     method: "DELETE",
     path: resolvedPath,
@@ -9458,6 +9583,87 @@ export async function getPresetTestRun(
   });
 }
 
+export type GetPrivateModelParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns endpoint metadata for one private model in the authenticated workspace without returning its credential.
+ */
+export async function getPrivateModel(
+  client: Client,
+  args: GetPrivateModelParams,
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/private-models/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetProviderCredentialParams = {
   path: {
     id: string;
@@ -10184,7 +10390,7 @@ export async function getWorkspace(
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   };
 }> {
@@ -10196,7 +10402,7 @@ export async function getWorkspace(
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     };
   }>({
@@ -14233,6 +14439,85 @@ export async function listPricingModels(
   });
 }
 
+export type ListPrivateModelsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists private model metadata for the authenticated workspace. Requires `private_models:read` and an owner or admin identity.
+ */
+export async function listPrivateModels(
+  client: Client,
+  args: ListPrivateModelsParams = {},
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/private-models";
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListProviderCredentialsParams = {
   path?: Record<string, never>;
   query?: {
@@ -16255,7 +16540,7 @@ export async function listWorkspaces(
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   }[];
   total_count: number;
@@ -16268,7 +16553,7 @@ export async function listWorkspaces(
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     }[];
     total_count: number;
@@ -19127,6 +19412,102 @@ export async function updatePresetTestRun(
   });
 }
 
+export type UpdatePrivateModelParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    base_url?: string;
+    context_length?: number | null;
+    credential?: string;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled?: boolean;
+    host_provider_id?: string | null;
+    max_output_tokens?: number | null;
+    model_reference?: string;
+    name?: string;
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses?: boolean;
+    upstream_model_id?: string;
+  };
+};
+
+/**
+ * Updates private model metadata or replaces its write-only encrypted credential.
+ */
+export async function updatePrivateModel(
+  client: Client,
+  args: UpdatePrivateModelParams,
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/private-models/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateProviderCredentialParams = {
   path: {
     id: string;
@@ -19287,7 +19668,7 @@ export async function updateWorkspace(
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   };
 }> {
@@ -19299,7 +19680,7 @@ export async function updateWorkspace(
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     };
   }>({

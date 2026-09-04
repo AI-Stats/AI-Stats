@@ -220,6 +220,13 @@ function createPresetTestRun(Client $client, ?array $path = null, ?array $query 
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createPrivateModel(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/private-models";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -406,6 +413,13 @@ function deletePreset(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deletePrivateModel(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/private-models/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -665,6 +679,13 @@ function getPresetTestRun(Client $client, ?array $path = null, ?array $query = n
 {
 	$path = $path ?? [];
 	$resolvedPath = "/preset-test-runs/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getPrivateModel(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/private-models/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -987,6 +1008,13 @@ function listPricingModels(Client $client, ?array $path = null, ?array $query = 
 {
 	$path = $path ?? [];
 	$resolvedPath = "/pricing/models";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listPrivateModels(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/private-models";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -1386,6 +1414,13 @@ function updatePresetTestRun(Client $client, ?array $path = null, ?array $query 
 {
 	$path = $path ?? [];
 	$resolvedPath = "/preset-test-runs/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updatePrivateModel(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/private-models/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

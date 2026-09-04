@@ -160,6 +160,11 @@ pub fn createPresetTestRun<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createPrivateModel<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/private-models");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/byok");
 	client.request("POST", &resolved_path, body)
@@ -292,6 +297,11 @@ pub fn deleteObservabilityDestination<T: Transport>(client: &Client<T>, path: &H
 
 pub fn deletePreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/presets/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deletePrivateModel<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/private-models/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -477,6 +487,11 @@ pub fn getPresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 
 pub fn getPresetTestRun<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/preset-test-runs/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getPrivateModel<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/private-models/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -707,6 +722,11 @@ pub fn listPresetVersions<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 
 pub fn listPricingModels<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/pricing/models");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listPrivateModels<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/private-models");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -992,6 +1012,11 @@ pub fn updatePresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn updatePresetTestRun<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/preset-test-runs/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updatePrivateModel<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/private-models/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

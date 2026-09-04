@@ -90,6 +90,7 @@ pub struct AnthropicMessagesResponse {
 }
 
 pub struct AnthropicTool {
+	pub r#async: Option<bool>,
 	pub description: Option<String>,
 	pub input_schema: Option<HashMap<String, String>>,
 	pub name: String,
@@ -940,6 +941,7 @@ pub struct FileUploadRequest {
 }
 
 pub struct FunctionToolDefinition {
+	pub r#async: Option<bool>,
 	pub function: HashMap<String, String>,
 	pub r#type: String,
 }
@@ -2194,6 +2196,79 @@ pub struct PresetVersionResponse {
 
 pub type PresetVisibility = JsonValue;
 
+pub struct PrivateModel {
+	pub base_url: String,
+	pub catalog_model_id: Option<Option<String>>,
+	pub context_length: Option<Option<i64>>,
+	pub created_at: Option<Option<String>>,
+	pub created_by: Option<Option<String>>,
+	pub credential_prefix: Option<Option<String>>,
+	pub credential_suffix: Option<Option<String>>,
+	pub custom_provider_name: Option<Option<String>>,
+	pub custom_provider_url: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: bool,
+	pub host_provider_id: Option<Option<String>>,
+	pub id: String,
+	pub input_modalities: Option<Vec<String>>,
+	pub local_slug: Option<String>,
+	pub max_output_tokens: Option<Option<i64>>,
+	pub model_id: String,
+	pub name: String,
+	pub output_modalities: Option<Vec<String>>,
+	pub routing_policy: Option<String>,
+	pub supports_responses: bool,
+	pub updated_at: Option<Option<String>>,
+	pub upstream_model_id: String,
+	pub workspace_id: String,
+}
+
+pub struct PrivateModelCreateRequest {
+	pub base_url: String,
+	pub context_length: Option<Option<i64>>,
+	pub credential: String,
+	pub custom_provider_name: Option<Option<String>>,
+	pub custom_provider_url: Option<Option<String>>,
+	pub description: Option<String>,
+	pub enabled: Option<bool>,
+	pub host_provider_id: Option<Option<String>>,
+	pub max_output_tokens: Option<Option<i64>>,
+	pub model_reference: String,
+	pub name: String,
+	pub routing_policy: Option<String>,
+	pub supports_responses: Option<bool>,
+	pub upstream_model_id: String,
+}
+
+pub struct PrivateModelDeleteResponse {
+	pub deleted: bool,
+}
+
+pub struct PrivateModelListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct PrivateModelResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct PrivateModelUpdateRequest {
+	pub base_url: Option<String>,
+	pub context_length: Option<Option<i64>>,
+	pub credential: Option<String>,
+	pub custom_provider_name: Option<Option<String>>,
+	pub custom_provider_url: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub enabled: Option<bool>,
+	pub host_provider_id: Option<Option<String>>,
+	pub max_output_tokens: Option<Option<i64>>,
+	pub model_reference: Option<String>,
+	pub name: Option<String>,
+	pub routing_policy: Option<String>,
+	pub supports_responses: Option<bool>,
+	pub upstream_model_id: Option<String>,
+}
+
 pub struct Provider {
 	pub api_provider_id: Option<String>,
 	pub api_provider_name: Option<Option<String>>,
@@ -2733,7 +2808,7 @@ pub struct Workspace {
 	pub created_by: Option<String>,
 	pub id: String,
 	pub name: Option<String>,
-	pub slug: Option<String>,
+	pub slug: Option<Option<String>>,
 	pub updated_at: Option<String>,
 }
 

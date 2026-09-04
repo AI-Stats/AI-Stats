@@ -60,6 +60,7 @@
 									"v1/guides/routing-and-fallbacks",
 									"v1/guides/regional-routing",
 									"v1/guides/provider-qualified-models",
+									"v1/guides/private-models",
 									"v1/guides/provider-statuses"
 								]
 							},
@@ -602,6 +603,17 @@
 											"v1/api-reference/endpoint/observability-destinations-get",
 											"v1/api-reference/endpoint/observability-destinations-update",
 											"v1/api-reference/endpoint/observability-destinations-delete"
+										]
+									},
+									{
+										"group": "Private Models",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/private-models-list",
+											"v1/api-reference/endpoint/private-models-create",
+											"v1/api-reference/endpoint/private-models-get",
+											"v1/api-reference/endpoint/private-models-update",
+											"v1/api-reference/endpoint/private-models-delete"
 										]
 									},
 									{

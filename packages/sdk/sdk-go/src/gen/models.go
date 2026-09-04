@@ -3567,6 +3567,79 @@ const (
 )
 
 
+type PrivateModel struct {
+	BaseUrl string `json:"base_url"`
+	CatalogModelId *string `json:"catalog_model_id,omitempty"`
+	ContextLength *int `json:"context_length,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	CredentialPrefix *string `json:"credential_prefix,omitempty"`
+	CredentialSuffix *string `json:"credential_suffix,omitempty"`
+	CustomProviderName *string `json:"custom_provider_name,omitempty"`
+	CustomProviderUrl *string `json:"custom_provider_url,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled bool `json:"enabled"`
+	HostProviderId *string `json:"host_provider_id,omitempty"`
+	Id string `json:"id"`
+	InputModalities *[]string `json:"input_modalities,omitempty"`
+	LocalSlug *string `json:"local_slug,omitempty"`
+	MaxOutputTokens *int `json:"max_output_tokens,omitempty"`
+	ModelId string `json:"model_id"`
+	Name string `json:"name"`
+	OutputModalities *[]string `json:"output_modalities,omitempty"`
+	RoutingPolicy *string `json:"routing_policy,omitempty"`
+	SupportsResponses bool `json:"supports_responses"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	UpstreamModelId string `json:"upstream_model_id"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PrivateModelCreateRequest struct {
+	BaseUrl string `json:"base_url"`
+	ContextLength *int `json:"context_length,omitempty"`
+	Credential string `json:"credential"`
+	CustomProviderName *string `json:"custom_provider_name,omitempty"`
+	CustomProviderUrl *string `json:"custom_provider_url,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	HostProviderId *string `json:"host_provider_id,omitempty"`
+	MaxOutputTokens *int `json:"max_output_tokens,omitempty"`
+	ModelReference string `json:"model_reference"`
+	Name string `json:"name"`
+	RoutingPolicy *string `json:"routing_policy,omitempty"`
+	SupportsResponses *bool `json:"supports_responses,omitempty"`
+	UpstreamModelId string `json:"upstream_model_id"`
+}
+
+type PrivateModelDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+type PrivateModelListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type PrivateModelResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PrivateModelUpdateRequest struct {
+	BaseUrl *string `json:"base_url,omitempty"`
+	ContextLength *int `json:"context_length,omitempty"`
+	Credential *string `json:"credential,omitempty"`
+	CustomProviderName *string `json:"custom_provider_name,omitempty"`
+	CustomProviderUrl *string `json:"custom_provider_url,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	HostProviderId *string `json:"host_provider_id,omitempty"`
+	MaxOutputTokens *int `json:"max_output_tokens,omitempty"`
+	ModelReference *string `json:"model_reference,omitempty"`
+	Name *string `json:"name,omitempty"`
+	RoutingPolicy *string `json:"routing_policy,omitempty"`
+	SupportsResponses *bool `json:"supports_responses,omitempty"`
+	UpstreamModelId *string `json:"upstream_model_id,omitempty"`
+}
+
 type Provider struct {
 	ApiProviderId *string `json:"api_provider_id,omitempty"`
 	ApiProviderName *string `json:"api_provider_name,omitempty"`
@@ -4112,7 +4185,7 @@ type Workspace struct {
 	CreatedBy *string `json:"created_by"`
 	Id string `json:"id"`
 	Name *string `json:"name"`
-	Slug *string `json:"slug"`
+	Slug *string `json:"slug,omitempty"`
 	UpdatedAt *string `json:"updated_at"`
 }
 

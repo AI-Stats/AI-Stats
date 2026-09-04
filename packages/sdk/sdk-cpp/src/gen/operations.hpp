@@ -159,6 +159,11 @@ inline Response CreatePresetTestRun(Client& client, const std::map<std::string, 
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreatePrivateModel(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/private-models";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/byok";
 	return client.request("POST", resolved_path, body);
@@ -291,6 +296,11 @@ inline Response DeleteObservabilityDestination(Client& client, const std::map<st
 
 inline Response DeletePreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeletePrivateModel(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/private-models/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -476,6 +486,11 @@ inline Response GetPresetPublisher(Client& client, const std::map<std::string, s
 
 inline Response GetPresetTestRun(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/preset-test-runs/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetPrivateModel(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/private-models/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -706,6 +721,11 @@ inline Response ListPresetVersions(Client& client, const std::map<std::string, s
 
 inline Response ListPricingModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/pricing/models";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListPrivateModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/private-models";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -991,6 +1011,11 @@ inline Response UpdatePresetPublisher(Client& client, const std::map<std::string
 
 inline Response UpdatePresetTestRun(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/preset-test-runs/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdatePrivateModel(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/private-models/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

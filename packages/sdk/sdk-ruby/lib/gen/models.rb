@@ -3154,6 +3154,122 @@ module Phaseo
     #   @return [Hash{String => Object}]
     PresetVersionResponse = Struct.new(:data, keyword_init: true)
     PresetVisibility = Object
+    # @!attribute [rw] base_url
+    #   @return [String]
+    # @!attribute [rw] catalog_model_id
+    #   @return [String, nil]
+    # @!attribute [rw] context_length
+    #   @return [Integer, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] credential_prefix
+    #   @return [String, nil]
+    # @!attribute [rw] credential_suffix
+    #   @return [String, nil]
+    # @!attribute [rw] custom_provider_name
+    #   @return [String, nil]
+    # @!attribute [rw] custom_provider_url
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] host_provider_id
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] input_modalities
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] local_slug
+    #   @return [String, nil]
+    # @!attribute [rw] max_output_tokens
+    #   @return [Integer, nil]
+    # @!attribute [rw] model_id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] output_modalities
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] routing_policy
+    #   @return [String, nil]
+    # @!attribute [rw] supports_responses
+    #   @return [Boolean]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] upstream_model_id
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    PrivateModel = Struct.new(:base_url, :catalog_model_id, :context_length, :created_at, :created_by, :credential_prefix, :credential_suffix, :custom_provider_name, :custom_provider_url, :description, :enabled, :host_provider_id, :id, :input_modalities, :local_slug, :max_output_tokens, :model_id, :name, :output_modalities, :routing_policy, :supports_responses, :updated_at, :upstream_model_id, :workspace_id, keyword_init: true)
+    # @!attribute [rw] base_url
+    #   @return [String]
+    # @!attribute [rw] context_length
+    #   @return [Integer, nil]
+    # @!attribute [rw] credential
+    #   @return [String]
+    # @!attribute [rw] custom_provider_name
+    #   @return [String, nil]
+    # @!attribute [rw] custom_provider_url
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] host_provider_id
+    #   @return [String, nil]
+    # @!attribute [rw] max_output_tokens
+    #   @return [Integer, nil]
+    # @!attribute [rw] model_reference
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] routing_policy
+    #   @return [String, nil]
+    # @!attribute [rw] supports_responses
+    #   @return [Boolean, nil]
+    # @!attribute [rw] upstream_model_id
+    #   @return [String]
+    PrivateModelCreateRequest = Struct.new(:base_url, :context_length, :credential, :custom_provider_name, :custom_provider_url, :description, :enabled, :host_provider_id, :max_output_tokens, :model_reference, :name, :routing_policy, :supports_responses, :upstream_model_id, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [Boolean]
+    PrivateModelDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    PrivateModelListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PrivateModelResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] base_url
+    #   @return [String, nil]
+    # @!attribute [rw] context_length
+    #   @return [Integer, nil]
+    # @!attribute [rw] credential
+    #   @return [String, nil]
+    # @!attribute [rw] custom_provider_name
+    #   @return [String, nil]
+    # @!attribute [rw] custom_provider_url
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] host_provider_id
+    #   @return [String, nil]
+    # @!attribute [rw] max_output_tokens
+    #   @return [Integer, nil]
+    # @!attribute [rw] model_reference
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] routing_policy
+    #   @return [String, nil]
+    # @!attribute [rw] supports_responses
+    #   @return [Boolean, nil]
+    # @!attribute [rw] upstream_model_id
+    #   @return [String, nil]
+    PrivateModelUpdateRequest = Struct.new(:base_url, :context_length, :credential, :custom_provider_name, :custom_provider_url, :description, :enabled, :host_provider_id, :max_output_tokens, :model_reference, :name, :routing_policy, :supports_responses, :upstream_model_id, keyword_init: true)
     # @!attribute [rw] api_provider_id
     #   @return [String, nil]
     # @!attribute [rw] api_provider_name

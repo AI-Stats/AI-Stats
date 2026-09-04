@@ -63,6 +63,10 @@ export type ExecutorExecuteArgs = {
 	capability?: string;
 
 	providerModelSlug?: string | null;
+	privateEndpoint?: {
+		baseUrl: string;
+		supportsResponses: boolean;
+	} | null;
 	capabilityParams?: Record<string, any> | null;
 	maxInputTokens?: number | null;
 	maxOutputTokens?: number | null;

@@ -1045,7 +1045,7 @@ export default function RequestDetailDialog({
 										<span className="min-w-0 break-words">
 											{request.provider ? (
 												<Link
-													href={`/api-providers/${encodeURIComponent(request.provider)}`}
+											href={request.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(request.provider)}`}
 													className="text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70"
 												>
 													{providerName ?? request.provider}
@@ -1271,7 +1271,7 @@ export default function RequestDetailDialog({
 			value: request.provider ? (
 				<UsageEntityHoverCard
 					title={providerName ?? request.provider}
-					href={`/api-providers/${encodeURIComponent(request.provider)}`}
+				href={request.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(request.provider)}`}
 					visual={
 						<Logo
 							id={request.provider}
@@ -1300,7 +1300,7 @@ export default function RequestDetailDialog({
 					]}
 				>
 					<Link
-						href={`/api-providers/${encodeURIComponent(request.provider)}`}
+					href={request.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(request.provider)}`}
 					className="inline-flex items-center gap-2 text-foreground underline decoration-transparent transition-colors duration-200 hover:text-foreground hover:decoration-foreground/70"
 					>
 						<Logo
