@@ -184,10 +184,19 @@ export function routeAccessScope(row: Record<string, any>, providerIsExternal = 
     return phaseoStatus(row, providerIsExternal) === "testing" ? "internal" : "public";
 }
 
+function providerAvailabilityAllowsRouting(row: Record<string, any>): boolean {
+    const availability = providerAvailabilityStatus(row);
+    if (["available", "preview", "limited_access"].includes(availability)) return true;
+    if (availability !== "deprecated") return false;
+
+    const effectiveTo = Date.parse(String(row.effective_to ?? ""));
+    return Number.isFinite(effectiveTo) && effectiveTo > Date.now();
+}
+
 export function phaseoRoutingEnabled(row: Record<string, any>, providerIsExternal = false): boolean {
     return phaseoStatus(row, providerIsExternal) === "enabled"
         && routeAccessScope(row, providerIsExternal) === "public"
-        && ["available", "preview", "limited_access"].includes(providerAvailabilityStatus(row))
+        && providerAvailabilityAllowsRouting(row)
         && !["disabled", "retired"].includes(normalizedStatus(row.routing_status));
 }
 
