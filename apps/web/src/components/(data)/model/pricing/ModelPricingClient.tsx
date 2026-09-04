@@ -81,6 +81,7 @@ import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { normalizeProviderPromptTrainingPolicy } from "@/lib/providers/promptTrainingPolicy";
 import { mergeProviderPricingOffers } from "@/lib/providers/providerFamilyGroups";
+import { formatProviderOfferDisplayName } from "@/lib/providers/providerOffers";
 import {
     getProviderAvailablePlans,
     getProviderModelScopeForPlan,
@@ -654,7 +655,7 @@ function ProviderServiceTierRow({
 		? buildProviderTablePriceSummary(sections, "cached")
 		: null;
 	const tierMeta = getTierFilterMeta(plan);
-	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
+	const providerName = getProviderServiceTierDisplayName(provider);
 	const logoProviderId = sections.logoProviderId;
 	const openTier = () => {
 		dispatchProviderInspectorOpen(
@@ -727,6 +728,17 @@ function ProviderServiceTierRow({
 			</TableCell>
 		</TableRow>
 	);
+}
+
+export function getProviderServiceTierDisplayName(provider: ProviderPricing): string {
+	return formatProviderOfferDisplayName({
+		providerId: provider.provider.api_provider_id,
+		providerName:
+			provider.provider.api_provider_name ||
+			provider.provider.api_provider_id,
+		offerLabel: provider.provider.offer_label ?? null,
+		offerScope: provider.provider.offer_scope ?? null,
+	});
 }
 
 export default function ModelPricingClient({
