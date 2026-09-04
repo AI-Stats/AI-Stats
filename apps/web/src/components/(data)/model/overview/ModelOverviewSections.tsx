@@ -142,6 +142,9 @@ function Section({
 	);
 }
 
+const MODEL_SECTION_STACK_CLASSNAME =
+	"space-y-10 [&>section:first-of-type]:border-t-0 [&>section:first-of-type]:pt-0";
+
 function parseTypes(types: unknown): string[] {
 	const normalizeType = (value: string): string => {
 		const normalized = value
@@ -1198,8 +1201,8 @@ export function ModelCreatorModelsSkeleton() {
 
 export function ModelOverviewSectionsSkeleton() {
 	return (
-		<div className="space-y-10">
-			<Section id="providers" showDivider={false}>
+		<div className={MODEL_SECTION_STACK_CLASSNAME}>
+			<Section id="providers">
 				<SectionHeader
 					title="Providers"
 					description="API providers, route pricing, availability, and recent reliability signals."
@@ -1280,9 +1283,9 @@ export default function ModelOverviewSections({
 
 	if (isRetired) {
 		return (
-			<div className="space-y-10">
+			<div className={MODEL_SECTION_STACK_CLASSNAME}>
 				{showBenchmarks ? (
-					<Section id="benchmarks" showDivider={false}>
+					<Section id="benchmarks">
 						<SectionHeader title="Benchmarks" />
 						<Suspense fallback={<BenchmarksSectionSkeleton />}>
 							<ModelBenchmarksSection
@@ -1296,11 +1299,11 @@ export default function ModelOverviewSections({
 				{hasInternalModelData ? (
 					<>
 						{showVerification ? (
-							<Section id="verification" showDivider={showBenchmarks}>
+							<Section id="verification">
 								<ModelVerificationSection outputTypes={model?.output_types} />
 							</Section>
 						) : null}
-						<Section id="about" showDivider={showProviders}>
+						<Section id="about">
 							<SectionHeader
 								title="About"
 								description="Archived dates, capabilities, links, and model metadata."
@@ -1332,9 +1335,9 @@ export default function ModelOverviewSections({
 
 	if (!isGatewayActive) {
 		return (
-			<div className="space-y-10">
+			<div className={MODEL_SECTION_STACK_CLASSNAME}>
 				{showProviders ? (
-					<Section id="providers" showDivider={false}>
+					<Section id="providers">
 						<Suspense fallback={<ProvidersSectionSkeleton />}>
 							<ModelProvidersSection
 								modelId={modelId}
@@ -1367,7 +1370,7 @@ export default function ModelOverviewSections({
 				) : null}
 				{hasInternalModelData ? (
 					<>
-						<Section id="about" showDivider={showProviders}>
+						<Section id="about">
 							<SectionHeader
 								title="About"
 								description="Key dates, capabilities, and model metadata."
@@ -1398,9 +1401,9 @@ export default function ModelOverviewSections({
 	}
 
 	return (
-		<div className="space-y-10">
+		<div className={MODEL_SECTION_STACK_CLASSNAME}>
 			{showProviders ? (
-				<Section id="providers" showDivider={false}>
+				<Section id="providers">
 					<Suspense fallback={<ProvidersSectionSkeleton />}>
 						<ModelProvidersSection
 							modelId={modelId}
@@ -1492,7 +1495,7 @@ export default function ModelOverviewSections({
 			) : null}
 			{hasInternalModelData ? (
 				<>
-					<Section id="about" showDivider={showProviders}>
+					<Section id="about">
 						<SectionHeader
 							title="About"
 							description="Key dates, capabilities, and model metadata."
