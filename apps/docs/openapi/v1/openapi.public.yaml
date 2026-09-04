@@ -11954,8 +11954,8 @@ components:
         async:
           type: boolean
           description: >-
-            Lets supported OpenAI models continue while the caller executes this
-            tool. Ignored when routed to other providers.
+            Lets supported OpenAI models continue while the caller executes this tool. Ignored when routed to other
+            providers.
         description:
           type: string
         input_schema:
@@ -15226,8 +15226,8 @@ components:
         async:
           type: boolean
           description: >-
-            Lets supported OpenAI models continue while the caller executes this
-            tool. Accepted on all text API surfaces and ignored by other providers.
+            Lets supported OpenAI models continue while the caller executes this tool. Accepted on all text API surfaces
+            and ignored by other providers.
         function:
           type: object
           required:

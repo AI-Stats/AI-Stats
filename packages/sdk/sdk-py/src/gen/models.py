@@ -82,6 +82,7 @@ class AnthropicMessagesResponse(TypedDict):
 	usage: NotRequired[AnthropicUsage]
 
 class AnthropicTool(TypedDict):
+	async: NotRequired[bool]
 	description: NotRequired[str]
 	input_schema: NotRequired[Dict[str, Any]]
 	name: str
@@ -841,6 +842,7 @@ class FileUploadRequest(TypedDict):
 	purpose: str
 
 class FunctionToolDefinition(TypedDict):
+	async: NotRequired[bool]
 	function: Dict[str, Any]
 	type: Literal["function"]
 

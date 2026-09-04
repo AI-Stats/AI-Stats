@@ -222,6 +222,9 @@ public sealed class AnthropicMessagesResponse
 
 public sealed class AnthropicTool
 {
+	[JsonPropertyName("async")]
+	public bool? Async { get; set; }
+
 	[JsonPropertyName("description")]
 	public string? Description { get; set; }
 
@@ -2300,6 +2303,9 @@ public sealed class FileUploadRequest
 
 public sealed class FunctionToolDefinition
 {
+	[JsonPropertyName("async")]
+	public bool? Async { get; set; }
+
 	[JsonPropertyName("function")]
 	public Dictionary<string, object> Function { get; set; }
 

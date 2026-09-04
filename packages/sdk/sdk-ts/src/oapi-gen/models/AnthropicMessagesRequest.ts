@@ -129,6 +129,7 @@ export interface AnthropicMessagesRequest {
   tool_choice?: {} | string;
   tools?: (
     | {
+        async?: boolean;
         description?: string;
         input_schema?: {};
         name: string;

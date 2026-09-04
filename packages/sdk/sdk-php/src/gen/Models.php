@@ -161,6 +161,8 @@ class AnthropicMessagesResponse
 
 class AnthropicTool
 {
+	/** @var bool|null */
+	public $async;
 	/** @var string|null */
 	public $description;
 	/** @var array<string, mixed>|null */
@@ -1671,6 +1673,8 @@ class FileUploadRequest
 
 class FunctionToolDefinition
 {
+	/** @var bool|null */
+	public $async;
 	/** @var array<string, mixed> */
 	public $function;
 	/** @var string */

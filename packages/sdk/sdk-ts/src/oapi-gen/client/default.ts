@@ -956,6 +956,7 @@ export type CreateAnthropicMessageParams = {
     tool_choice?: {} | string;
     tools?: (
       | {
+          async?: boolean;
           description?: string;
           input_schema?: {};
           name: string;
@@ -2151,6 +2152,7 @@ export type CreateChatCompletionParams = {
       | {};
     tools?: (
       | {
+          async?: boolean;
           function: {
             description?: string;
             name: string;
@@ -4895,6 +4897,7 @@ export type CreateResponseParams = {
       | {};
     tools?: (
       | {
+          async?: boolean;
           function: {
             description?: string;
             name: string;
