@@ -116,7 +116,7 @@ const SINGLE_PROVIDER_FAILURE_RETRIES = 0;
 // credential must not be silently retained while being impossible to attempt.
 export const MAX_BYOK_CREDENTIAL_ATTEMPTS = BYOK_KEYS_PER_PROVIDER_LIMIT;
 
-export type CredentialAttemptPhase = "priority_byok" | "gateway" | "fallback_byok";
+export type CredentialAttemptPhase = "priority_byok" | "balanced_byok" | "gateway" | "fallback_byok";
 
 export function buildCredentialAttemptPlan(
 	rankedProviders: any[],
@@ -126,9 +126,9 @@ export function buildCredentialAttemptPlan(
 	phase: CredentialAttemptPhase;
 	credential: { kind: "gateway" } | { kind: "byok"; key: ByokKeyMeta };
 }> {
-	const modeForKey = (key: ByokKeyMeta): "priority" | "fallback" =>
+	const modeForKey = (key: ByokKeyMeta): "priority" | "balanced" | "fallback" =>
 		key.routingMode ?? (key.alwaysUse ? "priority" : "fallback");
-	const keysForMode = (routed: any, mode: "priority" | "fallback") =>
+	const keysForMode = (routed: any, mode: "priority" | "balanced" | "fallback") =>
 		(routed.candidate.byokMeta ?? [])
 			.filter((key: ByokKeyMeta) => modeForKey(key) === mode)
 			.sort((a: ByokKeyMeta, b: ByokKeyMeta) =>
@@ -136,7 +136,9 @@ export function buildCredentialAttemptPlan(
 			)
 			.map((key: ByokKeyMeta) => ({
 				routed,
-				phase: mode === "priority" ? "priority_byok" as const : "fallback_byok" as const,
+				phase: mode === "priority"
+					? "priority_byok" as const
+					: mode === "balanced" ? "balanced_byok" as const : "fallback_byok" as const,
 				credential: { kind: "byok" as const, key },
 			}));
 
@@ -149,12 +151,16 @@ export function buildCredentialAttemptPlan(
 			.flatMap((routed) => keysForMode(routed, "fallback"))
 			.slice(0, remainingByokAttempts);
 
-	const gatewayAttempts = limitedPriorityAttempts.length === 0 || options.allowManagedFallback === true
-		? rankedProviders.map((routed) => ({
+	const balancedAttempts = rankedProviders.flatMap((routed) => {
+		const keys = keysForMode(routed, "balanced");
+		return keys.length ? keys : [{
 			routed,
 			phase: "gateway" as const,
 			credential: { kind: "gateway" as const },
-		}))
+		}];
+	});
+	const gatewayAttempts = limitedPriorityAttempts.length === 0 || options.allowManagedFallback === true
+		? balancedAttempts
 		: [];
 
 	return [

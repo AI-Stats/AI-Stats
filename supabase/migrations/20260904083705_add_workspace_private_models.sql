@@ -1,3 +1,5 @@
+-- phaseo:allow-production-history-backfill reason: reconciles the already-applied workspace private-model schema with repository migration history
+
 create table if not exists public.workspace_private_models (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id) on delete cascade,

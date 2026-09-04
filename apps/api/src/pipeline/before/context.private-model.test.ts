@@ -79,7 +79,7 @@ describe("workspace private model context", () => {
 
 	it.each([
 		["preferred", true, "priority", 0],
-		["balanced", false, "priority", 0],
+		["balanced", false, "balanced", 0],
 		["fallback", false, "fallback", 10_000],
 	] as const)("maps the %s attachment policy onto provider selection metadata", async (routingPolicy, alwaysUse, routingMode, sortOrder) => {
 		const { loadWorkspacePrivateModel } = await import("./context");

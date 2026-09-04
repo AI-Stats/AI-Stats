@@ -765,7 +765,22 @@ export async function handleModels(req: Request) {
             inputTypes,
             outputTypes,
         });
-        const models = [...privateModels, ...publicModels];
+        const privateByModelId = new Map(privateModels.map((model) => [model.id, model]));
+        const mergedPublicModels = publicModels.map((model) => {
+            const privateModel = privateByModelId.get(model.id);
+            if (!privateModel) return model;
+            privateByModelId.delete(model.id);
+            return {
+                ...model,
+                offers: [...model.offers, ...privateModel.offers],
+                availability: {
+                    ...model.availability,
+                    provider_count: model.availability.provider_count + privateModel.availability.provider_count,
+                    active_provider_count: model.availability.active_provider_count + privateModel.availability.active_provider_count,
+                },
+            };
+        });
+        const models = [...privateByModelId.values(), ...mergedPublicModels];
         const paged = models.slice(offset, offset + limit);
         const headers = cacheHeaders({ ...cacheOptions, varyHeaders: ["Authorization"] });
         if (requestedFormat.format !== "json") {

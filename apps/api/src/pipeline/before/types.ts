@@ -75,7 +75,7 @@ export type ByokKeyMeta = {
     fingerprintSha256: string;
     keyVersion: string | null;
     alwaysUse: boolean;
-	routingMode?: "priority" | "fallback";
+	routingMode?: "priority" | "balanced" | "fallback";
 	sortOrder?: number;
 	allowedModelSlugs?: string[] | null;
 	allowedApiKeyIds?: string[] | null;
@@ -484,7 +484,7 @@ export type ProviderAttemptLog = {
     retryable?: boolean | null;
     key_source?: "gateway" | "byok" | null;
     byok_key_id?: string | null;
-    credential_phase?: "priority_byok" | "gateway" | "fallback_byok";
+    credential_phase?: "priority_byok" | "balanced_byok" | "gateway" | "fallback_byok";
     upstream_url?: string | null;
     upstream_error_code?: string | null;
     upstream_error_type?: string | null;
@@ -707,7 +707,7 @@ export type PipelineContext = {
     credentialPlan?: Array<{
         attempt_number: number;
         provider: string;
-        credential_phase: "priority_byok" | "gateway" | "fallback_byok";
+        credential_phase: "priority_byok" | "balanced_byok" | "gateway" | "fallback_byok";
         key_source: "gateway" | "byok";
         byok_key_id: string | null;
     }>;

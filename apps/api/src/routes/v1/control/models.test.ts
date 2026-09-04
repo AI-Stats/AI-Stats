@@ -164,6 +164,30 @@ describe("handleModels", () => {
         expect(response.headers.get("vary")).toBe("Authorization");
     });
 
+    it("merges an attached private offer into its catalogue model", async () => {
+        privateModelRows.rows = [{
+            model_id: "openai/gpt-4o-mini",
+            name: "Dedicated GPT-4o Mini",
+            supports_responses: true,
+            input_modalities: ["text"],
+            output_modalities: ["text"],
+            created_at: "2026-09-04T00:00:00Z",
+        }];
+
+        const response = await handleModels(new Request("https://api.example.com/"));
+        const payload = await response.json() as any;
+
+        expect(payload.models).toHaveLength(1);
+        expect(payload.models[0]).toMatchObject({
+            id: "openai/gpt-4o-mini",
+            availability: { provider_count: 2, active_provider_count: 2 },
+        });
+        expect(payload.models[0].offers.map((offer: any) => offer.provider.id)).toEqual([
+            "openai",
+            "private-model",
+        ]);
+    });
+
     it("rejects invalid availability filters", async () => {
         const response = await handleModels(
             new Request("https://api.example.com/?availability=future_only"),

@@ -358,7 +358,7 @@ export async function loadWorkspacePrivateModel(args: {
 				fingerprintSha256: row.fingerprint_sha256,
 				keyVersion: String(row.key_version),
 				alwaysUse: row.routing_policy === "preferred",
-				routingMode: row.routing_policy === "fallback" ? "fallback" : "priority",
+				routingMode: row.routing_policy === "preferred" ? "priority" : row.routing_policy,
 				sortOrder: row.routing_policy === "fallback" ? 10_000 : 0,
 				key: credential,
 				value: credential,

@@ -50,7 +50,9 @@ function formatPrivateModel(row: Record<string, any>) {
 		custom_provider_name: row.custom_provider_name ?? null,
 		custom_provider_url: row.custom_provider_url ?? null,
 		routing_policy: row.routing_policy ?? "preferred",
-		credential_prefix: row.credential_prefix ?? null,
+		// Never return both stored fragments: short accepted credentials could be
+		// reconstructed when the prefix and suffix overlap.
+		credential_prefix: null,
 		credential_suffix: row.credential_suffix ?? null,
 		created_at: row.created_at ?? null,
 		updated_at: row.updated_at ?? null,
@@ -217,10 +219,22 @@ async function handleUpdate(req: Request) {
 		if (typeof body.enabled === "boolean") patch.enabled = body.enabled;
 		if (body.context_length !== undefined) patch.context_length = normalizePositiveInteger(body.context_length, "context_length");
 		if (body.max_output_tokens !== undefined) patch.max_output_tokens = normalizePositiveInteger(body.max_output_tokens, "max_output_tokens");
-		if (body.host_provider_id !== undefined || body.custom_provider_name !== undefined) {
-			patch.host_provider_id = String(body.host_provider_id ?? "").trim() || null;
-			patch.custom_provider_name = patch.host_provider_id ? null : String(body.custom_provider_name ?? "").trim() || "Private endpoint";
-			patch.custom_provider_url = patch.host_provider_id ? null : String(body.custom_provider_url ?? "").trim() || null;
+		if (body.host_provider_id !== undefined || body.custom_provider_name !== undefined || body.custom_provider_url !== undefined) {
+			const hostProviderId = body.host_provider_id === undefined
+				? String(existing.host_provider_id ?? "").trim() || null
+				: String(body.host_provider_id ?? "").trim() || null;
+			patch.host_provider_id = hostProviderId;
+			if (hostProviderId) {
+				patch.custom_provider_name = null;
+				patch.custom_provider_url = null;
+			} else {
+				patch.custom_provider_name = body.custom_provider_name === undefined
+					? String(existing.custom_provider_name ?? "").trim() || "Private endpoint"
+					: String(body.custom_provider_name ?? "").trim() || "Private endpoint";
+				patch.custom_provider_url = body.custom_provider_url === undefined
+					? String(existing.custom_provider_url ?? "").trim() || null
+					: String(body.custom_provider_url ?? "").trim() || null;
+			}
 		}
 		if (body.routing_policy !== undefined) {
 			if (!["preferred", "balanced", "fallback"].includes(String(body.routing_policy))) throw new Error("routing_policy must be preferred, balanced, or fallback");

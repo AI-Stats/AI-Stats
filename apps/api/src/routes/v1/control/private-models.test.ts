@@ -9,7 +9,7 @@ const state = vi.hoisted(() => ({
 }));
 
 function query(table?: string) {
-	let mutation: "insert" | null = null;
+	let mutation: "insert" | "update" | null = null;
 	const q: any = {
 		select: () => q,
 		eq: (column: string, value: unknown) => { state.eqCalls.push([column, value]); return q; },
@@ -17,9 +17,10 @@ function query(table?: string) {
 		limit: () => Promise.resolve({ data: [], error: null }),
 		order: () => Promise.resolve({ data: state.rows, error: null }),
 		insert: (payload: Record<string, unknown>) => { mutation = "insert"; state.inserted = payload; return q; },
+		update: (payload: Record<string, unknown>) => { mutation = "update"; state.inserted = payload; return q; },
 		maybeSingle: async () => table === "workspaces"
 			? { data: { slug: "acme" }, error: null }
-			: mutation === "insert"
+			: mutation === "insert" || mutation === "update"
 			? { data: { ...state.inserted }, error: null }
 			: { data: state.rows[0] ?? null, error: null },
 	};
@@ -104,5 +105,48 @@ describe("private model management", () => {
 			}),
 		});
 		expect(response.status).toBe(400);
+	});
+
+	it("does not return reconstructible credential prefixes", async () => {
+		state.rows = [{
+			id: "00000000-0000-4000-8000-000000000001",
+			workspace_id: state.auth.value.workspaceId,
+			model_id: "acme/short-key",
+			name: "Short Key",
+			credential_prefix: "secret",
+			credential_suffix: "alue",
+		}];
+		const { privateModelsRoutes } = await import("./private-models");
+		const response = await privateModelsRoutes.request("https://example.com/");
+		const payload = await response.json() as any;
+		expect(payload.data[0].credential_prefix).toBeNull();
+		expect(payload.data[0].credential_suffix).toBe("alue");
+	});
+
+	it("patches a custom provider URL without clearing its name", async () => {
+		state.rows = [{
+			id: "00000000-0000-4000-8000-000000000001",
+			workspace_id: state.auth.value.workspaceId,
+			model_id: "acme/legal-assistant",
+			name: "Legal Assistant",
+			provider_id: "private-model:00000000-0000-4000-8000-000000000001",
+			host_provider_id: null,
+			custom_provider_name: "Acme Hosting",
+			custom_provider_url: "https://old.example.com",
+		}];
+		const { privateModelsRoutes } = await import("./private-models");
+		const response = await privateModelsRoutes.request(
+			"https://example.com/00000000-0000-4000-8000-000000000001",
+			{
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ custom_provider_url: "https://new.example.com" }),
+			},
+		);
+		expect(response.status).toBe(200);
+		expect(state.inserted).toMatchObject({
+			custom_provider_name: "Acme Hosting",
+			custom_provider_url: "https://new.example.com",
+		});
 	});
 });
