@@ -139,7 +139,7 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		);
 
 		expect((result as any).ok).toBe(true);
-		expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-image-1-mini", "image.generate");
+		expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-image-1-mini", "image.generate", "gpt-image-1-mini");
 		expect(executor).toHaveBeenCalledTimes(1);
 		expect(guardPricingFoundMock).not.toHaveBeenCalled();
 		expect(onCallEndMock).toHaveBeenCalledWith(

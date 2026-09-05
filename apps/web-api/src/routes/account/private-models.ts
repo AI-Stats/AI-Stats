@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { invalidateWorkspaceGatewayContext } from "./gateway-invalidation";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { requireAccountWorkspace } from "./context";
@@ -96,7 +97,8 @@ accountPrivateModelsRouter.post("/", async (c) => {
 		}).select(SAFE_COLUMNS).single();
 		if (result.error) throw result.error;
 		await recordWorkspaceAuditEvent(context!.client, { workspaceId: context!.workspaceId, actorUserId: context!.user.id, action: "private_model.created", targetType: "private_model", targetId: id, targetName: String(result.data?.name ?? "") });
-		return c.json({ model: result.data }, 201, PRIVATE_NO_STORE_HEADERS);
+		const gatewayCacheInvalidated = await invalidateWorkspaceGatewayContext(context!, c.env).catch(() => false);
+		return c.json({ model: result.data, gatewayCacheInvalidated }, 201, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "Private model could not be created." }, 400, PRIVATE_NO_STORE_HEADERS); }
 });
 
@@ -120,7 +122,8 @@ accountPrivateModelsRouter.patch("/:id", async (c) => {
 		if (result.error) throw result.error;
 		if (!result.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 		await recordWorkspaceAuditEvent(context!.client, { workspaceId: context!.workspaceId, actorUserId: context!.user.id, action: "private_model.updated", targetType: "private_model", targetId: c.req.param("id"), targetName: String(result.data.name ?? ""), metadata: { changedFields: Object.keys(update).filter((field) => !field.startsWith("enc_") && field !== "fingerprint_sha256") } });
-		return c.json({ model: result.data }, 200, PRIVATE_NO_STORE_HEADERS);
+		const gatewayCacheInvalidated = await invalidateWorkspaceGatewayContext(context!, c.env).catch(() => false);
+		return c.json({ model: result.data, gatewayCacheInvalidated }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "Private model could not be updated." }, 400, PRIVATE_NO_STORE_HEADERS); }
 });
 
@@ -132,7 +135,8 @@ accountPrivateModelsRouter.delete("/:id", async (c) => {
 	const result = await context!.client.from("workspace_private_models").delete().eq("workspace_id", context!.workspaceId).eq("id", c.req.param("id"));
 	if (result.error) return c.json({ error: "private_model_delete_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	await recordWorkspaceAuditEvent(context!.client, { workspaceId: context!.workspaceId, actorUserId: context!.user.id, action: "private_model.deleted", targetType: "private_model", targetId: c.req.param("id"), targetName: String(existing.data.name ?? "") });
-	return c.json({ deleted: true }, 200, PRIVATE_NO_STORE_HEADERS);
+	const gatewayCacheInvalidated = await invalidateWorkspaceGatewayContext(context!, c.env).catch(() => false);
+	return c.json({ deleted: true, gatewayCacheInvalidated }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 function pageModel(row: Record<string, any>, workspace: { slug: string; name: string; logoUrl: string | null }) {
