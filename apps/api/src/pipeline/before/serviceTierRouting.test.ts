@@ -104,6 +104,12 @@ function makeCandidate(args: {
 }
 
 describe("applyServiceTierRouting", () => {
+    it.each(["on-demand", "llm-plus"])("preserves default routing for provider SKU %s", async (plan) => {
+        const card = makeCard({ provider: "provider", model: "model", plans: ["standard"] });
+        card.rules = card.rules.map((rule) => ({ ...rule, pricing_plan: plan }));
+        const provider = makeCandidate({ providerId: "provider", pricingCard: card });
+        expect((await applyServiceTierRouting({ candidates: [provider], body: {}, capability: "text.generate" })).candidates).toEqual([provider]);
+    });
     it("preserves default routing for explicitly free cards", async () => {
         const card = makeCard({ provider: "free", model: "model", plans: ["standard"] });
         card.rules = card.rules.map((rule) => ({ ...rule, pricing_plan: "free", price_per_unit: "0" }));

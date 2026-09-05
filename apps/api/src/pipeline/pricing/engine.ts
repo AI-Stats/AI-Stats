@@ -3,7 +3,7 @@
 // How: Exposes helpers used by before/execute/after orchestration.
 
 import { parseUsdToNanos, formatUsdFromNanosExact, nanosToCentsCeil } from "./money";
-import { isFreePriceCard } from "./free";
+import { requiresExplicitServiceTier } from "./service-tiers";
 import { matchesConditions, shallowMerge, evaluateConditions } from "./conditions";
 import type { PriceCard, PriceRule, PricingBreakdownLine, PricingDimensionKey, PricingResult, PricingTimestampBasis } from "./types";
 import { pickFirstFiniteNumber, resolveCanonicalTokenUsage, resolveRequestCountUsage } from "@core/usage-normalization";
@@ -646,8 +646,7 @@ export function computeBillSummary(
 ): PricingResult {
     // A card for another service tier is not a free price card. Check before
     // walking meters, which may include informational, non-billable counters.
-    if (card.rules.length > 0 && !card.rules.some((rule) => rule.pricing_plan === pricingPlan) &&
-        !card.rules.some((rule) => rule.pricing_plan === "standard") && !isFreePriceCard(card)) {
+    if (requiresExplicitServiceTier(card) && !card.rules.some((rule) => rule.pricing_plan === pricingPlan)) {
         throw new Error(`pricing_plan_missing:${pricingPlan}`);
     }
     const { meters, context: usageContext } = splitUsage(usageRaw, card);
