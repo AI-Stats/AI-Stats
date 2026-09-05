@@ -10,7 +10,8 @@ import { requestAwareAvatarUrl } from "./settings-profile-avatar";
 export const accountPrivateModelsRouter = new Hono<{ Bindings: Env }>();
 
 const MODEL_SLUG = /^[a-z0-9][a-z0-9._:-]{0,126}$/;
-const SAFE_COLUMNS = "id,model_id,local_slug,catalog_model_id,host_provider_id,custom_provider_name,custom_provider_url,routing_policy,name,description,base_url,upstream_model_id,supports_responses,enabled,input_modalities,output_modalities,context_length,max_output_tokens,credential_prefix,credential_suffix,created_at,updated_at";
+// Never expose both fragments: together they reconstruct short credentials.
+const SAFE_COLUMNS = "id,model_id,local_slug,catalog_model_id,host_provider_id,custom_provider_name,custom_provider_url,routing_policy,name,description,base_url,upstream_model_id,supports_responses,enabled,input_modalities,output_modalities,context_length,max_output_tokens,credential_suffix,created_at,updated_at";
 
 async function resolveModelIdentity(client: any, workspaceSlug: string, reference: unknown) {
 	const value = String(reference ?? "").trim().toLowerCase();
