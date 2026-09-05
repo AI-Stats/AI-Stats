@@ -10,7 +10,10 @@ alter table public.v2_model_provider_routes
   add constraint v2_model_provider_routes_provider_routing_check check (
     not routing_enabled
     or provider_availability_status in ('available', 'preview', 'limited_access', 'deprecated')
-  );
+  ) not valid;
+
+alter table public.v2_model_provider_routes
+  validate constraint v2_model_provider_routes_provider_routing_check;
 
 -- Keep the raw routing helper aligned with the importer: a deprecated offer is
 -- eligible while its explicit retirement window is still open.
