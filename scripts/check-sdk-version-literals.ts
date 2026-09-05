@@ -165,6 +165,11 @@ async function main(): Promise<void> {
           pattern: /const AGENT_SDK_VERSION = "([^"]+)"/m,
           label: "AGENT_SDK_VERSION constant",
         },
+        {
+          filePath: file("packages", "sdk", "agent-sdk-ts", "src", "adapters", "gateway-client.ts"),
+          pattern: /"X-Phaseo-Client-Version": "([^"]+)"/m,
+          label: "gateway client attribution version",
+        },
       ],
     },
   ];
