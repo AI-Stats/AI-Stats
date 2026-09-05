@@ -1644,6 +1644,143 @@ describe("batchRoutes", () => {
 		});
 	});
 
+	it("normalizes GPT-6 Astra Pro batch rows to the native model and Pro reasoning mode", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+				const url = String(input);
+				const method = String(init?.method ?? "GET").toUpperCase();
+				const bodyText = typeof init?.body === "string" ? init.body : null;
+				const bodyJson = bodyText ? JSON.parse(bodyText) : null;
+				state.fetchCalls.push({
+					url,
+					method,
+					bodyText,
+					bodyJson,
+					headers: Object.fromEntries(new Headers(init?.headers).entries()),
+				});
+
+				if (url === "https://api.openai.example/v1/files" && method === "POST") {
+					const form = init?.body as FormData;
+					const file = form.get("file") as File;
+					const line = JSON.parse((await file.text()).trim());
+					expect(line.body).toEqual({
+						model: "gpt-6-astra",
+						input: "Run the offline Pro evaluation.",
+						max_output_tokens: 48,
+						reasoning: { mode: "pro" },
+					});
+					return jsonResponse({ id: "file_gpt6astra_pro_input", purpose: "batch", status: "uploaded" });
+				}
+				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
+					return jsonResponse({
+						id: "batch_gpt6astra_pro",
+						status: "validating",
+						endpoint: "/v1/responses",
+						input_file_id: "file_gpt6astra_pro_input",
+					});
+				}
+
+				throw new Error(`Unexpected fetch: ${method} ${url}`);
+			}),
+		);
+
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				model: "openai/gpt-6-astra-pro",
+				prompts: ["Run the offline Pro evaluation."],
+				max_tokens: 48,
+			}),
+		});
+
+		expect(response.status).toBe(200);
+		expect(state.fetchCalls.map((call) => `${call.method} ${call.url}`)).toEqual([
+			"POST https://api.openai.example/v1/files",
+			"POST https://api.openai.example/v1/batches",
+		]);
+		expect(state.fetchCalls[1]?.bodyJson).toMatchObject({
+			endpoint: "/v1/responses",
+			input_file_id: "file_gpt6astra_pro_input",
+		});
+	});
+
+	it("rewrites a file-backed GPT-6 Astra Pro batch before OpenAI submission", async () => {
+		state.fileMeta.set(fileKey("ws_batch_test", "file_gpt6astra_pro_source"), {
+			provider: "openai",
+			status: "uploaded",
+			purpose: "batch",
+		});
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+				const url = String(input);
+				const method = String(init?.method ?? "GET").toUpperCase();
+				state.fetchCalls.push({
+					url,
+					method,
+					bodyText: typeof init?.body === "string" ? init.body : null,
+					bodyJson: null,
+					headers: Object.fromEntries(new Headers(init?.headers).entries()),
+				});
+
+				if (url === "https://api.openai.example/v1/files/file_gpt6astra_pro_source/content" && method === "GET") {
+					return new Response(JSON.stringify({
+						custom_id: "source-row-1",
+						method: "POST",
+						url: "/v1/responses",
+						body: {
+							model: "openai/gpt-6-astra-pro",
+							input: "Rewrite this Pro file row.",
+							max_output_tokens: 48,
+						},
+					}), { status: 200 });
+				}
+				if (url === "https://api.openai.example/v1/files" && method === "POST") {
+					const form = init?.body as FormData;
+					const file = form.get("file") as File;
+					const line = JSON.parse((await file.text()).trim());
+					expect(line.custom_id).toBe("source-row-1");
+					expect(line.body).toMatchObject({
+						model: "gpt-6-astra",
+						reasoning: { mode: "pro" },
+					});
+					return jsonResponse({ id: "file_gpt6astra_pro_rewritten", purpose: "batch", status: "uploaded" });
+				}
+				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
+					return jsonResponse({
+						id: "batch_gpt6astra_pro_file",
+						status: "validating",
+						endpoint: "/v1/responses",
+						input_file_id: "file_gpt6astra_pro_rewritten",
+					});
+				}
+
+				throw new Error(`Unexpected fetch: ${method} ${url}`);
+			}),
+		);
+
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				input_file_id: "file_gpt6astra_pro_source",
+				endpoint: "/v1/responses",
+			}),
+		});
+
+		expect(response.status).toBe(200);
+		expect(state.fetchCalls.map((call) => `${call.method} ${call.url}`)).toEqual([
+			"GET https://api.openai.example/v1/files/file_gpt6astra_pro_source/content",
+			"POST https://api.openai.example/v1/files",
+			"POST https://api.openai.example/v1/batches",
+		]);
+		expect(state.fetchCalls[2]?.url).toBe("https://api.openai.example/v1/batches");
+	});
+
 	it("finalizes an OpenAI batch through reconciliation without user result fetch", async () => {
 		vi.stubGlobal(
 			"fetch",

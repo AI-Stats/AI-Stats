@@ -55,9 +55,9 @@ import {
 	saveBatchRequestRows,
 	type BatchRequestRowInput,
 } from "@core/batch-requests";
-import { toProviderNativeBatchModelId } from "@core/batch-model-aliases";
+import { normalizeOpenAIProBatchModel, toProviderNativeBatchModelId } from "@core/batch-model-aliases";
 import { finalizeBatchJob, type FinalizeBatchJobResult } from "@core/batch-finalization";
-import { reserveBatchCredits } from "@core/batch-reservations";
+import { reserveBatchCredits, type BatchReservationRequest } from "@core/batch-reservations";
 import {
 	fetchProviderFileText,
 	normalizeProviderBatchPayload as normalizeProviderBatchPayloadShared,
@@ -329,6 +329,30 @@ function providerNativeModelId(providerId: string, model: string): string {
 	return toProviderNativeBatchModelId(providerId, model);
 }
 
+function isOpenAIProBatchModel(model: string | null | undefined): boolean {
+	return Boolean(model && normalizeOpenAIProBatchModel(model).proMode);
+}
+
+function withOpenAIProBatchReasoningMode(
+	providerId: string,
+	body: unknown,
+	modelCandidates: Array<string | null | undefined>,
+): unknown {
+	if (providerId !== OPENAI_PROVIDER_ID || !modelCandidates.some(isOpenAIProBatchModel)) return body;
+	if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+	const record = body as Record<string, unknown>;
+	const reasoning = record.reasoning && typeof record.reasoning === "object" && !Array.isArray(record.reasoning)
+		? record.reasoning as Record<string, unknown>
+		: {};
+	return {
+		...record,
+		reasoning: {
+			...reasoning,
+			mode: "pro",
+		},
+	};
+}
+
 function requestValue(record: Record<string, unknown>, key: string, fallback: unknown): unknown {
 	return record[key] !== undefined ? record[key] : fallback;
 }
@@ -366,10 +390,11 @@ function buildBodyFromPromptItem(
 	const model = toText(record.model) ?? toText(payload.model);
 	if (!model) throw new Error("missing_model");
 	const nativeModel = providerNativeModelId(providerId, model);
+	const bodyModel = providerId === OPENAI_PROVIDER_ID ? model : nativeModel;
 	if (explicitBody) {
 		return {
 			...explicitBody,
-			model: toText(explicitBody.model) ?? nativeModel,
+			model: toText(explicitBody.model) ?? bodyModel,
 		};
 	}
 	const prompt = promptTextFromItem(raw);
@@ -408,7 +433,7 @@ function buildBodyFromPromptItem(
 	}
 	if (endpoint === "/v1/responses") {
 		return {
-			model: nativeModel,
+			model: bodyModel,
 			...(maxOutputTokens !== undefined
 				? { max_output_tokens: maxOutputTokens }
 				: maxTokens !== undefined
@@ -419,7 +444,7 @@ function buildBodyFromPromptItem(
 		};
 	}
 	return {
-		model: nativeModel,
+		model: bodyModel,
 		...common,
 		messages: messages ?? buildMessages(prompt ?? "", system),
 	};
@@ -509,7 +534,7 @@ function normalizeRequestBodyForProvider(
 	const usesTokenLimit =
 		endpoint === "/v1/chat/completions" ||
 		endpoint === "/v1/messages";
-	return {
+	return withOpenAIProBatchReasoningMode(providerId, {
 		...record,
 		model: providerNativeModelId(providerId, model),
 		...(usesResponsesLimit
@@ -523,7 +548,7 @@ function normalizeRequestBodyForProvider(
 					max_tokens: record.max_tokens ?? record.max_output_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS,
 				}
 				: {}),
-	};
+	}, [rowModel, inheritedModel]);
 }
 
 async function normalizeBatchRequests(providerId: string, payload: Record<string, unknown>): Promise<NormalizedBatchRequest[]> {
@@ -575,7 +600,7 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 			method,
 			url: endpoint,
 			body: normalizedBody,
-			gatewayModel: toText((body as Record<string, unknown>).model) ?? toText(payload.model),
+			gatewayModel: isOpenAIProBatchModel(inheritedModel) ? inheritedModel : toText((body as Record<string, unknown>).model) ?? inheritedModel,
 			index,
 			requestBodyHash: await hashBatchRequestBody(normalizedBody),
 		});
@@ -591,7 +616,7 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 			method: (toText(record.method) ?? "POST").toUpperCase(),
 			url: toText(record.url) ?? endpoint,
 			body: normalizedBody,
-			gatewayModel: toText((body as Record<string, unknown>).model) ?? toText(payload.model),
+			gatewayModel: isOpenAIProBatchModel(inheritedModel) ? inheritedModel : toText((body as Record<string, unknown>).model) ?? inheritedModel,
 			index,
 			requestBodyHash: await hashBatchRequestBody(normalizedBody),
 		});
@@ -1819,7 +1844,12 @@ async function handleCreate(req: Request) {
 			});
 		}
 	}
-	let reservationRequests: Array<{ body: unknown; endpoint?: string | null; method?: string | null }> = (requestRows ?? []).map((row) => ({ body: row.body, endpoint: row.url, method: row.method }));
+	let reservationRequests: BatchReservationRequest[] = (requestRows ?? []).map((row) => ({
+		body: row.body,
+		model: row.gatewayModel,
+		endpoint: row.url,
+		method: row.method,
+	}));
 	let policyRows: NormalizedBatchRequest[] = requestRows ?? [];
 	if (inputMode.mode === "file" && directInputFileId) {
 		try {
@@ -1849,23 +1879,42 @@ async function handleCreate(req: Request) {
 					if (!entry.body || typeof entry.body !== "object" || Array.isArray(entry.body)) throw new Error("invalid_request_body");
 				}
 			}
-			reservationRequests = parsedEntries.map((entry) => ({
-				...entry,
+			const declaredEndpoint = resolveBatchEndpoint(providerId, payload);
+			const normalizeOpenAIProFile = providerId === OPENAI_PROVIDER_ID && (
+				isOpenAIProBatchModel(toText(payload.model)) ||
+				parsedEntries.some((entry) => isOpenAIProBatchModel(toText((entry.body as any)?.model)))
+			);
+			const normalizedEntries = parsedEntries.map((entry) => {
+				const body = entry.body && typeof entry.body === "object" && !Array.isArray(entry.body) && !toText((entry.body as any).model) && toText(payload.model)
+					? { ...(entry.body as Record<string, unknown>), model: toText(payload.model) }
+					: entry.body;
+				const gatewayModel = isOpenAIProBatchModel(toText(payload.model))
+					? toText(payload.model)
+					: toText((body as any)?.model) ?? toText(payload.model);
+				return {
+					entry,
+					body: normalizeOpenAIProFile
+						? normalizeRequestBodyForProvider(providerId, declaredEndpoint, body, toText(payload.model))
+						: body,
+					gatewayModel,
+				};
+			});
+			reservationRequests = normalizedEntries.map(({ entry, body, gatewayModel }) => ({
+				body,
+				model: gatewayModel,
 				endpoint: entry.endpoint ?? toText(payload.endpoint),
-				body:
-					entry.body && typeof entry.body === "object" && !Array.isArray(entry.body) && !toText((entry.body as any).model) && toText(payload.model)
-						? { ...(entry.body as Record<string, unknown>), model: providerNativeModelId(providerId, toText(payload.model)!) }
-						: entry.body,
+				method: entry.method,
 			}));
-			policyRows = await Promise.all(reservationRequests.map(async (entry, index) => ({
-				customId: `request-${index + 1}`,
+			policyRows = await Promise.all(normalizedEntries.map(async ({ entry, body, gatewayModel }, index) => ({
+				customId: entry.customId ?? `request-${index + 1}`,
 				method: (toText(entry.method) ?? "POST").toUpperCase(),
-				url: toText(entry.endpoint) ?? resolveBatchEndpoint(providerId, payload),
-				body: entry.body,
-				gatewayModel: toText(payload.model) ?? toText((entry.body as any)?.model),
+				url: toText(entry.endpoint) ?? declaredEndpoint,
+				body,
+				gatewayModel,
 				index,
-				requestBodyHash: await hashBatchRequestBody(entry.body),
+				requestBodyHash: await hashBatchRequestBody(body),
 			})));
+			if (normalizeOpenAIProFile) requestRows = policyRows;
 		} catch (error) {
 			return err("validation_error", {
 				reason: "batch_input_file_not_priceable",
@@ -1919,13 +1968,12 @@ async function handleCreate(req: Request) {
 		allowMutation: inputMode.mode === "requests",
 	});
 	if (policyError) return policyError;
-	if (inputMode.mode === "requests") {
-		reservationRequests = (requestRows ?? []).map((row) => ({
+	reservationRequests = policyRows.map((row) => ({
 			body: row.body,
+			model: row.gatewayModel,
 			endpoint: row.url,
 			method: row.method,
-		}));
-	}
+	}));
 	const batchId = generateGatewayBatchId();
 	let reservation: Awaited<ReturnType<typeof reserveBatchCredits>>;
 	try {
@@ -1960,7 +2008,11 @@ async function handleCreate(req: Request) {
 			},
 		}, 402);
 	}
-	if (inputMode.mode === "requests" && FILE_BACKED_JSONL_BATCH_PROVIDERS.has(providerId)) {
+	const shouldUploadBatchInputFile = FILE_BACKED_JSONL_BATCH_PROVIDERS.has(providerId) && (
+		inputMode.mode === "requests" ||
+		(inputMode.mode === "file" && providerId === OPENAI_PROVIDER_ID && Boolean(requestRows?.length))
+	);
+	if (shouldUploadBatchInputFile) {
 		let upload: Awaited<ReturnType<typeof uploadProviderBatchInputFile>>;
 		try {
 			upload = await uploadProviderBatchInputFile(providerId, { requestId, rows: requestRows ?? [] });
@@ -2312,7 +2364,7 @@ async function handleCreate(req: Request) {
 				status: "queued",
 				requestBodyHash: row.requestBodyHash,
 				meta: {
-					input_mode: "requests",
+					input_mode: inputMode.mode,
 				},
 			}));
 			await saveBatchRequestRows({
