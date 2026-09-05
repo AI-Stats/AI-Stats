@@ -568,6 +568,31 @@ describe('api provider model safety checks', () => {
         expect(proPricing.rules).toHaveLength(pricing.rules.length);
     });
 
+    test('Astra distinguishes upstream cloud availability from Phaseo routability', () => {
+        const azureRow = readProviderModels('azure').find(
+            (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
+        );
+        const bedrockRow = readProviderModels('amazon-bedrock').find(
+            (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
+        );
+
+        expect(azureRow).toMatchObject({
+            provider_status: 'available',
+            phaseo_status: 'planned',
+            routing_status: 'active',
+            is_active_gateway: false,
+            routable: false,
+            service_tiers: [],
+        });
+        expect(bedrockRow).toMatchObject({
+            provider_status: 'unknown',
+            phaseo_status: 'planned',
+            routing_status: 'disabled',
+            is_active_gateway: false,
+            routable: false,
+        });
+    });
+
     it('rejects internal routes whose Phaseo integration is not testing or enabled', () => {
         const result = checkApiProviderModelEntrySafety({
             api_model_id: 'anthropic/claude-mythos-5.1',
