@@ -24,4 +24,21 @@ class EndpointsTest < Minitest::Test
     assert_equal "openai/gpt-5-nano", response["sample_models"][0]
     assert_equal [["GET", "/endpoints", nil, nil, nil]], calls
   end
+
+  def test_generated_path_parameters_use_uri_component_encoding
+    client = PhaseoSdk::Phaseo.new(
+      api_key: "test",
+      enable_deprecation_warnings: false
+    )
+
+    captured_path = nil
+    client.raw_client.define_singleton_method(:request) do |method:, path:, query: nil, headers: nil, body: nil|
+      captured_path = path
+      { "ok" => true }
+    end
+
+    Phaseo::Gen::Operations.retrieveFile(client.raw_client, path: { "file_id" => "folder name/file+one" })
+
+    assert_equal "/files/folder%20name%2Ffile%2Bone", captured_path
+  end
 end

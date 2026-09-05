@@ -147,15 +147,15 @@
       "other_info": null
     },
     {
-      "model_id": "openai/gpt-5.5",
-      "model_info": "Thinking",
-      "rate_limit": "Up To 3,000 Messages / Week",
+      "model_id": "openai/gpt-5.6-sol",
+      "model_info": "GPT-5.6 Sol",
+      "rate_limit": "Expanded usage; limits apply",
       "other_info": null
     },
     {
       "model_id": "openai/gpt-5-mini",
       "model_info": "Fallback",
-      "rate_limit": "Fallback After GPT-5.5 Limit",
+      "rate_limit": "Fallback for higher-compute requests",
       "other_info": null
     },
     {
@@ -165,13 +165,13 @@
       "other_info": null
     },
     {
-      "model_id": "openai/gpt-5.1-codex-max",
+      "model_id": "openai/gpt-5.6-terra",
       "model_info": null,
       "rate_limit": null,
       "other_info": "Accessible Through Codex"
     },
     {
-      "model_id": "openai/gpt-5.1-codex-mini",
+      "model_id": "openai/gpt-5.6-luna",
       "model_info": null,
       "rate_limit": null,
       "other_info": "Accessible Through Codex"

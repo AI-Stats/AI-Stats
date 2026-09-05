@@ -5,9 +5,13 @@ sidebarTitle: "Models"
 icon: "brain"
 ---
 
-Phaseo maintains one of the largest open databases of **AI models** - spanning all types of models, from text and image to audio and video models from leading providers such as OpenAI, Anthropic, Google, Meta, Mistral, SpaceXAI, and more.
+Phaseo tracks a broad open catalog of text, image, audio, video, embedding, and other AI models.
 
 Each model page on Phaseo includes detailed technical and commercial information to help you evaluate, compare, and select the right model for your needs.
+
+<Info>
+The catalog is broader than the Gateway. The Models page shows models with an active Gateway route by default. Select a different Gateway Status only when you intentionally want to inspect coming-soon or inactive catalog entries.
+</Info>
 
 ---
 
@@ -21,10 +25,22 @@ Every model on Phaseo contains the following key sections:
 | **Family**       | Easily see related models and their relationships.                                                                             |
 | **Timeline**     | Visualizes release history and major updates over time.                                                                        |
 | **Benchmarks**   | Shows performance results across benchmarks, easily compare to nearest models.                                                 |
-| **Availability** | Lists the providers that currently host this model and which endpoints it supports as well as subscription plan accessibility. |
+| **Availability** | Separates active Gateway routes from coming-soon, inactive, and external provider mappings. |
 | **Pricing**      | Displays detailed pricing in USD, normalized for easy comparison to make it easy to see what the model costs.                  |
-| **Gateway**      | Direct links and quickstarts to try the model via the Phaseo Gateway (if available).                                         |
-| **Performance**  | Real world usage statistics such as latency, uptime, and error rates from the Phaseo Gateway.                                |
+| **Gateway**      | Direct links and quickstarts when a public Gateway route is available.                                                        |
+| **Performance**  | Observational latency, throughput, and success data from routed Gateway requests when enough data is available.              |
+
+## Catalog models vs routable models
+
+Use these terms consistently:
+
+| Term | Meaning |
+| --- | --- |
+| Catalog model | Phaseo tracks metadata for the model. A public route may not exist. |
+| Routable model | At least one provider route is active on the Phaseo Gateway now. |
+| External mapping | Phaseo tracks a provider offer that is not executed by the Gateway. |
+
+For programmatic discovery, `GET /v1/models` returns only routable models by default. Set `availability=all` to inspect the broader set.
 
 ---
 

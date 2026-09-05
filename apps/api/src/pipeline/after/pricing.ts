@@ -12,6 +12,7 @@ import { getBaseModel } from "../execute/utils";
 import { stripUsagePricing } from "../usage";
 import { buildImagePricingRequestOptions } from "@core/image-request-options";
 import { normalizeTextServiceTier, readRequestedServiceTier } from "@core/serviceTiers";
+import { getProviderPricingKey } from "../before/context.shared";
 
 function normalizeObservedServiceTier(value: unknown): string {
     if (typeof value === "string" && value.trim().toLowerCase() === "default") {
@@ -20,17 +21,25 @@ function normalizeObservedServiceTier(value: unknown): string {
     return normalizeTextServiceTier(value) ?? "";
 }
 
-function normalizePricingServiceTier(body: any, usage: any): string {
+function normalizePricingServiceTier(body: any, usage: any, card?: PriceCard): string {
     const observedTier =
         normalizeObservedServiceTier(usage?.service_tier) ||
         normalizeObservedServiceTier(usage?.serviceTier);
+    const requestedTier = normalizeTextServiceTier(readRequestedServiceTier(body).value) ?? "";
+    // Dedicated priority routes cannot downgrade to an unpriced standard SKU.
+    // Honor observed downgrades on cards that actually offer standard pricing.
+    if (observedTier === "standard" && (requestedTier === "priority" || requestedTier === "fast") &&
+        card?.rules.some((rule) => rule.pricing_plan === "priority") &&
+        !card.rules.some((rule) => rule.pricing_plan === "standard")) {
+        return requestedTier;
+    }
     if (observedTier) return observedTier;
 
-    return normalizeTextServiceTier(readRequestedServiceTier(body).value) ?? "";
+    return requestedTier;
 }
 
-function derivePricingPlan(body: any, usage: any): string {
-    const tier = normalizePricingServiceTier(body, usage);
+function derivePricingPlan(body: any, usage: any, card: PriceCard): string {
+    const tier = normalizePricingServiceTier(body, usage, card);
 
     if (tier === "fast" || tier === "priority") return "priority";
     if (tier === "batch") return "batch";
@@ -39,14 +48,14 @@ function derivePricingPlan(body: any, usage: any): string {
     return "standard";
 }
 
-function buildTrustedPricingRequestOptions(body: any, usage: any, pricingPlan: string): Record<string, unknown> {
+function buildTrustedPricingRequestOptions(body: any, usage: any, pricingPlan: string, card: PriceCard): Record<string, unknown> {
     const options: Record<string, unknown> = {
         ...deriveCachePricingContext(body),
         ...buildImagePricingRequestOptions(body ?? {}, usage),
         pricing_plan: pricingPlan,
     };
 
-    const serviceTier = normalizePricingServiceTier(body, usage);
+    const serviceTier = normalizePricingServiceTier(body, usage, card);
     if (serviceTier) {
         options.service_tier = serviceTier;
         options.serviceTier = serviceTier;
@@ -84,17 +93,15 @@ export async function loadProviderPricing(
     ctx: PipelineContext,
     result: RequestResult
 ): Promise<PriceCard | null> {
+    const apiModelId =
+        typeof result.apiModelId === "string" && result.apiModelId.trim().length > 0
+            ? result.apiModelId.trim()
+            : null;
     try {
-        const apiModelId =
-            typeof result.apiModelId === "string" && result.apiModelId.trim().length > 0
-                ? result.apiModelId.trim()
-                : null;
         const pricingKey =
             typeof result.pricingKey === "string" && result.pricingKey.trim().length > 0
                 ? result.pricingKey.trim()
-                : apiModelId
-                    ? `${result.provider}:${apiModelId}`
-                    : result.provider;
+                : getProviderPricingKey(result.provider, apiModelId, result.providerModelSlug);
 
         let card = ctx.pricing?.[pricingKey] ?? null;
         if (!card && pricingKey !== result.provider && apiModelId) {
@@ -104,6 +111,11 @@ export async function loadProviderPricing(
                 ctx.capability,
             );
         }
+		if (!card && apiModelId) {
+			// A stable provider-model route was executed. Falling back to the
+			// canonical model can mix sibling SKUs and undercharge the request.
+			throw new Error(`pricing_card_missing_for_executed_route:${result.provider}:${apiModelId}`);
+		}
         if (!card && pricingKey !== result.provider) {
             card = ctx.pricing?.[result.provider] ?? null;
         }
@@ -112,9 +124,28 @@ export async function loadProviderPricing(
             card = await loadPriceCard(result.provider, getBaseModel(ctx.model), ctx.capability);
         }
 
+		const providerAcceptedAtMs = Number(ctx.meta?.upstreamStartMs);
+		const cardBoundaryMs = card?.effective_to ? Date.parse(card.effective_to) : Number.NaN;
+		if (
+			card &&
+			Number.isFinite(providerAcceptedAtMs) &&
+			Number.isFinite(cardBoundaryMs) &&
+			providerAcceptedAtMs >= cardBoundaryMs
+		) {
+			card = await loadPriceCard(
+				result.provider,
+				apiModelId ?? card.model ?? getBaseModel(ctx.model),
+				ctx.capability,
+			);
+			if (!card && apiModelId) {
+				throw new Error(`pricing_card_missing_for_executed_route:${result.provider}:${apiModelId}`);
+			}
+		}
+
         return card;
     } catch (err) {
         console.error("pricing card lookup failed", err);
+        if (apiModelId) throw err;
         return null;
     }
 }
@@ -139,9 +170,9 @@ export function calculatePricing(
 
     if (card) {
         try {
-            const pricingPlan = derivePricingPlan(body, usage);
+            const pricingPlan = derivePricingPlan(body, usage, card);
             const requestOptions = attachBillingTimestamps(
-                buildTrustedPricingRequestOptions(body, usage, pricingPlan),
+                buildTrustedPricingRequestOptions(body, usage, pricingPlan, card),
                 meta,
             );
 

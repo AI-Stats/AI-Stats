@@ -3,23 +3,15 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { validateAgentSdkReleaseSecretBoundaries, validateCiSecretBoundaries } from "./validate-ci-secret-boundaries.mjs";
 
-const trustedPullRequestCondition = `
-                github.event_name == 'pull_request' &&
-                github.event.pull_request.head.repo.full_name == github.repository &&
-                contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
-`;
-
 const productionMigrationCondition = `
             always() &&
             github.event_name == 'push' &&
             github.ref == 'refs/heads/main' &&
-            needs.check-paths.outputs.migrations-changed == 'true' &&
             needs.migration-validation.result == 'success' &&
             vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'
 `;
 
 function workflowWithConditions(
-	previewCondition = trustedPullRequestCondition,
 	migrationCondition = productionMigrationCondition,
 ) {
 	return `
@@ -31,10 +23,18 @@ jobs:
     check-paths:
         outputs:
             migrations-changed: \${{ steps.filter.outputs.migrations }}
+        steps:
+            - name: Detect migration changes
+              with:
+                  filters: |
+                      migrations:
+                          - 'supabase/migrations/**'
+                          - 'supabase/tests/**'
 
     migration-validation:
         if: >-
-            needs.check-paths.outputs.migrations-changed == 'true'
+            needs.check-paths.outputs.migrations-changed == 'true' ||
+            (github.event_name == 'push' && vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true')
         steps:
             - run: node scripts/validate-supabase-migrations.mjs
 
@@ -57,38 +57,89 @@ ${migrationCondition}
               run: supabase db push --dry-run
             - name: Apply pending production migrations
               run: supabase db push
-
-    deploy-preview-web:
-        if: >
-${previewCondition}
-        permissions:
-            contents: read
-        steps:
-            - name: Deploy
-              env:
-                  VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
+            - name: Verify stealth catalogue privacy boundary
+              run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql
 
     deploy:
         needs:
             - check-paths
             - migrate-production
         if: >-
-            needs.check-paths.outputs.migrations-changed != 'true' ||
-            needs.migrate-production.result == 'success'
+            (vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true' &&
+            needs.migrate-production.result == 'success') ||
+            (vars.ENABLE_PRODUCTION_DB_MIGRATIONS != 'true' &&
+            needs.check-paths.outputs.migrations-changed != 'true' &&
+            needs.migrate-production.result == 'skipped')
         steps:
             - run: deploy
 `;
 }
 
-test("accepts trusted pull requests and approval-gated production migrations", () => {
+test("accepts secret-free pull-request validation and approval-gated production migrations", () => {
 	assert.doesNotThrow(() => validateCiSecretBoundaries(workflowWithConditions()));
 });
 
-test("rejects merge-group access to the Vercel credential boundary", () => {
-	const vulnerableCondition = `            github.event_name == 'merge_group' ||${trustedPullRequestCondition}`;
+test("requires the stealth privacy smoke test after applying migrations", () => {
+	const workflow = workflowWithConditions().replace(
+		"            - name: Verify stealth catalogue privacy boundary\n              run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql\n",
+		"",
+	);
 	assert.throws(
-		() => validateCiSecretBoundaries(workflowWithConditions(vulnerableCondition)),
-		/never run for merge_group events/,
+		() => validateCiSecretBoundaries(workflow),
+		/verify the stealth catalogue privacy boundary after applying/,
+	);
+});
+
+for (const [label, replacement] of [
+	["comment-only", "              # supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql"],
+	["echo-only", "              run: echo supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql"],
+]) {
+	test(`rejects ${label} stealth smoke-test references`, () => {
+		const workflow = workflowWithConditions().replace(
+			"              run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql",
+			replacement,
+		);
+		assert.throws(
+			() => validateCiSecretBoundaries(workflow),
+			/verify the stealth catalogue privacy boundary after applying/,
+		);
+	});
+}
+
+test("tracks database smoke-test changes as migration changes", () => {
+	const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+	assert.match(workflow, /- 'supabase\/tests\/\*\*'/);
+});
+
+test("rechecks production migration state before every opted-in main deployment", () => {
+	const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+	const migrationJob = workflow.slice(
+		workflow.indexOf("    migrate-production:"),
+		workflow.indexOf("    openapi-lint:"),
+	);
+	const deployJob = workflow.slice(
+		workflow.indexOf("    deploy:"),
+		workflow.indexOf("    agent-sdk-tests:"),
+	);
+	assert.doesNotMatch(migrationJob, /migrations-changed/);
+	assert.match(deployJob, /vars\.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'[\s\S]*needs\.migrate-production\.result == 'success'/);
+	assert.match(deployJob, /vars\.ENABLE_PRODUCTION_DB_MIGRATIONS != 'true'[\s\S]*needs\.check-paths\.outputs\.migrations-changed != 'true'/);
+});
+
+test("rejects any pull-request Vercel credential boundary", () => {
+	const vulnerableJob = `
+    deploy-preview-web:
+        if: >
+            github.event_name == 'pull_request'
+        steps:
+            - name: Deploy
+              env:
+                  VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
+
+`;
+	assert.throws(
+		() => validateCiSecretBoundaries(workflowWithConditions().replace("    deploy:\n", `${vulnerableJob}    deploy:\n`)),
+		/pull-request code must not execute/,
 	);
 });
 
@@ -147,7 +198,7 @@ test("rejects production migration secrets outside push-to-main", () => {
 		.replace("github.event_name == 'push'", "github.event_name == 'pull_request'");
 	assert.throws(
 		() => validateCiSecretBoundaries(
-			workflowWithConditions(trustedPullRequestCondition, vulnerableCondition),
+			workflowWithConditions(vulnerableCondition),
 		),
 		/only run for pushes to main/,
 	);

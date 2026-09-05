@@ -1,6 +1,6 @@
 export type AppDetails = {
 	id: string;
-	slug: string;
+	slug?: string;
 	title: string;
 	url: string | null;
 	image_url: string | null;

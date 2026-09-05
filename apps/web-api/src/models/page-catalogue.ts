@@ -1,5 +1,6 @@
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
+import { publicProviderDisplayName, STEALTH_PROVIDER_ID } from "@/models/provider-identity";
 
 type Row = Record<string, unknown>;
 
@@ -139,8 +140,7 @@ export function normalizeModelsPagePricing(row: Row): Row {
 function baseModelId(row: Row): string {
 	const explicit = String(row.base_model_id ?? row.base_model_slug ?? "").trim();
 	if (explicit) return explicit;
-	const modelId = String(row.model_id ?? "").trim();
-	return modelId.toLowerCase().endsWith(":free") ? modelId.slice(0, -5) : modelId;
+	return String(row.model_id ?? "").trim();
 }
 
 function variantKind(row: Row): string {
@@ -158,9 +158,18 @@ function providerDetails(value: unknown): Row[] {
 function withoutExternalProviders(row: Row): Row {
 	const details = providerDetails(row.gateway_provider_details);
 	if (details.length === 0) return row;
-	const visibleDetails = details.filter((detail) =>
-		String(detail.status ?? "").trim().toLowerCase() !== "external"
-	);
+	const visibleDetails = details.filter((detail) => {
+		const status = String(detail.status ?? "").trim().toLowerCase();
+		const accessScope = String(detail.access_scope ?? "public").trim().toLowerCase();
+		const capabilityStatus = String(detail.capability_status ?? "").trim().toLowerCase();
+		return status !== "external" && accessScope === "public" && capabilityStatus !== "internal_testing";
+	}).map((detail) => {
+		const providerId = String(detail.id ?? detail.provider_slug ?? "").trim();
+		const providerName = publicProviderDisplayName(providerId, detail.name);
+		return providerId.toLowerCase() === STEALTH_PROVIDER_ID || String(detail.name ?? "").trim().toLowerCase() === STEALTH_PROVIDER_ID
+			? { ...detail, id: STEALTH_PROVIDER_ID, name: providerName }
+			: detail;
+	});
 	const providerNames = strings(visibleDetails.map((detail) => detail.name));
 	const activeProviderNames = strings(
 		visibleDetails.filter((detail) => detail.is_active === true).map((detail) => detail.name),
@@ -225,7 +234,7 @@ function modality(value: string): string {
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
-	if (normalized.includes("transcrib") || normalized.includes("speech to text") || normalized.includes("stt")) return "audio_stt";
+	if (normalized.includes("transcri") || normalized.includes("speech to text") || normalized.includes("stt")) return "audio_stt";
 	if (normalized.includes("text to speech") || normalized.includes("audio speech") || normalized.includes("speech synth") || normalized.includes("tts")) return "audio_tts";
 	if (normalized.includes("audio")) return "audio";
 	if (normalized.includes("file")) return "file";
@@ -292,6 +301,7 @@ export function buildModelsPageFacets(rows: Row[]): ModelsPageFacets {
 }
 
 export type ModelsPageQuery = {
+	organisationId?: string | null;
 	region?: string | null;
 	serviceTier?: string | null;
 };
@@ -300,27 +310,34 @@ async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<
 	const rows: Row[] = [];
 	const client = getDataClient(env);
 	for (let offset = 0; ; offset += 1_000) {
-		const result = await (
+		let request = (
 			query.region || query.serviceTier
 				? client.rpc(
 					"get_v2_public_models_page_rows",
 					{ p_region: query.region ?? null, p_service_tier: query.serviceTier ?? null },
 				)
 				: client.rpc("get_public_models_page_rows")
-		).range(offset, offset + 999);
+		);
+		const result = await request.range(offset, offset + 999);
 		if (result.error) throw result.error;
-		rows.push(...((result.data ?? []) as Row[]));
+		const pageRows = (result.data ?? []) as Row[];
+		rows.push(...(
+			query.organisationId
+				? pageRows.filter((row) => String(row.organisation_id ?? "") === query.organisationId)
+				: pageRows
+		));
 		if ((result.data?.length ?? 0) < 1_000) break;
 	}
 	return rows;
 }
 
-async function weeklyMetrics(env: Env): Promise<WeeklyMetricRow[]> {
+async function weeklyMetrics(env: Env, modelIds?: string[]): Promise<WeeklyMetricRow[]> {
+	if (modelIds?.length === 0) return [];
 	const rows: WeeklyMetricRow[] = [];
 	for (let offset = 0; ; offset += 1_000) {
-		const result = await getDataClient(env)
-			.rpc("get_v2_public_model_weekly_metrics")
-			.range(offset, offset + 999);
+		let request = getDataClient(env).rpc("get_v2_public_model_weekly_metrics");
+		if (modelIds) request = request.in("model_slug", modelIds);
+		const result = await request.range(offset, offset + 999);
 		if (result.error) {
 			console.error("models_weekly_metrics_failed", {
 				code: result.error.code,
@@ -359,13 +376,18 @@ export async function fetchModelsPageCatalogue(
 	query: ModelsPageQuery = {},
 	_catalogueVersion: "v1" | "v2" = "v2",
 ): Promise<{ models: Row[]; pricingComplete: boolean }> {
-	const [databaseRows, modelWeeklyMetrics] = await Promise.all([
-		databasePageRows(env, query),
-		weeklyMetrics(env),
-	]);
+	const databaseRows = await databasePageRows(env, query);
+	const modelWeeklyMetrics = await weeklyMetrics(
+		env,
+		query.organisationId
+			? databaseRows.map((row) => String(row.model_id ?? "")).filter(Boolean)
+			: undefined,
+	);
 	return {
 		models: attachModelsPageVariants(mergeModelWeeklyMetrics(
-			databaseRows.map(normalizeModelsPagePricing),
+		databaseRows
+			.filter((row) => String(row.access_scope ?? "public").trim().toLowerCase() === "public" && String(row.capability_status ?? "").trim().toLowerCase() !== "internal_testing")
+			.map(normalizeModelsPagePricing),
 			modelWeeklyMetrics,
 		)),
 		pricingComplete: true,

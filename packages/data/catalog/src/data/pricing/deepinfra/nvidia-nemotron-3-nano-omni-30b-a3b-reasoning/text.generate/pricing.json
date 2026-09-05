@@ -18,7 +18,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-21T00:00:00Z"
     },
     {
       "meter": "output_tokens",
@@ -33,7 +34,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-21T00:00:00Z"
     }
   ],
   "regions": [],
@@ -42,8 +44,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Pricing retained as history and closed when the route left DeepInfra current model inventory."
   }
 }

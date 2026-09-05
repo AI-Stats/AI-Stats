@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { getBindings } from "@/runtime/env";
+import { getAutoRoutingFeatureGateName, isAutoRoutingAccessEnabled } from "@core/feature-flags";
 import { schemaFor } from "@core/schemas";
 import type { Endpoint, RequestBetaOptions, RequestMeta } from "@core/types";
 import type { PipelineContext } from "./types";
@@ -30,6 +31,7 @@ import {
 	applyProviderQualifiedModelConstraint,
 	canonicalizeProviderQualifiedModelRequest,
 	filterProviderQualifiedModelCandidates,
+	filterQuantizationCandidates,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
@@ -37,6 +39,9 @@ import {
 } from "../requestRouting";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 import { getWebhookEndpointSigningConfig } from "@core/webhook-endpoints";
+import { parseRequestLabels } from "./request-labels";
+import { generatePublicId } from "./genId";
+import { applyDeploymentRegionPolicy, validateRegionalTextRequest } from "./deployment-region";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
@@ -44,6 +49,18 @@ import {
     suppressDynamicRouteModelOverrides,
     type DynamicRouteEvaluation,
 } from "./dynamic-routes";
+import {
+	buildAutoRouterCandidateEvidence,
+	applyAutoRouterHardRequirements,
+	deterministicAutoRouterClassification,
+	isAutoRouterModel,
+	loadAutoRouterBenchmarks,
+	loadManagedAutoRouterCandidates,
+	loadWorkspaceAutoRouterConfig,
+	selectAutoRouterModel,
+	type AutoRouterClassification,
+	type AutoRouterEvaluation,
+} from "./auto-router";
 
 function resolveRequestRoutingModeOverride(
     body: any,
@@ -200,6 +217,12 @@ export async function beforeRequest(
     zodSchema: z.ZodTypeAny | null = schemaFor(endpoint),
     options?: {
         dynamicRouteModelOverride?: string | null;
+		autoRouterModelOverride?: string | null;
+		autoRouterClassificationOverride?: AutoRouterClassification | null;
+		classifyAutoRouterRequest?: (args: {
+			endpoint: Endpoint;
+			body: unknown;
+		}) => Promise<AutoRouterClassification | null>;
         onObservabilitySnapshot?: (snapshot: BeforeRequestObservabilitySnapshot) => void;
     },
 ): Promise<{ ok: true; ctx: PipelineContext } | { ok: false; response: Response }> {
@@ -247,6 +270,18 @@ export async function beforeRequest(
     );
     if (!j.ok) return j as { ok: false; response: Response };
     let rawBody = j.value;
+    const requestLabels = parseRequestLabels(req);
+    if (requestLabels.ok === false) {
+        return {
+            ok: false,
+            response: err("validation_error", {
+                reason: "invalid_request_metadata",
+                description: requestLabels.message,
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
     const requestedModel = typeof rawBody?.model === "string" && rawBody.model.trim()
         ? rawBody.model.trim()
         : null;
@@ -363,6 +398,18 @@ export async function beforeRequest(
     const m = await timer.span("guardModel", () => guardModel(body, workspaceId, requestId));
     if (!m.ok) return m as { ok: false; response: Response };
     const { model, stream } = m.value;
+	if (isAutoRouterModel(model) && !(await timer.span("checkAutoRoutingFeatureGate", () => isAutoRoutingAccessEnabled(a.value)))) {
+		return {
+			ok: false,
+			response: err("not_supported", {
+				reason: "auto_routing_feature_flag_disabled",
+				message: "Auto Routing is currently available to selected Alpha workspaces.",
+				feature_gate: getAutoRoutingFeatureGateName(),
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
     options?.onObservabilitySnapshot?.({
         requestPayload: rawBody,
         requestedModel,
@@ -401,23 +448,202 @@ export async function beforeRequest(
 
     // 5) RPC + gating + providers (choose viable providers for this model/endpoint)
     const capability = normalizeCapability(resolveCapabilityFromEndpoint(endpoint));
-    const c = await timer.span("guardContext", () =>
-        guardContext({
-            workspaceId,
-            apiKeyId,
-            endpoint,
-            capability,
-            model,
-            requestId,
-            internal,
-            testingMode: testingModeEnabled,
-            disableCache: debugEnabled,
-        })
-    );
+    let autoRouterEvaluation: AutoRouterEvaluation | null = null;
+    let workspacePolicyLoad: Awaited<typeof workspacePolicyPromise> | null = null;
+    const loadWorkspacePolicy = async () => {
+		workspacePolicyLoad ??= await workspacePolicyPromise;
+		return workspacePolicyLoad;
+	};
+	const contextForModel = (candidateModel: string) => guardContext({
+		workspaceId,
+		apiKeyId,
+		endpoint,
+		capability,
+		model: candidateModel,
+		requestId,
+		internal,
+		testingMode: testingModeEnabled,
+		disableCache: debugEnabled,
+	});
+
+	let c: Awaited<ReturnType<typeof guardContext>>;
+	if (isAutoRouterModel(model)) {
+		const regionalAutoRouterBody = applyDeploymentRegionPolicy(
+			body,
+			bindings.GATEWAY_ROUTING_REGION,
+		);
+		const autoRouterBody = regionalAutoRouterBody.ok
+			? regionalAutoRouterBody.body
+			: body;
+		if (body?.routing?.auto != null || body?.provider?.auto != null) {
+			return {
+				ok: false,
+				response: err("validation_error", {
+					reason: "auto_router_request_config_not_supported",
+					description: "phaseo/auto uses the workspace Auto Routing configuration and does not accept request-level routing constraints",
+					details: [{
+						message: "Remove the request-level auto-router configuration",
+						path: [body?.routing?.auto != null ? "routing" : "provider", "auto"],
+						keyword: "auto_router_request_config_not_supported",
+					}],
+					request_id: requestId,
+					workspace_id: workspaceId,
+				}),
+			};
+		}
+		const deterministicClassification = deterministicAutoRouterClassification(autoRouterBody);
+		const classifierPromise = options?.autoRouterClassificationOverride
+			? Promise.resolve(options.autoRouterClassificationOverride)
+			: options?.classifyAutoRouterRequest && !options?.autoRouterModelOverride
+				? timer.span("classifyAutoRouterRequest", () => options.classifyAutoRouterRequest!({ endpoint, body: autoRouterBody }))
+					.catch((error) => {
+						console.warn("[beforeRequest] auto_router_classifier_failed", {
+							workspaceId,
+							requestId,
+							error: error instanceof Error ? error.message : String(error),
+						});
+						return null;
+					})
+				: Promise.resolve(null);
+		let config: Awaited<ReturnType<typeof loadWorkspaceAutoRouterConfig>>;
+		try {
+			config = await timer.span("loadWorkspaceAutoRouterConfig", () => loadWorkspaceAutoRouterConfig(workspaceId));
+		} catch (error) {
+			console.error("[beforeRequest] auto_router_config_fetch_failed", {
+				workspaceId,
+				requestId,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			return { ok: false, response: err("gateway_error", { reason: "auto_router_config_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
+		}
+		const classification = applyAutoRouterHardRequirements(autoRouterBody, await classifierPromise ?? deterministicClassification);
+		let candidateUniverse: Awaited<ReturnType<typeof loadManagedAutoRouterCandidates>>;
+		try {
+			candidateUniverse = await timer.span("loadManagedAutoRouterCandidates", () => loadManagedAutoRouterCandidates(config, autoRouterBody, classification));
+		} catch (error) {
+			console.error("[beforeRequest] auto_router_candidates_fetch_failed", {
+				workspaceId,
+				requestId,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			return { ok: false, response: err("gateway_error", { reason: "auto_router_candidates_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
+		}
+		const selectionConfig = {
+			...config,
+			allowedModels: candidateUniverse.models,
+			candidateUniverseSize: candidateUniverse.totalEligible,
+		};
+		const policyLoad = await loadWorkspacePolicy();
+		if ("error" in policyLoad) {
+			console.error("[beforeRequest] workspace_policy_fetch_failed", {
+				workspaceId,
+				requestId,
+				error: policyLoad.error instanceof Error ? policyLoad.error.message : String(policyLoad.error),
+			});
+			return { ok: false, response: err("gateway_error", { reason: "workspace_policy_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
+		}
+		const selection = await timer.span("selectAutoRouterModel", () => selectAutoRouterModel({
+			endpoint,
+			body: autoRouterBody,
+			config: selectionConfig,
+			classification,
+			modelOverride: options?.autoRouterModelOverride,
+			loadBenchmarks: loadAutoRouterBenchmarks,
+			loadCandidate: async (candidateModel) => {
+				const candidateContext = await contextForModel(candidateModel);
+				if (!candidateContext.ok) return { ok: false as const, reason: "model_or_endpoint_unavailable" };
+				const candidateResolvedModel = candidateContext.value.resolvedModel || candidateModel;
+				const policyResult = applyWorkspacePolicy({
+					providers: candidateContext.value.providers,
+					resolvedModel: candidateResolvedModel,
+					body: autoRouterBody,
+					workspacePolicy: policyLoad.value,
+					teamSettings: candidateContext.value.context.teamSettings ?? null,
+				});
+				if (policyResult.ok === false) {
+					return { ok: false as const, reason: policyResult.reason === "model_not_allowed" ? "model_restricted_by_policy" : "no_policy_compliant_providers" };
+				}
+				const executableProviders = policyResult.providers.filter((provider) =>
+					isProviderCapabilityEnabled(provider.providerId, capability) &&
+					Boolean(adapterFor(provider.providerId, endpoint)) &&
+					Boolean(provider.pricingCard?.rules?.length));
+				if (!executableProviders.length) {
+					return { ok: false as const, reason: "no_executable_providers" };
+				}
+				const capabilityResult = await validateCapabilities({
+					endpoint,
+					rawBody,
+					body: autoRouterBody,
+					requestId,
+					workspaceId,
+					providers: executableProviders,
+					model: candidateResolvedModel,
+				});
+				if (!capabilityResult.ok || !capabilityResult.providers.length) {
+					return { ok: false as const, reason: "request_capabilities_unsupported" };
+				}
+				const quantizationResult = filterQuantizationCandidates(
+					capabilityResult.providers,
+					getEffectiveRoutingHints(autoRouterBody).quantizations,
+				);
+				if (!quantizationResult.ok || !quantizationResult.providers.length) {
+					return { ok: false as const, reason: "request_quantization_unsupported" };
+				}
+				const contextResult = {
+					...candidateContext,
+					value: { ...candidateContext.value, providers: quantizationResult.providers },
+				};
+				return buildAutoRouterCandidateEvidence({
+					endpoint,
+					requestedModel: candidateModel,
+					resolvedModel: candidateResolvedModel,
+					providers: quantizationResult.providers,
+					contextResult,
+					config,
+				});
+			},
+		}));
+		if (selection.ok === false) {
+			return {
+				ok: false,
+				response: err("unsupported_model_or_endpoint", {
+					model,
+					reason: selection.reason === "invalid_override" ? "auto_router_invalid_fallback" : "auto_router_no_eligible_models",
+					description: selection.reason === "invalid_override"
+						? "The requested auto-router fallback is outside the current managed candidate shortlist"
+						: "No managed auto-router model is currently eligible for this request",
+					routing_diagnostics: { autoRouter: { candidates: selection.candidates } },
+					request_id: requestId,
+					workspace_id: workspaceId,
+				}),
+			};
+		}
+		autoRouterEvaluation = selection.evaluation;
+		c = selection.selected.contextResult as Awaited<ReturnType<typeof guardContext>>;
+		options?.onObservabilitySnapshot?.({ requestPayload: rawBody, requestedModel, model: selection.selected.resolvedModel });
+	} else {
+		c = await timer.span("guardContext", () => contextForModel(model));
+	}
     if (!c.ok) return c as { ok: false; response: Response };
     let { context, providers, resolvedModel, candidateDiagnostics } = c.value;
+    const contextTelemetry = context.contextTelemetry ?? null;
+    const contextTimingSpans = {
+        context_total: contextTelemetry?.totalMs,
+        context_preset_access: contextTelemetry?.presetAccessMs,
+        context_private_model: contextTelemetry?.privateModelMs,
+        context_byok_hydration: contextTelemetry?.byokHydrationMs,
+        context_key_version: contextTelemetry?.keyVersionMs,
+        context_cache_read: contextTelemetry?.cacheReadMs,
+        context_credit_refresh: contextTelemetry?.creditRefreshMs,
+        context_rpc: contextTelemetry?.rpcMs,
+        context_enrich: contextTelemetry?.enrichMs,
+        context_cache_write: contextTelemetry?.cacheWriteMs,
+    };
+    for (const [name, durationMs] of Object.entries(contextTimingSpans)) {
+        if (typeof durationMs === "number") timer.record(name, durationMs);
+    }
 
-    const workspacePolicyLoad = await workspacePolicyPromise;
+    workspacePolicyLoad = await loadWorkspacePolicy();
     if ("error" in workspacePolicyLoad) {
         const error = workspacePolicyLoad.error;
         console.error("[beforeRequest] workspace_policy_fetch_failed", {
@@ -494,6 +720,13 @@ export async function beforeRequest(
             break;
         }
         if (routedContextFailure) return routedContextFailure;
+		if (autoRouterEvaluation && dynamicRouteEvaluation.action.model) {
+			autoRouterEvaluation = {
+				...autoRouterEvaluation,
+				fallbackModels: [],
+				overriddenByDynamicRoute: dynamicRouteEvaluation.action.model,
+			};
+		}
     }
 
     // 5.3) Apply preset configuration if present
@@ -630,6 +863,61 @@ export async function beforeRequest(
             resolvedRoutingMode = dynamicRouteEvaluation.action.routingMode;
         }
     }
+
+	const regionalRequestViolation = validateRegionalTextRequest(
+		endpoint,
+		mergedBody,
+		bindings.GATEWAY_ROUTING_REGION,
+	);
+	if (regionalRequestViolation) {
+		return {
+			ok: false,
+			response: err("not_supported", {
+				reason: `regional_${regionalRequestViolation.reason}`,
+				description:
+					"Regional gateways currently support text-only Chat Completions, Responses, and Messages requests.",
+				details: [{
+					message: "This request uses a feature that is not available on a regional gateway.",
+					path: regionalRequestViolation.path,
+					keyword: `regional_${regionalRequestViolation.reason}`,
+					params: { value: regionalRequestViolation.value ?? null },
+				}],
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+
+	const deploymentRegionResult = applyDeploymentRegionPolicy(
+		mergedBody,
+		bindings.GATEWAY_ROUTING_REGION,
+	);
+	if (deploymentRegionResult.ok === false) {
+		return {
+			ok: false,
+			response: err("validation_error", {
+				reason: "deployment_region_conflict",
+				description:
+					`This gateway only routes requests whose execution and data regions are ${deploymentRegionResult.region.toUpperCase()}.`,
+				error_type: "user",
+				error_origin: "user",
+				error_operational_kind: "deployment_region_conflict",
+				details: [{
+					message:
+						`Requested region "${deploymentRegionResult.requestedRegion}" conflicts with the ${deploymentRegionResult.region.toUpperCase()} gateway.`,
+					path: ["provider", deploymentRegionResult.field],
+					keyword: "deployment_region_conflict",
+					params: {
+						gateway_region: deploymentRegionResult.region,
+						requested_region: deploymentRegionResult.requestedRegion,
+					},
+				}],
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+	mergedBody = deploymentRegionResult.body;
 
     // Keep this as the final request-level provider constraint before workspace
     // policy enforcement. A provider-qualified model is an exact pair, not a
@@ -876,6 +1164,13 @@ export async function beforeRequest(
             candidates: enabledProviders,
             body: mergedBody,
             capability: normalizedCapability,
+			authorizeRemappedCandidate: (candidate) => applyWorkspacePolicy({
+				providers: [candidate],
+				resolvedModel: candidate.apiModelId ?? resolvedModel ?? model,
+				body: mergedBody,
+				workspacePolicy,
+				teamSettings: context.teamSettings ?? null,
+			}).ok,
         })
     );
     if (serviceTierRoutingResult.diagnostics.droppedProviders.length) {
@@ -909,6 +1204,43 @@ export async function beforeRequest(
             )
         );
     }
+	const quantizationCandidates = filterQuantizationCandidates(
+		enabledProviders,
+		getEffectiveRoutingHints(mergedBody).quantizations,
+	);
+	if (quantizationCandidates.ok === false) {
+		const requested = quantizationCandidates.requested.join(", ");
+		const available = quantizationCandidates.diagnostics.available;
+		const description = available.length > 0
+			? `No eligible provider-model offer matches the requested quantization(s): ${requested}. Available quantizations: ${available.join(", ")}`
+			: `No eligible provider-model offer matches the requested quantization(s): ${requested}. The eligible offers have no usable quantization metadata.`;
+		return {
+			ok: false,
+			response: err("unsupported_model_or_endpoint", {
+				model: resolvedModel || model,
+				reason: quantizationCandidates.reason,
+				description,
+				error_type: "user",
+				error_origin: "user",
+				error_operational_kind: quantizationCandidates.reason,
+				details: [{
+					message: description,
+					path: ["provider", "quantizations"],
+					keyword: quantizationCandidates.reason,
+					params: {
+						requested: quantizationCandidates.requested,
+						available,
+					},
+				}],
+				routing_diagnostics: {
+					quantization: quantizationCandidates.diagnostics,
+				},
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+	enabledProviders = quantizationCandidates.providers;
     const providerEnablementDiagnostics: ProviderEnablementDiagnostics = {
         capability: normalizedCapability,
         providersBefore: filteredProviders.map((provider) => provider.providerId),
@@ -988,7 +1320,6 @@ export async function beforeRequest(
             trace_level: traceLevel ?? (debugTrace ? "full" : undefined),
         }
         : undefined;
-    const contextTelemetry = context.contextTelemetry ?? null;
     const meta: RequestMeta = makeMeta({
         endpoint,
         apiKeyId,
@@ -1016,6 +1347,7 @@ export async function beforeRequest(
         beforeContextCacheWriteMs: contextTelemetry?.cacheWriteMs ?? null,
         beforeContextFallbackRemap: contextTelemetry?.fallbackRemap ?? null,
         startedAtMs: requestStartedAtMs,
+        labels: requestLabels.labels,
     });
     const requestPath = meta.requestPath ?? null;
 
@@ -1023,6 +1355,7 @@ export async function beforeRequest(
         endpoint,
         capability,
         requestId,
+        billingRequestId: generatePublicId(),
         meta,
         rawBody,
         body: mergedBody,
@@ -1056,6 +1389,7 @@ export async function beforeRequest(
         routingDiagnostics: {
             workspacePolicy: workspacePolicyResult.diagnostics,
             dynamicRoute: dynamicRouteEvaluation,
+			autoRouter: autoRouterEvaluation,
         },
         guardrailEnforcement: sensitiveInfoResult.enforcement,
     };

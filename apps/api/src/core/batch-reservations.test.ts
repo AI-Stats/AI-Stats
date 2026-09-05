@@ -100,6 +100,63 @@ describe("batch credit reservations", () => {
 		expect(loadPriceCardMock).toHaveBeenCalledWith("spacex-ai", "grok-4.3", "text.generate");
 	});
 
+	it("prices a normalized OpenAI Pro batch using its public model alias", async () => {
+		loadPriceCardMock.mockImplementation(async (_provider: string, model: string) =>
+			model === "openai/gpt-6-astra-pro" ? { provider: "openai", model, rules: [] } : null,
+		);
+		await reserveBatchCredits({
+			workspaceId: "ws_1",
+			apiKeyId: "key_1",
+			requestId: "req_astra_pro",
+			providerId: "openai",
+			requests: [{
+				endpoint: "/v1/responses",
+				model: "openai/gpt-6-astra-pro",
+				body: { model: "gpt-6-astra", input: "hello", max_output_tokens: 8 },
+			}],
+		});
+		expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-6-astra-pro", "text.generate");
+	});
+
+	it("quotes OVHcloud embeddings with its documented 50% Batch discount", async () => {
+		loadPriceCardMock.mockResolvedValue({
+			provider: "ovhcloud",
+			model: "qwen/qwen3-embedding-8b",
+			rules: [{ pricing_plan: "standard", price_per_unit: 0.1 }],
+		});
+		await reserveBatchCredits({
+			workspaceId: "ws_1",
+			apiKeyId: "key_1",
+			requestId: "req_ovh_embeddings",
+			providerId: "ovhcloud",
+			requests: [{
+				endpoint: "/v1/embeddings",
+				body: { model: "qwen/qwen3-embedding-8b", input: ["bonjour"] },
+			}],
+		});
+		expect(computeBillMock).toHaveBeenCalledWith(
+			expect.objectContaining({ output_tokens: 0 }),
+			expect.objectContaining({ rules: [expect.objectContaining({ pricing_plan: "batch", price_per_unit: 0.05 })] }),
+			expect.objectContaining({ pricing_plan: "batch" }),
+			"batch",
+		);
+	});
+
+	it.each([
+		["moonshotai", "/v1/chat/completions", "kimi-k2.6"],
+		["parasail", "/v1/chat/completions", "parasail-chat"],
+		["parasail", "/v1/embeddings", "parasail-embed"],
+	])("accepts %s reservation endpoint %s", async (providerId, endpoint, model) => {
+		loadPriceCardMock.mockResolvedValue({ provider: providerId, model, rules: [] });
+		await expect(reserveBatchCredits({
+			workspaceId: "ws_1",
+			apiKeyId: "key_1",
+			requestId: `req_${providerId}_${endpoint}`,
+			providerId,
+			requests: [{ endpoint, body: { model, input: "hello", max_tokens: 8 } }],
+		})).resolves.toMatchObject({ held: true });
+	});
+
 	it("rejects endpoints, methods, and paid dimensions that the estimate cannot bound", async () => {
 		for (const request of [
 			{ endpoint: "/v1/embeddings", body: { model: "gpt-4.1-mini", input: "hello", max_output_tokens: 1 } },

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Collapsible,
@@ -15,12 +15,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	SidebarContent,
-	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarHeader,
@@ -38,23 +35,19 @@ import {
 } from "@/components/(chat)/playground/use-grouped-chat-threads";
 import type { ChatTag, ChatThread } from "@/lib/indexeddb/chats";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
-import { useChatCredits } from "@/components/(chat)/use-chat-credits";
+import {
+	MobileChatSidebarBrand,
+	MobileChatSidebarTrigger,
+} from "@/components/(chat)/MobileChatSidebarBrand";
 import {
 	CHAT_SIDEBAR_ACTIONS_CLASS,
 	CHAT_SIDEBAR_HISTORY_GROUP_CLASS,
 } from "@/components/(chat)/chatSidebarStyles";
-import { ThemeSelector } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import {
-	ArrowUpRight,
 	Check,
 	ChevronRight,
-	Coins,
-	Database,
-	Gauge,
-	LogOut,
 	MoreHorizontal,
-	PanelLeftClose,
 	PencilLine,
 	Pin,
 	PinOff,
@@ -62,7 +55,6 @@ import {
 	SquarePen,
 	Tag,
 	Trash2,
-	UserRound,
 } from "lucide-react";
 
 export type GroupedThreads = {
@@ -91,14 +83,6 @@ type ChatSidebarProps = {
 	tags: ChatTag[];
 	activeTagId: string | null;
 	onTagFilterChange: (tagId: string | null) => void;
-	authUser: {
-		id: string;
-		email: string | null;
-		name: string;
-		avatarUrl: string | null;
-	} | null;
-	authLoading: boolean;
-	onSignOut: () => void;
 };
 
 type ThreadDateGroup = {
@@ -197,18 +181,14 @@ export function ChatSidebar({
 	tags,
 	activeTagId,
 	onTagFilterChange,
-	authUser,
-	authLoading,
-	onSignOut,
 }: ChatSidebarProps) {
-	const { toggleSidebar, state: sidebarState, isMobile } = useSidebar();
+	const { state: sidebarState, isMobile } = useSidebar();
 	const [tagsOpen, setTagsOpen] = useState(true);
 	const [chatEditMode, setChatEditMode] = useState(false);
 	const [visibleTagCount, setVisibleTagCount] = useState(5);
 	const [selectedThreadIds, setSelectedThreadIds] = useState<Set<string>>(
 		() => new Set(),
 	);
-	const { creditsLabel, creditsLoading } = useChatCredits(authUser?.id);
 	const collapsed = sidebarState === "collapsed" && !isMobile;
 	const withCollapsedTooltip = (label: string, button: ReactElement) =>
 		collapsed ? (
@@ -221,13 +201,6 @@ export function ChatSidebar({
 		) : (
 			button
 		);
-	const nameParts = authUser?.name?.trim().split(" ").filter(Boolean) ?? [];
-	const firstName = nameParts[0] ?? "Account";
-	const initials = nameParts
-		.map((word) => word[0])
-		.join("")
-		.slice(0, 2)
-		.toUpperCase();
 	const activeTag = tags.find((tag) => tag.id === activeTagId) ?? null;
 	const dateThreadGroups = buildThreadDateGroups(groupedThreads);
 	const tagsByRecentUse = useMemo(() => {
@@ -271,7 +244,7 @@ export function ChatSidebar({
 	const renderThreadItem = (thread: ChatThread, pinned = false) => {
 		const selected = selectedThreadIds.has(thread.id);
 		return (
-		<SidebarMenuItem key={thread.id} className="w-full overflow-hidden">
+		<SidebarMenuItem key={thread.id} className="mb-1 w-full overflow-hidden last:mb-0">
 			<SidebarMenuButton
 				isActive={chatEditMode ? selected : activeId === thread.id}
 				onClick={() =>
@@ -279,7 +252,7 @@ export function ChatSidebar({
 						? toggleThreadSelection(thread.id)
 						: onSelectThread(thread)
 				}
-				className={chatEditMode ? "gap-2" : undefined}
+				className={cn("rounded-md", chatEditMode && "gap-2")}
 			>
 				{chatEditMode ? (
 					<span
@@ -306,7 +279,7 @@ export function ChatSidebar({
 							<MoreHorizontal className="h-4 w-4" />
 
 					</DropdownMenuTrigger>
-					<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+					<DropdownMenuContent side="right" className="rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 						<DropdownMenuItem onClick={() => onRenameThread(thread)}>
 							<PencilLine className="mr-2 h-4 w-4" />
 							Rename
@@ -343,16 +316,9 @@ export function ChatSidebar({
 		<>
 			<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
 				<div className="flex h-full min-w-0 items-center px-0">
+					<MobileChatSidebarBrand />
 					<ChatRoomSwitcher className="min-w-0 flex-1" />
-					<Button
-						variant="ghost"
-						size="icon"
-						className="ml-auto md:hidden"
-						onClick={toggleSidebar}
-						aria-label="Close sidebar"
-					>
-						<PanelLeftClose className="h-4 w-4" />
-					</Button>
+					<MobileChatSidebarTrigger />
 				</div>
 			</SidebarHeader>
 			<SidebarContent className="gap-0">
@@ -374,38 +340,6 @@ export function ChatSidebar({
 							{collapsed ? null : (
 								<span className="truncate text-left">New Chat</span>
 							)}
-						</Button>,
-					)}
-					{withCollapsedTooltip(
-						"Database",
-						<Button
-							variant="ghost"
-							className={cn(
-								"h-8 min-w-0 w-full gap-2 text-sm font-medium",
-								collapsed
-									? "justify-start px-2"
-									: "w-full flex-1 justify-start px-2",
-							)}
-							asChild
-							aria-label="Database"
-						>
-							<Link
-								href="/"
-								className={cn(
-									"group/db flex w-full min-w-0 items-center gap-2",
-									collapsed && "justify-start",
-								)}
-							>
-								<Database className="h-4 w-4 shrink-0" />
-								{collapsed ? null : (
-									<>
-										<span className="flex-1 min-w-0 truncate text-left">
-											Database
-										</span>
-										<ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover/db:opacity-100" />
-									</>
-								)}
-							</Link>
 						</Button>,
 					)}
 					{withCollapsedTooltip(
@@ -594,112 +528,6 @@ export function ChatSidebar({
 					</SidebarGroup>
 				</ScrollArea>
 			</SidebarContent>
-			<SidebarFooter
-				className="h-[57px] shrink-0 justify-center border-t border-border px-2 py-2"
-			>
-				{authUser ? (
-					<div className="grid gap-2">
-						<DropdownMenu>
-							<DropdownMenuTrigger render={<Button
-									variant="ghost"
-									className={cn(
-										"h-10 min-h-0 w-full touch-manipulation items-center gap-2 py-1 active:bg-muted data-open:bg-muted",
-										collapsed ? "justify-center rounded-full px-0" : "justify-start rounded-md px-2",
-									)}
-									aria-label="Open account menu" />}>
-
-									<Avatar className="pointer-events-none h-7 w-7 rounded-full border border-zinc-200/70 dark:border-zinc-800/70">
-										{authUser.avatarUrl && (
-											<AvatarImage
-												src={authUser.avatarUrl}
-												alt={authUser.name}
-												className="object-cover"
-											/>
-										)}
-										<AvatarFallback className="rounded-full text-[10px] font-semibold">
-											{initials || "U"}
-										</AvatarFallback>
-									</Avatar>
-									<div
-										className={cn(
-											"pointer-events-none flex min-w-0 flex-col items-start text-left",
-											collapsed && "hidden",
-										)}
-									>
-										<span className="truncate text-sm font-medium">
-											{firstName}
-										</span>
-										<span className="truncate text-[11px] font-normal text-muted-foreground">
-											{temporaryMode
-												? "Temporary chat is active."
-												: "All data is stored locally."}
-										</span>
-									</div>
-
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								side={collapsed ? "right" : "top"}
-								align="start"
-								sideOffset={8}
-								className="z-[90] w-56 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!"
-							>
-								<DropdownMenuItem render={<Link href="/settings/account" />}>
-
-										<UserRound className="mr-2 h-4 w-4" />
-										Account
-
-								</DropdownMenuItem>
-								<DropdownMenuItem render={<Link href="/gateway/usage" />}>
-
-										<Gauge className="mr-2 h-4 w-4" />
-										Usage
-
-								</DropdownMenuItem>
-								<DropdownMenuItem render={<Link
-										href="/settings/credits"
-										aria-label={creditsLabel ? `Credits balance: ${creditsLabel}` : "Credits"} />}>
-
-										<Coins className="mr-2 h-4 w-4" />
-										<span>Credits</span>
-										{creditsLoading ? (
-											<Skeleton className="ml-auto h-3.5 w-16 rounded-sm" />
-										) : creditsLabel ? (
-											<span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
-												{creditsLabel}
-											</span>
-										) : null}
-
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<div className="flex min-h-10 items-center justify-between gap-3 px-2 py-1.5">
-									<span className="text-sm">Theme</span>
-									<ThemeSelector className="shrink-0" showSelectedLabel={false} />
-								</div>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem onClick={onSignOut}>
-									<LogOut className="mr-2 h-4 w-4" />
-									Sign out
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-						{temporaryMode && !collapsed && (
-							<p className="text-[11px] text-muted-foreground">
-								Messages will not be saved.
-							</p>
-						)}
-					</div>
-				) : authLoading ? (
-					<div className="h-9 w-full rounded-md bg-muted/40" />
-				) : (
-					<Button
-						variant="ghost"
-						className="w-full justify-start rounded-md"
-						asChild
-					>
-						<Link href="/sign-in">Sign in to chat</Link>
-					</Button>
-				)}
-			</SidebarFooter>
 		</>
 	);
 }

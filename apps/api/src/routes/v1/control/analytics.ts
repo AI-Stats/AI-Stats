@@ -127,6 +127,7 @@ type AnalyticsFactRow = {
     provider_model_id: string | null;
     cost_nanos: number | string | null;
     byok: boolean | null;
+	success: boolean | null;
     v2_request_usage: Array<{
         meter_key: string | null;
         quantity: number | string | null;
@@ -173,41 +174,73 @@ function toRoundedUsage(value: number): number {
     return Number(value.toFixed(9));
 }
 
+function optionalFilter(url: URL, name: string, max: number, pattern: RegExp): string | null | false {
+	const value = url.searchParams.get(name)?.trim() || null;
+	return !value || (value.length <= max && pattern.test(value)) ? value : false;
+}
+
+function optionalBoolean(url: URL, name: string): boolean | null | false {
+	const value = url.searchParams.get(name)?.trim().toLowerCase();
+	if (!value) return null;
+	if (value === "true") return true;
+	if (value === "false") return false;
+	return false as const;
+}
+
 async function loadAnalyticsFactRows(args: {
     workspaceId: string;
     startIso: string;
     endIso: string;
+    labelKey?: string | null;
+    labelValue?: string | null;
+	keyId?: string | null;
+	endUserId?: string | null;
+	model?: string | null;
+	providerModelIds?: string[] | null;
+	endpoint?: string | null;
+	byok?: boolean | null;
+	success?: boolean | null;
 }): Promise<AnalyticsFactRow[]> {
     const supabase = getSupabaseAdmin();
     const rows: AnalyticsFactRow[] = [];
-	const countResult = await supabase
+	const countQuery = supabase
 		.from("v2_request_facts")
-		.select("request_event_id", { count: "exact", head: true })
+		.select("request_event_id", { count: "exact", head: true });
+	countQuery
 		.eq("workspace_id", args.workspaceId)
 		.gte("occurred_at", args.startIso)
 		.lt("occurred_at", args.endIso);
-	if (countResult.error) {
-		throw new Error(countResult.error.message || "Failed to count v2 analytics request facts");
+	if (args.labelKey && args.labelValue) {
+		countQuery.contains("safe_metadata", { labels: [{ key: args.labelKey, value: args.labelValue }] });
 	}
-	if (countResult.count == null) {
+	applyFactFilters(countQuery, args);
+	const resolvedCountResult = await countQuery;
+	if (resolvedCountResult.error) {
+		throw new Error(resolvedCountResult.error.message || "Failed to count v2 analytics request facts");
+	}
+	if (resolvedCountResult.count == null) {
 		throw new Error("Failed to count v2 analytics request facts");
 	}
-	if (countResult.count > ANALYTICS_FACT_MAX_ROWS) {
+	if (resolvedCountResult.count > ANALYTICS_FACT_MAX_ROWS) {
 		throw new AnalyticsFactLimitError(
 			"Analytics range contains too many requests; select a single date"
 		);
 	}
     for (let offset = 0; offset < ANALYTICS_FACT_MAX_ROWS; offset += ANALYTICS_FACT_PAGE_SIZE) {
-        const { data, error } = await supabase
+        const dataQuery = supabase
             .from("v2_request_facts")
             .select(
-                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,v2_request_usage(meter_key,quantity)"
+                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,success,v2_request_usage(meter_key,quantity)"
             )
             .eq("workspace_id", args.workspaceId)
             .gte("occurred_at", args.startIso)
             .lt("occurred_at", args.endIso)
-            .order("occurred_at", { ascending: true })
-			.range(offset, offset + ANALYTICS_FACT_PAGE_SIZE - 1);
+            .order("occurred_at", { ascending: true });
+		if (args.labelKey && args.labelValue) {
+			dataQuery.contains("safe_metadata", { labels: [{ key: args.labelKey, value: args.labelValue }] });
+		}
+		applyFactFilters(dataQuery, args);
+		const { data, error } = await dataQuery.range(offset, offset + ANALYTICS_FACT_PAGE_SIZE - 1);
         if (error) {
             throw new Error(error.message || "Failed to load v2 analytics request facts");
         }
@@ -216,6 +249,32 @@ async function loadAnalyticsFactRows(args: {
         if (page.length < ANALYTICS_FACT_PAGE_SIZE) break;
     }
     return rows;
+}
+
+function applyFactFilters(query: any, args: {
+	keyId?: string | null;
+	endUserId?: string | null;
+	model?: string | null;
+	providerModelIds?: string[] | null;
+	endpoint?: string | null;
+	byok?: boolean | null;
+	success?: boolean | null;
+}) {
+	if (args.keyId) query.eq("key_id", args.keyId);
+	if (args.endUserId) query.eq("end_user_id", args.endUserId);
+	if (args.model) query.or(`requested_model_slug.eq.${args.model},routed_model_slug.eq.${args.model}`);
+	if (args.providerModelIds?.length) query.in("provider_model_id", args.providerModelIds);
+	if (args.endpoint) query.eq("endpoint", args.endpoint);
+	if (args.byok !== null && args.byok !== undefined) query.eq("byok", args.byok);
+	if (args.success !== null && args.success !== undefined) query.eq("success", args.success);
+	return query;
+}
+
+async function loadProviderModelIds(provider: string | null): Promise<string[] | null> {
+	if (!provider) return null;
+	const { data, error } = await getSupabaseAdmin().from("v2_model_provider_routes").select("provider_model_id").eq("provider_slug", provider);
+	if (error) throw new Error(error.message || "Failed to resolve analytics provider filter");
+	return (data ?? []).map((row) => String(row.provider_model_id ?? "").trim()).filter(Boolean);
 }
 
 async function loadProviderNames(providerModelIds: string[]): Promise<Map<string, string>> {
@@ -242,7 +301,7 @@ function meterQuantity(row: AnalyticsFactRow, keys: string[]): number {
     }, 0);
 }
 
-async function handleAnalytics(req: Request) {
+async function handleAnalytics(req: Request, options: { exportRequest?: boolean } = {}) {
 	const auth = await guardAuth(req, { allowOAuthJwt: true });
 	if (!auth.ok) {
 		return (auth as GuardErr).response;
@@ -263,12 +322,48 @@ async function handleAnalytics(req: Request) {
     if (range.ok === false) return range.response;
     const startIso = range.start.toISOString();
 	const endIso = range.end.toISOString();
+	const labelKey = url.searchParams.get("label_key")?.trim() || null;
+	const labelValue = url.searchParams.get("label_value")?.trim() || null;
+	if ((labelKey && !labelValue) || (!labelKey && labelValue)) {
+		return json({ ok: false, error: "invalid_request", message: "label_key and label_value must be provided together" }, 400, { "Cache-Control": "no-store" });
+	}
+	if (labelKey && (!/^[A-Za-z0-9_.:-]{1,64}$/.test(labelKey) || labelValue!.length > 256)) {
+		return json({ ok: false, error: "invalid_request", message: "label_key or label_value is invalid" }, 400, { "Cache-Control": "no-store" });
+	}
+	const keyId = optionalFilter(url, "key_id", 128, /^[A-Za-z0-9_-]+$/);
+	const endUserIdValue = url.searchParams.get("end_user_id")?.trim() || null;
+	const endUserId = !endUserIdValue || endUserIdValue.length <= 256 ? endUserIdValue : false;
+	const model = optionalFilter(url, "model", 256, /^[A-Za-z0-9_.:/-]+$/);
+	const provider = optionalFilter(url, "provider", 128, /^[A-Za-z0-9_.-]+$/);
+	const endpoint = optionalFilter(url, "endpoint", 128, /^[A-Za-z0-9_.:/-]+$/);
+	const byok = optionalBoolean(url, "byok");
+	const success = optionalBoolean(url, "success");
+	if ([keyId, endUserId, model, provider, endpoint].includes(false) || (url.searchParams.has("byok") && byok === false && url.searchParams.get("byok")?.toLowerCase() !== "false") || (url.searchParams.has("success") && success === false && url.searchParams.get("success")?.toLowerCase() !== "false")) {
+		return json({ ok: false, error: "invalid_request", message: "One or more analytics filters are invalid" }, 400, { "Cache-Control": "no-store" });
+	}
+	const offset = Number(url.searchParams.get("offset") ?? "0");
+	const exportRequest = options.exportRequest === true;
+	const limit = Number(url.searchParams.get("limit") ?? (exportRequest ? "10000" : "1000"));
+	if (!Number.isInteger(offset) || offset < 0 || !Number.isInteger(limit) || limit < 1 || limit > (exportRequest ? 10_000 : 1_000)) {
+		return json({ ok: false, error: "invalid_request", message: "Invalid pagination" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	try {
+		const providerFilterIds = await loadProviderModelIds(provider || null);
+		if (providerFilterIds?.length === 0) return json({ data: [], total_count: 0, offset, limit }, 200, { "Cache-Control": "no-store" });
 		const rows = await loadAnalyticsFactRows({
 			workspaceId,
 			startIso,
             endIso,
+			labelKey,
+			labelValue,
+			keyId: keyId || null,
+			endUserId: endUserId || null,
+			model: model || null,
+			providerModelIds: providerFilterIds,
+			endpoint: endpoint || null,
+			byok: byok as boolean | null,
+			success: success as boolean | null,
         });
 		const providerModelIds = Array.from(new Set(rows
 			.map((row) => row.provider_model_id)
@@ -331,8 +426,9 @@ async function handleAnalytics(req: Request) {
                 return a.model_permaslug.localeCompare(b.model_permaslug);
             });
 
+		const totalCount = data.length;
         return json(
-            { data },
+            { data: data.slice(offset, offset + limit), total_count: totalCount, offset, limit },
             200,
             { "Cache-Control": "no-store" }
         );
@@ -350,15 +446,33 @@ async function handleAnalytics(req: Request) {
     }
 }
 
+function csvCell(value: unknown): string {
+	let text = value == null ? "" : String(value);
+	if (/^[=+\-@]/.test(text)) text = `'${text}`;
+	return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+async function handleAnalyticsExport(req: Request) {
+	const url = new URL(req.url);
+	url.searchParams.delete("offset");
+	url.searchParams.delete("limit");
+	const response = await handleAnalytics(new Request(url, { method: "GET", headers: req.headers }), { exportRequest: true });
+	if (!response.ok) return response;
+	const body = await response.json() as { data?: Array<Record<string, unknown>> };
+	const columns = ["date", "model", "model_permaslug", "endpoint_id", "provider_name", "usage", "byok_usage_inference", "requests", "prompt_tokens", "completion_tokens", "reasoning_tokens"];
+	const csv = [columns.join(","), ...(body.data ?? []).map((row) => columns.map((column) => csvCell(row[column])).join(","))].join("\r\n");
+	return new Response(`${csv}\r\n`, {
+		status: 200,
+		headers: {
+			"Content-Type": "text/csv; charset=utf-8",
+			"Content-Disposition": `attachment; filename="phaseo-analytics-${new Date().toISOString().slice(0, 10)}.csv"`,
+			"Cache-Control": "no-store",
+		},
+	});
+}
+
 export const analyticsRoutes = new Hono<Env>();
 
-analyticsRoutes.get("/", withRuntime(handleAnalytics));
-
-
-
-
-
-
-
-
+analyticsRoutes.get("/export", withRuntime(handleAnalyticsExport));
+analyticsRoutes.get("/", withRuntime((req) => handleAnalytics(req)));
 

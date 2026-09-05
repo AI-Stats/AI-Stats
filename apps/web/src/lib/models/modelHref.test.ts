@@ -38,4 +38,13 @@ describe("model href helpers", () => {
 			"invalid%segment",
 		);
 	});
+
+	it("encodes nested model slugs as one route segment", () => {
+		const href = getModelDetailsHref(null, "openrouter/meta-llama/llama-3.1-8b:free");
+
+		expect(href).toBe(
+			"/models/openrouter/meta-llama%2Fllama-3.1-8b%3Afree",
+		);
+		expect(href).not.toBe("/models/openrouter/meta-llama/llama-3.1-8b:free");
+	});
 });

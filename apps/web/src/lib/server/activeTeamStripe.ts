@@ -3,7 +3,6 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { getWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
 import { requireWorkspaceMembership } from "@/utils/serverActionAuth";
 import { getStripe } from "@/lib/stripe";
-import type Stripe from "stripe";
 
 type ActiveTeamStripeCustomer = {
     workspaceId: string;
@@ -17,6 +16,14 @@ type RequireActiveTeamStripeCustomerOptions = {
     createIfMissing?: boolean;
     repairInvalidCustomer?: boolean;
     roles?: Array<"owner" | "admin" | "member">;
+    workspaceId?: string;
+};
+
+export type ActiveWorkspaceBillingAdmin = {
+    workspaceId: string;
+    userId: string;
+    userEmail: string | null;
+    userDisplayName: string | null;
 };
 
 export type ActiveTeamStripeSummary = {
@@ -76,11 +83,30 @@ async function upsertWorkspaceStripeCustomer(workspaceId: string, customerId: st
     if (upsertError) throw upsertError;
 }
 
+async function readWorkspaceStripeCustomer(workspaceId: string): Promise<string | null> {
+	const admin = createAdminClient();
+	const result = await admin
+		.from("wallets")
+		.select("stripe_customer_id")
+		.eq("workspace_id", workspaceId)
+		.maybeSingle();
+	if (result.error) throw result.error;
+	return typeof result.data?.stripe_customer_id === "string"
+		? result.data.stripe_customer_id.trim() || null
+		: null;
+}
+
+function isStripeIdempotencyConflict(error: unknown): boolean {
+	if (!error || typeof error !== "object") return false;
+	const candidate = error as { code?: string; type?: string; raw?: { code?: string; type?: string } };
+	return candidate.code === "idempotency_error" ||
+		candidate.type === "StripeIdempotencyError" ||
+		candidate.raw?.code === "idempotency_error" ||
+		candidate.raw?.type === "StripeIdempotencyError";
+}
+
 async function findOrCreateStripeCustomer(args: {
     workspaceId: string;
-    userId: string;
-    email?: string | null;
-    name?: string;
 }): Promise<string> {
     const stripe = getStripe();
     let customerId: string | null = null;
@@ -97,27 +123,25 @@ async function findOrCreateStripeCustomer(args: {
         // Ignore search failures and fallback to create path.
     }
 
-    if (!customerId && args.email) {
-        const list = await stripe.customers.list({ email: args.email, limit: 1 });
-        if (list.data.length > 0) {
-            customerId = list.data[0].id;
-            try {
-                await stripe.customers.update(customerId, {
-                    metadata: { workspace_id: args.workspaceId, user_id: args.userId },
-                });
-            } catch {
-                // Best-effort metadata patch only.
-            }
-        }
-    }
-
     if (!customerId) {
-        const created = await stripe.customers.create({
-            email: args.email ?? undefined,
-            name: args.name,
-            metadata: { workspace_id: args.workspaceId, user_id: args.userId },
-        });
-        customerId = created.id;
+		try {
+			const created = await stripe.customers.create(
+				{ metadata: { workspace_id: args.workspaceId } },
+				{ idempotencyKey: `phaseo:workspace:${args.workspaceId}:customer:v1` },
+			);
+			customerId = created.id;
+		} catch (error) {
+			if (!isStripeIdempotencyConflict(error)) throw error;
+			customerId = await readWorkspaceStripeCustomer(args.workspaceId);
+			if (!customerId) {
+				const search = await stripe.customers.search({
+					query: `metadata['workspace_id']:'${args.workspaceId}'`,
+					limit: 1,
+				});
+				customerId = search.data[0]?.id ?? null;
+			}
+			if (!customerId) throw error;
+		}
     }
 
     return customerId;
@@ -179,9 +203,6 @@ async function resolveWorkspaceStripeCustomer(args: {
 
     const customerId = await findOrCreateStripeCustomer({
         workspaceId: args.workspaceId,
-        userId: args.userId,
-        email: args.email ?? undefined,
-        name: args.name,
     });
 
     if (customerId !== storedCustomerId) {
@@ -191,9 +212,10 @@ async function resolveWorkspaceStripeCustomer(args: {
     return customerId;
 }
 
-export async function requireActiveTeamStripeCustomer(
-    options: RequireActiveTeamStripeCustomerOptions = {}
-): Promise<ActiveTeamStripeCustomer> {
+export async function requireActiveWorkspaceBillingAdmin(
+    roles: Array<"owner" | "admin" | "member"> = ["owner", "admin"],
+    requestedWorkspaceId?: string,
+): Promise<ActiveWorkspaceBillingAdmin> {
     const supabase = await createClient();
     const {
         data: { user },
@@ -204,7 +226,7 @@ export async function requireActiveTeamStripeCustomer(
         throw new Error("unauthorized");
     }
 
-    const workspaceId = await getWorkspaceIdFromCookie();
+    const workspaceId = requestedWorkspaceId?.trim() || await getWorkspaceIdFromCookie();
     if (!workspaceId) {
         throw new Error("missing_team");
     }
@@ -214,7 +236,7 @@ export async function requireActiveTeamStripeCustomer(
             supabase,
             user.id,
             workspaceId,
-            options.roles ?? ["owner", "admin"],
+            roles,
         );
     } catch (error) {
         if (
@@ -226,6 +248,24 @@ export async function requireActiveTeamStripeCustomer(
         throw error;
     }
 
+    return {
+        workspaceId,
+        userId: user.id,
+        userEmail: user.email ?? null,
+        userDisplayName: deriveCustomerName(user) ?? null,
+    };
+}
+
+export async function requireActiveTeamStripeCustomer(
+    options: RequireActiveTeamStripeCustomerOptions = {}
+): Promise<ActiveTeamStripeCustomer> {
+    const admin = await requireActiveWorkspaceBillingAdmin(
+        options.roles ?? ["owner", "admin"],
+        options.workspaceId,
+    );
+    const supabase = await createClient();
+    const { workspaceId, userId, userEmail, userDisplayName } = admin;
+
     const { data: wallet, error: walletErr } = await supabase
         .from("wallets")
         .select("workspace_id, stripe_customer_id")
@@ -235,24 +275,24 @@ export async function requireActiveTeamStripeCustomer(
     if (walletErr) throw walletErr;
     const customerId = await resolveWorkspaceStripeCustomer({
         workspaceId,
-        userId: user.id,
-        email: user.email ?? undefined,
-        name: deriveCustomerName(user),
+        userId,
+        email: userEmail ?? undefined,
+        name: userDisplayName ?? undefined,
         storedCustomerId: wallet?.stripe_customer_id ?? null,
         createIfMissing: options.createIfMissing ?? false,
         repairInvalidCustomer: options.repairInvalidCustomer ?? true,
     });
 
-    if (!wallet?.workspace_id || !customerId) {
+    if (!customerId) {
         throw new Error("missing_stripe_customer");
     }
 
     return {
-        workspaceId: String(wallet.workspace_id),
+        workspaceId,
         customerId,
-        userId: user.id,
-        userEmail: user.email ?? null,
-        userDisplayName: deriveCustomerName(user) ?? null,
+        userId,
+        userEmail,
+        userDisplayName,
     };
 }
 

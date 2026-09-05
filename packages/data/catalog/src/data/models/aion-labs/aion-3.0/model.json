@@ -4,9 +4,9 @@
   "name": "Aion 3.0",
   "status": "Available",
   "previous_model_id": "aion-labs/aion-2.5",
-  "description": "Aion 3.0 is a multimodal system built on the GLM family of models. It uses multiple specialized models during generation to improve narrative structure, tension, conflict, and mature-theme handling.",
-  "announced_date": "2026-07-07T00:00:00",
-  "release_date": "2026-07-07T00:00:00",
+  "description": "Aion 3.0 is a multi-model text system built on the GLM family of models. It uses multiple specialized models during generation to improve narrative structure, tension, conflict, and mature-theme handling.",
+  "announced_date": "2026-05-05T00:00:00",
+  "release_date": "2026-05-05T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -49,15 +49,15 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
     "attachment": null,
-    "tool_call": null,
+    "tool_call": true,
     "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
@@ -65,16 +65,16 @@
     {
       "kind": "api_reference",
       "url": "https://www.aionlabs.ai/docs/models/",
-      "accessed_at": null,
+      "accessed_at": "2026-08-21T00:00:00Z",
       "notes": null
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against Aion Labs' live model catalog and API reference."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-21T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -12,8 +12,8 @@ describe("getTierFilterMeta", () => {
 		[
 			"batch",
 			Boxes,
-			"text-violet-600 dark:text-violet-400",
-			"group-hover:text-violet-600 dark:group-hover:text-violet-400",
+			"text-orange-600 dark:text-orange-400",
+			"group-hover:text-orange-600 dark:group-hover:text-orange-400",
 		],
 		[
 			"free",
@@ -24,8 +24,8 @@ describe("getTierFilterMeta", () => {
 		[
 			"flex",
 			Shuffle,
-			"text-teal-600 dark:text-teal-400",
-			"group-hover:text-teal-600 dark:group-hover:text-teal-400",
+			"text-sky-600 dark:text-sky-400",
+			"group-hover:text-sky-600 dark:group-hover:text-sky-400",
 		],
 		[
 			"priority",

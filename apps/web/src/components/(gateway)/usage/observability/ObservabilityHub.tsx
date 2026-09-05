@@ -44,7 +44,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AppLogo from "@/components/(data)/apps/AppLogo";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,7 +87,9 @@ import { cn } from "@/lib/utils";
 import type { GuardrailEnforcementMetricsResult } from "@/lib/gateway/usage/guardrailEnforcementMetrics";
 import type { UsageRangePreset } from "@/lib/gateway/usage/timeRange";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
+import RequestLabelFilter from "@/components/(gateway)/usage/RequestLabelFilter";
 import { Logo } from "@/components/Logo";
+import type { UsageLabelFacet, UsageLabelSummary } from "@/lib/fetchers/internal/settingsTypes";
 import type {
 	ObservabilityBreakdownItem,
 	ObservabilityData,
@@ -99,6 +101,11 @@ import type {
 	ObservabilityTrendMetricCharts,
 	ObservabilityTimeSeriesChart,
 } from "./types";
+import {
+	prepareTrendChartData,
+	shouldOpenTrendExplore,
+	stopTrendControlClick,
+} from "./trendChart";
 
 const CHART_COLORS = ["#2563eb", "#059669", "#d97706", "#7c3aed", "#dc2626"];
 
@@ -1147,44 +1154,6 @@ function trendMetricValueKind(metric: TrendMetric): TimeSeriesValueKind {
 	return TREND_METRICS.find((item) => item.id === metric)?.valueKind ?? "number";
 }
 
-function prepareTrendChartData(
-	data: ObservabilityTimeSeriesChart,
-	options: { showOther: boolean; cumulative: boolean },
-): ObservabilityTimeSeriesChart {
-	const series = options.showOther
-		? data.series
-		: data.series.filter((item) => item.id !== "other");
-	if (!options.cumulative) {
-		return {
-			series,
-			data: data.data.map((point) => {
-				const next: Record<string, string | number> = {
-					bucket: point.bucket ?? "",
-					label: point.label ?? "",
-				};
-				for (const item of series) next[item.id] = Number(point[item.id] ?? 0);
-				return next;
-			}),
-		};
-	}
-	const running = new Map(series.map((item) => [item.id, 0]));
-	return {
-		series,
-		data: data.data.map((point) => {
-			const next: Record<string, string | number> = {
-				bucket: point.bucket ?? "",
-				label: point.label ?? "",
-			};
-			for (const item of series) {
-				const value = (running.get(item.id) ?? 0) + Number(point[item.id] ?? 0);
-				running.set(item.id, value);
-				next[item.id] = value;
-			}
-			return next;
-		}),
-	};
-}
-
 function MultiSeriesLineChart({
 	data,
 	height = 300,
@@ -1397,10 +1366,12 @@ function RankedListItem({
 			<div className="min-w-0">
 				<div className="flex min-w-0 items-center gap-2">
 					{kind === "app" ? (
-						<Avatar className="size-6 rounded-md">
-							{item.imageUrl ? <AvatarImage src={item.imageUrl} alt={item.label} className="rounded-md" /> : null}
-							<AvatarFallback className="rounded-md"><AppWindow className="size-3.5" /></AvatarFallback>
-						</Avatar>
+						<AppLogo
+							src={item.imageUrl}
+							alt={item.label}
+							fallback={<AppWindow className="size-3.5" />}
+							className="size-6"
+						/>
 					) : (
 						<span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: color }} />
 					)}
@@ -1458,7 +1429,11 @@ function TrendChartOptions({
 					<span className="sr-only">Chart options</span>
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent align="end" className="w-64 space-y-4 p-3">
+			<PopoverContent
+				align="end"
+				className="w-64 space-y-4 p-3"
+				onClick={stopTrendControlClick}
+			>
 				<div className="flex items-center justify-between gap-3">
 					<div className="text-sm">Show Other</div>
 					<Switch
@@ -1534,13 +1509,7 @@ function TrendChartPanel({
 	}, [chartType, displayChartType]);
 	const openExplore = (event: React.MouseEvent<HTMLElement>) => {
 		const target = event.target as HTMLElement;
-		if (
-			target.closest(
-				"a,button,[role='switch'],[role='menuitem'],[data-radix-popper-content-wrapper]",
-			)
-		) {
-			return;
-		}
+		if (!shouldOpenTrendExplore(target)) return;
 		router.push("/settings/usage/explore");
 	};
 	return (
@@ -2465,6 +2434,8 @@ export default function ObservabilityHub({
 	data,
 	guardrailMetrics,
 	initialTab,
+	labelFacets = [],
+	labelSummary = null,
 	preset,
 	customFrom,
 	customTo,
@@ -2472,6 +2443,8 @@ export default function ObservabilityHub({
 	data: ObservabilityData;
 	guardrailMetrics: GuardrailEnforcementMetricsResult;
 	initialTab: ObservabilityTab;
+	labelFacets?: UsageLabelFacet[];
+	labelSummary?: UsageLabelSummary | null;
 	preset: UsageRangePreset;
 	customFrom?: string | null;
 	customTo?: string | null;
@@ -2483,7 +2456,8 @@ export default function ObservabilityHub({
 					<h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Activity</h1>
 					<p className="mt-1 text-xs text-muted-foreground sm:text-sm">Your usage across Phaseo.</p>
 				</div>
-				<div className="flex shrink-0 justify-end">
+				<div className="flex shrink-0 flex-wrap justify-end gap-2">
+					<RequestLabelFilter facets={labelFacets} />
 					<UsageLogsToolbar
 						view="logs"
 						preset={preset}
@@ -2498,6 +2472,31 @@ export default function ObservabilityHub({
 				<div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800/70 dark:bg-amber-950/30 dark:text-amber-100">
 					This view is based on the first {formatNumber(data.sampleLimit ?? 0)} requests in the selected period.
 				</div>
+			) : null}
+			{labelSummary ? (
+				<Card className="ring-1 ring-primary/15">
+					<CardContent className="flex flex-wrap items-center justify-between gap-4 py-4">
+						<div className="min-w-0">
+							<p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Filtered spend</p>
+							<p className="mt-1 truncate text-sm font-medium">
+								<span className="font-mono">{labelSummary.key}</span>
+								<span className="px-1.5 text-muted-foreground">=</span>
+								<span>{labelSummary.value}</span>
+							</p>
+						</div>
+						<div className="flex items-center gap-6 text-sm">
+							<div>
+								<p className="text-xs text-muted-foreground">Requests</p>
+								<p className="mt-1 font-mono font-medium">{formatNumber(labelSummary.requestCount)}</p>
+							</div>
+							<div>
+								<p className="text-xs text-muted-foreground">Spend</p>
+								<p className="mt-1 font-mono font-medium">{formatCurrency(labelSummary.totalCostNanos / 1e9)}</p>
+							</div>
+						</div>
+						{labelSummary.isSampled ? <p className="basis-full text-xs text-muted-foreground">Spend is calculated from a 5,000-request sample.</p> : null}
+					</CardContent>
+				</Card>
 			) : null}
 
 			{initialTab === "overview" ? <Overview data={data} /> : null}

@@ -39,23 +39,24 @@ type RoutingMode = "balanced" | "price" | "latency" | "throughput";
 type ProviderStatus = ProviderRolloutStatus;
 type CapabilityStatus = CapabilityRoutingStatus;
 
+const ROUTING_ALGORITHM_VERSION = "provider-score-v3";
+
 type RoutingPreset = {
     wSucc: number;
     wP50: number;
     wTail: number;
     wTPS: number;
-    wLoad: number;
     wPrice: number;
     noise: number;
     L0: number;
 };
 
 const PRESETS: Record<Priority, RoutingPreset> = {
-    default: { wSucc: 0.35, wP50: 0.35, wTail: 0.15, wTPS: 0.10, wLoad: 0.05, wPrice: 0.0, noise: 0.02, L0: 800 },
-    fast: { wSucc: 0.30, wP50: 0.50, wTail: 0.15, wTPS: 0.03, wLoad: 0.02, wPrice: 0.0, noise: 0.005, L0: 600 },
+    default: { wSucc: 0.30, wP50: 0.25, wTail: 0.10, wTPS: 0.10, wPrice: 0.15, noise: 0.0, L0: 800 },
+    fast: { wSucc: 0.30, wP50: 0.50, wTail: 0.15, wTPS: 0.03, wPrice: 0.0, noise: 0.005, L0: 600 },
     // Nitro mode prioritizes peak throughput (TPS) over latency/cost.
-    nitro: { wSucc: 0.24, wP50: 0.10, wTail: 0.06, wTPS: 0.55, wLoad: 0.05, wPrice: 0.0, noise: 0.001, L0: 500 },
-    cheap: { wSucc: 0.25, wP50: 0.15, wTail: 0.10, wTPS: 0.05, wLoad: 0.05, wPrice: 0.40, noise: 0.001, L0: 700 },
+    nitro: { wSucc: 0.24, wP50: 0.10, wTail: 0.06, wTPS: 0.55, wPrice: 0.0, noise: 0.001, L0: 500 },
+    cheap: { wSucc: 0.25, wP50: 0.15, wTail: 0.10, wTPS: 0.05, wPrice: 0.40, noise: 0.001, L0: 700 },
 };
 
 const TEXT_ENDPOINTS = new Set<Endpoint>(["responses", "chat.completions", "messages"]);
@@ -102,7 +103,6 @@ function applyRoutingMode(preset: RoutingPreset, mode: RoutingMode): RoutingPres
             wP50: 0.15,
             wTail: 0.10,
             wTPS: 0.05,
-            wLoad: 0.05,
             wPrice: 0.40,
         };
     }
@@ -113,7 +113,6 @@ function applyRoutingMode(preset: RoutingPreset, mode: RoutingMode): RoutingPres
             wP50: 0.55,
             wTail: 0.15,
             wTPS: 0.02,
-            wLoad: 0.03,
             wPrice: 0.0,
         };
     }
@@ -124,7 +123,6 @@ function applyRoutingMode(preset: RoutingPreset, mode: RoutingMode): RoutingPres
             wP50: 0.20,
             wTail: 0.10,
             wTPS: 0.40,
-            wLoad: 0.10,
             wPrice: 0.0,
         };
     }
@@ -523,7 +521,6 @@ export type RoutingScoreFactors = {
     reliabilitySample: number;
     reliabilityObservations: number;
     tokenAffinity: number;
-    loadPenalty: number;
     baseWeight: number;
     rolloutMultiplier: number;
     routingMultiplier: number;
@@ -535,7 +532,7 @@ export type RoutingScoreFactors = {
 export type RoutingScoreFactorValues = readonly [
     number, number, number, number, number,
     number, number, number, number, number,
-    number, number, number, number, number,
+    number, number, number, number,
 ];
 
 function scoreFactorsFromValues(values: RoutingScoreFactorValues): RoutingScoreFactors {
@@ -548,13 +545,12 @@ function scoreFactorsFromValues(values: RoutingScoreFactorValues): RoutingScoreF
         reliabilitySample: roundDiagnosticNumber(values[5]),
         reliabilityObservations: roundDiagnosticNumber(values[6]),
         tokenAffinity: roundDiagnosticNumber(values[7]),
-        loadPenalty: roundDiagnosticNumber(values[8]),
-        baseWeight: roundDiagnosticNumber(values[9]),
-        rolloutMultiplier: roundDiagnosticNumber(values[10]),
-        routingMultiplier: roundDiagnosticNumber(values[11]),
-        cacheBoostMultiplier: roundDiagnosticNumber(values[12]),
-        latencyPreferenceMultiplier: roundDiagnosticNumber(values[13]),
-        throughputPreferenceMultiplier: roundDiagnosticNumber(values[14]),
+        baseWeight: roundDiagnosticNumber(values[8]),
+        rolloutMultiplier: roundDiagnosticNumber(values[9]),
+        routingMultiplier: roundDiagnosticNumber(values[10]),
+        cacheBoostMultiplier: roundDiagnosticNumber(values[11]),
+        latencyPreferenceMultiplier: roundDiagnosticNumber(values[12]),
+        throughputPreferenceMultiplier: roundDiagnosticNumber(values[13]),
     };
 }
 
@@ -564,6 +560,55 @@ export type RoutedCandidate = {
     score: number;
     health: ProviderHealth;
     scoreFactorValues: RoutingScoreFactorValues;
+    scoreTrace: RoutingScoreTrace;
+};
+
+export type RoutingScoreTrace = {
+    inputs: {
+        latencyEwma60s: number;
+        latencyEwma300s: number;
+        errorEwma60s: number;
+        throughputEwma60s: number;
+        requestRate60s: number;
+        comparablePrice: number | null;
+        priceMeters: string[];
+        requestedMaxTokens: number | null;
+        maxOutputTokens: number | null;
+        healthLastUpdatedMs: number;
+    };
+    normalized: {
+        p50Curve: number;
+        p50PoolPosition: number;
+        latencyScore: number;
+        tailLatencyScore: number;
+        throughputScore: number;
+        priceScore: number;
+        reliabilitySample: number;
+        tokenAffinity: number;
+    };
+    weights: RoutingPreset & { tokenAffinity: number };
+    contributions: {
+        success?: number;
+        reliability?: number;
+        latency: number;
+        tailLatency: number;
+        throughput: number;
+        price: number;
+        tokenAffinity: number;
+        noise: number;
+    };
+    calculation: {
+        formula: "balanced_weighted_additive" | "weighted_additive";
+        baseScore: number;
+        baseWeight: number;
+        rolloutMultiplier: number;
+        routingMultiplier: number;
+        cacheBoostMultiplier: number;
+        latencyPreferenceMultiplier: number;
+        throughputPreferenceMultiplier: number;
+        recentOutageMultiplier: number;
+        finalScore: number;
+    };
 };
 
 export type RoutingFilterStageDiagnostics = {
@@ -579,6 +624,21 @@ export type RoutingFilterStageDiagnostics = {
 };
 
 export type RoutingDiagnostics = {
+    algorithm: {
+        version: string;
+        seed: number;
+        selectionMethod: "score_sort" | "weighted_order" | "explicit_provider_order";
+        poolBounds: {
+            latencyP50MinMs: number;
+            latencyP50MaxMs: number;
+            tailLatencyMinMs: number;
+            tailLatencyMaxMs: number;
+            throughputMinTps: number;
+            throughputMaxTps: number;
+            comparablePriceMin: number | null;
+            comparablePriceMax: number | null;
+        } | null;
+    };
     model: string;
     endpoint: Endpoint;
     priority: Priority;
@@ -591,6 +651,7 @@ export type RoutingDiagnostics = {
         requiredExecutionRegion: string | null;
         requiredDataRegion: string | null;
         requireZeroDataRetention: boolean | null;
+        quantizations: string[] | null;
         maxPrice: Record<string, any> | null;
         preferredMinThroughput: number | Record<string, any> | null;
         preferredMaxLatency: number | Record<string, any> | null;
@@ -615,6 +676,7 @@ export type RoutingDiagnostics = {
         providerId: string;
         apiModelId: string | null;
         providerModelSlug: string | null;
+        quantization: string | null;
         providerStatus: ProviderStatus;
         providerRoutingStatus: RoutingStatus;
         modelRoutingStatus: RoutingStatus;
@@ -671,7 +733,7 @@ function isZdrSpecializedOffer(candidate: ProviderCandidate): boolean {
 	return (
 		candidate.dataPolicyVariant === "zdr" &&
 		normalizeOfferScope(candidate.offerScope) === "specialized" &&
-		candidate.zeroDataRetention === "default"
+		candidate.zeroDataRetention === true
 	);
 }
 
@@ -816,7 +878,7 @@ export async function routeProviders(
     const requestedServiceTier = normalizeRequestedServiceTier(ctx.body);
     const suffixRoutingMode = priorityDefaultRoutingMode(priority);
     const mode = normalizeRoutingMode(
-        requestedRoutingMode ?? suffixRoutingMode ?? ctx.routingMode,
+        suffixRoutingMode ?? requestedRoutingMode ?? ctx.routingMode,
     );
     const deterministicRequestSort = Boolean(requestedRoutingMode);
     const preset = applyRoutingMode(PRESETS[priority], mode);
@@ -916,11 +978,20 @@ export async function routeProviders(
         applied: stickyRoutingApplied,
     });
 
+    const routingSeed = hashSeed(`${ctx.requestId ?? ""}:${ctx.workspaceId}:${ctx.model}`);
+    let poolBounds: RoutingDiagnostics["algorithm"]["poolBounds"] = null;
     const buildDiagnostics = (
         finalCandidateCount: number,
         rankedProviders: RoutingDiagnostics["rankedProviders"] = [],
 		forceDetailed = false,
+        selectionMethod: RoutingDiagnostics["algorithm"]["selectionMethod"] = "score_sort",
     ): RoutingDiagnostics => ({
+        algorithm: {
+            version: ROUTING_ALGORITHM_VERSION,
+            seed: routingSeed,
+            selectionMethod,
+            poolBounds,
+        },
         model: ctx.model,
         endpoint: ctx.endpoint,
         priority,
@@ -933,6 +1004,7 @@ export async function routeProviders(
             requiredExecutionRegion,
             requiredDataRegion,
             requireZeroDataRetention,
+			quantizations: routingHints.quantizations,
             maxPrice,
             preferredMinThroughput: preferredMinThroughputValue,
             preferredMaxLatency: preferredMaxLatencyValue,
@@ -950,6 +1022,7 @@ export async function routeProviders(
             providerId: candidate.providerId,
             apiModelId: candidate.apiModelId ?? null,
             providerModelSlug: candidate.providerModelSlug ?? null,
+            quantization: candidate.quantizationScheme ?? null,
             providerStatus: normalizeProviderStatus(candidate.providerStatus),
             providerRoutingStatus: normalizeRoutingStatus(candidate.providerRoutingStatus),
             modelRoutingStatus: normalizeRoutingStatus(candidate.modelRoutingStatus),
@@ -1264,7 +1337,26 @@ export async function routeProviders(
     const minTail = Math.min(...latTail), maxTail = Math.max(...latTail);
     const minTPS = Math.min(...tpss), maxTPS = Math.max(...tpss);
 
-    const rng = seededRandom(hashSeed(`${ctx.requestId ?? ""}:${ctx.workspaceId}:${ctx.model}`));
+    const candidatePriceCosts = computePriceCosts(ctx.endpoint, pool.map((entry) => entry.candidate));
+    const finitePriceCosts = Array.from(candidatePriceCosts.values()).filter(
+        (value): value is number => typeof value === "number" && Number.isFinite(value),
+    );
+    const priceMeters = pickPriceMeters(
+        ctx.endpoint,
+        pool.map((entry) => extractMeterPrices(entry.candidate.pricingCard ?? null)),
+    );
+    poolBounds = {
+        latencyP50MinMs: roundDiagnosticNumber(minP50),
+        latencyP50MaxMs: roundDiagnosticNumber(maxP50),
+        tailLatencyMinMs: roundDiagnosticNumber(minTail),
+        tailLatencyMaxMs: roundDiagnosticNumber(maxTail),
+        throughputMinTps: roundDiagnosticNumber(minTPS),
+        throughputMaxTps: roundDiagnosticNumber(maxTPS),
+        comparablePriceMin: finitePriceCosts.length ? roundDiagnosticNumber(Math.min(...finitePriceCosts)) : null,
+        comparablePriceMax: finitePriceCosts.length ? roundDiagnosticNumber(Math.max(...finitePriceCosts)) : null,
+    };
+
+    const rng = seededRandom(routingSeed);
     const priceScores = preset.wPrice > 0 ? computePriceScores(ctx.endpoint, pool.map((p) => p.candidate)) : new Map();
     const defaultPriceWeights = mode === "balanced"
         ? computeInverseSquarePriceWeights(ctx.endpoint, pool.map((p) => p.candidate))
@@ -1307,9 +1399,6 @@ export async function routeProviders(
         const p50Norm = 1 - normalise(h.lat_ewma_60s, minP50, maxP50);
         const tailNorm = 1 - normalise(Math.max(h.lat_ewma_300s, h.lat_ewma_60s * 1.6), minTail, maxTail);
         const tpsNorm = maxTPS > 0 ? normalise(h.tp_ewma_60s, minTPS, maxTPS) : 0;
-        // A 429 drives request-local fallback. Edge-local in-flight counts are
-        // incomplete and must not influence provider selection.
-        const loadPen = 0;
         const candidateKey = getRoutingCandidateKey(v.candidate);
         const priceScore = mode === "balanced"
             ? (defaultPriceWeights.get(candidateKey) ?? 0.5)
@@ -1329,19 +1418,19 @@ export async function routeProviders(
         const tokenAffinity = calculateTokenAffinityScore(requestedMaxTokens, v.candidate.maxOutputTokens);
         const tokenWeight = 0.10; // 10% weight for token affinity
 
-        const baseScore = mode === "balanced"
-            ? priceScore *
-                Math.max(0.05, reliability.sample) *
-                Math.max(0.05, 1 - loadPen) *
-                (0.5 + tokenAffinity)
-            : preset.wSucc * succ +
-                preset.wP50 * (0.5 * p50Curve + 0.5 * p50Norm) +
-                preset.wTail * tailNorm +
-                preset.wTPS * tpsNorm -
-                preset.wLoad * loadPen +
-                preset.wPrice * priceScore +
-                tokenWeight * tokenAffinity +
-                preset.noise * rng();
+        const noiseDraw = mode === "balanced" ? 0 : preset.noise * rng();
+        const contributions: RoutingScoreTrace["contributions"] = {
+            ...(mode === "balanced"
+                ? { reliability: preset.wSucc * reliability.sample }
+                : { success: preset.wSucc * succ }),
+            latency: preset.wP50 * (0.5 * p50Curve + 0.5 * p50Norm),
+            tailLatency: preset.wTail * tailNorm,
+            throughput: preset.wTPS * tpsNorm,
+            price: preset.wPrice * priceScore,
+            tokenAffinity: tokenWeight * tokenAffinity,
+            noise: noiseDraw,
+        };
+        const baseScore = Object.values(contributions).reduce((sum, value) => sum + value, 0);
         const recentOutageMultiplier = isRecentOutage(v) ? 1e-9 : 1;
 
         const score = Math.max(
@@ -1364,7 +1453,6 @@ export async function routeProviders(
             reliability.sample,
             reliability.effectiveObservations,
             tokenAffinity,
-            loadPen,
             weight,
             rolloutMultiplier,
             routingStatusMultiplierCombined,
@@ -1372,12 +1460,57 @@ export async function routeProviders(
             latencyPreferenceMultiplier,
             throughputPreferenceMultiplier,
         ];
+        const formula: RoutingScoreTrace["calculation"]["formula"] =
+            mode === "balanced" ? "balanced_weighted_additive" : "weighted_additive";
         return {
             candidate: v.candidate,
             adapter: v.adapter,
             health: h,
             score,
 			scoreFactorValues,
+			scoreTrace: {
+                inputs: {
+                    latencyEwma60s: roundDiagnosticNumber(h.lat_ewma_60s),
+                    latencyEwma300s: roundDiagnosticNumber(h.lat_ewma_300s),
+                    errorEwma60s: roundDiagnosticNumber(h.err_ewma_60s),
+                    throughputEwma60s: roundDiagnosticNumber(h.tp_ewma_60s),
+                    requestRate60s: roundDiagnosticNumber(h.rate_60s),
+                    comparablePrice: candidatePriceCosts.get(candidateKey) ?? null,
+                    priceMeters,
+                    requestedMaxTokens,
+                    maxOutputTokens: v.candidate.maxOutputTokens ?? null,
+                    healthLastUpdatedMs: h.last_updated,
+                },
+                normalized: {
+                    p50Curve: roundDiagnosticNumber(p50Curve),
+                    p50PoolPosition: roundDiagnosticNumber(p50Norm),
+                    latencyScore: roundDiagnosticNumber(0.5 * p50Curve + 0.5 * p50Norm),
+                    tailLatencyScore: roundDiagnosticNumber(tailNorm),
+                    throughputScore: roundDiagnosticNumber(tpsNorm),
+                    priceScore: roundDiagnosticNumber(priceScore),
+                    reliabilitySample: roundDiagnosticNumber(reliability.sample),
+                    tokenAffinity: roundDiagnosticNumber(tokenAffinity),
+                },
+                weights: {
+                    ...preset,
+                    tokenAffinity: tokenWeight,
+                },
+                contributions: Object.fromEntries(
+                    Object.entries(contributions).map(([key, value]) => [key, roundDiagnosticNumber(value)]),
+                ) as RoutingScoreTrace["contributions"],
+                calculation: {
+                    formula,
+                    baseScore: roundDiagnosticNumber(baseScore),
+                    baseWeight: roundDiagnosticNumber(weight),
+                    rolloutMultiplier: roundDiagnosticNumber(rolloutMultiplier),
+                    routingMultiplier: roundDiagnosticNumber(routingStatusMultiplierCombined),
+                    cacheBoostMultiplier: roundDiagnosticNumber(cacheRoutingMultiplier),
+                    latencyPreferenceMultiplier: roundDiagnosticNumber(latencyPreferenceMultiplier),
+                    throughputPreferenceMultiplier: roundDiagnosticNumber(throughputPreferenceMultiplier),
+                    recentOutageMultiplier: roundDiagnosticNumber(recentOutageMultiplier),
+                    finalScore: roundDiagnosticNumber(score),
+                },
+            },
 			diagnostics: collectDetailedDiagnostics ? {
                 providerId: v.candidate.providerId,
                 apiModelId: v.candidate.apiModelId ?? null,
@@ -1413,7 +1546,7 @@ export async function routeProviders(
             const ranked = [...ordered, ...remaining.sort((a, b) => b.score - a.score)];
             return {
                 ranked,
-			diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked)),
+			diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked), false, "explicit_provider_order"),
             };
         }
         const remainingRanked = mode === "balanced"
@@ -1422,7 +1555,7 @@ export async function routeProviders(
         const ranked = [...ordered, ...remainingRanked];
         return {
             ranked,
-			diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked)),
+			diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked), false, "explicit_provider_order"),
         };
     }
 
@@ -1430,7 +1563,7 @@ export async function routeProviders(
         const ranked = [...routableScored].sort((a, b) => b.score - a.score);
         return {
             ranked,
-			diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked)),
+			diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked), false, "score_sort"),
         };
     }
 
@@ -1441,6 +1574,6 @@ export async function routeProviders(
         : weightedOrder(routableScored, (s) => s.score, rng);
     return {
         ranked,
-		diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked)),
+		diagnostics: buildDiagnostics(ranked.length, rankedProviderDiagnostics(ranked), false, mode === "balanced" ? "score_sort" : "weighted_order"),
     };
 }

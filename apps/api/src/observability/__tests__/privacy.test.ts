@@ -118,4 +118,20 @@ describe("observability privacy sanitization", () => {
 		expect(String(sanitized["known_speaker_references[]"])).toContain("[redacted");
 		expect(sanitized.language).toBe("en");
 	});
+
+	it("redacts nested Parse document content without hiding unrelated diagnostics", () => {
+		const sanitized = sanitizeForAxiom({
+			pages: [{
+				markdown: "customer document markdown",
+				image_base64: "private-image-bytes",
+				blocks: [{ text: { content: "customer block text" } }],
+				images: [{ description: "private image description" }],
+				tables: [{ html: "<table><td>private</td></table>" }],
+			}],
+			error: { content: "provider diagnostic content" },
+		}) as any;
+
+		expect(String(sanitized.pages)).toContain("[redacted");
+		expect(sanitized.error.content).toBe("provider diagnostic content");
+	});
 });

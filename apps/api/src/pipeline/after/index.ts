@@ -30,6 +30,7 @@ import {
 import { buildCachedResponseRecord } from "@/core/response-cache";
 import { applyResponsePlugins } from "@/plugins/registry";
 import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
+import { recordManagedProviderTokensOnce } from "@core/provider-rate-limits";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -236,6 +237,13 @@ function dispatchNonStreamSuccessSideEffects(args: {
                 costNanos: totalNanos,
                 endpoint: ctx.endpoint,
             });
+			await recordManagedProviderTokensOnce({
+				ctx,
+				providerId: result.provider,
+				keySource: result.keySource,
+				usage: usageForBilling,
+				reservation: result.providerRateLimitReservation,
+			});
 
             await handleSuccessAudit(
                 ctx,
@@ -566,7 +574,7 @@ async function handleNonStreamResponse(
         gatewayPayload: payload,
         cacheAwareRoutingEnabled,
         clientResponseBody: responseBody,
-        responseStatus: ctx.endpoint === "video.generation" ? 202 : result.upstream.status,
+        responseStatus: result.upstream.status,
     });
 
     if (ctx.endpoint === "audio.speech" && shouldReturnBinaryAudio(ctx)) {
@@ -606,12 +614,9 @@ async function handleNonStreamResponse(
     if (ctx.responseCache?.status === "miss") {
         headers.set("X-Phaseo-Response-Cache", "miss");
     }
-    const responseStatus = ctx.endpoint === "video.generation" ? 202 : result.upstream.status;
+    const responseStatus = result.upstream.status;
     return ctx.timer.span("after_create_response", () => createResponse(responseBody, responseStatus, headers));
 }
-
-
-
 
 
 

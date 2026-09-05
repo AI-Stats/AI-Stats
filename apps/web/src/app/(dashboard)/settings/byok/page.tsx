@@ -1,17 +1,20 @@
 import { Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import ByokProviderRow from "@/components/(gateway)/settings/byok/ByokProviderRow";
 import ResetWindowHover from "@/components/(gateway)/settings/byok/ResetWindowHover";
 import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHeader";
 import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSectionFallback";
+import { Button } from "@/components/ui/button";
 import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { fetchSettingsByokInitialData } from "@/lib/fetchers/internal/fetchSettingsByokInitialData";
 import { MAX_BYOK_KEYS_PER_PROVIDER } from "@/lib/byok/constants";
 
 export const metadata = { title: "BYOK - Settings" };
 
-const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+const BYOK_MONTHLY_FREE_REQUESTS = 250_000;
 const BYOK_FEE_PERCENT = 2.5;
+const BYOK_GUIDE_HREF = "https://phaseo.app/docs/v1/guides/routing-and-fallbacks#byok-considerations";
 
 type KeyEntry = {
 	id: string;
@@ -94,8 +97,16 @@ export default function BYOKPage() {
 	return (
 		<div className="mx-auto space-y-6">
 			<SettingsPageHeader
-				title="Bring Your Own Key (BYOK)"
-				description="Manage provider credentials and BYOK billing usage."
+				title="Bring Your Own Key"
+				description="Connect provider credentials and control how Phaseo routes requests."
+				actions={
+					<Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
+						<Link href={BYOK_GUIDE_HREF} target="_blank" rel="noreferrer">
+							Routing guide
+							<ArrowUpRight className="ml-1 h-4 w-4" />
+						</Link>
+					</Button>
+				}
 			/>
 
 			<Suspense fallback={<SettingsSectionFallback />}>
@@ -151,24 +162,24 @@ async function ByokProvidersSection() {
 
 	return (
 		<div className="space-y-4">
-			<Card className="rounded-2xl">
-				<CardHeader className="pb-2">
-					<CardTitle className="text-base">BYOK monthly usage</CardTitle>
-					<p className="text-xs text-muted-foreground">
-						{fmtCompactInt(BYOK_MONTHLY_FREE_REQUESTS)} free requests per month, then {BYOK_FEE_PERCENT}% service fee on provider-equivalent cost.
+			<section className="space-y-5 border-b pb-6">
+				<div>
+					<h2 className="text-base font-semibold">BYOK monthly usage</h2>
+					<p className="mt-1 text-sm text-muted-foreground">
+						{fmtCompactInt(BYOK_MONTHLY_FREE_REQUESTS)} requests per month with no service fee, then {BYOK_FEE_PERCENT}% of provider-equivalent cost.
 					</p>
-				</CardHeader>
-				<CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+				</div>
+				<div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8">
 					<div>
-						<div className="text-xs uppercase tracking-wide text-muted-foreground">Used requests</div>
+						<div className="text-sm text-muted-foreground">Used requests</div>
 						<div className="mt-1 text-2xl font-semibold">{fmtCompactInt(initialData.monthlyRequestCount)}</div>
 					</div>
 					<div>
-						<div className="text-xs uppercase tracking-wide text-muted-foreground">Free remaining</div>
+						<div className="text-sm text-muted-foreground">Free remaining</div>
 						<div className="mt-1 text-2xl font-semibold">{fmtCompactInt(initialData.freeRemaining)}</div>
 					</div>
 					<div>
-						<div className="text-xs uppercase tracking-wide text-muted-foreground">Paid-tier requests</div>
+						<div className="text-sm text-muted-foreground">Paid-tier requests</div>
 						<div className="mt-1 text-2xl font-semibold">{fmtCompactInt(initialData.paidTierRequests)}</div>
 					</div>
 					<div className="sm:col-span-3 text-xs text-muted-foreground">
@@ -179,8 +190,8 @@ async function ByokProvidersSection() {
 						/>
 						.
 					</div>
-				</CardContent>
-			</Card>
+				</div>
+			</section>
 
 			<section className="space-y-2">
 				<div className="px-1">

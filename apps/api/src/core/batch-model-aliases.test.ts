@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+	normalizeOpenAIProBatchModel,
 	resolveBatchPricingModelCandidates,
 	resolveBatchPricingProviderCandidates,
 	toProviderNativeBatchModelId,
@@ -47,6 +48,14 @@ describe("batch-model-aliases", () => {
 			.toContain("mistral/mistral-small-4");
 	});
 
+	it("normalizes OpenAI Pro aliases to the native model and preserves Pro mode metadata", () => {
+		expect(normalizeOpenAIProBatchModel("openai/gpt-6-astra-pro"))
+			.toEqual({ model: "gpt-6-astra", proMode: true });
+		expect(toProviderNativeBatchModelId("openai", "openai/gpt-6-astra-pro")).toBe("gpt-6-astra");
+		expect(normalizeOpenAIProBatchModel("gpt-5.6-sol-pro"))
+			.toEqual({ model: "gpt-5.6-sol", proMode: true });
+	});
+
 	it("maps the current SpaceXAI catalog namespace to the native xAI model", () => {
 		expect(toProviderNativeBatchModelId("x-ai", "spacex-ai/grok-4.3")).toBe("grok-4.3");
 		expect(resolveBatchPricingProviderCandidates("x-ai")).toEqual(["spacex-ai", "x-ai"]);
@@ -54,5 +63,11 @@ describe("batch-model-aliases", () => {
 			.toContain("spacex-ai/grok-4.3");
 		expect(resolveBatchPricingModelCandidates("x-ai", "x-ai/grok-4.3"))
 			.toContain("spacex-ai/grok-4.3");
+	});
+
+	it("strips Moonshot provider aliases and restores catalog pricing candidates", () => {
+		expect(toProviderNativeBatchModelId("moonshotai", "moonshot-ai/kimi-k2.6")).toBe("kimi-k2.6");
+		expect(resolveBatchPricingModelCandidates("moonshotai", "kimi-k2.5"))
+			.toContain("moonshotai/kimi-k2.5");
 	});
 });

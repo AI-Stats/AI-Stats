@@ -4,6 +4,7 @@ compatibility_date = "2025-10-01"
 compatibility_flags = ["global_fetch_strictly_public"]
 workers_dev = true
 preview_urls = false
+routes = [{ pattern = "api-staging.phaseo.app", custom_domain = true }]
 
 [vars]
 ENV = "staging"
@@ -12,6 +13,7 @@ SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
 AMAZON_BEDROCK_REGION = "us-east-1"
 AMAZON_BEDROCK_MANTLE_BASE_URL = "https://bedrock-mantle.us-east-1.api.aws"
 STATSIG_ENVIRONMENT_TIER = "staging"
+ACCOUNT_DELETION_PURGE_ENABLED = "false"
 STATSIG_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging"
 STATSIG_DATA_CONTRIBUTION_GATE = "gateway_data_contribution"
 GATEWAY_IO_LOGS_BUCKET_NAME = "phaseo-gateway-io-logs-preview"
@@ -26,11 +28,21 @@ DATA_CONTRIBUTION_CLASSIFIER_MODEL = "gpt-5-mini"
 DATA_CONTRIBUTION_CLASSIFIER_SERVICE_TIER = "flex"
 DATA_CONTRIBUTION_RETENTION_PRUNE_LIMIT = "250"
 MODEL_DISCOVERY_ENABLED = "false"
-VIDEO_RECONCILIATION_ENABLED = "false"
-BATCH_RECONCILIATION_ENABLED = "false"
+VIDEO_RECONCILIATION_ENABLED = "true"
+VIDEO_RECONCILIATION_LIMIT = "10"
+VIDEO_RECONCILIATION_CONCURRENCY = "2"
+VIDEO_RECONCILIATION_LEASE_SECONDS = "180"
+BATCH_RECONCILIATION_ENABLED = "true"
+BATCH_RECONCILIATION_LIMIT = "10"
+BATCH_RECONCILIATION_CONCURRENCY = "2"
+BATCH_RECONCILIATION_LEASE_SECONDS = "300"
+BATCH_API_PREVIEW_PROVIDERS = "openai,anthropic,google-ai-studio,mistral,together"
 EMAIL_OUTBOX_DRAIN_ENABLED = "false"
 PRICING_MONITOR_ENABLED = "false"
 ENTERPRISE_INVOICING_ENABLED = "false"
+
+[triggers]
+crons = ["* * * * *"]
 
 [placement]
 mode = "smart"
@@ -68,6 +80,14 @@ namespace_id = "41002"
 [ratelimits.simple]
 limit = 60
 period = 60
+
+[[durable_objects.bindings]]
+name = "PROVIDER_RATE_LIMITS"
+class_name = "ProviderRateLimitDurableObject"
+
+[[migrations]]
+tag = "v1-provider-rate-limits"
+new_sqlite_classes = ["ProviderRateLimitDurableObject"]
 
 [[ratelimits]]
 name = "REALTIME_RELAY_RATE_LIMITER"

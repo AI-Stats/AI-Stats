@@ -271,11 +271,11 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
-			return '{$path["' + name + '"]}';
+			return 'rawurlencode((string)($path["' + name + '"] ?? ""))';
 		}
-		return escapePhpDoubleQuoted(segment);
+		return `"${escapePhpDoubleQuoted(segment)}"`;
 	});
-	return `"${parts.join("")}"`;
+	return parts.join(" . ");
 }
 
 function escapePhpDoubleQuoted(value: string): string {

@@ -18,7 +18,7 @@
     },
     {
       "frequency": "yearly",
-      "usd_price": 1536,
+      "usd_price": 1344,
       "link": "https://z.ai/subscribe",
       "other_info": "From 2nd year"
     }
@@ -69,8 +69,8 @@
   ],
   "models": [
     {
-      "model_id": "z-ai/glm-5.2",
-      "model_info": null,
+      "model_id": "z-ai/glm-5.3",
+      "model_info": "Current flagship; requests to GLM-5.2 and GLM-5.1 are automatically routed to GLM-5.3 on the Coding Plan.",
       "rate_limit": null,
       "other_info": null
     },

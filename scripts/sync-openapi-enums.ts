@@ -8,7 +8,14 @@ const DATA_ROOT = path.join(ROOT, "packages", "data", "catalog", "src", "data");
 const MANIFEST_PATH = path.join(DATA_ROOT, "manifest.json");
 const BENCHMARKS_DIR = path.join(DATA_ROOT, "benchmarks");
 const API_PROVIDERS_DIR = path.join(DATA_ROOT, "api_providers");
-const VIRTUAL_CALLABLE_MODEL_IDS = ["phaseo/free"];
+const VIRTUAL_CALLABLE_MODEL_IDS = ["phaseo/auto", "phaseo/free"];
+// Preserve released SDK helper IDs after their last gateway route expires.
+// Runtime model IDs remain open strings; this snapshot must not break patch releases.
+const LEGACY_CALLABLE_MODEL_IDS = [
+	"anthropic/claude-3-haiku",
+	"anthropic/claude-3.5-haiku",
+	"qwen/qwen2.5-coder-7b",
+];
 
 function readYaml(file: string): any {
   return yaml.load(fs.readFileSync(file, "utf8"));
@@ -82,7 +89,11 @@ function loadCallableModelIds(): string[] {
     }
   }
 
-  return uniqSorted([...Array.from(modelIds), ...VIRTUAL_CALLABLE_MODEL_IDS]);
+  return uniqSorted([
+    ...Array.from(modelIds),
+    ...VIRTUAL_CALLABLE_MODEL_IDS,
+    ...LEGACY_CALLABLE_MODEL_IDS,
+  ]);
 }
 
 function loadOrganisationIds(): string[] {

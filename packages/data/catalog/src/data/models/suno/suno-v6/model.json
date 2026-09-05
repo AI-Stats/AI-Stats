@@ -1,0 +1,93 @@
+{
+  "model_id": "suno/suno-v6",
+  "organisation_id": "suno",
+  "name": "Suno V6",
+  "status": "Rumoured",
+  "previous_model_id": "suno/suno-v5.5",
+  "description": "Suno V6 is a rumoured next-generation proprietary music model. Suno has confirmed that a new generation of music models is coming, but has not confirmed the V6 name, release date, specifications, pricing, or API availability.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": null,
+  "links": [
+    {
+      "title": "Suno upcoming models announcement",
+      "kind": "announcement",
+      "url": "https://about.suno.com/blog/suno-updates-tos"
+    },
+    {
+      "title": "Suno V6 rumour analysis",
+      "kind": "documentation",
+      "url": "https://tinystudio.fm/guides/suno-next-model/"
+    }
+  ],
+  "details": [
+    {
+      "name": "release_status",
+      "value": "Suno has announced an unnamed new generation of music models coming soon; no public release date has been confirmed.",
+      "source_link": "https://about.suno.com/blog/suno-updates-tos"
+    },
+    {
+      "name": "name_status",
+      "value": "V6 is an unconfirmed community label for Suno's next model generation, not an officially announced Suno model name.",
+      "source_link": "https://tinystudio.fm/guides/suno-next-model/"
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": {
+    "tone": "warning",
+    "markdown": "Suno has confirmed that a new generation of music models is coming soon, but **Suno V6** is currently an unconfirmed community label. The model name, release date, capabilities, pricing, and API availability have not been confirmed."
+  },
+  "model_type": "music",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": null,
+    "output": null
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://about.suno.com/blog/suno-updates-tos",
+      "accessed_at": "2026-09-03T00:00:00Z",
+      "notes": "Official Suno announcement confirms a new generation of music models is coming soon, but does not name V6 or publish specifications, pricing, or API availability."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://tinystudio.fm/guides/suno-next-model/",
+      "accessed_at": "2026-09-03T00:00:00Z",
+      "notes": "Independent analysis describes V6 as a community label and separates the rumour from Suno's confirmed announcement."
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": "2026-09-03T00:00:00Z",
+    "notes": "Suno's upcoming model generation is confirmed, but the V6 name, model identity, release, specifications, pricing, and API availability remain unverified."
+  },
+  "last_updated": "2026-09-03T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -184,6 +184,7 @@ export function genAiOperation(endpoint: Endpoint): string {
 		case "video.generation":
 		case "music.generate":
 		case "ocr":
+		case "parse":
 			return "generate_content";
 		case "moderations":
 			return "content_moderation";
@@ -201,7 +202,7 @@ function outputType(endpoint: Endpoint, request: unknown): string | null {
 	if (object(request).response_format?.type === "json_schema" || object(request).response_format?.type === "json_object") {
 		return "json";
 	}
-	return ["chat.completions", "messages", "responses", "audio.transcription", "audio.translations", "ocr"].includes(endpoint)
+	return ["chat.completions", "messages", "responses", "audio.transcription", "audio.translations", "ocr", "parse"].includes(endpoint)
 		? "text"
 		: null;
 }

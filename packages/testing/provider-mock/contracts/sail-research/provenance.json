@@ -1,0 +1,7 @@
+{
+  "sourceUrl": "https://docs.sailresearch.com/support",
+  "reconstruction": "openai-compatible-reference-overlay",
+  "baseContract": "openai",
+  "bundleSha256": "55789af0b7cd372a5eead5a463a91202a894e8d5e5c1f2ecbea6f158ec612a57",
+  "gatewayPathPrefix": "/v1"
+}

@@ -378,7 +378,26 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -410,6 +429,88 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "fireworks:deepseek/deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "accounts/fireworks/models/deepseek-v4-flash-vision-exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1064960,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-flash-vision-exp",
+        "accessed_at": "2026-09-02T00:00:00Z",
+        "notes": "Official Fireworks model page confirming the API model path, image input, context length, function calling, and serverless availability."
+      },
+      {
+        "kind": "announcement",
+        "url": "https://x.com/FireworksAI_HQ/status/2094847757358137779",
+        "accessed_at": "2026-09-02T00:00:00Z",
+        "notes": "Official announcement confirming serverless and priority-tier availability."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-02T00:00:00Z",
+      "notes": "Verified against Fireworks' official announcement and live model page."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "fireworks:deepseek/deepseek-v4-flash-0731",
     "provider_model_slug": "accounts/fireworks/models/deepseek-v4-flash-0731",
@@ -426,7 +527,26 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": null,
@@ -485,7 +605,26 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -513,6 +652,84 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "fireworks:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "accounts/fireworks/models/deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1064960,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-08-13T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-pro-0813",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Official model page confirming the dated model path, serverless availability, pricing, and feature support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Verified against Fireworks' published DeepSeek V4 Pro 0813 model page."
     },
     "rate_limits": []
   },
@@ -725,7 +942,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -953,14 +1188,14 @@
     "provider_api_model_id": "fireworks:moonshotai/kimi-k2.5",
     "provider_model_slug": "accounts/fireworks/models/kimi-k2p5",
     "internal_model_id": "moonshotai/kimi-k2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-01-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -976,8 +1211,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1013,7 +1248,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1097,11 +1350,11 @@
     "provider_api_model_id": "fireworks:moonshotai/kimi-k3",
     "provider_model_slug": "accounts/fireworks/models/kimi-k3",
     "internal_model_id": "moonshotai/kimi-k3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": "2026-07-27T15:00:00Z",
     "effective_to": null,
@@ -1266,13 +1519,13 @@
       {
         "kind": "api_reference",
         "url": "https://fireworks.ai/models/fireworks/nemotron-lightning-3p5-30b-a3b",
-        "accessed_at": "2026-08-11T00:00:00Z",
+        "accessed_at": "2026-08-21T00:00:00Z",
         "notes": "Official Fireworks model page confirms the public serverless model path, BF16 NVIDIA checkpoint, reasoning traces, function calling, and 262K context."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-11T00:00:00Z",
+      "checked_at": "2026-08-21T00:00:00Z",
       "notes": "Verified against Fireworks' live public model page."
     },
     "rate_limits": []
@@ -1342,7 +1595,24 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1474,14 +1744,14 @@
     "provider_api_model_id": "fireworks:qwen/qwen-3.6-plus",
     "provider_model_slug": "accounts/fireworks/models/qwen3p6-plus",
     "internal_model_id": "qwen/qwen3.6-plus",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-04-05T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1497,8 +1767,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1628,7 +1898,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -1806,6 +2076,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "fireworks:qwen/qwen3.8-2.4t-a95b",
+    "provider_model_slug": "accounts/fireworks/models/qwen3p8-max",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-05T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": "on_demand"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://fireworks.ai/models/fireworks/qwen3p8-max",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Fireworks lists accounts/fireworks/models/qwen3p8-max as a ready 2.41T-parameter base model with 262k context for on-demand deployment; serverless, function calling, and image input are not supported."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against the Fireworks model page. The deployment is on-demand only and is therefore not gateway-routable."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-4.7",
     "provider_api_model_id": "fireworks:z-ai/glm-4.7",
     "provider_model_slug": "accounts/fireworks/models/glm-4p7",
@@ -1966,7 +2291,26 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1998,11 +2342,59 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "thinking-machines/inkling",
+    "provider_api_model_id": "fireworks:thinking-machines/inkling",
+    "provider_model_slug": "accounts/fireworks/models/inkling",
+    "internal_model_id": "thinking-machines/inkling",
+    "is_active_gateway": true,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["reasoning", "include_reasoning", "max_tokens", "temperature", "top_p", "stop", "tools", "tool_choice", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://fireworks.ai/models/fireworks/inkling",
+        "accessed_at": "2026-08-21T00:00:00Z",
+        "notes": "Official Fireworks model page and serverless library confirm availability."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Verified against the official Fireworks serverless model library."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "meta/muse-glimmer-30b",
     "provider_api_model_id": "fireworks:meta/muse-glimmer-30b",
-    "provider_model_slug": "meta/muse-glimmer-30b",
+    "provider_model_slug": "accounts/fireworks/models/muse-glimmer-30b",
     "internal_model_id": "meta/muse-glimmer-30b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "unknown",
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -2013,7 +2405,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -2044,8 +2436,8 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -2059,16 +2451,62 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "url": "https://fireworks.ai/models/fireworks/muse-glimmer-30b",
+        "accessed_at": "2026-08-21T00:00:00Z",
+        "notes": "Official Fireworks model page confirms serverless availability, slug, context, modalities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Verified against the official Fireworks model page."
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "fireworks:accounts/fireworks/routers/glm-5p3-fast",
+    "provider_model_slug": "accounts/fireworks/routers/glm-5p3-fast",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-09-04T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","top_k","repetition_penalty","logit_bias","logprobs","top_logprobs","response_format","structured_outputs","tools","tool_choice","reasoning_effort"],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":true,"attachment":false,"input_modalities":["text"],"output_modalities":["text"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["fast"],
+    "api": {"formats": ["openai.chat.completions"], "endpoint": "/v1/chat/completions", "deployment": "serverless"},
+    "sources": [{"kind":"provider_models","url":"https://app.fireworks.ai/models/fireworks/glm-5p3","accessed_at":"2026-09-04T00:00:00Z","notes":"Fireworks' authenticated model dashboard lists GLM-5.3 as serverless-ready with a Fast serving path using accounts/fireworks/routers/glm-5p3-fast, a 1M context window, 131,072 maximum output tokens, function calling, and no image input."}],
+    "verification": {"status":"verified","checked_at":"2026-09-04T00:00:00Z","notes":"Fast router slug, availability, text-only modality, context and output limits, function calling, and Fast-tier pricing verified against Fireworks' authenticated GLM-5.3 dashboard."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "fireworks:accounts/fireworks/models/glm-5p3-flash",
+    "provider_model_slug": "accounts/fireworks/models/glm-5p3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 943718,
+    "effective_from": "2026-08-31T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","top_k","repetition_penalty","logit_bias","logprobs","top_logprobs","response_format","structured_outputs","tools","tool_choice","reasoning_effort"],"reasoning":true,"tool_call":true,"structured_output":true,"temperature":true,"attachment":true,"input_modalities":["text","image"],"output_modalities":["text"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["standard"],
+    "api": {"formats": [], "endpoint": null, "deployment": null},
+    "sources": [{"kind":"provider_models","url":"https://fireworks.ai/models/fireworks/glm-5p3-flash","accessed_at":"2026-08-31T00:00:00Z","notes":"Fireworks' official model page lists accounts/fireworks/models/glm-5p3-flash as serverless-ready with image input, function calling, 1.04M context, and current pricing."},{"kind":"provider_models","url":"https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash-20260826/endpoints","accessed_at":"2026-08-31T00:00:00Z","notes":"OpenRouter's live endpoint catalog lists Fireworks as serving z-ai/glm-5.3-flash."}],
+    "verification": {"status":"verified","checked_at":"2026-08-31T00:00:00Z","notes":"Fireworks' serverless model path, readiness, image input, function calling, context, and pricing are verified against its first-party model page; OpenRouter independently confirms the provider route."},
     "rate_limits": []
   }
 ]

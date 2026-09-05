@@ -14,8 +14,18 @@ export type GatewayKeys = { apiKey: string; userId: string; workspaceId: string 
 export type GatewayKeyError = { status: number; code: string; message: string };
 const BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const PUBLIC_GATEWAY_BASE_URL = "https://api.phaseo.app/v1";
-const ALLOWED_APP_HEADERS = new Set(["x-title", "http-referer", "x-app-id", "x-app-name"]);
-const CANONICAL_CHAT_APP_HEADERS = { "x-app-id": "phaseo-chat", "x-app-name": "Phaseo Chat", "x-title": "Phaseo Chat", "http-referer": "https://phaseo.app/chat" };
+const ALLOWED_APP_HEADERS = new Set([
+	"x-title",
+	"http-referer",
+	"x-app-id",
+	"x-app-name",
+]);
+export const CANONICAL_CHAT_APP_HEADERS = {
+	"x-app-id": "phaseo-chat",
+	"x-app-name": "Phaseo Chat",
+	"x-title": "Phaseo Chat",
+	"http-referer": "https://phaseo.app/chat",
+};
 
 function cookieValue(request: Request, name: string): string {
 	for (const segment of (request.headers.get("cookie") ?? "").split(";")) {
@@ -109,11 +119,14 @@ function isDevelopmentLocalGatewayBaseUrl(baseUrl: string, environment: string):
 	try { const url = new URL(baseUrl); return url.protocol === "http:" && ["127.0.0.1", "localhost"].includes(url.hostname) && url.port === "8787" && url.pathname.replace(/\/+$/, "") === "/v1"; } catch { return false; }
 }
 
-export function resolveGatewayBaseUrlForEnvironment(args: { configuredBaseUrl?: string; requestedBaseUrl?: string; environment: string }): string | null {
+export function resolveGatewayBaseUrlForEnvironment(args: { configuredBaseUrl?: string; stagingBaseUrl?: string; requestedBaseUrl?: string; environment: string }): string | null {
 	const configured = normalizeGatewayBaseUrl(args.configuredBaseUrl);
-	if (args.environment === "production") return configured ?? null;
+	const staging = normalizeGatewayBaseUrl(args.stagingBaseUrl);
 	const requested = normalizeGatewayBaseUrl(args.requestedBaseUrl);
-	if (requested && (requested === PUBLIC_GATEWAY_BASE_URL || requested === configured || isDevelopmentLocalGatewayBaseUrl(requested, args.environment))) return requested;
+	if (args.environment === "production") {
+		return configured ?? null;
+	}
+	if (requested && (requested === PUBLIC_GATEWAY_BASE_URL || requested === configured || requested === staging || isDevelopmentLocalGatewayBaseUrl(requested, args.environment))) return requested;
 	return configured ?? PUBLIC_GATEWAY_BASE_URL;
 }
 
@@ -127,7 +140,7 @@ function jsonError(status: number, code: string, message: string): Response {
 	return new Response(JSON.stringify({ error: code, message }), { status, headers: { "Content-Type": "application/json", ...PRIVATE_NO_STORE_HEADERS } });
 }
 
-function sanitizeAppHeaders(input: unknown): Record<string, string> {
+export function sanitizeAppHeaders(input: unknown): Record<string, string> {
 	if (!input || typeof input !== "object" || Array.isArray(input)) return {};
 	return Object.fromEntries(Object.entries(input).flatMap(([rawKey, rawValue]) => {
 		const key = rawKey.trim().toLowerCase();
@@ -138,12 +151,12 @@ function sanitizeAppHeaders(input: unknown): Record<string, string> {
 export async function proxyGateway(request: Request, env: Env, waitUntil: (promise: Promise<unknown>) => void, args: { path: string; method?: "GET" | "POST"; requestBody?: Record<string, unknown>; appHeaders?: unknown; debug?: boolean; stream?: boolean; baseUrl?: string }): Promise<Response> {
 	const auth = await resolveGatewayKeys(request, env, waitUntil);
 	if (!("apiKey" in auth)) return jsonError(auth.status, auth.code, auth.message);
-	const baseUrl = resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: env.AI_STATS_GATEWAY_URL ?? env.PHASEO_GATEWAY_URL, requestedBaseUrl: args.baseUrl, environment: env.ENV });
+	const baseUrl = resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: env.AI_STATS_GATEWAY_URL ?? env.PHASEO_GATEWAY_URL, stagingBaseUrl: env.STAGING_GATEWAY_BASE_URL, requestedBaseUrl: args.baseUrl, environment: env.ENV });
 	if (!baseUrl) return jsonError(500, "gateway_not_configured", "Missing AI_STATS_GATEWAY_URL for chat gateway proxy.");
 	try {
 		const upstream = await fetch(`${baseUrl}${args.path}`, {
 			method: args.method ?? "POST",
-			headers: { ...(args.method === "GET" ? {} : { "Content-Type": "application/json" }), ...sanitizeAppHeaders(args.appHeaders), ...CANONICAL_CHAT_APP_HEADERS, Authorization: `Bearer ${auth.apiKey}`, ...(args.debug ? { "x-gateway-debug": "true" } : {}), ...(args.stream ? { Accept: "text/event-stream" } : {}) },
+			headers: { ...(args.method === "GET" ? {} : { "Content-Type": "application/json" }), ...CANONICAL_CHAT_APP_HEADERS, ...sanitizeAppHeaders(args.appHeaders), Authorization: `Bearer ${auth.apiKey}`, ...(args.debug ? { "x-gateway-debug": "true" } : {}), ...(args.stream ? { Accept: "text/event-stream" } : {}) },
 			...(args.method === "GET" ? {} : { body: JSON.stringify(args.requestBody ?? {}) }),
 		});
 		return privateResponse(upstream);

@@ -35,6 +35,13 @@ struct AnalyticsNotImplementedResponse {
 	std::any status;
 };
 
+struct AnalyticsResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int limit;
+	int offset;
+	int total_count;
+};
+
 struct AnthropicContentBlock {
 	std::map<std::string, std::any> cache_control;
 	std::string content;
@@ -87,6 +94,7 @@ struct AnthropicMessagesResponse {
 };
 
 struct AnthropicTool {
+	std::optional<bool> async;
 	std::string description;
 	std::map<std::string, std::any> input_schema;
 	std::string name;
@@ -100,18 +108,29 @@ struct AnthropicUsage {
 struct ApiKey {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
+	std::optional<std::string> creator_user_id;
 	bool disabled;
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
+	bool include_byok_in_limit;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
+	std::optional<double> limit;
+	std::optional<double> limit_remaining;
+	std::optional<std::any> limit_reset;
+	std::map<std::string, std::any> limits;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
+	double usage;
+	double usage_daily;
+	std::map<std::string, std::any> usage_details;
+	double usage_monthly;
+	double usage_weekly;
 	std::string workspace_id;
 };
 
@@ -121,10 +140,33 @@ struct ApiKeyCreateRequest {
 	std::optional<bool> include_byok_in_limit;
 	std::optional<double> limit;
 	std::any limit_reset;
+	std::map<std::string, std::any> limits;
 	std::string name;
 	std::any scopes;
 	std::optional<bool> soft_blocked;
 	std::string workspace_id;
+};
+
+struct ApiKeyLimitBucket {
+	std::optional<double> cost;
+	std::optional<int> requests;
+};
+
+struct ApiKeyLimitInputBucket {
+	std::optional<double> cost;
+	std::optional<int> requests;
+};
+
+struct ApiKeyLimitInputWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> weekly;
+};
+
+struct ApiKeyLimitWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> weekly;
 };
 
 struct ApiKeyListResponse {
@@ -136,6 +178,16 @@ struct ApiKeyResponse {
 	std::map<std::string, std::any> data;
 };
 
+struct ApiKeyRotateRequest {
+	std::string name;
+	std::optional<std::string> previous_key_expires_at;
+};
+
+struct ApiKeyRotateResponse {
+	std::map<std::string, std::any> data;
+	std::optional<std::string> previous_key_expires_at;
+};
+
 using ApiKeyScopeValue = std::any;
 
 struct ApiKeyUpdateRequest {
@@ -144,27 +196,51 @@ struct ApiKeyUpdateRequest {
 	std::optional<bool> include_byok_in_limit;
 	std::optional<double> limit;
 	std::any limit_reset;
+	std::map<std::string, std::any> limits;
 	std::string name;
 	std::any scopes;
 	std::optional<bool> soft_blocked;
 };
 
+struct ApiKeyUsageBucket {
+	double cost;
+	int requests;
+};
+
+struct ApiKeyUsageWindows {
+	std::map<std::string, std::any> daily;
+	std::map<std::string, std::any> monthly;
+	std::map<std::string, std::any> total;
+	std::map<std::string, std::any> weekly;
+};
+
 struct ApiKeyWithValue {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
+	std::optional<std::string> creator_user_id;
 	bool disabled;
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
+	bool include_byok_in_limit;
 	std::string key;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
+	std::optional<double> limit;
+	std::optional<double> limit_remaining;
+	std::optional<std::any> limit_reset;
+	std::map<std::string, std::any> limits;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
 	bool soft_blocked;
 	std::optional<std::string> status;
 	std::optional<std::string> updated_at;
+	double usage;
+	double usage_daily;
+	std::map<std::string, std::any> usage_details;
+	double usage_monthly;
+	double usage_weekly;
 	std::string workspace_id;
 };
 
@@ -524,6 +600,80 @@ struct CreditsResponse {
 	std::any ok;
 };
 
+struct DataContributionCategories {
+};
+
+struct DataContributionClassifier {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	bool enabled;
+	std::string id;
+	std::string instructions;
+	std::any kind;
+	std::string model;
+	std::string name;
+	int sample_rate_bps;
+	std::any service_tier;
+	std::string slug;
+	std::optional<std::string> updated_at;
+};
+
+struct DataContributionClassifierCreateRequest {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string instructions;
+	std::string model;
+	std::string name;
+	std::optional<int> sampleRateBps;
+	std::any serviceTier;
+	std::string slug;
+};
+
+struct DataContributionClassifierDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DataContributionClassifierInput {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string instructions;
+	std::string model;
+	std::string name;
+	std::optional<int> sampleRateBps;
+	std::any serviceTier;
+};
+
+struct DataContributionClassifierResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DataContributionClassifierUpdateRequest {
+	std::map<std::string, std::any> categories;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string instructions;
+	std::string model;
+	std::string name;
+	std::optional<int> sampleRateBps;
+	std::any serviceTier;
+};
+
+struct DataContributionConsentRequest {
+	bool enabled;
+	std::string reason;
+};
+
+struct DataContributionConsentResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DataContributionOverviewResponse {
+	std::map<std::string, std::any> data;
+};
+
 struct DataModel {
 	std::optional<std::string> deprecation_date;
 	std::optional<bool> hidden;
@@ -550,6 +700,119 @@ struct DebugOptions {
 
 struct DeletedResponse {
 	std::any deleted;
+};
+
+struct DynamicRoute {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> created_at;
+	std::optional<int> deployed_version;
+	std::optional<std::string> description;
+	std::string id;
+	std::vector<std::string> key_ids;
+	std::string name;
+	std::string slug;
+	std::any status;
+	std::optional<std::string> updated_at;
+	int version;
+	std::vector<std::map<std::string, std::any>> versions;
+	std::string workspace_id;
+};
+
+struct DynamicRouteAction {
+	std::optional<bool> allowFallbacks;
+	std::string model;
+	std::vector<std::string> modelFallbacks;
+	std::vector<std::string> providerIgnore;
+	std::vector<std::string> providerOnly;
+	std::vector<std::string> providerOrder;
+	std::any routingMode;
+};
+
+struct DynamicRouteCondition {
+	std::any field;
+	std::optional<std::string> metadataKey;
+	std::any operator;
+	std::optional<std::string> value;
+};
+
+struct DynamicRouteConfig {
+	std::optional<bool> cacheAwareRouting;
+	std::map<std::string, std::any> defaultAction;
+	std::vector<std::map<std::string, std::any>> edges;
+	std::optional<std::string> entryNodeId;
+	std::vector<std::map<std::string, std::any>> nodes;
+	std::vector<std::map<std::string, std::any>> rules;
+	std::any schemaVersion;
+	std::optional<bool> sessionAffinity;
+};
+
+struct DynamicRouteCreateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::string slug;
+	std::any status;
+};
+
+struct DynamicRouteDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteDeployResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteEdge {
+	std::string id;
+	std::string source;
+	std::optional<std::string> sourceHandle;
+	std::string target;
+};
+
+struct DynamicRouteKeysResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteKeysUpdateRequest {
+	std::vector<std::string> key_ids;
+};
+
+struct DynamicRouteListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct DynamicRouteNode {
+	std::map<std::string, std::any> data;
+	std::string id;
+	std::optional<std::map<std::string, std::any>> position;
+	std::any type;
+};
+
+struct DynamicRouteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteRule {
+	std::map<std::string, std::any> action;
+	std::map<std::string, std::any> condition;
+	bool enabled;
+	std::string id;
+	std::string name;
+};
+
+struct DynamicRouteUpdateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::any status;
+};
+
+struct DynamicRouteVersion {
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	std::any status;
+	int version;
 };
 
 struct Embedding {
@@ -682,6 +945,7 @@ struct FileUploadRequest {
 };
 
 struct FunctionToolDefinition {
+	std::optional<bool> async;
 	std::map<std::string, std::any> function;
 	std::any type;
 };
@@ -703,6 +967,69 @@ struct GatewayDatetimeToolDefinition {
 	std::map<std::string, std::any> parameters;
 	std::string timezone;
 	std::any type;
+};
+
+struct GatewayFeedback {
+	std::optional<std::string> comment;
+	std::string created_at;
+	std::optional<std::string> created_by_user_id;
+	std::optional<std::string> end_user_id;
+	std::string id;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::optional<std::string> preset_id;
+	std::optional<std::string> rating;
+	std::optional<std::string> reason;
+	std::vector<std::string> reason_tags;
+	std::optional<std::string> request_id;
+	std::optional<double> score;
+	std::optional<std::string> session_id;
+	std::any source;
+	std::optional<std::string> test_run_id;
+	std::string workspace_id;
+};
+
+struct GatewayFeedbackCreateRequest {
+	std::string comment;
+	std::string end_user_id;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::string preset_id;
+	std::string rating;
+	std::string reason;
+	std::vector<std::string> reason_tags;
+	std::string request_id;
+	std::optional<double> score;
+	std::string session_id;
+	std::any source;
+	std::string test_run_id;
+};
+
+struct GatewayFeedbackListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GatewayFeedbackResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GatewayFeedbackSummaryResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::any group_by;
+};
+
+struct GatewayFeedbackSummaryRow {
+	std::optional<double> average_score;
+	int count;
+	std::optional<std::string> last_feedback_at;
+	std::string metadata_key;
+	std::optional<std::string> metadata_value;
+	int negative;
+	int partial;
+	int positive;
+	std::optional<std::string> preset_id;
+	std::map<std::string, std::any> ratings;
+	std::optional<std::string> test_run_id;
 };
 
 struct GatewayModalities {
@@ -749,6 +1076,50 @@ struct GatewayModelsResponse {
 	int total;
 };
 
+struct GatewayObservabilityEvent {
+	std::any category;
+	std::string created_at;
+	std::optional<std::string> created_by_user_id;
+	std::optional<std::string> end_user_id;
+	std::string event_name;
+	std::string id;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::optional<double> numeric_value;
+	std::string occurred_at;
+	std::optional<std::string> preset_id;
+	std::optional<std::string> request_id;
+	std::optional<std::string> session_id;
+	std::any source;
+	std::optional<std::string> test_run_id;
+	std::optional<std::any> value;
+	std::string workspace_id;
+};
+
+struct GatewayObservabilityEventCreateRequest {
+	std::any category;
+	std::string end_user_id;
+	std::string event_name;
+	std::map<std::string, std::any> metadata;
+	std::map<std::string, std::any> metadata_dimensions;
+	std::optional<double> numeric_value;
+	std::string occurred_at;
+	std::string preset_id;
+	std::string request_id;
+	std::string session_id;
+	std::any source;
+	std::string test_run_id;
+	std::any value;
+};
+
+struct GatewayObservabilityEventListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GatewayObservabilityEventResponse {
+	std::map<std::string, std::any> data;
+};
+
 struct GatewayPricing {
 	std::map<std::string, std::any> meters;
 	std::any pricing_plan;
@@ -757,6 +1128,50 @@ struct GatewayPricing {
 using GatewayPricingMeter = std::any;
 
 using GatewayProviderAvailabilityReason = std::any;
+
+struct GatewayRequestLog {
+	std::optional<std::string> auth_method;
+	std::optional<bool> byok;
+	std::optional<std::string> canonical_model_id;
+	std::optional<int> cost_nanos;
+	std::string created_at;
+	std::optional<std::string> currency;
+	std::optional<std::string> endpoint;
+	std::optional<std::string> error_code;
+	std::optional<std::string> finish_reason;
+	std::optional<double> generation_ms;
+	std::optional<std::string> key_id;
+	std::optional<double> latency_ms;
+	std::optional<std::string> location;
+	std::optional<std::string> model_id;
+	std::optional<std::string> native_response_id;
+	std::optional<std::string> oauth_client_id;
+	std::optional<std::vector<std::map<std::string, std::any>>> pricing_lines;
+	std::optional<std::string> provider;
+	std::string request_id;
+	std::optional<std::string> requested_model_id;
+	std::optional<std::string> routed_model_id;
+	std::optional<int> status_code;
+	std::optional<bool> stream;
+	std::optional<bool> success;
+	std::optional<double> throughput;
+	std::optional<std::map<std::string, std::any>> usage;
+};
+
+struct GatewayRequestLogListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::string from_time;
+	int limit;
+	int offset;
+	std::any ok;
+	std::optional<std::string> to_time;
+	int total;
+};
+
+struct GatewayRequestLogResponse {
+	std::map<std::string, std::any> data;
+	std::any ok;
+};
 
 using GatewayRoutingStatus = std::any;
 
@@ -767,9 +1182,12 @@ struct GatewayWebFetchToolDefinition {
 };
 
 struct GatewayWebSearchToolDefinition {
+	std::any engine;
 	std::optional<bool> include_highlights;
 	std::optional<bool> include_text;
+	std::string language;
 	std::optional<int> max_results;
+	std::optional<int> page;
 	std::map<std::string, std::any> parameters;
 	std::any type;
 };
@@ -799,6 +1217,184 @@ struct GenerationResponse {
 	std::string team_id;
 	std::optional<double> throughput;
 	std::optional<std::map<std::string, std::any>> usage;
+};
+
+struct Guardrail {
+	std::optional<std::vector<std::string>> allowed_api_model_ids;
+	std::optional<std::string> created_at;
+	std::optional<int> daily_limit_cost_nanos;
+	std::optional<int> daily_limit_requests;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string id;
+	std::optional<std::any> model_restriction_mode;
+	std::optional<int> monthly_limit_cost_nanos;
+	std::optional<int> monthly_limit_requests;
+	std::string name;
+	std::optional<bool> privacy_enable_free_may_publish_prompts;
+	std::optional<bool> privacy_enable_free_may_train;
+	std::optional<bool> privacy_enable_input_output_logging;
+	std::optional<bool> privacy_enable_paid_may_train;
+	std::optional<bool> privacy_zdr_only;
+	std::optional<std::any> prompt_injection_action;
+	std::optional<bool> prompt_injection_enabled;
+	std::optional<bool> provider_restriction_enforce_allowed;
+	std::optional<std::any> provider_restriction_mode;
+	std::optional<std::vector<std::string>> provider_restriction_provider_ids;
+	std::optional<std::any> sensitive_info_default_action;
+	std::optional<bool> sensitive_info_enabled;
+	std::optional<std::vector<std::map<std::string, std::any>>> sensitive_info_rules;
+	std::optional<std::string> updated_at;
+	std::optional<int> weekly_limit_cost_nanos;
+	std::optional<int> weekly_limit_requests;
+	std::string workspace_id;
+};
+
+struct GuardrailBudgetInput {
+	std::optional<int> dailyCostNanos;
+	std::optional<int> dailyRequests;
+	std::optional<int> monthlyCostNanos;
+	std::optional<int> monthlyRequests;
+	std::optional<int> weeklyCostNanos;
+	std::optional<int> weeklyRequests;
+};
+
+struct GuardrailCreateRequest {
+	std::vector<std::string> allowedApiModelIds;
+	std::map<std::string, std::any> budgets;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::any modelRestrictionMode;
+	std::string name;
+	std::optional<bool> privacyEnableFreeMayPublishPrompts;
+	std::optional<bool> privacyEnableFreeMayTrain;
+	std::optional<bool> privacyEnableInputOutputLogging;
+	std::optional<bool> privacyEnablePaidMayTrain;
+	std::optional<bool> privacyZdrOnly;
+	std::any promptInjectionAction;
+	std::optional<bool> promptInjectionEnabled;
+	std::optional<bool> providerRestrictionEnforceAllowed;
+	std::any providerRestrictionMode;
+	std::vector<std::string> providerRestrictionProviderIds;
+	std::any sensitiveInfoDefaultAction;
+	std::optional<bool> sensitiveInfoEnabled;
+	std::vector<std::map<std::string, std::any>> sensitiveInfoRules;
+};
+
+struct GuardrailDeleteResponse {
+	std::any deleted;
+};
+
+struct GuardrailDetailResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GuardrailKeyAddResponse {
+	int added_count;
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GuardrailKeyAssignment {
+	std::optional<std::string> created_at;
+	std::string key_id;
+	std::optional<std::string> name;
+	std::optional<std::string> prefix;
+	std::optional<std::string> status;
+};
+
+struct GuardrailKeyIdsReplaceRequest {
+	std::vector<std::string> key_ids;
+};
+
+struct GuardrailKeyIdsRequest {
+	std::vector<std::string> key_ids;
+};
+
+struct GuardrailKeyListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct GuardrailKeySetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GuardrailListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct GuardrailMemberAddResponse {
+	int added_count;
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GuardrailMemberAssignment {
+	std::optional<std::string> display_name;
+	std::optional<std::string> joined_at;
+	std::optional<std::string> role;
+	std::string user_id;
+};
+
+struct GuardrailMemberListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct GuardrailPolicyInput {
+	std::vector<std::string> allowedApiModelIds;
+	std::map<std::string, std::any> budgets;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::any modelRestrictionMode;
+	std::string name;
+	std::optional<bool> privacyEnableFreeMayPublishPrompts;
+	std::optional<bool> privacyEnableFreeMayTrain;
+	std::optional<bool> privacyEnableInputOutputLogging;
+	std::optional<bool> privacyEnablePaidMayTrain;
+	std::optional<bool> privacyZdrOnly;
+	std::any promptInjectionAction;
+	std::optional<bool> promptInjectionEnabled;
+	std::optional<bool> providerRestrictionEnforceAllowed;
+	std::any providerRestrictionMode;
+	std::vector<std::string> providerRestrictionProviderIds;
+	std::any sensitiveInfoDefaultAction;
+	std::optional<bool> sensitiveInfoEnabled;
+	std::vector<std::map<std::string, std::any>> sensitiveInfoRules;
+};
+
+struct GuardrailRemoveResponse {
+	int removed_count;
+};
+
+struct GuardrailResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GuardrailUpdateRequest {
+	std::vector<std::string> allowedApiModelIds;
+	std::map<std::string, std::any> budgets;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::any modelRestrictionMode;
+	std::string name;
+	std::optional<bool> privacyEnableFreeMayPublishPrompts;
+	std::optional<bool> privacyEnableFreeMayTrain;
+	std::optional<bool> privacyEnableInputOutputLogging;
+	std::optional<bool> privacyEnablePaidMayTrain;
+	std::optional<bool> privacyZdrOnly;
+	std::any promptInjectionAction;
+	std::optional<bool> promptInjectionEnabled;
+	std::optional<bool> providerRestrictionEnforceAllowed;
+	std::any providerRestrictionMode;
+	std::vector<std::string> providerRestrictionProviderIds;
+	std::any sensitiveInfoDefaultAction;
+	std::optional<bool> sensitiveInfoEnabled;
+	std::vector<std::map<std::string, std::any>> sensitiveInfoRules;
+};
+
+struct GuardrailUserIdsRequest {
+	std::vector<std::string> user_ids;
 };
 
 struct Image {
@@ -834,6 +1430,7 @@ struct ImagesEditRequest {
 	std::optional<int> n;
 	std::string prompt;
 	std::map<std::string, std::any> provider;
+	std::string resolution;
 	std::string size;
 	std::optional<bool> usage;
 	std::string user;
@@ -850,6 +1447,7 @@ struct ImagesGenerationRequest {
 	std::string prompt;
 	std::map<std::string, std::any> provider;
 	std::string quality;
+	std::string resolution;
 	std::string response_format;
 	std::string size;
 	std::string style;
@@ -869,7 +1467,6 @@ struct InvalidRequestResponse {
 };
 
 struct KeyInvalidateResponse {
-	std::map<std::string, std::any> cache_version;
 	std::map<std::string, std::any> key;
 	std::string message;
 	std::any ok;
@@ -880,6 +1477,10 @@ using KnownModelId = std::any;
 struct ListFilesResponse {
 	std::vector<std::map<std::string, std::any>> data;
 	std::string object;
+};
+
+struct ManagementKeyCollectionResponse {
+	std::vector<std::map<std::string, std::any>> data;
 };
 
 struct ManagementKeyCreateRequest {
@@ -912,6 +1513,84 @@ struct ManagementKeyListResponse {
 	int offset;
 	std::any ok;
 	int total;
+};
+
+struct ManagementKeyRuntime {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	std::optional<int> daily_limit_cost_nanos;
+	std::optional<int> daily_limit_requests;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::optional<std::string> last_used_at;
+	std::optional<int> monthly_limit_cost_nanos;
+	std::optional<int> monthly_limit_requests;
+	std::string name;
+	std::string prefix;
+	std::vector<std::string> scopes;
+	std::optional<bool> soft_blocked;
+	std::any status;
+	std::optional<std::string> updated_at;
+	std::optional<int> weekly_limit_cost_nanos;
+	std::optional<int> weekly_limit_requests;
+	std::string workspace_id;
+};
+
+struct ManagementKeyRuntimeCreated {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	std::optional<int> daily_limit_cost_nanos;
+	std::optional<int> daily_limit_requests;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::string key;
+	std::optional<std::string> last_used_at;
+	std::optional<int> monthly_limit_cost_nanos;
+	std::optional<int> monthly_limit_requests;
+	std::string name;
+	std::string prefix;
+	std::vector<std::string> scopes;
+	std::optional<bool> soft_blocked;
+	std::any status;
+	std::optional<std::string> updated_at;
+	std::optional<int> weekly_limit_cost_nanos;
+	std::optional<int> weekly_limit_requests;
+	std::string workspace_id;
+};
+
+struct ManagementKeyRuntimeCreateRequest {
+	std::optional<std::string> expires_at;
+	std::string name;
+	std::optional<bool> paused;
+	std::any scopes;
+	std::any template;
+};
+
+struct ManagementKeyRuntimeCreateResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct ManagementKeyRuntimeDeleteResponse {
+	std::any deleted;
+};
+
+struct ManagementKeyRuntimeResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct ManagementKeyRuntimeUpdateRequest {
+	std::optional<int> dailyCostNanos;
+	std::optional<int> dailyRequests;
+	std::optional<std::string> expires_at;
+	std::optional<int> monthlyCostNanos;
+	std::optional<int> monthlyRequests;
+	std::string name;
+	std::optional<bool> paused;
+	std::any scopes;
+	std::optional<bool> softBlocked;
+	std::any template;
+	std::optional<int> weeklyCostNanos;
+	std::optional<int> weeklyRequests;
 };
 
 struct ManagementKeyUpdateRequest {
@@ -1058,6 +1737,7 @@ struct ModerationsRequest {
 
 struct ModerationsResponse {
 	std::string id;
+	std::map<std::string, std::any> meta;
 	std::string model;
 	std::vector<std::map<std::string, std::any>> results;
 };
@@ -1075,12 +1755,229 @@ struct MusicGenerateRequest {
 };
 
 struct MusicGenerateResponse {
+	std::string audio_base64;
+	std::string audio_url;
+	std::string id;
+	std::string model;
+	std::optional<std::string> nativeResponseId;
+	std::any object;
+	std::vector<std::map<std::string, std::any>> output;
+	std::string provider;
+	std::any result;
+	std::any status;
+	std::map<std::string, std::any> usage;
 };
 
 struct NotImplementedResponse {
 	std::string description;
 	std::string error;
 	int status_code;
+};
+
+struct OAuthClient {
+	std::optional<int> active_authorizations;
+	std::vector<std::string> allowed_scopes;
+	std::string client_id;
+	std::any client_type;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	std::optional<std::string> homepage_url;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> logo_url;
+	std::string name;
+	std::optional<std::string> privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::optional<int> requests_last_30d;
+	std::string status;
+	std::optional<std::string> terms_of_service_url;
+	std::optional<int> total_authorizations;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct OAuthClientCreateRequest {
+	std::vector<std::string> allowed_scopes;
+	std::any client_type;
+	std::string description;
+	std::string homepage_url;
+	std::string logo_url;
+	std::string name;
+	std::string privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::string terms_of_service_url;
+};
+
+struct OAuthClientCreateResponse {
+	std::optional<int> active_authorizations;
+	std::vector<std::string> allowed_scopes;
+	std::string client_id;
+	std::optional<std::string> client_secret;
+	std::any client_type;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	std::optional<std::string> homepage_url;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> logo_url;
+	std::string name;
+	std::optional<std::string> privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::optional<int> requests_last_30d;
+	std::string status;
+	std::optional<std::string> terms_of_service_url;
+	std::optional<int> total_authorizations;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct OAuthClientDeleteResponse {
+	std::string client_id;
+	std::string message;
+};
+
+struct OAuthClientInput {
+	std::vector<std::string> allowed_scopes;
+	std::string description;
+	std::string homepage_url;
+	std::string logo_url;
+	std::string name;
+	std::string privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::string terms_of_service_url;
+};
+
+struct OAuthClientListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::map<std::string, std::any> pagination;
+};
+
+struct OAuthClientSecretResponse {
+	std::string client_id;
+	std::string client_secret;
+	std::string message;
+};
+
+struct OAuthClientUpdateRequest {
+	std::vector<std::string> allowed_scopes;
+	std::string description;
+	std::string homepage_url;
+	std::string logo_url;
+	std::string name;
+	std::string privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::string terms_of_service_url;
+};
+
+struct ObservabilityDestination {
+	bool configured;
+	std::optional<std::string> created_at;
+	bool enabled;
+	std::any group_join;
+	std::string id;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	bool privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	double sampling_rate;
+	std::any type;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct ObservabilityDestinationCreateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<bool> enabled;
+	std::any group_join;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	std::optional<bool> privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	std::optional<double> sampling_rate;
+	std::any type;
+};
+
+struct ObservabilityDestinationListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct ObservabilityDestinationPolicyInput {
+	std::optional<bool> enabled;
+	std::any group_join;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	std::optional<bool> privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	std::optional<double> sampling_rate;
+};
+
+struct ObservabilityDestinationResponse {
+	std::map<std::string, std::any> data;
+};
+
+using ObservabilityDestinationType = std::any;
+
+struct ObservabilityDestinationUpdateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<bool> enabled;
+	std::any group_join;
+	std::optional<bool> include_cost_metadata;
+	std::optional<bool> include_generation_metadata;
+	std::optional<bool> include_identity_metadata;
+	std::optional<bool> include_request_context;
+	std::vector<std::map<std::string, std::any>> key_filters;
+	std::string name;
+	std::optional<bool> privacy_mode;
+	std::vector<std::map<std::string, std::any>> rule_groups;
+	std::optional<double> sampling_rate;
+};
+
+struct ObservabilityKeyFilter {
+	std::string key_id;
+	std::any mode;
+};
+
+struct ObservabilityLoggingPolicy {
+	std::any billing_status;
+	bool enabled;
+	std::optional<std::string> grace_until;
+	bool include_provider_payloads;
+	int price_per_million_units_nanos;
+	int retention_days;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct ObservabilityLoggingPolicyResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct ObservabilityLoggingPolicyUpdateRequest {
+	std::optional<bool> enabled;
+	std::optional<bool> include_provider_payloads;
+	std::optional<int> retention_days;
+};
+
+struct ObservabilityRule {
+	std::any condition;
+	std::any field;
+	std::optional<std::string> value;
+};
+
+struct ObservabilityRuleGroup {
+	std::any match;
+	std::vector<std::map<std::string, std::any>> rules;
 };
 
 struct OcrRequest {
@@ -1099,12 +1996,356 @@ using OrganisationId = std::any;
 
 using OrganisationIdList = std::any;
 
+using ParseBlock = std::any;
+
+struct ParseBoundingBox {
+	double bottom_right_x;
+	double bottom_right_y;
+	double top_left_x;
+	double top_left_y;
+};
+
+struct ParseImage {
+	std::map<std::string, std::any> bounding_box;
+	std::map<std::string, std::any> bounding_box_normalized;
+	std::any category;
+	std::string description;
+	std::string id;
+};
+
+using ParsePage = std::any;
+
+struct ParseRequest {
+	std::map<std::string, std::any> debug;
+	std::map<std::string, std::any> document;
+	std::optional<bool> echo_upstream_request;
+	std::string model;
+	std::any output_format;
+	std::map<std::string, std::any> provider;
+	std::map<std::string, std::any> routing;
+};
+
+struct ParseResponse {
+	std::string id;
+	std::map<std::string, std::any> meta;
+	std::string model;
+	std::any object;
+	std::vector<std::any> pages;
+	std::string provider;
+	std::map<std::string, std::any> usage;
+};
+
+struct Preset {
+	std::optional<std::string> active_version_id;
+	std::map<std::string, std::any> config;
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	std::optional<std::string> description;
+	std::string id;
+	std::string name;
+	std::string slug;
+	std::optional<std::string> source_preset_id;
+	std::optional<std::string> source_preset_version_id;
+	std::optional<std::string> updated_at;
+	std::optional<std::string> upstream_version_id;
+	std::any versioning_method;
+	std::any visibility;
+	std::string workspace_id;
+};
+
+struct PresetConfig {
+};
+
+struct PresetCreateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::string slug;
+	std::any versioning_method;
+	std::any visibility;
+};
+
+struct PresetCreateResponse {
+	std::string canonical_model;
+	std::map<std::string, std::any> data;
+};
+
+struct PresetForkRequest {
+	std::string source_version_id;
+};
+
+struct PresetListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct PresetPublisher {
+	std::optional<std::string> handle;
+	std::string workspace_id;
+};
+
+struct PresetPublisherResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetPublisherUpdateRequest {
+	std::string handle;
+};
+
+struct PresetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetTestRun {
+	std::optional<std::string> baseline_preset_id;
+	std::optional<std::string> completed_at;
+	std::map<std::string, std::any> config;
+	std::string created_at;
+	std::optional<std::string> created_by_user_id;
+	std::optional<std::string> dataset_name;
+	std::optional<std::string> description;
+	std::string id;
+	std::optional<std::string> name;
+	std::optional<std::string> preset_id;
+	std::optional<std::string> started_at;
+	std::any status;
+	std::map<std::string, std::any> summary;
+	std::string updated_at;
+	std::string workspace_id;
+};
+
+struct PresetTestRunCreateRequest {
+	std::string baseline_preset_id;
+	std::string completed_at;
+	std::map<std::string, std::any> config;
+	std::string dataset_name;
+	std::string description;
+	std::string name;
+	std::string preset_id;
+	std::string started_at;
+	std::any status;
+	std::map<std::string, std::any> summary;
+};
+
+struct PresetTestRunDetailResponse {
+	std::map<std::string, std::any> data;
+	std::optional<std::map<std::string, std::any>> feedback_summary;
+};
+
+struct PresetTestRunListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct PresetTestRunResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetTestRunUpdateRequest {
+	std::optional<std::string> completed_at;
+	std::optional<std::string> description;
+	std::optional<std::string> name;
+	std::optional<std::string> started_at;
+	std::any status;
+	std::map<std::string, std::any> summary;
+};
+
+struct PresetUpdateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::optional<bool> replace_config;
+	std::string slug;
+	std::any versioning_method;
+	std::any visibility;
+};
+
+struct PresetUpstreamApplyRequest {
+	std::string version_id;
+};
+
+struct PresetUpstreamApplyResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetVersion {
+	std::map<std::string, std::any> config;
+	std::string created_at;
+	std::string created_by;
+	std::optional<std::string> description;
+	std::string id;
+	std::string name;
+	std::string preset_id;
+	std::optional<std::string> release_notes;
+	std::string slug;
+	std::string version_label;
+	int version_number;
+	std::any versioning_method;
+	std::any visibility;
+};
+
+using PresetVersioningMethod = std::any;
+
+struct PresetVersionListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct PresetVersionPublishRequest {
+	std::string release_notes;
+	std::string version_label;
+};
+
+struct PresetVersionResponse {
+	std::map<std::string, std::any> data;
+};
+
+using PresetVisibility = std::any;
+
+struct PrivateModel {
+	std::string base_url;
+	std::optional<std::string> catalog_model_id;
+	std::optional<int> context_length;
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	std::optional<std::string> credential_prefix;
+	std::optional<std::string> credential_suffix;
+	std::optional<std::string> custom_provider_name;
+	std::optional<std::string> custom_provider_url;
+	std::optional<std::string> description;
+	bool enabled;
+	std::optional<std::string> host_provider_id;
+	std::string id;
+	std::vector<std::string> input_modalities;
+	std::string local_slug;
+	std::optional<int> max_output_tokens;
+	std::string model_id;
+	std::string name;
+	std::vector<std::string> output_modalities;
+	std::any routing_policy;
+	bool supports_responses;
+	std::optional<std::string> updated_at;
+	std::string upstream_model_id;
+	std::string workspace_id;
+};
+
+struct PrivateModelCreateRequest {
+	std::string base_url;
+	std::optional<int> context_length;
+	std::string credential;
+	std::optional<std::string> custom_provider_name;
+	std::optional<std::string> custom_provider_url;
+	std::string description;
+	std::optional<bool> enabled;
+	std::optional<std::string> host_provider_id;
+	std::optional<int> max_output_tokens;
+	std::string model_reference;
+	std::string name;
+	std::any routing_policy;
+	std::optional<bool> supports_responses;
+	std::string upstream_model_id;
+};
+
+struct PrivateModelDeleteResponse {
+	bool deleted;
+};
+
+struct PrivateModelListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct PrivateModelResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PrivateModelUpdateRequest {
+	std::string base_url;
+	std::optional<int> context_length;
+	std::string credential;
+	std::optional<std::string> custom_provider_name;
+	std::optional<std::string> custom_provider_url;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::optional<std::string> host_provider_id;
+	std::optional<int> max_output_tokens;
+	std::string model_reference;
+	std::string name;
+	std::any routing_policy;
+	std::optional<bool> supports_responses;
+	std::string upstream_model_id;
+};
+
 struct Provider {
 	std::string api_provider_id;
 	std::optional<std::string> api_provider_name;
 	std::optional<std::string> country_code;
 	std::optional<std::string> description;
 	std::optional<std::string> link;
+};
+
+struct ProviderCredential {
+	std::vector<std::string> allowed_api_key_ids;
+	std::vector<std::string> allowed_model_slugs;
+	std::optional<bool> always_use;
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	bool disabled;
+	bool enabled;
+	std::optional<std::string> error_message;
+	std::string id;
+	bool is_fallback;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> last_verified_at;
+	std::string name;
+	std::optional<std::string> prefix;
+	std::string provider_id;
+	std::any routing_mode;
+	int sort_order;
+	std::optional<std::string> suffix;
+	std::optional<std::string> verification_status;
+	std::string workspace_id;
+};
+
+struct ProviderCredentialCreateRequest {
+	std::vector<std::string> allowed_api_key_ids;
+	std::vector<std::string> allowed_models;
+	std::optional<bool> enabled;
+	std::string key;
+	std::string name;
+	std::string provider;
+	std::any routing_mode;
+};
+
+struct ProviderCredentialDeleteResponse {
+	bool deleted;
+};
+
+struct ProviderCredentialListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct ProviderCredentialReorderRequest {
+	std::vector<std::string> key_ids;
+	std::string provider;
+	std::any routing_mode;
+};
+
+struct ProviderCredentialReorderResponse {
+	bool reordered;
+};
+
+struct ProviderCredentialResponse {
+	std::map<std::string, std::any> data;
+};
+
+using ProviderCredentialRoutingMode = std::any;
+
+struct ProviderCredentialUpdateRequest {
+	std::vector<std::string> allowed_api_key_ids;
+	std::vector<std::string> allowed_models;
+	std::optional<bool> enabled;
+	std::string key;
+	std::string name;
+	std::any routing_mode;
 };
 
 struct ProviderOptions {
@@ -1354,6 +2595,10 @@ struct ToolCallContentPart {
 	std::any type;
 };
 
+struct UpdatedResponse {
+	std::map<std::string, std::any> data;
+};
+
 struct Usage {
 	std::optional<int> completion_tokens;
 	std::optional<int> prompt_tokens;
@@ -1503,6 +2748,65 @@ struct VideoOutputConfig {
 	std::any access;
 };
 
+struct WebhookEndpoint {
+	std::optional<std::string> createdAt;
+	std::optional<std::string> createdBy;
+	std::optional<std::string> deletedAt;
+	std::vector<std::string> events;
+	bool hasSecret;
+	std::string id;
+	std::string name;
+	std::any status;
+	std::optional<std::string> updatedAt;
+	std::string url;
+	std::string workspaceId;
+};
+
+struct WebhookEndpointCreateRequest {
+	std::vector<std::string> events;
+	std::string name;
+	std::string url;
+};
+
+struct WebhookEndpointDeleteResponse {
+	std::any deleted;
+	std::string id;
+	std::any object;
+};
+
+struct WebhookEndpointInput {
+	std::vector<std::string> events;
+	std::string name;
+	std::string url;
+};
+
+struct WebhookEndpointListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::any object;
+};
+
+struct WebhookEndpointSecretResponse {
+	std::optional<std::string> createdAt;
+	std::optional<std::string> createdBy;
+	std::optional<std::string> deletedAt;
+	std::vector<std::string> events;
+	bool hasSecret;
+	std::string id;
+	std::string name;
+	std::string signing_secret;
+	std::any status;
+	std::optional<std::string> updatedAt;
+	std::string url;
+	std::string workspaceId;
+};
+
+struct WebhookEndpointUpdateRequest {
+	std::vector<std::string> events;
+	std::string name;
+	std::any status;
+	std::string url;
+};
+
 struct Workspace {
 	std::optional<std::string> created_at;
 	std::optional<std::string> created_by;
@@ -1533,18 +2837,600 @@ struct WorkspaceActivityResponse {
 	double total_cost_cents;
 };
 
+struct WorkspaceApp {
+	std::string app_key;
+	std::optional<std::string> category;
+	std::optional<std::string> created_at;
+	std::optional<std::string> docs_url;
+	std::string id;
+	std::optional<std::string> image_url;
+	bool is_active;
+	bool is_managed;
+	bool is_public;
+	std::optional<std::string> last_seen;
+	std::string title;
+	std::optional<std::string> url;
+};
+
+struct WorkspaceAppListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int limit;
+	int offset;
+	int total_count;
+};
+
+struct WorkspaceAppMergeRequest {
+	std::string target_app_id;
+};
+
+struct WorkspaceAppMergeResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceAppResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceAppUpdateRequest {
+	std::optional<std::string> category;
+	std::optional<std::string> docs_url;
+	std::optional<std::string> image_url;
+	std::optional<bool> is_active;
+	std::optional<bool> is_public;
+	std::string title;
+	std::optional<std::string> url;
+};
+
+using WorkspaceAssignableRole = std::any;
+
+struct WorkspaceAuditEvent {
+	std::string action;
+	std::optional<std::map<std::string, std::any>> actor;
+	std::optional<std::string> actor_user_id;
+	std::string created_at;
+	std::string id;
+	std::map<std::string, std::any> metadata;
+	std::optional<std::string> request_id;
+	std::string target_id;
+	std::optional<std::string> target_name;
+	std::string target_type;
+	std::string workspace_id;
+};
+
+struct WorkspaceAuditEventActor {
+	std::optional<std::string> display_name;
+	std::optional<std::string> email;
+};
+
+struct WorkspaceAuditEventLimits {
+	std::optional<int> dailyCostNanos;
+	std::optional<int> dailyRequests;
+	std::optional<int> monthlyCostNanos;
+	std::optional<int> monthlyRequests;
+	std::optional<bool> softBlocked;
+	std::optional<int> weeklyCostNanos;
+	std::optional<int> weeklyRequests;
+};
+
+struct WorkspaceAuditEventListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	bool has_more;
+	std::optional<std::string> next_cursor;
+};
+
+struct WorkspaceAuditEventMetadata {
+	std::string accessTemplate;
+	std::vector<std::string> changedFields;
+	std::optional<std::string> expiresAt;
+	std::map<std::string, std::any> limits;
+	std::optional<std::string> prefix;
+	std::optional<std::string> previousKeyExpiresAt;
+	std::string replacementKeyId;
+	std::string replacementKeyName;
+	std::string status;
+};
+
+struct WorkspaceAutoTopUpSettings {
+	int amount_nanos;
+	int balance_threshold_nanos;
+	bool enabled;
+	std::optional<std::string> payment_method_id;
+};
+
+struct WorkspaceAutoTopUpUpdate {
+	std::optional<int> amount_nanos;
+	std::optional<int> balance_threshold_nanos;
+	bool enabled;
+	std::optional<std::string> payment_method_id;
+};
+
+struct WorkspaceBudget {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	bool exceeded;
+	std::string id;
+	std::any interval;
+	double limit;
+	int limit_nanos;
+	double remaining;
+	int remaining_nanos;
+	std::optional<std::string> reset_at;
+	std::string updated_at;
+	double usage;
+	int usage_nanos;
+	std::optional<std::string> window_start;
+	std::string workspace_id;
+};
+
+struct WorkspaceBudgetDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceBudgetInput {
+	std::any interval;
+	double limit;
+};
+
+using WorkspaceBudgetInterval = std::any;
+
+struct WorkspaceBudgetListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceBudgetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceBudgetUpdateInput {
+	std::any interval;
+	std::optional<double> limit;
+};
+
 struct WorkspaceCreateRequest {
 	std::string name;
 	std::string slug;
 };
+
+struct WorkspaceDepartment {
+	std::string color;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	std::optional<std::string> directory_name;
+	std::string icon;
+	std::string id;
+	std::string name;
+	std::optional<bool> name_overridden;
+	std::optional<std::string> source_id;
+	std::any source_type;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceDepartmentCreateRequest {
+	std::any color;
+	std::optional<std::string> description;
+	std::any icon;
+	std::string name;
+};
+
+struct WorkspaceDepartmentInput {
+	std::any color;
+	std::optional<std::string> description;
+	std::any icon;
+	std::string name;
+};
+
+struct WorkspaceDepartmentListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceDepartmentMember {
+	std::string department_id;
+	bool is_primary;
+	std::any position;
+	std::string user_id;
+};
+
+struct WorkspaceDepartmentMemberRequest {
+	std::any position;
+	std::optional<bool> primary;
+};
+
+struct WorkspaceDepartmentMemberResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceDepartmentResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceDepartmentUpdateRequest {
+	std::any color;
+	std::optional<std::string> description;
+	std::any icon;
+	std::string name;
+};
+
+struct WorkspaceDirectoryMember {
+	std::string access_source;
+	std::optional<std::map<std::string, std::any>> department;
+	bool department_override_enabled;
+	std::optional<std::string> department_override_id;
+	std::string department_source;
+	std::optional<std::string> directory_department;
+	std::string display_name;
+	std::any effective_role;
+	std::optional<std::string> email;
+	std::optional<std::string> joined_at;
+	std::optional<std::any> role_override;
+	std::any status;
+	std::string user_id;
+	std::string workspace_role;
+};
+
+struct WorkspaceDirectoryMemberUpdateRequest {
+	std::optional<std::any> access_role;
+	std::optional<std::string> department_id;
+	std::any department_mode;
+	std::any department_position;
+};
+
+struct WorkspaceDirectoryResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceGroupMapping {
+	std::any access_role;
+	std::optional<std::string> created_at;
+	std::string department_id;
+	std::any department_position;
+	std::string id;
+	std::string scim_group_id;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceGroupMappingCreateRequest {
+	std::any access_role;
+	std::string department_id;
+	std::any department_position;
+	std::string scim_group_id;
+};
+
+struct WorkspaceGroupMappingListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceGroupMappingResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceGroupMappingUpdateRequest {
+	std::any access_role;
+	std::any department_position;
+};
+
+struct WorkspaceInvite {
+	std::string created_at;
+	std::string creator_user_id;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::optional<int> max_uses;
+	std::any role;
+	std::optional<std::string> token_preview;
+	std::optional<int> uses_count;
+	std::string workspace_id;
+};
+
+struct WorkspaceInviteCreateRequest {
+	std::optional<int> expires_in_days;
+	std::optional<int> max_uses;
+	std::any role;
+};
+
+struct WorkspaceInviteCreateResponse {
+	std::map<std::string, std::any> data;
+	std::string token;
+};
+
+struct WorkspaceInviteListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct WorkspaceJoinRequest {
+	std::string created_at;
+	std::optional<std::string> decided_at;
+	std::optional<std::string> decided_by;
+	std::string id;
+	std::optional<std::string> invite_id;
+	std::string requester_user_id;
+	std::any status;
+	std::string workspace_id;
+};
+
+struct WorkspaceJoinRequestListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct WorkspaceJoinRequestResponse {
+	std::map<std::string, std::any> data;
+};
+
+using WorkspaceJoinRequestStatus = std::any;
 
 struct WorkspaceListResponse {
 	std::vector<std::map<std::string, std::any>> data;
 	int total_count;
 };
 
+struct WorkspaceLowBalanceEmailSettings {
+	bool enabled;
+	double threshold_usd;
+};
+
+struct WorkspaceLowBalanceEmailUpdate {
+	bool enabled;
+	std::optional<double> threshold_usd;
+};
+
+struct WorkspaceMember {
+	std::optional<std::string> display_name;
+	std::optional<std::string> joined_at;
+	std::any role;
+	std::string user_id;
+	std::string workspace_id;
+};
+
+struct WorkspaceMemberAddResponse {
+	int added_count;
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceMemberBulkRequest {
+	std::any role;
+	std::vector<std::string> user_ids;
+};
+
+struct WorkspaceMemberListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct WorkspaceMemberRemoveRequest {
+	std::vector<std::string> user_ids;
+};
+
+struct WorkspaceMemberRemoveResponse {
+	int removed_count;
+};
+
+struct WorkspaceMemberResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceMemberRoleUpdateRequest {
+	std::any role;
+};
+
+struct WorkspaceNotificationDestination {
+	std::optional<std::string> created_at;
+	std::string id;
+	std::string name;
+	std::any status;
+	std::string target_preview;
+	std::any type;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceNotificationDestinationCreateRequest {
+	std::string name;
+	std::string target;
+	std::any type;
+};
+
+struct WorkspaceNotificationDestinationListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceNotificationDestinationResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationDestinationTestRequest {
+	std::string target;
+	std::any type;
+};
+
+using WorkspaceNotificationDestinationType = std::any;
+
+struct WorkspaceNotificationEmailPreferences {
+	bool auto_top_up_failure;
+	bool model_deprecation;
+	bool payment_method_expiring;
+};
+
+struct WorkspaceNotificationEmailPreferencesUpdate {
+	std::optional<bool> auto_top_up_failure;
+	std::optional<bool> model_deprecation;
+	std::optional<bool> payment_method_expiring;
+};
+
+using WorkspaceNotificationEventKind = std::any;
+
+struct WorkspaceNotificationRoute {
+	std::vector<std::string> destination_ids;
+	std::any event_kind;
+};
+
+struct WorkspaceNotificationRouteMap {
+	std::vector<std::string> auto_top_up_failed;
+	std::vector<std::string> low_balance;
+	std::vector<std::string> model_deprecation;
+	std::vector<std::string> payment_method_expiring;
+};
+
+struct WorkspaceNotificationRouteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationRoutesResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationRouteUpdateRequest {
+	std::vector<std::string> destination_ids;
+};
+
+struct WorkspaceNotificationSettings {
+	std::map<std::string, std::any> auto_top_up;
+	std::map<std::string, std::any> email_preferences;
+	std::map<std::string, std::any> low_balance_email;
+};
+
+struct WorkspaceNotificationSettingsResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceNotificationSettingsUpdateRequest {
+	std::map<std::string, std::any> auto_top_up;
+	std::map<std::string, std::any> email_preferences;
+	std::map<std::string, std::any> low_balance_email;
+};
+
+struct WorkspaceNotificationTestResponse {
+	std::map<std::string, std::any> data;
+};
+
+using WorkspaceProviderRestrictionMode = std::any;
+
 struct WorkspaceResponse {
 	std::map<std::string, std::any> data;
+};
+
+using WorkspaceRole = std::any;
+
+using WorkspaceRoutingMode = std::any;
+
+struct WorkspaceScimAuditResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceScimEndpoint {
+	std::optional<std::string> created_at;
+	bool enabled;
+	std::string id;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceScimEndpointResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceScimEvent {
+	std::string action;
+	std::optional<std::string> correlation_id;
+	std::string created_at;
+	std::optional<std::map<std::string, std::any>> detail;
+	std::optional<int> http_status;
+	std::string id;
+	std::string outcome;
+	std::optional<std::string> request_id;
+	std::optional<std::string> resource_id;
+	std::optional<std::string> resource_type;
+	std::optional<std::string> scim_type;
+};
+
+struct WorkspaceScimResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceScimToken {
+	std::optional<std::string> created_at;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::string label;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> revoked_at;
+	std::string token_prefix;
+};
+
+struct WorkspaceScimTokenCreateRequest {
+	std::optional<std::string> expires_at;
+	std::string label;
+};
+
+struct WorkspaceScimTokenCreateResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceScimUpdateRequest {
+	bool enabled;
+};
+
+struct WorkspaceSettings {
+	std::optional<bool> alpha_channel_enabled;
+	std::optional<bool> beta_channel_enabled;
+	std::optional<bool> byok_fallback_enabled;
+	std::optional<bool> io_logging_enabled;
+	std::optional<bool> io_logging_include_provider_payloads;
+	std::optional<bool> privacy_enable_free_may_publish_prompts;
+	std::optional<bool> privacy_enable_free_may_train;
+	std::optional<bool> privacy_enable_input_output_logging;
+	std::optional<bool> privacy_enable_paid_may_train;
+	std::optional<bool> privacy_zdr_only;
+	std::optional<bool> provider_restriction_enforce_allowed;
+	std::optional<std::any> provider_restriction_mode;
+	std::optional<std::vector<std::string>> provider_restriction_provider_ids;
+	std::optional<bool> response_healing_enabled;
+	std::optional<bool> response_healing_locked;
+	std::optional<std::any> response_healing_mode;
+	std::optional<std::any> routing_mode;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct WorkspaceSettingsResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceSettingsUpdateRequest {
+	std::optional<bool> alpha_channel_enabled;
+	std::optional<bool> beta_channel_enabled;
+	std::optional<bool> byok_fallback_enabled;
+	std::optional<bool> io_logging_enabled;
+	std::optional<bool> io_logging_include_provider_payloads;
+	std::optional<bool> privacy_enable_free_may_publish_prompts;
+	std::optional<bool> privacy_enable_free_may_train;
+	std::optional<bool> privacy_enable_input_output_logging;
+	std::optional<bool> privacy_enable_paid_may_train;
+	std::optional<bool> privacy_zdr_only;
+	std::optional<bool> provider_restriction_enforce_allowed;
+	std::any provider_restriction_mode;
+	std::vector<std::string> provider_restriction_provider_ids;
+	std::optional<bool> response_healing_enabled;
+	std::optional<bool> response_healing_locked;
+	std::any response_healing_mode;
+	std::any routing_mode;
+};
+
+struct WorkspaceSsoResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceSsoSettings {
+	std::vector<std::string> domains;
+	bool enabled;
+	std::any enforced;
+	std::any mode;
+	std::optional<std::string> provider_identifier;
+};
+
+struct WorkspaceSsoUpdateRequest {
+	std::vector<std::string> domains;
+	bool enabled;
+	std::any enforced;
+	std::any mode;
+	std::optional<std::string> provider_identifier;
 };
 
 struct WorkspaceUpdateRequest {

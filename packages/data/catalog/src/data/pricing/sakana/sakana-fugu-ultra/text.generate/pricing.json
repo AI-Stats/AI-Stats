@@ -12,7 +12,7 @@
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "fugu-ultra-20260615 prompts <= 272K tokens.",
+      "note": "fugu-ultra-v1.1 and fugu-ultra-v1.0 prompts <= 272K tokens.",
       "match": [
         {
           "path": "input_tokens",
@@ -44,7 +44,7 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "fugu-ultra-20260615 prompts <= 272K tokens.",
+      "note": "fugu-ultra-v1.1 and fugu-ultra-v1.0 prompts <= 272K tokens.",
       "match": [
         {
           "path": "input_tokens",
@@ -76,7 +76,7 @@
       "price_per_unit": 30,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "fugu-ultra-20260615 prompts <= 272K tokens.",
+      "note": "fugu-ultra-v1.1 and fugu-ultra-v1.0 prompts <= 272K tokens.",
       "match": [
         {
           "path": "input_tokens",
@@ -108,7 +108,7 @@
       "price_per_unit": 10,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "fugu-ultra-20260615 prompts > 272K tokens.",
+      "note": "fugu-ultra-v1.1 and fugu-ultra-v1.0 prompts > 272K tokens.",
       "match": [
         {
           "path": "input_tokens",
@@ -140,7 +140,7 @@
       "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "fugu-ultra-20260615 prompts > 272K tokens.",
+      "note": "fugu-ultra-v1.1 and fugu-ultra-v1.0 prompts > 272K tokens.",
       "match": [
         {
           "path": "input_tokens",
@@ -172,7 +172,7 @@
       "price_per_unit": 45,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "fugu-ultra-20260615 prompts > 272K tokens.",
+      "note": "fugu-ultra-v1.1 and fugu-ultra-v1.0 prompts > 272K tokens.",
       "match": [
         {
           "path": "input_tokens",
@@ -202,10 +202,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{"kind":"pricing","url":"https://console.sakana.ai/pricing","accessed_at":"2026-08-24T00:00:00Z"}],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Fixed pricing applies to fugu-ultra-v1.1 and fugu-ultra-v1.0; orchestration tokens are billed at the corresponding input/output rates."
   }
 }

@@ -54,6 +54,10 @@ test("backend-ts emits stable file set", async () => {
 	assert.ok(widgetModel?.contents.includes("export interface Widget"));
 	const clientFile = files.find((file) => file.path === "client/default.ts");
 	assert.ok(clientFile?.contents.includes("getWidget"));
+	assert.ok(clientFile?.contents.includes("path: {"));
+	assert.ok(clientFile?.contents.includes("args: GetWidgetParams"));
+	assert.ok(!clientFile?.contents.includes("args: GetWidgetParams = {}"));
+	assert.ok(clientFile?.contents.includes('String(path["id"])'));
 });
 
 test("backend-ts parenthesizes array item unions", async () => {
@@ -70,4 +74,22 @@ test("backend-ts parenthesizes array item unions", async () => {
 	const files = await backendTs.generate(ir, { outDir: "ignored" });
 	const model = files.find((file) => file.path === "models/OrganisationIdList.ts");
 	assert.match(model?.contents ?? "", /export type OrganisationIdList = \("openai" \| "google"\)\[\];/);
+});
+
+test("backend-ts cannot terminate JSDoc from an OpenAPI description", async () => {
+	const ir: IR = {
+		version: 1,
+		info: { title: "Example", version: "1.0.0" },
+		models: [{
+			name: "Widget",
+			doc: "safe */ export const injected = true; /*",
+			schema: { kind: "object", properties: {}, required: [] },
+		}],
+		operations: [],
+	};
+
+	const files = await backendTs.generate(ir, { outDir: "ignored" });
+	const model = files.find((file) => file.path === "models/Widget.ts")?.contents ?? "";
+	assert.ok(model.includes("safe *\\/ export const injected = true; /*"));
+	assert.doesNotMatch(model, /\*\/\s*export const injected/);
 });

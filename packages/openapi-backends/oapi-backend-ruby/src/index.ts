@@ -154,11 +154,15 @@ function renderOperations(operations: IROperation[]): string {
 function renderOperation(operation: IROperation): string {
 	const pathParams = operation.params.filter((param) => param.in === "path");
 	const pathTemplate = renderPathTemplate(operation.path, pathParams);
+	const successResponse = operation.responses.find((response) => {
+		const status = Number(response.status);
+		return !Number.isNaN(status) && status >= 200 && status < 300;
+	});
 	return [
 		`      def self.${operation.operationId}(client, path: nil, query: nil, headers: nil, body: nil)`,
 		"        path ||= {}",
 		`        resolved_path = ${pathTemplate}`,
-		`        client.request(method: "${operation.method.toUpperCase()}", path: resolved_path, query: query, headers: headers, body: body)`,
+		`        client.${successResponse?.kind === "text" ? "request_bytes" : "request"}(method: "${operation.method.toUpperCase()}", path: resolved_path, query: query, headers: headers, body: body)`,
 		"      end",
 		""
 	].join("\n");
@@ -172,7 +176,7 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
-			return `#{path["${name}"]}`;
+			return `#{URI.encode_uri_component(path["${name}"].to_s)}`;
 		}
 		return escapeRubyDoubleQuoted(segment);
 	});

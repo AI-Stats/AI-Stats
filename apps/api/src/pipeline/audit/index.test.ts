@@ -33,7 +33,17 @@ vi.mock("./upstream-requests", () => ({
 	persistGatewayUpstreamRequests: (...args: any[]) => persistGatewayUpstreamRequestsMock(...args),
 }));
 
-import { auditFailure, auditSuccess } from "./index";
+import { auditFailure, auditSuccess, resolveAuditServiceTiers } from "./index";
+
+describe("audit service tier attribution", () => {
+	it("keeps requests without requested or observed tier evidence unclassified", () => {
+		expect(resolveAuditServiceTiers({ endpoint: "chat.completions" })).toEqual({
+			requested: null,
+			observed: null,
+			effective: null,
+		});
+	});
+});
 
 describe("audit request detail persistence", () => {
 	beforeEach(() => {
@@ -61,6 +71,8 @@ describe("audit request detail persistence", () => {
 	it("stores replay-ready details for successful requests", async () => {
 		const gatewayRequestRows: any[] = [];
 		const detailRows: any[] = [];
+		const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+		ensureAppIdMock.mockResolvedValueOnce(null);
 
 		getSupabaseAdminMock.mockReturnValue({
 			rpc: vi.fn(async () => ({ data: "v2_request_event_1", error: null })),
@@ -107,6 +119,7 @@ describe("audit request detail persistence", () => {
 			endpoint: "chat.completions",
 			stream: false,
 			byok: false,
+			labels: [{ key: "team", value: "support" }],
 			usagePriced: { prompt_tokens: 2, completion_tokens: 1, pricing: { lines: [] } },
 			totalCents: 0.001,
 			totalNanos: 1000000,
@@ -120,6 +133,14 @@ describe("audit request detail persistence", () => {
 			providerRequest: { model: "openai/gpt-5-nano", messages: [{ role: "user", content: "hello" }] },
 			providerResponse: { id: "chatcmpl_1" },
 			detailMetadata: { replay_supported: true },
+			userAgent: "phaseo-typescript/2.2.0",
+			clientSource: {
+				id: "phaseo-typescript",
+				name: "Phaseo TypeScript SDK",
+				kind: "sdk",
+				version: "2.2.0",
+				detection: "declared",
+			},
 			providerAttempts: [
 				{
 					attempt_number: 1,
@@ -147,6 +168,12 @@ describe("audit request detail persistence", () => {
 				usage_input_quad_tokens: expect.any(Number),
 				usage_output_quad_tokens: expect.any(Number),
 				usage_total_quad_tokens: expect.any(Number),
+				detail_metadata: expect.objectContaining({
+					labels: [{ key: "team", value: "support" }],
+					replay_supported: true,
+					client_source: expect.objectContaining({ id: "phaseo-typescript" }),
+					request: expect.objectContaining({ user_agent: "phaseo-typescript/2.2.0" }),
+				}),
 			}),
 		);
 		expect(gatewayRequestRows[0].usage_input_quad_tokens).toBeGreaterThan(0);
@@ -164,6 +191,108 @@ describe("audit request detail persistence", () => {
 				metadata: expect.objectContaining({ replay_supported: true }),
 			}),
 		);
+		expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+			"[audit] ensureAppId returned null",
+			expect.anything(),
+		);
+		consoleErrorSpy.mockRestore();
+	});
+
+	it("persists only the synthetic identity for a stealth request", async () => {
+		const gatewayRequestRows: any[] = [];
+		const detailRows: any[] = [];
+		const v2Events: any[] = [];
+		getSupabaseAdminMock.mockReturnValue({
+			rpc: vi.fn(async (_rpc: string, payload: any) => {
+				v2Events.push(payload.p_event);
+				return { data: "v2_stealth", error: null };
+			}),
+			from: vi.fn((table: string) => {
+				if (table === "gateway_requests") return {
+					insert: vi.fn((row: any) => {
+						gatewayRequestRows.push(row);
+						return { select: vi.fn(() => ({ single: vi.fn(async () => ({
+							data: { id: "row_stealth", created_at: "2026-08-27T12:00:00.000Z", workspace_id: "ws_stealth" },
+							error: null,
+						})) })) };
+					}),
+				};
+				if (table === "gateway_request_details") return {
+					insert: vi.fn(async (row: any) => {
+						detailRows.push(row);
+						return { error: null };
+					}),
+				};
+				throw new Error(`unexpected table ${table}`);
+			}),
+		});
+
+		await auditSuccess({
+			requestId: "req_stealth",
+			workspaceId: "ws_stealth",
+			provider: "openai",
+			providerApiModelId: "pam_openai_secret",
+			providerModelSlug: "oai-stealth-test-model-internal",
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "chat.completions",
+			stream: false,
+			byok: false,
+			usagePriced: { input_tokens: 1, output_tokens: 1, pricing: { lines: [] } },
+			totalCents: 0.001,
+			currency: "USD",
+			statusCode: 200,
+			requestPayload: { model: "stealth/test-model-20260827", messages: [] },
+			gatewayResponse: { model: "oai-stealth-test-model-internal", output_text: "ok" },
+			providerRequest: { model: "oai-stealth-test-model-internal" },
+			providerResponse: { provider: "openai", model: "oai-stealth-test-model-internal" },
+			providerAttempts: [{
+				provider: "openai",
+				api_model_id: "pam_openai_secret",
+				provider_model_slug: "oai-stealth-test-model-internal",
+				upstream_url: "https://api.openai.com/v1/responses",
+				outcome: "success",
+				status: 200,
+			}],
+			detailMetadata: {
+				routing_snapshot: [{ provider_id: "openai", provider_model_slug: "oai-stealth-test-model-internal" }],
+				routing_diagnostics: { selected: { providerId: "openai", apiModelId: "pam_openai_secret" } },
+			},
+		});
+
+		expect(gatewayRequestRows[0]).toMatchObject({
+			model_id: "stealth/test-model-20260827",
+			canonical_model_id: "stealth/test-model-20260827",
+			provider: "stealth",
+			provider_attempts: [{
+				provider: "stealth",
+				api_model_id: "stealth/test-model-20260827",
+				provider_model_slug: "stealth/test-model-20260827",
+				upstream_url: null,
+			}],
+		});
+		expect(persistGatewayUpstreamRequestsMock).toHaveBeenCalledWith(expect.objectContaining({
+			modelId: "stealth/test-model-20260827",
+			provider: "stealth",
+			providerApiModelId: "stealth/test-model-20260827",
+			providerModelSlug: "stealth/test-model-20260827",
+		}));
+		expect(v2Events[0]).toMatchObject({
+			requested_model_input: "stealth/test-model-20260827",
+			routed_model_slug: "stealth/test-model-20260827",
+			provider: "stealth",
+			provider_model_id: "stealth:stealth/test-model-20260827",
+			provider_api_model_id: "stealth/test-model-20260827",
+		});
+		expect(detailRows[0]).toMatchObject({
+			model_id: "stealth/test-model-20260827",
+			provider: "stealth",
+			provider_request: null,
+			provider_response: null,
+			gateway_response: { model: "stealth/test-model-20260827", output_text: "ok" },
+		});
+		expect(JSON.stringify({ gatewayRequestRows, detailRows, v2Events, upstream: persistGatewayUpstreamRequestsMock.mock.calls }))
+			.not.toMatch(/openai|pam_openai_secret|oai-stealth-test-model-internal|api\.openai\.com/i);
 	});
 
 	it("stores replay-ready details for execute-stage failures", async () => {
@@ -429,8 +558,12 @@ describe("audit request detail persistence", () => {
 			requestPayload: {
 				messages: [{ role: "user", content: "private prompt" }],
 				response_format: { type: "json_object" },
+				service_tier: "fast",
 			},
-			gatewayResponse: { output_text: '{"result":"private response"}' },
+			gatewayResponse: {
+				output_text: '{"result":"private response"}',
+				usage: { service_tier: "priority" },
+			},
 			providerRequest: { secret: "provider request" },
 			providerResponse: { secret: "provider response" },
 			providerAttempts: [{
@@ -449,9 +582,25 @@ describe("audit request detail persistence", () => {
 					provider_api_model_id: "gpt-5-nano",
 					score: 0.82,
 					breaker: "closed",
-					score_factor_values: [0.99, 0.8, 0.7, 0.6, 1, 0.95, 50, 0.5, 0, 1, 1, 1, 1, 1, 1],
+					score_factor_values: [0.99, 0.8, 0.7, 0.6, 1, 0.95, 50, 0.5, 1, 1, 1, 1, 1, 1],
+					score_trace: { calculation: { baseScore: 0.82, finalScore: 0.82 } },
 				}],
 				routing_diagnostics: {
+					algorithm: {
+						version: "provider-score-v2",
+						seed: 123,
+						selectionMethod: "score_sort",
+						poolBounds: { latencyP50MinMs: 100, latencyP50MaxMs: 200 },
+					},
+					routingMode: "balanced",
+					workspacePolicy: {
+						droppedProviders: [{
+							providerId: "blocked-provider",
+							apiModelId: "blocked-model",
+							providerModelSlug: "blocked-route",
+							reason: "provider_in_blocklist",
+						}],
+					},
 					filterStages: [{
 						stage: "hints.ignore",
 						droppedProviders: [{
@@ -484,6 +633,9 @@ describe("audit request detail persistence", () => {
 			tool_call_succeeded: true,
 			structured_output_attempted: true,
 			structured_output_succeeded: true,
+			service_tier_requested: "priority",
+			service_tier_observed: "priority",
+			service_tier: "priority",
 		}));
 		expect(event.usage_meters).toEqual(expect.arrayContaining([
 			expect.objectContaining({ meter_key: "input_tokens", quantity: 10 }),
@@ -492,6 +644,7 @@ describe("audit request detail persistence", () => {
 		]));
 		expect(event.safe_metadata).toEqual(expect.objectContaining({
 			cached_input_tokens_are_subset_of_input: true,
+			service_tier: "priority",
 		}));
 		expect(event.routing_decisions).toEqual([
 			expect.objectContaining({
@@ -505,6 +658,9 @@ describe("audit request detail persistence", () => {
 					price_score: 1,
 					success_rate: 0.99,
 				}),
+				score_trace: expect.objectContaining({
+					calculation: expect.objectContaining({ finalScore: 0.82 }),
+				}),
 			}),
 			expect.objectContaining({
 				decision: "excluded",
@@ -512,7 +668,18 @@ describe("audit request detail persistence", () => {
 				exclusion_stage: "hints.ignore",
 				exclusion_reason: "listed_in_provider.ignore",
 			}),
+			expect.objectContaining({
+				decision: "excluded",
+				provider: "blocked-provider",
+				provider_api_model_id: "blocked-model",
+				exclusion_stage: "workspace_policy",
+				exclusion_reason: "provider_in_blocklist",
+			}),
 		]);
+		expect(event.routing_trace).toEqual(expect.objectContaining({
+			algorithm: expect.objectContaining({ version: "provider-score-v2", seed: 123 }),
+			routing_mode: "balanced",
+		}));
 		expect(JSON.stringify(event)).not.toContain("private prompt");
 		expect(JSON.stringify(event)).not.toContain("private response");
 		expect(persistGatewayIoLogMock).not.toHaveBeenCalled();

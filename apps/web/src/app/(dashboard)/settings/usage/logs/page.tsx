@@ -9,6 +9,8 @@ import AsyncJobsPanel from "@/components/(gateway)/usage/AsyncJobsPanel";
 import SessionsPanel from "@/components/(gateway)/usage/SessionsPanel";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import UsageViewFilters from "@/components/(gateway)/usage/UsageViewFilters";
+import RequestLabelFilter from "@/components/(gateway)/usage/RequestLabelFilter";
+import InvestigateGeneration from "@/components/(gateway)/usage/UsageHeader/InvestigateGeneration";
 import UpstreamRequestsTable from "@/components/(gateway)/usage/UpstreamRequestsTable";
 import {
 	getUsageRangeParamKeys,
@@ -19,7 +21,9 @@ import {
 } from "@/lib/gateway/usage/timeRange";
 
 import RequestsSection from "@/components/(gateway)/usage/RequestsSection";
-import RouteRequestDetailDialog from "@/components/(gateway)/usage/RouteRequestDetailDialog";
+import RouteRequestDetailDialog, {
+	RouteRequestDetailErrorDialog,
+} from "@/components/(gateway)/usage/RouteRequestDetailDialog";
 import { investigateGeneration, type RequestRow } from "@/app/(dashboard)/gateway/usage/server-actions";
 import { fetchSettingsUsageLogsInitialData } from "@/lib/fetchers/internal/fetchSettingsUsageLogsInitialData";
 
@@ -68,6 +72,11 @@ function parsePositivePage(value: string | undefined): number {
 	return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
+function formatLabelSpend(nanos: number): string {
+	if (!Number.isFinite(nanos)) return "$0.00000";
+	return `$${(nanos / 1e9).toFixed(5)}`;
+}
+
 export default async function Page(props: {
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
@@ -89,7 +98,7 @@ const SAMPLE_CLIENT_SOURCES = [
 	{ id: "phaseo-typescript", name: "Phaseo TypeScript SDK", kind: "sdk", version: "2.2.0", detection: "declared" },
 	{ id: "openai-python", name: "OpenAI Python SDK", kind: "sdk", version: "1.99.1", detection: "user_agent" },
 	{ id: "curl", name: "cURL", kind: "http_client", version: "8.12.1", detection: "user_agent" },
-	{ id: "api", name: "Direct API", kind: "api", version: null, detection: "unknown" },
+	{ id: "api", name: "Direct HTTP", kind: "api", version: null, detection: "unknown" },
 ] as const;
 
 function buildSampleSourceRows(rows: RequestRow[]): RequestRow[] {
@@ -142,17 +151,35 @@ export async function UsageLogsContent({
 	const sp = selectedView ? { ...rawSearchParams, view: selectedView } : rawSearchParams;
 	const initialData = await fetchSettingsUsageLogsInitialData(sp);
 
-	if (!initialData.signedIn) redirect("/sign-in");
+	if (!initialData.signedIn || initialData.loadState === "unauthorized") redirect("/sign-in");
+
+	if (initialData.loadState === "failed") {
+		return (
+			<Card>
+				<CardHeader><CardTitle>Logs unavailable</CardTitle></CardHeader>
+				<CardContent><p className="text-sm text-muted-foreground">We couldn&apos;t load request logs. Try again in a moment.</p></CardContent>
+			</Card>
+		);
+	}
+
+	if (initialData.loadState === "forbidden") {
+		return (
+			<Card>
+				<CardHeader><CardTitle>Workspace access changed</CardTitle></CardHeader>
+				<CardContent><p className="text-sm text-muted-foreground">You no longer have access to this workspace. Select another workspace to view its logs.</p></CardContent>
+			</Card>
+		);
+	}
 
 	if (!initialData.workspaceId) {
 		return (
 			<Card>
 				<CardHeader>
-					<CardTitle>Usage Logs</CardTitle>
+					<CardTitle>No workspace available</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<p className="text-sm text-muted-foreground">
-						You need to be signed in and have a team selected to view logs.
+						Join or create a workspace to view request logs.
 					</p>
 				</CardContent>
 			</Card>
@@ -318,41 +345,71 @@ export async function UsageLogsContent({
 			? Array.from(new Map([...SAMPLE_CLIENT_SOURCES.map((source) => [source.id, { id: source.id, name: source.name }] as const), ...data.clientSources.map((source) => [source.id, source] as const)]).values())
 			: data.clientSources;
 		filters = (
-			<UsageViewFilters
-				view="logs"
-				models={data.dedupedModels}
-				providers={data.dedupedProviders}
-				modelProviders={modelProviders}
-				providerNames={providerNames}
-				apiKeys={data.availableKeys}
-				modelMetadata={modelMetadata}
-				providerMetadata={providerMetadata}
-				appMetadata={appMetadata}
-				clientSources={clientSources}
-				logAppIds={data.logAppIds}
-				logEndpoints={data.logEndpoints}
-				logFinishReasons={data.logFinishReasons}
-				logErrorCodes={data.logErrorCodes}
-				logStatusCodes={data.logStatusCodes}
-			/>
+			<>
+				<UsageViewFilters
+					view="logs"
+					models={data.dedupedModels}
+					providers={data.dedupedProviders}
+					modelProviders={modelProviders}
+					providerNames={providerNames}
+					apiKeys={data.availableKeys}
+					modelMetadata={modelMetadata}
+					providerMetadata={providerMetadata}
+					appMetadata={appMetadata}
+					clientSources={clientSources}
+					logAppIds={data.logAppIds}
+					logEndpoints={data.logEndpoints}
+					logFinishReasons={data.logFinishReasons}
+					logErrorCodes={data.logErrorCodes}
+					logStatusCodes={data.logStatusCodes}
+				/>
+				<RequestLabelFilter facets={data.labelFacets} />
+			</>
 		);
 
 		content = (
-			<RequestsSection
-				timeRange={timeRange}
-				appNames={appNames}
-				providerNames={providerNames}
-				providerMetadata={providerMetadata}
-				modelMetadata={modelMetadata}
-				initialPage={1}
-				initialRows={requestRows}
-				initialTotal={requestRows.length}
-				initialTotalPages={data.initialRequestsPage.hasMore ? 2 : 1}
-				initialHasMore={data.initialRequestsPage.hasMore}
-				initialNextCursor={data.initialRequestsPage.nextCursor}
-				initialPageSize={data.initialRequestsPage.pageSize ?? 50}
-				detailBasePath="/settings/usage/logs/requests"
-			/>
+			<>
+				{data.labelSummary ? (
+					<Card className="ring-1 ring-primary/15">
+						<CardContent className="flex flex-wrap items-center justify-between gap-4 py-4">
+							<div className="min-w-0">
+								<p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Filtered spend</p>
+								<p className="mt-1 truncate text-sm font-medium">
+									<span className="font-mono">{data.labelSummary.key}</span>
+									<span className="px-1.5 text-muted-foreground">=</span>
+									<span>{data.labelSummary.value}</span>
+								</p>
+							</div>
+							<div className="flex items-center gap-6 text-sm">
+								<div>
+									<p className="text-xs text-muted-foreground">Requests</p>
+									<p className="mt-1 font-mono font-medium">{new Intl.NumberFormat("en-US").format(data.labelSummary.requestCount)}</p>
+								</div>
+								<div>
+									<p className="text-xs text-muted-foreground">Spend</p>
+									<p className="mt-1 font-mono font-medium">{formatLabelSpend(data.labelSummary.totalCostNanos)}</p>
+								</div>
+							</div>
+							{data.labelSummary.isSampled ? <p className="basis-full text-xs text-muted-foreground">Spend is calculated from a 5,000-request sample.</p> : null}
+						</CardContent>
+					</Card>
+				) : null}
+				<RequestsSection
+					timeRange={timeRange}
+					appNames={appNames}
+					providerNames={providerNames}
+					providerMetadata={providerMetadata}
+					modelMetadata={modelMetadata}
+					initialPage={1}
+					initialRows={requestRows}
+					initialTotal={requestRows.length}
+					initialTotalPages={data.initialRequestsPage.hasMore ? 2 : 1}
+					initialHasMore={data.initialRequestsPage.hasMore}
+					initialNextCursor={data.initialRequestsPage.nextCursor}
+					initialPageSize={data.initialRequestsPage.pageSize ?? 50}
+					detailBasePath="/settings/usage/logs/requests"
+				/>
+			</>
 		);
 
 		if (selectedRequestId) {
@@ -377,6 +434,14 @@ export async function UsageLogsContent({
 								? buildLogsRequestHref(sp, rows[currentIndex + 1].request_id)
 								: null
 						}
+						position={currentIndex >= 0 ? currentIndex + 1 : null}
+						total={rows.length}
+					/>
+				);
+			} else {
+				detailDialog = (
+					<RouteRequestDetailErrorDialog
+						closeHref={buildLogsRequestHref(sp)}
 					/>
 				);
 			}
@@ -394,6 +459,7 @@ export async function UsageLogsContent({
 				</div>
 				<div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">
 					{filters}
+					{view === "logs" ? <InvestigateGeneration /> : null}
 					<UsageLogsToolbar
 						view={view}
 						preset={preset}

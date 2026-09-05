@@ -9,6 +9,8 @@
  */
 
 import { Phaseo } from "../index.js";
+import type { AppAttribution } from "../index.js";
+import { assertServerSideApiKeyUse } from "./browserSafety.js";
 import type {
   ChatCompletionsRequest,
   ChatCompletionsResponse,
@@ -29,6 +31,7 @@ type OpenAIConfig = {
   dangerouslyAllowBrowser?: boolean;
   defaultHeaders?: Record<string, string>;
   defaultQuery?: Record<string, string>;
+  app?: AppAttribution;
 };
 
 type ChatCompletionCreateParams = Omit<ChatCompletionsRequest, 'stream'> & {
@@ -103,11 +106,14 @@ export class OpenAI {
   };
 
   constructor(config: OpenAIConfig) {
+    assertServerSideApiKeyUse(config.dangerouslyAllowBrowser);
     // Map OpenAI config to Phaseo config
     this.phaseo = new Phaseo({
       apiKey: config.apiKey,
       baseUrl: config.baseURL,
-      timeoutMs: config.timeout
+      timeoutMs: config.timeout,
+      headers: config.defaultHeaders,
+      app: config.app,
     });
 
     // Chat completions

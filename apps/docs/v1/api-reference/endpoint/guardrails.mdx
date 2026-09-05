@@ -1,12 +1,12 @@
 ---
-title: "Guardrails"
-tag: "Coming soon"
+title: "Guardrails API"
+sidebarTitle: "Overview"
 description: "Programmatic guardrails management for workspaces and keys."
 ---
 <Info>
-**Coming soon.** These endpoints are documented for planning but are not publicly available yet. They will require a management API key rather than a standard Gateway API key.
+Guardrail management requires a management API key. Read operations require `guardrails:read`; mutations require `guardrails:write` or `guardrails:delete`.
 </Info>
 
-Guardrails APIs are coming soon.
+Use guardrails to apply privacy controls, provider and model restrictions, prompt-injection handling, sensitive-information policies, and request or cost budgets. A guardrail can be assigned to API keys, workspace members, or both.
 
-When released, guardrails will be part of the elevated control plane alongside credits, activity, key management, and workspace management.
+Successful mutations refresh workspace policy state and appear in the workspace audit log.

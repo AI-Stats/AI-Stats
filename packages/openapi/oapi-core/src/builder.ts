@@ -70,10 +70,17 @@ function buildOperations(
 	for (const path of Object.keys(doc.paths ?? {}).sort((a, b) => a.localeCompare(b))) {
 		const pathItem = (doc.paths ?? {})[path] as OpenAPIV3.PathItemObject;
 		const item = pathItem as OpenAPIV3.PathItemObject;
+		if ((item as Record<string, unknown>)["x-internal"] === true) {
+			continue;
+		}
 		const sharedParameters = (item.parameters ?? []) as OpenAPIV3.ParameterObject[];
 		for (const method of ["get", "post", "put", "patch", "delete"] as const) {
 			const operation = item[method];
-			if (!operation) {
+			if (
+				!operation ||
+				(operation as Record<string, unknown>)["x-internal"] === true ||
+				Object.prototype.hasOwnProperty.call(operation.responses ?? {}, "101")
+			) {
 				continue;
 			}
 			const rawOperationId =

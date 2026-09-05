@@ -8,12 +8,13 @@ import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import { getBindings } from "@/runtime/env";
 import { resolveProviderKey } from "@providers/keys";
 import { googleUsageMetadataToIRUsage } from "@providers/google-ai-studio/usage";
-import { saveMusicJobMeta } from "@core/music-jobs";
 import { resolveGoogleModelCandidates } from "../shared/model";
 import { irPartsToGeminiParts } from "../shared/media";
 import type { ProviderExecutor } from "../../types";
 
 const GOOGLE_API_BASE = "https://generativelanguage.googleapis.com";
+const MAX_INPUT_IMAGES = 4;
+const MAX_TOTAL_IMAGE_BYTES = 20 * 1024 * 1024;
 
 type InlineAudio = {
 	data?: string;
@@ -219,9 +220,23 @@ async function buildRequestBody(
 	parts.push(...extractRawInputParts(rawRequest));
 
 	if (!parts.length) return null;
+	const imageParts = parts.filter((part): part is Extract<IRContentPart, { type: "image" }> => part.type === "image");
+	if (imageParts.length > MAX_INPUT_IMAGES) return null;
+	const inlineImageBytes = imageParts
+		.filter((part) => part.source === "data")
+		.reduce((total, part) => total + Math.floor(part.data.replace(/\s+/g, "").length * 3 / 4), 0);
+	if (inlineImageBytes > MAX_TOTAL_IMAGE_BYTES) return null;
 
-	const geminiParts = await irPartsToGeminiParts(parts, { upstreamTiming });
+	const geminiParts = await irPartsToGeminiParts(parts, {
+		upstreamTiming,
+		maxRemoteAssetBytes: Math.floor(MAX_TOTAL_IMAGE_BYTES / Math.max(1, imageParts.length)),
+	});
 	if (!geminiParts.length) return null;
+	const totalInlineBytes = geminiParts.reduce((total, part) => {
+		const data = part.inline_data?.data;
+		return total + (typeof data === "string" ? Math.floor(data.replace(/\s+/g, "").length * 3 / 4) : 0);
+	}, 0);
+	if (totalInlineBytes > MAX_TOTAL_IMAGE_BYTES) return null;
 
 	const generationConfig =
 		rawRequest.google?.generationConfig &&
@@ -429,25 +444,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				mappedRequest,
 				rawResponse: json,
 			};
-		}
-
-		try {
-			await saveMusicJobMeta(args.workspaceId, args.requestId, {
-				provider: args.providerId,
-				model,
-				status: irResponse.status,
-				nativeResponseId: irResponse.nativeId ?? null,
-				audioBase64: irResponse.audioBase64 ?? null,
-				result: irResponse.result ?? null,
-				rawResponse: irResponse.rawResponse ?? null,
-				createdAt: Date.now(),
-			});
-		} catch (storeErr) {
-			console.error("google_music_job_meta_store_failed", {
-				error: storeErr,
-				workspaceId: args.workspaceId,
-				musicId: args.requestId,
-			});
 		}
 
 		return {

@@ -19,6 +19,16 @@ export interface RequestRow {
 		retryable?: boolean | null; fallback_attempted?: boolean; upstream_error_code?: string | null;
 		upstream_error_message?: string | null; upstream_error_description?: string | null;
 	}>;
+	routing_trace?: Record<string, unknown> | null;
+	routing_decisions?: Array<{
+		routing_decision_id: number | string; decision_order: number; provider_slug: string;
+		provider_api_model_id: string | null; decision: "ranked" | "excluded"; rank: number | null;
+		score: number | string | null; selected: boolean; attempted: boolean; breaker: string | null;
+		provider_status?: string | null; provider_routing_status?: string | null;
+		model_routing_status?: string | null; capability_status?: string | null;
+		exclusion_stage: string | null; exclusion_reason: string | null;
+		score_factors: Record<string, unknown>; score_trace: Record<string, unknown>;
+	}>;
 	usage_total_tokens?: number | null; usage_input_tokens?: number | null; usage_output_tokens?: number | null;
 	[key: string]: any;
 }
@@ -70,7 +80,16 @@ export async function fetchGenerationLog(requestId: string): Promise<{ success: 
 		return { success: false, error: error instanceof Error ? error.message : "usage_log_detail_unavailable" };
 	}
 }
-export async function investigateGeneration(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> { return operation("investigateGeneration", [requestId]); }
+export async function investigateGeneration(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> {
+	try {
+		return await operation("investigateGeneration", [requestId]);
+	} catch (error) {
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "usage_log_detail_unavailable",
+		};
+	}
+}
 export async function fetchChartData(params: any): Promise<ChartDataResult> { return operation("chartData", [params]); }
 export async function fetchSessionRollups(params: any): Promise<SessionRollupRow[]> { return operation("sessionRollups", [params]); }
 export async function fetchSessionRequests(params: any): Promise<SessionRequestRow[]> { return operation("sessionRequests", [params]); }

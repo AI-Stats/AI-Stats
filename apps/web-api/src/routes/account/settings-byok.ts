@@ -7,6 +7,7 @@ import { requireAccountWorkspace } from "./context";
 
 const MAX_KEYS_PER_ROUTING_MODE = 16;
 const MAX_SCOPE_ITEMS = 256;
+const FINGERPRINT_PBKDF2_ITERATIONS = 100_000;
 
 function scopeStrings(value: unknown): string[] | null {
 	if (value === null || value === undefined) return null;
@@ -69,24 +70,36 @@ function arrayBuffer(bytes: Uint8Array): ArrayBuffer {
 	return Uint8Array.from(bytes).buffer;
 }
 
-async function encrypt(env: Env, plaintext: string) {
+export async function encryptByokSecret(
+	env: Env,
+	plaintext: string,
+	context: { workspaceId: string; providerId: string },
+) {
 	const version = Number(env.BYOK_ACTIVE_KEY_VERSION ?? "1") || 1;
 	if (version !== 1 || !env.BYOK_KMS_KEY_V1) throw new Error(`Missing BYOK_KMS_KEY_V${version}`);
 	const keyBytes = decode(env.BYOK_KMS_KEY_V1);
 	if (keyBytes.length !== 32) throw new Error("BYOK key must be 32 bytes (AES-256)");
 	const key = await crypto.subtle.importKey("raw", arrayBuffer(keyBytes), "AES-GCM", false, ["encrypt"]);
 	const iv = crypto.getRandomValues(new Uint8Array(12));
-	const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: arrayBuffer(iv) }, key, new TextEncoder().encode(plaintext)));
+	const additionalData = new TextEncoder().encode(
+		`${context.workspaceId}|${context.providerId}|v${version}`,
+	);
+	const encrypted = new Uint8Array(await crypto.subtle.encrypt({
+		name: "AES-GCM",
+		iv: arrayBuffer(iv),
+		additionalData: arrayBuffer(additionalData),
+	}, key, new TextEncoder().encode(plaintext)));
 	const ciphertext = encrypted.slice(0, -16);
 	const tag = encrypted.slice(-16);
 	const fingerprintSalt = env.BYOK_FINGERPRINT_PEPPER ? decode(env.BYOK_FINGERPRINT_PEPPER) : keyBytes;
 	const fingerprintMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode(plaintext), "PBKDF2", false, ["deriveBits"]);
-	const fingerprint = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", iterations: 210_000, salt: arrayBuffer(fingerprintSalt) }, fingerprintMaterial, 256);
+	const fingerprint = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", iterations: FINGERPRINT_PBKDF2_ITERATIONS, salt: arrayBuffer(fingerprintSalt) }, fingerprintMaterial, 256);
 	return {
 		enc_value: `\\x${bytesToHex(ciphertext)}`,
 		enc_iv: `\\x${bytesToHex(iv)}`,
 		enc_tag: `\\x${bytesToHex(tag)}`,
 		key_version: version,
+		enc_aad_version: 1,
 		fingerprint_sha256: bytesToHex(new Uint8Array(fingerprint)),
 		prefix: plaintext.slice(0, 6),
 		suffix: plaintext.slice(-4),
@@ -115,7 +128,10 @@ accountSettingsByokRouter.post("/byok", async (c) => {
 	if (!name || !providerId) return c.json({ error: "Missing name or providerId" }, 400, PRIVATE_NO_STORE_HEADERS);
 	try {
 		const checked = validateProviderKey(providerId, body.value);
-		const encrypted = await encrypt(c.env, checked.value);
+		const encrypted = await encryptByokSecret(c.env, checked.value, {
+			workspaceId: context.workspaceId,
+			providerId,
+		});
 		const routingMode = body.always_use === true ? "priority" : "fallback";
 		const allowedModelSlugs = scopeStrings(body.allowedModelSlugs) ?? [];
 		const allowedApiKeyIds = scopeStrings(body.allowedApiKeyIds) ?? [];
@@ -214,7 +230,10 @@ accountSettingsByokRouter.put("/byok/:keyId", async (c) => {
 		}
 		if (typeof body.value === "string") {
 			const checked = validateProviderKey(providerId, body.value);
-			Object.assign(update, await encrypt(c.env, checked.value), { verification_status: checked.strict ? "format_valid_strict" : "format_valid", error_message: null, last_verified_at: new Date().toISOString() });
+			Object.assign(update, await encryptByokSecret(c.env, checked.value, {
+				workspaceId: loaded.context.workspaceId,
+				providerId,
+			}), { verification_status: checked.strict ? "format_valid_strict" : "format_valid", error_message: null, last_verified_at: new Date().toISOString() });
 		}
 		const result = await loaded.context.client.from("byok_keys").update(update).eq("id", loaded.key.id).eq("workspace_id", loaded.context.workspaceId);
 		if (result.error) throw result.error;

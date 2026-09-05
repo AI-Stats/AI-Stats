@@ -18,12 +18,15 @@ import { SunoAdapter } from "./suno/index";
 import { createOpenAICompatibleAdapter } from "./openai-compatible/index";
 import { createUnsupportedAdapter } from "./unsupported";
 import { getSupabaseAdmin } from "@/runtime/env";
+import { normalizeProviderId } from "@/lib/config/providerAliases";
 
 // NOTE: All adapters are legacy and unused - the IR pipeline uses executors instead
 // These are kept for backward compatibility but are never called in production
 // See apps/api/src/pipeline/index.ts:49 "IR PIPELINE (MANDATORY - ONLY EXECUTION PATH)"
 
 // Adapter registry (default per-provider)
+const PRIVATE_MODEL_ADAPTER = createOpenAICompatibleAdapter("private-model");
+
 const ADAPTERS: Record<string, ProviderAdapter> = {
     openai: OpenAIAdapter,
     "openai-eu": createOpenAICompatibleAdapter("openai-eu"),
@@ -62,11 +65,14 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     chutes: createOpenAICompatibleAdapter("chutes"),
     cohere: createOpenAICompatibleAdapter("cohere"),
     crofai: CrofAIAdapter,
+    "canopy-wave": createOpenAICompatibleAdapter("canopy-wave"),
     tensorix: TensorixAdapter,
+	tensorx: createOpenAICompatibleAdapter("tensorx"),
     voyage: createOpenAICompatibleAdapter("voyage"),
     voyageai: createOpenAICompatibleAdapter("voyageai"),
     crusoe: createOpenAICompatibleAdapter("crusoe"),
     deepinfra: createOpenAICompatibleAdapter("deepinfra"),
+    "io-net": createOpenAICompatibleAdapter("io-net"),
     darkbloom: createOpenAICompatibleAdapter("darkbloom"),
     deepseek: createOpenAICompatibleAdapter("deepseek"),
     featherless: createOpenAICompatibleAdapter("featherless"),
@@ -90,7 +96,6 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     morph: createOpenAICompatibleAdapter("morph"),
     morpheus: createOpenAICompatibleAdapter("morpheus"),
     "nebius-token-factory": createOpenAICompatibleAdapter("nebius-token-factory"),
-    "nebius-token-factory-fast": createOpenAICompatibleAdapter("nebius-token-factory-fast"),
     "nebius-token-factory-eu-north-1": createOpenAICompatibleAdapter("nebius-token-factory-eu-north-1"),
     "nebius-token-factory-us-central-1": createOpenAICompatibleAdapter("nebius-token-factory-us-central-1"),
     "z-ai": createOpenAICompatibleAdapter("z-ai"),
@@ -104,6 +109,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     qwen: createOpenAICompatibleAdapter("qwen"),
     ovhcloud: createOpenAICompatibleAdapter("ovhcloud"),
     sambanova: createOpenAICompatibleAdapter("sambanova"),
+    "sail-research": createOpenAICompatibleAdapter("sail-research"),
     scaleway: createOpenAICompatibleAdapter("scaleway"),
     siliconflow: createOpenAICompatibleAdapter("siliconflow"),
     together: createOpenAICompatibleAdapter("together"),
@@ -115,7 +121,6 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     perplexity: createOpenAICompatibleAdapter("perplexity"),
     liquid: createOpenAICompatibleAdapter("liquid"),
     "liquid-ai": createOpenAICompatibleAdapter("liquid-ai"),
-    sourceful: createOpenAICompatibleAdapter("sourceful"),
     streamlake: createOpenAICompatibleAdapter("streamlake"),
     switchpoint: createOpenAICompatibleAdapter("switchpoint"),
     relace: createOpenAICompatibleAdapter("relace"),
@@ -127,9 +132,9 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "google-vertex": createOpenAICompatibleAdapter("google-vertex"),
     "google-vertex-eu": createOpenAICompatibleAdapter("google-vertex-eu"),
     meta: createOpenAICompatibleAdapter("meta"),
-    "meta-contributor": createOpenAICompatibleAdapter("meta-contributor"),
     upstage: createOpenAICompatibleAdapter("upstage"),
     wafer: createOpenAICompatibleAdapter("wafer"),
+    "tencent-cloud": createOpenAICompatibleAdapter("tencent-cloud"),
 };
 
 // Capability-specific adapter overrides (e.g. Mistral OCR)
@@ -214,11 +219,13 @@ export function allProviderNames(): string[] {
 }
 
 export function adapterFor(providerId: string, endpoint: Endpoint): ProviderAdapter | null {
-    const override = ADAPTERS_BY_CAPABILITY[endpoint]?.[providerId];
-    return override ?? ADAPTERS[providerId] ?? null;
+	const canonicalProviderId = normalizeProviderId(providerId);
+	if (canonicalProviderId === "private-model") return PRIVATE_MODEL_ADAPTER;
+	const override = ADAPTERS_BY_CAPABILITY[endpoint]?.[canonicalProviderId];
+	return override ?? ADAPTERS[canonicalProviderId] ?? null;
 }
 
 // Backward-compat shim for legacy tests/tools that resolve adapters by provider only.
 export function adapterById(providerId: string): ProviderAdapter | null {
-    return ADAPTERS[providerId] ?? null;
+	return ADAPTERS[normalizeProviderId(providerId)] ?? null;
 }

@@ -16,6 +16,9 @@ import {
 } from "@/utils/serverActionAuth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { normaliseCountryCode } from "@/lib/countryCodes";
+import { getStripe } from "@/lib/stripe";
+import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
+import { isValidTopUpAmountPence, TOP_UP_CURRENCY } from "@/lib/server/topUpValidation";
 
 type PurchaseLocationPreview = {
 	countryCode: string;
@@ -123,11 +126,12 @@ export async function setLowBalanceEmailAlert(args: SetLowBalanceEmailAlertArgs)
 	await fetchAccountWebApi("/api/account/credits/low-balance-alert", context.accessToken, { method: "PUT", body: JSON.stringify({ workspaceId, enabled, thresholdUsd }) });
 
 	revalidatePath("/settings/credits");
+	revalidatePath("/settings/notifications");
 	return { ok: true };
 }
 
 export async function setBillingNotificationPreference(args: {
-	preference: "autoTopUpFailure" | "paymentMethodExpiring";
+	preference: "autoTopUpFailure" | "paymentMethodExpiring" | "modelDeprecationAlerts";
 	enabled: boolean;
 }) {
 	const context = await getServerAccountContext();
@@ -140,13 +144,58 @@ export async function setBillingNotificationPreference(args: {
 	});
 
 	revalidatePath("/settings/credits");
+	revalidatePath("/settings/notifications");
+	return { ok: true };
+}
+
+export async function createNotificationDestination(destination: { name: string; type: import("@/lib/fetchers/internal/settingsTypes").NotificationDestination["type"]; target: string }) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	const result = await fetchAccountWebApi<{ destination: import("@/lib/fetchers/internal/settingsTypes").NotificationDestination }>("/api/account/credits/notification-destinations", context.accessToken, {
+		method: "POST",
+		body: JSON.stringify({ workspaceId, ...destination }),
+	});
+	revalidatePath("/settings/notifications");
+	return result.destination;
+}
+
+export async function deleteNotificationDestination(destinationId: string) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/credits/notification-destinations/${encodeURIComponent(destinationId)}`, context.accessToken, { method: "DELETE", body: JSON.stringify({ workspaceId }) });
+	revalidatePath("/settings/notifications");
+	return { ok: true };
+}
+
+export async function setNotificationRoute(eventKind: import("@/lib/fetchers/internal/settingsTypes").NotificationEventKind, destinationIds: string[]) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/credits/notification-routes/${eventKind}`, context.accessToken, { method: "PUT", body: JSON.stringify({ workspaceId, destinationIds }) });
+	revalidatePath("/settings/notifications");
+	return { ok: true };
+}
+
+export async function testNotificationDestination(destinationId: string) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/credits/notification-destinations/${encodeURIComponent(destinationId)}/test`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId }) });
+	return { ok: true };
+}
+
+export async function testNotificationConfiguration(configuration: { type: import("@/lib/fetchers/internal/settingsTypes").NotificationDestination["type"]; target: string }) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi("/api/account/credits/notification-destinations/test", context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId, ...configuration }) });
 	return { ok: true };
 }
 
 type ChargeSavedPaymentArgs = {
-    customerId: string;
     amount_pence: number;
-    currency?: string;
     event_type?: string;
     paymentMethodId?: string | null;
 	payment_method_id?: string | null;
@@ -171,6 +220,19 @@ export async function ChargeSavedPayment(args: ChargeSavedPaymentArgs) {
 	const { supabase, user } = await requireAuthenticatedUser();
 	const workspaceId = args.workspace_id ?? (await resolveWorkspaceIdFromActiveCookie());
 	await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
+	if (!isValidTopUpAmountPence(args.amount_pence)) throw new Error("Invalid top-up amount");
+	const { customerId } = await requireActiveTeamStripeCustomer({
+		workspaceId,
+		roles: ["owner", "admin"],
+	});
+	const paymentMethodId = args.paymentMethodId ?? args.payment_method_id ?? null;
+	if (paymentMethodId) {
+		const paymentMethod = await getStripe().paymentMethods.retrieve(paymentMethodId);
+		const boundCustomerId = typeof paymentMethod.customer === "string"
+			? paymentMethod.customer
+			: paymentMethod.customer?.id;
+		if (boundCustomerId !== customerId) throw new Error("Payment method does not belong to this workspace");
+	}
 	const countryCode = normaliseCountryCode(args.country_code);
 	if (!countryCode) throw new Error("Country is required before purchasing credits");
 	const { error: countryError } = await createAdminClient()
@@ -188,7 +250,15 @@ export async function ChargeSavedPayment(args: ChargeSavedPaymentArgs) {
 			"Content-Type": "application/json",
 			[INTERNAL_HEADER]: token,
 		},
-		body: JSON.stringify({ ...args, country_code: countryCode, workspace_id: workspaceId }),
+		body: JSON.stringify({
+			amount_pence: args.amount_pence,
+			currency: TOP_UP_CURRENCY,
+			event_type: args.event_type,
+			payment_method_id: paymentMethodId,
+			customerId,
+			country_code: countryCode,
+			workspace_id: workspaceId,
+		}),
 		cache: "no-store",
 	});
 

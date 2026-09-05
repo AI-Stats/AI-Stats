@@ -124,6 +124,91 @@ describe("minimax video executor", () => {
 		);
 	});
 
+	it("uses MiniMax V2 content requests for H3 text-to-video", async () => {
+		let capturedUrl = "";
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v2/video_generation"),
+			response: jsonResponse({ task_id: "task_h3", status: "queued" }),
+			onRequest: (call) => {
+				capturedUrl = call.url;
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/h3",
+			prompt: "A cinematic sunrise over the ocean",
+			duration: 5,
+			resolution: "2K",
+			aspectRatio: "16:9",
+		}, "MiniMax-H3"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedUrl).toContain("/v2/video_generation");
+		expect(capturedBody).toMatchObject({
+			model: "MiniMax-H3",
+			resolution: "2K",
+			duration: 5,
+			ratio: "16:9",
+			content: [{ type: "text", text: "A cinematic sunrise over the ocean" }],
+		});
+	});
+
+	it("maps H3 Max first and last frames into V2 content", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v2/video_generation"),
+			response: jsonResponse({ task_id: "task_h3_max", status: "queued" }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/h3-max",
+			prompt: "A dancer moves through a neon city",
+			duration: 8,
+			size: "480P",
+			inputReferences: [
+				{ type: "image", role: "first_frame", url: "https://example.com/first.jpg" },
+				{ type: "image", role: "last_frame", url: "https://example.com/last.jpg" },
+			],
+		}, "MiniMax-H3-Max"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody).toMatchObject({
+			model: "MiniMax-H3-Max",
+			resolution: "480P",
+			duration: 8,
+			ratio: "adaptive",
+			content: [
+				{ type: "text", text: "A dancer moves through a neon city" },
+				{ type: "image_url", image_url: { url: "https://example.com/first.jpg" }, role: "first_frame" },
+				{ type: "image_url", image_url: { url: "https://example.com/last.jpg" }, role: "last_frame" },
+			],
+		});
+	});
+
+	it("rejects unsupported prompt options for MiniMax V2", async () => {
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({
+			model: "minimax/h3",
+			prompt: "A cinematic sunrise over the ocean",
+			enhancePrompt: true,
+			providerParams: { fast_pretreatment: true },
+		}, "MiniMax-H3"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.json()).toMatchObject({
+			error: {
+				type: "unsupported_option",
+				message: expect.stringContaining("prompt_optimizer and fast_pretreatment"),
+			},
+		});
+	});
+
 	it("fails the gateway response when MiniMax video metadata cannot be persisted", async () => {
 		state.reservationResult = {
 			reservationId: "video_hold:req_minimax_video_test",
@@ -219,6 +304,108 @@ describe("minimax video executor", () => {
 		expect(capturedBody?.resolution).toBe("1080P");
 		expect(capturedBody?.size).toBeUndefined();
 		expect(capturedBody?.first_frame_image).toBe("https://example.com/first-frame.png");
+	});
+
+	it("applies MiniMax's documented 6-second and 768P Hailuo defaults", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/video_generation"),
+			response: jsonResponse({ task_id: "task_defaults", base_resp: { status_code: 0 } }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/hailuo-2.3",
+			prompt: "A sunrise above a quiet bay",
+		}, "MiniMax-Hailuo-2.3"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody).toMatchObject({ duration: 6, resolution: "768P" });
+	});
+
+	it("maps MiniMax prompt optimization, fast pretreatment, and last-frame inputs", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/video_generation"),
+			response: jsonResponse({ task_id: "task_frames", base_resp: { status_code: 0 } }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/hailuo-02",
+			prompt: "A flower opens between the first and last frames",
+			duration: 6,
+			size: "1080P",
+			inputReference: { image_url: "https://example.com/first.jpg" },
+			lastFrame: "https://example.com/last.jpg",
+			enhancePrompt: false,
+			providerParams: { fast_pretreatment: true },
+			seed: 7,
+			quality: "high",
+		}, "MiniMax-Hailuo-02"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody).toMatchObject({
+			first_frame_image: "https://example.com/first.jpg",
+			last_frame_image: "https://example.com/last.jpg",
+			prompt_optimizer: false,
+			fast_pretreatment: true,
+		});
+		expect(capturedBody.seed).toBeUndefined();
+		expect(capturedBody.quality).toBeUndefined();
+	});
+
+	it("maps reference images to the documented S2V subject_reference shape", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/video_generation"),
+			response: jsonResponse({ task_id: "task_subject", base_resp: { status_code: 0 } }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/s2v-01",
+			prompt: "The character waves",
+			duration: 6,
+			size: "1080P",
+			inputReferences: [{ type: "image", role: "reference", referenceType: "character", url: "https://example.com/person.webp" }],
+		}, "S2V-01"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody.subject_reference).toEqual([{
+			type: "character",
+			image: ["https://example.com/person.webp"],
+		}]);
+	});
+
+	it("surfaces HTTP-200 MiniMax application errors and releases reservations", async () => {
+		state.reservationResult = {
+			reservationId: "video_hold:req_minimax_video_test",
+			held: true,
+			amountNanos: 123_000_000,
+			status: "held",
+		};
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/video_generation"),
+			response: jsonResponse({ base_resp: { status_code: 1008, status_msg: "insufficient balance" } }),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/hailuo-2.3",
+			prompt: "A fox in snow",
+			duration: 6,
+			size: "768P",
+		}, "MiniMax-Hailuo-2.3"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(402);
+		expect(await result.upstream?.clone().json()).toMatchObject({
+			error: { type: "minimax_api_error", code: 1008, message: "insufficient balance" },
+		});
+		expect(state.releaseCalls).toHaveLength(1);
 	});
 
 	it("releases a held reservation when MiniMax returns success without a task id", async () => {

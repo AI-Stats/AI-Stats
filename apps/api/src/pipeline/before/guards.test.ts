@@ -32,6 +32,11 @@ describe("guardJson", () => {
 		form.append("include[]", "logprobs");
 		form.append("include", "timestamps");
 		form.append("timestamp_granularities[]", "word");
+		form.append("languages[]", "en");
+		form.append("languages", "fr");
+		form.append("keywords[]", "Phaseo");
+		form.append("known_speaker_names[]", "Alice");
+		form.append("known_speaker_references[]", "data:audio/wav;base64,UklGRg==");
 		form.append("chunking_strategy", JSON.stringify({ type: "server_vad", silence_duration_ms: 500 }));
 		form.append("provider", JSON.stringify({ order: ["openai"] }));
 
@@ -48,6 +53,10 @@ describe("guardJson", () => {
 		expect(Array.isArray(result.value.include)).toBe(true);
 		expect(result.value.include).toEqual(["logprobs", "timestamps"]);
 		expect(result.value.timestamp_granularities).toEqual(["word"]);
+		expect(result.value.languages).toEqual(["en", "fr"]);
+		expect(result.value.keywords).toEqual(["Phaseo"]);
+		expect(result.value.known_speaker_names).toEqual(["Alice"]);
+		expect(result.value.known_speaker_references).toEqual(["data:audio/wav;base64,UklGRg=="]);
 		expect(result.value.chunking_strategy).toEqual({ type: "server_vad", silence_duration_ms: 500 });
 		expect(result.value.provider).toEqual({ order: ["openai"] });
 		expect(typeof File !== "undefined" && result.value.file instanceof File).toBe(true);
@@ -201,5 +210,21 @@ describe("makeMeta session_id handling", () => {
 		});
 
 		expect(meta.startedAtMs).toBe(startedAtMs);
+	});
+
+	it("keeps validated request labels on the pipeline metadata", () => {
+		const req = new Request("https://gateway.local/v1/responses", { method: "POST" });
+		const meta = makeMeta({
+			endpoint: "responses",
+			apiKeyId: "key_123",
+			apiKeyRef: "kid_123",
+			apiKeyKid: "kid_123",
+			requestId: "req_123",
+			stream: false,
+			req,
+			labels: [{ key: "team", value: "support" }],
+		});
+
+		expect(meta.labels).toEqual([{ key: "team", value: "support" }]);
 	});
 });

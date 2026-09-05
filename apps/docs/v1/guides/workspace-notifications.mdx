@@ -1,0 +1,49 @@
+---
+title: "Workspace Notifications"
+description: "Send workspace alerts to email, chat channels, or an HTTPS webhook."
+icon: "bell-ring"
+---
+
+Use notification destinations to send enabled workspace alerts to the tools your team already monitors. Destinations are shared by the workspace and can be tested before you rely on them for operational alerts.
+
+## Add a destination
+
+1. Open **Gateway → Settings → Notifications**.
+2. Select **Add destination**.
+3. Enter a name and choose one or more channels.
+4. Add the destination details and optional mentions.
+5. Select **Send test** for each configured channel.
+6. Create the destinations after every test succeeds.
+
+Phaseo supports:
+
+- email addresses and distribution lists
+- Discord channels through a bot token
+- Discord webhooks
+- Slack incoming webhooks
+- Microsoft Teams workflow URLs
+- custom HTTPS webhooks
+
+Credentials and webhook URLs are encrypted before storage. Keep channel credentials scoped to notification delivery and rotate them if they are exposed.
+
+## Enable product alerts
+
+The notifications page lists the alert types available to your workspace. Enable **Model Deprecation Alerts** to receive notice before a model used by the workspace is retired.
+
+Alerts are delivered to the configured destinations in addition to any built-in recipient behavior shown in the dashboard.
+
+## Mentions
+
+Optional mention fields let an alert notify specific recipients:
+
+- Discord accepts user IDs and role IDs.
+- Slack accepts user IDs and user-group IDs.
+- Microsoft Teams accepts Microsoft 365 email addresses or Entra object IDs.
+
+Use mentions sparingly. A high-volume workspace alert should normally go to a monitored channel rather than paging a broad group.
+
+## Test and remove destinations
+
+Use **Send test** beside an existing destination after rotating credentials or changing channel configuration. Remove destinations that are no longer monitored so alerts do not appear delivered to an abandoned channel.
+
+Custom webhooks must use HTTPS and should validate the request before processing it. Return a successful response promptly and move slower work to a background job.

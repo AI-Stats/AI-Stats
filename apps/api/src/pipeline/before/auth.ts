@@ -212,6 +212,7 @@ type KeyRow = {
     expires_at?: string | null;
     soft_blocked?: boolean | null;
     scopes?: unknown;
+	created_by?: string | null;
 	key_kind?: string | null;
 	oauth_client_id?: string | null;
 	oauth_user_id?: string | null;
@@ -335,14 +336,14 @@ async function cacheKey(kid: string, row: KeyRow) {
             useL1Cache: true,
             l1TtlMs: KEY_VERSION_L1_TTL_MS,
         });
-        await getCache().put(`${KEY_CACHE_PREFIX}:${kid}:${versionToken}`, JSON.stringify(row), {
+        writeKeyLookupL1(kid, versionToken, row);
+        // This request already has the authoritative row. Keep the versioned
+        // write alive without making authentication wait for KV persistence.
+        dispatchBackground(getCache().put(`${KEY_CACHE_PREFIX}:${kid}:${versionToken}`, JSON.stringify(row), {
             expirationTtl: KEY_CACHE_TTL_SECONDS,
-        });
+        }).catch(() => undefined));
     } catch {
         // Ignore KV write failures.
-    }
-    if (versionToken) {
-        writeKeyLookupL1(kid, versionToken, row);
     }
 }
 
@@ -742,7 +743,7 @@ export async function authenticateManagement(
         apiKeyId: keyRow.id,
         apiKeyRef: `mgmt_kid_${parsed.kid}`,
         apiKeyKid: parsed.kid,
-        userId: null,
+        userId: keyRow.created_by ?? null,
         internal,
         authMethod: "api_key",
         scopes: grantedScopes,

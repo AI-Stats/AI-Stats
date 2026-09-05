@@ -9,6 +9,8 @@
  */
 
 import { Phaseo } from "../index.js";
+import type { AppAttribution } from "../index.js";
+import { assertServerSideApiKeyUse } from "./browserSafety.js";
 import type {
   ChatCompletionsRequest,
   ChatCompletionsResponse,
@@ -20,7 +22,9 @@ type AnthropicConfig = {
   baseURL?: string;
   timeout?: number;
   maxRetries?: number;
+  dangerouslyAllowBrowser?: boolean;
   defaultHeaders?: Record<string, string>;
+  app?: AppAttribution;
 };
 
 type MessageRole = 'user' | 'assistant';
@@ -163,11 +167,14 @@ export class Anthropic {
   };
 
   constructor(config: AnthropicConfig) {
+    assertServerSideApiKeyUse(config.dangerouslyAllowBrowser);
     // Map Anthropic config to Phaseo config
     this.phaseo = new Phaseo({
       apiKey: config.apiKey,
       baseUrl: config.baseURL,
-      timeoutMs: config.timeout
+      timeoutMs: config.timeout,
+      headers: config.defaultHeaders,
+      app: config.app,
     });
 
     // Messages

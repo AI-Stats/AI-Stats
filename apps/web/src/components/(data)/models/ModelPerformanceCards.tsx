@@ -5,6 +5,8 @@ import type {
 	ModelPerformancePoint,
 	ModelPerformanceSummary,
 	ModelProviderDailyPoint,
+	ModelProviderHourlyPoint,
+	ModelProviderTrendPoint,
 	ModelPerformanceQualityPoint,
 } from "@/lib/fetchers/models/getModelPerformance";
 import {
@@ -25,6 +27,7 @@ type MetricValueKey =
 	| "avgThroughput"
 	| "avgOutputSpeed"
 	| "avgLatencyMs"
+	| "avgEndToEndMs"
 	| "avgGenerationMs"
 	| "avgPhaseoOverheadMs"
 	| "avgTpotMs"
@@ -42,44 +45,20 @@ const METRICS: MetricDefinition[] = [
 	{
 		metric: "throughput",
 		valueKey: "avgThroughput",
-		label: "Effective Throughput",
+		label: "Throughput",
 		description: "Output tokens per second across the complete provider request.",
-	},
-	{
-		metric: "outputSpeed",
-		valueKey: "avgOutputSpeed",
-		label: "Output Speed",
-		description: "Output tokens per second after the first token arrives.",
 	},
 	{
 		metric: "latency",
 		valueKey: "avgLatencyMs",
-		label: "Time to First Token",
+		label: "Latency",
 		description: "Time from request start until the first generated output arrives.",
 	},
 	{
-		metric: "generation",
-		valueKey: "avgGenerationMs",
-		label: "Provider Duration",
-		description: "Time from provider dispatch until its final response completes.",
-	},
-	{
-		metric: "tpot",
-		valueKey: "avgTpotMs",
-		label: "TPOT",
-		description: "Average time per output token after the first token.",
-	},
-	{
-		metric: "itl",
-		valueKey: "avgItlMs",
-		label: "ITL",
-		description: "Mean observed interval between successive content-bearing provider stream frames. Providers may batch tokens.",
-	},
-	{
-		metric: "cachedInput",
-		valueKey: "cachedInputPct",
-		label: "Cached Input",
-		description: "Percentage of reported input tokens served from provider cache.",
+		metric: "endToEnd",
+		valueKey: "avgEndToEndMs",
+		label: "End-to-End Latency",
+		description: "Total time from request start until the complete response is returned.",
 	},
 ];
 
@@ -90,8 +69,8 @@ const METRIC_DEFINITIONS = Object.fromEntries(
 export function selectMetricData(
 	metric: MetricKey,
 	detailed: boolean,
-	detailData: ModelProviderDailyPoint[],
-	cardData: ModelProviderDailyPoint[],
+	detailData: ModelProviderTrendPoint[],
+	cardData: ModelProviderTrendPoint[],
 	hasPercentileSeries: boolean,
 ) {
 	if (!hasPercentileSeries || detailed) return detailData;
@@ -103,12 +82,27 @@ export function selectMetricData(
 		: detailData;
 }
 
+export function hasQualityMetricData(
+	metric: "toolCallErrorPct" | "structuredOutputErrorPct" | "cacheHitRatePct",
+	qualitySeries: ModelPerformanceQualityPoint[],
+) {
+	return qualitySeries.some((point) => {
+		if (metric === "toolCallErrorPct") {
+			return point[metric] != null && !point.toolCallHistoricalDefault;
+		}
+		if (metric === "structuredOutputErrorPct") {
+			return point[metric] != null && !point.structuredOutputHistoricalDefault;
+		}
+		return point[metric] != null;
+	});
+}
+
 interface ModelPerformanceCardsProps {
 	summary: ModelPerformanceSummary;
 	prevSummary?: ModelPerformanceSummary | null;
 	hourly: ModelPerformancePoint[];
 	providerDaily7d: ModelProviderDailyPoint[];
-	chartProviderDaily7d?: ModelProviderDailyPoint[];
+	providerHourly7d: ModelProviderHourlyPoint[];
 	qualitySeries?: ModelPerformanceQualityPoint[];
 }
 
@@ -117,73 +111,49 @@ export default function ModelPerformanceCards({
 	prevSummary,
 	hourly,
 	providerDaily7d,
-	chartProviderDaily7d,
+	providerHourly7d,
 	qualitySeries = [],
 }: ModelPerformanceCardsProps) {
 	void summary;
 	void prevSummary;
 	const hasHourly = hourly.some((point) => point.requests > 0);
-	const hasToolCallQuality = qualitySeries.some(
-		(point) => point.toolCallSuccessPct != null,
-	);
-	const hasStructuredOutputQuality = qualitySeries.some(
-		(point) => point.structuredOutputSuccessPct != null,
-	);
-	const detailData = chartProviderDaily7d ?? providerDaily7d;
-	const cardData = chartProviderDaily7d
-		? chartProviderDaily7d.filter((point) =>
-				["percentile-10", "percentile-50", "percentile-90"].includes(
-					point.provider,
-				),
-			)
+	const usesHourlyData = providerHourly7d.length > 0;
+	const detailData: ModelProviderTrendPoint[] = usesHourlyData
+		? providerHourly7d
 		: providerDaily7d;
+	const cardData = detailData;
 	const providerCount = new Set(
-		providerDaily7d
+		detailData
 			.filter((point) => point.requests > 0)
 			.map((point) => point.provider),
 	).size;
-	const cachedInputProviderCount = new Set(
-		providerDaily7d
-			.filter(
-				(point) =>
-					point.requests > 0 &&
-					isUsableMetricValue("cachedInput", point.cachedInputPct),
-			)
-			.map((point) => point.provider),
-	).size;
-	const detailSeriesLabel = chartProviderDaily7d
-		? "All available percentile bands"
-		: `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
-	const preferredMetricData = (metric: MetricKey, detailed: boolean) => {
-		const definition = METRIC_DEFINITIONS[metric];
-		const data = detailed ? detailData : cardData;
-		return data.some((point) =>
-			isUsableMetricValue(metric, point[definition.valueKey]),
-		)
-			? data
-			: null;
-	};
+	const detailSeriesLabel = `${usesHourlyData ? "Hourly observations for" : "Daily observations for"} all ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
 	const metricData = (metric: MetricKey, detailed: boolean) =>
 		selectMetricData(
 			metric,
 			detailed,
 			detailData,
 			cardData,
-			chartProviderDaily7d != null,
+			false,
 		);
-	const metricUsesPercentiles = (metric: MetricKey) =>
-		chartProviderDaily7d != null && preferredMetricData(metric, true) != null;
-	const availableMetrics = METRICS.filter(({ metric, valueKey }) =>
-		metricData(metric, true).some(
-			(point) =>
-				point.requests > 0 && isUsableMetricValue(metric, point[valueKey]),
-		),
-	);
-
+	const qualityMetrics = [
+		{
+			title: "Tool Call Errors",
+			metric: "toolCallErrorPct" as const,
+		},
+		{
+			title: "Structured Response Errors",
+			metric: "structuredOutputErrorPct" as const,
+		},
+		{
+			title: "Cache Hit Rate",
+			metric: "cacheHitRatePct" as const,
+		},
+	].filter(({ metric }) => hasQualityMetricData(metric, qualitySeries));
 	return (
 		<div className="space-y-4">
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{availableMetrics.map((definition) => (
+				{METRICS.map((definition) => (
 					<Dialog key={definition.metric}>
 						<div className="min-w-0 rounded-lg border border-border/70 bg-background px-4 py-4">
 							<ModelProviderTrendChart
@@ -191,6 +161,7 @@ export default function ModelPerformanceCards({
 								data={metricData(definition.metric, false)}
 								metric={definition.metric}
 								maxSeries={3}
+								timeResolution={usesHourlyData ? "hour" : "day"}
 								headerAction={
 									<DialogTrigger asChild>
 										<button
@@ -209,9 +180,7 @@ export default function ModelPerformanceCards({
 								<DialogTitle className="text-xl">{definition.label}</DialogTitle>
 								<DialogDescription>
 									{definition.description}{" "}
-									{definition.metric === "cachedInput" && !metricUsesPercentiles(definition.metric)
-										? `All ${cachedInputProviderCount.toLocaleString()} recorded provider${cachedInputProviderCount === 1 ? "" : "s"}`
-										: detailSeriesLabel}{" "}
+									{detailSeriesLabel}{" "}
 									are shown below.
 								</DialogDescription>
 							</DialogHeader>
@@ -221,6 +190,7 @@ export default function ModelPerformanceCards({
 									data={metricData(definition.metric, true)}
 									metric={definition.metric}
 									maxSeries={Number.MAX_SAFE_INTEGER}
+									timeResolution={usesHourlyData ? "hour" : "day"}
 									detailed
 									showHeader={false}
 								/>
@@ -230,22 +200,18 @@ export default function ModelPerformanceCards({
 				))}
 			</div>
 
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{hasToolCallQuality ? (
-					<ModelQualityTrendChart
-						title="Tool call success"
-						data={qualitySeries}
-						metric="toolCallSuccessPct"
-					/>
-				) : null}
-				{hasStructuredOutputQuality ? (
-					<ModelQualityTrendChart
-						title="Structured output"
-						data={qualitySeries}
-						metric="structuredOutputSuccessPct"
-					/>
-				) : null}
-			</div>
+			{qualityMetrics.length > 0 ? (
+				<div className="grid items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
+					{qualityMetrics.map(({ title, metric }) => (
+						<ModelQualityTrendChart
+							key={metric}
+							title={title}
+							data={qualitySeries}
+							metric={metric}
+						/>
+					))}
+				</div>
+			) : null}
 
 			{!hasHourly ? (
 				<p className="text-xs text-muted-foreground">

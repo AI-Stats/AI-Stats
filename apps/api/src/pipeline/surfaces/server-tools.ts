@@ -7,6 +7,7 @@ import type { Protocol } from "@protocols/detect";
 import { encodeUnifiedStreamEvent, type StreamProtocol } from "@protocols/stream/encode";
 import { extractUnifiedStreamEvents, type UnifiedStreamEvent } from "../after/stream-events";
 import { getBindings } from "@/runtime/env";
+import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 
 export const DATETIME_SERVER_TOOL_TYPE = "phaseo:datetime";
 export const LEGACY_DATETIME_SERVER_TOOL_TYPE = "gateway:datetime";
@@ -43,11 +44,12 @@ const DEFAULT_EXA_BASE_URL = "https://api.exa.ai";
 const DEFAULT_PARALLEL_BASE_URL = "https://api.parallel.ai";
 const DEFAULT_FIRECRAWL_BASE_URL = "https://api.firecrawl.dev";
 const DEFAULT_PERPLEXITY_BASE_URL = "https://api.perplexity.ai";
+const DEFAULT_TINYFISH_SEARCH_BASE_URL = "https://api.search.tinyfish.ai";
 const DEFAULT_WEB_SEARCH_ENGINE = "exa";
 const DEFAULT_WEB_FETCH_ENGINE = "direct";
 const DEFAULT_IMAGE_GENERATION_MODEL = "openai/gpt-image-2";
 
-const WEB_SEARCH_ENGINE_VALUES = ["auto", "native", "exa", "firecrawl", "parallel", "perplexity"] as const;
+const WEB_SEARCH_ENGINE_VALUES = ["auto", "native", "exa", "firecrawl", "parallel", "perplexity", "tinyfish"] as const;
 const WEB_FETCH_ENGINE_VALUES = ["auto", "native", "direct", "exa", "firecrawl", "parallel"] as const;
 
 const DATETIME_TOOL_DESCRIPTION =
@@ -119,6 +121,16 @@ const WEB_SEARCH_TOOL_PARAMETERS = {
 			type: "object",
 			description: "Approximate user location for engines that support localized search.",
 			additionalProperties: true,
+		},
+		language: {
+			type: "string",
+			description: "Preferred result language code for search engines that support localized search.",
+		},
+		page: {
+			type: "integer",
+			minimum: 0,
+			maximum: 10,
+			description: "Result page for search engines that support pagination. TinyFish accepts pages 0 through 10.",
 		},
 	},
 	required: ["query"],
@@ -414,6 +426,7 @@ type PrepareRequestResult =
 export type ServerToolExecutionMetrics = {
 	datetimeRequests: number;
 	webSearchRequests: number;
+	billableWebSearchRequests?: number;
 	webSearchResults: number;
 	webSearchExtraResults: number;
 	webFetchRequests: number;
@@ -1745,6 +1758,39 @@ function resolvePerplexitySearchConfig(): { apiKey: string; baseUrl: string } | 
 	}
 }
 
+function resolveTinyfishSearchConfig(): { apiKey: string; baseUrl: string } | null {
+	try {
+		const bindings = getBindings();
+		const apiKey = String(bindings.TINYFISH_API_KEY ?? "").trim();
+		if (!apiKey) return null;
+		const baseUrl = String(bindings.TINYFISH_SEARCH_BASE_URL ?? DEFAULT_TINYFISH_SEARCH_BASE_URL).trim() || DEFAULT_TINYFISH_SEARCH_BASE_URL;
+		const parsedBaseUrl = new URL(baseUrl);
+		if (parsedBaseUrl.protocol !== "https:") return null;
+		return { apiKey, baseUrl: parsedBaseUrl.toString().replace(/\/+$/, "") };
+	} catch {
+		return null;
+	}
+}
+
+function readTinyfishPage(value: unknown): number {
+	if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+	return Math.max(0, Math.min(10, Math.floor(value)));
+}
+
+function buildTinyfishSearchQuery(query: string, allowedDomains: string[], excludedDomains: string[]): string {
+	const allowed = allowedDomains
+		.map((domain) => domain.trim().replace(/^\*\./, ""))
+		.filter(Boolean);
+	const excluded = excludedDomains
+		.map((domain) => domain.trim().replace(/^\*\./, ""))
+		.filter(Boolean);
+	const operators = [
+		...(allowed.length > 0 ? [`(${allowed.map((domain) => `site:${domain}`).join(" OR ")})`] : []),
+		...excluded.map((domain) => `-site:${domain}`),
+	];
+	return [query, ...operators].join(" ");
+}
+
 function hostnameMatchesDomain(hostname: string, domain: string): boolean {
 	const normalizedHost = hostname.toLowerCase();
 	const normalizedDomain = domain.trim().toLowerCase().replace(/^\*\./, "");
@@ -1922,11 +1968,24 @@ function resolveFetchDomains(args: Record<string, unknown>, config: ServerToolCo
 	allowedDomains: string[];
 	blockedDomains: string[];
 } {
-	const allowedDomains = readStringArray(args.allowed_domains);
-	const blockedDomains = readStringArray(args.blocked_domains ?? args.excluded_domains);
+	const requestedAllowedDomains = readStringArray(args.allowed_domains);
+	const configuredAllowedDomains = config.webFetchAllowedDomains ?? [];
+	const allowedDomains = configuredAllowedDomains.length === 0
+		? requestedAllowedDomains
+		: requestedAllowedDomains.length === 0
+			? configuredAllowedDomains
+			: requestedAllowedDomains.filter((requested) =>
+				configuredAllowedDomains.some((configured) =>
+					hostnameMatchesDomain(requested.replace(/^\*\./, ""), configured),
+				),
+			);
+	const blockedDomains = Array.from(new Set([
+		...(config.webFetchBlockedDomains ?? []),
+		...readStringArray(args.blocked_domains ?? args.excluded_domains),
+	]));
 	return {
-		allowedDomains: allowedDomains.length > 0 ? allowedDomains : (config.webFetchAllowedDomains ?? []),
-		blockedDomains: blockedDomains.length > 0 ? blockedDomains : (config.webFetchBlockedDomains ?? []),
+		allowedDomains,
+		blockedDomains,
 	};
 }
 
@@ -2477,8 +2536,7 @@ async function executeWebFetchToolCall(
 		};
 	}
 
-	const requestedEngine = toNonEmptyString(args.engine) ? readWebFetchEngine(args.engine) : "auto";
-	const engine = requestedEngine === "auto" ? (config.webFetchEngine ?? DEFAULT_WEB_FETCH_ENGINE) : requestedEngine;
+	const engine = config.webFetchEngine ?? DEFAULT_WEB_FETCH_ENGINE;
 	if (engine === "native") {
 		return {
 			toolResult: {
@@ -2552,7 +2610,21 @@ async function executeWebFetchToolCall(
 		let currentUrl = url;
 		let response: Response | null = null;
 		for (let redirectCount = 0; redirectCount <= SERVER_TOOL_DIRECT_FETCH_MAX_REDIRECTS; redirectCount += 1) {
-			response = await fetchWithTimeout(currentUrl, {
+			const validated = await validateWebhookEndpointUrlForDelivery(currentUrl);
+			if (!validated.ok) {
+				return {
+					toolResult: {
+						toolCallId: call.id,
+						isError: true,
+						content: JSON.stringify({
+							error: "url_destination_rejected",
+							message: "url destination is not publicly routable",
+						}),
+					},
+					webFetchRequests: 0,
+				};
+			}
+			response = await fetchWithTimeout(validated.url, {
 				method: "GET",
 				headers: {
 					Accept: "text/html,text/plain,application/json;q=0.9,*/*;q=0.8",
@@ -2677,7 +2749,13 @@ async function executeWebSearchToolCall(
 	call: { id: string; arguments: string },
 	config: ServerToolConfig,
 	remainingResults: number,
-): Promise<{ toolResult: IRToolResult; webFetchRequests: number; webSearchResults: number; webSearchExtraResults: number }> {
+): Promise<{
+	toolResult: IRToolResult;
+	webFetchRequests: number;
+	webSearchResults: number;
+	webSearchExtraResults: number;
+	billableWebSearchRequests?: number;
+}> {
 	const args = parseJsonObject(call.arguments);
 	const query = parseWebSearchQuery(args);
 	if (!query) {
@@ -2743,6 +2821,120 @@ async function executeWebSearchToolCall(
 	const searchContextSize = readWebSearchContextSize(args.search_context_size ?? config.webSearchContextSize ?? "medium");
 	const maxCharacters = parseWebSearchMaxCharacters(args, config);
 	const { allowedDomains, excludedDomains } = resolveSearchDomains(args, config);
+	if (engine === "tinyfish") {
+		const searchConfig = resolveTinyfishSearchConfig();
+		if (!searchConfig) {
+			return {
+				toolResult: {
+					toolCallId: call.id,
+					isError: true,
+					content: JSON.stringify({
+						error: "search_not_configured",
+						engine,
+						message: "TinyFish Search is not configured",
+					}),
+				},
+				webFetchRequests: 0,
+				webSearchResults: 0,
+				webSearchExtraResults: 0,
+				billableWebSearchRequests: 0,
+			};
+		}
+
+		const userLocation = args.user_location && typeof args.user_location === "object"
+			? args.user_location as Record<string, unknown>
+			: {};
+		const location = toNonEmptyString(userLocation.country ?? userLocation.country_code);
+		const language = toNonEmptyString(args.language ?? userLocation.language);
+		const page = readTinyfishPage(args.page);
+		const searchQuery = buildTinyfishSearchQuery(query, allowedDomains, excludedDomains);
+		const requestUrl = new URL(searchConfig.baseUrl);
+		requestUrl.searchParams.set("query", searchQuery);
+		if (location) requestUrl.searchParams.set("location", location);
+		if (language) requestUrl.searchParams.set("language", language);
+		requestUrl.searchParams.set("page", String(page));
+
+		try {
+			const response = await fetchWithTimeout(requestUrl.toString(), {
+				method: "GET",
+				headers: {
+					Accept: "application/json",
+					"X-API-Key": searchConfig.apiKey,
+				},
+			});
+			if (!response.ok) {
+				const failureText = await response.text();
+				return {
+					toolResult: {
+						toolCallId: call.id,
+						isError: true,
+						content: JSON.stringify({
+							error: "search_request_failed",
+							engine,
+							status: response.status,
+							message: failureText.slice(0, 1000),
+						}),
+					},
+					webFetchRequests: 0,
+					webSearchResults: 0,
+					webSearchExtraResults: 0,
+					billableWebSearchRequests: 0,
+				};
+			}
+
+			const json = await response.json() as Record<string, any>;
+			const rawResults = Array.isArray(json.results) ? json.results : [];
+			const normalizedResults = rawResults.slice(0, maxResults).map((result: any) => {
+				const snippet = toNonEmptyString(result?.snippet) ?? null;
+				return {
+					position: typeof result?.position === "number" ? result.position : null,
+					site_name: toNonEmptyString(result?.site_name) ?? null,
+					title: toNonEmptyString(result?.title) ?? null,
+					url: toNonEmptyString(result?.url) ?? null,
+					snippet,
+					highlights: includeHighlights && snippet ? [snippet] : [],
+					text: null,
+				};
+			});
+			const webSearchResults = normalizedResults.length;
+			return {
+				toolResult: {
+					toolCallId: call.id,
+					content: JSON.stringify({
+						provider: "tinyfish",
+						engine,
+						request_id: null,
+						query,
+						search_query: searchQuery,
+						location,
+						language,
+						page,
+						results: normalizedResults,
+					}),
+				},
+				webFetchRequests: 0,
+				webSearchResults,
+				webSearchExtraResults: 0,
+				billableWebSearchRequests: 0,
+			};
+		} catch (error) {
+			return {
+				toolResult: {
+					toolCallId: call.id,
+					isError: true,
+					content: JSON.stringify({
+						error: "search_request_error",
+						engine,
+						message: error instanceof Error ? error.message : String(error),
+					}),
+				},
+				webFetchRequests: 0,
+				webSearchResults: 0,
+				webSearchExtraResults: 0,
+				billableWebSearchRequests: 0,
+			};
+		}
+	}
 	if (engine === "perplexity") {
 		const searchConfig = resolvePerplexitySearchConfig();
 		if (!searchConfig) return { toolResult: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "search_not_configured", engine }) }, webFetchRequests: 0, webSearchResults: 0, webSearchExtraResults: 0 };
@@ -3046,7 +3238,14 @@ export async function buildServerToolContinuation(
 				remainingSearchResults,
 			);
 			toolResults.push(executed.toolResult);
+			const webSearchRequestsBefore = usage.webSearchRequests;
 			usage.webSearchRequests += 1;
+			if (typeof executed.billableWebSearchRequests === "number") {
+				usage.billableWebSearchRequests =
+					(usage.billableWebSearchRequests ?? webSearchRequestsBefore) + Math.max(0, executed.billableWebSearchRequests);
+			} else if (usage.billableWebSearchRequests !== undefined) {
+				usage.billableWebSearchRequests += 1;
+			}
 			usage.webSearchResults += Math.max(0, executed.webSearchResults);
 			usage.webSearchExtraResults += Math.max(0, executed.webSearchExtraResults);
 			usage.webFetchRequests += Math.max(0, executed.webFetchRequests);
@@ -3537,7 +3736,7 @@ export function attachServerToolUsageToRawUsage(
 		search_models_requests: (Number(existing?.search_models_requests ?? 0) || 0) + Math.max(0, args.searchModelsRequests),
 	};
 	base.server_tool_web_search_requests =
-		(Number(base.server_tool_web_search_requests ?? 0) || 0) + Math.max(0, args.webSearchRequests);
+		(Number(base.server_tool_web_search_requests ?? 0) || 0) + Math.max(0, args.billableWebSearchRequests ?? args.webSearchRequests);
 	base.server_tool_web_search_extra_results =
 		(Number(base.server_tool_web_search_extra_results ?? 0) || 0) + Math.max(0, args.webSearchExtraResults);
 	base.server_tool_web_fetch_requests =

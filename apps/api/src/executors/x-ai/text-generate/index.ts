@@ -21,6 +21,8 @@ import { getBindings } from "@/runtime/env";
 
 import { cherryPickIRParams, resolveXAiModelForRequest, withNormalizedReasoning } from "./reasoning";
 
+export { resolveXAiModelForRequest } from "./reasoning";
+
 const XAI_MAX_ADAPTIVE_RETRIES = 0;
 
 async function executeXAi(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
@@ -42,6 +44,7 @@ async function executeXAi(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 		modelForRouting,
 		"openai",
 		args.capabilityParams,
+		args.providerId,
 	);
 
 	requestPayload.stream = true;
@@ -240,8 +243,6 @@ export const executor: ProviderExecutor = async (execArgs: ExecutorExecuteArgs) 
 	const processed = cherryPickIRParams(normalized, execArgs.capabilityParams);
 	return executeXAi({ ...execArgs, ir: processed });
 };
-
-
 
 
 

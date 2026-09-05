@@ -5,7 +5,8 @@
 
 import { getSupabaseAdmin, ensureRuntimeForBackground, isLocalTestingModeEnabled } from "@/runtime/env";
 import { ensureAppId } from "../after/apps";
-import type { Endpoint } from "@core/types";
+import type { Endpoint, RequestLabel } from "@core/types";
+import { normalizeTextServiceTier, readRequestedServiceTier } from "@core/serviceTiers";
 import { syncWorkspaceUsageRollupForRequest } from "@core/workspace-usage-rollups";
 import {
 	buildGatewayRequestUsageColumns,
@@ -14,10 +15,21 @@ import {
 } from "../usage-columns";
 import { persistGatewayIoLog, resolveGatewayIoLoggingPolicy } from "./io-logging";
 import { persistGatewayUpstreamRequests } from "./upstream-requests";
+import { protectStealthAuditArgs } from "./stealth-identity";
+import {
+	validateStructuredOutputResponse,
+	validateToolCallResponses,
+	type StructuredOutputValidation,
+	type ToolCallValidation,
+} from "./response-validation";
 
 function supaAdmin() {
     return getSupabaseAdmin();
 }
+
+
+
+
 
 function positiveMetric(value: number | null | undefined, round = false): number | null {
     if (value == null || !Number.isFinite(value) || value <= 0) return null;
@@ -34,6 +46,58 @@ function cachedInputTokensAreSubset(usage: unknown): boolean {
         typeof details === "object" &&
         typeof (details as Record<string, unknown>).cached_tokens === "number"
     );
+}
+
+type CanonicalServiceTier = "standard" | "priority" | "flex" | "batch";
+
+function canonicalServiceTier(value: unknown): CanonicalServiceTier | null {
+    if (typeof value === "string") {
+        const normalized = value.trim().toLowerCase();
+        if (normalized === "default") return "standard";
+    }
+    const normalized = normalizeTextServiceTier(value);
+    if (normalized === "fast" || normalized === "priority") return "priority";
+    return normalized ?? null;
+}
+
+function nestedValue(root: unknown, path: string[]): unknown {
+    let current = root;
+    for (const key of path) {
+        if (!current || typeof current !== "object") return undefined;
+        current = (current as Record<string, unknown>)[key];
+    }
+    return current;
+}
+
+export function resolveAuditServiceTiers(args: {
+    endpoint: Endpoint;
+    requestPayload?: unknown;
+    usage?: unknown;
+    gatewayResponse?: unknown;
+}): {
+    requested: CanonicalServiceTier | null;
+    observed: CanonicalServiceTier | null;
+    effective: CanonicalServiceTier | null;
+} {
+    const requested = args.endpoint === "batch"
+        ? "batch"
+        : canonicalServiceTier(readRequestedServiceTier(args.requestPayload).value);
+    const observedCandidates = [
+        nestedValue(args.usage, ["service_tier"]),
+        nestedValue(args.usage, ["serviceTier"]),
+        nestedValue(args.gatewayResponse, ["service_tier"]),
+        nestedValue(args.gatewayResponse, ["serviceTier"]),
+        nestedValue(args.gatewayResponse, ["usage", "service_tier"]),
+        nestedValue(args.gatewayResponse, ["usage", "serviceTier"]),
+    ];
+    const observed = observedCandidates
+        .map(canonicalServiceTier)
+        .find((tier): tier is CanonicalServiceTier => tier !== null) ?? null;
+    return {
+        requested,
+        observed,
+        effective: observed ?? requested,
+    };
 }
 
 const DEFAULT_RETRY_ATTEMPTS = 3;
@@ -246,9 +310,11 @@ async function upsertV2RequestFact(args: {
     currency?: string | null;
     toolCallCount?: number | null;
     toolCallSucceeded?: boolean | null;
+    toolCallValidation?: ToolCallValidation | null;
     structuredOutputAttempted?: boolean;
     structuredOutputSucceeded?: boolean;
-    structuredOutputSuccessBasis?: "json_parse" | "unobserved" | null;
+    structuredOutputSuccessBasis?: StructuredOutputValidation["basis"];
+    structuredOutputErrorReason?: StructuredOutputValidation["errorReason"];
     downstreamDisconnected?: boolean;
     streamCancellationSupport?: "supported" | "unsupported" | "unknown";
     streamProviderBillingOnCancel?: "stops" | "unknown";
@@ -260,7 +326,9 @@ async function upsertV2RequestFact(args: {
     providerAttempts?: Array<Record<string, unknown>> | null;
     routingSnapshot?: Array<Record<string, unknown>> | null;
     routingDiagnostics?: Record<string, unknown> | null;
+    labels?: RequestLabel[] | null;
 }) {
+	const serviceTier = resolveAuditServiceTiers(args);
 	const publicRoutedModel = (() => {
 		const requested = args.requestedModel.trim();
 		const routed = args.routedModel?.trim() ?? "";
@@ -284,7 +352,6 @@ async function upsertV2RequestFact(args: {
         "reliability_sample",
         "reliability_observations",
         "token_affinity",
-        "load_penalty",
         "base_weight",
         "rollout_multiplier",
         "routing_multiplier",
@@ -371,12 +438,14 @@ async function upsertV2RequestFact(args: {
                     }))
                     : entry.score_factors && typeof entry.score_factors === "object"
                         ? entry.score_factors : {},
+                score_trace: entry.score_trace && typeof entry.score_trace === "object"
+                    ? entry.score_trace : {},
             };
         });
     const filterStages = Array.isArray((args.routingDiagnostics as any)?.filterStages)
         ? (args.routingDiagnostics as any).filterStages
         : [];
-    const excludedDecisions = filterStages.flatMap((stage: any) =>
+    const routingStageExclusions = filterStages.flatMap((stage: any) =>
         (Array.isArray(stage?.droppedProviders) ? stage.droppedProviders : []).map((entry: any) => ({
             decision_order: rankedDecisions.length + 1,
             decision: "excluded",
@@ -392,8 +461,43 @@ async function upsertV2RequestFact(args: {
             exclusion_stage: typeof stage?.stage === "string" ? stage.stage : null,
             exclusion_reason: typeof entry?.reason === "string" ? entry.reason : null,
             score_factors: {},
+            score_trace: {},
         }))
-    ).slice(0, Math.max(0, 128 - rankedDecisions.length))
+    );
+    const workspacePolicy = (args.routingDiagnostics as any)?.workspacePolicy;
+    const workspacePolicyDrops = [
+        ...(Array.isArray(workspacePolicy?.droppedProviders) ? workspacePolicy.droppedProviders : []),
+        ...(Array.isArray(workspacePolicy?.droppedByPrivacy) ? workspacePolicy.droppedByPrivacy : []),
+    ];
+    const seenExclusions = new Set(routingStageExclusions.map((entry: any) =>
+        `${entry.provider ?? ""}::${entry.provider_api_model_id ?? ""}`
+    ));
+    const workspacePolicyExclusions = workspacePolicyDrops.flatMap((entry: any) => {
+        const provider = typeof entry?.providerId === "string" ? entry.providerId : null;
+        const providerApiModelId =
+            typeof entry?.apiModelId === "string" ? entry.apiModelId :
+            typeof entry?.providerModelSlug === "string" ? entry.providerModelSlug : null;
+        const key = `${provider ?? ""}::${providerApiModelId ?? ""}`;
+        if (!provider || seenExclusions.has(key)) return [];
+        seenExclusions.add(key);
+        return [{
+            decision_order: rankedDecisions.length + 1,
+            decision: "excluded",
+            rank: null,
+            provider,
+            provider_model_id: toProviderModelId(provider, entry?.providerModelSlug),
+            provider_api_model_id: providerApiModelId,
+            score: null,
+            selected: false,
+            attempted: false,
+            exclusion_stage: "workspace_policy",
+            exclusion_reason: typeof entry?.reason === "string" ? entry.reason : "excluded_by_workspace_policy",
+            score_factors: {},
+            score_trace: {},
+        }];
+    });
+    const excludedDecisions = [...routingStageExclusions, ...workspacePolicyExclusions]
+        .slice(0, Math.max(0, 128 - rankedDecisions.length))
         .map((entry: Record<string, unknown>, index: number) => ({
             ...entry,
             decision_order: rankedDecisions.length + index + 1,
@@ -433,6 +537,9 @@ async function upsertV2RequestFact(args: {
             // The v2 catalogue resolves concrete provider/model routes by the
             // upstream-facing model slug, not the legacy provider-model row ID.
             provider_api_model_id: args.providerModelSlug ?? args.providerApiModelId ?? null,
+            service_tier_requested: serviceTier.requested,
+            service_tier_observed: serviceTier.observed,
+            service_tier: serviceTier.effective,
             status_code: args.statusCode ?? null,
             success: args.success,
             error_code: args.errorCode ?? null,
@@ -469,9 +576,23 @@ async function upsertV2RequestFact(args: {
             usage_meters: usageMeters,
             pricing_lines: pricingLines,
             routing_decisions: [...rankedDecisions, ...excludedDecisions],
+            routing_trace: {
+                algorithm: (args.routingDiagnostics as any)?.algorithm ?? null,
+                model: (args.routingDiagnostics as any)?.model ?? args.requestedModel,
+                endpoint: (args.routingDiagnostics as any)?.endpoint ?? args.endpoint,
+                priority: (args.routingDiagnostics as any)?.priority ?? null,
+                routing_mode: (args.routingDiagnostics as any)?.routingMode ?? null,
+                requested_routing: (args.routingDiagnostics as any)?.requestedRouting ?? null,
+                sticky_routing: (args.routingDiagnostics as any)?.stickyRouting ?? null,
+                final_candidate_count: (args.routingDiagnostics as any)?.finalCandidateCount ?? rankedDecisions.length,
+            },
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: publicRoutedModel ?? args.requestedModel,
+				service_tier_requested: serviceTier.requested,
+				service_tier_observed: serviceTier.observed,
+				service_tier: serviceTier.effective,
+				labels: args.labels ?? [],
 				cached_input_tokens_are_subset_of_input: cachedInputTokensAreSubset(args.usage),
                 edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
                 edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
@@ -479,6 +600,10 @@ async function upsertV2RequestFact(args: {
                 structured_output_success_basis: args.structuredOutputAttempted
                     ? (args.structuredOutputSuccessBasis ?? "unobserved")
                     : null,
+                structured_output_error_reason: args.structuredOutputAttempted
+                    ? (args.structuredOutputErrorReason ?? "none")
+                    : null,
+                tool_call_validation: args.toolCallValidation ?? null,
                 downstream_disconnected: args.downstreamDisconnected === true,
                 stream_cancellation_support: args.streamCancellationSupport ?? "unknown",
                 stream_provider_billing_on_cancel: args.streamProviderBillingOnCancel ?? "unknown",
@@ -499,7 +624,7 @@ async function upsertV2RequestFact(args: {
     if (!error) return;
     if (!isMissingRpcError(error, routingRpc)) throw error;
 
-    const { routing_decisions: _routingDecisions, ...baseEvent } = event;
+    const { routing_decisions: _routingDecisions, routing_trace: _routingTrace, ...baseEvent } = event;
     const { error: baseError } = await client.rpc("ingest_v2_gateway_request", {
         p_event: baseEvent,
     });
@@ -636,6 +761,10 @@ function buildSupaRow(args: {
     edgeCountry?: string | null;
     edgeContinent?: string | null;
     edgeAsn?: number | null;
+    userAgent?: string | null;
+    clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
+    labels?: RequestLabel[] | null;
+    detailMetadata?: Record<string, unknown> | null;
 }) {
     const usageColumns = buildGatewayRequestUsageColumns({
         usage: args.usage ?? {},
@@ -643,6 +772,22 @@ function buildSupaRow(args: {
         requestPayload: args.requestPayload,
         gatewayResponse: args.gatewayResponse,
     });
+
+    const detailMetadata = {
+        ...(args.detailMetadata ?? {}),
+        labels: args.labels ?? args.detailMetadata?.labels ?? [],
+        client_source: args.clientSource ?? null,
+        request: {
+            ...(
+                args.detailMetadata?.request &&
+                typeof args.detailMetadata.request === "object" &&
+                !Array.isArray(args.detailMetadata.request)
+                    ? args.detailMetadata.request as Record<string, unknown>
+                    : {}
+            ),
+            user_agent: args.userAgent ?? null,
+        },
+    };
 
     return {
         request_id: args.requestId,
@@ -687,6 +832,7 @@ function buildSupaRow(args: {
         throughput: args.throughput ?? null,
         finish_reason: args.finishReason ?? null,
         location: args.edgeColo ?? null,
+        detail_metadata: detailMetadata,
     };
 }
 
@@ -706,44 +852,6 @@ function isStructuredOutputRequest(payload: unknown): boolean {
     return format.type === "json_schema" || format.type === "json_object";
 }
 
-function extractStructuredOutput(value: unknown): unknown {
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    const response = value as Record<string, any>;
-    if (response.output_parsed && typeof response.output_parsed === "object") return response.output_parsed;
-    if (response.parsed && typeof response.parsed === "object") return response.parsed;
-    if (typeof response.output_text === "string") return response.output_text;
-    if (typeof response.text === "string") return response.text;
-    const choiceContent = response.choices?.[0]?.message?.content;
-    if (typeof choiceContent === "string") return choiceContent;
-    const outputText = response.output?.flatMap?.((item: any) => item?.content ?? [])
-        ?.find?.((item: any) => typeof item?.text === "string")?.text;
-    if (typeof outputText === "string") return outputText;
-    const anthropicText = response.content?.find?.((item: any) => typeof item?.text === "string")?.text;
-    return typeof anthropicText === "string" ? anthropicText : null;
-}
-
-function structuredOutputResult(requestPayload: unknown, gatewayResponse: unknown): {
-    attempted: boolean;
-    succeeded: boolean;
-    basis: "json_parse" | "unobserved" | null;
-} {
-    const attempted = isStructuredOutputRequest(requestPayload);
-    if (!attempted) return { attempted: false, succeeded: false, basis: null };
-    const output = extractStructuredOutput(gatewayResponse);
-    if (output && typeof output === "object") {
-        return { attempted: true, succeeded: true, basis: "json_parse" };
-    }
-    if (typeof output !== "string" || output.trim().length === 0) {
-        return { attempted: true, succeeded: false, basis: "unobserved" };
-    }
-    try {
-        JSON.parse(output);
-        return { attempted: true, succeeded: true, basis: "json_parse" };
-    } catch {
-        return { attempted: true, succeeded: false, basis: "json_parse" };
-    }
-}
-
 function readToolCallCount(usage: unknown, finishReason?: string | null): number {
     const record = usage && typeof usage === "object" && !Array.isArray(usage)
         ? usage as Record<string, unknown>
@@ -753,15 +861,16 @@ function readToolCallCount(usage: unknown, finishReason?: string | null): number
     return finishReason === "tool_calls" || finishReason === "tool_use" ? 1 : 0;
 }
 
-export async function auditSuccess(args: {
+export async function auditSuccess(input: {
     requestId: string; workspaceId: string;
     provider: string; model: string; requestedModel?: string; endpoint: Endpoint;
     providerApiModelId?: string | null;
     providerModelSlug?: string | null;
     stream: boolean; byok: boolean;
+    labels?: RequestLabel[] | null;
     nativeResponseId?: string | null;
     appTitle?: string | null; referer?: string | null;
-    appId?: string | null; appName?: string | null;
+    appId?: string | null; appName?: string | null; appCategories?: string | null;
     requestMethod?: string | null;
     requestPath?: string | null;
     requestUrl?: string | null;
@@ -807,19 +916,24 @@ export async function auditSuccess(args: {
     streamProviderBillingOnCancel?: "stops" | "unknown";
     streamDisconnectAction?: "cancel_upstream" | "drain_upstream";
 }) {
+    const args = protectStealthAuditArgs(input);
     const releaseRuntime = ensureRuntimeForBackground();
     try {
         const pricingLines = args.usagePriced?.pricing?.lines ?? [];
         const strippedUsage = stripPricingFromUsage(args.usagePriced);
-        const structuredOutput = structuredOutputResult(args.requestPayload, args.gatewayResponse);
+        const structuredOutput = validateStructuredOutputResponse(args.requestPayload, args.gatewayResponse);
+        const toolCallValidation = validateToolCallResponses(args.requestPayload, args.gatewayResponse);
         const appId = await ensureAppId({
             workspaceId: args.workspaceId,
             appTitle: args.appTitle ?? null,
             referer: args.referer ?? null,
             appId: args.appId ?? null,
             appName: args.appName ?? null,
+            appCategories: args.appCategories ?? null,
         });
-        if (!appId) {
+        const hasExplicitAppAttribution = [args.appTitle, args.referer, args.appId, args.appName]
+            .some((value) => String(value ?? "").trim().length > 0);
+        if (!appId && hasExplicitAppAttribution) {
             console.error("[audit] ensureAppId returned null", {
                 requestId: args.requestId,
                 workspaceId: args.workspaceId,
@@ -874,6 +988,10 @@ export async function auditSuccess(args: {
             edgeContinent: args.edgeContinent ?? null,
             edgeAsn: args.edgeAsn ?? null,
             finishReason: args.finishReason ?? null,
+            userAgent: args.userAgent ?? null,
+            clientSource: args.clientSource ?? null,
+            labels: args.labels ?? null,
+            detailMetadata: args.detailMetadata ?? null,
         });
 
         let supabaseError: Error | null = null;
@@ -953,11 +1071,18 @@ export async function auditSuccess(args: {
                             : null
                     ),
                     currency: args.currency,
-                    toolCallCount: readToolCallCount(strippedUsage, args.finishReason),
-                    toolCallSucceeded: readToolCallCount(strippedUsage, args.finishReason) > 0 ? true : null,
+                    toolCallCount: Math.max(
+                        readToolCallCount(strippedUsage, args.finishReason),
+                        toolCallValidation.totalCalls,
+                    ),
+                    toolCallSucceeded: toolCallValidation.totalCalls > 0
+                        ? toolCallValidation.invalidCalls === 0
+                        : readToolCallCount(strippedUsage, args.finishReason) > 0 ? true : null,
+                    toolCallValidation: toolCallValidation.totalCalls > 0 ? toolCallValidation : null,
                     structuredOutputAttempted: structuredOutput.attempted,
                     structuredOutputSucceeded: structuredOutput.succeeded,
                     structuredOutputSuccessBasis: structuredOutput.basis,
+                    structuredOutputErrorReason: structuredOutput.errorReason,
                     downstreamDisconnected: args.downstreamDisconnected === true,
                     streamCancellationSupport: args.streamCancellationSupport ?? "unknown",
                     streamProviderBillingOnCancel: args.streamProviderBillingOnCancel ?? "unknown",
@@ -967,6 +1092,7 @@ export async function auditSuccess(args: {
                     requestPayload: args.requestPayload,
                     gatewayResponse: args.gatewayResponse,
                     providerAttempts: args.providerAttempts ?? null,
+                    labels: args.labels ?? null,
                     routingSnapshot: Array.isArray((args.detailMetadata as any)?.routing_snapshot)
                         ? (args.detailMetadata as any).routing_snapshot
                         : null,
@@ -1044,6 +1170,9 @@ type AuditFailureBefore = {
     endpoint: Endpoint;
     model?: string | null;
     requestedModel?: string | null;
+    provider?: string | null;
+    providerApiModelId?: string | null;
+    providerModelSlug?: string | null;
     statusCode: number;
     errorCode: string;
     errorMessage?: string | null;
@@ -1054,6 +1183,7 @@ type AuditFailureBefore = {
     referer?: string | null;
     appId?: string | null;
     appName?: string | null;
+    appCategories?: string | null;
     requestMethod?: string | null;
     requestPath?: string | null;
     requestUrl?: string | null;
@@ -1079,6 +1209,7 @@ type AuditFailureBefore = {
     gatewayResponse?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    labels?: RequestLabel[] | null;
 };
 type AuditFailureExecute = {
     stage: "execute";
@@ -1103,6 +1234,7 @@ type AuditFailureExecute = {
     referer?: string | null;
     appId?: string | null;
     appName?: string | null;
+    appCategories?: string | null;
     requestMethod?: string | null;
     requestPath?: string | null;
     requestUrl?: string | null;
@@ -1129,12 +1261,14 @@ type AuditFailureExecute = {
     providerRequest?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    labels?: RequestLabel[] | null;
     usage?: Record<string, unknown> | null;
     currency?: string | null;
     pricingLines?: unknown[] | null;
 };
 
-export async function auditFailure(args: AuditFailureBefore | AuditFailureExecute) {
+export async function auditFailure(input: AuditFailureBefore | AuditFailureExecute) {
+    const args = protectStealthAuditArgs(input);
     const releaseRuntime = ensureRuntimeForBackground();
     try {
         if (args.stage === "before") {
@@ -1145,6 +1279,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                     referer: args.referer ?? null,
                     appId: args.appId ?? null,
                     appName: args.appName ?? null,
+                    appCategories: args.appCategories ?? null,
                 })
                 : null;
             const row = buildSupaRow({
@@ -1153,7 +1288,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                 endpoint: args.endpoint,
                 model: args.model ?? args.requestedModel ?? "unknown",
                 canonicalModel: args.requestedModel ?? args.model ?? "unknown",
-                provider: null,
+                provider: args.provider ?? null,
                 stream: false,
                 byok: false,
                 nativeResponseId: null,
@@ -1183,6 +1318,10 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                 edgeCountry: args.edgeCountry ?? null,
                 edgeContinent: args.edgeContinent ?? null,
                 edgeAsn: args.edgeAsn ?? null,
+                userAgent: args.userAgent ?? null,
+                clientSource: args.clientSource ?? null,
+                labels: args.labels ?? null,
+                detailMetadata: args.detailMetadata ?? null,
             });
 
             let supabaseError: Error | null = null;
@@ -1201,6 +1340,9 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         keyId: args.keyId ?? null,
                         endpoint: args.endpoint,
                         modelId: args.requestedModel ?? args.model ?? "unknown",
+                        provider: args.provider ?? null,
+                        providerApiModelId: args.providerApiModelId ?? null,
+                        providerModelSlug: args.providerModelSlug ?? null,
                         providerAttempts: args.providerAttempts ?? null,
                         statusCode: args.statusCode,
                         success: false,
@@ -1218,6 +1360,10 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             keyId: args.keyId ?? null,
                             endpoint: args.endpoint,
                             requestedModel: args.requestedModel ?? args.model ?? "unknown",
+                            routedModel: args.model ?? args.requestedModel ?? null,
+                            provider: args.provider ?? null,
+                            providerApiModelId: args.providerApiModelId ?? null,
+                            providerModelSlug: args.providerModelSlug ?? null,
                             stream: false,
                             byok: false,
                             statusCode: args.statusCode,
@@ -1237,6 +1383,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             requestPayload: args.requestPayload,
                             gatewayResponse: args.gatewayResponse,
                             providerAttempts: args.providerAttempts ?? null,
+                            labels: args.labels ?? null,
                             routingSnapshot: Array.isArray((args.detailMetadata as any)?.routing_snapshot)
                                 ? (args.detailMetadata as any).routing_snapshot
                                 : null,
@@ -1262,7 +1409,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         keyId: args.keyId ?? null,
                         endpoint: args.endpoint,
                         modelId: args.requestedModel ?? args.model ?? "unknown",
-                        provider: null,
+                        provider: args.provider ?? null,
                         statusCode: args.statusCode,
                         success: false,
                         requestPayload: args.requestPayload,
@@ -1281,7 +1428,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             key_id: args.keyId ?? null,
                             endpoint: args.endpoint,
                             model_id: args.requestedModel ?? args.model ?? "unknown",
-                            provider: null,
+                            provider: args.provider ?? null,
                             status_code: args.statusCode,
                             success: false,
                             request_payload: normalizeJsonValue(args.requestPayload) ?? {},
@@ -1312,6 +1459,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
             referer: args.referer ?? null,
             appId: args.appId ?? null,
             appName: args.appName ?? null,
+            appCategories: args.appCategories ?? null,
         });
         const row = buildSupaRow({
             requestId: args.requestId,
@@ -1349,6 +1497,10 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
             edgeCountry: args.edgeCountry ?? null,
             edgeContinent: args.edgeContinent ?? null,
             edgeAsn: args.edgeAsn ?? null,
+            userAgent: args.userAgent ?? null,
+            clientSource: args.clientSource ?? null,
+            labels: args.labels ?? null,
+            detailMetadata: args.detailMetadata ?? null,
         });
 
         let supabaseError: Error | null = null;
@@ -1420,6 +1572,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         requestPayload: args.requestPayload,
                         gatewayResponse: args.gatewayResponse,
                         providerAttempts: args.providerAttempts ?? null,
+                        labels: args.labels ?? null,
                         routingSnapshot: Array.isArray((args.detailMetadata as any)?.routing_snapshot)
                             ? (args.detailMetadata as any).routing_snapshot
                             : null,
@@ -1489,11 +1642,4 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
-
-
-
-
-
-
 

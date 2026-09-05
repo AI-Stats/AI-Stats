@@ -18,10 +18,16 @@ export type Endpoint =
     | "embeddings"
     | "batch"
     | "ocr"
+    | "parse"
     | "music.generate"
     | "files.upload"
     | "files.list"
     | "files.retrieve";
+
+export type RequestLabel = {
+    key: string;
+    value: string;
+};
 
 export type RequestBetaOptions = {
     openai_websocket_mode?: boolean;
@@ -44,6 +50,7 @@ export type RequestMeta = {
     appTitle?: string | null;
     appId?: string | null;
     appName?: string | null;
+    appCategories?: string | null;
     requestUserId?: string | null;
     sessionId?: string | null;
     trace?: Record<string, unknown> | null;
@@ -62,7 +69,7 @@ export type RequestMeta = {
     clientSource?: {
         id: string;
         name: string;
-        kind: "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "app" | "api" | "unknown";
+        kind: "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "api" | "unknown";
         version: string | null;
         detection: "declared" | "user_agent" | "unknown";
     };
@@ -127,6 +134,7 @@ export type RequestMeta = {
     returnMeta?: boolean;         // Should meta block be returned to caller
     returnRoutingDiagnostics?: boolean;
     providerCapabilitiesBeta?: boolean;
+    labels?: RequestLabel[];
 };
 
 export type DebugOptions = {

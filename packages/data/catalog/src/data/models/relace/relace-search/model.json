@@ -2,7 +2,7 @@
   "model_id": "relace/relace-search",
   "organisation_id": "relace",
   "name": "Relace Search",
-  "status": null,
+  "status": "Available",
   "previous_model_id": null,
   "description": "The relace-search model uses 4-12 `view_file` and `grep` tools in parallel to explore a codebase and return relevant files to the user request. It is aimed at retrieval-heavy assistants, browsing, and research synthesis.",
   "announced_date": null,
@@ -10,10 +10,16 @@
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text",
+  "output_types": "text",
   "api_model_id": "relace/relace-search",
-  "links": [],
+  "links": [
+    {
+      "title": "Fast Agentic Search model guide",
+      "kind": "documentation",
+      "url": "https://docs.relace.ai/docs/fast-agentic-search/agent"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -26,8 +32,8 @@
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": ["text"],
+    "output": ["text"]
   },
   "reasoning": {
     "supported": null,
@@ -35,20 +41,27 @@
   },
   "capabilities": {
     "attachment": null,
-    "tool_call": null,
+    "tool_call": true,
     "structured_output": null,
-    "temperature": null,
+    "temperature": true,
     "streaming": null,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://docs.relace.ai/docs/fast-agentic-search/agent",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official endpoint, model identifier, prompt, tool schemas, and sampling example."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "The model is text-only and is trained around the documented five-tool code-search harness."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

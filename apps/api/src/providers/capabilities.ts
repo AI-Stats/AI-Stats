@@ -18,9 +18,6 @@ const FULL_MULTIMODAL_VIDEO_PROVIDERS = new Set<string>([
 	"openai",
 	
 	"amazon-bedrock",
-	"spacex-ai",
-	"x-ai",
-	"xai",
 	"deepseek",
 	"minimax",
 	"minimax-lightning",
@@ -28,8 +25,6 @@ const FULL_MULTIMODAL_VIDEO_PROVIDERS = new Set<string>([
 	"mistral",
 	"moonshot-ai",
 	"moonshot-ai-turbo",
-	"novitaai",
-	"novita",
 	"atlas-cloud",
 	"atlascloud",
 	"alibaba",
@@ -66,8 +61,10 @@ function defaultAdapterBackedSupport(providerId: string, capability: AdapterBack
 			return compatNonTextSupported || providerId === "elevenlabs";
 		case "ocr":
 			return providerId === "mistral";
+		case "parse":
+			return providerId === "cohere";
 		case "music.generate":
-			return providerId === "suno" || providerId === "elevenlabs";
+			return providerId === "elevenlabs";
 		default:
 			return false;
 	}

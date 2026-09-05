@@ -31,7 +31,7 @@ function queryResult(
 		onSelect?.(columns);
 		return query;
 	});
-	for (const method of ["eq", "gte", "lt", "in", "order", "range"]) {
+	for (const method of ["eq", "gte", "lt", "in", "or", "order", "range", "contains"]) {
 		query[method] = vi.fn(() => query);
 	}
 	query.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
@@ -72,6 +72,7 @@ describe("analyticsRoutes", () => {
 					requested_model_slug: "openai/gpt-test",
 					routed_model_slug: "openai/gpt-test",
 					provider_model_id: "openai:gpt-test",
+					safe_metadata: { labels: [{ key: "team", value: "support" }] },
 					cost_nanos: "1500000000",
 					byok: true,
 					v2_request_usage: [
@@ -108,6 +109,79 @@ describe("analyticsRoutes", () => {
 				reasoning_tokens: 2,
 			}),
 		]);
+	});
+
+	it("filters spend by a request label", async () => {
+		let containsCalls = 0;
+		let factQueries = 0;
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table !== "v2_request_facts") throw new Error(`unexpected table: ${table}`);
+				factQueries += 1;
+				const result = queryResult(factQueries === 1
+					? { data: [], error: null, count: 0 }
+					: { data: [], error: null });
+				const originalContains = result.contains;
+				result.contains = vi.fn((...args: unknown[]) => {
+					containsCalls += 1;
+					return (originalContains as (...inner: unknown[]) => unknown)(...args);
+				});
+				return result;
+			}),
+		});
+
+		const response = await analyticsRoutes.request("https://example.com/?label_key=team&label_value=support");
+		expect(response.status).toBe(200);
+		expect(containsCalls).toBe(2);
+	});
+
+	it("applies key, model, endpoint, BYOK, and success filters before aggregation", async () => {
+		const calls: Array<[string, ...unknown[]]> = [];
+		let factQueries = 0;
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table !== "v2_request_facts") throw new Error(`unexpected table: ${table}`);
+				factQueries += 1;
+				const result = queryResult(factQueries === 1 ? { data: [], error: null, count: 0 } : { data: [], error: null });
+				for (const method of ["eq", "or"] as const) {
+					const original = result[method] as (...args: unknown[]) => unknown;
+					result[method] = vi.fn((...args: unknown[]) => { calls.push([method, ...args]); return original(...args); });
+				}
+				return result;
+			}),
+		});
+
+		const response = await analyticsRoutes.request("https://example.com/?key_id=key_1&model=openai/gpt-test&endpoint=chat/completions&byok=true&success=false&limit=10");
+		expect(response.status).toBe(200);
+		expect(calls).toEqual(expect.arrayContaining([
+			["eq", "key_id", "key_1"],
+			["eq", "endpoint", "chat/completions"],
+			["eq", "byok", true],
+			["eq", "success", false],
+			["or", "requested_model_slug.eq.openai/gpt-test,routed_model_slug.eq.openai/gpt-test"],
+		]));
+	});
+
+	it("exports the filtered aggregate as spreadsheet-safe CSV", async () => {
+		const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+		let factQueries = 0;
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table === "v2_request_facts") {
+					factQueries += 1;
+					return queryResult(factQueries === 1 ? { data: [], error: null, count: 1 } : { data: [{ occurred_at: `${yesterday}T12:00:00.000Z`, endpoint: "responses", requested_model_slug: "=cmd", routed_model_slug: "=cmd", provider_model_id: "provider:model", cost_nanos: 1, byok: false, success: true, v2_request_usage: [] }], error: null });
+				}
+				if (table === "v2_model_provider_routes") return queryResult({ data: [{ provider_model_id: "provider:model", provider_slug: "provider" }], error: null });
+				throw new Error(`unexpected table: ${table}`);
+			}),
+		});
+
+		const response = await analyticsRoutes.request("https://example.com/export");
+		const csv = await response.text();
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain("text/csv");
+		expect(csv).toContain("model_permaslug");
+		expect(csv).toContain("'=cmd");
 	});
 
 	it("fails closed when a raw analytics range exceeds the row cap", async () => {

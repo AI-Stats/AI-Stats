@@ -12,6 +12,10 @@ const oauthCleanupRpcMock = vi.fn();
 const runGatewayIoRetentionBillingJobMock = vi.fn();
 const pruneExpiredDataContributionsMock = vi.fn();
 const runPaymentMethodExpiryNotificationJobMock = vi.fn();
+const runNotificationDeliveryJobMock = vi.fn();
+const enqueueModelDeprecationNotificationsMock = vi.fn();
+const runAccountDeletionPurgeJobMock = vi.fn();
+const pruneExpiredGatewayIoLogsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	clearRuntime: (...args: unknown[]) => clearRuntimeMock(...args),
@@ -44,6 +48,11 @@ vi.mock("@/pipeline/notifications/billing-alerts", () => ({
 		runPaymentMethodExpiryNotificationJobMock(...args),
 }));
 
+vi.mock("@/pipeline/notifications/notification-delivery", () => ({
+	runNotificationDeliveryJob: (...args: unknown[]) => runNotificationDeliveryJobMock(...args),
+	enqueueModelDeprecationNotifications: (...args: unknown[]) => enqueueModelDeprecationNotificationsMock(...args),
+}));
+
 vi.mock("@/pipeline/model-discovery", () => ({
 	DEFAULT_MODEL_DISCOVERY_SHARD_SIZE: 250,
 	getModelDiscoveryShardCount: vi.fn(() => 4),
@@ -59,6 +68,14 @@ vi.mock("@/pipeline/audit/io-retention-billing", () => ({
 vi.mock("@/pipeline/classification/data-contribution", () => ({
 	pruneExpiredDataContributions: (...args: unknown[]) =>
 		pruneExpiredDataContributionsMock(...args),
+}));
+
+vi.mock("@/pipeline/privacy/account-deletion", () => ({
+	runAccountDeletionPurgeJob: (...args: unknown[]) => runAccountDeletionPurgeJobMock(...args),
+}));
+
+vi.mock("@/pipeline/audit/io-retention-expiry", () => ({
+	pruneExpiredGatewayIoLogs: (...args: unknown[]) => pruneExpiredGatewayIoLogsMock(...args),
 }));
 
 import { handleScheduledEvent } from "./index";
@@ -85,6 +102,17 @@ describe("handleScheduledEvent", () => {
 		runGatewayIoRetentionBillingJobMock.mockReset();
 		pruneExpiredDataContributionsMock.mockReset();
 		runPaymentMethodExpiryNotificationJobMock.mockReset();
+		runNotificationDeliveryJobMock.mockReset().mockResolvedValue({ queued: 0, sent: 0, failed: 0 });
+		enqueueModelDeprecationNotificationsMock.mockReset().mockResolvedValue({ workspaces: 0, enqueued: 0 });
+		runAccountDeletionPurgeJobMock.mockReset().mockResolvedValue({
+			claimed: 0,
+			completed: 0,
+			failed: 0,
+			deadlineMissed: 0,
+			r2ObjectsDeleted: 0,
+			kvKeysDeleted: 0,
+		});
+		pruneExpiredGatewayIoLogsMock.mockReset().mockResolvedValue({ selected: 0, deleted: 0, failed: 0 });
 		oauthCleanupRpcMock.mockResolvedValue({ error: null });
 		runAsyncWebhookRetriesJobMock.mockResolvedValue({
 			startedAt: "2026-06-10T00:05:00.000Z",
@@ -116,6 +144,8 @@ describe("handleScheduledEvent", () => {
 
 	it("runs async webhook retries on five-minute core job ticks by default", async () => {
 		const env = {
+			ENV: "prod",
+			ACCOUNT_DELETION_PURGE_ENABLED: "true",
 			ASYNC_WEBHOOK_RETRIES_LIMIT_PER_KIND: "37",
 			ASYNC_WEBHOOK_RETRIES_MAX_DELIVERIES: "11",
 		} as any;
@@ -135,6 +165,29 @@ describe("handleScheduledEvent", () => {
 		});
 		expect(runModelDiscoveryJobMock).not.toHaveBeenCalled();
 		expect(pruneExpiredDataContributionsMock).toHaveBeenCalledWith(1000);
+		expect(pruneExpiredGatewayIoLogsMock).toHaveBeenCalledWith({
+			asOf: new Date("2026-06-10T00:05:00.000Z"),
+			limit: 250,
+		});
+		expect(runAccountDeletionPurgeJobMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not let staging claim the shared account-deletion queue", async () => {
+		await handleScheduledEvent(
+			scheduledEventAt("2026-06-10T00:05:00.000Z"),
+			{ ENV: "staging", ACCOUNT_DELETION_PURGE_ENABLED: "true" } as any,
+		);
+
+		expect(runAccountDeletionPurgeJobMock).not.toHaveBeenCalled();
+	});
+
+	it("fails closed when the production deletion worker is not explicitly enabled", async () => {
+		await handleScheduledEvent(
+			scheduledEventAt("2026-06-10T00:05:00.000Z"),
+			{ ENV: "prod" } as any,
+		);
+
+		expect(runAccountDeletionPurgeJobMock).not.toHaveBeenCalled();
 	});
 
 	it("allows the v2 analytics outbox batch size to be configured", async () => {

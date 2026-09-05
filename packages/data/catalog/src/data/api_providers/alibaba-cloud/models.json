@@ -3626,6 +3626,188 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/wan3.0-video",
+    "provider_api_model_id": "alibaba-cloud:qwen/wan3.0-video",
+    "provider_model_slug": "wan3.0-video",
+    "internal_model_id": "qwen/wan3.0-video",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-06T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": {
+          "prompt": { "type": "string" },
+          "duration": {
+            "type": "number",
+            "min": 2,
+            "max": 30,
+            "aliases": ["seconds", "duration_seconds"],
+            "notes": "Use -1 through provider_params only for Alibaba smart duration; the validated top-level video duration is 2-30 seconds."
+          },
+          "size": {
+            "type": "enum",
+            "values": ["480P", "480p", "720P", "720p", "1080P", "1080p"],
+            "default": "1080P",
+            "aliases": ["resolution"]
+          },
+          "aspect_ratio": {
+            "type": "enum",
+            "values": ["adaptive", "16:9", "4:3", "1:1", "3:4", "9:16"],
+            "default": "adaptive",
+            "aliases": ["ratio"]
+          },
+          "input_image": { "type": "string" },
+          "input_video": { "type": "string" },
+          "input_audio": { "type": "string" },
+          "input_references": { "type": "array" },
+          "last_frame": { "type": "string" },
+          "generate_audio": { "type": "boolean", "aliases": ["audio"] },
+          "enhance_prompt": { "type": "boolean", "aliases": ["prompt_extend"] },
+          "watermark": { "type": "boolean" },
+          "seed": { "type": "integer", "min": 0, "max": 2147483647 }
+        },
+        "reasoning": null,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": ["text", "image", "video", "audio"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-edit", "video-extension"]
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["ap-southeast-1", "cn-beijing", "us-east-1", "ap-northeast-1", "eu-central-1", "cn-hongkong"],
+      "data": ["ap-southeast-1", "cn-beijing", "us-east-1", "ap-northeast-1", "eu-central-1", "cn-hongkong"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["dashscope.async.video"],
+      "endpoint": "/api/v1/services/aigc/video-generation/video-synthesis",
+      "deployment": "regional"
+    },
+    "sources": [
+      {
+        "kind": "official_documentation",
+        "url": "https://docs.modelstudio.console.alibabacloud.com/en/model-studio/wan3-video-generation-guide",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "All-in-one Wan 3.0 capabilities, input constraints, and output specifications."
+      },
+      {
+        "kind": "official_api_reference",
+        "url": "https://docs.modelstudio.console.alibabacloud.com/en/model-studio/wan3-video-generation-api-reference",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "Async DashScope video synthesis endpoint and exact upstream model ID."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-31T00:00:00Z",
+      "notes": "Verified for the documented Alibaba Cloud Model Studio regional endpoints; supported by the Alibaba video executor."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/wan3.0-video-prime",
+    "provider_api_model_id": "alibaba-cloud:qwen/wan3.0-video-prime",
+    "provider_model_slug": "wan3.0-video-prime",
+    "internal_model_id": "qwen/wan3.0-video-prime",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-20T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": {
+          "prompt": { "type": "string" },
+          "duration": {
+            "type": "number",
+            "min": 2,
+            "max": 30,
+            "aliases": ["seconds", "duration_seconds"],
+            "notes": "Use -1 through provider_params only for Alibaba smart duration; the validated top-level video duration is 2-30 seconds."
+          },
+          "size": {
+            "type": "enum",
+            "values": ["480P", "480p", "720P", "720p", "1080P", "1080p"],
+            "default": "1080P",
+            "aliases": ["resolution"]
+          },
+          "aspect_ratio": {
+            "type": "enum",
+            "values": ["adaptive", "16:9", "4:3", "1:1", "3:4", "9:16"],
+            "default": "adaptive",
+            "aliases": ["ratio"]
+          },
+          "input_image": { "type": "string" },
+          "input_video": { "type": "string" },
+          "input_audio": { "type": "string" },
+          "input_references": { "type": "array" },
+          "last_frame": { "type": "string" },
+          "generate_audio": { "type": "boolean", "aliases": ["audio"] },
+          "enhance_prompt": { "type": "boolean", "aliases": ["prompt_extend"] },
+          "watermark": { "type": "boolean" },
+          "seed": { "type": "integer", "min": 0, "max": 2147483647 }
+        },
+        "reasoning": null,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": ["text", "image", "video", "audio"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-edit", "video-extension"]
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["ap-southeast-1", "cn-beijing", "us-east-1", "ap-northeast-1", "eu-central-1", "cn-hongkong"],
+      "data": ["ap-southeast-1", "cn-beijing", "us-east-1", "ap-northeast-1", "eu-central-1", "cn-hongkong"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["dashscope.async.video"],
+      "endpoint": "/api/v1/services/aigc/video-generation/video-synthesis",
+      "deployment": "regional"
+    },
+    "sources": [
+      {
+        "kind": "official_documentation",
+        "url": "https://docs.modelstudio.console.alibabacloud.com/en/model-studio/wan3-video-generation-guide",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "Wan 3.0 Prime shares the standard model's capabilities with speed-optimized inference."
+      },
+      {
+        "kind": "official_model_catalogue",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/newly-released-models",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "Official 2026-08-20 model release entry."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-31T00:00:00Z",
+      "notes": "Verified for the documented Alibaba Cloud Model Studio regional endpoints; supported by the Alibaba video executor."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "qwen/wan2.7-t2v",
     "provider_api_model_id": "alibaba-cloud:qwen/wan2.7-t2v",
     "provider_model_slug": "wan2.7-t2v",
@@ -4357,13 +4539,13 @@
   {
     "api_model_id": "z-ai/glm-5.2",
     "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.2",
-    "provider_model_slug": "zai-org/GLM-5.2",
+    "provider_model_slug": "glm-5.2",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 202752,
     "max_output_tokens": 131072,
     "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
@@ -4382,25 +4564,345 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-flash",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-flash",
+    "provider_model_slug": "qwen3.8-flash",
+    "internal_model_id": "qwen/qwen3.8-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stream",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenAI- and Anthropic-compatible tool definitions are supported."
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Structured output is supported."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai",
+        "anthropic"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://modelstudio.console.alibabacloud.com/ap-southeast-1/?tab=doc#/doc/?type=model&url=2840914_2&modelId=qwen3.8-flash&serviceSite=international",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Model Studio lists the production qwen3.8-flash endpoint, multimodal inputs, million-token context, supported capabilities, and OpenAI/Anthropic-compatible APIs."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified against the live Alibaba Cloud Model Studio model page."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max-0902",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-max-0902",
+    "provider_model_slug": "qwen3.8-max-0902",
+    "internal_model_id": "qwen/qwen3.8-max-0902",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-09-02T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "auto",
+            "notes": "Thinking mode cannot force a specific tool."
+          },
+          {
+            "param_id": "parallel_tool_calls",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": 0,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Qwen Cloud documents the range as [0, 2)."
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": 131072,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": 1,
+            "provider_default": null,
+            "notes": "Qwen Cloud documents the range as (0, 1]."
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": 0,
+            "provider_max": null,
+            "provider_default": 20,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": 0,
+            "provider_max": 2147483647,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": -2,
+            "provider_max": 2,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Qwen Cloud requires a value greater than 0."
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "text",
+            "notes": "Supports text, json_object and json_schema."
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": 0,
+            "provider_max": 262144,
+            "provider_default": null,
+            "notes": "The model page lists a maximum reasoning budget of 262K tokens."
+          },
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "xhigh",
+            "notes": "Supported values: low, medium, xhigh."
+          },
+          {
+            "param_id": "web_search_options",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": {
+          "style": "tokens",
+          "maxReasoningTokens": 262144
+        },
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": "text,image,video",
+        "output_modalities": "text",
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai",
+        "dashscope"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "release",
+        "url": "https://www.qwencloud.com/models/qwen3.8-max-0902",
+        "accessed_at": "2026-09-02T00:00:00Z",
+        "notes": "Official model availability, aliases, modalities, limits and features."
+      },
+      {
+        "kind": "release",
+        "url": "https://x.com/Alibaba_Qwen/status/2094968708288680276",
+        "accessed_at": "2026-09-02T00:00:00Z",
+        "notes": "Official launch announcement."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.qwencloud.com/api-reference/chat/dashscope",
+        "accessed_at": "2026-09-02T00:00:00Z",
+        "notes": "Official API parameter reference."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-09-02T00:00:00Z",
+      "notes": "Production API model qwen3.8-max-0902 verified on Qwen Cloud. The provider also documents qwen3.8-max-2026-09-02 as an alias."
+    },
+    "rate_limits": [
+      {
+        "requests_per_minute": 15000,
+        "tokens_per_minute": 1000000
+      }
+    ]
   },
   {
     "api_model_id": "qwen/qwen3.8-max",
@@ -4641,7 +5143,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 1000000,
     "max_output_tokens": 393216,
     "effective_from": null,
     "effective_to": null,
@@ -4678,16 +5180,16 @@
     },
     "sources": [
       {
-        "kind": "documentation",
-        "url": "https://www.alibabacloud.com/help/en/model-studio/deepseek-api",
-        "accessed_at": "2026-08-03T00:00:00Z",
-        "notes": "Official Model Studio model ID, context and feature documentation."
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment and existing Phaseo executor recorded."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
   },
@@ -4990,9 +5492,9 @@
   {
     "api_model_id": "moonshotai/kimi-k2.7-code",
     "provider_api_model_id": "alibaba-cloud:moonshotai/kimi-k2.7-code",
-    "provider_model_slug": "moonshotai/kimi-k2.7-code",
+    "provider_model_slug": "kimi-k2.7-code",
     "internal_model_id": "moonshotai/kimi-k2.7-code",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "fp8",
     "input_modalities": "text,image,video",
     "output_modalities": "text",
@@ -5003,7 +5505,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -5029,13 +5531,15 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -5043,25 +5547,25 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "alibaba-cloud:deepseek/deepseek-v4-pro",
-    "provider_model_slug": "deepseek/deepseek-v4-pro",
+    "provider_model_slug": "deepseek-v4-pro",
     "internal_model_id": "deepseek/deepseek-v4-pro",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "fp8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -5072,7 +5576,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -5100,13 +5604,15 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -5114,36 +5620,36 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-5.1",
     "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.1",
-    "provider_model_slug": "z-ai/glm-5.1",
+    "provider_model_slug": "glm-5.1",
     "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "fp8",
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": 202745,
+    "context_length": 202752,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -5172,13 +5678,15 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -5186,16 +5694,16 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
   },
@@ -5274,9 +5782,9 @@
   {
     "api_model_id": "deepseek/deepseek-v3.2",
     "provider_api_model_id": "alibaba-cloud:deepseek/deepseek-v3.2",
-    "provider_model_slug": "deepseek/deepseek-v3.2",
+    "provider_model_slug": "deepseek-v3.2",
     "internal_model_id": "deepseek/deepseek-v3.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "fp8",
     "input_modalities": null,
     "output_modalities": null,
@@ -5287,7 +5795,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -5314,13 +5822,15 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -5328,16 +5838,16 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
   },
@@ -5970,6 +6480,198 @@
       "status": "partial",
       "checked_at": "2026-08-12T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2-fast",
+    "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.2-fast",
+    "provider_model_slug": "glm-5.2-fast-preview",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-06-16T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Hidden sibling selected when z-ai/glm-5.2 requests the priority service tier; the upstream fast-preview slug serves the same underlying model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-flash",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.6-flash",
+    "provider_model_slug": "qwen3.6-flash",
+    "internal_model_id": "qwen/qwen3.6-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-04-16T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current recommended Qwen flash deployment for International Model Studio."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Alibaba Cloud's current model catalogue."
     },
     "rate_limits": []
   }

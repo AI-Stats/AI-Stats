@@ -9,7 +9,7 @@
       "meter": "input_audio_minutes",
       "unit": "minute",
       "unit_size": 1,
-      "price_per_unit": 0.0005,
+      "price_per_unit": 0.00045,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,

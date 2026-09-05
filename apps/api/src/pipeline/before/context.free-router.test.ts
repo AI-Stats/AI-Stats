@@ -116,6 +116,9 @@ const runtime = vi.hoisted(() => {
     ];
 
     const from = vi.fn((table: string) => {
+        if (table === "workspace_private_models") {
+            return { select: () => ({ eq: () => ({ eq: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }) }) }) };
+        }
         if (table === "v2_model_provider_routes") {
             return {
                 select: () => ({
@@ -267,30 +270,30 @@ describe("fetchGatewayContext free router", () => {
                 expect.objectContaining({
                     providerId: "openai",
                     apiModelId: "openai/gpt-free-a",
-                    pricingKey: "openai:openai/gpt-free-a",
+                    pricingKey: "openai:openai/gpt-free-a:gpt-free-a",
                     providerModelSlug: "gpt-free-a",
                 }),
                 expect.objectContaining({
                     providerId: "openai",
                     apiModelId: "openai/gpt-free-b",
-                    pricingKey: "openai:openai/gpt-free-b",
+                    pricingKey: "openai:openai/gpt-free-b:gpt-free-b",
                     providerModelSlug: "gpt-free-b",
                 }),
                 expect.objectContaining({
                     providerId: "google-ai-studio",
                     apiModelId: "google/gemini-free",
-                    pricingKey: "google-ai-studio:google/gemini-free",
+                    pricingKey: "google-ai-studio:google/gemini-free:gemini-free",
                     providerModelSlug: "gemini-free",
                 }),
             ]),
         );
         expect(Object.keys(context.pricing).sort()).toEqual([
-            "google-ai-studio:google/gemini-free",
-            "openai:openai/gpt-free-a",
-            "openai:openai/gpt-free-b",
+            "google-ai-studio:google/gemini-free:gemini-free",
+            "openai:openai/gpt-free-a:gpt-free-a",
+            "openai:openai/gpt-free-b:gpt-free-b",
         ]);
-        expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-free-a", "text.generate");
-        expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-free-b", "text.generate");
-        expect(loadPriceCardMock).toHaveBeenCalledWith("google-ai-studio", "google/gemini-free", "text.generate");
+        expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-free-a", "text.generate", "gpt-free-a");
+        expect(loadPriceCardMock).toHaveBeenCalledWith("openai", "openai/gpt-free-b", "text.generate", "gpt-free-b");
+        expect(loadPriceCardMock).toHaveBeenCalledWith("google-ai-studio", "google/gemini-free", "text.generate", "gemini-free");
     });
 });

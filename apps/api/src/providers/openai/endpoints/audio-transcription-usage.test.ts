@@ -17,6 +17,12 @@ describe("estimateOpenAiSpeechToTextUsage", () => {
         expect(usage.output_text_tokens).toBeGreaterThan(0);
     });
 
+	 it("uses a compressed-audio filename when multipart MIME metadata is empty", async () => {
+		 const file = new File([new Uint8Array(16000 * 2)], "sample.mp3", { type: "" });
+		 const usage = await estimateOpenAiSpeechToTextUsage({ file, text: "transcript" });
+		 expect(usage.input_audio_seconds).toBe(2);
+	 });
+
     it("logs a warning when duration fallback cannot infer audio length", async () => {
         const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         const file = new File([new Uint8Array([1, 2, 3, 4])], "sample.bin", {

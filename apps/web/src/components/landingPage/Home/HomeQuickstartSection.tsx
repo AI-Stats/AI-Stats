@@ -25,6 +25,10 @@ import {
 import NumberFlow from "@number-flow/react";
 import { Logo } from "@/components/Logo";
 import { getModalityTone } from "@/lib/models/modalityStyles";
+import {
+	BETA_OPEN_MODEL_INTEL,
+	type HomeModelPrices,
+} from "./homeModelIntel";
 
 type Benefit = {
 	title: string;
@@ -36,16 +40,6 @@ type Benefit = {
 
 type QuickstartVariant = "default" | "beta";
 type NumberFlowFormat = ComponentProps<typeof NumberFlow>["format"];
-
-export type LandingOpenModelIntelEntry = {
-	providerId: string;
-	name: string;
-	model: string;
-	latencyMs: number;
-	throughputTps: number;
-	inputPrice: number;
-	outputPrice: number;
-};
 
 function useIsHydrated() {
 	return useSyncExternalStore(
@@ -184,30 +178,9 @@ const FEATURED_PROVIDER_IDS = [
 	"cohere",
 ] as const;
 
-const MAX_AVAILABILITY_PROVIDER_IDS = [
-	"azure",
-	"amazon-bedrock",
-	"cerebras",
-	"cloudflare",
-	"deepinfra",
-	"fireworks",
-	"groq",
-	"together",
-	"novita",
-	"venice",
-] as const;
-
 const MAX_AVAILABILITY_RING = [
-	{ id: "azure", top: "21%", left: "16%" },
-	{ id: "amazon-bedrock", top: "14%", left: "33%" },
-	{ id: "cerebras", top: "11%", left: "50%" },
-	{ id: "cloudflare", top: "14%", left: "67%" },
-	{ id: "deepinfra", top: "21%", left: "84%" },
-	{ id: "fireworks", top: "79%", left: "84%" },
-	{ id: "groq", top: "86%", left: "67%" },
-	{ id: "together", top: "89%", left: "50%" },
-	{ id: "novita", top: "86%", left: "33%" },
-	{ id: "venice", top: "79%", left: "16%" },
+	{ id: "anthropic", top: "50%", left: "18%" },
+	{ id: "google-vertex", top: "50%", left: "82%" },
 ] as const;
 
 function getCenterFirstIndexes(columns: number, rows: number) {
@@ -268,8 +241,7 @@ const MODELS_VISUAL_PROVIDERS = buildModelsVisualProviders(PROVIDERS);
 
 const ROUTE_PATHS = [
 	{ d: "M110 0 C110 20, 30 28, 30 82", delay: "0s" },
-	{ d: "M110 0 C110 24, 110 30, 110 82", delay: "1.25s" },
-	{ d: "M110 0 C110 20, 190 28, 190 82", delay: "2.5s" },
+	{ d: "M110 0 C110 20, 190 28, 190 82", delay: "1.9s" },
 ] as const;
 
 function LogoToken({
@@ -408,8 +380,8 @@ function UptimeVisual({ variant = "default" }: { variant?: QuickstartVariant }) 
 							<div className="inline-flex items-center gap-2 rounded-full border border-zinc-200/80 bg-white px-3 py-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.05)] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-none">
 								<span className="relative h-[18px] w-[18px] shrink-0">
 									<Logo
-										id="openai"
-										alt="OpenAI"
+									id="anthropic"
+									alt="Anthropic"
 										variant="color"
 										fill
 										sizes="18px"
@@ -417,7 +389,7 @@ function UptimeVisual({ variant = "default" }: { variant?: QuickstartVariant }) 
 									/>
 								</span>
 								<span className="whitespace-nowrap text-[12px] font-semibold leading-none text-zinc-950 dark:text-zinc-50">
-									GPT-OSS 120B
+									Claude Fable 5
 								</span>
 							</div>
 						</div>
@@ -434,8 +406,8 @@ function UptimeVisual({ variant = "default" }: { variant?: QuickstartVariant }) 
 					<div className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200/80 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
 						<span className="relative h-3.5 w-3.5">
 							<Logo
-								id="openai"
-								alt="OpenAI"
+						id="anthropic"
+						alt="Anthropic"
 								variant="color"
 								fill
 								sizes="14px"
@@ -489,7 +461,7 @@ function UptimeVisual({ variant = "default" }: { variant?: QuickstartVariant }) 
 							className="object-contain object-center"
 						/>
 					</span>
-					<span>openai/gpt-oss-120b</span>
+					<span>anthropic/claude-fable-5</span>
 				</div>
 				<div className="relative mt-1 h-[98px] w-full max-w-[220px]">
 					<svg viewBox="0 0 220 98" className="absolute inset-0 h-full w-full" aria-hidden="true">
@@ -518,9 +490,8 @@ function UptimeVisual({ variant = "default" }: { variant?: QuickstartVariant }) 
 							<RequestPulse key={path.d + path.delay} d={path.d} delay={path.delay} />
 						))}
 					</svg>
-					<div className="absolute bottom-0 left-4"><LogoToken id="cerebras" label="Cerebras" size={16} /></div>
-					<div className="absolute bottom-0 left-1/2 -translate-x-1/2"><LogoToken id="novita" label="Novita" size={16} /></div>
-					<div className="absolute bottom-0 right-4"><LogoToken id="groq" label="Groq" size={16} /></div>
+					<div className="absolute bottom-0 left-4"><LogoToken id="anthropic" label="Anthropic" size={16} /></div>
+					<div className="absolute bottom-0 right-4"><LogoToken id="google-vertex" label="Google Vertex AI" size={16} /></div>
 				</div>
 			</div>
 		</VisualStage>
@@ -761,63 +732,6 @@ function ObservabilityVisual() {
 	);
 }
 
-const BETA_OPEN_MODEL_INTEL: LandingOpenModelIntelEntry[] = [
-	{
-		providerId: "openai",
-		name: "GPT-5.6 Sol",
-		model: "openai/gpt-5.6-sol",
-		latencyMs: 472,
-		throughputTps: 92,
-		inputPrice: 12.5,
-		outputPrice: 75.0,
-	},
-	{
-		providerId: "anthropic",
-		name: "Claude Fable 5",
-		model: "anthropic/claude-fable-5",
-		latencyMs: 548,
-		throughputTps: 79,
-		inputPrice: 10.0,
-		outputPrice: 50.0,
-	},
-	{
-		providerId: "google",
-		name: "Gemini 3.1 Pro",
-		model: "google/gemini-3.1-pro-preview",
-		latencyMs: 441,
-		throughputTps: 101,
-		inputPrice: 2.0,
-		outputPrice: 12.0,
-	},
-	{
-		providerId: "minimax",
-		name: "MiniMax M3",
-		model: "minimax/minimax-m3",
-		latencyMs: 388,
-		throughputTps: 108,
-		inputPrice: 0.3,
-		outputPrice: 1.2,
-	},
-	{
-		providerId: "deepseek",
-		name: "DeepSeek V4 Pro",
-		model: "deepseek/deepseek-v4-pro",
-		latencyMs: 405,
-		throughputTps: 94,
-		inputPrice: 1.68,
-		outputPrice: 3.38,
-	},
-	{
-		providerId: "moonshotai",
-		name: "Kimi K2.7 Code",
-		model: "moonshotai/kimi-k2.7-code",
-		latencyMs: 423,
-		throughputTps: 89,
-		inputPrice: 0.95,
-		outputPrice: 4.0,
-	},
-] as const;
-
 function BetaModelHeader({
 	providerId,
 	providerLabel,
@@ -863,7 +777,7 @@ function BetaModelHeader({
 	);
 }
 
-function BetaDatabaseVisual() {
+function BetaDatabaseVisual({ modelPrices }: { modelPrices: HomeModelPrices }) {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [nextIndex, setNextIndex] = useState<number | null>(null);
 	const [isSliding, setIsSliding] = useState(false);
@@ -894,6 +808,7 @@ function BetaDatabaseVisual() {
 	const currentModel = modelPool[activeIndex] ?? modelPool[0];
 	const incomingModel =
 		nextIndex === null ? currentModel : modelPool[nextIndex] ?? currentModel;
+	const currentPrice = modelPrices[currentModel.model];
 
 	return (
 		<div className="w-full px-4">
@@ -943,7 +858,7 @@ function BetaDatabaseVisual() {
 						<span className="text-[9px] font-medium text-zinc-500 dark:text-zinc-400">
 							Latency
 						</span>
-						<p className="mt-1 text-[16px] font-semibold leading-none tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
+						<p className="mt-1 text-[12px] font-semibold leading-none text-zinc-950 dark:text-zinc-50">
 							<HydratedNumberFlow value={currentModel.latencyMs} />
 							<span className="ml-0.5 text-[10px] font-medium tracking-normal text-zinc-500 dark:text-zinc-400">
 								ms
@@ -954,7 +869,7 @@ function BetaDatabaseVisual() {
 						<span className="text-[9px] font-medium text-zinc-500 dark:text-zinc-400">
 							Throughput
 						</span>
-						<p className="mt-1 text-[16px] font-semibold leading-none tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
+						<p className="mt-1 text-[12px] font-semibold leading-none text-zinc-950 dark:text-zinc-50">
 							<HydratedNumberFlow value={currentModel.throughputTps} />
 							<span className="ml-0.5 text-[10px] font-medium tracking-normal text-zinc-500 dark:text-zinc-400">
 								tok/s
@@ -963,12 +878,18 @@ function BetaDatabaseVisual() {
 					</div>
 					<div className="hidden text-right xl:block">
 						<span className="text-[9px] font-medium text-zinc-500 dark:text-zinc-400">
-							Pricing
+							Pricing / 1M tokens
 						</span>
 						<p className="mt-1 whitespace-nowrap text-[12px] font-semibold leading-none text-zinc-950 dark:text-zinc-50">
-							$<HydratedNumberFlow value={currentModel.inputPrice} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
-							<span className="px-1 text-zinc-400 dark:text-zinc-500">/</span>$
-							<HydratedNumberFlow value={currentModel.outputPrice} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
+							{currentPrice ? (
+								<>
+									$<HydratedNumberFlow value={currentPrice.inputPrice} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
+									<span className="px-1 text-zinc-400 dark:text-zinc-500">/</span>$
+									<HydratedNumberFlow value={currentPrice.outputPrice} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
+								</>
+							) : (
+								"—"
+							)}
 						</p>
 					</div>
 				</div>
@@ -979,14 +900,16 @@ function BetaDatabaseVisual() {
 
 function DatabaseVisual({
 	variant = "default",
+	modelPrices,
 }: {
 	variant?: QuickstartVariant;
+	modelPrices: HomeModelPrices;
 }) {
 	if (variant === "beta") {
 		return (
 			<VisualStage>
 				<div className="flex h-full w-full items-center justify-center">
-					<BetaDatabaseVisual />
+					<BetaDatabaseVisual modelPrices={modelPrices} />
 				</div>
 			</VisualStage>
 		);
@@ -1025,9 +948,11 @@ function DatabaseVisual({
 function BenefitVisual({
 	visual,
 	variant = "default",
+	modelPrices,
 }: {
 	visual: Benefit["visual"];
 	variant?: QuickstartVariant;
+	modelPrices: HomeModelPrices;
 }) {
 	switch (visual) {
 		case "models":
@@ -1040,14 +965,16 @@ function BenefitVisual({
 			return <ObservabilityVisual />;
 		case "database":
 		default:
-			return <DatabaseVisual variant={variant} />;
+			return <DatabaseVisual variant={variant} modelPrices={modelPrices} />;
 	}
 }
 
 export default function HomeQuickstartSection({
 	variant = "default",
+	modelPrices = {},
 }: {
 	variant?: QuickstartVariant;
+	modelPrices?: HomeModelPrices;
 }) {
 	const benefits = variant === "beta" ? BENEFITS_BETA : BENEFITS_DEFAULT;
 
@@ -1068,6 +995,7 @@ export default function HomeQuickstartSection({
 							<BenefitVisual
 								visual={benefit.visual}
 								variant={variant}
+								modelPrices={modelPrices}
 							/>
 						</div>
 						<div className="space-y-4 px-6 py-5 text-left">
@@ -1094,8 +1022,3 @@ export default function HomeQuickstartSection({
 		</div>
 	);
 }
-
-
-
-
-

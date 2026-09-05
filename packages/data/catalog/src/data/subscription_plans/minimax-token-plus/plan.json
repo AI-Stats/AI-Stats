@@ -2,65 +2,18 @@
   "plan_id": "minimax-token-plus",
   "name": "MiniMax Token Plan Plus",
   "organisation_id": "minimax",
-  "description": null,
+  "description": "Entry MiniMax Token Plan for personal projects, prototyping, and agent workflows.",
   "pricing_options": [
-    {
-      "frequency": "monthly",
-      "usd_price": 20,
-      "link": "https://platform.minimax.io/docs/guides/pricing-tokenplan",
-      "other_info": null
-    },
-    {
-      "frequency": "yearly",
-      "usd_price": 200,
-      "link": "https://platform.minimax.io/docs/guides/pricing-tokenplan",
-      "other_info": null
-    }
+    { "frequency": "monthly", "usd_price": 22, "link": "https://platform.minimax.io/docs/guides/pricing-token-plan", "other_info": null },
+    { "frequency": "yearly", "usd_price": 220, "link": "https://platform.minimax.io/subscribe/token-plan", "other_info": "Billed annually" }
   ],
   "features": [
-    {
-      "feature_name": "M2.7 Quota",
-      "feature_value": "4,500 requests / 5 hours",
-      "feature_description": null,
-      "other_info": null
-    },
-    {
-      "feature_name": "TTS HD",
-      "feature_value": "4,000 characters / day",
-      "feature_description": null,
-      "other_info": null
-    },
-    {
-      "feature_name": "image-01",
-      "feature_value": "50 images / day",
-      "feature_description": null,
-      "other_info": null
-    }
+    { "feature_name": "Model Coverage", "feature_value": "M3, M2.7, image, and speech", "feature_description": "Supported text, image, and speech resources share the plan quota.", "other_info": null },
+    { "feature_name": "Agent Usage", "feature_value": "3–4 agents", "feature_description": "MiniMax's published reference for typical concurrent agent usage.", "other_info": null },
+    { "feature_name": "Quota Windows", "feature_value": "5-hour rolling and weekly", "feature_description": null, "other_info": null }
   ],
   "models": [
-    {
-      "model_id": "minimax/minimax-m2.7",
-      "model_info": null,
-      "rate_limit": null,
-      "other_info": null
-    },
-    {
-      "model_id": "minimax/image-01",
-      "model_info": null,
-      "rate_limit": null,
-      "other_info": null
-    },
-    {
-      "model_id": "minimax/music-2.6",
-      "model_info": null,
-      "rate_limit": null,
-      "other_info": null
-    },
-    {
-      "model_id": "minimax/speech-02-hd",
-      "model_info": null,
-      "rate_limit": null,
-      "other_info": null
-    }
+    { "model_id": "minimax/minimax-m3", "model_info": "Current flagship text model", "rate_limit": "Shared plan quota", "other_info": "Exact quota consumption depends on the selected resource." },
+    { "model_id": "minimax/minimax-m2.7", "model_info": "Text and coding model", "rate_limit": "Shared plan quota", "other_info": null }
   ]
 }

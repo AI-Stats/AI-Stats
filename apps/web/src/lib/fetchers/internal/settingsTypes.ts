@@ -8,6 +8,16 @@ export type SettingsLayoutInitialData = {
 	signedIn: boolean;
 	workspaceId: string | null;
 	workspaceName: string | null;
+	accountContext: null | {
+		platformRole: string;
+		isInternalAdmin: boolean;
+		isProvider: boolean;
+		providerSlugs: string[];
+		workspaceRole: string | null;
+		workspaceKind: "personal" | "organization" | "enterprise" | "provider" | null;
+		workspaceExperience: "self_serve" | "enterprise" | "provider" | null;
+		experiences: Array<"self_serve" | "enterprise" | "provider" | "internal">;
+	};
 };
 
 export type SettingsBetaInitialData = {
@@ -153,6 +163,7 @@ export type SettingsAppRow = {
 	id: string;
 	image_url: string | null;
 	is_active: boolean;
+	is_managed: boolean;
 	is_public: boolean;
 	last_seen: string | null;
 	title: string;
@@ -295,6 +306,9 @@ export type SettingsCreditsInitialData = {
 	lowBalanceEmailEnabled: boolean;
 	lowBalanceEmailThresholdUsd: number | null;
 	paymentMethodExpiringEmailEnabled: boolean;
+	modelDeprecationAlertsEnabled: boolean;
+	notificationDestinations: NotificationDestination[];
+	notificationRoutes: Partial<Record<NotificationEventKind, string[]>>;
 	obfuscateInfo: boolean;
 	stripeInfo: {
 		customer: { email: string | null; id: string | null };
@@ -314,6 +328,87 @@ export type SettingsCreditsInitialData = {
 		[key: string]: unknown;
 	} | null;
 };
+
+export type ProviderOnboardingSubmission = {
+	id: string;
+	provider_slug: string;
+	provider_name: string;
+	catalog_url: string;
+	status: string;
+	model_count: number;
+	validation_summary: Record<string, unknown> | null;
+	submitted_at: string | null;
+	created_at: string;
+};
+
+export type SettingsProviderOnboardingInitialData = {
+	signedIn: boolean;
+	isAdmin: boolean;
+	linkedProviders: Array<{
+		provider_slug: string;
+		workspace_id: string;
+		role: string;
+		status: "pending" | "active";
+		verified_at: string | null;
+	}>;
+	submissions: ProviderOnboardingSubmission[];
+	syncSources: Array<{
+		provider_slug: string;
+		status: string;
+		delivery_mode: "polling" | "webhook_and_polling";
+		catalog_url: string;
+		webhookUrl: string;
+		last_success_at: string | null;
+		last_polled_at: string | null;
+		last_catalog_sha256: string | null;
+		consecutive_failures: number;
+		last_error: string | null;
+		etag: string | null;
+		last_modified: string | null;
+		next_poll_at: string | null;
+	}>;
+	reviewRevisions: Array<{
+		id: string;
+		provider_slug: string;
+		trigger: string;
+		status: string;
+		review_status: string;
+		review_summary: Record<string, number> | null;
+		model_count: number | null;
+		error_message: string | null;
+		created_at: string;
+		completed_at: string | null;
+		models: Array<{
+			model_slug: string;
+			canonical_model_slug: string | null;
+			match_type: "exact" | "alias" | "new_model" | null;
+			provider_model_slug: string;
+			name: string;
+			availability: "ready" | "not_ready" | "degraded" | "deprecated" | "retired";
+			available_from: string | null;
+			deprecated_at: string | null;
+			shutdown_at: string | null;
+			decision: "pending" | "approved" | "rejected" | "needs_changes";
+			decision_reason: string | null;
+			route_projection_status: "not_projected" | "staged" | "probe_passed" | "enabled" | "failed";
+			route_projection_error: string | null;
+			reviewed_at: string | null;
+		}>;
+	}>;
+	events: Array<{ id: string; provider_slug: string; run_id: string | null; event_type: string; title: string; message: string; payload: Record<string, unknown>; read_at: string | null; created_at: string }>;
+	contracts: { schemaUrl: string; openApiUrl: string };
+};
+
+export type NotificationDestination = {
+	id: string;
+	name: string;
+	type: "email" | "discord" | "discord_webhook" | "slack" | "microsoft_teams" | "custom_webhook";
+	targetPreview: string;
+	status: string;
+	createdAt: string | null;
+};
+
+export type NotificationEventKind = "low_balance" | "auto_top_up_failed" | "payment_method_expiring" | "model_deprecation";
 
 export type SettingsPaymentMethodsInitialData = {
 	customerId: string | null;
@@ -345,6 +440,25 @@ export type SettingsRoutingInitialData = {
 	teamName: string | null;
 	alphaChannelEnabled: boolean;
 	betaChannelEnabled: boolean;
+	workspaceId: string | null;
+};
+
+export type AutoRoutingObjective = "balanced" | "quality" | "cost" | "latency";
+export type AutoRoutingSpendProfile = "economy" | "standard" | "premium" | "unrestricted" | "custom";
+export type AutoRoutingConfiguration = {
+	allowedPatterns: string[];
+	spendProfile: AutoRoutingSpendProfile;
+	maxInputPricePerMillion: number | null;
+	maxOutputPricePerMillion: number | null;
+	objective: AutoRoutingObjective;
+	allowFallbacks: boolean;
+	revision: string | null;
+	updatedAt: string | null;
+};
+export type SettingsAutoRoutingInitialData = {
+	autoRouting: AutoRoutingConfiguration;
+	canManage: boolean;
+	teamName: string | null;
 	workspaceId: string | null;
 };
 
@@ -417,7 +531,7 @@ export type SettingsPresetsInitialData = {
 	teamsWithPresets: Array<{ id: string; name: string; presets: Array<Record<string, unknown>> }>;
 };
 
-export type SettingsGuardrailProviderModel = { providerId: string; apiModelId: string; internalModelId: string | null; internalModelName?: string | null; organisationId?: string | null; organisationName?: string | null; providerPolicy?: { zeroDataRetention: string; dataPolicyTier: string; dataPolicyConfidence: string }; capabilities?: Array<{ id: string; dataPolicy: Record<string, unknown> | null }> };
+export type SettingsGuardrailProviderModel = { providerId: string; apiModelId: string; internalModelId: string | null; internalModelName?: string | null; organisationId?: string | null; organisationName?: string | null; providerPolicy?: { zeroDataRetention: boolean; dataPolicyTier: string; dataPolicyConfidence: string }; capabilities?: Array<{ id: string; dataPolicy: Record<string, unknown> | null }> };
 export type SettingsGuardrailRow = { id: string; enabled?: boolean | null; name?: string | null; description?: string | null; privacy_enable_paid_may_train?: boolean | null; privacy_enable_free_may_train?: boolean | null; privacy_enable_free_may_publish_prompts?: boolean | null; privacy_enable_input_output_logging?: boolean | null; privacy_zdr_only?: boolean | null; provider_restriction_mode?: string | null; provider_restriction_provider_ids?: string[] | null; provider_restriction_enforce_allowed?: boolean | null; model_restriction_mode?: string | null; allowed_api_model_ids?: string[] | null; prompt_injection_enabled?: boolean | null; prompt_injection_action?: string | null; sensitive_info_enabled?: boolean | null; sensitive_info_default_action?: string | null; sensitive_info_rules?: SensitiveInfoRulePayload[] | null; daily_limit_requests?: number | null; weekly_limit_requests?: number | null; monthly_limit_requests?: number | null; daily_limit_cost_nanos?: number | null; weekly_limit_cost_nanos?: number | null; monthly_limit_cost_nanos?: number | null };
 export type SettingsGuardrailMember = { id: string; name: string; role: string };
 export type SettingsGuardrailProvider = { id: string; name: string; familyId: string; offerLabel: string | null; offerScope: "global" | "regional" | "specialized" | null };
@@ -438,7 +552,7 @@ export type WorkspacePrivacySettings = {
 };
 
 export type TeamsSettingsData = {
-	teams: Array<{ id: string; name: string }>;
+	teams: Array<{ id: string; name: string; publisherHandle?: string | null; logoUrl?: string | null }>;
 	membersByTeam: Record<string, any[]>;
 	invitesByTeam: Record<string, any[]>;
 	requestsByTeam: Record<string, any[]>;
@@ -450,7 +564,9 @@ export type TeamsSettingsData = {
 	teamSsoSettingsByTeam: Record<string, any>;
 };
 
-type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; clientSources: Array<{ id: string; name: string }>; dedupedModels: string[]; dedupedProviders: string[]; logAppIds: string[]; logEndpoints: string[]; logFinishReasons: string[]; logErrorCodes: string[]; logStatusCodes: number[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
+export type UsageLabelFacet = { key: string; value: string };
+export type UsageLabelSummary = UsageLabelFacet & { requestCount: number; totalCostNanos: number; isSampled: boolean };
+type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; clientSources: Array<{ id: string; name: string }>; dedupedModels: string[]; dedupedProviders: string[]; labelFacets: UsageLabelFacet[]; labelSummary: UsageLabelSummary | null; logAppIds: string[]; logEndpoints: string[]; logFinishReasons: string[]; logErrorCodes: string[]; logStatusCodes: number[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
 type UsageJobsPayload = { appMetadataEntries: Array<[string, any]>; jobProviders: string[]; modelMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; recentJobs: any[] };
 type UsageSessionsPayload = { appMetadataEntries: Array<[string, any]>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; sessionAppIds: string[]; sessionModelIds: string[]; sessionProviderIds: string[]; sessions: any[] };
 export type UsageUpstreamRequestRow = {
@@ -491,6 +607,11 @@ export type UsageUpstreamRequestRow = {
 	usage: unknown;
 	cost_nanos: number | string | null;
 	currency: string | null;
+	client_source_id?: string | null;
+	client_source_name?: string | null;
+	client_source_kind?: string | null;
+	client_source_version?: string | null;
+	client_source_detection?: string | null;
 	error_code: string | null;
 	error_type: string | null;
 	error_message: string | null;
@@ -501,4 +622,5 @@ export type UsageUpstreamRequestRow = {
 	metadata: unknown;
 };
 type UsageUpstreamPayload = { availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; upstreamRequests: UsageUpstreamRequestRow[] };
-export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });
+export type SettingsUsageLogsLoadState = "ready" | "unauthorized" | "no_workspace" | "forbidden" | "failed";
+export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null; loadState?: SettingsUsageLogsLoadState } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });

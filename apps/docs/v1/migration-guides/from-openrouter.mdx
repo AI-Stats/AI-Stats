@@ -1,9 +1,23 @@
 ---
-title: "Migration from OpenRouter"
-description: "Move from OpenRouter to Phaseo Gateway with a controlled rollout, explicit parity checks, and minimal request-shape changes."
+title: "Migrate from OpenRouter to Phaseo"
+sidebarTitle: "OpenRouter"
+description: "Use Phaseo as an OpenRouter alternative by changing your gateway URL and API key, validating model IDs, and testing a controlled rollout."
+icon: "arrow-right-left"
 ---
 
-If your app already uses OpenRouter through the OpenAI SDK or direct OpenAI-compatible HTTP calls, the safest migration path is usually:
+Phaseo is an OpenAI-compatible alternative to OpenRouter. If your app already uses OpenRouter through the OpenAI SDK or direct HTTP calls, you can usually migrate at the client boundary without rewriting prompts or application logic.
+
+## What changes
+
+| Setting | OpenRouter | Phaseo |
+| --- | --- | --- |
+| Base URL | `https://openrouter.ai/api/v1` | `https://api.phaseo.app/v1` |
+| API key variable | `OPENROUTER_API_KEY` | `PHASEO_API_KEY` |
+| Authentication | `Authorization: Bearer <key>` | `Authorization: Bearer <key>` |
+| Request payload | OpenAI-compatible | Keep unchanged for the first migration pass |
+| Model IDs | OpenRouter catalog | Verify each ID with `GET /v1/models` |
+
+The migration has four parts:
 
 1. Keep payload shape unchanged.
 2. Swap base URL and API key source.
@@ -82,9 +96,9 @@ curl -s "https://api.phaseo.app/v1/chat/completions" \
 ```
 </CodeGroup>
 
-## 3) Validate model IDs and remove OpenRouter-only behavior
+## 3) Validate model IDs and map OpenRouter-only behavior
 
-Do not assume every previous alias is valid. Query `/v1/models` and verify each production model ID.
+Do not assume every previous alias is valid. Query `/v1/models` and verify each production model ID. The default response contains only models that are publicly routable now; use `availability=all` only when you intentionally need to inspect inactive or coming-soon mappings.
 
 <CodeGroup>
 ```bash cURL
@@ -92,22 +106,28 @@ curl -s "https://api.phaseo.app/v1/models" \
   -H "Authorization: Bearer $PHASEO_API_KEY" | jq '.data[0:10] | map(.id)'
 ```
 
-```typescript TypeScript
-const MODEL_ALIASES: Record<string, string> = {
-  "openai/gpt-4.1-mini": "openai/gpt-4.1-mini",
-  "anthropic/claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
-};
-
-export function resolveModelId(input: string): string {
-  return MODEL_ALIASES[input] ?? input;
-}
-```
 </CodeGroup>
 
 - Keep `Authorization: Bearer` format unchanged.
-- Remove legacy gateway-specific headers unless you still need them.
+- Keep `HTTP-Referer` and `X-Title` when they identify the calling application. Phaseo accepts the lowercase equivalents `http-referer` and `x-title`.
 - If callers depend on OpenRouter-only response fields, adapt them in one compatibility layer instead of changing every caller.
 - If your OpenRouter setup relies on provider allow/deny lists or routing defaults, map those into [Presets](../guides/presets) and [Routing and Fallbacks](../guides/routing-and-fallbacks) instead of scattering them across callers.
+
+Do not copy OpenRouter provider preferences or response-only fields into every call site. Keep those differences in one adapter so rollback remains a base URL and credential change.
+
+### Map provider controls
+
+Several common provider controls have direct Phaseo equivalents:
+
+| Existing field | Phaseo field | Notes |
+| --- | --- | --- |
+| `provider.order` | `provider.order` | Try providers in a preferred sequence. |
+| `provider.only` | `provider.only` | Restrict the request to an approved set. |
+| `provider.ignore` | `provider.ignore` | Remove providers from consideration. |
+| `provider.sort` | `provider.sort` | Supports `price`, `latency`, and `throughput`. |
+| `provider.zdr` | `provider.require_zero_data_retention` | Require a zero-data-retention-capable route. |
+
+Phaseo also supports `provider.required_execution_region` and `provider.required_data_region` when a workload needs regional controls. See [Pin or ignore providers](../cookbook/pin-or-ignore-providers-per-request) and [Route only to EU or ZDR-capable providers](../cookbook/route-only-to-eu-or-zdr-providers) for complete requests.
 
 ## 4) OpenRouter parity checklist
 
@@ -123,6 +143,19 @@ Use this checklist before shifting meaningful traffic:
 - Invalid-key and invalid-model failures verified in staging.
 - Any OpenRouter-only headers or response fields either removed or explicitly normalized.
 - Shared prompt/routing defaults moved into presets where appropriate.
+
+### Agent migration checklist
+
+Give a coding agent this bounded sequence:
+
+1. Search runtime code and deployment config for `openrouter.ai`, `OPENROUTER_API_KEY`, `sk-or-v1`, `HTTP-Referer`, and `X-Title`.
+2. Change the client boundary to `https://api.phaseo.app/v1` and `PHASEO_API_KEY` without adding a secret value to source control.
+3. Query `GET /v1/models` and record every old-to-new model mapping.
+4. Adapt OpenRouter-only routing options or response fields in one compatibility module.
+5. Run the health, models, non-streaming, streaming, and failure-path checks below.
+6. Report changed files, secret-name changes, model mappings, test evidence, parity gaps, and the rollback switch.
+
+For a reusable workflow, install or invoke the repository's [OpenRouter to Phaseo migration skill](https://github.com/phaseoteam/Phaseo/tree/main/.agents/skills/openrouter-to-phaseo-migration). It packages the inventory, mapping, validation, reporting, and rollback requirements for coding agents.
 
 ## 5) Roll out safely
 
@@ -144,6 +177,24 @@ curl -s "https://api.phaseo.app/v1/chat/completions" \
   -d '{"model":"openai/gpt-4.1-mini","messages":[{"role":"user","content":"Say hello"}]}'
 ```
 
+Test streaming separately through the same endpoint:
+
+```bash
+curl -N "https://api.phaseo.app/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -d '{"model":"openai/gpt-4.1-mini","stream":true,"messages":[{"role":"user","content":"Reply with: stream works"}]}'
+```
+
+Confirm that your application also handles an invalid model without exposing credentials:
+
+```bash
+curl -s "https://api.phaseo.app/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -d '{"model":"invalid/migration-test","messages":[{"role":"user","content":"test"}]}'
+```
+
 Then:
 
 - Run one streaming request through your app-level integration test.
@@ -152,7 +203,10 @@ Then:
 
 ## Next steps
 
+- [Get free help migrating your OpenRouter integration](https://phaseo.app/contact)
+- [Open the interactive OpenRouter migration guide](https://phaseo.app/migrate/openrouter)
+- [Compare Phaseo and OpenRouter](https://phaseo.app/compare/openrouter)
 - [Quickstart](../quickstart)
-- [API Reference: Models](../api-reference/endpoint/models)
+- [API Reference: Models](../api-reference/endpoint/models.mdx)
 - [Examples](../guides/examples)
 - [Error Handling](../developers/error-handling)

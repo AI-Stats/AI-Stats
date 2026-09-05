@@ -118,6 +118,18 @@ function renderClient(): string {
 		"\t\treturn JsonSerializer.Deserialize<T>(raw);",
 		"\t}",
 		"",
+		"\tpublic async Task<string> SendTextAsync(string method, string path, Dictionary<string, string>? query = null, Dictionary<string, string>? headers = null, object? body = null)",
+		"\t{",
+		"\t\tvar request = BuildRequest(method, path, query, headers, body);",
+		"\t\tvar response = await _http.SendAsync(request).ConfigureAwait(false);",
+		"\t\tvar raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);",
+		"\t\tif (!response.IsSuccessStatusCode)",
+		"\t\t{",
+		"\t\t\tthrow new ApiErrorException((int)response.StatusCode, raw, BuildErrorMessage((int)response.StatusCode, raw));",
+		"\t\t}",
+		"\t\treturn raw;",
+		"\t}",
+		"",
 		"\tpublic async Task<byte[]> SendBytesAsync(string method, string path, Dictionary<string, string>? query = null, Dictionary<string, string>? headers = null, object? body = null)",
 		"\t{",
 		"\t\tvar request = BuildRequest(method, path, query, headers, body);",
@@ -179,7 +191,7 @@ function renderModel(model: IRModel): string {
 		for (const field of fields) {
 			const name = exportPropertyName(model.name, field);
 			const type = renderFieldType(model.schema.properties[field], required.has(field));
-			lines.push(`\t[JsonPropertyName("${field}")]`);
+			lines.push(`\t[JsonPropertyName(${JSON.stringify(field)})]`);
 			lines.push(`\tpublic ${type} ${name} { get; set; }`);
 			lines.push("");
 		}
@@ -209,7 +221,8 @@ function renderOperations(operations: IROperation[]): string {
 }
 
 function renderOperation(operation: IROperation): string {
-	const returnType = csType(selectSuccessSchema(operation));
+	const successResponse = selectSuccessResponse(operation);
+	const returnType = csType(successResponse.schema ?? { kind: "unknown" });
 	const pathParams = operation.params.filter((param) => param.in === "path");
 	const pathTemplate = renderPathTemplate(operation.path, pathParams);
 	return [
@@ -222,10 +235,19 @@ function renderOperation(operation: IROperation): string {
 		"\t)",
 		"\t{",
 		`\t\tvar resolvedPath = ${pathTemplate};`,
-		`\t\treturn client.SendAsync<${returnType}>(\"${operation.method.toUpperCase()}\", resolvedPath, query, headers, body);`,
+		(successResponse.kind === "text"
+			? `\t\treturn client.SendTextAsync(\"${operation.method.toUpperCase()}\", resolvedPath, query, headers, body);`
+			: `\t\treturn client.SendAsync<${returnType}>(\"${operation.method.toUpperCase()}\", resolvedPath, query, headers, body);`),
 		"\t}",
 		""
 	].join("\n");
+}
+
+function selectSuccessResponse(operation: IROperation): IROperation["responses"][number] {
+	return operation.responses.find((response) => {
+		const status = Number(response.status);
+		return !Number.isNaN(status) && status >= 200 && status < 300;
+	}) ?? { status: "default", schema: { kind: "unknown" } };
 }
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
@@ -236,7 +258,7 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = JSON.stringify(segment.slice(1, -1));
-			return `(path != null && path.ContainsKey(${name}) ? path[${name}] : "")`;
+			return `Uri.EscapeDataString(path != null && path.ContainsKey(${name}) ? path[${name}] : "")`;
 		}
 		return JSON.stringify(segment);
 	});
@@ -271,13 +293,13 @@ function csType(schema: IRSchema): string {
 	switch (schema.kind) {
 		case "primitive":
 			if (schema.type === "boolean") return "bool";
-			if (schema.type === "integer") return "int";
+			if (schema.type === "integer") return "long";
 			if (schema.type === "number") return "double";
 			return "string";
 		case "literal":
 			return "object";
 		case "enum":
-			return "string";
+			return schema.values.filter((value) => value !== null).every((value) => typeof value === "boolean") ? "bool" : "string";
 		case "array":
 			return `List<${csType(schema.items)}>`;
 		case "object":

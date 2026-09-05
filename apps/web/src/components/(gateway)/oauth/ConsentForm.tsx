@@ -204,6 +204,42 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		icon: Settings2,
 		tone: "write",
 	},
+	"provider_credentials:read": {
+		label: "Read provider credentials",
+		description: "Lets the app inspect provider credential metadata without revealing secret values.",
+		icon: KeyRound,
+		tone: "read",
+	},
+	"provider_credentials:write": {
+		label: "Manage provider credentials",
+		description: "Lets the app create or update encrypted provider credentials.",
+		icon: KeyRound,
+		tone: "write",
+	},
+	"provider_credentials:delete": {
+		label: "Delete provider credentials",
+		description: "Lets the app permanently remove provider credentials.",
+		icon: KeyRound,
+		tone: "delete",
+	},
+	"private_models:read": {
+		label: "Read private models",
+		description: "Lets the app inspect workspace private-model configuration without revealing credentials.",
+		icon: KeyRound,
+		tone: "read",
+	},
+	"private_models:write": {
+		label: "Manage private models",
+		description: "Lets the app connect or update workspace private-model endpoints.",
+		icon: KeyRound,
+		tone: "write",
+	},
+	"private_models:delete": {
+		label: "Delete private models",
+		description: "Lets the app permanently remove workspace private models.",
+		icon: KeyRound,
+		tone: "delete",
+	},
 	"guardrails:read": {
 		label: "Read guardrails",
 		description: "Lets the app inspect guardrails and policy configuration.",
@@ -220,6 +256,24 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete guardrails",
 		description: "Lets the app permanently remove guardrails and policy configuration.",
 		icon: Shield,
+		tone: "delete",
+	},
+	"budgets:read": {
+		label: "Read budgets",
+		description: "Lets the app inspect workspace spend budgets and usage.",
+		icon: Settings2,
+		tone: "read",
+	},
+	"budgets:write": {
+		label: "Manage budgets",
+		description: "Lets the app create or update workspace spend budgets.",
+		icon: Settings2,
+		tone: "write",
+	},
+	"budgets:delete": {
+		label: "Delete budgets",
+		description: "Lets the app permanently remove workspace spend budgets.",
+		icon: Settings2,
 		tone: "delete",
 	},
 	"management_keys:read": {
@@ -327,6 +381,7 @@ export default function ConsentForm({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [unverifiedAcknowledged, setUnverifiedAcknowledged] = useState(false);
+	const [selectedScopes, setSelectedScopes] = useState<string[]>(requestedScopes);
 	const isFirstParty = Boolean(oauthApp.is_first_party);
 	const isUnverified = oauthApp.registration_source === "dynamic" && !oauthApp.is_first_party;
 	const logoSrc = consentLogoSrc(oauthApp.logo_url);
@@ -345,6 +400,17 @@ export default function ConsentForm({
 		[requestedScopes],
 	);
 	const permissionCount = scopeGroups.reduce((total, group) => total + group.scopes.length, 0);
+	const requiredScopes = useMemo(() => new Set([
+		"openid",
+		...(requestedScopes.includes("gateway:access") ? ["gateway:access"] : []),
+	]), [requestedScopes]);
+
+	const handleScopeToggle = (scope: string, checked: boolean) => {
+		if (requiredScopes.has(scope)) return;
+		setSelectedScopes((current) => checked
+			? Array.from(new Set([...current, scope]))
+			: current.filter((value) => value !== scope));
+	};
 
 	const handleTeamToggle = (teamId: string, checked: boolean) => {
 		setSelectedTeamIds((current) => {
@@ -401,7 +467,7 @@ export default function ConsentForm({
 					client_id: clientId,
 					workspace_id: primaryTeamId,
 					workspace_ids: selectedTeamIds,
-					scopes: requestedScopes,
+					scopes: selectedScopes,
 					redirect_uri: redirectUri,
 					state,
 					code_challenge: codeChallenge,
@@ -631,12 +697,12 @@ export default function ConsentForm({
 						<div>
 							<Label>Requested permissions</Label>
 							<p className="text-xs text-muted-foreground mt-1">
-								Expand a group to review every permission. Read access is view-only;
-								write and delete access can change your workspace.
+								Expand a group to review and choose optional permissions. Required permissions
+								keep the sign-in or gateway connection working.
 							</p>
 						</div>
 						<p className="shrink-0 text-xs text-muted-foreground sm:text-right">
-							{scopeGroups.length} group{scopeGroups.length === 1 ? "" : "s"} / {permissionCount} permission{permissionCount === 1 ? "" : "s"}
+							{selectedScopes.length} of {permissionCount} selected
 						</p>
 					</div>
 					<Accordion
@@ -676,18 +742,27 @@ export default function ConsentForm({
 										</div>
 									</AccordionTrigger>
 									<AccordionContent className="space-y-2 px-3 pb-3">
-										{group.scopes.map((scopeInfo) => {
-											const Icon = scopeInfo.icon;
-											const tone = scopeToneBadge(scopeInfo.tone);
-											return (
-												<div key={scopeInfo.scope} className="flex items-start gap-3 rounded-md bg-muted/40 p-3">
-													<Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+									{group.scopes.map((scopeInfo) => {
+										const Icon = scopeInfo.icon;
+										const tone = scopeToneBadge(scopeInfo.tone);
+										const required = requiredScopes.has(scopeInfo.scope);
+										return (
+											<label key={scopeInfo.scope} className={`flex items-start gap-3 rounded-md bg-muted/40 p-3 ${required ? "" : "cursor-pointer hover:bg-muted/60"}`}>
+												<Checkbox
+													checked={selectedScopes.includes(scopeInfo.scope)}
+													disabled={required}
+													onCheckedChange={(checked) => handleScopeToggle(scopeInfo.scope, checked === true)}
+													aria-label={`${selectedScopes.includes(scopeInfo.scope) ? "Allow" : "Do not allow"} ${scopeInfo.label}`}
+													className="mt-1"
+												/>
+												<Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
 													<div className="min-w-0 flex-1">
 														<div className="flex flex-wrap items-center gap-2">
 															<div className="font-medium text-sm">{scopeInfo.label}</div>
-															<Badge variant="outline" className={`${tone.className} rounded-md`}>
-																{tone.label}
-															</Badge>
+														<Badge variant="outline" className={`${tone.className} rounded-md`}>
+															{tone.label}
+														</Badge>
+														{required ? <Badge variant="secondary" className="rounded-md font-normal">Required</Badge> : null}
 														</div>
 														<div className="text-xs text-muted-foreground mt-1">
 															{scopeInfo.description}
@@ -696,8 +771,7 @@ export default function ConsentForm({
 															{scopeInfo.scope}
 														</div>
 													</div>
-													<CheckCircle2 className="mt-1 size-4 shrink-0 text-emerald-600" />
-												</div>
+											</label>
 											);
 										})}
 									</AccordionContent>
@@ -732,7 +806,7 @@ export default function ConsentForm({
 					disabled={loading || !selectedTeamIds.length || !primaryTeamId || (isUnverified && !unverifiedAcknowledged)}
 					className="flex-1 rounded-md"
 				>
-					{loading ? "Authorizing..." : "Authorize selected teams"}
+					{loading ? "Authorizing..." : `Authorize ${selectedScopes.length} permissions`}
 				</Button>
 			</CardFooter>
 

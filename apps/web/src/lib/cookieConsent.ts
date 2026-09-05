@@ -9,6 +9,17 @@ export const LEGACY_ANALYTICS_CONSENT_EVENT = "ai-stats:analytics-consent"
 
 const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
+export function readAnalyticsConsentFromCookieHeader(cookieHeader: string | null | undefined): AnalyticsConsent | null {
+  if (!cookieHeader) return null
+  const names = [ANALYTICS_CONSENT_COOKIE_NAME, LEGACY_ANALYTICS_CONSENT_COOKIE_NAME]
+  for (const entry of cookieHeader.split(";")) {
+    const [rawName, ...rawValue] = entry.trim().split("=")
+    if (!names.includes(rawName)) continue
+    return parseAnalyticsConsent(rawValue.join("="))
+  }
+  return null
+}
+
 export function parseAnalyticsConsent(
   value: string | null | undefined
 ): AnalyticsConsent | null {

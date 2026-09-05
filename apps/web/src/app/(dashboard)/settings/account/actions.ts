@@ -3,10 +3,9 @@
 import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { OBFUSCATE_INFO_COOKIE, serializeObfuscateInfo } from '@/lib/obfuscation'
-import { sendAccountLifecycleDiscordWebhook } from '@/lib/auth/accountLifecycleDiscord'
+import { getStripe } from '@/lib/stripe'
 import {
     hasRecentInteractiveAuthentication,
     hasRecentSignIn,
@@ -191,6 +190,15 @@ async function requirePasskeyStepUp(
     return { ok: true, user }
 }
 
+async function requireSensitiveAccountStepUp(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    currentPassword?: string
+) {
+    const stepUp = await requirePasskeyStepUp(supabase, currentPassword)
+    if (!stepUp.ok) throw new Error(stepUp.result.message)
+    return stepUp.user
+}
+
 export async function startPasskeyRegistrationAction(
     currentPassword?: string
 ): Promise<
@@ -342,35 +350,85 @@ export async function updateAccount(payload: {
 
     return { ok: true }
 }
-export async function deleteAccount() {
+export async function deleteAccount(confirmation: string, currentPassword?: string) {
+    if (confirmation.trim().toUpperCase() !== 'DELETE') throw new Error('Type DELETE to confirm account deletion')
     const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const authUser = authData.user
+    const authUser = await requireSensitiveAccountStepUp(supabase, currentPassword)
+    const admin = createAdminClient()
 
-    if (!authUser) {
-        throw new Error('Not authenticated')
+    const { data: workspaceRows, error: workspaceError } = await admin
+        .from('workspaces')
+        .select('id')
+        .eq('owner_user_id', authUser.id)
+    if (workspaceError) throw new Error(workspaceError.message)
+    const workspaceIds = (workspaceRows ?? []).map((row: any) => String(row.id)).filter(Boolean)
+
+    const keyRows = workspaceIds.length
+        ? await admin.from('keys').select('id,kid').in('workspace_id', workspaceIds)
+        : { data: [], error: null }
+    if (keyRows.error) throw new Error(keyRows.error.message)
+    const keyIds = (keyRows.data ?? []).map((row: any) => String(row.id)).filter(Boolean)
+    const keyKids = (keyRows.data ?? []).map((row: any) => String(row.kid ?? '')).filter(Boolean)
+
+    const walletRows = workspaceIds.length
+        ? await admin.from('wallets').select('stripe_customer_id').in('workspace_id', workspaceIds)
+        : { data: [], error: null }
+    if (walletRows.error) throw new Error(walletRows.error.message)
+    const stripeCustomerIds = Array.from(new Set(
+        (walletRows.data ?? []).map((row: any) => String(row.stripe_customer_id ?? '').trim()).filter(Boolean)
+    ))
+
+    const { data: existingJob, error: existingJobError } = await admin
+        .from('account_deletion_jobs')
+        .select('id,deadline_at')
+        .eq('user_id', authUser.id)
+        .neq('status', 'completed')
+        .maybeSingle()
+    if (existingJobError) throw new Error(existingJobError.message)
+
+    const deadlineAt = existingJob?.deadline_at ?? new Date(Date.now() + 30 * 86_400_000).toISOString()
+    const jobMutation = existingJob
+        ? admin.from('account_deletion_jobs').update({
+            workspace_ids: workspaceIds,
+            key_ids: keyIds,
+            key_kids: keyKids,
+            status: 'pending',
+            lease_expires_at: null,
+            last_error: null,
+            updated_at: new Date().toISOString(),
+        }).eq('id', existingJob.id).select('id').single()
+        : admin.from('account_deletion_jobs').insert({
+            user_id: authUser.id,
+            workspace_ids: workspaceIds,
+            key_ids: keyIds,
+            key_kids: keyKids,
+            deadline_at: deadlineAt,
+        }).select('id').single()
+    const { data: job, error: jobError } = await jobMutation
+    if (jobError || !job?.id) throw new Error(jobError?.message ?? 'Could not queue account deletion')
+
+    let authDeleted = false
+    try {
+        if (stripeCustomerIds.length > 0) {
+            const stripe = getStripe()
+            for (const customerId of stripeCustomerIds) {
+                await stripe.customers.del(customerId)
+            }
+        }
+
+        // Hard deletion removes Auth credentials and sessions. The database
+        // cascade removes the public user, owned workspaces, and workspace data.
+        const { error: deleteError } = await admin.auth.admin.deleteUser(authUser.id, false)
+        if (deleteError) throw new Error(deleteError.message)
+        authDeleted = true
+    } catch (error) {
+        if (!authDeleted) {
+            await admin.from('account_deletion_jobs').delete().eq('id', job.id)
+        }
+        throw error
     }
 
-    // Use admin client to delete the auth user (service role key required)
-    const admin = createAdminClient()
-    // supabase-js admin API exposes auth.admin.deleteUser
-    // If this fails, throw so the client can show an error
-    const { error } = await (admin as any).auth.admin.deleteUser(authUser.id)
-    if (error) throw new Error(error.message)
-
-    void sendAccountLifecycleDiscordWebhook({
-        event: 'account_deleted',
-        userId: authUser.id,
-        email: authUser.email ?? null,
-        timestampIso: new Date().toISOString(),
-    }).catch((error) => {
-        console.error('Failed sending account deletion Discord webhook', {
-            userId: authUser.id,
-            error: error instanceof Error ? error.message : String(error),
-        })
-    })
-
-    return { ok: true }
+    return { ok: true, deletionJobId: job.id, deadlineAt }
 }
 
 // ============================================================================
@@ -452,6 +510,14 @@ export async function changeEmailAction(
         throw new Error('Failed to verify current password')
     }
 
+	const priorEmail = user.email.trim().toLowerCase()
+	const identityResult = await createAdminClient()
+		.from('resend_contact_identities')
+		.upsert({ user_id: user.id, email: priorEmail }, { onConflict: 'user_id,email' })
+	if (identityResult.error) {
+		throw new Error('Failed to prepare email change')
+	}
+
     // Update email (Supabase sends confirmation to both addresses)
     const { error: updateError } = await supabase.auth.updateUser({
         email: newEmail,
@@ -487,14 +553,9 @@ export async function changeEmailAction(
  *
  * Uses a timestamp-based friendly name to ensure uniqueness for every enrollment attempt.
  */
-export async function enrollMFAAction() {
+export async function enrollMFAAction(currentPassword?: string) {
     const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const user = authData.user
-
-    if (!user) {
-        throw new Error('Not authenticated')
-    }
+    await requireSensitiveAccountStepUp(supabase, currentPassword)
 
     // Generate truly unique friendly name using timestamp
     // This ensures no conflicts even for multiple attempts in the same day
@@ -528,15 +589,17 @@ export async function enrollMFAAction() {
  */
 export async function verifyMFAEnrollmentAction(
     factorId: string,
-    code: string
+    code: string,
+    currentPassword?: string
 ) {
-    const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const user = authData.user
-
-    if (!user) {
-        throw new Error('Not authenticated')
+    if (!z.string().uuid().safeParse(factorId).success || !/^\d{6}$/.test(code)) {
+        throw new Error('Invalid MFA enrollment response')
     }
+    const supabase = await createClient()
+    await requireSensitiveAccountStepUp(supabase, currentPassword)
+	const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+	const pendingFactor = factors?.totp?.find((factor) => factor.id === factorId && (factor as any).status === 'unverified')
+	if (factorsError || !pendingFactor) throw new Error('MFA enrollment is not bound to this account')
 
     // Create challenge
     const { data: challengeData, error: challengeError } =

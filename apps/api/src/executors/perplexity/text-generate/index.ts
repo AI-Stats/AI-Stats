@@ -3,7 +3,7 @@
 // How: Transforms IR and calls the provider API for this capability.
 
 // Perplexity AI Executor - OpenAI Compatible
-// Documentation: https://docs.perplexity.ai/api-reference/chat-completions-post
+// Documentation: https://docs.perplexity.ai/api-reference/sonar-post
 
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
@@ -33,5 +33,4 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
 

@@ -21,7 +21,67 @@ import {
     phaseoRoutingEnabled,
     staleJsonProviderRouteIds,
     staleOwnedModelChildRows,
+    staleSubscriptionPlanChildRows,
+    staleSubscriptionPlanUuids,
+    protectedCatalogueIndex,
+    staleBenchmarkResultIds,
+    staleModelSlugs,
+    explicitlyRetiredAliasSlugs,
+    stalePricingSkuIds,
+    staleRouteVariantIds,
+    stealthRouteIds,
+    isProtectedProviderModel,
+    canonicalServiceTierSlug,
+    resolveCapabilityDataPolicy,
 } from "./v2";
+
+describe("capability data policy resolution", () => {
+    const provider = {
+        capability_data_policies: {
+            "text.generate": {
+                tier: "private",
+                confidence: "confirmed",
+                zdrEligibility: "eligible",
+                retentionMode: "transient",
+                retentionDays: 0,
+            },
+        },
+        capability_data_policy_exclusions: [
+            { capability_id: "text.generate", provider_model_slug_prefix: "labs-" },
+        ],
+    };
+
+    it("uses the provider default for an eligible capability", () => {
+        expect(resolveCapabilityDataPolicy(provider, "text.generate", "mistral-small-4"))
+            .toMatchObject({ tier: "private", zdrEligibility: "eligible" });
+    });
+
+    it("does not apply a stateless default to excluded Labs models", () => {
+        expect(resolveCapabilityDataPolicy(provider, "text.generate", "labs-mistral-small-4"))
+            .toBeNull();
+    });
+
+    it("supports capability-wide exclusions without a model prefix", () => {
+        expect(resolveCapabilityDataPolicy({
+            ...provider,
+            capability_data_policy_exclusions: [{ capability_id: "text.generate" }],
+        }, "text.generate", "mistral-small-4"))
+            .toBeNull();
+    });
+
+    it("lets an explicit capability policy override the provider default", () => {
+        const explicit = { tier: "logs", confidence: "confirmed", zdrEligibility: "ineligible", retentionMode: "until_deleted" };
+        expect(resolveCapabilityDataPolicy(provider, "text.generate", "mistral-small-4", explicit))
+            .toEqual(explicit);
+    });
+});
+
+describe("service tier canonicalization", () => {
+    it("stores fast as the canonical priority tier", () => {
+        expect(canonicalServiceTierSlug("fast")).toBe("priority");
+        expect(canonicalServiceTierSlug("priority")).toBe("priority");
+    });
+});
 
 describe("V2 child reconciliation", () => {
     it("removes repository-owned notices that disappeared from JSON", () => {
@@ -54,6 +114,46 @@ describe("V2 child reconciliation", () => {
     });
 });
 
+describe("V2 subscription plan reconciliation", () => {
+    it("deletes stale plans while preserving database-owned overrides", () => {
+        expect(staleSubscriptionPlanUuids(
+            [
+                { plan_uuid: "current" },
+                { plan_uuid: "stale" },
+                { plan_uuid: "database-owned" },
+            ],
+            new Set(["current"]),
+            new Set(["database-owned"]),
+        )).toEqual(["stale"]);
+    });
+
+    it("reconciles removed child rows only for repository-owned current plans", () => {
+        expect(staleSubscriptionPlanChildRows(
+            [
+                { plan_uuid: "current", model_slug: "kept" },
+                { plan_uuid: "current", model_slug: "removed" },
+                { plan_uuid: "database-owned", model_slug: "removed" },
+                { plan_uuid: "old-plan", model_slug: "removed" },
+            ],
+            [{ plan_uuid: "current", model_slug: "kept" }],
+            new Set(["current"]),
+            new Set(["database-owned"]),
+            ["plan_uuid", "model_slug"],
+        )).toEqual([{ plan_uuid: "current", model_slug: "removed" }]);
+    });
+
+    it("preserves relations to database-owned models", () => {
+        expect(staleSubscriptionPlanChildRows(
+            [{ plan_uuid: "current", model_slug: "private/model" }],
+            [],
+            new Set(["current"]),
+            new Set(),
+            ["plan_uuid", "model_slug"],
+            new Set(["private/model"]),
+        )).toEqual([]);
+    });
+});
+
 describe("V2 provider route reconciliation", () => {
     it("deletes only stale importer-owned routes", () => {
         expect(staleJsonProviderRouteIds(
@@ -67,6 +167,111 @@ describe("V2 provider route reconciliation", () => {
             new Set(["provider:active", "provider:disabled"]),
             new Set(["provider:unresolved"]),
         )).toEqual(["provider:stale"]);
+    });
+
+    it("preserves protected stealth routes", () => {
+        expect(staleJsonProviderRouteIds(
+            [{ provider_model_id: "private-provider:hidden-model", metadata: { source: "json" } }],
+            new Set(),
+            new Set(),
+            new Set(["private-provider:hidden-model"]),
+        )).toEqual([]);
+    });
+});
+
+describe("V2 alias reconciliation", () => {
+    it("removes explicitly retired aliases even without ownership metadata", () => {
+        expect(explicitlyRetiredAliasSlugs(
+            [
+                { alias_slug: "openai/gpt-latest" },
+                { alias_slug: "openai/gpt-astra-latest" },
+                { alias_slug: "openai/gpt-latest", metadata: { source: "json" } },
+            ],
+            new Set(["openai/gpt-latest"]),
+        )).toEqual(["openai/gpt-latest"]);
+    });
+});
+
+describe("stealth catalogue protection", () => {
+    it("indexes only dispositions protected from repository sync", () => {
+        expect(protectedCatalogueIndex([
+            { source_type: "providers", source_key: "private-provider", disposition: "stealth" },
+            { source_type: "models", source_key: "private-lab/hidden-model", disposition: "database_managed" },
+            { source_type: "providers", source_key: "draft", disposition: "unknown" },
+        ])).toEqual(new Map([
+            ["providers", new Set(["private-provider"])],
+            ["models", new Set(["private-lab/hidden-model"])],
+        ]));
+    });
+
+    it("preserves protected models and benchmark results", () => {
+        const protectedModels = new Set(["private-lab/hidden-model"]);
+        expect(staleModelSlugs(
+            [
+                { model_slug: "public/stale", metadata: { source: "json" } },
+                { model_slug: "private-lab/hidden-model", metadata: { source: "json" } },
+            ],
+            new Set(),
+            protectedModels,
+        )).toEqual(["public/stale"]);
+        expect(staleBenchmarkResultIds(
+            [
+                { result_id: "public-result", model_slug: "public/stale" },
+                { result_id: "private-result", model_slug: "private-lab/hidden-model" },
+            ],
+            new Set(),
+            protectedModels,
+        )).toEqual(["public-result"]);
+    });
+
+    it("preserves protected pricing rules and route SKUs", () => {
+        expect(stalePricingSkuIds(
+            [
+                { sku_id: "stale", provider_model_id: "public:model", sku_code: "old", version: 1, metadata: { source: "json" } },
+                { sku_id: "rule", provider_model_id: "public:model", sku_code: "managed", version: 1, metadata: { source: "json", source_key: "private-rule" } },
+                { sku_id: "route", provider_model_id: "private-provider:hidden-model", sku_code: "default", version: 1, metadata: { source: "json" } },
+            ],
+            new Set(),
+            new Set(["private-rule"]),
+            new Set(["private-provider:hidden-model"]),
+        )).toEqual(["stale"]);
+    });
+
+    it("blocks SKU and meter upserts for protected provider models", () => {
+        const protectedRoutes = new Set(["stealth:private-model"]);
+
+        expect(isProtectedProviderModel(
+            { provider_model_id: "stealth:private-model" },
+            protectedRoutes,
+        )).toBe(true);
+        expect(isProtectedProviderModel(
+            { provider_api_model_id: "stealth:private-model" },
+            protectedRoutes,
+        )).toBe(true);
+        expect(isProtectedProviderModel(
+            { provider_model_id: "public:model" },
+            protectedRoutes,
+        )).toBe(false);
+    });
+
+    it("preserves variants belonging to protected routes", () => {
+        expect(staleRouteVariantIds(
+            [
+                { variant_id: "public-variant", provider_model_id: "public:model", variant_key: "global:standard", metadata: { source: "json" } },
+                { variant_id: "private-variant", provider_model_id: "private-provider:hidden-model", variant_key: "global:standard", metadata: { source: "json" } },
+            ],
+            new Set(),
+            new Set(["private-provider:hidden-model"]),
+        )).toEqual(["public-variant"]);
+    });
+
+    it("treats only explicitly marked routes as stealth", () => {
+        expect(stealthRouteIds([
+            { provider_model_id: "private-provider:hidden-model", is_stealth: true },
+            { provider_model_id: "public-provider:model", is_stealth: false },
+            { provider_model_id: "missing-flag:model" },
+            { provider_model_id: "", is_stealth: true },
+        ])).toEqual(new Set(["private-provider:hidden-model"]));
     });
 });
 
@@ -172,6 +377,44 @@ describe("explicit catalogue statuses", () => {
             routable: true,
         };
         expect(routeAccessScope(offer)).toBe("internal");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("keeps withheld catalogue routes discoverable without enabling routing", () => {
+        const offer = {
+            provider_status: "limited_access",
+            is_active_gateway: false,
+            routable: false,
+            routing_status: "disabled",
+            capabilities: [{ capability_id: "text.generate", status: "inactive" }],
+        };
+        expect(phaseoStatus(offer)).toBe("unsupported");
+        expect(routeAccessScope(offer)).toBe("public");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("keeps deprecated provider routes routable until their retirement window ends", () => {
+        const offer = {
+            provider_status: "deprecated",
+            phaseo_status: "enabled",
+            routing_status: "deprecated",
+            effective_to: "2099-01-01T00:00:00Z",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("deprecated");
+        expect(phaseoRoutingEnabled(offer)).toBe(true);
+    });
+
+    it("disables deprecated provider routes after their retirement window ends", () => {
+        const offer = {
+            provider_status: "deprecated",
+            phaseo_status: "enabled",
+            routing_status: "deprecated",
+            effective_to: "2000-01-01T00:00:00Z",
+            is_active_gateway: true,
+            routable: true,
+        };
         expect(phaseoRoutingEnabled(offer)).toBe(false);
     });
 
@@ -319,6 +562,20 @@ describe("v2PricingMeterMetadata", () => {
 });
 
 describe("preflightV2Models", () => {
+    it("accepts a canonical stealth model without a legacy alias", () => {
+        const model = {
+            model_id: "stealth/ox-alpha",
+            organisation_id: "stealth",
+            name: "Stealth Ox Alpha",
+        };
+
+        const result = preflightV2Models([model], new Map());
+
+        expect(result.models).toEqual([model]);
+        expect(result.modelSlugAliases.size).toBe(0);
+        expect(result.issues).toEqual([]);
+    });
+
     it("canonicalizes authored legacy aliases without mutating the legacy row", () => {
         const legacyRow = {
             model_id: "nousresearch/hermes-3-llama-3.1-405b",

@@ -1,4 +1,372 @@
 [
+{
+  "api_model_id": "voyage/voyage-code-4",
+  "provider_api_model_id": "voyage:voyage/voyage-code-4",
+  "provider_model_slug": "voyage-code-4",
+  "internal_model_id": "voyage/voyage-code-4",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "embeddings",
+  "context_length": 32000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "text.embed",
+      "status": "active",
+      "params": [
+        {
+          "param_id": "input",
+          "type": "string_or_array",
+          "max_items": 1000,
+          "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+        },
+        {
+          "param_id": "encoding_format",
+          "type": "enum",
+          "values": ["float", "base64"],
+          "provider_default": "float",
+          "notes": "Phaseo's float value maps to Voyage's default unencoded numeric-array response.",
+          "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+        },
+        {
+          "param_id": "dimensions",
+          "type": "integer",
+          "values": [256, 512, 1024, 2048],
+          "provider_default": 1024,
+          "maps_to": "output_dimension",
+          "source_url": "https://docs.voyageai.com/docs/embeddings"
+        },
+        {
+          "param_id": "provider_options.voyage",
+          "type": "object",
+          "properties": {
+            "input_type": { "type": "enum", "values": ["query", "document"] },
+            "truncation": { "type": "boolean", "provider_default": true },
+            "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+            "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" }
+          },
+          "source_url": "https://docs.voyageai.com/docs/embeddings"
+        }
+      ],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "embeddings"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/embeddings",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/embeddings",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 8000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
+  {
+    "api_model_id": "voyage/voyage-context-4",
+  "provider_api_model_id": "voyage:voyage/voyage-context-4",
+  "provider_model_slug": "voyage-context-4",
+  "internal_model_id": "voyage/voyage-context-4",
+  "is_active_gateway": false,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "embeddings",
+  "context_length": 120000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "text.embed",
+      "status": "active",
+      "params": [
+        {
+          "param_id": "input",
+          "type": "string_or_array",
+          "gateway_max_items": 2048,
+          "notes": "Phaseo currently exposes one document per request: a string is one chunk and a flat string array is one document's ordered chunks.",
+          "source_url": "https://docs.voyageai.com/docs/contextualized-chunk-embeddings"
+        },
+        {
+          "param_id": "encoding_format",
+          "type": "enum",
+          "values": ["float", "base64"],
+          "provider_default": "float",
+          "source_url": "https://docs.voyageai.com/docs/contextualized-chunk-embeddings"
+        },
+        {
+          "param_id": "dimensions",
+          "type": "integer",
+          "values": [256, 512, 1024, 2048],
+          "provider_default": 1024,
+          "maps_to": "output_dimension",
+          "source_url": "https://docs.voyageai.com/docs/contextualized-chunk-embeddings"
+        },
+        {
+          "param_id": "provider_options.voyage",
+          "type": "object",
+          "properties": {
+            "input_type": { "type": "enum", "values": ["query", "document"] },
+            "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+            "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" }
+          },
+          "notes": "truncation is not accepted by the contextualized embeddings endpoint.",
+          "source_url": "https://docs.voyageai.com/docs/contextualized-chunk-embeddings"
+        }
+      ],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "embeddings"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "catalog_only",
+  "routable": false,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/contextualizedembeddings",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/contextualized-chunk-embeddings",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 3000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
+  {
+  "api_model_id": "voyage/rerank-2.5",
+  "provider_api_model_id": "voyage:voyage/rerank-2.5",
+  "provider_model_slug": "rerank-2.5",
+  "internal_model_id": "voyage/rerank-2.5",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "rerank",
+  "context_length": 32000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "rerank",
+      "status": "active",
+      "params": [
+        { "param_id": "query", "type": "string", "max_tokens": 8000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "documents", "type": "array", "max_items": 1000, "max_pair_tokens": 32000, "max_total_tokens": 600000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "top_n", "type": "integer", "provider_min": 1, "maps_to": "top_k", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "top_k", "type": "integer", "provider_min": 1, "alias_for": "top_n", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "return_documents", "type": "boolean", "provider_default": false, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        {
+          "param_id": "provider_options.voyage",
+          "type": "object",
+          "properties": { "truncation": { "type": "boolean", "provider_default": true } },
+          "source_url": "https://docs.voyageai.com/reference/reranker-api"
+        }
+      ],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "rerank"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/rerank",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/reranker",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 2000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
+  {
+  "api_model_id": "voyage/rerank-2.5-lite",
+  "provider_api_model_id": "voyage:voyage/rerank-2.5-lite",
+  "provider_model_slug": "rerank-2.5-lite",
+  "internal_model_id": "voyage/rerank-2.5-lite",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "rerank",
+  "context_length": 32000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "rerank",
+      "status": "active",
+      "params": [
+        { "param_id": "query", "type": "string", "max_tokens": 8000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "documents", "type": "array", "max_items": 1000, "max_pair_tokens": 32000, "max_total_tokens": 600000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "top_n", "type": "integer", "provider_min": 1, "maps_to": "top_k", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "top_k", "type": "integer", "provider_min": 1, "alias_for": "top_n", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        { "param_id": "return_documents", "type": "boolean", "provider_default": false, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+        {
+          "param_id": "provider_options.voyage",
+          "type": "object",
+          "properties": { "truncation": { "type": "boolean", "provider_default": true } },
+          "source_url": "https://docs.voyageai.com/reference/reranker-api"
+        }
+      ],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "rerank"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/rerank",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/reranker",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 4000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
   {
     "api_model_id": "voyage/voyage-4-large",
     "provider_api_model_id": "voyage:voyage/voyage-4-large",
@@ -16,7 +384,22 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+              "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -64,7 +447,22 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 320000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+              "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -112,7 +510,22 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 1000000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+              "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -160,7 +573,28 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          {
+            "param_id": "input",
+            "type": "string_or_array",
+            "gateway_max_items": 2048,
+            "notes": "Phaseo currently exposes one document per request: a string is one chunk and a flat string array is one document's ordered chunks.",
+            "source_url": "https://docs.voyageai.com/reference/contextualized-embeddings-api-1"
+          },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/contextualized-embeddings-api-1" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/contextualized-embeddings-api-1" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+              "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" }
+            },
+            "notes": "truncation is not accepted by the contextualized embeddings endpoint.",
+            "source_url": "https://docs.voyageai.com/reference/contextualized-embeddings-api-1"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -208,7 +642,22 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 },
+              "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -256,7 +705,20 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -304,7 +766,20 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -352,7 +827,20 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true },
+              "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" }
+            },
+            "source_url": "https://docs.voyageai.com/reference/embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -400,7 +888,12 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 }, "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -448,7 +941,12 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 320000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 }, "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -496,7 +994,12 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 1000000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "dimensions", "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024, "maps_to": "output_dimension", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dimension": { "type": "integer", "values": [256, 512, 1024, 2048], "provider_default": 1024 }, "output_dtype": { "type": "enum", "values": ["float", "int8", "uint8", "binary", "ubinary"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -544,7 +1047,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -592,7 +1099,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 120000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -640,7 +1151,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -688,7 +1203,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -736,7 +1255,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -784,7 +1307,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -832,7 +1359,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -880,7 +1411,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -928,7 +1463,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "max_total_tokens": 320000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -976,7 +1515,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1024,7 +1567,11 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "string_or_array", "max_items": 1000, "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "source_url": "https://docs.voyageai.com/reference/embeddings-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "input_type": { "type": "enum", "values": ["query", "document"] }, "truncation": { "type": "boolean", "provider_default": true }, "output_dtype": { "type": "enum", "values": ["float"], "provider_default": "float" } }, "source_url": "https://docs.voyageai.com/reference/embeddings-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1070,9 +1617,16 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "query", "type": "string", "max_tokens": 2000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "documents", "type": "array", "max_items": 1000, "max_pair_tokens": 8000, "max_total_tokens": 300000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_n", "type": "integer", "provider_min": 1, "maps_to": "top_k", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_k", "type": "integer", "provider_min": 1, "alias_for": "top_n", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "return_documents", "type": "boolean", "provider_default": false, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "truncation": { "type": "boolean", "provider_default": true } }, "source_url": "https://docs.voyageai.com/reference/reranker-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1118,9 +1672,16 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "query", "type": "string", "max_tokens": 4000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "documents", "type": "array", "max_items": 1000, "max_pair_tokens": 16000, "max_total_tokens": 600000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_n", "type": "integer", "provider_min": 1, "maps_to": "top_k", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_k", "type": "integer", "provider_min": 1, "alias_for": "top_n", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "return_documents", "type": "boolean", "provider_default": false, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "truncation": { "type": "boolean", "provider_default": true } }, "source_url": "https://docs.voyageai.com/reference/reranker-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1166,9 +1727,16 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "query", "type": "string", "max_tokens": 1000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "documents", "type": "array", "max_items": 1000, "max_pair_tokens": 4000, "max_total_tokens": 300000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_n", "type": "integer", "provider_min": 1, "maps_to": "top_k", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_k", "type": "integer", "provider_min": 1, "alias_for": "top_n", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "return_documents", "type": "boolean", "provider_default": false, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "truncation": { "type": "boolean", "provider_default": true } }, "source_url": "https://docs.voyageai.com/reference/reranker-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1214,9 +1782,16 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "query", "type": "string", "max_tokens": 2000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "documents", "type": "array", "max_items": 1000, "max_pair_tokens": 8000, "max_total_tokens": 600000, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_n", "type": "integer", "provider_min": 1, "maps_to": "top_k", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "top_k", "type": "integer", "provider_min": 1, "alias_for": "top_n", "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "return_documents", "type": "boolean", "provider_default": false, "source_url": "https://docs.voyageai.com/reference/reranker-api" },
+          { "param_id": "provider_options.voyage", "type": "object", "properties": { "truncation": { "type": "boolean", "provider_default": true } }, "source_url": "https://docs.voyageai.com/reference/reranker-api" }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1264,7 +1839,20 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "multimodal_array", "source_url": "https://docs.voyageai.com/reference/multimodal-embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "maps_to": "output_encoding", "source_url": "https://docs.voyageai.com/reference/multimodal-embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true }
+            },
+            "notes": "output_dimension and output_dtype are intentionally unavailable for multimodal Voyage models.",
+            "source_url": "https://docs.voyageai.com/reference/multimodal-embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1302,7 +1890,7 @@
     "internal_model_id": "voyage/voyage-multimodal-3",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "embeddings",
     "context_length": null,
     "max_output_tokens": null,
@@ -1312,7 +1900,20 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "input", "type": "multimodal_array", "source_url": "https://docs.voyageai.com/reference/multimodal-embeddings-api" },
+          { "param_id": "encoding_format", "type": "enum", "values": ["float", "base64"], "provider_default": "float", "maps_to": "output_encoding", "source_url": "https://docs.voyageai.com/reference/multimodal-embeddings-api" },
+          {
+            "param_id": "provider_options.voyage",
+            "type": "object",
+            "properties": {
+              "input_type": { "type": "enum", "values": ["query", "document"] },
+              "truncation": { "type": "boolean", "provider_default": true }
+            },
+            "notes": "output_dimension and output_dtype are intentionally unavailable for multimodal Voyage models.",
+            "source_url": "https://docs.voyageai.com/reference/multimodal-embeddings-api"
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,

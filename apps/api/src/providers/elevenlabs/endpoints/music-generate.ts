@@ -9,7 +9,6 @@ import { buildAdapterPayload } from "../../utils";
 import { resolveProviderKey } from "../../keys";
 import { getBindings } from "@/runtime/env";
 import { computeBill } from "@pipeline/pricing/engine";
-import { saveMusicJobMeta } from "@core/music-jobs";
 
 function toBase64(buffer: ArrayBuffer): string {
 	const bytes = new Uint8Array(buffer);
@@ -73,8 +72,15 @@ function defaultOutputFormatForGatewayFormat(format?: string | null): string | u
 	if (!normalized) return undefined;
 	if (normalized === "mp3") return "mp3_44100_128";
 	if (normalized === "wav") return "pcm_44100";
-	if (normalized === "aac" || normalized === "ogg") return "mp3_44100_128";
+	if (normalized === "ogg") return "opus_48000_128";
 	return undefined;
+}
+
+function invalidParameterResponse(param: string, message: string): Response {
+	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
+		status: 400,
+		headers: { "Content-Type": "application/json" },
+	});
 }
 
 /**
@@ -90,10 +96,51 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const { canonical, adapterPayload } = buildAdapterPayload(MusicGenerateSchema, args.body, []);
     const typedPayload = adapterPayload as MusicGenerateRequest;
     const elevenParams = (canonical as MusicGenerateRequest).elevenlabs ?? {};
+	const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
+	const compositionPlan = elevenParams.composition_plan ?? null;
+	const seed = elevenParams.seed ?? null;
+	if (prompt !== null && (compositionPlan !== null || seed !== null)) {
+		const param = compositionPlan !== null ? "composition_plan" : "seed";
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				param,
+				"ElevenLabs Music prompt cannot be combined with composition_plan or seed.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (elevenParams.with_timestamps === true) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				"with_timestamps",
+				"ElevenLabs Music timestamps require the detailed compose endpoint, which this gateway adapter does not support.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (typedPayload.format === "aac") {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				"format",
+				"ElevenLabs Music does not provide AAC output; use mp3, wav, ogg, or a documented native output_format.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
-    const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
-    const compositionPlan = elevenParams.composition_plan ?? null;
-    const musicLengthMs =
+	const musicLengthMs =
         elevenParams.music_length_ms ??
         (typeof typedPayload.duration === "number" ? typedPayload.duration * 1000 : null);
 
@@ -102,26 +149,29 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         prompt,
         composition_plan: compositionPlan,
         music_length_ms: musicLengthMs,
-        model_id: elevenParams.model_id ?? "music_v1",
+        model_id: elevenParams.model_id ?? args.providerModelSlug ?? "music_v2",
         force_instrumental: elevenParams.force_instrumental ?? false,
         store_for_inpainting: elevenParams.store_for_inpainting ?? false,
-        with_timestamps: elevenParams.with_timestamps ?? false,
         sign_with_c2pa: elevenParams.sign_with_c2pa ?? false,
     };
 
-    if (requestBody.prompt == null && requestBody.composition_plan == null) {
-        requestBody.prompt = "";
-    }
+	if (requestBody.prompt == null && requestBody.composition_plan == null && requestBody.seed == null) {
+		requestBody.prompt = "";
+	}
 
     const outputFormat =
         elevenParams.output_format ??
         defaultOutputFormatForGatewayFormat(typedPayload.format);
     delete requestBody.output_format;
+	// The binary endpoint does not accept this field; true requests are rejected above.
+    delete requestBody.with_timestamps;
     const query = outputFormat ? `?output_format=${encodeURIComponent(outputFormat)}` : "";
     const bindings = getBindings() as any;
     const baseUrl = String(bindings.ELEVENLABS_BASE_URL || "https://api.elevenlabs.io").replace(/\/+$/, "");
 
-    const res = await (args.upstreamTiming?.fetch ?? fetch)(`${baseUrl}/v1/music/detailed${query}`, {
+    // The plain compose endpoint returns the generated audio directly. The detailed
+    // endpoint is multipart/mixed and must not be treated as a single audio blob.
+    const res = await (args.upstreamTiming?.fetch ?? fetch)(`${baseUrl}/v1/music${query}`, {
         method: "POST",
         headers: {
             "xi-api-key": keyInfo.key,
@@ -134,7 +184,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         cost_cents: 0,
         currency: "USD" as const,
         usage: undefined as any,
-        upstream_id: res.headers.get("request-id") || res.headers.get("x-request-id"),
+        upstream_id: res.headers.get("song-id") || res.headers.get("request-id") || res.headers.get("x-request-id"),
         finish_reason: null,
     };
 
@@ -165,7 +215,10 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         } else {
             const audioBuffer = await res.clone().arrayBuffer();
             const base64Audio = toBase64(audioBuffer);
-            const usageMeters = { requests: 1 };
+            const usageMeters = {
+				requests: 1,
+				...(typeof musicLengthMs === "number" ? { output_audio_seconds: musicLengthMs / 1000 } : {}),
+			};
             normalized = {
                 id: bill.upstream_id ?? null,
                 object: "music",
@@ -188,32 +241,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         }
     }
 
-    if (res.ok && normalized?.id) {
-        try {
-            const firstOutput = Array.isArray(normalized.output) ? normalized.output[0] : null;
-            const durationSeconds =
-                typeof firstOutput?.duration === "number"
-                    ? firstOutput.duration
-                    : (typeof typedPayload.duration === "number" ? typedPayload.duration : null);
-            await saveMusicJobMeta(args.workspaceId, String(normalized.id), {
-                provider: "elevenlabs",
-                model: requestBody.model_id ?? null,
-                duration: durationSeconds,
-                format: typedPayload.format ?? null,
-                status: normalized?.status ?? null,
-                nativeResponseId: normalized?.nativeResponseId ?? null,
-                output: Array.isArray(normalized.output) ? normalized.output : null,
-                createdAt: Date.now(),
-            });
-        } catch (err) {
-            console.error("elevenlabs_music_job_meta_store_failed", {
-                error: err,
-                workspaceId: args.workspaceId,
-                musicId: normalized.id,
-            });
-        }
-    }
-
     return {
         kind: "completed",
         upstream: res,
@@ -223,4 +250,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

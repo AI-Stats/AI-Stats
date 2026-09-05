@@ -516,7 +516,7 @@ type OperationalErrorClassification = {
     origin: ErrorOrigin | null;
     kind: string | null;
     owner: "caller" | "workspace_admin" | "gateway" | "provider" | null;
-    requiresInvestigation: boolean | null;
+    operationallyActionable: boolean | null;
 };
 
 type ProviderFailureSummary = {
@@ -868,7 +868,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
             origin: null,
             kind: null,
             owner: null,
-            requiresInvestigation: null,
+            operationallyActionable: null,
         };
     }
 
@@ -886,7 +886,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
                         : explicitKind.startsWith("workspace_")
                             ? "workspace_admin"
                             : "caller",
-            requiresInvestigation:
+            operationallyActionable:
                 explicitOrigin === "gateway" ||
                 explicitOrigin === "upstream" ||
                 explicitKind.includes("availability_gap"),
@@ -906,7 +906,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
             origin: "user",
             kind: "invalid_request",
             owner: "caller",
-            requiresInvestigation: false,
+            operationallyActionable: false,
         };
     }
 
@@ -915,7 +915,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
             origin: "user",
             kind: "workspace_model_not_allowed",
             owner: "workspace_admin",
-            requiresInvestigation: false,
+            operationallyActionable: false,
         };
     }
 
@@ -934,7 +934,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
                 origin: "user",
                 kind: "request_provider_filter_no_match",
                 owner: "caller",
-                requiresInvestigation: false,
+                operationallyActionable: false,
             };
         }
         if (workspaceFilterCount > 0) {
@@ -942,14 +942,14 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
                 origin: "user",
                 kind: "workspace_policy_no_providers",
                 owner: "workspace_admin",
-                requiresInvestigation: false,
+                operationallyActionable: false,
             };
         }
         return {
             origin: "gateway",
             kind: "gateway_provider_availability_gap",
             owner: "gateway",
-            requiresInvestigation: true,
+            operationallyActionable: true,
         };
     }
 
@@ -962,7 +962,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
                 origin: "user",
                 kind: "invalid_model_slug",
                 owner: "caller",
-                requiresInvestigation: false,
+                operationallyActionable: false,
             };
         }
         if (supportsEndpointCount !== null && supportsEndpointCount <= 0) {
@@ -970,14 +970,14 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
                 origin: "user",
                 kind: "unsupported_endpoint_for_model",
                 owner: "caller",
-                requiresInvestigation: false,
+                operationallyActionable: false,
             };
         }
         return {
             origin: "gateway",
             kind: "gateway_provider_availability_gap",
             owner: "gateway",
-            requiresInvestigation: true,
+            operationallyActionable: true,
         };
     }
 
@@ -986,7 +986,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
             origin: "gateway",
             kind: "provider_capability_mapping_gap",
             owner: "gateway",
-            requiresInvestigation: true,
+            operationallyActionable: true,
         };
     }
 
@@ -995,7 +995,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
             origin: "upstream",
             kind: "upstream_provider_failure",
             owner: "provider",
-            requiresInvestigation: true,
+            operationallyActionable: true,
         };
     }
 
@@ -1004,7 +1004,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
             origin: "gateway",
             kind: "gateway_internal",
             owner: "gateway",
-            requiresInvestigation: true,
+            operationallyActionable: true,
         };
     }
 
@@ -1013,7 +1013,7 @@ function classifyOperationalError(args: EventArgs): OperationalErrorClassificati
         origin: resolvedType === "system" ? "gateway" : "user",
         kind: resolvedType === "system" ? "system_error" : "invalid_request",
         owner: resolvedType === "system" ? "gateway" : "caller",
-        requiresInvestigation: resolvedType === "system",
+        operationallyActionable: resolvedType === "system",
     };
 }
 
@@ -1151,7 +1151,11 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             return;
         }
 
-        const includeDetailedPayloads = observabilityPlan.detailLevel === "full";
+        // Parse responses contain the caller's extracted document content. Keep
+        // operational telemetry, but never copy parse bodies into detailed logs.
+        const containsParsedDocumentContent = (args.endpoint ?? args.ctx?.endpoint) === "parse";
+        const includeDetailedPayloads =
+            observabilityPlan.detailLevel === "full" && !containsParsedDocumentContent;
 
         const sanitizedGatewayRequest = includeDetailedPayloads
             ? sanitizeForAxiom(args.requestPayload ?? ctx?.rawBody ?? ctx?.body ?? null)
@@ -1159,7 +1163,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         const sanitizedUpstreamRequest = includeDetailedPayloads
             ? sanitizeJsonStringForAxiom(args.mappedRequest ?? args.result?.mappedRequest ?? null)
             : null;
-        const sanitizedErrorDetails = includeDetailedPayloads || !args.success
+        const sanitizedErrorDetails = includeDetailedPayloads || (!args.success && !containsParsedDocumentContent)
             ? sanitizeForAxiom(args.errorDetails ?? null)
             : null;
         const sanitizedProviderResponse = includeDetailedPayloads
@@ -1306,12 +1310,14 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             status_code: args.statusCode ?? null,
             success: args.success,
             error_code: args.errorCode ?? null,
-            error_message: args.errorMessage ?? null,
+            error_message: containsParsedDocumentContent ? null : args.errorMessage ?? null,
             error_type: eventErrorType,
             error_origin: operationalError.origin,
             error_operational_kind: operationalError.kind,
             error_action_owner: operationalError.owner,
-            error_requires_investigation: operationalError.requiresInvestigation,
+            error_operationally_actionable: operationalError.operationallyActionable,
+            // Compatibility alias for existing Axiom dashboards and monitors.
+            error_requires_investigation: operationalError.operationallyActionable,
             error_stage: args.errorStage ?? null,
             error_internal_reason: args.internalReason ?? null,
             error_internal_code: args.internalCode ?? null,
@@ -1479,7 +1485,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             upstream_error_code: upstreamError?.code ?? null,
             upstream_error_type: upstreamError?.type ?? null,
             upstream_error_param: upstreamError?.param ?? null,
-            upstream_error_message: upstreamError?.message ?? null,
+            upstream_error_message: containsParsedDocumentContent ? null : upstreamError?.message ?? null,
             upstream_error_status: upstreamError?.status ?? null,
             upstream_error_json: includeDetailedPayloads
                 ? stringifyDetailForAxiom(sanitizeForAxiom(upstreamError?.raw ?? null))
@@ -1494,7 +1500,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             failure_sample_first_upstream_error_code:
                 failureSample?.upstreamErrorCode ?? null,
             failure_sample_first_upstream_error_message:
-                failureSample?.upstreamErrorMessage ?? null,
+                containsParsedDocumentContent ? null : failureSample?.upstreamErrorMessage ?? null,
             gateway_response_redacted_json: includeDetailedPayloads
                 ? stringifyDetailForAxiom(sanitizedGatewayResponse)
                 : null,
@@ -1508,4 +1514,3 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         releaseRuntime();
     }
 }
-

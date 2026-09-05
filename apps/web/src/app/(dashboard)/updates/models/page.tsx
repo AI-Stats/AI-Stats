@@ -26,7 +26,7 @@ export const metadata: Metadata = buildMetadata({
 export default async function Page() {
 	const { past: pastEvents, future: upcomingEvents } =
 		await fetchFrontendModelUpdates({
-			limit: 250,
+			includeAllPast: true,
 			upcomingLimit: 4,
 		});
 

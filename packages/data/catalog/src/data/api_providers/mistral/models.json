@@ -11,7 +11,7 @@
         "context_length":  256000,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  "2026-03-31T00:00:00",
+        "effective_to":  null,
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -653,7 +653,7 @@
         "canonical_model_id":  "mistral/leanstral-1.5:free",
         "provider_api_model_id":  "mistral:mistral/leanstral-1.5:free",
         "provider_model_slug":  "labs-leanstral-1-5",
-        "internal_model_id":  "mistral/leanstral-1.5",
+        "internal_model_id":  "mistral/leanstral-1.5:free",
         "is_active_gateway":  true,
         "prompt_training_policy_override":  "may_train",
         "prompt_training_override_notes":  "Mistral documents Leanstral 1.5 as a Labs model with a $0 price. Mistral says API data is generally not used for model training, but Labs models can be used to train Mistral models regardless of subscription plan or opt-out settings under the Commercial Terms of Service.",
@@ -779,7 +779,7 @@
         "canonical_model_id":  "mistral/leanstral:free",
         "provider_api_model_id":  "mistral:mistral/leanstral:free",
         "provider_model_slug":  "labs-leanstral-2603",
-        "internal_model_id":  "mistral/leanstral",
+        "internal_model_id":  "mistral/leanstral:free",
         "is_active_gateway":  true,
         "quantization_scheme":  null,
         "input_modalities":  "text,image",
@@ -2184,9 +2184,9 @@
     {
         "api_model_id":  "mistral/mistral-medium-3.5",
         "provider_api_model_id":  "mistral:mistral/mistral-medium-3.5",
-        "provider_model_slug":  "mistral-medium-3.5",
+        "provider_model_slug":  "mistral-medium-3-5",
         "internal_model_id":  "mistral/mistral-medium-3.5",
-        "is_active_gateway":  false,
+        "is_active_gateway":  true,
         "quantization_scheme":  null,
         "input_modalities":  null,
         "output_modalities":  null,
@@ -2214,7 +2214,7 @@
                              }
                          ],
         "routing_status":  "active",
-        "routable":  false,
+        "routable":  true,
         "regions":  {
                         "execution":  [
                                           "global"
@@ -2234,12 +2234,17 @@
                     "deployment":  null
                 },
         "sources":  [
-
+                        {
+                            "kind":  "model_card",
+                            "url":  "https://docs.mistral.ai/models/mistral-medium-3-5-26-04",
+                            "accessed_at":  "2026-08-20T00:00:00Z",
+                            "notes":  "Documents the permanent mistral-medium-3-5 API slug, 256k context, chat completions, function calling, structured outputs, and current pricing."
+                        }
                     ],
         "verification":  {
-                             "status":  "partial",
-                             "checked_at":  "2026-08-11T04:00:58.766+00:00",
-                             "notes":  "Discovered from the provider models API; routing remains disabled pending review."
+                             "status":  "verified",
+                             "checked_at":  "2026-08-20T00:00:00Z",
+                             "notes":  "Current hosted API support and permanent slug verified against Mistral's model card."
                          },
         "rate_limits":  [
 
@@ -2250,14 +2255,14 @@
         "provider_api_model_id":  "mistral:mistral/mistral-moderation",
         "provider_model_slug":  "mistral-moderation-2411",
         "internal_model_id":  "mistral/mistral-moderation",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text",
         "output_modalities":  "moderations",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-06-30T00:00:00",
         "capabilities":  [
                              {
                                  "capability_id":  "text.moderate",
@@ -2277,7 +2282,7 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
+        "routing_status":  null,
         "routable":  true,
         "regions":  {
                         "execution":  null,
@@ -2287,19 +2292,21 @@
 
                           ],
         "api":  {
-                    "formats":  [
-
-                                ],
-                    "endpoint":  null,
+                    "formats":  ["mistral.moderations"],
+                    "endpoint":  "https://api.mistral.ai/v1/moderations",
                     "deployment":  null
                 },
         "sources":  [
-
+                        {
+                            "kind": "documentation",
+                            "url": "https://docs.mistral.ai/models/model-cards/mistral-moderation-24-11",
+                            "accessed_at": "2026-08-12T00:00:00Z"
+                        }
                     ],
         "verification":  {
-                             "status":  "unverified",
-                             "checked_at":  null,
-                             "notes":  null
+                             "status":  "verified",
+                             "checked_at":  "2026-08-12T00:00:00Z",
+                             "notes":  "Legacy moderation-2411 is retired; replaced by mistral-moderation-2603."
                          },
         "rate_limits":  [
 
@@ -2347,19 +2354,26 @@
 
                           ],
         "api":  {
-                    "formats":  [
-
-                                ],
-                    "endpoint":  null,
+                    "formats":  ["mistral.moderations", "mistral.chat.moderations"],
+                    "endpoint":  "https://api.mistral.ai/v1/moderations",
                     "deployment":  null
                 },
         "sources":  [
-
+                        {
+                            "kind": "documentation",
+                            "url": "https://docs.mistral.ai/studio-api/safety-moderation",
+                            "accessed_at": "2026-08-12T00:00:00Z"
+                        },
+                        {
+                            "kind": "documentation",
+                            "url": "https://docs.mistral.ai/models/model-cards/mistral-moderation-26-03",
+                            "accessed_at": "2026-08-12T00:00:00Z"
+                        }
                     ],
         "verification":  {
-                             "status":  "unverified",
-                             "checked_at":  null,
-                             "notes":  null
+                             "status":  "verified",
+                             "checked_at":  "2026-08-12T00:00:00Z",
+                             "notes":  "Verified raw-text and conversational moderation endpoints with mistral-moderation-2603."
                          },
         "rate_limits":  [
 
@@ -2897,7 +2911,7 @@
         "provider_api_model_id":  "mistral:mistral/ocr-3",
         "provider_model_slug":  "mistral-ocr-2512",
         "internal_model_id":  "mistral/ocr-3",
-        "is_active_gateway":  false,
+        "is_active_gateway":  true,
         "quantization_scheme":  null,
         "input_modalities":  "image,file",
         "output_modalities":  "text,image",
@@ -2924,8 +2938,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  null,
-        "routable":  false,
+        "routing_status":  "active",
+        "routable":  true,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -2955,15 +2969,97 @@
     {
         "api_model_id":  "mistral/ocr-4",
         "provider_api_model_id":  "mistral:mistral/ocr-4",
-        "provider_model_slug":  "mistral-ocr-latest",
+        "provider_model_slug":  "mistral-ocr-4-0",
         "internal_model_id":  "mistral/ocr-4",
-        "is_active_gateway":  false,
+        "is_active_gateway":  true,
         "quantization_scheme":  null,
         "input_modalities":  "image,file",
         "output_modalities":  "text,image",
         "context_length":  16384,
         "max_output_tokens":  null,
         "effective_from":  "2026-06-30T00:00:00",
+        "effective_to":  null,
+        "capabilities":  [
+                             {
+                                 "capability_id":  "ocr",
+                                 "status":  "active",
+                                 "params":  [
+                                                "image",
+                                                "document",
+                                                "pages",
+                                                "include_image_base64",
+                                                "image_limit",
+                                                "image_min_size",
+                                                "bbox_annotation_format",
+                                                "document_annotation_format",
+                                                "document_annotation_prompt",
+                                                "table_format",
+                                                "extract_header",
+                                                "extract_footer",
+                                                "include_blocks",
+                                                "confidence_scores_granularity"
+                                            ],
+                                 "reasoning":  null,
+                                 "tool_call":  null,
+                                 "structured_output":  null,
+                                 "temperature":  null,
+                                 "attachment":  null,
+                                 "input_modalities":  null,
+                                 "output_modalities":  null,
+                                 "modes":  [
+
+                                           ]
+                             }
+                         ],
+        "routing_status":  "active",
+        "routable":  true,
+        "regions":  {
+                        "execution":  null,
+                        "data":  null
+                    },
+        "service_tiers":  [
+
+                          ],
+        "api":  {
+                    "formats":  [
+                                    "mistral-ocr-v1"
+                                ],
+                    "endpoint":  "/v1/ocr",
+                    "deployment":  null
+                },
+        "sources":  [
+                        {
+                            "kind": "api_reference",
+                            "url": "https://docs.mistral.ai/api/endpoint/ocr",
+                            "accessed_at": "2026-08-12T00:00:00Z"
+                        },
+                        {
+                            "kind": "model_card",
+                            "url": "https://docs.mistral.ai/models/ocr-4-0",
+                            "accessed_at": "2026-08-12T00:00:00Z"
+                        }
+                    ],
+        "verification":  {
+                             "status":  "verified",
+                             "checked_at":  "2026-08-12T00:00:00Z",
+                             "notes":  "Verified OCR 4 identifier, native endpoint, document inputs, annotations, blocks, confidence scores, and current availability against first-party Mistral references."
+                         },
+        "rate_limits":  [
+
+                        ]
+    },
+    {
+        "api_model_id":  "mistral/ocr-4.1",
+        "provider_api_model_id":  "mistral:mistral/ocr-4.1",
+        "provider_model_slug":  "mistral-ocr-4-1",
+        "internal_model_id":  "mistral/ocr-4.1",
+        "is_active_gateway":  true,
+        "quantization_scheme":  null,
+        "input_modalities":  "image,file",
+        "output_modalities":  "text,image",
+        "context_length":  16384,
+        "max_output_tokens":  null,
+        "effective_from":  "2026-08-13T00:00:00",
         "effective_to":  null,
         "capabilities":  [
                              {
@@ -2984,8 +3080,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  null,
-        "routable":  false,
+        "routing_status":  "active",
+        "routable":  true,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -3001,12 +3097,17 @@
                     "deployment":  null
                 },
         "sources":  [
-
+                        {
+                            "kind":  "announcement",
+                            "url":  "https://console.mistral.ai/build/document-ai/ocr-playground",
+                            "accessed_at":  "2026-08-13T00:00:00Z",
+                            "notes":  "Mistral announced that mistral-ocr-latest now points to OCR 4.1."
+                        }
                     ],
         "verification":  {
-                             "status":  "unverified",
-                             "checked_at":  null,
-                             "notes":  null
+                             "status":  "verified",
+                             "checked_at":  "2026-08-13T00:00:00Z",
+                             "notes":  "Alias update supplied in Mistral's OCR 4.1 announcement."
                          },
         "rate_limits":  [
 
@@ -3512,5 +3613,132 @@
         "rate_limits":  [
 
                         ]
+    },
+    {
+        "api_model_id": "mistral/voxtral-mini-transcribe-2",
+        "provider_api_model_id": "mistral:mistral/voxtral-mini-transcribe-2",
+        "provider_model_slug": "voxtral-mini-2602",
+        "internal_model_id": "mistral/voxtral-mini-transcribe-2",
+        "is_active_gateway": true,
+        "quantization_scheme": null,
+        "input_modalities": "audio",
+        "output_modalities": "text",
+        "context_length": null,
+        "max_output_tokens": null,
+        "effective_from": "2026-02-04T00:00:00Z",
+        "effective_to": null,
+        "capabilities": [
+            {
+                "capability_id": "audio.transcribe",
+                "status": "active",
+                "params": [
+                    { "param_id": "language", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Cannot be combined with timestamp_granularities." },
+                    { "param_id": "temperature", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+                    { "param_id": "stream", "provider_min": null, "provider_max": null, "provider_default": false, "notes": "Returns Mistral transcription SSE events when true." },
+                    { "param_id": "timestamp_granularities", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Supports segment and word timestamps." },
+                    { "param_id": "diarize", "provider_min": null, "provider_max": null, "provider_default": false, "notes": "Enables speaker diarization." },
+                    { "param_id": "context_bias", "provider_min": null, "provider_max": 100, "provider_default": null, "notes": "Up to 100 custom words or phrases." }
+                ],
+                "reasoning": null,
+                "tool_call": false,
+                "structured_output": false,
+                "temperature": true,
+                "attachment": true,
+                "input_modalities": ["audio"],
+                "output_modalities": ["text"],
+                "modes": ["sync", "stream"]
+            }
+        ],
+        "routing_status": "active",
+        "routable": true,
+        "regions": { "execution": ["global"], "data": null },
+        "service_tiers": ["standard"],
+        "api": {
+            "formats": ["mistral.audio.transcriptions"],
+            "endpoint": "https://api.mistral.ai/v1/audio/transcriptions",
+            "deployment": "global"
+        },
+        "sources": [
+            {
+                "kind": "docs",
+                "url": "https://docs.mistral.ai/api/endpoint/audio/transcriptions",
+                "accessed_at": "2026-08-12T00:00:00Z",
+                "notes": "Documents multipart file, URL, and file-ID inputs, transcription controls, JSON response, usage, and SSE streaming."
+            },
+            {
+                "kind": "model_card",
+                "url": "https://docs.mistral.ai/models/model-cards/voxtral-mini-transcribe-26-02",
+                "accessed_at": "2026-08-12T00:00:00Z",
+                "notes": "Documents model ID voxtral-mini-2602 and transcription endpoint support."
+            }
+        ],
+        "verification": {
+            "status": "verified",
+            "checked_at": "2026-08-12T00:00:00Z",
+            "notes": "Global transcription route and current model verified against Mistral's API reference and model card."
+        },
+        "rate_limits": []
+    },
+    {
+        "api_model_id": "mistral/voxtral-mini-transcribe-realtime",
+        "provider_api_model_id": "mistral:mistral/voxtral-mini-transcribe-realtime",
+        "provider_model_slug": "voxtral-mini-transcribe-realtime-2602",
+        "internal_model_id": "mistral/voxtral-mini-transcribe-realtime",
+        "is_active_gateway": false,
+        "quantization_scheme": null,
+        "input_modalities": "audio",
+        "output_modalities": "text",
+        "context_length": null,
+        "max_output_tokens": null,
+        "effective_from": "2026-02-04T00:00:00Z",
+        "effective_to": null,
+        "capabilities": [
+            {
+                "capability_id": "audio.transcribe",
+                "status": "active",
+                "params": [
+                    { "param_id": "stream", "provider_min": null, "provider_max": null, "provider_default": true, "notes": "Realtime WebSocket transcription is always streamed." },
+                    { "param_id": "target_streaming_delay_ms", "provider_min": null, "provider_max": null, "provider_default": null, "notes": "Controls the target transcription delay." },
+                    { "param_id": "diarize", "provider_min": null, "provider_max": null, "provider_default": false, "notes": "Realtime transcription is not compatible with diarization." }
+                ],
+                "reasoning": false,
+                "tool_call": false,
+                "structured_output": false,
+                "temperature": false,
+                "attachment": true,
+                "input_modalities": ["audio"],
+                "output_modalities": ["text"],
+                "modes": ["realtime"]
+            }
+        ],
+        "routing_status": null,
+        "routable": false,
+        "regions": { "execution": ["global"], "data": null },
+        "service_tiers": ["standard"],
+        "api": {
+            "formats": ["mistral.audio.transcriptions.realtime"],
+            "endpoint": "wss://api.mistral.ai/v1/audio/transcriptions/realtime",
+            "deployment": "global"
+        },
+        "sources": [
+            {
+                "kind": "model_card",
+                "url": "https://docs.mistral.ai/models/voxtral-mini-transcribe-realtime-26-02",
+                "accessed_at": "2026-08-20T00:00:00Z",
+                "notes": "Documents the permanent model slug, release, realtime transcription capability, and $0.006 per-minute price."
+            },
+            {
+                "kind": "docs",
+                "url": "https://docs.mistral.ai/studio/audio/speech_to_text/realtime_transcription",
+                "accessed_at": "2026-08-20T00:00:00Z",
+                "notes": "Documents the realtime WebSocket transport and supported streaming controls."
+            }
+        ],
+        "verification": {
+            "status": "verified",
+            "checked_at": "2026-08-20T00:00:00Z",
+            "notes": "Provider support is verified; Phaseo routing remains disabled because the Mistral adapter does not expose the realtime WebSocket transport."
+        },
+        "rate_limits": []
     }
 ]

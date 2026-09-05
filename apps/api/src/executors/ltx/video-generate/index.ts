@@ -13,9 +13,6 @@ import type { ExecutorExecuteArgs, ExecutorResult, ProviderExecutor } from "../.
 
 const DEFAULT_LTX_BASE_URL = "https://api.ltx.io";
 const LTX_VIDEO_PREFIX = "ltxvid_";
-// LTX bills the source audio duration but does not return authoritative usage.
-// Use its enforced ceiling so client-supplied metadata cannot reduce charges.
-const LTX_AUDIO_BILLING_SECONDS = 20;
 const LTX_MODELS = new Set(["ltx-2-fast", "ltx-2-pro", "ltx-2-3-fast", "ltx-2-3-pro", "ltx-2-5-fast", "ltx-2-5-pro"]);
 const CAMERA_MOTIONS = new Set(["dolly_in", "dolly_out", "dolly_left", "dolly_right", "jib_up", "jib_down", "static", "focus_shift"]);
 
@@ -77,7 +74,7 @@ function buildRequest(ir: IRVideoGenerationRequest, model: string) {
 			endpoint: "audio-to-video" as const,
 			body: { model, audio_uri: audio, ...(image ? { image_uri: image } : {}), prompt: ir.prompt, resolution, ...(guidanceScale != null ? { guidance_scale: Number(guidanceScale) } : {}) },
 			seconds: inputAudioSeconds,
-			inputAudioSeconds: LTX_AUDIO_BILLING_SECONDS,
+			inputAudioSeconds,
 			resolution,
 			fps: 25,
 			inputImageCount: image ? 1 : 0,
@@ -102,12 +99,14 @@ function buildRequest(ir: IRVideoGenerationRequest, model: string) {
 	if (isLegacy && ![25, 50].includes(fps)) throw new InvalidLtxVideoRequestError("Deprecated LTX-2 models require 25 or 50 fps.");
 	if (isLegacy && lastFrame) throw new InvalidLtxVideoRequestError("Deprecated LTX-2 models do not support last-frame conditioning.");
 	if (model === "ltx-2-5-pro" && isHighResolution) throw new InvalidLtxVideoRequestError("LTX-2.5 Pro supports resolutions up to 1080p.");
+	if (model === "ltx-2-5-pro" && fps === 48) throw new InvalidLtxVideoRequestError("LTX-2.5 Pro supports 24, 25, or 50 fps.");
 	if (!isFast && duration !== null && duration > 10) throw new InvalidLtxVideoRequestError("LTX Pro duration must be 6, 8, or 10 seconds.");
 	if (isFast && duration !== null && duration > 10 && (isHighResolution || fps === 48 || fps === 50)) {
 		throw new InvalidLtxVideoRequestError("LTX Fast durations above 10 seconds require 720p or 1080p at 24 or 25 fps.");
 	}
 	const cameraMotion = toString(config.camera_motion ?? config.cameraMotion);
 	if (cameraMotion && !CAMERA_MOTIONS.has(cameraMotion)) throw new InvalidLtxVideoRequestError("Unsupported LTX camera_motion value.");
+	if (cameraMotion && !model.startsWith("ltx-2-5-")) throw new InvalidLtxVideoRequestError("camera_motion is only supported by LTX-2.5 models.");
 	const body: Record<string, unknown> = {
 		model,
 		prompt: ir.prompt,

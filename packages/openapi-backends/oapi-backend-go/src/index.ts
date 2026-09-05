@@ -187,7 +187,8 @@ function renderOperations(operations: IROperation[]): string {
 }
 
 function renderOperation(operation: IROperation): string {
-	const returnType = goType(selectSuccessSchema(operation));
+	const successResponse = selectSuccessResponse(operation);
+	const returnType = goType(successResponse.schema ?? { kind: "unknown" });
 	const pathParams = operation.params.filter((param) => param.in === "path");
 	const pathTemplate = renderPathTemplate(operation.path, pathParams);
 	return [
@@ -198,14 +199,25 @@ function renderOperation(operation: IROperation): string {
 		`\t\tvar zero ${returnType}`,
 		"\t\treturn zero, err",
 		"\t}",
-		`\tvar out ${returnType}`,
-		"\tif err := DecodeJSON(data, &out); err != nil {",
-		`\t\tvar zero ${returnType}`,
-		"\t\treturn zero, err",
-		"\t}",
-		"\treturn out, nil",
+		...(successResponse.kind === "text"
+			? ["\treturn string(data), nil"]
+			: [
+				`\tvar out ${returnType}`,
+				"\tif err := DecodeJSON(data, &out); err != nil {",
+				`\t\tvar zero ${returnType}`,
+				"\t\treturn zero, err",
+				"\t}",
+				"\treturn out, nil",
+			]),
 		"}"
 	].join("\n");
+}
+
+function selectSuccessResponse(operation: IROperation): IROperation["responses"][number] {
+	return operation.responses.find((response) => {
+		const status = Number(response.status);
+		return !Number.isNaN(status) && status >= 200 && status < 300;
+	}) ?? { status: "default", schema: { kind: "unknown" } };
 }
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
@@ -254,7 +266,7 @@ function goType(schema: IRSchema): string {
 		case "literal":
 			return "interface{}";
 		case "enum":
-			return "string";
+			return schema.values.filter((value) => value !== null).every((value) => typeof value === "boolean") ? "bool" : "string";
 		case "array":
 			return `[]${goType(schema.items)}`;
 		case "object":

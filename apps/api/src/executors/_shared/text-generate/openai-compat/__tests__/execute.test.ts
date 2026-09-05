@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { executeOpenAIWire } from "../index";
+import { execute as executeNovita } from "@executors/novitaai/text-generate";
 import { installFetchMock, jsonResponse } from "../../../../../../tests/helpers/mock-fetch";
 import { sseResponse } from "../../../../../../tests/helpers/sse";
 import { setupRuntimeFromEnv, setupTestRuntime, teardownTestRuntime } from "../../../../../../tests/helpers/runtime";
@@ -97,6 +98,43 @@ describe("executeOpenAIWire", () => {
 		expect(Array.isArray(capturedBody?.tools)).toBe(true);
 	});
 
+	it("routes private models only to their request-scoped endpoint", async () => {
+		const args = buildArgs();
+		args.providerId = "private-model";
+		args.providerModelSlug = "legal-v4";
+		args.privateEndpoint = { baseUrl: "https://models.customer.example/openai/v1", supportsResponses: false };
+		args.byokMeta = [{
+			id: "private-model-id",
+			providerId: "private-model",
+			fingerprintSha256: "fingerprint",
+			keyVersion: "1",
+			alwaysUse: true,
+			key: "private-endpoint-secret",
+		}];
+		let capturedHeaders: Record<string, string> = {};
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://models.customer.example/openai/v1/chat/completions",
+			response: sseResponse([{
+				id: "chatcmpl_private",
+				object: "chat.completion.chunk",
+				model: "legal-v4",
+				choices: [{ index: 0, delta: { content: "private response" }, finish_reason: null }],
+			}, "[DONE]"]),
+			onRequest: (call) => {
+				capturedHeaders = call.headers;
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await executeOpenAIWire(args, { forceChat: true });
+		mock.restore();
+
+		expect(result.kind).toBe("stream");
+		expect(capturedHeaders.Authorization).toBe("Bearer private-endpoint-secret");
+		expect(capturedBody.model).toBe("legal-v4");
+	});
+
 	it("routes alibaba-cloud to chat completions for text models", async () => {
 		const args = buildArgs();
 		args.providerId = "alibaba-cloud";
@@ -136,6 +174,36 @@ describe("executeOpenAIWire", () => {
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.url).toBe(ALIBABA_CHAT_URL);
 		expect(capturedBody?.stream).toBe(true);
+	});
+
+	it("keeps Novita upstream streaming and accepts clean empty completion streams", async () => {
+		const args = buildArgs();
+		args.providerId = "novita";
+		args.providerModelSlug = "mindai/macaron-v1-tall";
+		args.ir = {
+			...args.ir,
+			model: "mindai/macaron-v1-tall",
+			stream: false,
+		};
+
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.novita.example/openai/v1/chat/completions",
+			response: sseResponse(["[DONE]"]),
+			onRequest: (call) => {
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await executeNovita(args);
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(result.upstream.status).toBe(200);
+		expect(capturedBody?.stream).toBe(true);
+		expect(capturedBody?.stream_options?.include_usage).toBe(true);
+		if (result.kind !== "completed") throw new Error("Expected completed result");
+		expect(result.ir?.choices[0]?.finishReason).toBe("length");
 	});
 
 	it("reports Meta native web search usage as billable web search requests", async () => {
@@ -243,11 +311,17 @@ describe("executeOpenAIWire", () => {
 			...args.ir,
 			model: "poolside/laguna-s-2.1:free",
 			stream: false,
+			reasoning: { enabled: false },
+			maxTokens: 4096,
+			temperature: 0.2,
+			topK: 20,
+			minP: 0,
+			parallelToolCalls: false,
 			messages: [
 				{ role: "user", content: [{ type: "text", text: "What is the time?" }] },
 				{
 					role: "assistant",
-					content: [],
+					content: [{ type: "reasoning_text", text: "Need the current time." }],
 					toolCalls: [{
 						id: "call_datetime",
 						name: "gateway_datetime",
@@ -278,7 +352,11 @@ describe("executeOpenAIWire", () => {
 				model: "poolside/laguna-s-2.1",
 				choices: [{
 					index: 0,
-					message: { role: "assistant", content: "It is 15:25 UTC." },
+					message: {
+						role: "assistant",
+						reasoning_content: "The tool result is in UTC.",
+						content: "It is 15:25 UTC.",
+					},
 					finish_reason: "stop",
 				}],
 				usage: { prompt_tokens: 10, completion_tokens: 6, total_tokens: 16 },
@@ -296,6 +374,14 @@ describe("executeOpenAIWire", () => {
 		expect(mock.calls[0]?.url).toBe("https://api.poolside.example/v1/chat/completions");
 		expect(capturedBody?.input).toBeUndefined();
 		expect(capturedBody?.model).toBe("poolside/laguna-s-2.1");
+		expect(capturedBody?.chat_template_kwargs).toEqual({ enable_thinking: false });
+		expect(capturedBody).toMatchObject({
+			max_tokens: 4096,
+			temperature: 0.2,
+			top_k: 20,
+			min_p: 0,
+			parallel_tool_calls: false,
+		});
 		expect(capturedBody?.messages).toEqual([
 			{
 				role: "user",
@@ -304,6 +390,7 @@ describe("executeOpenAIWire", () => {
 			{
 				role: "assistant",
 				content: null,
+				reasoning_content: "Need the current time.",
 				tool_calls: [{
 					id: "call_datetime",
 					type: "function",
@@ -321,6 +408,11 @@ describe("executeOpenAIWire", () => {
 		]);
 		expect(capturedBody?.stream).toBe(true);
 		expect(capturedBody?.stream_options?.include_usage).toBe(true);
+		expect(result.kind === "completed" ? result.ir?.choices[0]?.message.content : []).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ type: "reasoning_text", text: "The tool result is in UTC." }),
+			]),
+		);
 	});
 
 	it("routes alibaba-cloud omni models to chat completions", async () => {
@@ -357,6 +449,53 @@ describe("executeOpenAIWire", () => {
 		expect(result.upstream.status).toBe(200);
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.url).toBe(ALIBABA_CHAT_URL);
+	});
+
+	it("sends Reka multimodal Chat requests with native auth and normalizes usage", async () => {
+		const args = buildArgs();
+		args.providerId = "reka";
+		args.ir = {
+			model: "reka-flash",
+			stream: false,
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "video", source: "url", url: "https://example.com/clip.mp4" },
+					{ type: "audio", source: "url", data: "https://example.com/audio.mp3", format: "mp3" },
+					{ type: "text", text: "Summarize both." },
+				],
+			}],
+			tools: [{ name: "save_summary", parameters: { type: "object" } }],
+			toolChoice: "required",
+		};
+
+		let capturedBody: any;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.reka.ai/v1/chat/completions",
+			response: jsonResponse({
+				id: "reka_1",
+				model: "reka-flash",
+				choices: [{ index: 0, finish_reason: "stop", message: { role: "assistant", content: "Done" } }],
+				usage: { input_tokens: 14, output_tokens: 3 },
+			}),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await executeProviderWire(args);
+		mock.restore();
+
+		expect(mock.calls[0]?.headers["X-Api-Key"]).toBe("test-reka-key");
+		expect(mock.calls[0]?.headers.Authorization).toBe("Bearer test-reka-key");
+		expect(capturedBody.tool_choice).toBe("tool");
+		expect(capturedBody.messages[0].content).toEqual([
+			{ type: "video_url", video_url: "https://example.com/clip.mp4" },
+			{ type: "audio_url", audio_url: "https://example.com/audio.mp3" },
+			{ type: "text", text: "Summarize both." },
+		]);
+		expect(result.kind === "completed" ? result.bill.usage : null).toMatchObject({
+			input_text_tokens: 14,
+			output_text_tokens: 3,
+		});
 	});
 
 	it("routes alibaba-cloud video input requests to chat completions", async () => {
@@ -443,7 +582,7 @@ describe("executeOpenAIWire", () => {
 		expect(result.kind).toBe("completed");
 		expect(result.upstream.status).toBe(200);
 		expect(callCount).toBe(2);
-		expect(mock.calls[0]?.headers.Authorization).toBe("Api-Key test-baseten-key");
+		expect(mock.calls[0]?.headers.Authorization).toBe("Bearer test-baseten-key");
 	});
 
 	it("retries transient groq 503 responses once before succeeding", async () => {
@@ -754,4 +893,3 @@ describe("executeOpenAIWire", () => {
 		expect(mock.calls[0]?.headers.Authorization).toBe("Bearer test-gmi-key");
 	});
 });
-

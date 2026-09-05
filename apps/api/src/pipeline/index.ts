@@ -10,6 +10,8 @@ import { auditFailure } from "./audit";
 import { Timer } from "./telemetry/timer";
 import type { PipelineTiming } from "./execute";
 import { resolvePipeline } from "./registry";
+import { ResponsesSchema } from "@core/schemas";
+import { runAutoRouterClassifierGatewayRequest } from "./auto-router-classifier-gateway";
 import {
 	buildPipelineExecutionErrorResponse,
 	logPipelineExecutionError,
@@ -17,9 +19,19 @@ import {
 
 const EARLY_OBSERVABILITY_BODY_LIMIT_BYTES = 256 * 1024;
 const MODEL_FALLBACK_STATUSES = new Set([429, 500, 502, 503, 504]);
+let autoRouterClassifierHandler: ReturnType<typeof makeEndpointHandler> | null = null;
+
+function getAutoRouterClassifierHandler() {
+	autoRouterClassifierHandler ??= makeEndpointHandler({ endpoint: "responses", schema: ResponsesSchema });
+	return autoRouterClassifierHandler;
+}
 
 function configuredModelFallbacks(ctx: { model: string; routingDiagnostics?: Record<string, any> | null }): string[] {
-    const values = ctx.routingDiagnostics?.dynamicRoute?.action?.modelFallbacks;
+	const dynamicRouteFallbacks = ctx.routingDiagnostics?.dynamicRoute?.action?.modelFallbacks;
+	const autoRouterFallbacks = ctx.routingDiagnostics?.autoRouter?.fallbackModels;
+	const values = Array.isArray(dynamicRouteFallbacks) && dynamicRouteFallbacks.length
+		? dynamicRouteFallbacks
+		: autoRouterFallbacks;
     if (!Array.isArray(values)) return [];
     return [...new Set(values.filter((value): value is string => typeof value === "string" && value.trim().length > 0))]
         .filter((value) => value !== ctx.model)
@@ -75,6 +87,13 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 
         timing.timer.mark("before_start");
         const pre = await beforeRequest(req, endpoint, timing.timer, schema, {
+			classifyAutoRouterRequest: ({ endpoint: sourceEndpoint, body }) =>
+				runAutoRouterClassifierGatewayRequest({
+					sourceRequest: req,
+					endpoint: sourceEndpoint,
+					body,
+					handler: getAutoRouterClassifierHandler(),
+				}),
             onObservabilitySnapshot: (snapshot) => {
                 earlyRequestObservability = snapshot;
             },
@@ -126,6 +145,8 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 					schema,
 					{
 						dynamicRouteModelOverride: fallbackModel,
+						autoRouterModelOverride: fallbackModel,
+						autoRouterClassificationOverride: pre.ctx.routingDiagnostics?.autoRouter?.classification ?? null,
 						onObservabilitySnapshot: (snapshot) => {
 							fallbackRequestObservability = snapshot;
 						},

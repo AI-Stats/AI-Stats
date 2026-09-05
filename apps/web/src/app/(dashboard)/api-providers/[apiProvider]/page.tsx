@@ -8,8 +8,12 @@ import {
 import ProviderModelsClient from "./models/ProviderModelsClient";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
-import Script from "next/script";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { notFound } from "next/navigation";
+
+// Provider metadata comes from an uncached API request. Allow this route to
+// resolve it as a blocking render instead of treating it as static.
+export const instant = false;
 
 async function fetchProviderMeta(apiProviderId: string) {
 	try {
@@ -145,26 +149,17 @@ export default async function Page({
 		<>
 			{structuredData && (
 				<>
-					<Script
-						id="provider-org-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="provider-breadcrumb-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.breadcrumbSchema),
-						}}
-					/>
+					<JsonLdScript id="provider-org-schema" data={structuredData.organizationSchema} />
+					<JsonLdScript id="provider-breadcrumb-schema" data={structuredData.breadcrumbSchema} />
 				</>
 			)}
 			<APIProviderDetailShell apiProviderId={apiProvider} tocItems={[{ id: "performance", label: "Performance" }, { id: "token-usage", label: "Token Usage" }, { id: "top-models", label: "Top Models" }, { id: "top-apps", label: "Top Apps" }, { id: "models", label: "Models" }]}>
 				<div className="flex flex-col gap-10 w-full">
-					<section id="performance" className="scroll-mt-36 space-y-3">
-						<h2 className="text-xl font-semibold">Performance</h2>
+					<section id="performance" className="scroll-mt-36 space-y-4">
+						<div className="space-y-1">
+							<h2 className="text-xl font-semibold tracking-tight">Performance</h2>
+							<p className="text-sm text-muted-foreground">Latency and throughput from recent gateway traffic, with leading models for each signal.</p>
+						</div>
 						<PerformanceCards params={params} />
 					</section>
 

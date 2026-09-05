@@ -7,5 +7,6 @@ export const BAIDU_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v2",
 		apiKeyEnv: "BAIDU_QIANFAN_API_KEY",
 		baseUrlEnv: "BAIDU_QIANFAN_BASE_URL",
+		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

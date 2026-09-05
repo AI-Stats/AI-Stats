@@ -3,6 +3,7 @@ import {
 	extractRequestedParams,
 	getUnknownTopLevelParams,
 	getUnsupportedParamsForProvider,
+	providerParamSupportStatus,
 	providerSupportsParam,
 } from "./paramCapabilities";
 import {
@@ -27,7 +28,7 @@ describe("textParamPolicy", () => {
 
 	it("applies provider override rules from code", () => {
 		expect(
-			resolveProviderParamSupportOverride("cerebras", "presence_penalty"),
+			resolveProviderParamSupportOverride("cohere", "stream_options"),
 		).toBe(false);
 		expect(
 			resolveProviderParamSupportOverride("openai", "provider_options.openai.context_management"),
@@ -56,6 +57,7 @@ describe("textParamPolicy", () => {
 		const body = {
 			model: "openai/gpt-5.4-nano",
 			messages: [{ role: "user", content: "Hello" }],
+			store: false,
 			stream: true,
 			stream_options: { include_usage: true },
 		};
@@ -78,19 +80,54 @@ describe("textParamPolicy", () => {
 			"reasoning_split",
 		]);
 	});
+
+	it("recognizes OpenAI prompt cache options on Responses requests", () => {
+		const body = {
+			model: "openai/gpt-6-astra",
+			input: "Hello",
+			prompt_cache_options: { mode: "explicit", ttl: "30m" },
+		};
+
+		expect(getUnknownTopLevelParams("responses", body)).toEqual([]);
+		expect(extractRequestedParams("responses", body)).toContain("prompt_cache_options");
+	});
 });
 
 describe("providerSupportsParam", () => {
+	it("distinguishes unknown metadata from explicit unsupported overrides", () => {
+		expect(
+			providerParamSupportStatus(
+				{ providerId: "openai", capabilityParams: {} } as any,
+				"temperature",
+			),
+		).toBe("unknown");
+		expect(
+			providerParamSupportStatus(
+				{ providerId: "cerebras", capabilityParams: {} } as any,
+				"presence_penalty",
+			),
+		).toBe("unsupported");
+	});
+
+	it("keeps provider_options scoped to the named provider", () => {
+		expect(
+			providerParamSupportStatus(
+				{ providerId: "anthropic", capabilityParams: {} } as any,
+				"provider_options.openai.context_management",
+			),
+		).toBe("unsupported");
+	});
+
 	it("honors code-first overrides before metadata", () => {
 		const candidate = {
-			providerId: "cerebras",
+			providerId: "cohere",
 			capabilityParams: {
-				presence_penalty: {},
+				stream_options: {},
 			},
 		} as any;
 
 		expect(
-			providerSupportsParam(candidate, "presence_penalty", {
+			providerSupportsParam(candidate, "stream_options", {
 				assumeSupportedOnMissingConfig: false,
 			}),
 		).toBe(false);
@@ -113,7 +150,22 @@ describe("providerSupportsParam", () => {
 		).toBe(true);
 	});
 
-	it("does not mark always-supported params as unsupported", () => {
+	it("recognizes Baseten reasoning effort through its canonical capability path", () => {
+		const candidate = {
+			providerId: "baseten",
+			capabilityParams: {
+				"reasoning.effort": {},
+			},
+		} as any;
+
+		expect(
+			providerSupportsParam(candidate, "reasoning.effort", {
+				assumeSupportedOnMissingConfig: false,
+			}),
+		).toBe(true);
+	});
+
+	it("does not mark always-supported or unknown params as unsupported", () => {
 		const candidate = {
 			providerId: "openai",
 			capabilityParams: {},
@@ -126,6 +178,6 @@ describe("providerSupportsParam", () => {
 			assumeSupportedOnMissingConfig: false,
 		});
 
-		expect(unsupported).toEqual(["temperature"]);
+		expect(unsupported).toEqual([]);
 	});
 });

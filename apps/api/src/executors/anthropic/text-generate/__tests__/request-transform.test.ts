@@ -31,6 +31,14 @@ afterEach(() => {
 });
 
 describe("irToAnthropicMessages service controls", () => {
+	it("supplies the minimum documented budget for legacy enabled thinking", () => {
+		const request = createBaseRequest();
+		request.reasoning = { enabled: true };
+
+		const payload = irToAnthropicMessages(request);
+		expect(payload.thinking).toEqual({ type: "enabled", budget_tokens: 1024 });
+	});
+
 	it("passes Anthropic native web fetch tools through unchanged", () => {
 		const request = createBaseRequest();
 		request.tools = [
@@ -226,6 +234,26 @@ describe("irToAnthropicMessages service controls", () => {
 				},
 			},
 		]);
+	});
+
+	it.each([
+		["model_context_window_exceeded", "length"],
+		["refusal", "content_filter"],
+		["pause_turn", "stop"],
+	])("maps current Anthropic stop reason %s", (stopReason, expected) => {
+		const ir = anthropicMessagesToIR(
+			{
+				id: "msg_stop_reason",
+				content: [],
+				stop_reason: stopReason,
+				usage: { input_tokens: 1, output_tokens: 1 },
+			},
+			"req_stop_reason",
+			"anthropic/claude-sonnet-4-6",
+			"anthropic",
+		);
+
+		expect(ir.choices[0]?.finishReason).toBe(expected);
 	});
 
 	it("maps priority tier to auto service tier without fast mode", () => {
@@ -465,7 +493,7 @@ describe("irToAnthropicMessages service controls", () => {
 		expect(payload.system).toContain("valid JSON object");
 	});
 
-	it("adds JSON schema structured-output instruction to system prompt", () => {
+	it("uses Anthropic native JSON schema structured outputs", () => {
 		const request = createBaseRequest();
 		request.responseFormat = {
 			type: "json_schema",
@@ -483,9 +511,62 @@ describe("irToAnthropicMessages service controls", () => {
 		};
 
 		const payload = irToAnthropicMessages(request);
-		expect(typeof payload.system).toBe("string");
-		expect(payload.system).toContain("strictly matches this schema");
-		expect(payload.system).toContain("\"temperature_c\"");
+		expect(payload.output_config?.format).toEqual({
+			type: "json_schema",
+			schema: request.responseFormat.schema,
+		});
+		expect(payload.system).toBeUndefined();
+	});
+
+	it("preserves strict tools and disables parallel tool use", () => {
+		const request = createBaseRequest();
+		request.tools = [{
+			name: "weather",
+			description: "Get weather",
+			parameters: { type: "object", properties: { city: { type: "string" } } },
+			strict: true,
+		}];
+		request.toolChoice = "auto";
+		request.parallelToolCalls = false;
+
+		const payload = irToAnthropicMessages(request);
+		expect(payload.tools[0].strict).toBe(true);
+		expect(payload.tool_choice).toEqual({ type: "auto", disable_parallel_tool_use: true });
+	});
+
+	it("decodes official thinking, output_config, documents, and file references losslessly", () => {
+		const request = decodeAnthropicMessagesRequest({
+			model: "anthropic/claude-opus-4.8",
+			max_tokens: 2048,
+			thinking: { type: "adaptive", display: "summarized" },
+			output_config: {
+				effort: "high",
+				format: {
+					type: "json_schema",
+					schema: { type: "object", properties: { answer: { type: "string" } }, required: ["answer"], additionalProperties: false },
+				},
+			},
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "document", source: { type: "url", url: "https://example.com/report.pdf" } },
+					{ type: "document", source: { type: "file", file_id: "file_123" } },
+					{ type: "text", text: "Summarize" },
+				] as any,
+			}],
+		} as any);
+
+		expect(request.reasoning).toMatchObject({ enabled: true, effort: "high" });
+		expect(request.responseFormat).toMatchObject({ type: "json_schema", strict: true });
+		expect(request.messages[0]?.content.slice(0, 2)).toEqual([
+			{ type: "provider_block", block: { type: "document", source: { type: "url", url: "https://example.com/report.pdf" } } },
+			{ type: "provider_block", block: { type: "document", source: { type: "file", file_id: "file_123" } } },
+		]);
+		const payload = irToAnthropicMessages(request);
+		expect(payload.messages[0].content.slice(0, 2)).toEqual([
+			{ type: "document", source: { type: "url", url: "https://example.com/report.pdf" } },
+			{ type: "document", source: { type: "file", file_id: "file_123" } },
+		]);
 	});
 
 	it("adds inference_geo when a US-only Anthropic offer is selected", () => {
@@ -514,6 +595,12 @@ describe("irToAnthropicMessages service controls", () => {
 		const request = createBaseRequest();
 		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
 		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBeNull();
+	});
+
+	it("does not allow a US AWS route to be downgraded to global inference", () => {
+		const request = createBaseRequest();
+		request.geo = { inferenceGeo: "global" };
+		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
 	});
 });
 

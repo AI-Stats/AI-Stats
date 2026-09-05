@@ -3,6 +3,12 @@ import type { Metadata, ResolvingMetadata } from "next";
 const CANONICAL_SITE_URL = "https://phaseo.app";
 const LOCAL_SITE_URL = "http://localhost:3000";
 const INSECURE_CANONICAL_SITE_URL = "http://phaseo.app";
+const LEGACY_AI_STATS_HOST = ["ai-stats", "phaseo", "app"].join(".");
+const LEGACY_SITE_HOSTS = new Set([
+	LEGACY_AI_STATS_HOST,
+	"ai-stats.vercel.app",
+	"www.phaseo.app",
+]);
 
 const configuredSiteUrl =
 	process.env.NEXT_PUBLIC_WEBSITE_URL ?? process.env.WEBSITE_URL;
@@ -20,9 +26,20 @@ export function resolveSiteUrl(siteUrl: string | undefined): string {
 		return LOCAL_SITE_URL;
 	}
 
-	return normalizedSiteUrl === INSECURE_CANONICAL_SITE_URL
-		? CANONICAL_SITE_URL
-		: normalizedSiteUrl;
+	if (normalizedSiteUrl === INSECURE_CANONICAL_SITE_URL) {
+		return CANONICAL_SITE_URL;
+	}
+
+	try {
+		const url = new URL(normalizedSiteUrl);
+		if (LEGACY_SITE_HOSTS.has(url.hostname.toLowerCase())) {
+			return CANONICAL_SITE_URL;
+		}
+	} catch {
+		return LOCAL_SITE_URL;
+	}
+
+	return normalizedSiteUrl;
 }
 
 const DEFAULT_SITE_URL = resolveSiteUrl(configuredSiteUrl);

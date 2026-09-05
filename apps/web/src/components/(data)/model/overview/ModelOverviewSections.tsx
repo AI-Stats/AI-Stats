@@ -2,9 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense, type ReactNode } from "react";
 import {
-	Activity,
 	ALargeSmall,
-	AppWindow,
 	ArrowLeft,
 	ArrowRight,
 	BadgeAlert,
@@ -46,11 +44,12 @@ import {
 	fetchFrontendModelPendingApiReleaseState,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelTimeline,
-	fetchFrontendModelTokenTrajectory,
 	fetchFrontendModelUsageDailyBreakdown,
 	fetchFrontendOrganisationModels,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import {
 	Carousel,
 	CarouselContent,
@@ -62,7 +61,6 @@ import {
 	Empty,
 	EmptyDescription,
 	EmptyHeader,
-	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
 import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/ModelPendingApiReleaseBanner";
@@ -74,6 +72,9 @@ import {
 	getModelLineageLinks,
 	resolveModelLineageNames,
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
+import ModelVerificationSection, {
+	supportsProvenanceVerification,
+} from "@/components/(data)/model/overview/ModelVerificationSection";
 
 type ModelOverviewSectionsProps = {
 	modelId: string;
@@ -81,11 +82,12 @@ type ModelOverviewSectionsProps = {
 	includeHidden: boolean;
 	showBenchmarks?: boolean;
 	showSubscriptions?: boolean;
+	showProviders?: boolean;
 	status?: string | null;
 	isGatewayActive?: boolean;
-	gatewayMetadata?: ModelGatewayMetadata;
 	performancePromise?: Promise<ModelPerformanceMetrics | null>;
-	quickstartRequestContext?: QuickstartRequestContext;
+	isPrivateModel?: boolean;
+	privateProviders?: ProviderPricing[];
 };
 
 export type ModelSectionSharedProps = {
@@ -143,6 +145,9 @@ function Section({
 		</section>
 	);
 }
+
+const MODEL_SECTION_STACK_CLASSNAME =
+	"space-y-10 [&>section:first-of-type]:border-t-0 [&>section:first-of-type]:pt-0";
 
 function parseTypes(types: unknown): string[] {
 	const normalizeType = (value: string): string => {
@@ -214,8 +219,10 @@ export async function ModelProvidersSection({
 	modelStatus,
 	modelName,
 	creatorOrganisationId,
+	creatorOrganisationName,
 	description = "API providers, route pricing, availability, and recent reliability signals.",
-}: ModelSectionSharedProps & { modelStatus?: string | null; modelName?: string | null; creatorOrganisationId?: string | null; description?: string | null }) {
+	providersOverride,
+}: ModelSectionSharedProps & { modelStatus?: string | null; modelName?: string | null; creatorOrganisationId?: string | null; creatorOrganisationName?: string | null; description?: string | null; providersOverride?: ProviderPricing[] }) {
 	await connection();
 	return (
 		<ModelPricing
@@ -226,6 +233,8 @@ export async function ModelProvidersSection({
 			modelStatus={modelStatus}
 			modelName={modelName}
 			creatorOrganisationId={creatorOrganisationId}
+			creatorOrganisationName={creatorOrganisationName}
+			providersOverride={providersOverride}
 		/>
 	);
 }
@@ -331,14 +340,12 @@ export async function ModelPerformanceSection({
 	modelId,
 	includeHidden,
 	performancePromise,
-	description = "Latency, throughput, and reliability signals from recent traffic.",
-	surface = "overview",
+	description = "Hourly latency and throughput from the past seven days.",
 }: ModelSectionSharedProps &
 	ModelPerformancePromiseProps & {
 	description?: string;
-	surface?: ModelSectionSurface;
 }) {
-	const [performanceMetrics, pendingApiRelease, tokenTrajectory, performanceColos] =
+	const [performanceMetrics, pendingApiRelease, performanceColos] =
 		await Promise.all([
 		withOptionalSectionTimeout(
 			performancePromise ?? fetchFrontendModelPerformance(modelId, 24),
@@ -351,11 +358,6 @@ export async function ModelPerformanceSection({
 			"pending API release state"
 		),
 		withOptionalSectionTimeout(
-			fetchFrontendModelTokenTrajectory(modelId),
-			null,
-			"token trajectory"
-		),
-		withOptionalSectionTimeout(
 			fetchFrontendModelPerformanceColos(modelId),
 			[],
 			"performance execution regions"
@@ -363,17 +365,16 @@ export async function ModelPerformanceSection({
 	]);
 	const shouldShowPendingApiBanner =
 		!performanceMetrics && pendingApiRelease?.isPendingApiRelease;
+	if (!performanceMetrics && !shouldShowPendingApiBanner) return null;
 
 	return (
-		<>
+		<Section id="performance">
 			{performanceMetrics ? (
 				<ModelPerformanceDashboard
 					modelId={modelId}
 					metrics={performanceMetrics}
 					availableColos={performanceColos}
 					headerDescription={description}
-					tokenTrajectory={tokenTrajectory}
-					mode={surface}
 				/>
 			) : (
 				<div className="space-y-3">
@@ -384,20 +385,9 @@ export async function ModelPerformanceSection({
 							surface="performance"
 						/>
 					) : null}
-					<Empty className="rounded-lg border p-8">
-						<EmptyHeader>
-							<EmptyMedia variant="icon">
-								<Activity className="size-5" />
-							</EmptyMedia>
-							<EmptyTitle>No performance telemetry yet</EmptyTitle>
-							<EmptyDescription>
-								Performance telemetry is not available yet.
-							</EmptyDescription>
-						</EmptyHeader>
-					</Empty>
 				</div>
 			)}
-		</>
+		</Section>
 	);
 }
 
@@ -428,13 +418,17 @@ export async function ModelAppsSection({
 		"model apps"
 	);
 	const topApps = modelApps.slice(0, 10);
+	if (topApps.length === 0) return null;
 	const appColumns = [topApps.slice(0, 5), topApps.slice(5, 10)].filter(
 		(column) => column.length > 0,
 	);
 
 	return (
-		<>
-			{topApps.length > 0 ? (
+		<Section id="apps">
+			<SectionHeader
+				title="Apps Using This Model"
+				description="Public apps observed in gateway usage for this model."
+			/>
 				<div className="grid gap-x-16 md:grid-cols-2">
 					{appColumns.map((column, columnIndex) => (
 						<div key={columnIndex}>
@@ -487,20 +481,7 @@ export async function ModelAppsSection({
 						</div>
 					))}
 				</div>
-			) : (
-				<Empty className="rounded-lg border p-8">
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<AppWindow className="size-5" />
-						</EmptyMedia>
-						<EmptyTitle>No app distribution yet</EmptyTitle>
-						<EmptyDescription>
-							No gateway request app data is available for this model yet.
-						</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
-			)}
-		</>
+		</Section>
 	);
 }
 
@@ -519,37 +500,16 @@ export async function ModelActivitySection({
 		[],
 		"model activity"
 	);
+	if (usageRows.length === 0) return null;
 
 	return (
-		<>
-			{usageRows.length > 0 ? (
+		<Section id="activity">
 				<ModelActivityChart
 					rows={usageRows}
 					showHeading={showHeading}
 					description="Token volume and request traffic for this model over time."
 				/>
-			) : (
-				<div className="space-y-4">
-					{showHeading ? (
-						<SectionHeader
-							title="Activity"
-							description="Token volume and request traffic for this model over time."
-						/>
-					) : null}
-					<Empty className="rounded-lg border p-8">
-						<EmptyHeader>
-							<EmptyMedia variant="icon">
-								<Activity className="size-5" />
-							</EmptyMedia>
-							<EmptyTitle>No activity yet</EmptyTitle>
-							<EmptyDescription>
-								Usage breakdowns will appear once this model has enough gateway traffic.
-							</EmptyDescription>
-						</EmptyHeader>
-					</Empty>
-				</div>
-			)}
-		</>
+		</Section>
 	);
 }
 
@@ -1095,28 +1055,6 @@ function ProvidersSectionSkeleton() {
 	);
 }
 
-function QuickstartSectionSkeleton() {
-	return (
-		<div className="overflow-hidden rounded-lg border border-border/70 bg-background">
-			<div className="flex flex-wrap gap-2">
-				<div className="flex w-full flex-wrap items-center gap-2 border-b p-3">
-					<Skeleton className="h-8 w-28 rounded-md" />
-					<Skeleton className="h-8 w-28 rounded-md" />
-					<Skeleton className="h-8 w-36 rounded-md" />
-					<Skeleton className="ml-auto h-8 w-24 rounded-md" />
-				</div>
-			</div>
-			<div className="space-y-3 p-4">
-				<Skeleton className="h-4 w-2/5" />
-				<Skeleton className="h-4 w-4/5" />
-				<Skeleton className="h-4 w-3/4" />
-				<Skeleton className="h-4 w-5/6" />
-				<Skeleton className="h-4 w-1/2" />
-			</div>
-		</div>
-	);
-}
-
 function BenchmarksSectionSkeleton() {
 	return (
 		<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1269,8 +1207,8 @@ export function ModelCreatorModelsSkeleton() {
 
 export function ModelOverviewSectionsSkeleton() {
 	return (
-		<div className="space-y-10">
-			<Section id="providers" showDivider={false}>
+		<div className={MODEL_SECTION_STACK_CLASSNAME}>
+			<Section id="providers">
 				<SectionHeader
 					title="Providers"
 					description="API providers, route pricing, availability, and recent reliability signals."
@@ -1316,13 +1254,6 @@ export function ModelOverviewSectionsSkeleton() {
 				/>
 				<UptimeSectionSkeleton />
 			</Section>
-			<Section id="quickstart">
-				<SectionHeader
-					title="Quickstart"
-					description="Start calling this model with endpoint-specific examples."
-				/>
-				<QuickstartSectionSkeleton />
-			</Section>
 			<Section id="about">
 				<SectionHeader
 					title="About"
@@ -1347,20 +1278,23 @@ export default function ModelOverviewSections({
 	includeHidden,
 	showBenchmarks = true,
 	showSubscriptions = true,
+	showProviders = true,
 	status,
 	isGatewayActive = true,
-	gatewayMetadata,
 	performancePromise,
-	quickstartRequestContext,
+	isPrivateModel = false,
+	privateProviders,
 }: ModelOverviewSectionsProps) {
 	const hasInternalModelData = Boolean(model);
 	const isRetired = status === "Retired";
+	const showVerification = supportsProvenanceVerification(model?.output_types);
+
 
 	if (isRetired) {
 		return (
-			<div className="space-y-10">
+			<div className={MODEL_SECTION_STACK_CLASSNAME}>
 				{showBenchmarks ? (
-					<Section id="benchmarks" showDivider={false}>
+					<Section id="benchmarks">
 						<SectionHeader title="Benchmarks" />
 						<Suspense fallback={<BenchmarksSectionSkeleton />}>
 							<ModelBenchmarksSection
@@ -1373,7 +1307,12 @@ export default function ModelOverviewSections({
 				) : null}
 				{hasInternalModelData ? (
 					<>
-						<Section id="about" showDivider={showBenchmarks}>
+						{showVerification ? (
+							<Section id="verification">
+								<ModelVerificationSection outputTypes={model?.output_types} />
+							</Section>
+						) : null}
+						<Section id="about">
 							<SectionHeader
 								title="About"
 								description="Archived dates, capabilities, links, and model metadata."
@@ -1405,19 +1344,22 @@ export default function ModelOverviewSections({
 
 	if (!isGatewayActive) {
 		return (
-			<div className="space-y-10">
-				<Section id="providers" showDivider={false}>
-					<Suspense fallback={<ProvidersSectionSkeleton />}>
-						<ModelProvidersSection
-							modelId={modelId}
-							includeHidden={includeHidden}
-							modelStatus={status}
-							modelName={model?.name}
-							creatorOrganisationId={model?.organisation_id}
-							description="Provider listings and known route availability for this model."
-						/>
-					</Suspense>
-				</Section>
+			<div className={MODEL_SECTION_STACK_CLASSNAME}>
+				{showProviders ? (
+					<Section id="providers">
+						<Suspense fallback={<ProvidersSectionSkeleton />}>
+							<ModelProvidersSection
+								modelId={modelId}
+								includeHidden={includeHidden}
+								modelStatus={status}
+								modelName={model?.name}
+								creatorOrganisationId={model?.organisation_id}
+								creatorOrganisationName={model?.organisation?.name}
+								description="Provider listings and known route availability for this model."
+							/>
+						</Suspense>
+					</Section>
+				) : null}
 				{showBenchmarks ? (
 					<Section id="benchmarks">
 						<SectionHeader title="Benchmarks" />
@@ -1430,19 +1372,11 @@ export default function ModelOverviewSections({
 						</Suspense>
 					</Section>
 				) : null}
-				<Section id="quickstart">
-					<SectionHeader
-						title="Quickstart"
-						description="Retrieve catalog metadata for this model while it is not active in the Gateway."
-					/>
-					<ModelQuickstartSection
-						modelId={modelId}
-						includeHidden={includeHidden}
-						isGatewayActive={false}
-						gatewayMetadata={gatewayMetadata}
-						surface="overview"
-					/>
-				</Section>
+				{showVerification ? (
+					<Section id="verification">
+						<ModelVerificationSection outputTypes={model?.output_types} />
+					</Section>
+				) : null}
 				{hasInternalModelData ? (
 					<>
 						<Section id="about">
@@ -1476,30 +1410,37 @@ export default function ModelOverviewSections({
 	}
 
 	return (
-		<div className="space-y-10">
-			<Section id="providers" showDivider={false}>
-				<Suspense fallback={<ProvidersSectionSkeleton />}>
-					<ModelProvidersSection
-						modelId={modelId}
-						includeHidden={includeHidden}
-						modelStatus={status}
-						modelName={model?.name}
-						creatorOrganisationId={model?.organisation_id}
-						description="API providers, route pricing, availability, and recent reliability signals."
-					/>
-				</Suspense>
-			</Section>
-			<Section id="performance">
-				<Suspense fallback={<PerformanceSectionSkeleton />}>
+		<div className={MODEL_SECTION_STACK_CLASSNAME}>
+			{showProviders ? (
+				<Section id="providers">
+					<Suspense fallback={<ProvidersSectionSkeleton />}>
+						<ModelProvidersSection
+							modelId={modelId}
+							includeHidden={includeHidden}
+							modelStatus={status}
+							modelName={model?.name}
+							creatorOrganisationId={model?.organisation_id}
+							creatorOrganisationName={model?.organisation?.name}
+							providersOverride={privateProviders}
+							description="API providers, route pricing, availability, and recent reliability signals."
+						/>
+					</Suspense>
+				</Section>
+			) : null}
+			<Suspense
+				fallback={
+					<Section id="performance">
+						<PerformanceSectionSkeleton />
+					</Section>
+				}
+			>
 					<ModelPerformanceSection
 						modelId={modelId}
 						includeHidden={includeHidden}
 						performancePromise={performancePromise}
-						surface="page"
 					/>
 				</Suspense>
-			</Section>
-			<Section id="pricing">
+			{!isPrivateModel ? <Section id="pricing">
 				<SectionHeader
 					title="Pricing"
 					description="Weighted provider pricing over the last 30 days, with recent route pricing history below."
@@ -1510,7 +1451,7 @@ export default function ModelOverviewSections({
 						includeHidden={includeHidden}
 					/>
 				</Suspense>
-			</Section>
+			</Section> : null}
 			{showBenchmarks ? (
 				<Section id="benchmarks">
 					<SectionHeader title="Benchmarks" />
@@ -1523,20 +1464,28 @@ export default function ModelOverviewSections({
 					</Suspense>
 				</Section>
 			) : null}
-			<Section id="activity">
-				<Suspense fallback={<ActivitySectionSkeleton />}>
-					<ModelActivitySection modelId={modelId} includeHidden={includeHidden} />
-				</Suspense>
-			</Section>
-			<Section id="apps">
-				<SectionHeader
-					title="Apps Using This Model"
-					description="Public apps observed in gateway usage for this model."
-				/>
-				<Suspense fallback={<AppsSectionSkeleton />}>
-					<ModelAppsSection modelId={modelId} includeHidden={includeHidden} />
-				</Suspense>
-			</Section>
+			<Suspense
+				fallback={
+					<Section id="activity">
+						<ActivitySectionSkeleton />
+					</Section>
+				}
+			>
+				<ModelActivitySection modelId={modelId} includeHidden={includeHidden} />
+			</Suspense>
+			<Suspense
+				fallback={
+					<Section id="apps">
+						<SectionHeader
+							title="Apps Using This Model"
+							description="Public apps observed in gateway usage for this model."
+						/>
+						<AppsSectionSkeleton />
+					</Section>
+				}
+			>
+				<ModelAppsSection modelId={modelId} includeHidden={includeHidden} />
+			</Suspense>
 			<Section id="uptime">
 				<SectionHeader
 					title="Model Uptime"
@@ -1549,21 +1498,11 @@ export default function ModelOverviewSections({
 					/>
 				</Suspense>
 			</Section>
-			<Section id="quickstart">
-				<SectionHeader
-					title="Quickstart"
-					description="Start calling this model with endpoint-specific examples."
-				/>
-				<Suspense fallback={<QuickstartSectionSkeleton />}>
-					<ModelQuickstartSection
-						modelId={modelId}
-						includeHidden={includeHidden}
-						gatewayMetadata={gatewayMetadata}
-						surface="overview"
-						quickstartRequestContext={quickstartRequestContext}
-					/>
-				</Suspense>
-			</Section>
+			{showVerification ? (
+				<Section id="verification">
+					<ModelVerificationSection outputTypes={model?.output_types} />
+				</Section>
+			) : null}
 			{hasInternalModelData ? (
 				<>
 					<Section id="about">

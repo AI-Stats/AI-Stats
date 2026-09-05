@@ -21,9 +21,9 @@ export type Env = {
 	Bindings: HonoBindings;
 	Variables: {
 		ctx?: AuthContext;
+		requestId?: string;
 	};
 };
-
 
 
 

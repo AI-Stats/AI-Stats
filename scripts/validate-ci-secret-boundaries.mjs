@@ -21,9 +21,16 @@ function extractCondition(job, name) {
 	return condition;
 }
 
+function extractNamedStep(job, name) {
+	const marker = `            - name: ${name}`;
+	const start = job.indexOf(marker);
+	if (start < 0) throw new Error(`Missing CI step: ${name}`);
+	const remainder = job.slice(start + marker.length);
+	const nextStep = remainder.search(/\n            - name:/);
+	return nextStep < 0 ? remainder : remainder.slice(0, nextStep);
+}
+
 export function validateCiSecretBoundaries(workflow) {
-	const previewJob = extractJob(workflow, "deploy-preview-web");
-	const previewCondition = extractCondition(previewJob, "deploy-preview-web");
 	const migrationValidationJob = extractJob(workflow, "migration-validation");
 	const productionMigrationJob = extractJob(workflow, "migrate-production");
 	const productionMigrationCondition = extractCondition(
@@ -37,20 +44,8 @@ export function validateCiSecretBoundaries(workflow) {
 		throw new Error("merge_group validation must remain enabled for merge queue checks");
 	}
 
-	if (!previewJob.includes("VERCEL_TOKEN")) {
-		throw new Error("Expected deploy-preview-web to remain the Vercel credential boundary");
-	}
-
-	if (previewCondition.includes("merge_group")) {
-		throw new Error("deploy-preview-web must never run for merge_group events");
-	}
-
-	if (!previewCondition.includes("github.event.pull_request.head.repo.full_name == github.repository")) {
-		throw new Error("deploy-preview-web must require same-repository pull requests");
-	}
-
-	if (!previewCondition.includes('OWNER","MEMBER","COLLABORATOR')) {
-		throw new Error("deploy-preview-web must require a trusted pull-request author association");
+	if (workflow.includes("\n    deploy-preview-web:")) {
+		throw new Error("pull-request code must not execute in a Vercel credential-bearing deployment job");
 	}
 
 	if (migrationValidationJob.includes("secrets.")) {
@@ -106,9 +101,23 @@ export function validateCiSecretBoundaries(workflow) {
 		throw new Error("production migrations must dry-run before applying");
 	}
 
+	let stealthPrivacyStep = "";
+	try {
+		stealthPrivacyStep = extractNamedStep(productionMigrationJob, "Verify stealth catalogue privacy boundary");
+	} catch {
+		// Report the stable contract error below.
+	}
+	const normalizedStealthPrivacyStep = stealthPrivacyStep.replace(/\\\r?\n\s*/g, " ");
+	const executableStealthQuery = /^\s*(?:run:\s*)?(?:npx --yes supabase@\S+|supabase)\s+db\s+query\b(?=[^\r\n]*--linked)(?=[^\r\n]*--file\s+supabase\/tests\/stealth_catalogue_security_smoke\.sql)[^\r\n]*$/m;
+	const stealthPrivacyCheck = productionMigrationJob.indexOf("Verify stealth catalogue privacy boundary");
+	if (stealthPrivacyCheck < apply || !executableStealthQuery.test(normalizedStealthPrivacyStep)) {
+		throw new Error("production migrations must verify the stealth catalogue privacy boundary after applying");
+	}
+
 	if (
 		!deployJob.includes("- migrate-production") ||
 		!deployCondition.includes("needs.migrate-production.result == 'success'") ||
+		!deployCondition.includes("vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'") ||
 		!deployCondition.includes("needs.check-paths.outputs.migrations-changed != 'true'")
 	) {
 		throw new Error("production application deploys must remain gated by database migrations");

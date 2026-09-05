@@ -174,13 +174,13 @@ export async function fetchDashscopeTask(
 	taskId: string,
 ) {
 	const providerId = String(videoMeta?.provider ?? "alibaba").trim() || "alibaba";
-	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, "ALIBABA_CLOUD_API_KEY");
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, bindings.ALIBABA_CLOUD_API_KEY ? "ALIBABA_CLOUD_API_KEY" : "DASHSCOPE_API_KEY");
 	if (!key) {
 		return err("upstream_error", {
 			reason: "dashscope_key_missing",
 		});
 	}
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = (bindings.ALIBABA_BASE_URL || "https://dashscope-intl.aliyuncs.com").replace(/\/+$/, "");
 	return fetch(`${baseUrl}/api/v1/tasks/${encodeURIComponent(taskId)}`, {
 		method: "GET",
@@ -197,13 +197,13 @@ export async function cancelDashscopeTask(
 	taskId: string,
 ) {
 	const providerId = String(videoMeta?.provider ?? "alibaba").trim() || "alibaba";
-	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, "ALIBABA_CLOUD_API_KEY");
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, bindings.ALIBABA_CLOUD_API_KEY ? "ALIBABA_CLOUD_API_KEY" : "DASHSCOPE_API_KEY");
 	if (!key) {
 		return err("upstream_error", {
 			reason: "dashscope_key_missing",
 		});
 	}
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = (bindings.ALIBABA_BASE_URL || "https://dashscope-intl.aliyuncs.com").replace(/\/+$/, "");
 	return guardedVideoCancelFetch(
 		`${baseUrl}/api/v1/tasks/${encodeURIComponent(taskId)}/cancel`,
@@ -283,7 +283,12 @@ export async function fetchMiniMaxVideoTask(
 	}
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.MINIMAX_BASE_URL || "https://api.minimax.io").replace(/\/+$/, "");
-	return fetch(`${baseUrl}/v1/query/video_generation?task_id=${encodeURIComponent(taskId)}`, {
+	const normalizedModel = String(videoMeta?.model ?? "").trim().toLowerCase();
+	const isV2 = normalizedModel === "minimax-h3" || normalizedModel.endsWith("/h3") || normalizedModel === "minimax-h3-max" || normalizedModel.endsWith("/h3-max");
+	const url = isV2
+		? `${baseUrl}/v2/query/video_generation/${encodeURIComponent(taskId)}`
+		: `${baseUrl}/v1/query/video_generation?task_id=${encodeURIComponent(taskId)}`;
+	return fetch(url, {
 		method: "GET",
 		headers: {
 			Authorization: `Bearer ${key}`,
@@ -361,13 +366,13 @@ export async function fetchRunwayTask(
 	taskId: string,
 ) {
 	const providerId = String(videoMeta?.provider ?? RUNWAY_PROVIDER_ID).trim() || RUNWAY_PROVIDER_ID;
-	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, "RUNWAY_API_KEY");
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, bindings.RUNWAY_API_KEY ? "RUNWAY_API_KEY" : "RUNWAYML_API_SECRET");
 	if (!key) {
 		return err("upstream_error", {
 			reason: "runway_key_missing",
 		});
 	}
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.RUNWAY_BASE_URL || DEFAULT_RUNWAY_BASE_URL).replace(/\/+$/, "");
 	const apiVersion = resolveRunwayApiVersion(videoMeta, bindings);
 	const headers: Record<string, string> = {
@@ -387,13 +392,13 @@ export async function cancelRunwayTask(
 	taskId: string,
 ) {
 	const providerId = String(videoMeta?.provider ?? RUNWAY_PROVIDER_ID).trim() || RUNWAY_PROVIDER_ID;
-	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, "RUNWAY_API_KEY");
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, bindings.RUNWAY_API_KEY ? "RUNWAY_API_KEY" : "RUNWAYML_API_SECRET");
 	if (!key) {
 		return err("upstream_error", {
 			reason: "runway_key_missing",
 		});
 	}
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.RUNWAY_BASE_URL || DEFAULT_RUNWAY_BASE_URL).replace(/\/+$/, "");
 	const apiVersion = resolveRunwayApiVersion(videoMeta, bindings);
 	const headers: Record<string, string> = {
@@ -412,6 +417,49 @@ export async function cancelRunwayTask(
 			reason: "runway_task_cancel_failed",
 			provider: providerId,
 			taskId,
+			requestId: auth.requestId,
+			workspaceId: auth.workspaceId,
+		},
+	);
+}
+
+type FalVideoIdentity = { endpoint: string; requestId: string };
+
+export function decodeFalVideoIdentity(value: unknown): FalVideoIdentity | null {
+	if (typeof value !== "string" || !value.startsWith("falvid_")) return null;
+	try {
+		const encoded = value.slice("falvid_".length).replace(/-/g, "+").replace(/_/g, "/");
+		const parsed = JSON.parse(atob(encoded));
+		if (typeof parsed?.endpoint !== "string" || typeof parsed?.requestId !== "string") return null;
+		return { endpoint: parsed.endpoint, requestId: parsed.requestId };
+	} catch {
+		return null;
+	}
+}
+
+export async function cancelFalTask(
+	auth: VideoRouteAuth,
+	videoMeta: VideoJobMeta | null,
+	nativeId: string,
+): Promise<Response> {
+	const identity = decodeFalVideoIdentity(nativeId);
+	if (!identity) {
+		return new Response(JSON.stringify({ error: { type: "invalid_request", message: "Invalid fal queue video id." } }), {
+			status: 400,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+	const key = await resolveVideoProviderKey(auth, videoMeta, "fal", "FAL_KEY");
+	if (!key) return err("upstream_error", { reason: "fal_key_missing" });
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const baseUrl = String(bindings.FAL_QUEUE_BASE_URL || "https://queue.fal.run").replace(/\/+$/, "");
+	return guardedVideoCancelFetch(
+		`${baseUrl}/${identity.endpoint}/requests/${encodeURIComponent(identity.requestId)}/cancel`,
+		{ method: "PUT", headers: { Authorization: `Key ${key}`, Accept: "application/json" } },
+		{
+			reason: "fal_queue_cancel_failed",
+			provider: "fal",
+			taskId: identity.requestId,
 			requestId: auth.requestId,
 			workspaceId: auth.workspaceId,
 		},
@@ -451,12 +499,6 @@ export async function fetchAtlasPrediction(
 		method: "GET",
 		headers,
 	});
-	if (predictionRes.ok) return predictionRes;
-	const resultRes = await fetch(`${baseUrl}/api/v1/model/result/${encodeURIComponent(predictionId)}`, {
-		method: "GET",
-		headers,
-	});
-	if (resultRes.ok) return resultRes;
 	return predictionRes;
 }
 
@@ -527,6 +569,8 @@ export function extractVideoOutputFromPayload(payload: any): Array<{ index: numb
 		return urls.map((uri, index) => ({ index, uri, mime_type: "video/mp4" }));
 	}
 	const videoUrl =
+		payload?.task?.content?.url ??
+		payload?.task?.content?.video_url ??
 		payload?.content?.video_url ??
 		payload?.assets?.video ??
 		payload?.asset?.url ??
@@ -544,5 +588,3 @@ export function extractVideoOutputFromPayload(payload: any): Array<{ index: numb
 	}
 	return [];
 }
-
-

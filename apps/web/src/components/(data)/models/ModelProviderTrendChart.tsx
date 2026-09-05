@@ -11,7 +11,10 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
+import type {
+	ModelProviderMetricPoint,
+	ModelProviderTrendPoint,
+} from "@/lib/fetchers/models/getModelPerformance";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	TableSortButton,
@@ -24,6 +27,7 @@ export type MetricKey =
 	| "throughput"
 	| "outputSpeed"
 	| "latency"
+	| "endToEnd"
 	| "generation"
 	| "overhead"
 	| "tpot"
@@ -32,8 +36,12 @@ export type MetricKey =
 
 type ModelProviderTrendChartProps = {
 	title: string;
-	data: ModelProviderDailyPoint[];
+	data: ModelProviderTrendPoint[];
 	metric: MetricKey;
+	metricInfoLabel?: string;
+	metricDescription?: string;
+	emptyMessage?: string;
+	timeResolution?: "day" | "hour";
 	maxSeries?: number;
 	detailed?: boolean;
 	showHeader?: boolean;
@@ -66,7 +74,7 @@ export function isUsableMetricValue(
 }
 
 export function calculateCachedInputAverage(
-	points: ModelProviderDailyPoint[],
+	points: ModelProviderMetricPoint[],
 ): number | null {
 	const totals = points.reduce(
 		(accumulator, point) => {
@@ -114,6 +122,7 @@ type MetricConfig = {
 		| "avgThroughput"
 		| "avgOutputSpeed"
 		| "avgLatencyMs"
+		| "avgEndToEndMs"
 		| "avgGenerationMs"
 		| "avgPhaseoOverheadMs"
 		| "avgTpotMs"
@@ -125,7 +134,7 @@ type MetricConfig = {
 
 const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
-		label: "Effective Throughput",
+		label: "Throughput",
 		description: "Output tokens per second across the full selected-provider request, including time to first token.",
 		axisLabel: "Tokens / second",
 		valueKey: "avgThroughput",
@@ -139,11 +148,19 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	latency: {
-		label: "Time to First Token",
+		label: "Latency",
 		description: "Time from the request entering Phaseo until the first content-bearing generated output reaches the gateway.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
+	},
+	endToEnd: {
+		label: "End-to-End Latency",
+		description: "Total time from the request entering Phaseo until the complete response is returned.",
+		axisLabel: "Duration",
+		valueKey: "avgEndToEndMs",
+		formatValue: formatProviderDuration,
+		formatAxisTick: (value) => formatProviderDuration(value),
 	},
 	generation: {
 		label: "Provider Duration",
@@ -200,20 +217,66 @@ function normalizeColor(value: string | null | undefined): string | null {
 	return trimmed;
 }
 
-function formatDayHeading(day: string): string {
-	const date = new Date(`${day}T00:00:00Z`);
-	if (!Number.isFinite(date.getTime())) return day;
-	return date.toLocaleDateString("en-GB", {
+function parseTimeBucket(value: string, resolution: "day" | "hour"): Date {
+	return new Date(resolution === "day" ? `${value}T00:00:00Z` : value);
+}
+
+export function formatPerformanceTimeHeading(
+	value: string,
+	resolution: "day" | "hour",
+): string {
+	const date = parseTimeBucket(value, resolution);
+	if (!Number.isFinite(date.getTime())) return value;
+	return date.toLocaleString("en-GB", {
 		day: "2-digit",
 		month: "short",
 		year: "numeric",
+		...(resolution === "hour"
+			? { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }
+			: { timeZone: "UTC" }),
 	});
 }
 
-function formatDayTick(day: string): string {
-	const date = new Date(`${day}T00:00:00Z`);
-	if (!Number.isFinite(date.getTime())) return day;
-	return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+export function formatPerformanceTimeTick(
+	value: string,
+	resolution: "day" | "hour",
+): string {
+	const date = parseTimeBucket(value, resolution);
+	if (!Number.isFinite(date.getTime())) return value;
+	const day = date.toLocaleDateString("en-GB", {
+		day: "2-digit",
+		month: "short",
+		timeZone: "UTC",
+	});
+	if (resolution === "day") return day;
+	const hour = date.toLocaleTimeString("en-GB", {
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+		timeZone: "UTC",
+	});
+	return `${day} · ${hour}`;
+}
+
+function getPointTime(point: ModelProviderTrendPoint): string {
+	return "bucket" in point ? point.bucket : point.day;
+}
+
+export function getPerformanceAxisTickIndexes(
+	pointCount: number,
+	resolution: "day" | "hour",
+): number[] {
+	if (pointCount <= 0) return [];
+	if (resolution === "day" || pointCount <= 8) {
+		return Array.from({ length: pointCount }, (_, index) => index);
+	}
+	const interval = Math.max(1, Math.ceil((pointCount - 1) / 7));
+	const ticks = Array.from(
+		{ length: Math.floor((pointCount - 1) / interval) + 1 },
+		(_, index) => index * interval,
+	);
+	if (ticks[ticks.length - 1] !== pointCount - 1) ticks.push(pointCount - 1);
+	return ticks;
 }
 
 function toSeriesKey(providerId: string): string {
@@ -235,6 +298,10 @@ export default function ModelProviderTrendChart({
 	title,
 	data,
 	metric,
+	metricInfoLabel,
+	metricDescription,
+	emptyMessage,
+	timeResolution = "day",
 	maxSeries = 3,
 	detailed = false,
 	showHeader = true,
@@ -243,16 +310,16 @@ export default function ModelProviderTrendChart({
 	const isPercentileData = data.some(
 		(point) => getPercentile(point.provider) != null,
 	);
-	const [activeDay, setActiveDay] = useState<string | null>(null);
-	const activeDayRef = useRef<string | null>(null);
+	const [activeTime, setActiveTime] = useState<string | null>(null);
+	const activeTimeRef = useRef<string | null>(null);
 	const [hoveredSeriesKey, setHoveredSeriesKey] = useState<string | null>(null);
 	const [focusedSeriesKey, setFocusedSeriesKey] = useState<string | null>(null);
 	const [tableSort, setTableSort] = useState<TableSort>(null);
 	const activeSeriesKey = hoveredSeriesKey ?? focusedSeriesKey;
-	const updateActiveDay = (day: string | null) => {
-		if (activeDayRef.current === day) return;
-		activeDayRef.current = day;
-		setActiveDay(day);
+	const updateActiveTime = (time: string | null) => {
+		if (activeTimeRef.current === time) return;
+		activeTimeRef.current = time;
+		setActiveTime(time);
 	};
 	const metricConfig = METRICS[metric];
 	const observedData = data.filter(
@@ -298,15 +365,15 @@ export default function ModelProviderTrendChart({
 	const filtered = observedData.filter((point) =>
 		providerIdSet.has(point.provider),
 	);
-	const sortedDays = Array.from(
-		new Set(filtered.map((point) => point.day)),
+	const sortedTimes = Array.from(
+		new Set(filtered.map(getPointTime)),
 	).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-	const byDay = new Map<string, Record<string, number | null>>();
-	for (const day of sortedDays) {
-		byDay.set(day, {});
+	const byTime = new Map<string, Record<string, number | null>>();
+	for (const time of sortedTimes) {
+		byTime.set(time, {});
 	}
 	for (const point of filtered) {
-		const row = byDay.get(point.day);
+		const row = byTime.get(getPointTime(point));
 		if (!row) continue;
 		const provider = providers.find(
 			(providerItem) => providerItem.provider === point.provider,
@@ -314,10 +381,10 @@ export default function ModelProviderTrendChart({
 		if (!provider) continue;
 		row[provider.seriesKey] = point[metricConfig.valueKey] ?? null;
 	}
-	const chartData = sortedDays.map((day, index) => {
-		const values = byDay.get(day) ?? {};
+	const chartData = sortedTimes.map((time, index) => {
+		const values = byTime.get(time) ?? {};
 		const row: Record<string, string | number | null> = {
-			day,
+			time,
 			index,
 		};
 		for (const provider of providers) {
@@ -326,13 +393,13 @@ export default function ModelProviderTrendChart({
 		return row;
 	});
 	const latestRow = chartData[chartData.length - 1] ?? null;
-	const hoveredRow = activeDay
-		? (chartData.find((row) => row.day === activeDay) ?? null)
+	const hoveredRow = activeTime
+		? (chartData.find((row) => row.time === activeTime) ?? null)
 		: null;
 	const activeRow = hoveredRow ?? latestRow;
 	const activeHeadingDate =
-		activeRow && typeof activeRow.day === "string"
-			? formatDayHeading(activeRow.day)
+		activeRow && typeof activeRow.time === "string"
+			? formatPerformanceTimeHeading(activeRow.time, timeResolution)
 			: "-";
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
@@ -410,7 +477,7 @@ export default function ModelProviderTrendChart({
 		}>;
 	}) => {
 		const row = payload?.[0]?.payload;
-		if (!isHovering || !active || !row || typeof row.day !== "string") {
+		if (!isHovering || !active || !row || typeof row.time !== "string") {
 			return null;
 		}
 		const tooltipRows = providers.flatMap((provider) => {
@@ -424,7 +491,7 @@ export default function ModelProviderTrendChart({
 		return (
 			<div className="min-w-44 rounded-md border border-border/80 bg-popover/95 p-2 text-popover-foreground shadow-xl backdrop-blur-sm">
 				<p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
-					{formatDayHeading(row.day)}
+					{formatPerformanceTimeHeading(row.time, timeResolution)}
 				</p>
 				<div className="space-y-1">
 					{tooltipRows.map(({ provider, value }) => (
@@ -452,10 +519,10 @@ export default function ModelProviderTrendChart({
 			<div className="flex h-full flex-col gap-3">
 				<div className="flex items-center gap-1.5">
 					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
-					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
+					<ModelMetricInfo label={metricInfoLabel ?? metricConfig.label} description={metricDescription ?? metricConfig.description} />
 				</div>
 				<div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
-					This metric was not recorded for recent requests.
+					{emptyMessage ?? "This metric was not recorded for recent requests."}
 				</div>
 			</div>
 		);
@@ -466,7 +533,7 @@ export default function ModelProviderTrendChart({
 			{showHeader ? <div className="flex items-start justify-between gap-3">
 				<div className="flex items-center gap-1.5">
 					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
-					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
+					<ModelMetricInfo label={metricInfoLabel ?? metricConfig.label} description={metricDescription ?? metricConfig.description} />
 				</div>
 				<div className="flex shrink-0 items-center gap-2">
 					{detailed ? (
@@ -492,7 +559,7 @@ export default function ModelProviderTrendChart({
 							? { top: 8, right: 18, left: 24, bottom: 28 }
 							: { top: 8, right: 0, left: 0, bottom: 24 }}
 						onMouseMove={(state: any) => {
-							const dayFromPointer =
+							const timeFromPointer =
 								typeof state?.activeCoordinate?.x === "number" &&
 								typeof state?.offset?.left === "number" &&
 								typeof state?.offset?.width === "number" &&
@@ -512,14 +579,14 @@ export default function ModelProviderTrendChart({
 															(clampedX / state.offset.width) *
 																(chartData.length - 1),
 														);
-											return String(chartData[index]?.day ?? "");
+											return String(chartData[index]?.time ?? "");
 										})()
 									: null;
-							const dayFromLabel =
+							const timeFromLabel =
 								typeof state?.activeLabel === "string"
 									? state.activeLabel
 									: null;
-							const dayFromNumericLabel =
+							const timeFromNumericLabel =
 								typeof state?.activeLabel === "number" && chartData.length > 0
 									? String(
 											chartData[
@@ -530,45 +597,48 @@ export default function ModelProviderTrendChart({
 														Math.round(state.activeLabel),
 													),
 												)
-											]?.day ?? "",
+											]?.time ?? "",
 										)
 									: null;
-							const dayFromIndex =
+							const timeFromIndex =
 								typeof state?.activeTooltipIndex === "number" &&
 								state.activeTooltipIndex >= 0 &&
 								state.activeTooltipIndex < chartData.length
-									? String(chartData[state.activeTooltipIndex]?.day ?? "")
+									? String(chartData[state.activeTooltipIndex]?.time ?? "")
 									: null;
-							const dayFromPayload =
-								typeof state?.activePayload?.[0]?.payload?.day === "string"
-									? state.activePayload[0].payload.day
+							const timeFromPayload =
+								typeof state?.activePayload?.[0]?.payload?.time === "string"
+									? state.activePayload[0].payload.time
 									: null;
-							const day =
-								dayFromPointer ||
-								dayFromLabel ||
-								dayFromNumericLabel ||
-								dayFromIndex ||
-								dayFromPayload ||
+							const time =
+								timeFromPointer ||
+								timeFromLabel ||
+								timeFromNumericLabel ||
+								timeFromIndex ||
+								timeFromPayload ||
 								null;
-							updateActiveDay(day);
+							updateActiveTime(time);
 						}}
-						onMouseLeave={() => updateActiveDay(null)}
+						onMouseLeave={() => updateActiveTime(null)}
 					>
 						<CartesianGrid vertical={false} stroke="transparent" />
 						<XAxis
 							dataKey="index"
 							type="number"
 							domain={chartData.length === 1 ? [-0.5, 0.5] : [0, chartData.length - 1]}
-							ticks={chartData.map((_, index) => index)}
+							ticks={getPerformanceAxisTickIndexes(chartData.length, timeResolution)}
 							allowDataOverflow
 							hide={!detailed}
 							tickFormatter={(value) =>
-								formatDayTick(String(chartData[Math.round(Number(value))]?.day ?? ""))
+								formatPerformanceTimeTick(
+									String(chartData[Math.round(Number(value))]?.time ?? ""),
+									timeResolution,
+								)
 							}
 							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
 							tickLine={false}
 							axisLine={{ stroke: "var(--border)" }}
-							label={detailed ? { value: "Date", position: "insideBottom", offset: -18, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
+							label={detailed ? { value: timeResolution === "hour" ? "Time (UTC)" : "Date", position: "insideBottom", offset: -18, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
 						/>
 						<YAxis
 							hide={!detailed}
@@ -593,8 +663,8 @@ export default function ModelProviderTrendChart({
 								stroke="var(--muted-foreground)"
 								strokeDasharray="3 4"
 								strokeWidth={1}
-								label={!detailed && activeRow && typeof activeRow.day === "string" ? {
-									value: formatDayTick(activeRow.day),
+								label={!detailed && activeRow && typeof activeRow.time === "string" ? {
+									value: formatPerformanceTimeTick(activeRow.time, timeResolution),
 									position: "bottom",
 									offset: 7,
 									textAnchor: getHoverDateTextAnchor(activeIndex, chartData.length),
@@ -629,7 +699,11 @@ export default function ModelProviderTrendChart({
 					</LineChart>
 				</ResponsiveContainer>
 				</div>
-			) : null}
+			) : (
+				<div className="flex h-[148px] items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
+					No {title.toLowerCase()} samples were recorded in this period.
+				</div>
+			)}
 			{detailed ? (
 				<ScrollArea
 					className="min-h-0 flex-1 rounded-md border border-border/70"

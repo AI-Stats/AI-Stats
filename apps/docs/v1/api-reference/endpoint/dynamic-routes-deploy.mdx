@@ -1,0 +1,10 @@
+---
+title: "Deploy dynamic-route version"
+sidebarTitle: "Deploy version"
+badge: "Beta"
+openapi: "POST /routing/dynamic-routes/{id}/versions/{version}/deploy"
+description: "Deploy an immutable route version."
+---
+<Note>This endpoint requires a management API key with `settings:write`.</Note>
+
+Deployment refreshes the gateway context for every attached API key.

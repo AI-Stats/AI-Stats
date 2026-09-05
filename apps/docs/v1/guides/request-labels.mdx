@@ -1,0 +1,42 @@
+---
+title: "Request Labels"
+description: "Attribute gateway requests to code-defined teams, features, or environments and slice spend by label."
+icon: "tags"
+---
+
+Use request labels when application code needs a stable cost dimension that is more specific than an API key or application. Labels are captured with the request audit and can be filtered in analytics without changing the model request.
+
+## Send labels
+
+Set `X-Phaseo-Metadata` to a JSON object containing up to 32 unique key/value labels:
+
+```bash
+curl https://api.phaseo.app/v1/responses \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H 'X-Phaseo-Metadata: {"labels":[{"key":"team","value":"support"},{"key":"environment","value":"production"}]}' \
+  -d '{
+    "model": "openai/gpt-5-nano",
+    "input": "Summarize this ticket."
+  }'
+```
+
+The TypeScript and Python SDKs accept custom headers, so the same header can be configured on the client. Labels are not forwarded to providers.
+
+## Slice spend
+
+Use the analytics endpoint with both `label_key` and `label_value`:
+
+```text
+GET /v1/analytics?label_key=team&label_value=support
+```
+
+The response uses the same grouped spend format as unfiltered analytics, but only includes requests carrying that exact label pair.
+
+## Contract
+
+- Keys use letters, numbers, `_`, `.`, `:`, or `-` and are limited to 64 characters.
+- Values are strings limited to 256 characters.
+- A request may contain up to 32 labels and the header is limited to 8 KiB.
+- Duplicate keys or malformed metadata are rejected with `400 invalid_request`.
+- Do not put prompts, secrets, email addresses, or other personal data in labels.

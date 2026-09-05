@@ -26,6 +26,8 @@ import type {
   MusicGenerateResponse,
   OcrRequest,
   OcrResponse,
+  ParseRequest,
+  ParseResponse,
   RerankRequest,
   RerankResponse,
   ResponsesRequest,
@@ -59,9 +61,22 @@ export type ModelIdLiteral = KnownModelId;
 export type ModelId = KnownModelId | (string & {});
 export type OpenApiModelId = OapiModelId;
 
+export type AppAttribution = {
+  /** Stable identifier chosen by your application. */
+  id?: string;
+  /** Human-readable application name shown in usage logs. */
+  name?: string;
+  /** Optional page or deployment URL associated with the application. */
+  url?: string;
+  /** Up to three categories used to group the application in app analytics. */
+  categories?: Array<"chat" | "developer-tools" | "research" | "productivity" | "education" | "commerce" | "media" | "finance" | "other">;
+};
+
 type Options = {
   apiKey?: string;
   baseUrl?: string;
+  /** Select a Phaseo regional provider-routing endpoint. Cannot be combined with baseUrl. */
+  region?: PhaseoRegion;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
   devtools?: Partial<DevToolsConfig>;
@@ -69,7 +84,21 @@ type Options = {
   warningsAsErrors?: boolean;
   logger?: PhaseoLogger;
   headers?: Record<string, string>;
+  /** Optional user-defined application attribution. Phaseo never sets this automatically. */
+  app?: AppAttribution;
 };
+
+function appAttributionHeaders(app?: AppAttribution): Record<string, string> {
+  if (!app) return {};
+  return Object.fromEntries(
+    [
+      ["X-App-Id", app.id],
+      ["X-App-Name", app.name],
+      ["HTTP-Referer", app.url],
+      ["X-App-Categories", app.categories?.join(",")],
+    ].filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0),
+  );
+}
 
 export type PhaseoLogLevel = "info" | "warn" | "error";
 export type PhaseoLogger = (level: PhaseoLogLevel, message: string, meta?: Record<string, unknown>) => void;
@@ -266,6 +295,20 @@ export type ChatCompletionsParams = Omit<ChatCompletionsRequest, "model" | "mess
 };
 
 const DEFAULT_BASE_URL = "https://api.phaseo.app/v1";
+const REGIONAL_BASE_URLS = {
+  global: DEFAULT_BASE_URL,
+  eu: "https://eu.api.phaseo.app/v1",
+  us: "https://us.api.phaseo.app/v1",
+} as const;
+
+export type PhaseoRegion = keyof typeof REGIONAL_BASE_URLS;
+
+function resolveBaseUrl(options: Pick<Options, "baseUrl" | "region">): string {
+  if (options.baseUrl !== undefined && options.region !== undefined) {
+    throw new Error("baseUrl and region cannot be used together");
+  }
+  return options.baseUrl ?? REGIONAL_BASE_URLS[options.region ?? "global"];
+}
 
 function trimTrailingSlashes(value: string): string {
   let end = value.length;
@@ -303,6 +346,8 @@ export type {
   MusicGenerateResponse,
   OcrRequest,
   OcrResponse,
+  ParseRequest,
+  ParseResponse,
   RerankRequest,
   RerankResponse,
   ResponsesRequest,
@@ -429,6 +474,10 @@ export class Phaseo {
     create: async (req: OcrRequest): Promise<OcrResponse> => this.createOcr(req),
   };
 
+  readonly parse = {
+    create: async (req: ParseRequest): Promise<ParseResponse> => this.createParse(req),
+  };
+
   readonly rerank = {
     create: async (req: RerankRequest): Promise<RerankResponse> => this.createRerank(req),
   };
@@ -448,11 +497,12 @@ export class Phaseo {
 
   constructor(private readonly opts: Options = {}) {
     const apiKey = resolveApiKey(opts.apiKey);
-    this.basePath = trimTrailingSlashes(opts.baseUrl ?? DEFAULT_BASE_URL);
+    this.basePath = trimTrailingSlashes(resolveBaseUrl(opts));
     this.headers = {
       Authorization: `Bearer ${apiKey}`,
       "X-Phaseo-Client": "phaseo-typescript",
       "X-Phaseo-Client-Version": "2.2.0",
+      ...appAttributionHeaders(opts.app),
       ...(opts.headers ?? {}),
     };
     this.client = new Client({
@@ -860,6 +910,18 @@ export class Phaseo {
       () => this.telemetry.wrap(
         "ocr",
         () => ops.createOcr(this.client, { body: req }),
+        () => req,
+        extractGatewayMetadata
+      )
+    );
+  }
+
+  createParse(req: ParseRequest): Promise<ParseResponse> {
+    return this.withLifecycleGuard(
+      req,
+      () => this.telemetry.wrap(
+        "parse",
+        () => ops.createParse(this.client, { body: req }),
         () => req,
         extractGatewayMetadata
       )

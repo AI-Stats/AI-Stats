@@ -4,14 +4,14 @@
     "provider_api_model_id": "groq:meta/llama-3.1-8b",
     "provider_model_slug": "llama-3.1-8b-instant",
     "internal_model_id": "meta/llama-3.1-8b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 131072,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-16T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -52,14 +52,14 @@
     "provider_api_model_id": "groq:meta/llama-3.3-70b",
     "provider_model_slug": "llama-3.3-70b-versatile",
     "internal_model_id": "meta/llama-3.3-70b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 32768,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-16T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -75,8 +75,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -148,18 +148,18 @@
     "provider_api_model_id": "groq:meta/llama-4-scout",
     "provider_model_slug": "meta-llama/llama-4-scout-17b-16e-instruct",
     "internal_model_id": "meta/llama-4-scout",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 8192,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-17T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -171,8 +171,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -352,7 +352,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -400,7 +413,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -448,7 +474,19 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -483,33 +521,33 @@
     "api_model_id": "openai/whisper-large-v3",
     "provider_api_model_id": "groq:openai/whisper-large-v3",
     "provider_model_slug": "whisper-large-v3",
-    "internal_model_id": "",
-    "is_active_gateway": false,
+    "internal_model_id": "openai/whisper-large-v3",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
     "context_length": 448,
     "max_output_tokens": 448,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]},{"capability_id":"audio.translations","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai.audio.transcriptions", "openai.audio.translations"],
+      "endpoint": "/audio/transcriptions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{"kind":"models","url":"https://console.groq.com/docs/models","accessed_at":"2026-08-23T00:00:00Z","notes":"Current Groq production audio model."}],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a current Groq production transcription and translation model."
     },
     "rate_limits": []
   },
@@ -517,33 +555,33 @@
     "api_model_id": "openai/whisper-large-v3-turbo",
     "provider_api_model_id": "groq:openai/whisper-large-v3-turbo",
     "provider_model_slug": "whisper-large-v3-turbo",
-    "internal_model_id": "",
-    "is_active_gateway": false,
+    "internal_model_id": "openai/whisper-large-v3-turbo",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
     "context_length": 448,
     "max_output_tokens": 448,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]},{"capability_id":"audio.translations","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai.audio.transcriptions", "openai.audio.translations"],
+      "endpoint": "/audio/transcriptions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{"kind":"models","url":"https://console.groq.com/docs/models","accessed_at":"2026-08-23T00:00:00Z","notes":"Current Groq production audio model."}],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a current Groq production transcription and translation model."
     },
     "rate_limits": []
   },
@@ -552,13 +590,61 @@
     "provider_api_model_id": "groq:qwen/qwen3-32b",
     "provider_model_slug": "qwen/qwen3-32b",
     "internal_model_id": "qwen/qwen3-32b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": 131072,
     "max_output_tokens": 40960,
     "effective_from": "2026-03-25T00:00:00",
+    "effective_to": "2026-07-17T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "groq:qwen/qwen3.6-27b",
+    "provider_model_slug": "qwen/qwen3.6-27b",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -596,57 +682,9 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "qwen/qwen3.6-27b",
-    "provider_api_model_id": "groq:qwen/qwen3.6-27b",
-    "provider_model_slug": "qwen/qwen3.6-27b",
-    "internal_model_id": "qwen/qwen3.6-27b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 131072,
-    "max_output_tokens": 16384,
-    "effective_from": "2026-06-16T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "minimax/minimax-m2.7",
     "provider_api_model_id": "groq:minimax/minimax-m2.7",
-    "provider_model_slug": "minimax/minimax-m2.7",
+    "provider_model_slug": "minimaxai/minimax-m2.7",
     "internal_model_id": "minimax/minimax-m2.7",
     "is_active_gateway": false,
     "quantization_scheme": "unknown",
@@ -705,6 +743,61 @@
       "status": "partial",
       "checked_at": "2026-08-12T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "groq:qwen/qwen3.8-27b",
+    "provider_model_slug": "qwen/qwen3.8-27b",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 131042,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_docs",
+        "url": "https://console.groq.com/docs/model/qwen/qwen3.8-27b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Groq model page lists the preview model, model ID, modalities, limits, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified against the official Groq model page."
     },
     "rate_limits": []
   }

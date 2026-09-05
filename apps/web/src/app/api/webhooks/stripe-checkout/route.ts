@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { isSupportedTopUpSettlement } from "@/lib/server/topUpValidation";
 import { createClient } from "@supabase/supabase-js";
 import { sendBillingDiscordWebhook } from "@/lib/automations/billingDiscord";
 import {
@@ -8,6 +9,8 @@ import {
 } from "@/lib/automations/resend-events";
 import { getStripe } from "@/lib/stripe";
 import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
+import { IDENTITY_ADDON_KEY } from "@/lib/billing/identityAddon";
+import { ENTERPRISE_MEMBER_OVERAGE_USD } from "@/lib/billing/enterprisePricing";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
 type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
@@ -233,12 +236,6 @@ function getWebhookSecret(): string {
     return secret;
 }
 
-function redactSecret(secret: string): string {
-    if (!secret) return "<empty>";
-    if (secret.length <= 12) return `${secret.slice(0, 4)}...`;
-    return `${secret.slice(0, 7)}...${secret.slice(-4)}`;
-}
-
 function summarizeStripeSignatureHeader(signature: string) {
     const parts = signature
         .split(",")
@@ -263,6 +260,237 @@ function getSupabase() {
     return createClient(supabaseUrl, supabaseServiceRoleKey, {
         auth: { autoRefreshToken: false, persistSession: false },
     });
+}
+
+function stripeResourceId(value: string | { id?: string } | null | undefined): string | null {
+    if (typeof value === "string" && value.trim()) return value;
+    const id = value && typeof value === "object" ? value.id : null;
+    return typeof id === "string" && id.trim() ? id : null;
+}
+
+function subscriptionPeriod(subscription: Stripe.Subscription) {
+    const item = subscription.items.data[0];
+    return {
+        start: item?.current_period_start ?? null,
+        end: item?.current_period_end ?? null,
+    };
+}
+
+function integerMetadata(metadata: Stripe.Metadata | null | undefined, key: string): number | null {
+    const value = Number(metadata?.[key]);
+    return Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
+async function addEnterpriseMemberOverageToInvoice(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    stripe: Stripe;
+    invoice: Stripe.Invoice;
+}) {
+    const { invoice, stripe, supabase } = args;
+    if (invoice.status !== "draft") return;
+
+    const subscriptionDetails = invoice.parent?.subscription_details;
+    const subscriptionId = stripeResourceId(subscriptionDetails?.subscription);
+    const workspaceId = String(subscriptionDetails?.metadata?.workspace_id ?? "").trim();
+    const customerId = stripeResourceId(invoice.customer);
+    if (!subscriptionId || !workspaceId || !customerId) return;
+
+    const { data: addonSubscription, error: subscriptionError } = await supabase
+        .from("workspace_addon_subscriptions")
+        .select("included_members")
+        .eq("workspace_id", workspaceId)
+        .eq("addon_key", IDENTITY_ADDON_KEY)
+        .eq("provider_subscription_id", subscriptionId)
+        .maybeSingle();
+    if (subscriptionError) throw subscriptionError;
+    if ((addonSubscription?.included_members ?? 0) < 100_000) return;
+
+    const { error: refreshError } = await supabase.rpc("refresh_workspace_enterprise_member_overage", {
+        p_workspace_id: workspaceId,
+    });
+    if (refreshError) throw refreshError;
+
+    const { data: usageRows, error: usageError } = await supabase
+        .from("workspace_addon_usage_monthly")
+        .select("period_start,quantity,reported_quantity")
+        .eq("workspace_id", workspaceId)
+        .eq("addon_key", IDENTITY_ADDON_KEY)
+        .eq("metric_key", "member_overage");
+    if (usageError) throw usageError;
+
+    const unreportedRows = (usageRows ?? []).map((row) => ({
+        periodStart: String(row.period_start),
+        quantity: Number(row.quantity ?? 0),
+        reportedQuantity: Number(row.reported_quantity ?? 0),
+    })).filter((row) => row.quantity > row.reportedQuantity);
+    const overageQuantity = unreportedRows.reduce((total, row) => total + row.quantity - row.reportedQuantity, 0);
+    if (overageQuantity <= 0) return;
+
+    const invoiceItem = await stripe.invoiceItems.create({
+        customer: customerId,
+        invoice: invoice.id,
+        subscription: subscriptionId,
+        currency: "usd",
+        description: `Enterprise member overage (${overageQuantity.toLocaleString("en-US")} unique members)`,
+        quantity: overageQuantity,
+        unit_amount_decimal: Stripe.Decimal.from(String(ENTERPRISE_MEMBER_OVERAGE_USD * 100)),
+        metadata: {
+            purpose: "enterprise_member_overage",
+            workspace_id: workspaceId,
+            period_starts: unreportedRows.map((row) => row.periodStart).join(",").slice(0, 500),
+        },
+    }, { idempotencyKey: `enterprise-member-overage:${invoice.id}` });
+
+    for (const row of unreportedRows) {
+        const { error: updateError } = await supabase
+            .from("workspace_addon_usage_monthly")
+            .update({ reported_quantity: row.quantity, reported_at: new Date().toISOString(), stripe_meter_event_id: invoiceItem.id })
+            .eq("workspace_id", workspaceId)
+            .eq("addon_key", IDENTITY_ADDON_KEY)
+            .eq("metric_key", "member_overage")
+            .eq("period_start", row.periodStart)
+            .eq("reported_quantity", row.reportedQuantity);
+        if (updateError) throw updateError;
+    }
+}
+
+async function createFinalEnterpriseOverageInvoice(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    stripe: Stripe;
+    subscription: Stripe.Subscription;
+}) {
+    const { stripe, subscription, supabase } = args;
+    const workspaceId = String(subscription.metadata?.workspace_id ?? "").trim();
+    const customerId = stripeResourceId(subscription.customer);
+    if (!workspaceId || !customerId || String(subscription.metadata?.addon_key ?? "") !== IDENTITY_ADDON_KEY) return;
+
+    const { error: refreshError } = await supabase.rpc("refresh_workspace_enterprise_member_overage", {
+        p_workspace_id: workspaceId,
+    });
+    if (refreshError) throw refreshError;
+
+    const { data: usageRows, error: usageError } = await supabase
+        .from("workspace_addon_usage_monthly")
+        .select("period_start,quantity,reported_quantity")
+        .eq("workspace_id", workspaceId)
+        .eq("addon_key", IDENTITY_ADDON_KEY)
+        .eq("metric_key", "member_overage");
+    if (usageError) throw usageError;
+
+    const unreportedRows = (usageRows ?? []).map((row) => ({
+        periodStart: String(row.period_start),
+        quantity: Number(row.quantity ?? 0),
+        reportedQuantity: Number(row.reported_quantity ?? 0),
+    })).filter((row) => row.quantity > row.reportedQuantity);
+    const overageQuantity = unreportedRows.reduce((total, row) => total + row.quantity - row.reportedQuantity, 0);
+    if (overageQuantity <= 0) return;
+
+    const invoice = await stripe.invoices.create({
+        customer: customerId,
+        auto_advance: false,
+        collection_method: "charge_automatically",
+        description: "Final Self Serve Enterprise member overage",
+        metadata: {
+            purpose: "enterprise_member_overage_final",
+            workspace_id: workspaceId,
+            subscription_id: subscription.id,
+        },
+    }, { idempotencyKey: `enterprise-member-overage-final-invoice:${subscription.id}` });
+
+    const invoiceItem = await stripe.invoiceItems.create({
+        customer: customerId,
+        invoice: invoice.id,
+        currency: "usd",
+        description: `Final Enterprise member overage (${overageQuantity.toLocaleString("en-US")} unique members)`,
+        quantity: overageQuantity,
+        unit_amount_decimal: Stripe.Decimal.from(String(ENTERPRISE_MEMBER_OVERAGE_USD * 100)),
+        metadata: {
+            purpose: "enterprise_member_overage_final",
+            workspace_id: workspaceId,
+            subscription_id: subscription.id,
+            period_starts: unreportedRows.map((row) => row.periodStart).join(",").slice(0, 500),
+        },
+    }, { idempotencyKey: `enterprise-member-overage-final-item:${subscription.id}` });
+
+    await stripe.invoices.finalizeInvoice(invoice.id, { auto_advance: true }, {
+        idempotencyKey: `enterprise-member-overage-finalize:${subscription.id}`,
+    });
+
+    for (const row of unreportedRows) {
+        const { error: updateError } = await supabase
+            .from("workspace_addon_usage_monthly")
+            .update({ reported_quantity: row.quantity, reported_at: new Date().toISOString(), stripe_meter_event_id: invoiceItem.id })
+            .eq("workspace_id", workspaceId)
+            .eq("addon_key", IDENTITY_ADDON_KEY)
+            .eq("metric_key", "member_overage")
+            .eq("period_start", row.periodStart)
+            .eq("reported_quantity", row.reportedQuantity);
+        if (updateError) throw updateError;
+    }
+
+}
+
+function paymentIntentRail(paymentIntent: Stripe.PaymentIntent): "card" | "ach" | "bank_transfer" | "unknown" {
+    const paymentMethod = paymentIntent.payment_method;
+    if (paymentMethod && typeof paymentMethod !== "string") {
+        if (paymentMethod.type === "card") return "card";
+        if (paymentMethod.type === "us_bank_account") return "ach";
+    }
+    const customerBalance = paymentIntent.payment_method_options?.customer_balance;
+    if (
+        paymentIntent.status === "succeeded"
+        && paymentIntent.payment_method_types.includes("customer_balance")
+        && customerBalance?.bank_transfer?.type === "us_bank_transfer"
+    ) return "bank_transfer";
+    return "unknown";
+}
+
+async function syncAddonSubscriptionFromStripe(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    subscription: Stripe.Subscription;
+    eventCreated: number;
+}) {
+    const { subscription, eventCreated, supabase } = args;
+    const workspaceId = String(subscription.metadata?.workspace_id ?? "").trim();
+    const addonKey = String(subscription.metadata?.addon_key ?? "").trim();
+    if (!workspaceId || addonKey !== IDENTITY_ADDON_KEY) return;
+
+    const period = subscriptionPeriod(subscription);
+    const priceId = subscription.items.data[0]?.price?.id ?? null;
+    const graceUntil = subscription.status === "past_due"
+        ? new Date((eventCreated + 7 * 24 * 60 * 60) * 1000).toISOString()
+        : null;
+    const { error } = await supabase.rpc("sync_workspace_addon_subscription", {
+        p_workspace_id: workspaceId,
+        p_addon_key: addonKey,
+        p_provider_customer_id: stripeResourceId(subscription.customer),
+        p_provider_subscription_id: subscription.id,
+        p_provider_price_id: priceId,
+        p_quote_id: String(subscription.metadata?.quote_id ?? "").trim() || null,
+        p_plan_key: String(subscription.metadata?.plan_key ?? "").trim() || null,
+        p_pricing_version: String(subscription.metadata?.pricing_version ?? "").trim() || null,
+        p_included_members: integerMetadata(subscription.metadata, "included_members"),
+        p_fee_policy: String(subscription.metadata?.fee_policy ?? "").trim() || null,
+        p_included_card_top_up_nanos: integerMetadata(subscription.metadata, "included_card_top_up_nanos") ?? 0,
+        p_status: subscription.status,
+        p_current_period_start: period.start ? new Date(period.start * 1000).toISOString() : null,
+        p_current_period_end: period.end ? new Date(period.end * 1000).toISOString() : null,
+        p_cancel_at_period_end: subscription.cancel_at_period_end,
+        p_grace_until: graceUntil,
+        p_provider_event_created: eventCreated,
+        p_metadata: { source: "stripe_webhook" },
+    });
+    if (error) throw error;
+
+    const quoteId = String(subscription.metadata?.quote_id ?? "").trim();
+    if (quoteId && (subscription.status === "active" || subscription.status === "trialing")) {
+        const { error: quoteError } = await supabase
+            .from("workspace_enterprise_quotes")
+            .update({ consumed_at: new Date(eventCreated * 1000).toISOString(), updated_at: new Date().toISOString() })
+            .eq("id", quoteId)
+            .eq("workspace_id", workspaceId);
+        if (quoteError) throw quoteError;
+    }
 }
 
 async function enqueueAutoTopUpFailureFromWebhook(args: {
@@ -448,19 +676,13 @@ export async function POST(req: Request) {
         const webhookSecret = getWebhookSecret();
         event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (err: any) {
-        const configuredSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
-        const normalizedSecret =
-            typeof configuredSecret === "string"
-                ? configuredSecret.trim().replace(/^["']|["']$/g, "")
-                : "";
         console.error("[stripe-webhook] Signature verification failed", {
             error: err?.message ?? String(err),
             bodyLength: rawBody.length,
             hasStripeSignatureHeader: signatureSummary.present,
             signatureTimestamp: signatureSummary.timestamp,
             signatureV1Count: signatureSummary.v1Count,
-            configuredSecretLength: normalizedSecret.length,
-            configuredSecretPreview: redactSecret(normalizedSecret),
+            hasConfiguredSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim()),
         });
         return NextResponse.json(
             { message: `Webhook Error: ${err?.message || String(err)}` },
@@ -476,6 +698,28 @@ export async function POST(req: Request) {
 
     try {
         switch (event.type) {
+            case "customer.subscription.created":
+            case "customer.subscription.updated":
+            case "customer.subscription.paused":
+            case "customer.subscription.resumed": {
+                const eventSubscription = event.data.object as Stripe.Subscription;
+                const subscription = await stripe.subscriptions.retrieve(eventSubscription.id);
+                await syncAddonSubscriptionFromStripe({
+                    supabase,
+                    subscription,
+                    eventCreated: event.created,
+                });
+                break;
+            }
+
+            case "customer.subscription.deleted": {
+                const eventSubscription = event.data.object as Stripe.Subscription;
+                await createFinalEnterpriseOverageInvoice({ supabase, stripe, subscription: eventSubscription });
+                const subscription = await stripe.subscriptions.retrieve(eventSubscription.id);
+                await syncAddonSubscriptionFromStripe({ supabase, subscription, eventCreated: event.created });
+                break;
+            }
+
             case "payment_intent.created": {
                 const pi = event.data.object as Stripe.PaymentIntent;
                 const purpose = readPaymentIntentPurpose(pi);
@@ -529,6 +773,15 @@ export async function POST(req: Request) {
                     });
                     break;
                 }
+				const grossCents = Number(pi.amount_received ?? pi.amount ?? 0);
+				if (!isSupportedTopUpSettlement(pi.currency, grossCents)) {
+					console.error("[stripe-webhook] Refused unsupported top-up settlement", {
+						paymentIntentId: pi.id,
+						currency: pi.currency,
+						amount: grossCents,
+					});
+					break;
+				}
 
                 const stripeCustomerId = readCustomerIdFromPaymentIntent(pi);
                 const paymentMethodId = readPaymentMethodId(pi);
@@ -543,7 +796,6 @@ export async function POST(req: Request) {
 
                 if (!wallet?.workspace_id) break;
 
-                const grossCents = Number(pi.amount_received ?? pi.amount ?? 0);
                 // Stripe amounts are in cents; convert to nanos (1 USD = 1e9 nanos).
                 const grossNanos = grossCents * 10_000_000;
 
@@ -577,7 +829,24 @@ export async function POST(req: Request) {
                     }
                 }
 
-                const { netNanos, feeNanos } = computeNetAndFeeFromGross(grossNanos, feePct);
+                const settledPaymentIntent = await stripe.paymentIntents.retrieve(pi.id, {
+                    expand: ["payment_method"],
+                });
+                const { data: feePolicyRows, error: feePolicyError } = await supabase.rpc(
+                    "claim_workspace_top_up_fee_policy",
+                    {
+                        p_workspace_id: wallet.workspace_id,
+                        p_stripe_payment_intent_id: pi.id,
+                        p_gross_nanos: grossNanos,
+                        p_payment_rail: paymentIntentRail(settledPaymentIntent),
+                        p_seen_at: new Date(event.created * 1000).toISOString(),
+                    },
+                );
+                if (feePolicyError) throw feePolicyError;
+                const feeWaived = Boolean(Array.isArray(feePolicyRows) ? feePolicyRows[0]?.fee_waived : (feePolicyRows as any)?.fee_waived);
+                const { netNanos, feeNanos } = feeWaived
+                    ? { netNanos: grossNanos, feeNanos: 0 }
+                    : computeNetAndFeeFromGross(grossNanos, feePct);
                 const kind = toLedgerKind(purpose);
                 const { data: appliedRows, error: applyErr } = await supabase.rpc("stripe_apply_payment_intent_credit", {
                     p_workspace_id: wallet.workspace_id,
@@ -885,7 +1154,13 @@ export async function POST(req: Request) {
                 break;
             }
 
-            case "invoice.created":
+            case "invoice.created": {
+                const invoice = event.data.object as Stripe.Invoice;
+                await addEnterpriseMemberOverageToInvoice({ supabase, stripe, invoice });
+                await upsertTeamInvoiceFromStripeInvoice({ supabase, invoice });
+                break;
+            }
+
             case "invoice.finalized":
             case "invoice.updated": {
                 const invoice = event.data.object as Stripe.Invoice;
@@ -914,6 +1189,11 @@ export async function POST(req: Request) {
                     invoice,
                     forceStatus: "open",
                 });
+				const subscriptionId = stripeResourceId(invoice.parent?.subscription_details?.subscription);
+				if (subscriptionId) {
+					const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+					await syncAddonSubscriptionFromStripe({ supabase, subscription, eventCreated: event.created });
+				}
                 break;
             }
 

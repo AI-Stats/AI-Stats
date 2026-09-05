@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Logo } from "@/components/Logo";
 import ModelCalendarChart from "./ModelCalendarChart";
 import ModelReleasePace from "./ModelReleasePace";
@@ -17,7 +17,16 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+	Archive,
+	Ban,
+	Check,
+	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
+	Megaphone,
+	Rocket,
+} from "lucide-react";
 import {
 	Tooltip,
 	TooltipContent,
@@ -40,6 +49,16 @@ const EVENT_TYPE_BORDER_COLOR: Record<EventType, string> = {
 	Announced: "#3b82f6",
 	Deprecated: "#ef4444",
 	Retired: "#4b5563",
+};
+
+const EVENT_TYPE_ICON: Record<
+	EventType,
+	React.ComponentType<{ className?: string; style?: React.CSSProperties }>
+> = {
+	Released: Rocket,
+	Announced: Megaphone,
+	Deprecated: Ban,
+	Retired: Archive,
 };
 
 const TYPE_RANK: Record<EventType, number> = {
@@ -70,38 +89,50 @@ function getDateKey(date: Date) {
 		.padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 }
 
-function withAlpha(hex?: string | null, alpha = 0.08) {
-	if (!hex) return undefined;
-	const trimmed = hex.trim();
-	if (!trimmed) return undefined;
-	const normalized = trimmed.startsWith("#") ? trimmed.slice(1) : trimmed;
-	if (normalized.length !== 3 && normalized.length !== 6) return undefined;
-	if (!/^[0-9A-Fa-f]+$/.test(normalized)) return undefined;
-	const expanded =
-		normalized.length === 3
-			? normalized
-					.split("")
-					.map((char) => char + char)
-					.join("")
-			: normalized;
-	const r = parseInt(expanded.slice(0, 2), 16);
-	const g = parseInt(expanded.slice(2, 4), 16);
-	const b = parseInt(expanded.slice(4, 6), 16);
-	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 function getWeekdayIndex(date: Date) {
 	return (date.getDay() + 6) % 7;
+}
+
+function CalendarModelLink({ event }: { event: ModelEvent }) {
+	const linkRef = useRef<HTMLAnchorElement>(null);
+	const [isTruncated, setIsTruncated] = useState(false);
+
+	useEffect(() => {
+		const link = linkRef.current;
+		if (!link) return;
+
+		const measure = () => {
+			setIsTruncated(link.scrollWidth > link.clientWidth);
+		};
+
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(link);
+		return () => observer.disconnect();
+	}, []);
+
+	return (
+		<Tooltip delayDuration={400}>
+			<TooltipTrigger asChild>
+				<Link
+					ref={linkRef}
+					href={`/models/${event.model.model_id}`}
+					className="block truncate text-xs font-semibold leading-tight text-zinc-900 dark:text-zinc-50"
+				>
+					{event.model.name}
+				</Link>
+			</TooltipTrigger>
+			{isTruncated ? (
+				<TooltipContent side="top">{event.model.name}</TooltipContent>
+			) : null}
+		</Tooltip>
+	);
 }
 
 type ModelCalendarProps = {
 	events: ModelEvent[];
 	monthsWindow?: number;
 	headerActions?: React.ReactNode;
-};
-
-type OrganisationWithColour = ModelEvent["model"]["organisation"] & {
-	colour?: string | null;
 };
 
 export default function ModelCalendar({
@@ -118,6 +149,7 @@ export default function ModelCalendar({
 	});
 
 	const todayKey = useMemo(() => getDateKey(new Date()), []);
+	const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
 
 	const eventsByDate = useMemo(() => {
 		const buckets = new Map<string, ModelEvent[]>();
@@ -176,6 +208,24 @@ export default function ModelCalendar({
 		});
 	}, [currentMonth, eventsByDate]);
 
+	useEffect(() => {
+		const selectedCell = days.find(
+			(cell) => getDateKey(cell.date) === selectedDateKey
+		);
+		if (selectedCell?.inCurrentMonth) return;
+
+		const firstEventDay = days.find(
+			(cell) => cell.inCurrentMonth && cell.events.length > 0
+		);
+		const firstMonthDay = days.find((cell) => cell.inCurrentMonth);
+		const nextSelection = firstEventDay ?? firstMonthDay;
+		if (nextSelection) setSelectedDateKey(getDateKey(nextSelection.date));
+	}, [days, selectedDateKey]);
+
+	const selectedDay = days.find(
+		(cell) => getDateKey(cell.date) === selectedDateKey
+	);
+
 	const adjustMonth = (delta: number) => {
 		setCurrentMonth((prev) => {
 			return new Date(prev.getFullYear(), prev.getMonth() + delta, 1);
@@ -198,12 +248,11 @@ export default function ModelCalendar({
 			<div
 				key={`${context}-${dateKey}`}
 				className={cn(
-					"flex flex-col rounded-2xl border bg-white/80 p-2 shadow-sm transition dark:bg-zinc-950/70",
+					"flex min-h-28 flex-col border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-950",
 					cell.inCurrentMonth
 						? "border-zinc-200 dark:border-zinc-800"
 						: "opacity-60 dark:opacity-50",
-					isToday &&
-						"border-sky-400/80 bg-sky-50 dark:border-sky-500/80 dark:bg-sky-900/40"
+					isToday && "border-zinc-900 dark:border-zinc-100"
 				)}
 			>
 				<header className="flex items-center justify-between">
@@ -224,31 +273,33 @@ export default function ModelCalendar({
 
 				<div className="mt-2 flex flex-col gap-2">
 					{visibleEvents.map((event, idx) => {
-						const org = event.model
-							.organisation as OrganisationWithColour;
-						const accent = withAlpha(org.colour, 0.08);
+						const org = event.model.organisation;
 						const eventType = event.types[0] ?? "Announced";
 						const eventBorderColor =
 							EVENT_TYPE_BORDER_COLOR[eventType];
+						const EventIcon = EVENT_TYPE_ICON[eventType];
 						const key = `${event.model.model_id}-${event.date}-${idx}`;
 						return (
 							<div
 								key={key}
-								className="rounded-2xl border-2 bg-white/80 p-2 shadow-sm transition dark:bg-zinc-950/70"
+								className="rounded-md border bg-zinc-50 p-1.5 dark:bg-zinc-900"
 								style={{
 									borderColor: eventBorderColor,
-									backgroundColor: accent,
 								}}
 								aria-label={`Model update: ${event.model.name} (${eventType})`}
 							>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-1.5">
+									<EventIcon
+										className="size-3 shrink-0"
+										style={{ color: eventBorderColor }}
+									/>
 									<Link
 										href={`/organisations/${encodeURIComponent(
 											org.organisation_id
 										)}`}
 										className="group"
 									>
-										<div className="h-4 w-4 relative flex items-center justify-center rounded-xl border">
+										<div className="relative flex size-4 items-center justify-center rounded-sm border">
 											<div className="h-3 w-3 relative">
 												<Logo
 													id={org.organisation_id}
@@ -263,19 +314,7 @@ export default function ModelCalendar({
 										</div>
 									</Link>
 									<div className="min-w-0 flex-1">
-										<Tooltip delayDuration={500}>
-											<TooltipTrigger asChild>
-												<Link
-													href={`/models/${event.model.model_id}`}
-													className="block truncate text-xs font-semibold leading-tight text-zinc-900 dark:text-zinc-50"
-												>
-													{event.model.name}
-												</Link>
-											</TooltipTrigger>
-											<TooltipContent side="top">
-												{event.model.name}
-											</TooltipContent>
-										</Tooltip>
+										<CalendarModelLink event={event} />
 									</div>
 								</div>
 							</div>
@@ -373,39 +412,18 @@ export default function ModelCalendar({
 																		key={
 																			key
 																		}
-																		className="rounded-2xl border-2 bg-white/80 p-2 text-xs transition dark:bg-zinc-950/70"
+																		className="rounded-md border bg-white p-2 text-xs dark:bg-zinc-950"
 																		style={{
 																			borderColor,
 																		}}
 																	>
 																		<div className="flex items-center gap-2">
-																			<Tooltip
-																				delayDuration={
-																					500
-																				}
+																			<Link
+																				href={`/models/${event.model.model_id}`}
+																				className="font-semibold underline decoration-transparent transition-colors duration-200 hover:decoration-current"
 																			>
-																				<TooltipTrigger
-																					asChild
-																				>
-																					<Link
-																						href={`/models/${event.model.model_id}`}
-																						className="font-semibold relative underline decoration-transparent hover:decoration-current transition-colors duration-200"
-																					>
-																						{
-																							event
-																								.model
-																								.name
-																						}
-																					</Link>
-																				</TooltipTrigger>
-																				<TooltipContent side="top">
-																					{
-																						event
-																							.model
-																							.name
-																					}
-																				</TooltipContent>
-																			</Tooltip>
+																				{event.model.name}
+																			</Link>
 																			<span className="text-zinc-500 dark:text-zinc-400">
 																				(
 																				{
@@ -545,8 +563,8 @@ export default function ModelCalendar({
 				) : null}
 			</div>
 
-			<div className="overflow-hidden rounded-3xl border border-zinc-200 bg-white/70 shadow-lg shadow-zinc-200/40 dark:border-zinc-800 dark:bg-zinc-950/70">
-				<div className="hidden grid-cols-7 px-2 py-3 text-xs font-medium text-zinc-500 dark:text-zinc-400 sm:grid">
+			<div className="overflow-hidden rounded-md border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800">
+				<div className="hidden grid-cols-7 px-2 py-3 text-xs font-medium text-zinc-500 dark:text-zinc-400 lg:grid">
 					{WEEKDAY_LABELS.map((label) => (
 						<span key={`weekday-${label}`} className="text-center">
 							{label}
@@ -554,14 +572,134 @@ export default function ModelCalendar({
 					))}
 				</div>
 
-				<div className="grid grid-cols-2 gap-3 px-2 pb-4 pt-2 sm:hidden">
-					{days.map((cell) => renderDayCell(cell, "mobile"))}
+				<div className="bg-white dark:bg-zinc-950 lg:hidden">
+					<div className="grid grid-cols-7 border-b border-zinc-200 px-1 py-2 text-center text-[10px] font-medium text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+						{WEEKDAY_LABELS.map((label) => (
+							<span key={`mobile-weekday-${label}`}>{label.slice(0, 1)}</span>
+						))}
+					</div>
+					<div className="grid grid-cols-7 gap-1 p-2">
+						{days.map((cell) => {
+							const dateKey = getDateKey(cell.date);
+							const isSelected = dateKey === selectedDateKey;
+							const isToday = dateKey === todayKey;
+
+							return (
+								<button
+									key={`mobile-${dateKey}`}
+									type="button"
+									onClick={() => {
+										setSelectedDateKey(dateKey);
+										if (!cell.inCurrentMonth) {
+											setCurrentMonth(
+												new Date(cell.date.getFullYear(), cell.date.getMonth(), 1)
+											);
+										}
+									}}
+									className={cn(
+										"flex min-h-10 flex-col items-center justify-center gap-1 rounded-md text-xs transition-colors",
+										cell.inCurrentMonth
+											? "text-zinc-900 dark:text-zinc-100"
+											: "text-zinc-400 dark:text-zinc-600",
+										isSelected && "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900",
+										!isSelected && "hover:bg-zinc-100 dark:hover:bg-zinc-900",
+										isToday && !isSelected && "font-bold ring-1 ring-inset ring-zinc-400"
+									)}
+									aria-label={cell.date.toLocaleDateString("en-GB", {
+										day: "numeric",
+										month: "long",
+										year: "numeric",
+									})}
+								>
+									<span>{cell.date.getDate()}</span>
+									{cell.events.length > 0 ? (
+										<span className="flex items-center gap-0.5" aria-hidden="true">
+											{cell.events.slice(0, 3).map((event, index) => {
+												const type = event.types[0] ?? "Announced";
+												return (
+													<span
+														key={`${event.model.model_id}-${index}`}
+														className="size-1 rounded-full"
+														style={{
+															backgroundColor: isSelected
+																? "currentColor"
+																: EVENT_TYPE_BORDER_COLOR[type],
+														}}
+													/>
+												);
+											})}
+										</span>
+									) : null}
+								</button>
+							);
+						})}
+					</div>
+
+					<div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
+						<h3 className="mb-2 text-sm font-semibold">
+							{selectedDay?.date.toLocaleDateString("en-GB", {
+								weekday: "long",
+								day: "numeric",
+								month: "long",
+								year: "numeric",
+							})}
+						</h3>
+						{selectedDay?.events.length ? (
+							<div className="space-y-2">
+								{selectedDay.events.map((event, index) => {
+									const eventType = event.types[0] ?? "Announced";
+									const EventIcon = EVENT_TYPE_ICON[eventType];
+									const colour = EVENT_TYPE_BORDER_COLOR[eventType];
+									const org = event.model.organisation;
+
+									return (
+										<div
+											key={`${event.model.model_id}-${event.date}-${index}`}
+											className="flex items-center gap-2 rounded-md border bg-zinc-50 p-2 dark:bg-zinc-900"
+											style={{ borderColor: colour }}
+										>
+											<div className="relative size-8 shrink-0 rounded-md border bg-white p-1 dark:bg-zinc-950">
+												<Logo
+													id={org.organisation_id}
+													alt={org.name ?? org.organisation_id}
+													fill
+													className="object-contain p-1"
+												/>
+											</div>
+											<div className="min-w-0 flex-1">
+												<Link
+													href={`/models/${event.model.model_id}`}
+													className="font-semibold leading-snug hover:underline"
+												>
+													{event.model.name}
+												</Link>
+												<p className="text-xs text-zinc-500 dark:text-zinc-400">
+													{org.name ?? org.organisation_id}
+												</p>
+											</div>
+											<span
+												className="flex shrink-0 items-center gap-1 text-[10px] font-medium"
+												style={{ color: colour }}
+											>
+												<EventIcon className="size-3" />
+												{eventType}
+											</span>
+										</div>
+									);
+								})}
+							</div>
+						) : (
+							<p className="text-sm text-zinc-500 dark:text-zinc-400">
+								No model updates recorded for this day.
+							</p>
+						)}
+					</div>
 				</div>
 
-				<div className="hidden sm:block">
+				<div className="hidden lg:block">
 					<div className="overflow-x-auto">
-						<div className="min-w-[560px] space-y-3 px-2 pb-4 pt-2">
-							<div className="grid grid-cols-7 gap-3">
+						<div className="min-w-[560px]">
+							<div className="grid grid-cols-7 gap-px">
 								{days.map((cell) =>
 									renderDayCell(cell, "desktop")
 								)}

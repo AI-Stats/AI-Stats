@@ -20,6 +20,7 @@ import type {
 	IRVideoGenerationResponse,
 	IROcrRequest,
 	IROcrResponse,
+	IRParseResponse,
 	IRMusicGenerateRequest,
 	IRMusicGenerateResponse,
 	IRModerationsRequest,
@@ -62,6 +63,10 @@ export type ExecutorExecuteArgs = {
 	capability?: string;
 
 	providerModelSlug?: string | null;
+	privateEndpoint?: {
+		baseUrl: string;
+		supportsResponses: boolean;
+	} | null;
 	capabilityParams?: Record<string, any> | null;
 	maxInputTokens?: number | null;
 	maxOutputTokens?: number | null;
@@ -113,6 +118,7 @@ export type ExecutorCompletedResult = {
 		| IRAudioTranslationResponse
 		| IRVideoGenerationResponse
 		| IROcrResponse
+		| IRParseResponse
 		| IRMusicGenerateResponse;
 	bill: Bill;
 	upstream: Response;

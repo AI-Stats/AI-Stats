@@ -48,4 +48,16 @@ describe("modelIndexability", () => {
 		expect(analysis.indexable).toBe(false);
 		expect(analysis.reasons).toContain("missing canonical model id");
 	});
+
+	it("does not treat a catalogue update timestamp as useful page content", () => {
+		const analysis = analyseModelIndexability({
+			modelId: "qwen/qwen3-8b",
+			name: "Qwen 3 8B",
+			organisationName: "Qwen",
+			updatedAt: "2026-08-31T00:00:00Z",
+		});
+
+		expect(analysis.indexable).toBe(false);
+		expect(analysis.signals.hasReleaseDate).toBe(false);
+	});
 });

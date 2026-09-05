@@ -1,4 +1,4 @@
-import { getActiveSettingsNav, getSettingsSidebar } from "./Sidebar.config";
+import { getActiveSettingsNav, getSettingsSidebar, isSettingsNavChildActive } from "./Sidebar.config";
 
 describe("settings sidebar navigation", () => {
 	it("keeps personal settings focused on the account", () => {
@@ -9,7 +9,6 @@ describe("settings sidebar navigation", () => {
 		expect(personalLabels).toEqual([
 			"Profile",
 			"Account",
-			"Privacy",
 			"Workspaces",
 			"Billing",
 			"Feature Preview",
@@ -25,6 +24,23 @@ describe("settings sidebar navigation", () => {
 		expect(getActiveSettingsNav("/settings/usage/logs/batches")?.item.label).toBe("Logs");
 	});
 
+	it("includes the workspace activity log under settings", () => {
+		const settings = getActiveSettingsNav("/settings/workspaces/activity")?.item;
+		expect(settings?.label).toBe("Settings");
+		expect(settings?.children?.map((child) => child.label)).toContain("Activity");
+	});
+
+	it("exposes Auto Routing within the Routing section", () => {
+		const active = getActiveSettingsNav("/settings/routing/auto", { showAutoRouting: true });
+		expect(active?.item.label).toBe("Routing");
+		expect(active?.item.children?.find((child) => isSettingsNavChildActive("/settings/routing/auto", child))?.label).toBe("Auto routing");
+		expect(getSettingsSidebar({ showAutoRouting: false })
+			.flatMap((group) => group.items)
+			.find((item) => item.href === "/settings/routing")
+			?.children?.some((child) => child.href === "/settings/routing/auto"))
+			.toBe(false);
+	});
+
 	it("orders workspace settings by task", () => {
 		const workspaceGroups = getSettingsSidebar()
 			.filter((group) => group.scope === "workspace")
@@ -33,23 +49,32 @@ describe("settings sidebar navigation", () => {
 				items: group.items.map((item) => item.label),
 			}));
 
-		expect(workspaceGroups).toEqual([
-			{ heading: "Workspace", items: ["Settings"] },
-			{ heading: "Observe", items: ["Usage", "Logs"] },
-			{
-				heading: "Gateway",
-				items: [
-					"API Keys",
-					"Management Keys",
-					"Broadcast",
-					"Apps",
-					"Routing",
-					"Bring Your Own Key",
-					"Presets",
-					"Safety & privacy",
-				],
-			},
-			{ heading: "Developer", items: ["OAuth Apps", "Webhooks"] },
-		]);
+		expect(workspaceGroups).toEqual([{
+			heading: undefined,
+			items: [
+				"Settings",
+				"Enterprise",
+				"API Keys",
+				"Usage",
+				"Logs",
+				"Routing",
+				"Guardrails",
+				"Privacy",
+				"Presets",
+				"Private Models",
+				"Bring Your Own Key",
+				"Apps",
+				"Management Keys",
+				"Broadcast",
+				"OAuth Apps",
+				"Webhooks",
+			],
+		}]);
+	});
+
+	it("shows provider review only to internal users", () => {
+		const labels = (showInternal: boolean) => getSettingsSidebar({ showInternal }).flatMap((group) => group.items.map((item) => item.label));
+		expect(labels(false)).not.toContain("Provider review");
+		expect(labels(true)).toContain("Provider review");
 	});
 });

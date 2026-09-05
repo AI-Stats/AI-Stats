@@ -34,6 +34,15 @@ const GOOGLE_VERTEX_DISCOVERY_PROVIDER = {
 	authStyle: "google_vertex",
 } as const;
 
+const MINIMAX_DISCOVERY_PROVIDER = {
+	providerId: "minimax",
+	providerName: "MiniMax",
+	baseUrl: "https://api.minimax.io",
+	pathPrefix: "/v1",
+	apiKeyEnv: ["MINIMAX_API_KEY"],
+	authStyle: "bearer",
+} as const;
+
 afterEach(() => {
 	teardownTestRuntime();
 });
@@ -43,6 +52,12 @@ afterAll(() => {
 });
 
 describe("resolveProviderModelsEndpoint", () => {
+	it("resolves MiniMax's OpenAI-compatible models endpoint", () => {
+		expect(resolveProviderModelsEndpoint(MINIMAX_DISCOVERY_PROVIDER)).toBe(
+			"https://api.minimax.io/v1/models",
+		);
+	});
+
 	it("interpolates encoded endpoint parameters from Worker bindings", () => {
 		setupRuntimeFromEnv({
 			CLOUDFLARE_ACCOUNT_ID: "account/id",
@@ -79,6 +94,46 @@ describe("resolveProviderModelsEndpoint", () => {
 });
 
 describe("fetchProviderModels", () => {
+	it("fetches MiniMax's OpenAI-compatible model list with bearer auth", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url === "https://api.minimax.io/v1/models",
+			response: jsonResponse({
+				object: "list",
+				data: [
+					{ id: "MiniMax-M3", object: "model", owned_by: "minimax" },
+					{ id: "MiniMax-H3-Max", object: "model", owned_by: "minimax" },
+				],
+			}),
+		}]);
+		try {
+			const models = await fetchProviderModels(MINIMAX_DISCOVERY_PROVIDER, "test-minimax-key");
+			expect(models.map((model) => model.id)).toEqual(["MiniMax-H3-Max", "MiniMax-M3"]);
+			expect(fetchMock.calls[0]?.headers.Authorization).toBe("Bearer test-minimax-key");
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
+	it("uses Reka's X-Api-Key header for model discovery", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url === "https://api.reka.ai/v1/models",
+			response: jsonResponse([{ id: "reka-flash" }, { id: "reka-edge-2603" }]),
+		}]);
+		try {
+			const models = await fetchProviderModels({
+				providerId: "reka",
+				providerName: "Reka",
+				modelsEndpoint: "https://api.reka.ai/v1/models",
+				authStyle: "x_api_key",
+			}, "test-reka-key");
+			expect(models.map((model) => model.id)).toEqual(["reka-edge-2603", "reka-flash"]);
+			expect(fetchMock.calls[0]?.headers["X-Api-Key"]).toBe("test-reka-key");
+			expect(fetchMock.calls[0]?.headers.Authorization).toBeUndefined();
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("uses DigitalOcean model_id instead of the internal catalog UUID", async () => {
 		const fetchMock = installFetchMock([{
 			match: (url) => url.includes("/v2/gen-ai/models/catalog"),
@@ -392,6 +447,37 @@ describe("buildDiscordMessage", () => {
 		} as any)).toBe("");
 	});
 
+	it("reports pricing page changes with added and removed price lines", () => {
+		setupRuntimeFromEnv({} as any);
+		const message = buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: {
+				updatesDetected: 1,
+				providerChanges: [{
+					providerId: "cohere",
+					providerName: "Cohere",
+					sourceUrl: "https://cohere.com/pricing",
+					fingerprint: "next",
+					tableCount: 3,
+					pricingSamples: [],
+					contentLines: ["Command A input $2.00 / 1M tokens"],
+					addedSamples: ["Command A input $2.00 / 1M tokens"],
+					removedSamples: ["Command A input $2.50 / 1M tokens"],
+				}],
+				errors: [],
+			},
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any);
+
+		expect(message).toContain("Pricing page monitor detected 1 changed provider source.");
+		expect(message).toContain("Cohere (https://cohere.com/pricing) — 1 added, 1 removed:");
+		expect(message).toContain("+ Command A input $2.00 / 1M tokens");
+		expect(message).toContain("- Command A input $2.50 / 1M tokens");
+		expect(message).not.toContain("price-bearing section");
+	});
+
 	it("prefers an explicit catalog endpoint over the gateway base URL", () => {
 		expect(resolveProviderModelsEndpoint({
 			providerId: "catalog",
@@ -435,6 +521,40 @@ describe("extractProviderApiModelSnapshot pricing comparisons", () => {
 		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
 		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
 			"input: $0.2 → $0.25 / 1M tokens",
+		]);
+	});
+
+	it("detects Novita decimal pricing changes from the public models feed", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"novita",
+			{
+				input_token_price_per_m: 1500,
+				output_token_price_per_m: 5000,
+				pricing: {
+					prompt: { price_per_m_decimal: "0.15" },
+					completion: { price_per_m_decimal: "0.5" },
+					input_cache_read: { price_per_m: 300, price_per_m_decimal: "0.03" },
+				},
+			},
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"novita",
+			{
+				input_token_price_per_m: 2000,
+				output_token_price_per_m: 5000,
+				pricing: {
+					prompt: { price_per_m_decimal: "0.2" },
+					completion: { price_per_m_decimal: "0.5" },
+					input_cache_read: { price_per_m: 400, price_per_m_decimal: "0.04" },
+				},
+			},
+			null,
+		);
+
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
+			"cached input: $0.03 → $0.04 / 1M tokens",
+			"input: $0.15 → $0.2 / 1M tokens",
 		]);
 	});
 

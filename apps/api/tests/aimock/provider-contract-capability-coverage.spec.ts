@@ -9,13 +9,17 @@ const inheritedContractByProvider: Record<string, string> = {
     ambient: "openai",
     baidu: "openai",
     "mistral-eu": "mistral",
-    "meta-contributor": "meta",
+    "io-net": "openai",
     streamlake: "openai",
     switchpoint: "openai",
+	"tencent-cloud": "openai",
+	"ionrouter-kimi": "ionrouter",
+	"ionrouter-minimax": "ionrouter",
+	tensorx: "tensorix",
     wafer: "openai",
 };
 
-const providersWithDedicatedNativeContractTests = new Set(["elevenlabs", "fal"]);
+const providersWithDedicatedNativeContractTests = new Set(["elevenlabs", "fal", "private-model"]);
 
 function operationCoversCapability(capability: string, serializedOperations: string): boolean {
     if (capability === "text.generate") return /(chat|response|message|text|gemini|anthropic)/i.test(serializedOperations);

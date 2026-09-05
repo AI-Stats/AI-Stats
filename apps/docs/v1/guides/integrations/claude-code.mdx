@@ -8,12 +8,17 @@ Claude Code supports third-party LLM gateways via environment variables. Phaseo 
 
 If you want Claude Code to read the live Phaseo documentation during a session, add the [Docs MCP](./docs-mcp.mdx) server too.
 
-## Prerequisites
+## Set up with the Phaseo CLI
 
-- A Phaseo API key.
-- Claude Code installed locally.
+```bash
+phaseo login
+phaseo claude
+claude
+```
 
-## 1) Set gateway environment variables
+Install Claude Code from its official release first. Setup creates a non-expiring `Phaseo CLI: Claude Code API Key`, stores it in the OS credential store, and configures Claude Code's gateway and API-key helper. No plaintext key is written to Claude Code settings.
+
+## Manual configuration
 
 ```bash
 export ANTHROPIC_BASE_URL="https://api.phaseo.app"
@@ -27,11 +32,11 @@ $env:ANTHROPIC_AUTH_TOKEN = "your_phaseo_api_key"
 $env:ANTHROPIC_API_KEY = ""
 ```
 
-## 2) Pick a model (optional)
+## Pick a model (optional)
 
 Set `ANTHROPIC_MODEL` if you want a fixed default. Use model ids listed in [Models](../../api-reference/endpoint/models.mdx).
 
-## 3) Start Claude Code
+## Start Claude Code
 
 ```bash
 claude

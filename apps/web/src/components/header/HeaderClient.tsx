@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-	BarChart2,
+	Activity,
+	Logs,
 	Boxes,
 	BookOpenText,
 	Check,
@@ -407,13 +408,24 @@ export default function HeaderClient({
 
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link
-									href={`/settings/usage?workspace_id=${encodeURIComponent(
+									href={`/settings/usage/overview?workspace_id=${encodeURIComponent(
 										activeWorkspaceId ?? "",
 									)}`}
 									prefetch={false}
 								>
-									<BarChart2 className="h-4 w-4" />
-									<span>Usage</span>
+									<Activity className="h-4 w-4" />
+									<span>Activity</span>
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
+								<Link
+									href={`/settings/usage/logs/requests?workspace_id=${encodeURIComponent(
+										activeWorkspaceId ?? "",
+									)}`}
+									prefetch={false}
+								>
+									<Logs className="h-4 w-4" />
+									<span>Logs</span>
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">

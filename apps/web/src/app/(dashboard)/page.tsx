@@ -21,11 +21,16 @@ import HomeModelUpdatesSection, {
 } from "@/components/landingPage/Home/HomeModelUpdatesSection";
 import HomeOpenSourceSection from "@/components/landingPage/Home/HomeOpenSourceSection";
 import HomeQuickstartSection from "@/components/landingPage/Home/HomeQuickstartSection";
+import {
+	buildHomeModelPrices,
+	type HomeModelPrices,
+} from "@/components/landingPage/Home/homeModelIntel";
 import HomeReliabilitySection from "@/components/landingPage/Home/HomeReliabilitySection";
 import PartnerLogos from "@/components/landingPage/PartnerLogos/PartnerLogos";
 import { Logo } from "@/components/Logo";
 import { HomepageModelContext } from "@/components/agents/HomepageModelContext";
 import { Button } from "@/components/ui/button";
+import { fetchFrontendGatewayModels } from "@/lib/fetchers/frontend/fetchFrontendGatewayModels";
 import Script from "next/script";
 import {
 	PREFERRED_SITE_NAME,
@@ -35,9 +40,9 @@ import {
 
 export const metadata: Metadata = {
 	...buildMetadata({
-		title: "Phaseo: The AI Gateway for Every Model and Provider",
-		description:
-			"Discover, route, and observe every AI model with an open source AI gateway and model intelligence layer.",
+		title: "Phaseo: AI Gateway and Open Model Catalog",
+	description:
+			"Discover trusted model data, route requests through one open-source AI gateway, and observe cost, reliability, usage, and performance across providers.",
 		path: "/",
 		keywords: [
 			"AI models",
@@ -47,7 +52,7 @@ export const metadata: Metadata = {
 			"AI providers",
 		],
 	}),
-	title: { absolute: "Phaseo: The AI Gateway for Every Model and Provider" },
+	title: { absolute: "Phaseo: AI Gateway and Open Model Catalog" },
 };
 
 const standardTier =
@@ -75,7 +80,7 @@ const PRICING_POINTS: Array<{
 	},
 	{
 		title: "Managed credits or BYOK",
-		body: "BYOK includes one million fee-free requests each month, then a 2.5% service fee on provider-equivalent cost.",
+		body: "BYOK includes 250,000 fee-free requests each month, then a 2.5% service fee on provider-equivalent cost.",
 		icon: KeyRound,
 	},
 ] as const;
@@ -102,8 +107,8 @@ function LandingSecondarySections({ isBeta }: { isBeta: boolean }) {
 						Open model database, unified gateway
 					</h2>
 					<p className="mx-auto max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg">
-						Track broad ecosystem coverage in the database, then ship through one
-						OpenAI-compatible gateway with 300+ production-ready models today.
+						Explore the broader model catalog, then filter to models with an active
+						Gateway route before you ship.
 					</p>
 				</div>
 				<PartnerLogos />
@@ -182,7 +187,13 @@ function LandingSecondarySections({ isBeta }: { isBeta: boolean }) {
 	);
 }
 
-function LandingPage({ isBeta }: { isBeta: boolean }) {
+function LandingPage({
+	isBeta,
+	modelPrices,
+}: {
+	isBeta: boolean;
+	modelPrices: HomeModelPrices;
+}) {
 	return (
 		<div className="container mx-auto mt-16 mb-20 px-4 sm:mt-20 sm:px-6 lg:px-8">
 			<div className="space-y-14">
@@ -193,11 +204,11 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 								One Platform for Every AI Model
 							</h1>
 							<p className="text-balance mx-auto max-w-[44rem] text-lg leading-8 text-zinc-600 dark:text-zinc-300 2xl:max-w-5xl 2xl:text-pretty">
-								Discover trusted data for 300+ AI models, route requests
+								Discover trusted model data, route requests
 								through one{" "}
 								<span className="whitespace-nowrap">OpenAI-compatible</span>{" "}
-								gateway, and monitor pricing, reliability, usage, and performance
-								in one place.
+								gateway, and observe cost, reliability, usage, and performance
+								across supported providers.
 							</p>
 						</div>
 						<div
@@ -252,7 +263,10 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 						</div>
 					</div>
 
-					<HomeQuickstartSection variant={isBeta ? "beta" : "default"} />
+					<HomeQuickstartSection
+						variant={isBeta ? "beta" : "default"}
+						modelPrices={modelPrices}
+					/>
 				</section>
 				<LandingSecondarySections isBeta={isBeta} />
 			</div>
@@ -261,7 +275,15 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 }
 
 export default async function Page() {
-	const heroVariant = await getGatewayHeroVariant();
+	const [heroVariant, modelPrices] = await Promise.all([
+		getGatewayHeroVariant(),
+		fetchFrontendGatewayModels()
+			.then(buildHomeModelPrices)
+			.catch((error) => {
+				console.warn("[Homepage] failed to load gateway model prices", error);
+				return {};
+			}),
+	]);
 	const softwareApplicationSchema = {
 		"@context": "https://schema.org",
 		"@type": "SoftwareApplication",
@@ -324,7 +346,10 @@ export default async function Page() {
 				}}
 			/>
 			<HomepageModelContext />
-			<LandingPage isBeta={heroVariant === "experimental"} />
+			<LandingPage
+				isBeta={heroVariant === "experimental"}
+				modelPrices={modelPrices}
+			/>
 		</>
 	);
 }

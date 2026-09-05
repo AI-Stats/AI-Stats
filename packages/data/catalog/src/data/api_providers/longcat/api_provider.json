@@ -16,7 +16,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "data_policy_tier": "trains",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "enterprise_agreement",
@@ -34,15 +34,37 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.longcat.chat/openai/v1",
   "docs_url": "https://longcat.chat/platform/docs/APIDocs.html",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": "LONGCAT_API_KEY",
+  "api_formats": [
+    "openai_chat",
+    "anthropic_messages"
+  ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://longcat.chat/platform/docs/APIDocs.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Production base URL, Bearer authentication, endpoints, supported API formats, and per-key rate limiting."
+    },
+    {
+      "kind": "terms",
+      "url": "https://longcat.chat/platform/private/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Prohibited jurisdictions and standard input/output usage policy."
+    },
+    {
+      "kind": "privacy",
+      "url": "https://longcat.chat/platform/private/POLICY.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Public privacy policy; no API execution, storage region, or zero-data-retention commitment is stated."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against LongCat's live API overview, quick start, Chat and Messages references, pricing page, changelog, terms, and privacy policy."
   }
 }

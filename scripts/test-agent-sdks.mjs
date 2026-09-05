@@ -1,9 +1,19 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
+
+function readMavenProjectVersion(relativePath) {
+	const pom = readFileSync(resolve(root, relativePath), "utf8");
+	const match = pom.match(/<artifactId>phaseo-sdk<\/artifactId>\s*<version>([^<]+)<\/version>/);
+	if (!match) throw new Error(`Could not read Phaseo SDK version from ${relativePath}`);
+	return match[1].trim();
+}
+
+const javaCoreVersion = readMavenProjectVersion("packages/sdk/sdk-java/pom.xml");
 
 const suites = {
 	ts: {
@@ -34,7 +44,7 @@ const suites = {
 		name: "Java Agent SDK",
 		steps: [
 			{ command: "mvn", args: ["-q", "-DskipTests", "install"], cwd: "packages/sdk/sdk-java" },
-			{ command: "mvn", args: ["-q", "test"], cwd: "packages/sdk/agent-sdk-java" },
+			{ command: "mvn", args: ["-q", `-Dphaseo.sdk.version=${javaCoreVersion}`, "test"], cwd: "packages/sdk/agent-sdk-java" },
 		],
 	},
 	php: {

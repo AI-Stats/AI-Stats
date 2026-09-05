@@ -138,6 +138,22 @@ export function classifyAuthMethodFromSession(
 	return classifyAuthMethodFromJwtClaims(claims);
 }
 
+export function ssoProviderIdFromSession(
+	session: { access_token?: string | null } | null | undefined,
+): string | null {
+	const token = String(session?.access_token ?? "").trim();
+	const claims = token ? decodeJwtPayload(token) : null;
+	const rawAmr = claims?.amr;
+	if (!Array.isArray(rawAmr)) return null;
+	for (const entry of rawAmr) {
+		const method = typeof entry === "string" ? entry : typeof entry === "object" && entry !== null ? String((entry as { method?: unknown }).method ?? "") : "";
+		if (!method.toLowerCase().startsWith("sso/") || typeof entry !== "object" || entry === null) continue;
+		const provider = String((entry as { provider?: unknown }).provider ?? "").trim();
+		if (provider) return provider;
+	}
+	return null;
+}
+
 export function classifyAuthMethodFromProvider(provider: unknown): AuthMethod {
 	const normalized = String(provider ?? "").trim().toLowerCase();
 	if (!normalized) return "unknown";

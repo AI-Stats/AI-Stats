@@ -4,7 +4,7 @@
 // How: Implements guard functions that return ok/response tuples.
 
 import { z } from "zod";
-import type { Endpoint, RequestBetaOptions, RequestMeta } from "@core/types";
+import type { Endpoint, RequestBetaOptions, RequestLabel, RequestMeta } from "@core/types";
 import { getEdgeMeta } from "@core/edge";
 import { getBindings } from "@/runtime/env";
 import {
@@ -15,6 +15,7 @@ import { err } from "./http";
 import { extractModel, formatZodErrors, buildProviderCandidatesWithDiagnostics } from "./utils";
 import { fetchGatewayContext } from "./context";
 import { generatePublicId } from "./genId";
+import { requestIdFor } from "@/runtime/request-id";
 import { isDebugAllowed } from "../debug";
 import type { DebugOptions } from "@core/types";
 import { authenticate, authenticateManagement, type AuthFailure } from "./auth";
@@ -28,8 +29,8 @@ export { parseW3cTraceContext } from "@observability/trace-context";
 
 const MIN_CREDIT_AMOUNT = 1.0;
 const TRUTHY_VALUES = new Set(["1", "true", "yes"]);
-const FORM_JSON_FIELDS = new Set(["provider", "debug", "include", "timestamp_granularities", "chunking_strategy"]);
-const FORM_FORCE_ARRAY_FIELDS = new Set(["include", "timestamp_granularities"]);
+const FORM_JSON_FIELDS = new Set(["provider", "debug", "include", "timestamp_granularities", "chunking_strategy", "languages", "keywords", "context_bias", "input_reference"]);
+const FORM_FORCE_ARRAY_FIELDS = new Set(["include", "timestamp_granularities", "languages", "keywords", "context_bias", "known_speaker_names", "known_speaker_references"]);
 const DEFAULT_REQUEST_BODY_LIMIT_BYTES = 16 * 1024 * 1024;
 const MULTIPART_REQUEST_BODY_LIMIT_BYTES = 32 * 1024 * 1024;
 
@@ -88,7 +89,7 @@ function classifyProviderCandidateFailure(diagnostics: ProviderCandidateBuildDia
 
 function describeKeyLimitExceeded(args: {
 	reason: string | null;
-	limitWindow?: "daily" | "weekly" | "monthly" | null;
+	limitWindow?: "daily" | "weekly" | "monthly" | "lifetime" | null;
 	limitMetric?: "requests" | "cost" | "soft_blocked" | null;
 	currentValue?: number | null;
 	limitValue?: number | null;
@@ -104,7 +105,10 @@ function describeKeyLimitExceeded(args: {
 				? "weekly"
 				: args.limitWindow === "monthly"
 					? "monthly"
+					: args.limitWindow === "lifetime"
+						? "lifetime"
 					: "configured";
+	const subject = args.reason?.startsWith("workspace_") ? "workspace" : "API key";
 	const metricLabel =
 		args.limitMetric === "cost"
 			? "spend limit"
@@ -119,10 +123,10 @@ function describeKeyLimitExceeded(args: {
 		Number.isFinite(args.limitValue) &&
 		args.limitValue > 0
 	) {
-		return `This API key has reached its ${windowLabel} ${metricLabel} (${args.currentValue}/${args.limitValue}).`;
+		return `This ${subject} has reached its ${windowLabel} ${metricLabel} (${args.currentValue}/${args.limitValue}).`;
 	}
 
-	return `This API key has reached its ${windowLabel} ${metricLabel}.`;
+	return `This ${subject} has reached its ${windowLabel} ${metricLabel}.`;
 }
 
 function normalizeFormKey(key: string): { key: string; array: boolean } {
@@ -295,7 +299,7 @@ export async function guardAuth(req: Request, options: GuardAuthOptions = {}): P
     oauthResource?: string | null;
     scopes?: string[];
 }>> {
-    const requestId = generatePublicId();
+    const requestId = requestIdFor(req);
     const auth = await authenticate(req, {
         useKvCache: options.useKvCache,
         allowOAuthJwt: options.allowOAuthJwt,
@@ -337,7 +341,7 @@ export async function guardManagementAuth(req: Request, options: GuardAuthOption
     oauthResource?: string | null;
     scopes?: string[];
 }>> {
-    const requestId = generatePublicId();
+    const requestId = requestIdFor(req);
     const auth = await authenticateManagement(req, { useKvCache: options.useKvCache });
     if (!auth.ok) {
         const reason = (auth as AuthFailure).reason;
@@ -467,6 +471,7 @@ export async function guardContext(args: {
                     current_value: context.keyLimit.currentValue ?? null,
                     limit_value: context.keyLimit.limitValue ?? null,
                     buckets: context.keyLimit.buckets ?? null,
+                    budgets: context.keyLimit.budgets ?? null,
                     description: describeKeyLimitExceeded({
                         reason: context.keyLimit.reason ?? null,
                         limitWindow: context.keyLimit.limitWindow ?? null,
@@ -575,8 +580,9 @@ export function makeMeta(input: {
     beforeContextCacheWriteMs?: number | null;
     beforeContextFallbackRemap?: boolean | null;
     startedAtMs?: number;
+    labels?: RequestLabel[];
 }): RequestMeta {
-    const { referer, appTitle, appId, appName, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
+    const { referer, appTitle, appId, appName, appCategories, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
     const rawBody = (input.rawBody && typeof input.rawBody === "object")
         ? input.rawBody
         : {};
@@ -638,6 +644,7 @@ export function makeMeta(input: {
         oauthClientId: input.oauthClientId ?? null,
         oauthUserId: input.oauthUserId ?? null,
         requestId: input.requestId,
+        labels: input.labels ?? [],
         stream: input.stream,
         debug,
         echoUpstreamRequest: Boolean(debug?.return_upstream_request),
@@ -659,6 +666,7 @@ export function makeMeta(input: {
         appTitle,
         appId,
         appName,
+        appCategories,
         requestUserId,
         sessionId,
         trace,

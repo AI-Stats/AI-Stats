@@ -1,5 +1,3 @@
-// @ts-ignore Vitest is available in the workspace test runner but is not part of the web app's production dependency graph.
-import { describe, expect, it } from "vitest";
 import { applyChatEffectivePolicy, type ChatEffectivePolicy } from "./effectivePolicy";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 
@@ -13,16 +11,16 @@ const route = (providerId: string): GatewaySupportedModel => ({
 const none = { provider: { mode: "none" as const, ids: [] }, model: { mode: "none" as const, ids: [] } };
 
 describe("applyChatEffectivePolicy", () => {
-	it("keeps public catalogue availability separate while annotating every blocking source", () => {
+	it("keeps public catalogue availability separate while annotating workspace and guardrail blocks", () => {
 		const policy: ChatEffectivePolicy = {
 			workspaceId: "workspace-1",
 			workspace: { ...none, provider: { mode: "blocklist", ids: ["novita"] } },
-			account: { ...none, model: { mode: "blocklist", ids: ["qwen/qwen3.8-max"] } },
+			account: null,
 			guardrails: [{ id: "g-1", name: "Team Safety", ...none, provider: { mode: "blocklist", ids: ["novita"] } }],
 		};
 		const [annotated] = applyChatEffectivePolicy([route("novita")], policy);
 		expect(annotated.isAvailable).toBe(true);
-		expect(annotated.chatBlockedReasons?.map((reason) => reason.source)).toEqual(["workspace", "account", "guardrail"]);
+		expect(annotated.chatBlockedReasons?.map((reason) => reason.source)).toEqual(["workspace", "guardrail"]);
 	});
 
 	it("does not annotate an allowed route", () => {

@@ -106,20 +106,20 @@ async function loadLegacyUsage(modelIds: string[]): Promise<CompareGatewayUsageB
 
 function CompareDashboardFallback() {
 	return (
-		<div className="mx-auto w-full max-w-7xl px-4 py-8 sm:py-10">
-			<div className="h-9 w-64 animate-pulse rounded-md bg-muted/50" />
-			<div className="mt-3 h-5 w-full max-w-xl animate-pulse rounded bg-muted/40" />
-			<div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-				{Array.from({ length: 4 }).map((_, index) => (
-					<div
-						key={index}
-						className="h-40 animate-pulse rounded-xl border border-border/60 bg-muted/30"
-					/>
-				))}
+		<div className="w-full">
+			<div className="sticky top-[var(--site-header-height,4rem)] border-b bg-background/90">
+				<div className="mx-auto w-full max-w-6xl px-4 py-2 sm:py-3">
+					<div className="h-5 w-20 animate-pulse rounded bg-muted/50" />
+					<div className="mt-2 h-7 w-24 animate-pulse rounded-md bg-muted/40" />
+				</div>
 			</div>
-			<div className="mt-8 grid gap-3 sm:grid-cols-2">
-				<div className="h-14 animate-pulse rounded-xl border border-dashed border-border/70 bg-muted/20" />
-				<div className="h-14 animate-pulse rounded-xl border border-dashed border-border/70 bg-muted/20" />
+			<div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
+				<div className="h-9 w-64 animate-pulse rounded-md bg-muted/50" />
+				<div className="mt-3 h-5 w-full max-w-xl animate-pulse rounded bg-muted/40" />
+				<div className="mt-8 grid gap-3 sm:grid-cols-2">
+					<div className="h-14 animate-pulse rounded-xl border border-dashed border-border/70 bg-muted/20" />
+					<div className="h-14 animate-pulse rounded-xl border border-dashed border-border/70 bg-muted/20" />
+				</div>
 			</div>
 		</div>
 	);

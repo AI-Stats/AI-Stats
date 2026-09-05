@@ -451,6 +451,6 @@
   },
   "last_updated": null,
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "openai/gpt-5.6-terra",
   "license_url": null
 }

@@ -8,6 +8,7 @@ import type { ByokKeyMeta, PipelineContext, ProviderAttemptLog } from "../before
 import { Timer } from "../telemetry/timer";
 import { dispatchBackground, ensureRuntimeForBackground, getSupabaseAdmin } from "@/runtime/env";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
+import { getProviderPricingKey } from "../before/context.shared";
 
 export type PipelineTiming = {
 	timer: Timer;
@@ -82,6 +83,8 @@ import type {
 	IRRerankResponse,
 	IROcrRequest,
 	IROcrResponse,
+	IRParseRequest,
+	IRParseResponse,
 	IRMusicGenerateRequest,
 	IRMusicGenerateResponse,
 	IRVideoGenerationRequest,
@@ -96,6 +99,14 @@ import { loadPriceCard } from "../pricing";
 import { stripUsagePricing } from "../usage";
 import { getEffectiveRoutingHints } from "../requestRouting";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
+import { extractDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
+import {
+	admitManagedProvider,
+	estimateProviderTokenReservation,
+	releaseManagedProviderReservation,
+	settleFailedManagedProviderReservation,
+	type ProviderTokenReservation,
+} from "@core/provider-rate-limits";
 
 const ATTEMPT_PREVIEW_LIMIT = 320;
 const MAX_UPSTREAM_ERROR_BODY_BYTES = 32 * 1024;
@@ -105,19 +116,19 @@ const SINGLE_PROVIDER_FAILURE_RETRIES = 0;
 // credential must not be silently retained while being impossible to attempt.
 export const MAX_BYOK_CREDENTIAL_ATTEMPTS = BYOK_KEYS_PER_PROVIDER_LIMIT;
 
-export type CredentialAttemptPhase = "priority_byok" | "gateway" | "fallback_byok";
+export type CredentialAttemptPhase = "priority_byok" | "balanced_byok" | "gateway" | "fallback_byok";
 
 export function buildCredentialAttemptPlan(
 	rankedProviders: any[],
-	options: { includeFallbackByok?: boolean } = {},
+	options: { includeFallbackByok?: boolean; allowManagedFallback?: boolean } = {},
 ): Array<{
 	routed: any;
 	phase: CredentialAttemptPhase;
 	credential: { kind: "gateway" } | { kind: "byok"; key: ByokKeyMeta };
 }> {
-	const modeForKey = (key: ByokKeyMeta): "priority" | "fallback" =>
+	const modeForKey = (key: ByokKeyMeta): "priority" | "balanced" | "fallback" =>
 		key.routingMode ?? (key.alwaysUse ? "priority" : "fallback");
-	const keysForMode = (routed: any, mode: "priority" | "fallback") =>
+	const keysForMode = (routed: any, mode: "priority" | "balanced" | "fallback") =>
 		(routed.candidate.byokMeta ?? [])
 			.filter((key: ByokKeyMeta) => modeForKey(key) === mode)
 			.sort((a: ByokKeyMeta, b: ByokKeyMeta) =>
@@ -125,7 +136,9 @@ export function buildCredentialAttemptPlan(
 			)
 			.map((key: ByokKeyMeta) => ({
 				routed,
-				phase: mode === "priority" ? "priority_byok" as const : "fallback_byok" as const,
+				phase: mode === "priority"
+					? "priority_byok" as const
+					: mode === "balanced" ? "balanced_byok" as const : "fallback_byok" as const,
 				credential: { kind: "byok" as const, key },
 			}));
 
@@ -138,13 +151,21 @@ export function buildCredentialAttemptPlan(
 			.flatMap((routed) => keysForMode(routed, "fallback"))
 			.slice(0, remainingByokAttempts);
 
-	return [
-		...limitedPriorityAttempts,
-		...rankedProviders.map((routed) => ({
+	const balancedAttempts = rankedProviders.flatMap((routed) => {
+		const keys = keysForMode(routed, "balanced");
+		return keys.length ? keys : [{
 			routed,
 			phase: "gateway" as const,
 			credential: { kind: "gateway" as const },
-		})),
+		}];
+	});
+	const gatewayAttempts = limitedPriorityAttempts.length === 0 || options.allowManagedFallback === true
+		? balancedAttempts
+		: [];
+
+	return [
+		...limitedPriorityAttempts,
+		...gatewayAttempts,
 		...fallbackAttempts,
 	];
 }
@@ -372,6 +393,7 @@ export type IRRequestResult = {
 		| IRAudioTranslationResponse
 		| IRVideoGenerationResponse
 		| IROcrResponse
+		| IRParseResponse
 		| IRMusicGenerateResponse; // IR response (for completed requests)
 	normalized?: GatewayResponsePayload;
 	upstream: Response;
@@ -385,6 +407,7 @@ export type IRRequestResult = {
 	bill: Bill;
 	keySource?: "gateway" | "byok";
 	byokKeyId?: string | null;
+	providerRateLimitReservation?: ProviderTokenReservation | null;
 	mappedRequest?: string;
 	rawResponse?: any;
 };
@@ -411,6 +434,7 @@ export async function doRequestWithIR(
 		| IRAudioTranslationRequest
 		| IRVideoGenerationRequest
 		| IROcrRequest
+		| IRParseRequest
 		| IRMusicGenerateRequest,
 	timing: PipelineTiming,
 ): Promise<Response | { ok: true; result: IRRequestResult }> {
@@ -474,6 +498,7 @@ export async function doRequestWithIR(
 	const rankedProviders = ranked.slice(0, maxTries);
 	const credentialPlan = buildCredentialAttemptPlan(rankedProviders, {
 		includeFallbackByok: true,
+		allowManagedFallback: ctx.teamSettings?.byokFallbackEnabled === true,
 	});
 	ctx.credentialPlan = credentialPlan.map((entry, index) => ({
 		attempt_number: index + 1,
@@ -563,6 +588,7 @@ async function attemptProviderWithIR(
 		| IRAudioTranslationRequest
 		| IRVideoGenerationRequest
 		| IROcrRequest
+		| IRParseRequest
 		| IRMusicGenerateRequest,
 	timing: PipelineTiming,
 	baseModel: string,
@@ -635,6 +661,7 @@ async function attemptProviderWithIR(
 				candidate.providerId,
 				candidateApiModelId ?? baseModel,
 				ctx.capability,
+				providerModelSlug,
 			),
 		);
 		if (pricingCard) {
@@ -669,6 +696,8 @@ async function attemptProviderWithIR(
 
 	// Execute using provider-capability executor
 	let t0 = performance.now();
+	const upstreamTracker = createUpstreamTimingTracker();
+	let providerRateLimitReservation: ProviderTokenReservation | null = null;
 	try {
 		timing.timer.mark("adapter_start");
 		if (!timing.internal.adapterMarked) {
@@ -719,7 +748,6 @@ async function attemptProviderWithIR(
 		}
 
 		const normalizedCapability = normalizeCapability(ctx.capability);
-		const upstreamTracker = createUpstreamTimingTracker();
 		const isTextGenerate = normalizedCapability === "text.generate";
 		const modelForReasoning = providerModelSlug?.trim() || baseModel;
 		const captureProviderPayloads =
@@ -740,6 +768,52 @@ async function attemptProviderWithIR(
 				)
 				: ir,
 		);
+		if (credential.kind === "gateway" && !ctx.testingMode) {
+			const reservationTokens = estimateProviderTokenReservation({
+				capability: normalizedCapability,
+				body: ctx.rawBody,
+				requestedMaxOutputTokens: isTextGenerate
+					? (normalizedIr as IRChatRequest).maxTokens
+					: null,
+				providerMaxInputTokens: candidate.maxInputTokens,
+				providerMaxOutputTokens: candidate.maxOutputTokens,
+			});
+			const rateLimit = await timing.timer.span(`${attemptPrefix}_provider_rate_limit`, () =>
+				admitManagedProvider(candidate.providerId, reservationTokens),
+			);
+			if (!rateLimit.allowed) {
+				const retryAfter = rateLimit.retryAfterSeconds != null
+					? String(rateLimit.retryAfterSeconds)
+					: null;
+				attemptErrors.push({
+					...credentialLog,
+					provider: candidate.providerId,
+					endpoint: ctx.endpoint,
+					attempt_number: attemptNumber,
+					type: "provider_rate_limited",
+					status: 429,
+					rate_limit_reason: rateLimit.reason,
+					upstream_rate_limit_headers: retryAfter ? { "Retry-After": retryAfter } : null,
+				});
+				recordProviderAttempt(ctx, {
+					...credentialLog,
+					attempt_number: attemptNumber,
+					provider: candidate.providerId,
+					endpoint: ctx.endpoint,
+					model: baseModel,
+					api_model_id: candidateApiModelId,
+					provider_model_slug: providerModelSlug ?? null,
+					outcome: "rate_limited",
+					type: rateLimit.reason,
+					duration_ms: Math.round(performance.now() - attemptStartedAt),
+					status: 429,
+					key_source: "gateway",
+					was_probe: isProbe,
+				});
+				return { ok: false, skip: "provider_rate_limit" };
+			}
+			providerRateLimitReservation = rateLimit.reservation;
+		}
 		const buildExecutorArgs = () =>
 			({
 				ir: normalizedIr,
@@ -750,6 +824,7 @@ async function attemptProviderWithIR(
 				protocol: ctx.protocol as any,
 				capability: ctx.capability,
 				providerModelSlug,
+				privateEndpoint: candidate.privateEndpoint ?? null,
 				capabilityParams: candidate.capabilityParams,
 				maxInputTokens: candidate.maxInputTokens,
 				maxOutputTokens: candidate.maxOutputTokens,
@@ -915,7 +990,9 @@ async function attemptProviderWithIR(
 			const recordsSynchronousGeneration =
 				normalizedCapability === "image.generate" ||
 				normalizedCapability === "audio.speech";
-			if (!isTextGenerate) {
+			const preservesModerationTiming =
+				normalizedCapability === "moderations" && executorResult.upstream.ok;
+			if (!isTextGenerate && !preservesModerationTiming) {
 				delete (ctx.meta as Record<string, unknown>).latency_ms;
 				if (recordsSynchronousGeneration && executorResult.upstream.ok) {
 					ctx.meta.generation_ms ??= selectedProviderDurationMs;
@@ -927,6 +1004,7 @@ async function attemptProviderWithIR(
 			const completedGenerationMs = ctx.meta.generation_ms ?? 0;
 			const healthImpact = classifyProviderHealthImpact({
 				upstreamStatus: executorResult.upstream.status,
+				finishReason: (executorResult.ir as any)?.choices?.[0]?.finishReason ?? executorResult.bill?.finish_reason ?? null,
 			});
 			dispatchProviderHealthBackground(async () => {
 				await onCallEnd(ctx.endpoint, {
@@ -940,7 +1018,7 @@ async function attemptProviderWithIR(
 					tokens_out: tokensOut,
 				});
 				if (isProbe && healthImpact !== "neutral") {
-					await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, executorResult.upstream.ok);
+					await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, healthImpact === "success");
 				} else if (healthImpact === "failure") {
 					await maybeOpenOnRecentErrors(ctx.endpoint, candidate.providerId, baseModel);
 				}
@@ -948,9 +1026,25 @@ async function attemptProviderWithIR(
 		}
 		if (!executorResult.upstream.ok) {
 			const upstreamFailure = await readUpstreamFailurePayload(executorResult);
+			const payloadUsage = upstreamFailure.payload && typeof upstreamFailure.payload === "object"
+				? (upstreamFailure.payload as Record<string, unknown>).usage
+				: null;
+			await settleFailedManagedProviderReservation({
+				reservation: providerRateLimitReservation,
+				status: executorResult.upstream.status,
+				usageCandidates: [executorResult.bill?.usage, payloadUsage, upstreamFailure.payload],
+				upstreamRequestCount: upstreamTiming.upstreamRequestCount,
+			});
 			const upstreamSummary = extractUpstreamErrorSummary(
 				upstreamFailure.payload,
 				executorResult.upstream.headers,
+			);
+			const effectiveKeySource = executorResult.keySource ?? credentialLog.key_source;
+			const upstreamRateLimitHeaders = extractDownstreamRateLimitHeaders(
+				executorResult.upstream.headers,
+				{
+					includeQuotaDetails: effectiveKeySource === "byok",
+				},
 			);
 			const durationMs = Math.round(performance.now() - attemptStartedAt);
 			attemptErrors.push({
@@ -964,9 +1058,12 @@ async function attemptProviderWithIR(
 				status: executorResult.upstream.status,
 				status_text: executorResult.upstream.statusText || null,
 				upstream_url: sanitizeUrlForLogging(executorResult.upstream.url || null),
-				key_source: executorResult.keySource ?? credentialLog.key_source,
+				key_source: effectiveKeySource,
 				byok_key_id: executorResult.byokKeyId ?? credentialLog.byok_key_id,
 				upstream_payload_preview: upstreamFailure.payload_preview,
+				upstream_rate_limit_headers: Object.keys(upstreamRateLimitHeaders).length
+					? upstreamRateLimitHeaders
+					: null,
 				...upstreamSummary,
 			});
 			recordProviderAttempt(ctx, {
@@ -1022,9 +1119,7 @@ async function attemptProviderWithIR(
 			apiModelId: candidateApiModelId,
 			pricingKey:
 				candidate.pricingKey ??
-				(candidateApiModelId
-					? `${candidate.providerId}:${candidateApiModelId}`
-					: candidate.providerId),
+				getProviderPricingKey(candidate.providerId, candidateApiModelId, providerModelSlug),
 			providerModelSlug: providerModelSlug ?? null,
 			generationTimeMs,
 			bill: {
@@ -1033,6 +1128,7 @@ async function attemptProviderWithIR(
 			},
 			keySource: executorResult.keySource ?? credentialLog.key_source,
 			byokKeyId: executorResult.byokKeyId ?? credentialLog.byok_key_id,
+			providerRateLimitReservation,
 			mappedRequest: executorResult.mappedRequest,
 			rawResponse: executorResult.rawResponse,
 		};
@@ -1093,6 +1189,11 @@ async function attemptProviderWithIR(
 
 		return { ok: true, result };
 	} catch (err) {
+		// Only release when the shared tracker proves no upstream request was dispatched.
+		// Dispatched failures can still consume provider tokens even when no usage is returned.
+		if (providerRateLimitReservation && upstreamTracker.snapshot().upstreamRequestCount === 0) {
+			await releaseManagedProviderReservation(providerRateLimitReservation);
+		}
 		console.error(`Executor execution failed for ${candidate.providerId}:`, err);
 		const message = err instanceof Error ? err.message : String(err);
 		const stackPreview = truncateAttemptText(
@@ -1144,7 +1245,7 @@ async function attemptProviderWithIR(
 				generation_ms: ctx.meta.generation_ms ?? Math.round(performance.now() - t0),
 			});
 			if (isProbe && errorHealthImpact !== "neutral") {
-				await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, false);
+				await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, errorHealthImpact === "success");
 			} else if (errorHealthImpact === "failure") {
 				await maybeOpenOnRecentErrors(ctx.endpoint, candidate.providerId, baseModel);
 			}
@@ -1152,6 +1253,3 @@ async function attemptProviderWithIR(
 		return { ok: false };
 	}
 }
-
-
-

@@ -16,6 +16,7 @@ type ProviderModelRow = {
     api_model_id: string | null;
     model_id: string | null;
     provider_model_slug?: string | null;
+    is_stealth?: boolean | null;
     is_active_gateway: boolean | null;
     routing_status?: string | null;
     input_modalities?: unknown;
@@ -23,6 +24,18 @@ type ProviderModelRow = {
     effective_from?: string | null;
     effective_to?: string | null;
 };
+
+export const STEALTH_PROVIDER_IDENTITY = "stealth";
+
+export function publicCatalogueProviderRoute(row: ProviderModelRow): ProviderModelRow {
+    if (row.is_stealth !== true) return row;
+    const modelId = row.model_id ?? row.api_model_id;
+    return {
+        ...row,
+        provider_id: STEALTH_PROVIDER_IDENTITY,
+        provider_model_slug: modelId ?? null,
+    };
+}
 
 type CapabilityRow = {
     provider_api_model_id: string | null;
@@ -46,6 +59,29 @@ type PricingRuleRow = {
     effective_to?: string | null;
 };
 
+type PricingSkuRow = {
+    sku_id: string;
+    provider_model_id: string;
+    operation: string;
+    service_tier_slug: string | null;
+    currency: string | null;
+    effective_from: string | null;
+    effective_to: string | null;
+    metadata: unknown;
+    description: string | null;
+};
+
+type PricingMeterRow = {
+    sku_meter_id: string;
+    sku_id: string;
+    meter_key: string;
+    unit: string;
+    unit_quantity: number | string;
+    price_nanos: number | string;
+    meter_order: number | null;
+    metadata: unknown;
+};
+
 type ModelDetailRow = {
     model_slug: string | null;
     detail_name: string | null;
@@ -59,6 +95,8 @@ type ProviderDetails = {
     country_code: string | null;
     status: string | null;
     routing_status: string | null;
+    execution_regions: string[];
+    data_regions: string[];
 };
 
 type OrganisationDetails = {
@@ -73,6 +111,8 @@ type CatalogueProvider = {
     api_provider_name: string | null;
     link: string | null;
     country_code: string | null;
+    execution_regions: string[];
+    data_regions: string[];
     endpoints: Endpoint[];
     provider_model_slug: string | null;
     is_active_gateway: boolean;
@@ -134,6 +174,8 @@ export type SupportedParamDetails = Record<string, SupportedParamDetail>;
 export type ProviderInfo = {
     api_provider_id: string;
     api_provider_name: string | null;
+    execution_regions: string[];
+    data_regions: string[];
     provider_model_slug: string | null;
     is_active_gateway: boolean;
     availability_status: "active" | "coming_soon" | "inactive";
@@ -253,6 +295,8 @@ export type CatalogueFilters = {
     providerAvailabilityStatuses?: string[];
     providerAvailabilityReasons?: string[];
     availability?: "active" | "all";
+    region?: "eu" | "us";
+    textOnly?: boolean;
 };
 
 const PRICING_METERS = [
@@ -307,6 +351,13 @@ function toStringArray(value: unknown): string[] {
             .filter((part) => part.length > 0);
     }
     return [];
+}
+
+export function providerMatchesCatalogueRegion(
+	provider: Pick<ProviderInfo, "execution_regions" | "data_regions">,
+	region: "eu" | "us",
+): boolean {
+	return provider.execution_regions.includes(region) && provider.data_regions.includes(region);
 }
 
 function parseEffectiveDate(value: unknown): Date | null {
@@ -589,8 +640,7 @@ function toNormalizedStatus(value: string | null | undefined): string | null {
 }
 
 const COMING_SOON_CAPABILITIES = new Set([
-    "video.edit",
-    "music.generate",
+	"video.edit",
 ]);
 
 function normalizeCapabilityStatusForPublicCatalogue(
@@ -1134,7 +1184,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         let { data, error: providerError }: { data: any[] | null; error: any } = await supabase
             .from("v2_model_provider_routes")
             .select(
-                "provider_model_id, provider_slug, model_slug, provider_model_slug, routing_enabled, status, input_modalities, output_modalities, effective_from, effective_to"
+                "provider_model_id, provider_slug, model_slug, provider_model_slug, is_stealth, routing_enabled, status, input_modalities, output_modalities, effective_from, effective_to"
             )
             .in("model_slug", modelIdChunk);
 
@@ -1142,12 +1192,13 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             throw new Error(`Failed to load provider models: ${providerError.message || "unknown error"}`);
         }
 
-        const chunkRows = (data ?? []).map((row) => ({
+        const chunkRows = (data ?? []).map((row) => publicCatalogueProviderRoute({
             provider_api_model_id: row.provider_model_id,
             provider_id: row.provider_slug,
             api_model_id: row.model_slug,
             model_id: row.model_slug,
             provider_model_slug: row.provider_model_slug,
+            is_stealth: row.is_stealth,
             is_active_gateway: row.routing_enabled,
             routing_status: row.status,
             input_modalities: row.input_modalities,
@@ -1249,7 +1300,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         for (const providerIdChunk of chunkArray(Array.from(providerIdSet), 200)) {
             const { data, error: providerDetailsError } = await supabase
                 .from("v2_providers")
-                .select("provider_slug, name, metadata, country_code, status, routing_enabled")
+                .select("provider_slug, name, metadata, country_code, status, routing_enabled, default_execution_regions, default_data_regions")
                 .in("provider_slug", providerIdChunk);
             if (providerDetailsError) {
                 throw new Error(`Failed to load provider metadata: ${providerDetailsError.message || "unknown error"}`);
@@ -1261,6 +1312,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 country_code: row.country_code ?? null,
                 status: row.status ?? null,
                 routing_status: row.routing_enabled ? "active" : "disabled",
+                execution_regions: toStringArray(row.default_execution_regions).map((region) => region.toLowerCase()),
+                data_regions: toStringArray(row.default_data_regions).map((region) => region.toLowerCase()),
             })) as ProviderDetails[]);
         }
         for (const provider of providerDetails) {
@@ -1272,20 +1325,32 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 country_code: provider.country_code ?? null,
                 status: (provider as any).status ?? null,
                 routing_status: (provider as any).routing_status ?? null,
+                execution_regions: [...provider.execution_regions],
+                data_regions: [...provider.data_regions],
             });
         }
     }
 
-    const { data: skuRows, error: skuError } = await supabase
-        .from("v2_pricing_skus")
-        .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,description")
-        .in("provider_model_id", providerModelIds);
-    if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message || "unknown error"}`);
+    const skuRows: PricingSkuRow[] = [];
+    for (const providerModelIdChunk of chunkArray(Array.from(new Set(providerModelIds)), 200)) {
+        const { data, error: skuError } = await supabase
+            .from("v2_pricing_skus")
+            .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,description")
+            .in("provider_model_id", providerModelIdChunk);
+        if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message || "unknown error"}`);
+        skuRows.push(...(data ?? []) as PricingSkuRow[]);
+    }
     const skuIds = (skuRows ?? []).map((row) => row.sku_id).filter(Boolean);
-    const { data: meterRows, error: meterError } = skuIds.length
-        ? await supabase.from("v2_pricing_sku_meters").select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata").eq("billable", true).in("sku_id", skuIds)
-        : { data: [], error: null };
-    if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message || "unknown error"}`);
+    const meterRows: PricingMeterRow[] = [];
+    for (const skuIdChunk of chunkArray(Array.from(new Set(skuIds)), 200)) {
+        const { data, error: meterError } = await supabase
+            .from("v2_pricing_sku_meters")
+            .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata")
+            .eq("billable", true)
+            .in("sku_id", skuIdChunk);
+        if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message || "unknown error"}`);
+        meterRows.push(...(data ?? []) as PricingMeterRow[]);
+    }
     const routeByProviderModel = new Map(providerRows.map((row) => [row.provider_api_model_id, row]));
     const skuById = new Map((skuRows ?? []).map((row) => [row.sku_id, row]));
     const pricingRows = (meterRows ?? []).flatMap((meter) => {
@@ -1448,6 +1513,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                     api_provider_name: providerDetails?.api_provider_name ?? null,
                     link: providerDetails?.link ?? null,
                     country_code: providerDetails?.country_code ?? null,
+                    execution_regions: [...(providerDetails?.execution_regions ?? [])],
+                    data_regions: [...(providerDetails?.data_regions ?? [])],
                     endpoints: [String(cap.capability_id) as Endpoint],
                     provider_model_slug: row.provider_model_slug ?? null,
                     is_active_gateway: Boolean(row.is_active_gateway),
@@ -1490,6 +1557,17 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             : providerEntries.filter(isPubliclyRoutableProvider);
 
         const filteredProviderEntries = visibleProviderEntries.filter((entry) => {
+            if (filter.textOnly && !entry.endpoints.some((endpoint) =>
+				String(endpoint) === "chat.completions" ||
+				String(endpoint) === "chat/completions" ||
+				endpoint === "responses" ||
+				endpoint === "messages"
+            )) {
+                return false;
+            }
+            if (filter.region && !providerMatchesCatalogueRegion(entry, filter.region)) {
+                return false;
+            }
             if (
                 endpointsFilter &&
                 !entry.endpoints.some((endpoint) => matchesEndpointFilter(endpoint, endpointsFilter))
@@ -1597,6 +1675,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 providerEndpoints[endpoint] = {
                     api_provider_id: entry.api_provider_id,
                     api_provider_name: entry.api_provider_name,
+                    execution_regions: [...entry.execution_regions],
+                    data_regions: [...entry.data_regions],
                     provider_model_slug: entry.provider_model_slug,
                     is_active_gateway: entry.is_active_gateway,
                     availability_status: entry.availability_status,
@@ -1624,6 +1704,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 providerMapForModel.set(entry.api_provider_id, {
                     api_provider_id: entry.api_provider_id,
                     api_provider_name: entry.api_provider_name,
+                    execution_regions: [...entry.execution_regions],
+                    data_regions: [...entry.data_regions],
                     provider_model_slug: entry.provider_model_slug,
                     is_active_gateway: entry.is_active_gateway,
                     availability_status: entry.availability_status,

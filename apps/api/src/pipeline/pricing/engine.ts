@@ -3,6 +3,7 @@
 // How: Exposes helpers used by before/execute/after orchestration.
 
 import { parseUsdToNanos, formatUsdFromNanosExact, nanosToCentsCeil } from "./money";
+import { requiresExplicitServiceTier } from "./service-tiers";
 import { matchesConditions, shallowMerge, evaluateConditions } from "./conditions";
 import type { PriceCard, PriceRule, PricingBreakdownLine, PricingDimensionKey, PricingResult, PricingTimestampBasis } from "./types";
 import { pickFirstFiniteNumber, resolveCanonicalTokenUsage, resolveRequestCountUsage } from "@core/usage-normalization";
@@ -13,7 +14,7 @@ const KNOWN_METERS = new Set<string>([
     "input_text_tokens", "input_text_messages", "input_image", "input_image_tokens", "input_audio_minutes", "input_audio_seconds", "input_audio_tokens", "input_video_seconds", "input_video_tokens",
     "output_tokens",
     "output_text_tokens", "output_reasoning_tokens", "output_image_tokens", "output_audio_minutes", "output_audio_seconds", "output_audio_tokens", "output_video_tokens",
-    "output_image", "output_video", "output_video_seconds",
+    "output_image", "output_video", "output_video_seconds", "output_video_frames",
     "audio_minutes", "audio_seconds",
     "implicit_cached_input_text_tokens",
     "cached_write_text_tokens", "cached_write_text_tokens_5m", "cached_write_text_tokens_1h",
@@ -60,6 +61,11 @@ type RuleScore = {
     hasConditions: boolean;
 };
 
+function effectiveRulePriority(rule: PriceRule): number {
+	if (Number.isFinite(rule.priority)) return Number(rule.priority);
+	return Array.isArray(rule.match) && rule.match.length > 0 ? 300 : 100;
+}
+
 function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): RuleScore[] {
     return candidates.map((rule, index) => {
         const summary = evaluateConditions(rule.match, ctx);
@@ -69,7 +75,7 @@ function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): Rul
         return {
             rule,
             index,
-            priority: rule.priority ?? 0,
+			priority: effectiveRulePriority(rule),
             matchedConditions: summary.matchedConditions,
             totalConditions: summary.totalConditions,
             fullySatisfiedGroups,
@@ -80,12 +86,15 @@ function buildRuleScores(candidates: PriceRule[], ctx: Record<string, any>): Rul
 }
 
 function compareRuleScores(a: RuleScore, b: RuleScore): number {
-    if (b.priority !== a.priority) return b.priority - a.priority;
     if (b.fullySatisfiedGroups !== a.fullySatisfiedGroups) return b.fullySatisfiedGroups - a.fullySatisfiedGroups;
     if (b.matchedConditions !== a.matchedConditions) return b.matchedConditions - a.matchedConditions;
     if (b.totalConditions !== a.totalConditions) return b.totalConditions - a.totalConditions;
-    if (a.partiallySatisfiedGroups !== b.partiallySatisfiedGroups) return a.partiallySatisfiedGroups - b.partiallySatisfiedGroups;
+    // A matching conditional tier is more specific than an unconditional base
+    // tier. This keeps legacy/catalog rules safe when their optional priority
+    // metadata was omitted and otherwise defaulted below the base rate.
     if (a.hasConditions !== b.hasConditions) return b.hasConditions ? 1 : -1;
+    if (b.priority !== a.priority) return b.priority - a.priority;
+    if (a.partiallySatisfiedGroups !== b.partiallySatisfiedGroups) return a.partiallySatisfiedGroups - b.partiallySatisfiedGroups;
     return a.index - b.index;
 }
 
@@ -498,6 +507,8 @@ function isMinuteInsideWindow(minute: number, startMinute: number, endMinute: nu
     return minute >= startMinute || minute < endMinute;
 }
 
+const UTC_DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+
 type ResolvedRulePrice = {
     price_per_unit: string;
     billing_timestamp_basis: PricingTimestampBasis;
@@ -515,10 +526,12 @@ function resolveRulePrice(rule: PriceRule, requestOptions?: Record<string, any>)
     if (timestampMs !== null && windows.length > 0) {
         const date = new Date(timestampMs);
         const utcMinute = date.getUTCHours() * 60 + date.getUTCMinutes();
+        const utcDay = UTC_DAY_KEYS[date.getUTCDay()];
         const matches = windows
             .map((window, index) => ({ window, index }))
             .filter(({ window }) => {
                 if (!window || window.timezone !== "UTC") return false;
+                if (window.days_of_week?.length && !window.days_of_week.includes(utcDay)) return false;
                 const startMinute = parseUtcMinute(window.start_time);
                 const endMinute = parseUtcMinute(window.end_time);
                 if (startMinute === null || endMinute === null) return false;
@@ -538,6 +551,7 @@ function resolveRulePrice(rule: PriceRule, requestOptions?: Record<string, any>)
                 pricing_time_window: {
                     label: matched.label,
                     timezone: "UTC",
+                    ...(matched.days_of_week?.length ? { days_of_week: matched.days_of_week } : {}),
                     start_time: matched.start_time,
                     end_time: matched.end_time,
                 },
@@ -630,6 +644,11 @@ export function computeBillSummary(
     requestOptions?: Record<string, any>,
     pricingPlan: string = "standard"
 ): PricingResult {
+    // A card for another service tier is not a free price card. Check before
+    // walking meters, which may include informational, non-billable counters.
+    if (requiresExplicitServiceTier(card) && !card.rules.some((rule) => rule.pricing_plan === pricingPlan)) {
+        throw new Error(`pricing_plan_missing:${pricingPlan}`);
+    }
     const { meters, context: usageContext } = splitUsage(usageRaw, card);
     const ctx = { ...(requestOptions ?? {}), ...(usageContext ?? {}) };
 
@@ -654,7 +673,7 @@ export function computeBillSummary(
         card.rules
             .filter((r) => r.pricing_plan === plan && r.meter === meter)
             .filter((r) => matchesConditions(r.match, matchContext))
-            .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+			.sort((a, b) => effectiveRulePriority(b) - effectiveRulePriority(a));
 
     for (const dim of dims) {
         const qty = meters[dim];
@@ -676,15 +695,17 @@ export function computeBillSummary(
                     )
                     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
                 conservativeCoverageFallback = true;
-                resolvedPlan = pricingPlan;
                 logPricingDebug("meter_plan_coverage_fallback", {
                     meter: dim,
                     quantity: qty,
                     requestedPricingPlan: pricingPlan,
-                    candidateRuleIds: candidates.map((rule) => rule.id),
+                    fallbackPricingPlan: "standard",
+                    candidateRuleIds: candidates.map((r) => r.id),
                 });
             }
-            if (!conservativeCoverageFallback) {
+            if (conservativeCoverageFallback) {
+                resolvedPlan = pricingPlan;
+            } else {
                 const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
                 if (fallbackCandidates.length) {
                     candidates = fallbackCandidates;
@@ -693,8 +714,7 @@ export function computeBillSummary(
                         meter: dim,
                         quantity: qty,
                         requestedPricingPlan: pricingPlan,
-                        fallbackPricingPlan: "standard",
-                        candidateRuleIds: candidates.map((r) => r.id),
+                        candidateRuleIds: candidates.map((rule) => rule.id),
                     });
                 }
             }
@@ -726,7 +746,7 @@ export function computeBillSummary(
                 id: r.id,
                 price_per_unit: r.price_per_unit,
                 unit_size: r.unit_size,
-                priority: r.priority,
+				priority: effectiveRulePriority(r),
                 match: r.match,
             })),
             selection_rankings: selectionSummary.rankings.slice(0, 10),
@@ -773,7 +793,7 @@ export function computeBillSummary(
                 id: rule.id,
                 unit_size: rule.unit_size,
                 price_per_unit: priced.unitPriceUsd,
-                priority: rule.priority,
+				priority: effectiveRulePriority(rule),
                 pricing_plan: rule.pricing_plan,
                 billing_timestamp_basis: priced.billingTimestampBasis,
                 billing_timestamp_basis_configured: priced.billingTimestampBasisConfigured,
@@ -800,7 +820,7 @@ export function computeBillSummary(
             line_nanos: priced.lineNanos,
             bill_mode: (rule.included_quantity ?? 0) > 0 ? "over" : "all",
             included_quantity: rule.included_quantity,
-            rule_priority: rule.priority,
+			rule_priority: effectiveRulePriority(rule),
             rule_id: rule.id,
             billing_timestamp_basis: priced.billingTimestampBasis,
             billing_timestamp_basis_configured: priced.billingTimestampBasisConfigured,

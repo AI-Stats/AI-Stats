@@ -170,18 +170,6 @@ describe("normalizeProviderModelPricing", () => {
 		});
 	});
 
-	it("normalizes NanoGPT per-million prices and cache prices", () => {
-		expect(normalizeProviderModelPricing("nano-gpt", {
-			pricing: {
-				prompt: 0.06,
-				completion: 0.3,
-				cacheReadInputPer1kTokens: 0.00003,
-				unit: "per_million_tokens",
-			},
-		})).toMatchObject({
-			meters: { input_text_tokens: 0.06, cached_read_text_tokens: 0.03, output_text_tokens: 0.3 },
-		});
-	});
 
 	it("normalizes only unconditional ZenMux token prices", () => {
 		expect(normalizeProviderModelPricing("zenmux", {
@@ -212,6 +200,15 @@ describe("normalizeProviderModelPricing", () => {
 			output_token_price_per_m: 150000,
 			pricing: { input_cache_read: { price_per_m: 3000 } },
 		})).toMatchObject({ meters: { input_text_tokens: 3, cached_read_text_tokens: 0.3, output_text_tokens: 15 } });
+		expect(normalizeProviderModelPricing("novita-ai", {
+			input_token_price_per_m: 1500,
+			output_token_price_per_m: 5000,
+			pricing: {
+				prompt: { price_per_m_decimal: "0.15" },
+				completion: { price_per_m_decimal: "0.5" },
+				input_cache_read: { price_per_m: 300, price_per_m_decimal: "0.03" },
+			},
+		})).toMatchObject({ meters: { input_text_tokens: 0.15, cached_read_text_tokens: 0.03, output_text_tokens: 0.5 } });
 		expect(normalizeProviderModelPricing("requesty", {
 			input_price: 0.0000025,
 			cached_price: 0.00000025,

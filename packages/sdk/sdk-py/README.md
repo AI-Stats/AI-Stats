@@ -27,6 +27,33 @@ response = client.responses.create(
 print(response.get("output_text"))
 ```
 
+To attribute usage to one of your own applications, provide app metadata explicitly:
+
+```python
+client = Phaseo(
+    app={
+        "id": "support-console",
+        "name": "Support Console",
+        "url": "https://support.example.com",
+    }
+)
+```
+
+App attribution is optional and is never inferred from the SDK itself.
+
+## Regional text routing
+
+Select `eu` or `us` to restrict Chat Completions, Responses, and Messages to
+matching regional provider routes:
+
+```python
+client = Phaseo(region="eu")
+```
+
+Regional endpoints currently accept text-only requests. This is regional
+provider routing, not an end-to-end data residency guarantee. `region` cannot be
+combined with a custom `base_url`.
+
 ## Streaming example
 
 ```python

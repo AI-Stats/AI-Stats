@@ -28,7 +28,6 @@ on:
                     - dry-run
                     - run
                 default: skip
-
 permissions:
     contents: read
 
@@ -223,6 +222,7 @@ jobs:
                       data: 'packages/data/catalog/src/data/**'
                       migrations:
                           - 'supabase/migrations/**'
+                          - 'supabase/tests/**'
                           - 'supabase/config.toml'
                           - 'scripts/validate-supabase-migrations.mjs'
 
@@ -233,7 +233,10 @@ jobs:
         if: >-
             always() &&
             needs.check-paths.result == 'success' &&
-            needs.check-paths.outputs.migrations-changed == 'true'
+            (needs.check-paths.outputs.migrations-changed == 'true' ||
+            (github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'))
         permissions:
             contents: read
         steps:
@@ -257,7 +260,6 @@ jobs:
             github.event_name == 'push' &&
             github.ref == 'refs/heads/main' &&
             needs.check-paths.result == 'success' &&
-            needs.check-paths.outputs.migrations-changed == 'true' &&
             needs.migration-validation.result == 'success' &&
             vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'
         environment: production-database
@@ -313,6 +315,15 @@ jobs:
                     --linked \
                     --include-all \
                     --password "${SUPABASE_DB_PASSWORD}"
+
+            - name: Verify stealth catalogue privacy boundary
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  npx --yes supabase@2.111.0 db query \
+                    --linked \
+                    --file supabase/tests/stealth_catalogue_security_smoke.sql \
+                    --output table
 
     openapi-lint:
         name: OpenAPI lint
@@ -483,10 +494,14 @@ jobs:
             - check-paths
             - migrate-production
         if: >-
-            always() && needs.data.result == 'success' &&
-            (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped') &&
-            github.ref == 'refs/heads/main' &&
-            ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
+            always() && needs.data.result == 'success' && github.ref == 'refs/heads/main' &&
+            ((github.event_name == 'push' &&
+            needs.check-paths.outputs.migrations-changed == 'true' &&
+            needs.migrate-production.result == 'success') ||
+            (github.event_name == 'push' &&
+            needs.check-paths.outputs.data-changed == 'true' &&
+            needs.check-paths.outputs.migrations-changed != 'true' &&
+            (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped')) ||
             (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
             SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -866,7 +881,7 @@ jobs:
 
             - name: Setup Java
               if: matrix.sdk == 'java'
-              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+              uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
               with:
                   distribution: "temurin"
                   java-version: "17"
@@ -891,94 +906,6 @@ jobs:
             - name: Run lifecycle tests
               run: pnpm run test:sdk-${{ matrix.sdk }}
 
-    deploy-preview-web:
-        name: Deploy Web (Preview)
-        runs-on: ubuntu-latest
-        needs: apps
-        concurrency:
-            group: deploy-preview-web-${{ github.event.pull_request.number || github.ref }}
-            cancel-in-progress: true
-        # Merge-queue commits can contain PR-controlled code. Keep merge_group
-        # for validation jobs, but never give it this job's Vercel credentials.
-        if: >
-            github.event_name == 'pull_request' &&
-            (
-                github.event.pull_request.head.repo.full_name == github.repository &&
-                contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
-            )
-        permissions:
-            contents: read
-            pull-requests: write
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-            - name: Setup pnpm
-              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
-              with:
-                  version: 10.33.0
-                  run_install: false
-                  standalone: true
-            - name: Setup Node.js
-              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
-
-            - name: Restore lockfile (guard setup-node cache mutation)
-              run: git checkout -- pnpm-lock.yaml
-
-            - name: Install dependencies
-              run: corepack pnpm install --frozen-lockfile
-
-            - name: Install Vercel CLI
-              run: npm install --global vercel@latest
-
-            - name: Deploy web to Vercel (preview)
-              id: deploy
-              timeout-minutes: 15
-              env:
-                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-                  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-              if: ${{ env.VERCEL_PROJECT_ID != '' }}
-              run: |
-                  git_branch="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
-                  vercel pull --yes --environment=preview --git-branch="$git_branch" --token=$VERCEL_TOKEN
-                  preview_url="$(vercel deploy --yes --force --archive=tgz --build-env WEB_API_ORIGIN=https://phaseo.app --env WEB_API_ORIGIN=https://phaseo.app --token=$VERCEL_TOKEN)"
-                  echo "url=$preview_url" >> "$GITHUB_OUTPUT"
-
-            - name: Update pull request preview link
-              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
-              if: ${{ github.event_name == 'pull_request' && steps.deploy.outputs.url != '' }}
-              env:
-                  PREVIEW_URL: ${{ steps.deploy.outputs.url }}
-              with:
-                  script: |
-                    const marker = '<!-- phaseo-preview -->'
-                    const body = `${marker}\n### Web preview\n\n[Open the latest preview](${process.env.PREVIEW_URL})\n\nCommit: \`${context.sha.slice(0, 7)}\``
-                    const { data: comments } = await github.rest.issues.listComments({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: context.issue.number,
-                    })
-                    const existing = comments.find((comment) => comment.body?.includes(marker))
-
-                    if (existing) {
-                      await github.rest.issues.updateComment({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        comment_id: existing.id,
-                        body,
-                      })
-                    } else {
-                      await github.rest.issues.createComment({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: context.issue.number,
-                        body,
-                      })
-                    }
-
     deploy:
         runs-on: ubuntu-latest
         needs:
@@ -990,13 +917,15 @@ jobs:
             github.ref == 'refs/heads/main' &&
             needs.apps.result == 'success' &&
             needs.check-paths.result == 'success' &&
-            ((github.event_name == 'push' &&
-            (needs.check-paths.outputs.migrations-changed != 'true' ||
-            needs.migrate-production.result == 'success')) ||
-            (github.event_name == 'workflow_dispatch' &&
-            inputs.deploy_production == true))
+            github.event_name == 'push' &&
+            ((vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true' &&
+            needs.migrate-production.result == 'success') ||
+            (vars.ENABLE_PRODUCTION_DB_MIGRATIONS != 'true' &&
+            needs.check-paths.outputs.migrations-changed != 'true' &&
+            needs.migrate-production.result == 'skipped'))
         permissions:
             contents: read
+            id-token: write
         strategy:
             fail-fast: false
             matrix:
@@ -1005,6 +934,10 @@ jobs:
                       name: Deploy Web
                     - target: api
                       name: Deploy API
+                    - target: api-eu
+                      name: Deploy API (EU)
+                    - target: api-us
+                      name: Deploy API (US)
                     - target: web-api
                       name: Deploy Web API
                     - target: mcp
@@ -1054,11 +987,11 @@ jobs:
               run: git checkout -- pnpm-lock.yaml
 
             - name: Install dependencies (for Cloudflare Workers)
-              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
+              if: matrix.target == 'api' || matrix.target == 'api-eu' || matrix.target == 'api-us' || matrix.target == 'web-api' || matrix.target == 'mcp'
               run: corepack pnpm install --frozen-lockfile
 
             - name: Validate Cloudflare API deploy secrets
-              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
+              if: matrix.target == 'api' || matrix.target == 'api-eu' || matrix.target == 'api-us' || matrix.target == 'web-api' || matrix.target == 'mcp'
               shell: bash
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -1072,6 +1005,10 @@ jobs:
                     echo "::error::Missing required Cloudflare deploy secret(s): ${missing[*]}"
                     exit 1
                   fi
+
+            - name: Build Web API workspace dependencies
+              if: matrix.target == 'web-api'
+              run: corepack pnpm --filter @phaseo/sdk build
 
             - name: Validate wrangler.toml KV binding config
               if: matrix.target == 'api'
@@ -1093,6 +1030,27 @@ jobs:
                   apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                   accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   workingDirectory: apps/api
+
+            - name: Load regional gateway secrets from Infisical
+              if: matrix.target == 'api-eu' || matrix.target == 'api-us'
+              uses: Infisical/secrets-action@77ab1f4ccd183a543cb5b42435fbd181189f4995 # v1.0.16
+              with:
+                  method: oidc
+                  identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+                  project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+                  env-slug: prod
+                  secret-path: /
+
+            - name: Deploy regional API Worker to Cloudflare
+              if: matrix.target == 'api-eu' || matrix.target == 'api-us'
+              shell: pwsh
+              working-directory: apps/api
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+              run: |
+                  $region = if ("${{ matrix.target }}" -eq "api-eu") { "eu" } else { "us" }
+                  ./scripts/deploy-regional.ps1 -Region $region -SecretsFromEnvironment -Deploy
 
             - name: Deploy Web API Worker to Cloudflare
               if: matrix.target == 'web-api'
@@ -1169,7 +1127,7 @@ jobs:
                   php-version: "8.2"
             - name: Setup Java
               if: matrix.sdk == 'java'
-              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+              uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
               with:
                   distribution: temurin
                   java-version: "17"
@@ -1261,6 +1219,10 @@ jobs:
                   pnpm --filter @phaseo/agent-sdk run build
                   pnpm --filter @phaseo/sdk run build
                   pnpm --filter @phaseo/ai-sdk-provider run build
+                  npm ci --prefix packages/compat-ai-sdk-provider-v5 --ignore-scripts --audit=false
+                  npm run test:release --prefix packages/compat-ai-sdk-provider-v5
+                  npm ci --prefix packages/compat-ai-sdk-provider-v6 --ignore-scripts --audit=false
+                  npm run test:release --prefix packages/compat-ai-sdk-provider-v6
                   pnpm --filter @phaseo/devtools-viewer run build
 
             - name: Ensure SDK auto-release changeset
@@ -1285,14 +1247,66 @@ jobs:
 
             - name: Create release PR / publish
               id: changesets
-              uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d
+              uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1
               with:
-                  version: pnpm run changeset:version
-                  publish: pnpm run changeset:publish
-                  createGithubReleases: false
-                  commitMode: github-api
-              env:
-                  GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+                  version-script: pnpm run changeset:version
+                  publish-script: pnpm run changeset:publish
+                  github-token: ${{ steps.app-token.outputs.token }}
+                  create-github-releases: false
+                  push-with-git-cli: false
+
+            - name: Publish legacy AI SDK compatibility lines
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  package_name="@phaseo/ai-sdk-provider"
+
+                  publish_compatibility_line () {
+                    package_dir="$1"
+                    package_tag="$2"
+                    package_version="$(node -p "require('./${package_dir}/package.json').version")"
+                    package_spec="${package_name}@${package_version}"
+                    lookup_error="$(mktemp)"
+
+                    if npm view "${package_spec}" version --registry https://registry.npmjs.org >/dev/null 2>"${lookup_error}"; then
+                      version_exists=true
+                    elif grep -q "E404" "${lookup_error}"; then
+                      version_exists=false
+                    else
+                      cat "${lookup_error}" >&2
+                      rm -f "${lookup_error}"
+                      return 1
+                    fi
+
+                    existing_tag=""
+                    if [[ "${version_exists}" == "true" ]]; then
+                      : >"${lookup_error}"
+                      if ! existing_tag="$(npm view "${package_name}" "dist-tags.${package_tag}" --registry https://registry.npmjs.org 2>"${lookup_error}")"; then
+                        cat "${lookup_error}" >&2
+                        rm -f "${lookup_error}"
+                        return 1
+                      fi
+                    fi
+                    rm -f "${lookup_error}"
+
+                    if [[ "${existing_tag}" == "${package_version}" ]]; then
+                      echo "skip: ${package_spec} already has npm tag ${package_tag}"
+                      return 0
+                    fi
+
+                    if [[ "${version_exists}" == "true" ]]; then
+                      npm dist-tag add "${package_spec}" "${package_tag}"
+                      return 0
+                    fi
+
+                    (
+                      cd "${package_dir}"
+                      npm publish --access public --tag "${package_tag}"
+                    )
+                  }
+
+                  publish_compatibility_line "packages/compat-ai-sdk-provider-v5" "ai-sdk-v5"
+                  publish_compatibility_line "packages/compat-ai-sdk-provider-v6" "ai-sdk-v6"
 
             - name: Restore committed CLI release state
               run: git restore --source=HEAD --staged --worktree -- packages/cli/phaseo

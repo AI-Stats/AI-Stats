@@ -1,8 +1,27 @@
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
+import { STEALTH_PROVIDER_DISPLAY_NAME, STEALTH_PROVIDER_ID } from "@/models/provider-identity";
 
 export type PricingSourceRow = Record<string, unknown>;
 type Row = PricingSourceRow;
+
+export const STEALTH_PROVIDER_IDENTITY = STEALTH_PROVIDER_ID;
+
+export function publicPricingRouteIdentity(route: Row): Row {
+	if (route.is_stealth !== true) return route;
+	const modelId = String(route.model_slug ?? "").trim();
+	return {
+		...route,
+		provider_slug: STEALTH_PROVIDER_IDENTITY,
+		provider_model_slug: modelId || null,
+	};
+}
+
+function publicProviderModelId(route: Row): string {
+	return route.is_stealth === true
+		? `${STEALTH_PROVIDER_IDENTITY}:${String(route.model_slug ?? "").trim()}`
+		: id(route.provider_model_id);
+}
 
 export type ModelPricingSource = {
 	providerRows: Row[];
@@ -39,23 +58,33 @@ export async function fetchModelPricingSources(
 	env: Env,
 	modelIds: string[],
 	includeInternal = false,
+	includeExpiredPricing = false,
+	pricingWindow?: { startMs: number; endMs: number },
 ): Promise<ModelPricingSource> {
 	const variants = uniqueModelVariants(modelIds);
 	if (variants.length === 0) return { providerRows: [], pricingRows: [] };
 	const client = getDataClient(env);
 	const routesResult = await client.from("v2_model_provider_routes")
-		.select("provider_model_id,provider_slug,model_slug,provider_model_slug,status,routing_enabled,provider_availability_status,phaseo_status,access_scope,input_modalities,output_modalities,context_length,max_output_tokens,effective_from,effective_to,created_at,updated_at,metadata")
+		.select("provider_model_id,provider_slug,model_slug,provider_model_slug,is_stealth,status,routing_enabled,provider_availability_status,phaseo_status,access_scope,input_modalities,output_modalities,context_length,max_output_tokens,effective_from,effective_to,created_at,updated_at,metadata")
 		.in("model_slug", variants);
 	if (routesResult.error) throw routesResult.error;
 	const routes = ((routesResult.data ?? []) as Row[]).filter(
 		(route) => includeInternal || id(route.access_scope).toLowerCase() !== "internal",
-	);
+	).map(publicPricingRouteIdentity);
 	const routeIds = routes.map((row) => id(row.provider_model_id)).filter(Boolean);
 	const providerIds = [...new Set(routes.map((row) => id(row.provider_slug)).filter(Boolean))];
+	let skusQuery = client.from("v2_pricing_skus")
+		.select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata")
+		.in("provider_model_id", routeIds);
+	if (pricingWindow) {
+		skusQuery = skusQuery
+			.lte("effective_from", new Date(pricingWindow.endMs).toISOString())
+			.or(`effective_to.is.null,effective_to.gte.${new Date(pricingWindow.startMs).toISOString()}`);
+	}
 	const [capabilitiesResult, providersResult, skusResult] = await Promise.all([
-		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status,metadata").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
 		providerIds.length ? client.from("v2_providers").select("provider_slug,name,provider_family_slug,offer_label,offer_scope,country_code,status,routing_enabled,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,data_retention_days,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
-		routeIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+		routeIds.length ? skusQuery : Promise.resolve({ data: [], error: null }),
 	]);
 	for (const result of [capabilitiesResult, providersResult, skusResult]) if (result.error) throw result.error;
 	const skuIds = (skusResult.data ?? []).map((row) => id(row.sku_id)).filter(Boolean);
@@ -74,7 +103,7 @@ export async function fetchModelPricingSources(
 		const provider = providerMap.get(id(route.provider_slug));
 		const providerMetadata = asRow(provider?.metadata) ?? {};
 		return {
-			provider_api_model_id: route.provider_model_id,
+			provider_api_model_id: publicProviderModelId(route),
 			provider_id: route.provider_slug,
 			api_model_id: route.model_slug,
 			model_id: route.model_slug,
@@ -92,8 +121,26 @@ export async function fetchModelPricingSources(
 			effective_to: route.effective_to,
 			created_at: route.created_at,
 			updated_at: route.updated_at,
-			data_api_provider_model_capabilities: capabilitiesByRoute.get(id(route.provider_model_id)) ?? [],
-			data_api_providers: provider ? {
+			data_api_provider_model_capabilities: (capabilitiesByRoute.get(id(route.provider_model_id)) ?? []).map((capability) => ({
+				provider_model_id: capability.provider_model_id,
+				capability_id: capability.capability_id,
+				params: capability.params,
+				max_input_tokens: capability.max_input_tokens,
+				max_output_tokens: capability.max_output_tokens,
+				status: capability.status,
+				data_policy: asRow(capability.metadata)?.data_policy ?? null,
+			})),
+			data_api_providers: id(route.provider_slug) === STEALTH_PROVIDER_IDENTITY ? {
+				api_provider_name: STEALTH_PROVIDER_DISPLAY_NAME,
+				provider_family_id: STEALTH_PROVIDER_IDENTITY,
+				offer_label: null,
+				offer_scope: null,
+				colour: null,
+				link: null,
+				country_code: null,
+				status: route.status,
+				routing_status: route.routing_enabled ? "active" : "disabled",
+			} : provider ? {
 				api_provider_name: provider.name,
 				provider_family_id: provider.provider_family_slug,
 				offer_label: provider.offer_label,
@@ -115,6 +162,7 @@ export async function fetchModelPricingSources(
 				data_policy_confidence: provider.data_policy_confidence,
 				data_policy_contract_mode: provider.data_policy_contract_mode,
 				data_policy_contract_notes: providerMetadata.data_policy_contract_notes ?? null,
+				service_tier_data_policies: providerMetadata.service_tier_data_policies ?? null,
 				residency_source_url: providerMetadata.residency_source_url ?? null,
 				residency_notes: providerMetadata.residency_notes ?? null,
 				privacy_policy_url: providerMetadata.privacy_policy_url ?? null,
@@ -130,7 +178,7 @@ export async function fetchModelPricingSources(
 		const route = sku ? routeMap.get(id(sku.provider_model_id)) : null;
 		if (!sku || !route || id(sku.status) === "disabled") return [];
 		const effectiveTo = sku.effective_to ? Date.parse(String(sku.effective_to)) : Number.POSITIVE_INFINITY;
-		if (now >= effectiveTo) return [];
+		if (!includeExpiredPricing && now >= effectiveTo) return [];
 		const priceNanos = Number(meter.price_nanos);
 		if (!Number.isFinite(priceNanos)) return [];
 		return [{
@@ -211,6 +259,7 @@ function providerInfo(providerId: string, provider: Row | null) {
 		data_policy_confidence: provider?.data_policy_confidence ?? null,
 		data_policy_contract_mode: provider?.data_policy_contract_mode ?? null,
 		data_policy_contract_notes: provider?.data_policy_contract_notes ?? null,
+		service_tier_data_policies: provider?.service_tier_data_policies ?? null,
 		user_identifier_policy: provider?.user_identifier_policy ?? null,
 		user_identifier_notes: provider?.user_identifier_notes ?? null,
 		privacy_policy_url: provider?.privacy_policy_url ?? null,
@@ -245,6 +294,7 @@ function providerModel(row: Row, capability: Row | null) {
 		prompt_training_override_source_url: row.prompt_training_override_source_url ?? null,
 		max_input_tokens: capability?.max_input_tokens ?? null,
 		max_output_tokens: capability?.max_output_tokens ?? row.max_output_tokens ?? null,
+		data_policy: capability?.data_policy ?? null,
 	};
 }
 

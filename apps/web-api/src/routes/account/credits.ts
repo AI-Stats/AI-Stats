@@ -3,8 +3,10 @@ import { requireUser } from "@/auth/requireUser";
 import { getAuthenticatedDataClient, getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { encryptNotificationTarget, NOTIFICATION_DESTINATION_TYPES, targetPreview, validateNotificationTarget, type NotificationDestinationType } from "@/lib/notification-destinations";
 
 const EMPTY_TIER_SUMMARY = { lastMonthCents: 0, mtdCents: 0, teamTier: "basic" as const };
+const NOTIFICATION_EVENT_KINDS = ["low_balance", "auto_top_up_failed", "payment_method_expiring", "model_deprecation"] as const;
 
 export function parseLowBalanceThresholdNanos(value: unknown): number | null {
 	const thresholdUsd = Number(value);
@@ -243,10 +245,94 @@ creditsRouter.put("/notification-preferences", async (c) => {
 	const update: Record<string, unknown> = { workspace_id: workspaceId, updated_at: new Date().toISOString() };
 	if (typeof body.autoTopUpFailure === "boolean") update.auto_top_up_failure_email_enabled = body.autoTopUpFailure;
 	if (typeof body.paymentMethodExpiring === "boolean") update.payment_method_expiring_email_enabled = body.paymentMethodExpiring;
-	if (!("auto_top_up_failure_email_enabled" in update) && !("payment_method_expiring_email_enabled" in update)) return c.json({ error: "invalid_preferences" }, 400, PRIVATE_NO_STORE_HEADERS);
+	if (typeof body.modelDeprecationAlerts === "boolean") update.model_deprecation_alerts_enabled = body.modelDeprecationAlerts;
+	if (!("auto_top_up_failure_email_enabled" in update) && !("payment_method_expiring_email_enabled" in update) && !("model_deprecation_alerts_enabled" in update)) return c.json({ error: "invalid_preferences" }, 400, PRIVATE_NO_STORE_HEADERS);
 	const result = await context.client.from("workspace_settings").upsert(update, { onConflict: "workspace_id" });
 	if (result.error) return c.json({ error: "credits_update_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+creditsRouter.post("/notification-destinations", async (c) => {
+	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const workspaceId = String(body.workspaceId ?? "").trim();
+	const context = await requireWorkspace({ req: { raw: c.req.raw, query: (key) => key === "workspaceId" ? workspaceId : undefined }, env: c.env });
+	if (!context) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const membership = await context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", context.user.id).maybeSingle();
+	if (membership.error || !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const type = String(body.type ?? "") as NotificationDestinationType;
+	const name = String(body.name ?? "").trim();
+	if (!NOTIFICATION_DESTINATION_TYPES.includes(type) || !name || name.length > 100) return c.json({ error: "invalid_destination" }, 400, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const target = validateNotificationTarget(type, body.target);
+		const encrypted = await encryptNotificationTarget(c.env, target);
+		const result = await context.client.from("notification_destinations").insert({ workspace_id: workspaceId, name, type, status: "active", target_preview: targetPreview(type, target), ...encrypted, created_by: context.user.id }).select("id,name,type,target_preview,status,created_at").single();
+		if (result.error) throw result.error;
+		return c.json({ destination: { id: String(result.data.id), name: result.data.name, type: result.data.type, targetPreview: result.data.target_preview, status: result.data.status, createdAt: result.data.created_at } }, 201, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) {
+		return c.json({ error: error instanceof Error ? error.message : "notification_destination_write_failed" }, 409, PRIVATE_NO_STORE_HEADERS);
+	}
+});
+
+creditsRouter.delete("/notification-destinations/:destinationId", async (c) => {
+	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const workspaceId = String(body.workspaceId ?? "").trim();
+	const context = await requireWorkspace({ req: { raw: c.req.raw, query: (key) => key === "workspaceId" ? workspaceId : undefined }, env: c.env });
+	if (!context) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const membership = await context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", context.user.id).maybeSingle();
+	if (membership.error || !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const result = await context.client.from("notification_destinations").update({ status: "deleted", deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", c.req.param("destinationId")).eq("workspace_id", workspaceId).neq("status", "deleted");
+	if (result.error) return c.json({ error: "notification_destination_delete_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+creditsRouter.put("/notification-routes/:eventKind", async (c) => {
+	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const workspaceId = String(body.workspaceId ?? "").trim();
+	const eventKind = String(c.req.param("eventKind") ?? "");
+	const destinationIds = Array.isArray(body.destinationIds) ? [...new Set(body.destinationIds.map(String))] : [];
+	const context = await requireWorkspace({ req: { raw: c.req.raw, query: (key) => key === "workspaceId" ? workspaceId : undefined }, env: c.env });
+	if (!context) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const membership = await context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", context.user.id).maybeSingle();
+	if (membership.error || !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (!NOTIFICATION_EVENT_KINDS.includes(eventKind as typeof NOTIFICATION_EVENT_KINDS[number]) || destinationIds.length > 50 || destinationIds.some((id) => !/^[0-9a-f-]{36}$/i.test(id))) return c.json({ error: "invalid_notification_route" }, 400, PRIVATE_NO_STORE_HEADERS);
+	const result = await context.client.rpc("set_notification_event_destinations", { p_workspace_id: workspaceId, p_event_kind: eventKind, p_destination_ids: destinationIds });
+	if (result.error) return c.json({ error: result.error.message.includes("notification_destination_not_found") ? "notification_destination_not_found" : "notification_route_update_failed" }, result.error.message.includes("notification_destination_not_found") ? 404 : 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+creditsRouter.post("/notification-destinations/test", async (c) => {
+	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const workspaceId = String(body.workspaceId ?? "").trim();
+	const context = await requireWorkspace({ req: { raw: c.req.raw, query: (key) => key === "workspaceId" ? workspaceId : undefined }, env: c.env });
+	if (!context) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const membership = await context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", context.user.id).maybeSingle();
+	if (membership.error || !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const type = String(body.type ?? "") as NotificationDestinationType;
+	if (!NOTIFICATION_DESTINATION_TYPES.includes(type)) return c.json({ error: "invalid_destination" }, 400, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const target = validateNotificationTarget(type, body.target);
+		const response = await fetch(`${String(c.env.GATEWAY_API_ORIGIN ?? "https://api.phaseo.app").replace(/\/$/, "")}/internal/notification-tests`, { method: "POST", headers: { authorization: `Bearer ${c.env.GATEWAY_INTERNAL_TEST_TOKEN ?? ""}`, "content-type": "application/json" }, body: JSON.stringify({ workspaceId, type, target }), signal: AbortSignal.timeout(10_000) });
+		const result: { error?: string; status?: number } = await response.json().catch(() => ({}));
+		if (!response.ok) throw new Error(result.error ?? `destination_http_${response.status}`);
+		return c.json({ ok: true, status: result.status }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "notification_test_failed" }, 502, PRIVATE_NO_STORE_HEADERS); }
+});
+
+creditsRouter.post("/notification-destinations/:destinationId/test", async (c) => {
+	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const workspaceId = String(body.workspaceId ?? "").trim();
+	const context = await requireWorkspace({ req: { raw: c.req.raw, query: (key) => key === "workspaceId" ? workspaceId : undefined }, env: c.env });
+	if (!context) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const membership = await context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", context.user.id).maybeSingle();
+	if (membership.error || !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const destination = await context.client.from("notification_destinations").select("id").eq("id", c.req.param("destinationId")).eq("workspace_id", workspaceId).eq("status", "active").maybeSingle();
+	if (destination.error || !destination.data) return c.json({ error: "notification_destination_not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const response = await fetch(`${String(c.env.GATEWAY_API_ORIGIN ?? "https://api.phaseo.app").replace(/\/$/, "")}/internal/notification-tests`, { method: "POST", headers: { authorization: `Bearer ${c.env.GATEWAY_INTERNAL_TEST_TOKEN ?? ""}`, "content-type": "application/json" }, body: JSON.stringify({ workspaceId, destinationId: destination.data.id }), signal: AbortSignal.timeout(10_000) });
+		const result: { error?: string; status?: number } = await response.json().catch(() => ({}));
+		if (!response.ok) throw new Error(result.error ?? `destination_http_${response.status}`);
+		return c.json({ ok: true, status: result.status }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "notification_test_failed" }, 502, PRIVATE_NO_STORE_HEADERS); }
 });
 
 creditsRouter.post("/redeem", async (c) => {

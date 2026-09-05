@@ -1,5 +1,236 @@
 import type { Client } from "../../runtime/client.js";
 
+export type AddGuardrailKeysParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Assigns one or more workspace API keys. Requires `guardrails:write`.
+ */
+export async function addGuardrailKeys(
+  client: Client,
+  args: AddGuardrailKeysParams,
+): Promise<{
+  added_count: number;
+  data: {
+    created_at?: string | null;
+    key_id: string;
+    name?: string | null;
+    prefix?: string | null;
+    status?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys/add`;
+  return client.request<{
+    added_count: number;
+    data: {
+      created_at?: string | null;
+      key_id: string;
+      name?: string | null;
+      prefix?: string | null;
+      status?: string | null;
+    }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type AddGuardrailMembersParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    user_ids: string[];
+  };
+};
+
+/**
+ * Assigns workspace members to a guardrail. Requires `guardrails:write`.
+ */
+export async function addGuardrailMembers(
+  client: Client,
+  args: AddGuardrailMembersParams,
+): Promise<{
+  added_count: number;
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role?: string | null;
+    user_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/members/add`;
+  return client.request<{
+    added_count: number;
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role?: string | null;
+      user_id: string;
+    }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type AddWorkspaceMembersParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    role?: "admin" | "member";
+    user_ids: string[];
+  };
+};
+
+/**
+ * Adds existing users to a workspace with an admin or member role. Management API key required.
+ */
+export async function addWorkspaceMembers(
+  client: Client,
+  args: AddWorkspaceMembersParams,
+): Promise<{
+  added_count: number;
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role: "owner" | "admin" | "member";
+    user_id: string;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members/add`;
+  return client.request<{
+    added_count: number;
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role: "owner" | "admin" | "member";
+      user_id: string;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ApplyPresetUpstreamVersionParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    version_id: string;
+  };
+};
+
+/**
+ * Applies a public upstream version to a local fork draft without publishing it.
+ */
+export async function applyPresetUpstreamVersion(
+  client: Client,
+  args: ApplyPresetUpstreamVersionParams,
+): Promise<{
+  data: {
+    applied_to_draft: true;
+    id: string;
+    upstream_version_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/upstream`;
+  return client.request<{
+    data: {
+      applied_to_draft: true;
+      id: string;
+      upstream_version_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ApproveWorkspaceJoinRequestParams = {
+  path: {
+    id: string;
+    request_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Atomically approves a pending request and applies its invite role. Management API key required.
+ */
+export async function approveWorkspaceJoinRequest(
+  client: Client,
+  args: ApproveWorkspaceJoinRequestParams,
+): Promise<{
+  data: {
+    created_at?: string;
+    decided_at?: string | null;
+    decided_by?: string | null;
+    id: string;
+    invite_id?: string | null;
+    requester_user_id: string;
+    status: "pending" | "approved" | "denied";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/join-requests/${encodeURIComponent(String(path["request_id"]))}/approve`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      decided_at?: string | null;
+      decided_by?: string | null;
+      id: string;
+      invite_id?: string | null;
+      requester_user_id: string;
+      status: "pending" | "approved" | "denied";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CalculatePricingParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -43,7 +274,7 @@ export async function calculatePricing(
 }
 
 export type CancelBatchParams = {
-  path?: {
+  path: {
     batch_id: string;
   };
   query?: Record<string, never>;
@@ -56,7 +287,7 @@ export type CancelBatchParams = {
  */
 export async function cancelBatch(
   client: Client,
-  args: CancelBatchParams = {},
+  args: CancelBatchParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -169,7 +400,7 @@ export async function cancelBatch(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}/cancel`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}/cancel`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -290,7 +521,7 @@ export async function cancelBatch(
 }
 
 export type CancelBatchAliasParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -303,7 +534,7 @@ export type CancelBatchAliasParams = {
  */
 export async function cancelBatchAlias(
   client: Client,
-  args: CancelBatchAliasParams = {},
+  args: CancelBatchAliasParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -416,7 +647,7 @@ export async function cancelBatchAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}/cancel`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}/cancel`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -537,7 +768,7 @@ export async function cancelBatchAlias(
 }
 
 export type CancelVideoParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -550,10 +781,10 @@ export type CancelVideoParams = {
  */
 export async function cancelVideo(
   client: Client,
-  args: CancelVideoParams = {},
+  args: CancelVideoParams,
 ): Promise<unknown> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}/cancel`;
   return client.request<unknown>({
     method: "POST",
     path: resolvedPath,
@@ -564,7 +795,7 @@ export async function cancelVideo(
 }
 
 export type CancelVideoAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -577,10 +808,10 @@ export type CancelVideoAliasParams = {
  */
 export async function cancelVideoAlias(
   client: Client,
-  args: CancelVideoAliasParams = {},
+  args: CancelVideoAliasParams,
 ): Promise<unknown> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}/cancel`;
   return client.request<unknown>({
     method: "POST",
     path: resolvedPath,
@@ -725,6 +956,7 @@ export type CreateAnthropicMessageParams = {
     tool_choice?: {} | string;
     tools?: (
       | {
+          async?: boolean;
           description?: string;
           input_schema?: {};
           name: string;
@@ -737,13 +969,33 @@ export type CreateAnthropicMessageParams = {
           type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
+          engine?:
+            | "auto"
+            | "native"
+            | "exa"
+            | "firecrawl"
+            | "parallel"
+            | "perplexity"
+            | "tinyfish";
           include_highlights?: boolean;
           include_text?: boolean;
+          language?: string;
           max_results?: number;
+          page?: number;
           parameters?: {
+            engine?:
+              | "auto"
+              | "native"
+              | "exa"
+              | "firecrawl"
+              | "parallel"
+              | "perplexity"
+              | "tinyfish";
             include_highlights?: boolean;
             include_text?: boolean;
+            language?: string;
             max_results?: number;
+            page?: number;
           };
           type: "phaseo:web_search" | "gateway:web_search";
         }
@@ -873,6 +1125,20 @@ export type CreateApiKeyParams = {
     include_byok_in_limit?: boolean;
     limit?: number | null;
     limit_reset?: "daily" | "weekly" | "monthly";
+    limits?: {
+      daily?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      monthly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      weekly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+    };
     name: string;
     scopes?: string | string[];
     soft_blocked?: boolean;
@@ -890,19 +1156,60 @@ export async function createApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: boolean;
     key: string;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_remaining: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
@@ -912,19 +1219,60 @@ export async function createApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: boolean;
       key: string;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_remaining: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -1804,6 +2152,7 @@ export type CreateChatCompletionParams = {
       | {};
     tools?: (
       | {
+          async?: boolean;
           function: {
             description?: string;
             name: string;
@@ -1820,13 +2169,33 @@ export type CreateChatCompletionParams = {
           type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
+          engine?:
+            | "auto"
+            | "native"
+            | "exa"
+            | "firecrawl"
+            | "parallel"
+            | "perplexity"
+            | "tinyfish";
           include_highlights?: boolean;
           include_text?: boolean;
+          language?: string;
           max_results?: number;
+          page?: number;
           parameters?: {
+            engine?:
+              | "auto"
+              | "native"
+              | "exa"
+              | "firecrawl"
+              | "parallel"
+              | "perplexity"
+              | "tinyfish";
             include_highlights?: boolean;
             include_text?: boolean;
+            language?: string;
             max_results?: number;
+            page?: number;
           };
           type: "phaseo:web_search" | "gateway:web_search";
         }
@@ -2072,6 +2441,331 @@ export async function createChatCompletion(
   });
 }
 
+export type CreateDataContributionClassifierParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    categories: {
+      [key: string]: string[];
+    };
+    description?: string | null;
+    enabled?: boolean;
+    instructions: string;
+    model?: string;
+    name: string;
+    sampleRateBps?: number;
+    serviceTier?: "standard" | "flex";
+    slug?: string;
+  };
+};
+
+/**
+ * Creates a custom workspace classifier. Requires `settings:write` and feature access.
+ */
+export async function createDataContributionClassifier(
+  client: Client,
+  args: CreateDataContributionClassifierParams = {},
+): Promise<{
+  data: {
+    categories: {
+      [key: string]: string[];
+    };
+    created_at?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    id: string;
+    instructions: string;
+    kind: "starter" | "custom";
+    model: string;
+    name: string;
+    sample_rate_bps: number;
+    service_tier: "standard" | "flex";
+    slug: string;
+    updated_at?: string | null;
+    [key: string]: unknown;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/data-contribution/classifiers";
+  return client.request<{
+    data: {
+      categories: {
+        [key: string]: string[];
+      };
+      created_at?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      id: string;
+      instructions: string;
+      kind: "starter" | "custom";
+      model: string;
+      name: string;
+      sample_rate_bps: number;
+      service_tier: "standard" | "flex";
+      slug: string;
+      updated_at?: string | null;
+      [key: string]: unknown;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateDynamicRouteParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    description?: string | null;
+    name: string;
+    slug?: string;
+    status?: "active" | "paused";
+  };
+};
+
+/**
+ * Creates a dynamic route with its first immutable configuration version.
+ */
+export async function createDynamicRoute(
+  client: Client,
+  args: CreateDynamicRouteParams = {},
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/routing/dynamic-routes";
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateEmbeddingParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -2294,6 +2988,312 @@ export async function createEmbedding(
   });
 }
 
+export type CreateGatewayFeedbackParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    comment?: string;
+    end_user_id?: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions?: {
+      [key: string]: unknown;
+    };
+    preset_id?: string;
+    rating?: string;
+    reason?: string;
+    reason_tags?: string[];
+    request_id?: string;
+    score?: number;
+    session_id?: string;
+    source?: "api" | "user" | "system" | "import" | "test";
+    test_run_id?: string;
+  };
+};
+
+/**
+ * Records feedback for a request, session, preset, or preset test run. Requires `feedback:write`.
+ */
+export async function createGatewayFeedback(
+  client: Client,
+  args: CreateGatewayFeedbackParams = {},
+): Promise<{
+  data: {
+    comment: string | null;
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    preset_id: string | null;
+    rating: string | null;
+    reason: string | null;
+    reason_tags: string[];
+    request_id: string | null;
+    score: number | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/feedback";
+  return client.request<{
+    data: {
+      comment: string | null;
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      preset_id: string | null;
+      rating: string | null;
+      reason: string | null;
+      reason_tags: string[];
+      request_id: string | null;
+      score: number | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateGatewayObservabilityEventParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    category?: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+    end_user_id?: string;
+    event_name: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions?: {
+      [key: string]: unknown;
+    };
+    numeric_value?: number;
+    occurred_at?: string;
+    preset_id?: string;
+    request_id?: string;
+    session_id?: string;
+    source?: "api" | "user" | "system" | "import" | "test";
+    test_run_id?: string;
+    value?: unknown;
+  };
+};
+
+/**
+ * Records a custom outcome or behavior event linked to a request, session, preset, or test run. Requires `feedback:write`.
+ */
+export async function createGatewayObservabilityEvent(
+  client: Client,
+  args: CreateGatewayObservabilityEventParams = {},
+): Promise<{
+  data: {
+    category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    event_name: string;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    numeric_value: number | null;
+    occurred_at: string;
+    preset_id: string | null;
+    request_id: string | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    value: unknown | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/events";
+  return client.request<{
+    data: {
+      category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      event_name: string;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      numeric_value: number | null;
+      occurred_at: string;
+      preset_id: string | null;
+      request_id: string | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      value: unknown | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateGuardrailParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowedApiModelIds?: string[];
+    budgets?: {
+      dailyCostNanos?: number | null;
+      dailyRequests?: number | null;
+      monthlyCostNanos?: number | null;
+      monthlyRequests?: number | null;
+      weeklyCostNanos?: number | null;
+      weeklyRequests?: number | null;
+    };
+    description?: string | null;
+    enabled?: boolean;
+    modelRestrictionMode?: "none" | "allowlist" | "blocklist";
+    name: string;
+    privacyEnableFreeMayPublishPrompts?: boolean | null;
+    privacyEnableFreeMayTrain?: boolean | null;
+    privacyEnableInputOutputLogging?: boolean | null;
+    privacyEnablePaidMayTrain?: boolean | null;
+    privacyZdrOnly?: boolean | null;
+    promptInjectionAction?: "flag" | "block";
+    promptInjectionEnabled?: boolean;
+    providerRestrictionEnforceAllowed?: boolean;
+    providerRestrictionMode?: "none" | "allowlist" | "blocklist";
+    providerRestrictionProviderIds?: string[];
+    sensitiveInfoDefaultAction?: "flag" | "redact" | "block";
+    sensitiveInfoEnabled?: boolean;
+    sensitiveInfoRules?: {
+      [key: string]: unknown;
+    }[];
+  };
+};
+
+/**
+ * Creates a workspace guardrail. Requires `guardrails:write`.
+ */
+export async function createGuardrail(
+  client: Client,
+  args: CreateGuardrailParams = {},
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean | null;
+    id: string;
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/guardrails";
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean | null;
+      id: string;
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateImageParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -2340,6 +3340,7 @@ export type CreateImageParams = {
       zdr?: boolean | null;
     };
     quality?: string;
+    resolution?: string;
     response_format?: string;
     size?: string;
     style?: string;
@@ -2427,6 +3428,7 @@ export type CreateImageEditParams = {
           };
       zdr?: boolean | null;
     };
+    resolution?: string;
     size?: string;
     usage?: boolean;
     user?: string;
@@ -2456,6 +3458,81 @@ export async function createImageEdit(
       revised_prompt?: string;
       url?: string;
     }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateManagementKeyParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    expires_at?: string | null;
+    name: string;
+    paused?: boolean;
+    scopes?: string | string[];
+    template?: "read-only" | "read-write" | "full-control";
+  };
+};
+
+/**
+ * Creates a scoped management key. The raw key is returned once. Requires `management_keys:write`.
+ */
+export async function createManagementKey(
+  client: Client,
+  args: CreateManagementKeyParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    key: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/management-keys";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      key: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
   }>({
     method: "POST",
     path: resolvedPath,
@@ -2541,6 +3618,11 @@ export async function createModeration(
   args: CreateModerationParams = {},
 ): Promise<{
   id?: string;
+  meta?: {
+    generation_ms?: number;
+    latency_ms?: number;
+    [key: string]: unknown;
+  };
   model?: string;
   results?: {
     categories?: {
@@ -2576,6 +3658,11 @@ export async function createModeration(
   const resolvedPath = "/moderations";
   return client.request<{
     id?: string;
+    meta?: {
+      generation_ms?: number;
+      latency_ms?: number;
+      [key: string]: unknown;
+    };
     model?: string;
     results?: {
       categories?: {
@@ -2606,6 +3693,260 @@ export async function createModeration(
       };
       flagged?: boolean;
     }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateOAuthClientParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_scopes?: string[];
+    client_type?: "public" | "confidential";
+    description?: string;
+    homepage_url?: string;
+    logo_url?: string;
+    name: string;
+    privacy_policy_url?: string;
+    redirect_uris: string[];
+    terms_of_service_url?: string;
+  };
+};
+
+/**
+ * Creates a public or confidential OAuth application. Confidential secrets are returned once. Requires `oauth_clients:write` and the OAuth beta feature.
+ */
+export async function createOAuthClient(
+  client: Client,
+  args: CreateOAuthClientParams = {},
+): Promise<{
+  active_authorizations?: number;
+  allowed_scopes?: string[];
+  client_id: string;
+  client_secret?: string | null;
+  client_type: "public" | "confidential";
+  created_at?: string | null;
+  description?: string | null;
+  homepage_url?: string | null;
+  last_used_at?: string | null;
+  logo_url?: string | null;
+  name: string;
+  privacy_policy_url?: string | null;
+  redirect_uris: string[];
+  requests_last_30d?: number;
+  status: string;
+  terms_of_service_url?: string | null;
+  total_authorizations?: number;
+  updated_at?: string | null;
+  workspace_id: string;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/oauth-clients";
+  return client.request<{
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_secret?: string | null;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateObservabilityDestinationParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config: {
+      [key: string]: string;
+    };
+    enabled?: boolean;
+    group_join?: "and" | "or";
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters?: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode?: boolean;
+    rule_groups?: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate?: number;
+    type: "otel_collector" | "webhook";
+  };
+};
+
+/**
+ * Creates a destination with encrypted, write-only configuration. Management API key required.
+ */
+export async function createObservabilityDestination(
+  client: Client,
+  args: CreateObservabilityDestinationParams = {},
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/destinations";
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    };
   }>({
     method: "POST",
     path: resolvedPath,
@@ -2682,6 +4023,672 @@ export async function createOcr(
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/ocr";
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateParseParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    debug?: {
+      enabled?: boolean;
+      return_upstream_request?: boolean;
+      return_upstream_response?: boolean;
+      trace?: boolean;
+      trace_level?: "summary" | "full";
+    };
+    document: {
+      image_url: string;
+      type: "image_url";
+    };
+    echo_upstream_request?: boolean;
+    model: string;
+    output_format?: "markdown" | "blocks";
+    provider?: {
+      allow_fallbacks?: boolean | null;
+      data_collection?: "allow" | "deny" | null;
+      enforce_distillable_text?: boolean | null;
+      ignore?: string[];
+      include_alpha?: boolean;
+      max_price?: {
+        audio?: number | string;
+        completion?: number | string;
+        image?: number | string;
+        prompt?: number | string;
+        request?: number | string;
+      };
+      only?: string[];
+      order?: string[];
+      preferred_max_latency?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      preferred_min_throughput?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      quantizations?: string[] | null;
+      require_parameters?: boolean | null;
+      require_zero_data_retention?: boolean | null;
+      required_data_region?: string | null;
+      required_execution_region?: string | null;
+      sort?:
+        | string
+        | {
+            [key: string]: unknown;
+          };
+      zdr?: boolean | null;
+    };
+    routing?: {
+      allow_fallbacks?: boolean | null;
+      data_collection?: "allow" | "deny" | null;
+      enforce_distillable_text?: boolean | null;
+      ignore?: string[];
+      include_alpha?: boolean;
+      max_price?: {
+        audio?: number | string;
+        completion?: number | string;
+        image?: number | string;
+        prompt?: number | string;
+        request?: number | string;
+      };
+      only?: string[];
+      order?: string[];
+      preferred_max_latency?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      preferred_min_throughput?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      quantizations?: string[] | null;
+      require_parameters?: boolean | null;
+      require_zero_data_retention?: boolean | null;
+      required_data_region?: string | null;
+      required_execution_region?: string | null;
+      sort?:
+        | string
+        | {
+            [key: string]: unknown;
+          };
+      zdr?: boolean | null;
+    };
+  };
+};
+
+/**
+ * Parses a document image into Markdown or ordered content blocks. The current Cohere Parse API accepts remote image URLs and base64 image data URIs; PDF and file URL inputs are not yet supported.
+ */
+export async function createParse(
+  client: Client,
+  args: CreateParseParams = {},
+): Promise<{
+  id: string;
+  meta?: {
+    [key: string]: unknown;
+  };
+  model: string;
+  object: "parse";
+  pages: (
+    | {
+        index: number;
+        markdown: {
+          content: string;
+          images?: {
+            bounding_box: {
+              bottom_right_x: number;
+              bottom_right_y: number;
+              top_left_x: number;
+              top_left_y: number;
+            };
+            bounding_box_normalized: {
+              bottom_right_x: number;
+              bottom_right_y: number;
+              top_left_x: number;
+              top_left_y: number;
+            };
+            category: "other" | "flowchart" | "logo" | "signature";
+            description: string;
+            id: string;
+          }[];
+        };
+        type: "markdown";
+      }
+    | {
+        blocks: (
+          | {
+              text: {
+                content: string;
+              };
+              type: "text";
+            }
+          | {
+              image: {
+                bounding_box: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                bounding_box_normalized: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                category: "other" | "flowchart" | "logo" | "signature";
+                description: string;
+                id: string;
+              };
+              type: "image";
+            }
+          | {
+              table: {
+                bounding_box: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                bounding_box_normalized: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                description?: string;
+                html: string;
+                title?: string;
+                type: "html";
+              };
+              type: "table";
+            }
+        )[];
+        index: number;
+        type: "blocks";
+      }
+  )[];
+  provider: string;
+  usage?: {
+    [key: string]: unknown;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/parse";
+  return client.request<{
+    id: string;
+    meta?: {
+      [key: string]: unknown;
+    };
+    model: string;
+    object: "parse";
+    pages: (
+      | {
+          index: number;
+          markdown: {
+            content: string;
+            images?: {
+              bounding_box: {
+                bottom_right_x: number;
+                bottom_right_y: number;
+                top_left_x: number;
+                top_left_y: number;
+              };
+              bounding_box_normalized: {
+                bottom_right_x: number;
+                bottom_right_y: number;
+                top_left_x: number;
+                top_left_y: number;
+              };
+              category: "other" | "flowchart" | "logo" | "signature";
+              description: string;
+              id: string;
+            }[];
+          };
+          type: "markdown";
+        }
+      | {
+          blocks: (
+            | {
+                text: {
+                  content: string;
+                };
+                type: "text";
+              }
+            | {
+                image: {
+                  bounding_box: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  bounding_box_normalized: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  category: "other" | "flowchart" | "logo" | "signature";
+                  description: string;
+                  id: string;
+                };
+                type: "image";
+              }
+            | {
+                table: {
+                  bounding_box: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  bounding_box_normalized: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  description?: string;
+                  html: string;
+                  title?: string;
+                  type: "html";
+                };
+                type: "table";
+              }
+          )[];
+          index: number;
+          type: "blocks";
+        }
+    )[];
+    provider: string;
+    usage?: {
+      [key: string]: unknown;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreatePresetParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      [key: string]: unknown;
+    };
+    description?: string | null;
+    name: string;
+    slug?: string;
+    versioning_method?: "sequential" | "semver" | "date";
+    visibility?: "private" | "team" | "public";
+  };
+};
+
+/**
+ * Creates a workspace preset with durable prompt, routing, parameter, and plugin defaults.
+ */
+export async function createPreset(
+  client: Client,
+  args: CreatePresetParams = {},
+): Promise<{
+  canonical_model: string;
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets";
+  return client.request<{
+    canonical_model: string;
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreatePresetTestRunParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    baseline_preset_id?: string;
+    completed_at?: string;
+    config?: {
+      [key: string]: unknown;
+    };
+    dataset_name?: string;
+    description?: string;
+    name?: string;
+    preset_id?: string;
+    started_at?: string;
+    status?: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Creates a workspace test run for a preset or baseline comparison. Requires `feedback:write` and an owner or admin identity.
+ */
+export async function createPresetTestRun(
+  client: Client,
+  args: CreatePresetTestRunParams = {},
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/preset-test-runs";
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreatePrivateModelParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    base_url: string;
+    context_length?: number | null;
+    credential: string;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string;
+    enabled?: boolean;
+    host_provider_id?: string | null;
+    max_output_tokens?: number | null;
+    model_reference: string;
+    name: string;
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses?: boolean;
+    upstream_model_id: string;
+  };
+};
+
+/**
+ * Creates a workspace-only OpenAI-compatible model endpoint. Requires `private_models:write` and an owner or admin identity.
+ */
+export async function createPrivateModel(
+  client: Client,
+  args: CreatePrivateModelParams = {},
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/private-models";
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateProviderCredentialParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_api_key_ids?: string[];
+    allowed_models?: string[];
+    enabled?: boolean;
+    key: string;
+    name: string;
+    provider: string;
+    routing_mode?: "priority" | "fallback";
+  };
+};
+
+/**
+ * Encrypts and stores a write-only provider credential for the authenticated workspace.
+ */
+export async function createProviderCredential(
+  client: Client,
+  args: CreateProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok";
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateRealtimeSessionParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    instructions?: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    model: string;
+    provider?: string;
+    source?: "api" | "chat";
+    type?: "realtime";
+    voice?: string;
+  };
+};
+
+/**
+ * Creates a metered realtime audio session and returns relay connection details.
+ */
+export async function createRealtimeSession(
+  client: Client,
+  args: CreateRealtimeSessionParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/audio/realtime/sessions";
   return client.request<{
     [key: string]: unknown;
   }>({
@@ -2984,6 +4991,7 @@ export type CreateResponseParams = {
       | {};
     tools?: (
       | {
+          async?: boolean;
           function: {
             description?: string;
             name: string;
@@ -3000,13 +5008,33 @@ export type CreateResponseParams = {
           type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
+          engine?:
+            | "auto"
+            | "native"
+            | "exa"
+            | "firecrawl"
+            | "parallel"
+            | "perplexity"
+            | "tinyfish";
           include_highlights?: boolean;
           include_text?: boolean;
+          language?: string;
           max_results?: number;
+          page?: number;
           parameters?: {
+            engine?:
+              | "auto"
+              | "native"
+              | "exa"
+              | "firecrawl"
+              | "parallel"
+              | "perplexity"
+              | "tinyfish";
             include_highlights?: boolean;
             include_text?: boolean;
+            language?: string;
             max_results?: number;
+            page?: number;
           };
           type: "phaseo:web_search" | "gateway:web_search";
         }
@@ -4139,7 +6167,7 @@ export async function createVideoAlias(
 }
 
 export type CreateVideoDownloadUrlParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -4156,13 +6184,13 @@ export type CreateVideoDownloadUrlParams = {
  */
 export async function createVideoDownloadUrl(
   client: Client,
-  args: CreateVideoDownloadUrlParams = {},
+  args: CreateVideoDownloadUrlParams,
 ): Promise<{
   download_url?: string;
   expires_at?: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/download_url`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}/download_url`;
   return client.request<{
     download_url?: string;
     expires_at?: number;
@@ -4176,7 +6204,7 @@ export async function createVideoDownloadUrl(
 }
 
 export type CreateVideoDownloadUrlAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -4193,16 +6221,71 @@ export type CreateVideoDownloadUrlAliasParams = {
  */
 export async function createVideoDownloadUrlAlias(
   client: Client,
-  args: CreateVideoDownloadUrlAliasParams = {},
+  args: CreateVideoDownloadUrlAliasParams,
 ): Promise<{
   download_url?: string;
   expires_at?: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/download_url`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}/download_url`;
   return client.request<{
     download_url?: string;
     expires_at?: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWebhookEndpointParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    events?: string[];
+    name?: string;
+    url: string;
+  };
+};
+
+/**
+ * Creates an HTTPS webhook endpoint and returns its signing secret once.
+ */
+export async function createWebhookEndpoint(
+  client: Client,
+  args: CreateWebhookEndpointParams = {},
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  signing_secret: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/webhook-endpoints";
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    signing_secret: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
   }>({
     method: "POST",
     path: resolvedPath,
@@ -4234,7 +6317,7 @@ export async function createWorkspace(
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   };
 }> {
@@ -4246,7 +6329,7 @@ export async function createWorkspace(
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     };
   }>({
@@ -4258,8 +6341,390 @@ export async function createWorkspace(
   });
 }
 
+export type CreateWorkspaceBudgetParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+  };
+};
+
+/**
+ * Creates an enforced spend ceiling for one workspace interval.
+ */
+export async function createWorkspaceBudget(
+  client: Client,
+  args: CreateWorkspaceBudgetParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/budgets";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWorkspaceDepartmentParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    color?:
+      | "blue"
+      | "emerald"
+      | "amber"
+      | "rose"
+      | "violet"
+      | "slate"
+      | "cyan"
+      | "teal"
+      | "lime"
+      | "yellow"
+      | "orange"
+      | "red"
+      | "pink"
+      | "fuchsia"
+      | "indigo"
+      | "sky"
+      | "green"
+      | "purple";
+    description?: string | null;
+    icon?:
+      | "users"
+      | "briefcase"
+      | "megaphone"
+      | "code"
+      | "palette"
+      | "headphones"
+      | "landmark"
+      | "scale"
+      | "heart-pulse"
+      | "globe"
+      | "flask"
+      | "graduation-cap"
+      | "shield-check"
+      | "shopping-bag"
+      | "wrench"
+      | "truck"
+      | "handshake"
+      | "chart";
+    name: string;
+  };
+};
+
+/**
+ * Creates a manually managed department. Requires `settings:write`.
+ */
+export async function createWorkspaceDepartment(
+  client: Client,
+  args: CreateWorkspaceDepartmentParams = {},
+): Promise<{
+  data: {
+    color?: string;
+    created_at?: string | null;
+    description?: string | null;
+    directory_name?: string | null;
+    icon?: string;
+    id: string;
+    name: string;
+    name_overridden?: boolean;
+    source_id?: string | null;
+    source_type?: "manual" | "scim_group";
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/departments";
+  return client.request<{
+    data: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWorkspaceGroupMappingParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    access_role?: "member" | "admin";
+    department_id: string;
+    department_position?: "member" | "lead";
+    scim_group_id: string;
+  };
+};
+
+/**
+ * Maps a provisioned group to a workspace department and access role.
+ */
+export async function createWorkspaceGroupMapping(
+  client: Client,
+  args: CreateWorkspaceGroupMappingParams = {},
+): Promise<{
+  data: {
+    access_role: "member" | "admin";
+    created_at?: string | null;
+    department_id: string;
+    department_position: "member" | "lead";
+    id: string;
+    scim_group_id: string;
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/group-mappings";
+  return client.request<{
+    data: {
+      access_role: "member" | "admin";
+      created_at?: string | null;
+      department_id: string;
+      department_position: "member" | "lead";
+      id: string;
+      scim_group_id: string;
+      updated_at?: string | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWorkspaceInviteParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    expires_in_days?: number;
+    max_uses?: number | null;
+    role?: "admin" | "member";
+  };
+};
+
+/**
+ * Creates an encrypted invite and returns its plaintext token once. Management API key required.
+ */
+export async function createWorkspaceInvite(
+  client: Client,
+  args: CreateWorkspaceInviteParams,
+): Promise<{
+  data: {
+    created_at?: string;
+    creator_user_id: string;
+    expires_at?: string | null;
+    id: string;
+    max_uses?: number | null;
+    role: "admin" | "member";
+    token_preview?: string | null;
+    uses_count?: number;
+    workspace_id: string;
+  };
+  token: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/invites`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      creator_user_id: string;
+      expires_at?: string | null;
+      id: string;
+      max_uses?: number | null;
+      role: "admin" | "member";
+      token_preview?: string | null;
+      uses_count?: number;
+      workspace_id: string;
+    };
+    token: string;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWorkspaceNotificationDestinationParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    name: string;
+    target: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+  };
+};
+
+/**
+ * Validates and encrypts an email, chat, or HTTPS webhook destination. The raw target is never returned.
+ */
+export async function createWorkspaceNotificationDestination(
+  client: Client,
+  args: CreateWorkspaceNotificationDestinationParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    id: string;
+    name: string;
+    status: "active" | "disabled";
+    target_preview: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/destinations";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      id: string;
+      name: string;
+      status: "active" | "disabled";
+      target_preview: string;
+      type:
+        | "email"
+        | "discord"
+        | "discord_webhook"
+        | "slack"
+        | "microsoft_teams"
+        | "custom_webhook";
+      updated_at?: string | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWorkspaceScimTokenParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    expires_at?: string | null;
+    label?: string;
+  };
+};
+
+/**
+ * Creates a provisioning token. The raw token is returned once. Requires the identity add-on and `settings:write`.
+ */
+export async function createWorkspaceScimToken(
+  client: Client,
+  args: CreateWorkspaceScimTokenParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    expires_at?: string | null;
+    id: string;
+    label: string;
+    last_used_at?: string | null;
+    revoked_at?: string | null;
+    token: string;
+    token_prefix: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim/tokens";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      expires_at?: string | null;
+      id: string;
+      label: string;
+      last_used_at?: string | null;
+      revoked_at?: string | null;
+      token: string;
+      token_prefix: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -4272,12 +6737,12 @@ export type DeleteApiKeyParams = {
  */
 export async function deleteApiKey(
   client: Client,
-  args: DeleteApiKeyParams = {},
+  args: DeleteApiKeyParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -4289,8 +6754,303 @@ export async function deleteApiKey(
   });
 }
 
+export type DeleteDataContributionClassifierParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a custom classifier. The built-in starter classifier cannot be deleted.
+ */
+export async function deleteDataContributionClassifier(
+  client: Client,
+  args: DeleteDataContributionClassifierParams,
+): Promise<{
+  data: {
+    deleted: true;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: true;
+    };
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteDynamicRouteParams = {
+  path: {
+    id: string;
+  };
+  query?: {
+    confirm_name?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently deletes a route and refreshes all previously attached API-key contexts.
+ */
+export async function deleteDynamicRoute(
+  client: Client,
+  args: DeleteDynamicRouteParams,
+): Promise<{
+  data: {
+    deleted: true;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: true;
+      id: string;
+    };
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteGuardrailParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a guardrail and its assignments. Requires `guardrails:delete`.
+ */
+export async function deleteGuardrail(
+  client: Client,
+  args: DeleteGuardrailParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteManagementKeyParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently revokes and deletes a management key. Requires `management_keys:delete`.
+ */
+export async function deleteManagementKey(
+  client: Client,
+  args: DeleteManagementKeyParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteOAuthClientParams = {
+  path: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes the client after revoking its active authorizations.
+ */
+export async function deleteOAuthClient(
+  client: Client,
+  args: DeleteOAuthClientParams,
+): Promise<{
+  client_id: string;
+  message: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}`;
+  return client.request<{
+    client_id: string;
+    message: string;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteObservabilityDestinationParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a destination and its key and rule filters.
+ */
+export async function deleteObservabilityDestination(
+  client: Client,
+  args: DeleteObservabilityDestinationParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeletePresetParams = {
+  path: {
+    id: string;
+  };
+  query?: {
+    confirm_name?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Soft-deletes a preset after optional exact-name confirmation.
+ */
+export async function deletePreset(
+  client: Client,
+  args: DeletePresetParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeletePrivateModelParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently deletes a private model owned by the authenticated workspace. Repeated deletion is safe.
+ */
+export async function deletePrivateModel(
+  client: Client,
+  args: DeletePrivateModelParams,
+): Promise<{
+  deleted: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/private-models/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: boolean;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteProviderCredentialParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently removes a provider credential. Repeated deletion is safe.
+ */
+export async function deleteProviderCredential(
+  client: Client,
+  args: DeleteProviderCredentialParams,
+): Promise<{
+  deleted: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: boolean;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteVideoParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -4303,14 +7063,14 @@ export type DeleteVideoParams = {
  */
 export async function deleteVideo(
   client: Client,
-  args: DeleteVideoParams = {},
+  args: DeleteVideoParams,
 ): Promise<{
   deleted?: boolean;
   id?: string;
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     deleted?: boolean;
     id?: string;
@@ -4325,7 +7085,7 @@ export async function deleteVideo(
 }
 
 export type DeleteVideoAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -4338,14 +7098,14 @@ export type DeleteVideoAliasParams = {
  */
 export async function deleteVideoAlias(
   client: Client,
-  args: DeleteVideoAliasParams = {},
+  args: DeleteVideoAliasParams,
 ): Promise<{
   deleted?: boolean;
   id?: string;
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     deleted?: boolean;
     id?: string;
@@ -4359,8 +7119,43 @@ export async function deleteVideoAlias(
   });
 }
 
+export type DeleteWebhookEndpointParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Soft-deletes a webhook endpoint and stops future delivery. Requires `settings:write`.
+ */
+export async function deleteWebhookEndpoint(
+  client: Client,
+  args: DeleteWebhookEndpointParams,
+): Promise<{
+  deleted: true;
+  id: string;
+  object: "webhook_endpoint";
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+    id: string;
+    object: "webhook_endpoint";
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteWorkspaceParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -4373,16 +7168,428 @@ export type DeleteWorkspaceParams = {
  */
 export async function deleteWorkspace(
   client: Client,
-  args: DeleteWorkspaceParams = {},
+  args: DeleteWorkspaceParams,
 ): Promise<{
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
     method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceBudgetParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a workspace spend ceiling and stops enforcing that interval.
+ */
+export async function deleteWorkspaceBudget(
+  client: Client,
+  args: DeleteWorkspaceBudgetParams,
+): Promise<{
+  data: {
+    deleted: boolean;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: boolean;
+      id: string;
+    };
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceDepartmentParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a manually managed department. Directory-synchronized departments cannot be deleted here.
+ */
+export async function deleteWorkspaceDepartment(
+  client: Client,
+  args: DeleteWorkspaceDepartmentParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceDepartmentMemberParams = {
+  path: {
+    departmentId: string;
+    userId: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a manual department membership without changing directory-synchronized membership.
+ */
+export async function deleteWorkspaceDepartmentMember(
+  client: Client,
+  args: DeleteWorkspaceDepartmentMemberParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["departmentId"]))}/members/${encodeURIComponent(String(path["userId"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceGroupMappingParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a provisioned-group mapping from the workspace.
+ */
+export async function deleteWorkspaceGroupMapping(
+  client: Client,
+  args: DeleteWorkspaceGroupMappingParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceInviteParams = {
+  path: {
+    id: string;
+    invite_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently revokes an invite. Management API key required.
+ */
+export async function deleteWorkspaceInvite(
+  client: Client,
+  args: DeleteWorkspaceInviteParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/invites/${encodeURIComponent(String(path["invite_id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceNotificationDestinationParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Soft-deletes a workspace notification destination and removes it from future routing.
+ */
+export async function deleteWorkspaceNotificationDestination(
+  client: Client,
+  args: DeleteWorkspaceNotificationDestinationParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeployDynamicRouteVersionParams = {
+  path: {
+    id: string;
+    version: number;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Makes an immutable route version active and refreshes attached-key contexts.
+ */
+export async function deployDynamicRouteVersion(
+  client: Client,
+  args: DeployDynamicRouteVersionParams,
+): Promise<{
+  data: {
+    deployed_version: number;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}/versions/${encodeURIComponent(String(path["version"]))}/deploy`;
+  return client.request<{
+    data: {
+      deployed_version: number;
+      id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ExportAnalyticsCsvParams = {
+  path?: Record<string, never>;
+  query?: {
+    byok?: boolean;
+    date?: string;
+    end_user_id?: string;
+    endpoint?: string;
+    key_id?: string;
+    label_key?: string;
+    label_value?: string;
+    model?: string;
+    provider?: string;
+    success?: boolean;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Exports the complete filtered analytics aggregate as spreadsheet-safe CSV.
+ */
+export async function exportAnalyticsCsv(
+  client: Client,
+  args: ExportAnalyticsCsvParams = {},
+): Promise<string> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/analytics/export";
+  return client.request<string>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type FinalizeRealtimeSessionParams = {
+  path: {
+    session_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    disconnect_reason?: string;
+    error_code?: string;
+    error_message?: string;
+    status?: "completed" | "failed" | "cancelled" | "expired";
+    usage?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Finalizes metering and releases any remaining credit reservation for a realtime session.
+ */
+export async function finalizeRealtimeSession(
+  client: Client,
+  args: FinalizeRealtimeSessionParams,
+): Promise<{
+  billing: {
+    [key: string]: unknown;
+  };
+  expires_at?: string | null;
+  expiresAt?: string | null;
+  id: string;
+  model: string;
+  model_id: string;
+  provider: string;
+  session_id: string;
+  settlement: {
+    [key: string]: unknown;
+  };
+  status: string;
+  usage: {
+    [key: string]: unknown;
+  };
+  voice?: string | null;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path["session_id"]))}/finalize`;
+  return client.request<{
+    billing: {
+      [key: string]: unknown;
+    };
+    expires_at?: string | null;
+    expiresAt?: string | null;
+    id: string;
+    model: string;
+    model_id: string;
+    provider: string;
+    session_id: string;
+    settlement: {
+      [key: string]: unknown;
+    };
+    status: string;
+    usage: {
+      [key: string]: unknown;
+    };
+    voice?: string | null;
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ForkPresetParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    source_version_id?: string;
+  };
+};
+
+/**
+ * Copies the active or selected public version into the management workspace as a private preset.
+ */
+export async function forkPreset(
+  client: Client,
+  args: ForkPresetParams,
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/fork`;
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -4474,17 +7681,47 @@ export type GenerateMusicParams = {
 };
 
 /**
- * Generates music using the requested model and provider settings.
+ * Generates music through one provider-independent endpoint. Phaseo waits for synchronous providers and handles provider queue polling internally.
  */
 export async function generateMusic(
   client: Client,
   args: GenerateMusicParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/music/generate";
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -4585,11 +7822,41 @@ export async function generateMusicAlias(
   client: Client,
   args: GenerateMusicAliasParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/music/generations";
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -4671,14 +7938,25 @@ export async function getActivity(
 export type GetActivityAliasParams = {
   path?: Record<string, never>;
   query?: {
+    byok?: boolean;
     date?: string;
+    end_user_id?: string;
+    endpoint?: string;
+    key_id?: string;
+    label_key?: string;
+    label_value?: string;
+    limit?: number;
+    model?: string;
+    offset?: number;
+    provider?: string;
+    success?: boolean;
   };
   headers?: Record<string, never>;
   body?: never;
 };
 
 /**
- * Alias of /activity. Returns user activity grouped by endpoint for the last 30 completed UTC days.
+ * Returns cost, request, and token aggregates grouped by date, model, provider, and endpoint for the last 30 completed UTC days.
  */
 export async function getActivityAlias(
   client: Client,
@@ -4697,6 +7975,9 @@ export async function getActivityAlias(
     requests: number;
     usage: number;
   }[];
+  limit: number;
+  offset: number;
+  total_count: number;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/analytics";
@@ -4714,6 +7995,9 @@ export async function getActivityAlias(
       requests: number;
       usage: number;
     }[];
+    limit: number;
+    offset: number;
+    total_count: number;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -4724,7 +8008,7 @@ export async function getActivityAlias(
 }
 
 export type GetApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -4737,44 +8021,126 @@ export type GetApiKeyParams = {
  */
 export async function getApiKey(
   client: Client,
-  args: GetApiKeyParams = {},
+  args: GetApiKeyParams,
 ): Promise<{
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_remaining: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_remaining: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -4850,18 +8216,59 @@ export async function getCurrentApiKey(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_remaining: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
@@ -4871,20 +8278,446 @@ export async function getCurrentApiKey(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_remaining: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetDataContributionSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns workspace consent, classifier configuration, and recent aggregate contribution analytics. Requires `settings:read` and feature access.
+ */
+export async function getDataContributionSettings(
+  client: Client,
+  args: GetDataContributionSettingsParams = {},
+): Promise<{
+  data: {
+    analytics: {
+      [key: string]: unknown;
+    }[];
+    classifiers: {
+      categories: {
+        [key: string]: string[];
+      };
+      created_at?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      id: string;
+      instructions: string;
+      kind: "starter" | "custom";
+      model: string;
+      name: string;
+      sample_rate_bps: number;
+      service_tier: "standard" | "flex";
+      slug: string;
+      updated_at?: string | null;
+      [key: string]: unknown;
+    }[];
+    classifierSampleRateBps: number;
+    consentedAt?: string | null;
+    discountBps: number;
+    enabled: boolean;
+    last30Days: {
+      contributions: number;
+      discountNanos: number;
+    };
+    policyVersion: string;
+    sampleRateBps: number;
+    starterCategories: {
+      [key: string]: string[];
+    };
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/data-contribution";
+  return client.request<{
+    data: {
+      analytics: {
+        [key: string]: unknown;
+      }[];
+      classifiers: {
+        categories: {
+          [key: string]: string[];
+        };
+        created_at?: string | null;
+        description?: string | null;
+        enabled: boolean;
+        id: string;
+        instructions: string;
+        kind: "starter" | "custom";
+        model: string;
+        name: string;
+        sample_rate_bps: number;
+        service_tier: "standard" | "flex";
+        slug: string;
+        updated_at?: string | null;
+        [key: string]: unknown;
+      }[];
+      classifierSampleRateBps: number;
+      consentedAt?: string | null;
+      discountBps: number;
+      enabled: boolean;
+      last30Days: {
+        contributions: number;
+        discountNanos: number;
+      };
+      policyVersion: string;
+      sampleRateBps: number;
+      starterCategories: {
+        [key: string]: string[];
+      };
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetDynamicRouteParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one workspace dynamic route with versions and API-key attachments.
+ */
+export async function getDynamicRoute(
+  client: Client,
+  args: GetDynamicRouteParams,
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetGatewayRequestLogParams = {
+  path: {
+    requestId: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one redacted request record by request identifier.
+ */
+export async function getGatewayRequestLog(
+  client: Client,
+  args: GetGatewayRequestLogParams,
+): Promise<{
+  data: {
+    auth_method?: string | null;
+    byok?: boolean | null;
+    canonical_model_id?: string | null;
+    cost_nanos?: number | null;
+    created_at?: string;
+    currency?: string | null;
+    endpoint?: string | null;
+    error_code?: string | null;
+    finish_reason?: string | null;
+    generation_ms?: number | null;
+    key_id?: string | null;
+    latency_ms?: number | null;
+    location?: string | null;
+    model_id?: string | null;
+    native_response_id?: string | null;
+    oauth_client_id?: string | null;
+    pricing_lines?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    provider?: string | null;
+    request_id?: string;
+    requested_model_id?: string | null;
+    routed_model_id?: string | null;
+    status_code?: number | null;
+    stream?: boolean | null;
+    success?: boolean | null;
+    throughput?: number | null;
+    usage?: {
+      [key: string]: unknown;
+    } | null;
+  };
+  ok: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/logs/${encodeURIComponent(String(path["requestId"]))}`;
+  return client.request<{
+    data: {
+      auth_method?: string | null;
+      byok?: boolean | null;
+      canonical_model_id?: string | null;
+      cost_nanos?: number | null;
+      created_at?: string;
+      currency?: string | null;
+      endpoint?: string | null;
+      error_code?: string | null;
+      finish_reason?: string | null;
+      generation_ms?: number | null;
+      key_id?: string | null;
+      latency_ms?: number | null;
+      location?: string | null;
+      model_id?: string | null;
+      native_response_id?: string | null;
+      oauth_client_id?: string | null;
+      pricing_lines?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      provider?: string | null;
+      request_id?: string;
+      requested_model_id?: string | null;
+      routed_model_id?: string | null;
+      status_code?: number | null;
+      stream?: boolean | null;
+      success?: boolean | null;
+      throughput?: number | null;
+      usage?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    ok: true;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -4983,6 +8816,105 @@ export async function getGeneration(
   });
 }
 
+export type GetGuardrailParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns a guardrail and its assigned key IDs. Requires `guardrails:read`.
+ */
+export async function getGuardrail(
+  client: Client,
+  args: GetGuardrailParams,
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean | null;
+    id: string;
+    key_ids: string[];
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean | null;
+      id: string;
+      key_ids: string[];
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetHealthParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -5012,8 +8944,77 @@ export async function getHealth(
   });
 }
 
+export type GetManagementKeyParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns management-key metadata without the secret. Requires `management_keys:read`.
+ */
+export async function getManagementKey(
+  client: Client,
+  args: GetManagementKeyParams,
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetMusicGenerationParams = {
-  path?: {
+  path: {
     music_id: string;
   };
   query?: Record<string, never>;
@@ -5022,17 +9023,47 @@ export type GetMusicGenerationParams = {
 };
 
 /**
- * Retrieves the status for a music generation request.
+ * Retrieves a normalized music result using the Phaseo request ID returned by POST /music/generate. Provider-specific status APIs are handled internally.
  */
 export async function getMusicGeneration(
   client: Client,
-  args: GetMusicGenerationParams = {},
+  args: GetMusicGenerationParams,
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/music/generate/${encodeURIComponent(String(path?.["music_id"]))}`;
+  const resolvedPath = `/music/generate/${encodeURIComponent(String(path["music_id"]))}`;
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "GET",
@@ -5044,7 +9075,7 @@ export async function getMusicGeneration(
 }
 
 export type GetMusicGenerationAliasParams = {
-  path?: {
+  path: {
     music_id: string;
   };
   query?: Record<string, never>;
@@ -5057,13 +9088,43 @@ export type GetMusicGenerationAliasParams = {
  */
 export async function getMusicGenerationAlias(
   client: Client,
-  args: GetMusicGenerationAliasParams = {},
+  args: GetMusicGenerationAliasParams,
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/music/generations/${encodeURIComponent(String(path?.["music_id"]))}`;
+  const resolvedPath = `/music/generations/${encodeURIComponent(String(path["music_id"]))}`;
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "GET",
@@ -5074,8 +9135,610 @@ export async function getMusicGenerationAlias(
   });
 }
 
+export type GetOAuthClientParams = {
+  path: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one active OAuth application. Requires `oauth_clients:read` and the OAuth beta feature.
+ */
+export async function getOAuthClient(
+  client: Client,
+  args: GetOAuthClientParams,
+): Promise<{
+  active_authorizations?: number;
+  allowed_scopes?: string[];
+  client_id: string;
+  client_type: "public" | "confidential";
+  created_at?: string | null;
+  description?: string | null;
+  homepage_url?: string | null;
+  last_used_at?: string | null;
+  logo_url?: string | null;
+  name: string;
+  privacy_policy_url?: string | null;
+  redirect_uris: string[];
+  requests_last_30d?: number;
+  status: string;
+  terms_of_service_url?: string | null;
+  total_authorizations?: number;
+  updated_at?: string | null;
+  workspace_id: string;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}`;
+  return client.request<{
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetObservabilityDestinationParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns destination metadata and filters without secret configuration.
+ */
+export async function getObservabilityDestination(
+  client: Client,
+  args: GetObservabilityDestinationParams,
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetObservabilityLoggingPolicyParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns workspace log storage and retention settings with read-only billing state.
+ */
+export async function getObservabilityLoggingPolicy(
+  client: Client,
+  args: GetObservabilityLoggingPolicyParams = {},
+): Promise<{
+  data: {
+    billing_status: "active" | "grace" | "suspended";
+    enabled: boolean;
+    grace_until?: string | null;
+    include_provider_payloads: boolean;
+    price_per_million_units_nanos: number;
+    retention_days: number;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/logging-policy";
+  return client.request<{
+    data: {
+      billing_status: "active" | "grace" | "suspended";
+      enabled: boolean;
+      grace_until?: string | null;
+      include_provider_payloads: boolean;
+      price_per_million_units_nanos: number;
+      retention_days: number;
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetPresetParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Gets an active preset by UUID, slug, or canonical name.
+ */
+export async function getPreset(
+  client: Client,
+  args: GetPresetParams,
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetPresetPublisherParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns the canonical public-preset publisher handle for the workspace.
+ */
+export async function getPresetPublisher(
+  client: Client,
+  args: GetPresetPublisherParams = {},
+): Promise<{
+  data: {
+    handle: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets/publisher";
+  return client.request<{
+    data: {
+      handle: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetPresetTestRunParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns a test run and its feedback summary.
+ */
+export async function getPresetTestRun(
+  client: Client,
+  args: GetPresetTestRunParams,
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  };
+  feedback_summary: {
+    average_score: number | null;
+    count: number;
+    last_feedback_at: string | null;
+    metadata_key?: string;
+    metadata_value?: string | null;
+    negative: number;
+    partial: number;
+    positive: number;
+    preset_id?: string | null;
+    ratings: {
+      [key: string]: number;
+    };
+    test_run_id?: string | null;
+  } | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    };
+    feedback_summary: {
+      average_score: number | null;
+      count: number;
+      last_feedback_at: string | null;
+      metadata_key?: string;
+      metadata_value?: string | null;
+      negative: number;
+      partial: number;
+      positive: number;
+      preset_id?: string | null;
+      ratings: {
+        [key: string]: number;
+      };
+      test_run_id?: string | null;
+    } | null;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetPrivateModelParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns endpoint metadata for one private model in the authenticated workspace without returning its credential.
+ */
+export async function getPrivateModel(
+  client: Client,
+  args: GetPrivateModelParams,
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/private-models/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetProviderCredentialParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns safe metadata without exposing encrypted fields or the raw secret.
+ */
+export async function getProviderCredential(
+  client: Client,
+  args: GetProviderCredentialParams,
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetProviderDerankStatusParams = {
-  path?: {
+  path: {
     provider_id: string;
   };
   query?: {
@@ -5092,12 +9755,12 @@ export type GetProviderDerankStatusParams = {
  */
 export async function getProviderDerankStatus(
   client: Client,
-  args: GetProviderDerankStatusParams = {},
+  args: GetProviderDerankStatusParams,
 ): Promise<{
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/health/providers/${encodeURIComponent(String(path?.["provider_id"]))}/derank`;
+  const resolvedPath = `/health/providers/${encodeURIComponent(String(path["provider_id"]))}/derank`;
   return client.request<{
     [key: string]: unknown;
   }>({
@@ -5110,7 +9773,7 @@ export async function getProviderDerankStatus(
 }
 
 export type GetVideoParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -5123,7 +9786,7 @@ export type GetVideoParams = {
  */
 export async function getVideo(
   client: Client,
-  args: GetVideoParams = {},
+  args: GetVideoParams,
 ): Promise<{
   asset?: {
     bytes?: number;
@@ -5233,7 +9896,7 @@ export async function getVideo(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -5356,7 +10019,7 @@ export async function getVideo(
 }
 
 export type GetVideoAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -5369,7 +10032,7 @@ export type GetVideoAliasParams = {
  */
 export async function getVideoAlias(
   client: Client,
-  args: GetVideoAliasParams = {},
+  args: GetVideoAliasParams,
 ): Promise<{
   asset?: {
     bytes?: number;
@@ -5479,7 +10142,7 @@ export async function getVideoAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -5602,7 +10265,7 @@ export async function getVideoAlias(
 }
 
 export type GetVideoContentParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -5615,10 +10278,10 @@ export type GetVideoContentParams = {
  */
 export async function getVideoContent(
   client: Client,
-  args: GetVideoContentParams = {},
+  args: GetVideoContentParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/content`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path["video_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -5629,7 +10292,7 @@ export async function getVideoContent(
 }
 
 export type GetVideoContentAliasParams = {
-  path?: {
+  path: {
     video_id: string;
   };
   query?: Record<string, never>;
@@ -5642,10 +10305,10 @@ export type GetVideoContentAliasParams = {
  */
 export async function getVideoContentAlias(
   client: Client,
-  args: GetVideoContentAliasParams = {},
+  args: GetVideoContentAliasParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/content`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path["video_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -5655,8 +10318,59 @@ export async function getVideoContentAlias(
   });
 }
 
+export type GetWebhookEndpointParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one async webhook endpoint without its signing secret. Requires `settings:read`.
+ */
+export async function getWebhookEndpoint(
+  client: Client,
+  args: GetWebhookEndpointParams,
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetWorkspaceParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -5669,30 +10383,517 @@ export type GetWorkspaceParams = {
  */
 export async function getWorkspace(
   client: Client,
-  args: GetWorkspaceParams = {},
+  args: GetWorkspaceParams,
 ): Promise<{
   data: {
     created_at: string | null;
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     };
   }>({
     method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceBudgetParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one workspace spend ceiling with current usage and remaining spend.
+ */
+export async function getWorkspaceBudget(
+  client: Client,
+  args: GetWorkspaceBudgetParams,
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceDirectoryParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns enterprise departments and effective member entitlements. Requires the identity add-on, `settings:read`, and an owner or admin identity.
+ */
+export async function getWorkspaceDirectory(
+  client: Client,
+  args: GetWorkspaceDirectoryParams = {},
+): Promise<{
+  data: {
+    departments: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    }[];
+    members: {
+      access_source: string;
+      department: {
+        color?: string;
+        created_at?: string | null;
+        description?: string | null;
+        directory_name?: string | null;
+        icon?: string;
+        id: string;
+        name: string;
+        name_overridden?: boolean;
+        source_id?: string | null;
+        source_type?: "manual" | "scim_group";
+        updated_at?: string | null;
+      } | null;
+      department_override_enabled: boolean;
+      department_override_id: string | null;
+      department_source: string;
+      directory_department?: string | null;
+      display_name: string;
+      effective_role: "owner" | "admin" | "member";
+      email?: string | null;
+      joined_at?: string | null;
+      role_override: "admin" | "member" | null;
+      status: "active" | "suspended";
+      user_id: string;
+      workspace_role: string;
+    }[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/directory";
+  return client.request<{
+    data: {
+      departments: {
+        color?: string;
+        created_at?: string | null;
+        description?: string | null;
+        directory_name?: string | null;
+        icon?: string;
+        id: string;
+        name: string;
+        name_overridden?: boolean;
+        source_id?: string | null;
+        source_type?: "manual" | "scim_group";
+        updated_at?: string | null;
+      }[];
+      members: {
+        access_source: string;
+        department: {
+          color?: string;
+          created_at?: string | null;
+          description?: string | null;
+          directory_name?: string | null;
+          icon?: string;
+          id: string;
+          name: string;
+          name_overridden?: boolean;
+          source_id?: string | null;
+          source_type?: "manual" | "scim_group";
+          updated_at?: string | null;
+        } | null;
+        department_override_enabled: boolean;
+        department_override_id: string | null;
+        department_source: string;
+        directory_department?: string | null;
+        display_name: string;
+        effective_role: "owner" | "admin" | "member";
+        email?: string | null;
+        joined_at?: string | null;
+        role_override: "admin" | "member" | null;
+        status: "active" | "suspended";
+        user_id: string;
+        workspace_role: string;
+      }[];
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceNotificationSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns auto top-up policy, low-balance email configuration, and workspace email preferences. Requires `settings:read` and an owner or admin identity.
+ */
+export async function getWorkspaceNotificationSettings(
+  client: Client,
+  args: GetWorkspaceNotificationSettingsParams = {},
+): Promise<{
+  data: {
+    auto_top_up: {
+      amount_nanos: number;
+      balance_threshold_nanos: number;
+      enabled: boolean;
+      payment_method_id: string | null;
+    };
+    email_preferences: {
+      auto_top_up_failure: boolean;
+      model_deprecation: boolean;
+      payment_method_expiring: boolean;
+    };
+    low_balance_email: {
+      enabled: boolean;
+      threshold_usd: number;
+    };
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/settings";
+  return client.request<{
+    data: {
+      auto_top_up: {
+        amount_nanos: number;
+        balance_threshold_nanos: number;
+        enabled: boolean;
+        payment_method_id: string | null;
+      };
+      email_preferences: {
+        auto_top_up_failure: boolean;
+        model_deprecation: boolean;
+        payment_method_expiring: boolean;
+      };
+      low_balance_email: {
+        enabled: boolean;
+        threshold_usd: number;
+      };
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceScimParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns endpoint status, token metadata, provisioned object counts, and the latest SCIM event.
+ */
+export async function getWorkspaceScim(
+  client: Client,
+  args: GetWorkspaceScimParams = {},
+): Promise<{
+  data: {
+    endpoint: {
+      created_at?: string | null;
+      enabled: boolean;
+      id: string;
+      updated_at?: string | null;
+    } | null;
+    group_count: number;
+    last_event: {
+      action?: string;
+      correlation_id?: string | null;
+      created_at?: string;
+      detail?: {
+        [key: string]: unknown;
+      } | null;
+      http_status?: number;
+      id?: string;
+      outcome?: string;
+      request_id?: string | null;
+      resource_id?: string | null;
+      resource_type?: string | null;
+      scim_type?: string | null;
+    } | null;
+    tokens: {
+      created_at?: string | null;
+      expires_at?: string | null;
+      id: string;
+      label: string;
+      last_used_at?: string | null;
+      revoked_at?: string | null;
+      token_prefix: string;
+    }[];
+    user_count: number;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim";
+  return client.request<{
+    data: {
+      endpoint: {
+        created_at?: string | null;
+        enabled: boolean;
+        id: string;
+        updated_at?: string | null;
+      } | null;
+      group_count: number;
+      last_event: {
+        action?: string;
+        correlation_id?: string | null;
+        created_at?: string;
+        detail?: {
+          [key: string]: unknown;
+        } | null;
+        http_status?: number;
+        id?: string;
+        outcome?: string;
+        request_id?: string | null;
+        resource_id?: string | null;
+        resource_type?: string | null;
+        scim_type?: string | null;
+      } | null;
+      tokens: {
+        created_at?: string | null;
+        expires_at?: string | null;
+        id: string;
+        label: string;
+        last_used_at?: string | null;
+        revoked_at?: string | null;
+        token_prefix: string;
+      }[];
+      user_count: number;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns the automatable workspace routing, provider, privacy, and gateway defaults.
+ */
+export async function getWorkspaceSettings(
+  client: Client,
+  args: GetWorkspaceSettingsParams = {},
+): Promise<{
+  data: {
+    alpha_channel_enabled?: boolean | null;
+    beta_channel_enabled?: boolean | null;
+    byok_fallback_enabled?: boolean | null;
+    io_logging_enabled?: boolean | null;
+    io_logging_include_provider_payloads?: boolean | null;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    response_healing_enabled?: boolean | null;
+    response_healing_locked?: boolean | null;
+    response_healing_mode?: "safe" | "strict" | null;
+    routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/settings";
+  return client.request<{
+    data: {
+      alpha_channel_enabled?: boolean | null;
+      beta_channel_enabled?: boolean | null;
+      byok_fallback_enabled?: boolean | null;
+      io_logging_enabled?: boolean | null;
+      io_logging_include_provider_payloads?: boolean | null;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      response_healing_enabled?: boolean | null;
+      response_healing_locked?: boolean | null;
+      response_healing_mode?: "safe" | "strict" | null;
+      routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceSsoParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns workspace SAML or custom OIDC settings. Requires `settings:read` and an owner or admin identity.
+ */
+export async function getWorkspaceSso(
+  client: Client,
+  args: GetWorkspaceSsoParams = {},
+): Promise<{
+  data: {
+    domains: string[];
+    enabled: boolean;
+    enforced: false;
+    mode: "none" | "saml" | "custom_oidc";
+    provider_identifier: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/sso";
+  return client.request<{
+    data: {
+      domains: string[];
+      enabled: boolean;
+      enforced: false;
+      mode: "none" | "saml" | "custom_oidc";
+      provider_identifier: string | null;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type InvalidateApiKeyCacheParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Refreshes globally cached policy state for a workspace API key. Requires an authenticated workspace management caller.
+ */
+export async function invalidateApiKeyCache(
+  client: Client,
+  args: InvalidateApiKeyCacheParams,
+): Promise<{
+  key: {
+    id: string;
+    kid?: string | null;
+    status?: string | null;
+    workspace_id: string;
+  };
+  message: string;
+  ok: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}/invalidate`;
+  return client.request<{
+    key: {
+      id: string;
+      kid?: string | null;
+      status?: string | null;
+      workspace_id: string;
+    };
+    message: string;
+    ok: true;
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -5722,18 +10923,59 @@ export async function listApiKeys(
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_remaining: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   }[];
   total_count: number;
@@ -5744,18 +10986,59 @@ export async function listApiKeys(
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_remaining: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     }[];
     total_count: number;
@@ -6669,7 +11952,7 @@ export async function listBatchModelsAlias(
 }
 
 export type ListBatchRequestsParams = {
-  path?: {
+  path: {
     batch_id: string;
   };
   query?: {
@@ -6686,7 +11969,7 @@ export type ListBatchRequestsParams = {
  */
 export async function listBatchRequests(
   client: Client,
-  args: ListBatchRequestsParams = {},
+  args: ListBatchRequestsParams,
 ): Promise<{
   batch_id?: string;
   data?: {
@@ -6722,7 +12005,7 @@ export async function listBatchRequests(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}/requests`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}/requests`;
   return client.request<{
     batch_id?: string;
     data?: {
@@ -6766,7 +12049,7 @@ export async function listBatchRequests(
 }
 
 export type ListBatchRequestsAliasParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: {
@@ -6783,7 +12066,7 @@ export type ListBatchRequestsAliasParams = {
  */
 export async function listBatchRequestsAlias(
   client: Client,
-  args: ListBatchRequestsAliasParams = {},
+  args: ListBatchRequestsAliasParams,
 ): Promise<{
   batch_id?: string;
   data?: {
@@ -6819,7 +12102,7 @@ export async function listBatchRequestsAlias(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}/requests`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}/requests`;
   return client.request<{
     batch_id?: string;
     data?: {
@@ -6880,6 +12163,7 @@ export type ListDataModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -6891,10 +12175,12 @@ export type ListDataModelsParams = {
       | "essential-ai"
       | "github"
       | "google"
+      | "hexgrad"
       | "ibm"
       | "inception"
       | "inclusionai"
       | "inflection"
+      | "jetbrains"
       | "kwaipilot"
       | "lg"
       | "lightricks"
@@ -6917,10 +12203,14 @@ export type ListDataModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
+      | "stability-ai"
+      | "stealth"
       | "stepfun"
       | "suno"
       | "tencent"
@@ -6940,6 +12230,7 @@ export type ListDataModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -6951,10 +12242,12 @@ export type ListDataModelsParams = {
           | "essential-ai"
           | "github"
           | "google"
+          | "hexgrad"
           | "ibm"
           | "inception"
           | "inclusionai"
           | "inflection"
+          | "jetbrains"
           | "kwaipilot"
           | "lg"
           | "lightricks"
@@ -6977,10 +12270,14 @@ export type ListDataModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
+          | "stability-ai"
+          | "stealth"
           | "stepfun"
           | "suno"
           | "tencent"
@@ -7077,6 +12374,196 @@ export async function listDataModels(
   });
 }
 
+export type ListDynamicRoutesParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists versioned dynamic routes and their API-key attachments for the workspace.
+ */
+export async function listDynamicRoutes(
+  client: Client,
+  args: ListDynamicRoutesParams = {},
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/routing/dynamic-routes";
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListEndpointsParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -7151,8 +12638,552 @@ export async function listFiles(
   });
 }
 
+export type ListGatewayFeedbackParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    preset_id?: string;
+    rating?: string;
+    request_id?: string;
+    session_id?: string;
+    since?: string;
+    test_run_id?: string;
+    until?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists workspace feedback with target, date, rating, and metadata-dimension filters. Requires `feedback:read`.
+ */
+export async function listGatewayFeedback(
+  client: Client,
+  args: ListGatewayFeedbackParams = {},
+): Promise<{
+  data: {
+    comment: string | null;
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    preset_id: string | null;
+    rating: string | null;
+    reason: string | null;
+    reason_tags: string[];
+    request_id: string | null;
+    score: number | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/feedback";
+  return client.request<{
+    data: {
+      comment: string | null;
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      preset_id: string | null;
+      rating: string | null;
+      reason: string | null;
+      reason_tags: string[];
+      request_id: string | null;
+      score: number | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGatewayObservabilityEventsParams = {
+  path?: Record<string, never>;
+  query?: {
+    category?: string;
+    event?: string;
+    limit?: number;
+    offset?: number;
+    preset_id?: string;
+    request_id?: string;
+    session_id?: string;
+    test_run_id?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists custom workspace outcome and behavior events. Requires `feedback:read`.
+ */
+export async function listGatewayObservabilityEvents(
+  client: Client,
+  args: ListGatewayObservabilityEventsParams = {},
+): Promise<{
+  data: {
+    category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+    created_at: string;
+    created_by_user_id: string | null;
+    end_user_id: string | null;
+    event_name: string;
+    id: string;
+    metadata: {
+      [key: string]: unknown;
+    };
+    metadata_dimensions: {
+      [key: string]: string;
+    };
+    numeric_value: number | null;
+    occurred_at: string;
+    preset_id: string | null;
+    request_id: string | null;
+    session_id: string | null;
+    source: "api" | "user" | "system" | "import" | "test";
+    test_run_id: string | null;
+    value: unknown | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/events";
+  return client.request<{
+    data: {
+      category: "feedback" | "behavior" | "outcome" | "app" | "test" | "custom";
+      created_at: string;
+      created_by_user_id: string | null;
+      end_user_id: string | null;
+      event_name: string;
+      id: string;
+      metadata: {
+        [key: string]: unknown;
+      };
+      metadata_dimensions: {
+        [key: string]: string;
+      };
+      numeric_value: number | null;
+      occurred_at: string;
+      preset_id: string | null;
+      request_id: string | null;
+      session_id: string | null;
+      source: "api" | "user" | "system" | "import" | "test";
+      test_run_id: string | null;
+      value: unknown | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGatewayRequestLogsParams = {
+  path?: Record<string, never>;
+  query?: {
+    endpoint?: string;
+    error_code?: string;
+    from?: string;
+    key_id?: string;
+    limit?: number;
+    model?: string;
+    offset?: number;
+    provider?: string;
+    request_id?: string;
+    session_id?: string;
+    since?: string;
+    status?: string;
+    to?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists redacted request facts for the authenticated workspace with bounded time-range and field filters. Requires `activity:read`.
+ */
+export async function listGatewayRequestLogs(
+  client: Client,
+  args: ListGatewayRequestLogsParams = {},
+): Promise<{
+  data: {
+    auth_method?: string | null;
+    byok?: boolean | null;
+    canonical_model_id?: string | null;
+    cost_nanos?: number | null;
+    created_at?: string;
+    currency?: string | null;
+    endpoint?: string | null;
+    error_code?: string | null;
+    finish_reason?: string | null;
+    generation_ms?: number | null;
+    key_id?: string | null;
+    latency_ms?: number | null;
+    location?: string | null;
+    model_id?: string | null;
+    native_response_id?: string | null;
+    oauth_client_id?: string | null;
+    pricing_lines?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    provider?: string | null;
+    request_id?: string;
+    requested_model_id?: string | null;
+    routed_model_id?: string | null;
+    status_code?: number | null;
+    stream?: boolean | null;
+    success?: boolean | null;
+    throughput?: number | null;
+    usage?: {
+      [key: string]: unknown;
+    } | null;
+  }[];
+  from_time: string;
+  limit: number;
+  offset: number;
+  ok: true;
+  to_time: string | null;
+  total: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/logs";
+  return client.request<{
+    data: {
+      auth_method?: string | null;
+      byok?: boolean | null;
+      canonical_model_id?: string | null;
+      cost_nanos?: number | null;
+      created_at?: string;
+      currency?: string | null;
+      endpoint?: string | null;
+      error_code?: string | null;
+      finish_reason?: string | null;
+      generation_ms?: number | null;
+      key_id?: string | null;
+      latency_ms?: number | null;
+      location?: string | null;
+      model_id?: string | null;
+      native_response_id?: string | null;
+      oauth_client_id?: string | null;
+      pricing_lines?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      provider?: string | null;
+      request_id?: string;
+      requested_model_id?: string | null;
+      routed_model_id?: string | null;
+      status_code?: number | null;
+      stream?: boolean | null;
+      success?: boolean | null;
+      throughput?: number | null;
+      usage?: {
+        [key: string]: unknown;
+      } | null;
+    }[];
+    from_time: string;
+    limit: number;
+    offset: number;
+    ok: true;
+    to_time: string | null;
+    total: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGuardrailKeysParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists API keys assigned to a guardrail. Requires `guardrails:read`.
+ */
+export async function listGuardrailKeys(
+  client: Client,
+  args: ListGuardrailKeysParams,
+): Promise<{
+  data: {
+    created_at?: string | null;
+    key_id: string;
+    name?: string | null;
+    prefix?: string | null;
+    status?: string | null;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys`;
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      key_id: string;
+      name?: string | null;
+      prefix?: string | null;
+      status?: string | null;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGuardrailMembersParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists workspace members assigned to a guardrail. Requires `guardrails:read`.
+ */
+export async function listGuardrailMembers(
+  client: Client,
+  args: ListGuardrailMembersParams,
+): Promise<{
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role?: string | null;
+    user_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/members`;
+  return client.request<{
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role?: string | null;
+      user_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGuardrailsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists workspace guardrails. Requires `guardrails:read`.
+ */
+export async function listGuardrails(
+  client: Client,
+  args: ListGuardrailsParams = {},
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean | null;
+    id: string;
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/guardrails";
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean | null;
+      id: string;
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListManagementKeysParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists management-key metadata for the authenticated workspace. Requires `management_keys:read`.
+ */
+export async function listManagementKeys(
+  client: Client,
+  args: ListManagementKeysParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/management-keys";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListModelEndpointsParams = {
-  path?: {
+  path: {
     author: string;
     slug: string;
   };
@@ -7177,7 +13208,7 @@ export type ListModelEndpointsParams = {
  */
 export async function listModelEndpoints(
   client: Client,
-  args: ListModelEndpointsParams = {},
+  args: ListModelEndpointsParams,
 ): Promise<{
   availability_mode: "active" | "all";
   description: string;
@@ -7293,7 +13324,7 @@ export async function listModelEndpoints(
   } | null;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/models/${encodeURIComponent(String(path?.["author"]))}/${encodeURIComponent(String(path?.["slug"]))}/endpoints`;
+  const resolvedPath = `/models/${encodeURIComponent(String(path["author"]))}/${encodeURIComponent(String(path["slug"]))}/endpoints`;
   return client.request<{
     availability_mode: "active" | "all";
     description: string;
@@ -7437,6 +13468,7 @@ export type ListModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -7448,10 +13480,12 @@ export type ListModelsParams = {
       | "essential-ai"
       | "github"
       | "google"
+      | "hexgrad"
       | "ibm"
       | "inception"
       | "inclusionai"
       | "inflection"
+      | "jetbrains"
       | "kwaipilot"
       | "lg"
       | "lightricks"
@@ -7474,10 +13508,14 @@ export type ListModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
+      | "stability-ai"
+      | "stealth"
       | "stepfun"
       | "suno"
       | "tencent"
@@ -7497,6 +13535,7 @@ export type ListModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -7508,10 +13547,12 @@ export type ListModelsParams = {
           | "essential-ai"
           | "github"
           | "google"
+          | "hexgrad"
           | "ibm"
           | "inception"
           | "inclusionai"
           | "inflection"
+          | "jetbrains"
           | "kwaipilot"
           | "lg"
           | "lightricks"
@@ -7534,10 +13575,14 @@ export type ListModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
+          | "stability-ai"
+          | "stealth"
           | "stepfun"
           | "suno"
           | "tencent"
@@ -7887,6 +13932,219 @@ export async function listModels(
   });
 }
 
+export type ListOAuthClientsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists active OAuth applications for the workspace. Requires `oauth_clients:read` and the OAuth beta feature.
+ */
+export async function listOAuthClients(
+  client: Client,
+  args: ListOAuthClientsParams = {},
+): Promise<{
+  data: {
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }[];
+  pagination: {
+    page: number;
+    per_page: number;
+    total: number;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/oauth-clients";
+  return client.request<{
+    data: {
+      active_authorizations?: number;
+      allowed_scopes?: string[];
+      client_id: string;
+      client_type: "public" | "confidential";
+      created_at?: string | null;
+      description?: string | null;
+      homepage_url?: string | null;
+      last_used_at?: string | null;
+      logo_url?: string | null;
+      name: string;
+      privacy_policy_url?: string | null;
+      redirect_uris: string[];
+      requests_last_30d?: number;
+      status: string;
+      terms_of_service_url?: string | null;
+      total_authorizations?: number;
+      updated_at?: string | null;
+      workspace_id: string;
+      [key: string]: unknown;
+    }[];
+    pagination: {
+      page: number;
+      per_page: number;
+      total: number;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListObservabilityDestinationsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists executable observability destinations for the management key workspace.
+ */
+export async function listObservabilityDestinations(
+  client: Client,
+  args: ListObservabilityDestinationsParams = {},
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/destinations";
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListOrganisationsParams = {
   path?: Record<string, never>;
   query?: {
@@ -7939,6 +14197,213 @@ export async function listOrganisations(
   });
 }
 
+export type ListPresetsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    visibility?: "private" | "team" | "public";
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists active presets visible to the management key workspace.
+ */
+export async function listPresets(
+  client: Client,
+  args: ListPresetsParams = {},
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets";
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListPresetTestRunsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    preset_id?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists visible test runs, optionally filtered by preset. Requires `feedback:read`.
+ */
+export async function listPresetTestRuns(
+  client: Client,
+  args: ListPresetTestRunsParams = {},
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/preset-test-runs";
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListPresetVersionsParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists immutable published snapshots for a preset in descending version order.
+ */
+export async function listPresetVersions(
+  client: Client,
+  args: ListPresetVersionsParams,
+): Promise<{
+  data: {
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by: string;
+    description?: string | null;
+    id: string;
+    name: string;
+    preset_id: string;
+    release_notes?: string | null;
+    slug: string;
+    version_label: string;
+    version_number: number;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/versions`;
+  return client.request<{
+    data: {
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by: string;
+      description?: string | null;
+      id: string;
+      name: string;
+      preset_id: string;
+      release_notes?: string | null;
+      slug: string;
+      version_label: string;
+      version_number: number;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListPricingModelsParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -7965,6 +14430,162 @@ export async function listPricingModels(
       [key: string]: unknown;
     }[];
     ok?: boolean;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListPrivateModelsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists private model metadata for the authenticated workspace. Requires `private_models:read` and an owner or admin identity.
+ */
+export async function listPrivateModels(
+  client: Client,
+  args: ListPrivateModelsParams = {},
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/private-models";
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListProviderCredentialsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    provider?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns write-only provider credential metadata for the authenticated workspace.
+ */
+export async function listProviderCredentials(
+  client: Client,
+  args: ListProviderCredentialsParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok";
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    }[];
+    total_count: number;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -8046,6 +14667,7 @@ export type ListTeamModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -8057,10 +14679,12 @@ export type ListTeamModelsParams = {
       | "essential-ai"
       | "github"
       | "google"
+      | "hexgrad"
       | "ibm"
       | "inception"
       | "inclusionai"
       | "inflection"
+      | "jetbrains"
       | "kwaipilot"
       | "lg"
       | "lightricks"
@@ -8083,10 +14707,14 @@ export type ListTeamModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
+      | "stability-ai"
+      | "stealth"
       | "stepfun"
       | "suno"
       | "tencent"
@@ -8106,6 +14734,7 @@ export type ListTeamModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -8117,10 +14746,12 @@ export type ListTeamModelsParams = {
           | "essential-ai"
           | "github"
           | "google"
+          | "hexgrad"
           | "ibm"
           | "inception"
           | "inclusionai"
           | "inflection"
+          | "jetbrains"
           | "kwaipilot"
           | "lg"
           | "lightricks"
@@ -8143,10 +14774,14 @@ export type ListTeamModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
+          | "stability-ai"
+          | "stealth"
           | "stepfun"
           | "suno"
           | "tencent"
@@ -9240,6 +15875,649 @@ export async function listVideosAlias(
   });
 }
 
+export type ListWebhookEndpointsParams = {
+  path?: Record<string, never>;
+  query?: {
+    include_deleted?: boolean;
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists async webhook destinations. Requires `settings:read` and workspace access to async APIs.
+ */
+export async function listWebhookEndpoints(
+  client: Client,
+  args: ListWebhookEndpointsParams = {},
+): Promise<{
+  data: {
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }[];
+  object: "list";
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/webhook-endpoints";
+  return client.request<{
+    data: {
+      createdAt?: string | null;
+      createdBy?: string | null;
+      deletedAt?: string | null;
+      events: string[];
+      hasSecret: boolean;
+      id: string;
+      name: string;
+      status: "active" | "disabled" | "deleted";
+      updatedAt?: string | null;
+      url: string;
+      workspaceId: string;
+    }[];
+    object: "list";
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceAppsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists automatically attributed gateway applications and their editable metadata. Requires `settings:read`.
+ */
+export async function listWorkspaceApps(
+  client: Client,
+  args: ListWorkspaceAppsParams = {},
+): Promise<{
+  data: {
+    app_key: string;
+    category: string | null;
+    created_at: string | null;
+    docs_url: string | null;
+    id: string;
+    image_url: string | null;
+    is_active: boolean;
+    is_managed: boolean;
+    is_public: boolean;
+    last_seen: string | null;
+    title: string;
+    url: string | null;
+  }[];
+  limit: number;
+  offset: number;
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/apps";
+  return client.request<{
+    data: {
+      app_key: string;
+      category: string | null;
+      created_at: string | null;
+      docs_url: string | null;
+      id: string;
+      image_url: string | null;
+      is_active: boolean;
+      is_managed: boolean;
+      is_public: boolean;
+      last_seen: string | null;
+      title: string;
+      url: string | null;
+    }[];
+    limit: number;
+    offset: number;
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceAuditEventsParams = {
+  path?: Record<string, never>;
+  query?: {
+    action?: string;
+    cursor?: string;
+    limit?: number;
+    target_type?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns security-sensitive control-plane changes for the authenticated workspace. Requires an owner or admin identity and the activity:read management capability.
+ */
+export async function listWorkspaceAuditEvents(
+  client: Client,
+  args: ListWorkspaceAuditEventsParams = {},
+): Promise<{
+  data: {
+    action: string;
+    actor?: {
+      display_name?: string | null;
+      email?: string | null;
+    } | null;
+    actor_user_id?: string | null;
+    created_at: string;
+    id: string;
+    metadata: {
+      accessTemplate?: string;
+      changedFields?: string[];
+      expiresAt?: string | null;
+      limits?: {
+        dailyCostNanos?: number;
+        dailyRequests?: number;
+        monthlyCostNanos?: number;
+        monthlyRequests?: number;
+        softBlocked?: boolean;
+        weeklyCostNanos?: number;
+        weeklyRequests?: number;
+      };
+      prefix?: string | null;
+      previousKeyExpiresAt?: string | null;
+      replacementKeyId?: string;
+      replacementKeyName?: string;
+      status?: string;
+      [key: string]: unknown;
+    };
+    request_id?: string | null;
+    target_id: string;
+    target_name?: string | null;
+    target_type: string;
+    workspace_id: string;
+  }[];
+  has_more: boolean;
+  next_cursor?: string | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/audit-events";
+  return client.request<{
+    data: {
+      action: string;
+      actor?: {
+        display_name?: string | null;
+        email?: string | null;
+      } | null;
+      actor_user_id?: string | null;
+      created_at: string;
+      id: string;
+      metadata: {
+        accessTemplate?: string;
+        changedFields?: string[];
+        expiresAt?: string | null;
+        limits?: {
+          dailyCostNanos?: number;
+          dailyRequests?: number;
+          monthlyCostNanos?: number;
+          monthlyRequests?: number;
+          softBlocked?: boolean;
+          weeklyCostNanos?: number;
+          weeklyRequests?: number;
+        };
+        prefix?: string | null;
+        previousKeyExpiresAt?: string | null;
+        replacementKeyId?: string;
+        replacementKeyName?: string;
+        status?: string;
+        [key: string]: unknown;
+      };
+      request_id?: string | null;
+      target_id: string;
+      target_name?: string | null;
+      target_type: string;
+      workspace_id: string;
+    }[];
+    has_more: boolean;
+    next_cursor?: string | null;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceBudgetsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists spend ceilings with current usage, remaining spend, and reset timestamps.
+ */
+export async function listWorkspaceBudgets(
+  client: Client,
+  args: ListWorkspaceBudgetsParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/budgets";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceDepartmentsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists manually managed and directory-synchronized departments.
+ */
+export async function listWorkspaceDepartments(
+  client: Client,
+  args: ListWorkspaceDepartmentsParams = {},
+): Promise<{
+  data: {
+    color?: string;
+    created_at?: string | null;
+    description?: string | null;
+    directory_name?: string | null;
+    icon?: string;
+    id: string;
+    name: string;
+    name_overridden?: boolean;
+    source_id?: string | null;
+    source_type?: "manual" | "scim_group";
+    updated_at?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/departments";
+  return client.request<{
+    data: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceGroupMappingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists mappings from provisioned groups to workspace roles and departments.
+ */
+export async function listWorkspaceGroupMappings(
+  client: Client,
+  args: ListWorkspaceGroupMappingsParams = {},
+): Promise<{
+  data: {
+    access_role: "member" | "admin";
+    created_at?: string | null;
+    department_id: string;
+    department_position: "member" | "lead";
+    id: string;
+    scim_group_id: string;
+    updated_at?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/group-mappings";
+  return client.request<{
+    data: {
+      access_role: "member" | "admin";
+      created_at?: string | null;
+      department_id: string;
+      department_position: "member" | "lead";
+      id: string;
+      scim_group_id: string;
+      updated_at?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceInvitesParams = {
+  path: {
+    id: string;
+  };
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists invite metadata without returning invite secrets. Management API key required.
+ */
+export async function listWorkspaceInvites(
+  client: Client,
+  args: ListWorkspaceInvitesParams,
+): Promise<{
+  data: {
+    created_at?: string;
+    creator_user_id: string;
+    expires_at?: string | null;
+    id: string;
+    max_uses?: number | null;
+    role: "admin" | "member";
+    token_preview?: string | null;
+    uses_count?: number;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/invites`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      creator_user_id: string;
+      expires_at?: string | null;
+      id: string;
+      max_uses?: number | null;
+      role: "admin" | "member";
+      token_preview?: string | null;
+      uses_count?: number;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceJoinRequestsParams = {
+  path: {
+    id: string;
+  };
+  query?: {
+    limit?: number;
+    offset?: number;
+    status?: "pending" | "approved" | "denied";
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists recent workspace join requests. Management API key required.
+ */
+export async function listWorkspaceJoinRequests(
+  client: Client,
+  args: ListWorkspaceJoinRequestsParams,
+): Promise<{
+  data: {
+    created_at?: string;
+    decided_at?: string | null;
+    decided_by?: string | null;
+    id: string;
+    invite_id?: string | null;
+    requester_user_id: string;
+    status: "pending" | "approved" | "denied";
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/join-requests`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      decided_at?: string | null;
+      decided_by?: string | null;
+      id: string;
+      invite_id?: string | null;
+      requester_user_id: string;
+      status: "pending" | "approved" | "denied";
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceMembersParams = {
+  path: {
+    id: string;
+  };
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists members and roles for a workspace. Management API key required.
+ */
+export async function listWorkspaceMembers(
+  client: Client,
+  args: ListWorkspaceMembersParams,
+): Promise<{
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role: "owner" | "admin" | "member";
+    user_id: string;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members`;
+  return client.request<{
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role: "owner" | "admin" | "member";
+      user_id: string;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceNotificationDestinationsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists active and disabled workspace destinations without returning encrypted target values.
+ */
+export async function listWorkspaceNotificationDestinations(
+  client: Client,
+  args: ListWorkspaceNotificationDestinationsParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    id: string;
+    name: string;
+    status: "active" | "disabled";
+    target_preview: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+    updated_at?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/destinations";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      id: string;
+      name: string;
+      status: "active" | "disabled";
+      target_preview: string;
+      type:
+        | "email"
+        | "discord"
+        | "discord_webhook"
+        | "slack"
+        | "microsoft_teams"
+        | "custom_webhook";
+      updated_at?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceNotificationRoutesParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns destination assignments for each supported workspace notification event.
+ */
+export async function listWorkspaceNotificationRoutes(
+  client: Client,
+  args: ListWorkspaceNotificationRoutesParams = {},
+): Promise<{
+  data: {
+    auto_top_up_failed: string[];
+    low_balance: string[];
+    model_deprecation: string[];
+    payment_method_expiring: string[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/routes";
+  return client.request<{
+    data: {
+      auto_top_up_failed: string[];
+      low_balance: string[];
+      model_deprecation: string[];
+      payment_method_expiring: string[];
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspacesParams = {
   path?: Record<string, never>;
   query?: {
@@ -9262,7 +16540,7 @@ export async function listWorkspaces(
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   }[];
   total_count: number;
@@ -9275,7 +16553,7 @@ export async function listWorkspaces(
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     }[];
     total_count: number;
@@ -9288,32 +16566,58 @@ export async function listWorkspaces(
   });
 }
 
-export type OpenAsyncJobWebSocketParams = {
-  path?: {
-    id: string;
-    kind: "batch" | "video";
-  };
+export type ListWorkspaceScimAuditEventsParams = {
+  path?: Record<string, never>;
   query?: {
-    close_on_terminal?: boolean;
-    interval_ms?: number;
+    before?: string;
+    limit?: number;
   };
   headers?: Record<string, never>;
   body?: never;
 };
 
 /**
- * Opens a persistent websocket session for owned async batch or video job updates.
- * WebSocket handshake uses HTTP GET upgrade semantics and returns `101 Switching Protocols` on success (not `200`). The socket emits a `job.snapshot` immediately after upgrade and subsequent `job.updated` envelopes when the normalized async job payload changes.
- * If `close_on_terminal` is enabled, the gateway closes the socket after a terminal `completed`, `failed`, `cancelled`, or `expired` update.
- *
+ * Lists recent SCIM provisioning activity for the workspace.
  */
-export async function openAsyncJobWebSocket(
+export async function listWorkspaceScimAuditEvents(
   client: Client,
-  args: OpenAsyncJobWebSocketParams = {},
-): Promise<unknown> {
+  args: ListWorkspaceScimAuditEventsParams = {},
+): Promise<{
+  data: {
+    action?: string;
+    correlation_id?: string | null;
+    created_at?: string;
+    detail?: {
+      [key: string]: unknown;
+    } | null;
+    http_status?: number;
+    id?: string;
+    outcome?: string;
+    request_id?: string | null;
+    resource_id?: string | null;
+    resource_type?: string | null;
+    scim_type?: string | null;
+  }[];
+}> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/async/${encodeURIComponent(String(path?.["kind"]))}/${encodeURIComponent(String(path?.["id"]))}/ws`;
-  return client.request<unknown>({
+  const resolvedPath = "/identity/scim/audit";
+  return client.request<{
+    data: {
+      action?: string;
+      correlation_id?: string | null;
+      created_at?: string;
+      detail?: {
+        [key: string]: unknown;
+      } | null;
+      http_status?: number;
+      id?: string;
+      outcome?: string;
+      request_id?: string | null;
+      resource_id?: string | null;
+      resource_type?: string | null;
+      scim_type?: string | null;
+    }[];
+  }>({
     method: "GET",
     path: resolvedPath,
     query,
@@ -9322,8 +16626,410 @@ export async function openAsyncJobWebSocket(
   });
 }
 
+export type MergeWorkspaceAppParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    target_app_id: string;
+  };
+};
+
+/**
+ * Atomically moves request history and analytics from the source application into another application in the same workspace, then removes the source.
+ */
+export async function mergeWorkspaceApp(
+  client: Client,
+  args: MergeWorkspaceAppParams,
+): Promise<{
+  data: {
+    merged: true;
+    source_app_id: string;
+    target_app_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/apps/${encodeURIComponent(String(path["id"]))}/merge`;
+  return client.request<{
+    data: {
+      merged: true;
+      source_app_id: string;
+      target_app_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type PublishPresetVersionParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    release_notes?: string;
+    version_label?: string;
+  };
+};
+
+/**
+ * Publishes the current draft as a new immutable version using the preset versioning method.
+ */
+export async function publishPresetVersion(
+  client: Client,
+  args: PublishPresetVersionParams,
+): Promise<{
+  data: {
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by: string;
+    description?: string | null;
+    id: string;
+    name: string;
+    preset_id: string;
+    release_notes?: string | null;
+    slug: string;
+    version_label: string;
+    version_number: number;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}/versions`;
+  return client.request<{
+    data: {
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by: string;
+      description?: string | null;
+      id: string;
+      name: string;
+      preset_id: string;
+      release_notes?: string | null;
+      slug: string;
+      version_label: string;
+      version_number: number;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RegenerateOAuthClientSecretParams = {
+  path: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Replaces a confidential client's secret and returns the new value once.
+ */
+export async function regenerateOAuthClientSecret(
+  client: Client,
+  args: RegenerateOAuthClientSecretParams,
+): Promise<{
+  client_id: string;
+  client_secret: string;
+  message: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}/regenerate-secret`;
+  return client.request<{
+    client_id: string;
+    client_secret: string;
+    message: string;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RejectWorkspaceJoinRequestParams = {
+  path: {
+    id: string;
+    request_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Atomically rejects a pending request. Management API key required.
+ */
+export async function rejectWorkspaceJoinRequest(
+  client: Client,
+  args: RejectWorkspaceJoinRequestParams,
+): Promise<{
+  data: {
+    created_at?: string;
+    decided_at?: string | null;
+    decided_by?: string | null;
+    id: string;
+    invite_id?: string | null;
+    requester_user_id: string;
+    status: "pending" | "approved" | "denied";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/join-requests/${encodeURIComponent(String(path["request_id"]))}/reject`;
+  return client.request<{
+    data: {
+      created_at?: string;
+      decided_at?: string | null;
+      decided_by?: string | null;
+      id: string;
+      invite_id?: string | null;
+      requester_user_id: string;
+      status: "pending" | "approved" | "denied";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RemoveGuardrailKeysParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Removes one or more API-key assignments. Requires `guardrails:write`.
+ */
+export async function removeGuardrailKeys(
+  client: Client,
+  args: RemoveGuardrailKeysParams,
+): Promise<{
+  removed_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys/remove`;
+  return client.request<{
+    removed_count: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RemoveGuardrailMembersParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    user_ids: string[];
+  };
+};
+
+/**
+ * Removes workspace-member assignments. Requires `guardrails:write`.
+ */
+export async function removeGuardrailMembers(
+  client: Client,
+  args: RemoveGuardrailMembersParams,
+): Promise<{
+  removed_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/members/remove`;
+  return client.request<{
+    removed_count: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RemoveWorkspaceMembersParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    user_ids: string[];
+  };
+};
+
+/**
+ * Removes non-owner members from a workspace. Management API key required.
+ */
+export async function removeWorkspaceMembers(
+  client: Client,
+  args: RemoveWorkspaceMembersParams,
+): Promise<{
+  removed_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members/remove`;
+  return client.request<{
+    removed_count: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ReorderProviderCredentialsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+    provider: string;
+    routing_mode: "priority" | "fallback";
+  };
+};
+
+/**
+ * Replaces the priority order for one provider and routing group.
+ */
+export async function reorderProviderCredentials(
+  client: Client,
+  args: ReorderProviderCredentialsParams = {},
+): Promise<{
+  reordered: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok/reorder";
+  return client.request<{
+    reordered: boolean;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ReplaceDynamicRouteKeysParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Atomically replaces API-key attachments and refreshes affected gateway contexts.
+ */
+export async function replaceDynamicRouteKeys(
+  client: Client,
+  args: ReplaceDynamicRouteKeysParams,
+): Promise<{
+  data: {
+    id: string;
+    key_ids: string[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}/keys`;
+  return client.request<{
+    data: {
+      id: string;
+      key_ids: string[];
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ReplaceGuardrailKeysParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Replaces the complete key assignment set. Requires `guardrails:write`.
+ */
+export async function replaceGuardrailKeys(
+  client: Client,
+  args: ReplaceGuardrailKeysParams,
+): Promise<{
+  data: {
+    guardrail_id: string;
+    key_ids: string[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}/keys`;
+  return client.request<{
+    data: {
+      guardrail_id: string;
+      key_ids: string[];
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type RetrieveBatchParams = {
-  path?: {
+  path: {
     batch_id: string;
   };
   query?: Record<string, never>;
@@ -9336,7 +17042,7 @@ export type RetrieveBatchParams = {
  */
 export async function retrieveBatch(
   client: Client,
-  args: RetrieveBatchParams = {},
+  args: RetrieveBatchParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -9449,7 +17155,7 @@ export async function retrieveBatch(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -9570,7 +17276,7 @@ export async function retrieveBatch(
 }
 
 export type RetrieveBatchAliasParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -9583,7 +17289,7 @@ export type RetrieveBatchAliasParams = {
  */
 export async function retrieveBatchAlias(
   client: Client,
-  args: RetrieveBatchAliasParams = {},
+  args: RetrieveBatchAliasParams,
 ): Promise<{
   billing?: {
     billed?: boolean;
@@ -9696,7 +17402,7 @@ export async function retrieveBatchAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -9817,7 +17523,7 @@ export async function retrieveBatchAlias(
 }
 
 export type RetrieveBatchFileParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -9830,7 +17536,7 @@ export type RetrieveBatchFileParams = {
  */
 export async function retrieveBatchFile(
   client: Client,
-  args: RetrieveBatchFileParams = {},
+  args: RetrieveBatchFileParams,
 ): Promise<{
   bytes?: number;
   created_at?: number;
@@ -9842,7 +17548,7 @@ export async function retrieveBatchFile(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.["file_id"]))}`;
+  const resolvedPath = `/batches/files/${encodeURIComponent(String(path["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -9862,7 +17568,7 @@ export async function retrieveBatchFile(
 }
 
 export type RetrieveBatchFileAliasParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -9875,7 +17581,7 @@ export type RetrieveBatchFileAliasParams = {
  */
 export async function retrieveBatchFileAlias(
   client: Client,
-  args: RetrieveBatchFileAliasParams = {},
+  args: RetrieveBatchFileAliasParams,
 ): Promise<{
   bytes?: number;
   created_at?: number;
@@ -9887,7 +17593,7 @@ export async function retrieveBatchFileAlias(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.["file_id"]))}`;
+  const resolvedPath = `/batch/files/${encodeURIComponent(String(path["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -9907,7 +17613,7 @@ export async function retrieveBatchFileAlias(
 }
 
 export type RetrieveBatchFileContentParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -9920,10 +17626,10 @@ export type RetrieveBatchFileContentParams = {
  */
 export async function retrieveBatchFileContent(
   client: Client,
-  args: RetrieveBatchFileContentParams = {},
+  args: RetrieveBatchFileContentParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
+  const resolvedPath = `/batches/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -9934,7 +17640,7 @@ export async function retrieveBatchFileContent(
 }
 
 export type RetrieveBatchFileContentAliasParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -9947,10 +17653,10 @@ export type RetrieveBatchFileContentAliasParams = {
  */
 export async function retrieveBatchFileContentAlias(
   client: Client,
-  args: RetrieveBatchFileContentAliasParams = {},
+  args: RetrieveBatchFileContentAliasParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
+  const resolvedPath = `/batch/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -9961,7 +17667,7 @@ export async function retrieveBatchFileContentAlias(
 }
 
 export type RetrieveFileParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -9974,7 +17680,7 @@ export type RetrieveFileParams = {
  */
 export async function retrieveFile(
   client: Client,
-  args: RetrieveFileParams = {},
+  args: RetrieveFileParams,
 ): Promise<{
   bytes?: number;
   created_at?: number;
@@ -9986,7 +17692,7 @@ export async function retrieveFile(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}`;
+  const resolvedPath = `/files/${encodeURIComponent(String(path["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -10006,7 +17712,7 @@ export async function retrieveFile(
 }
 
 export type RetrieveFileContentParams = {
-  path?: {
+  path: {
     file_id: string;
   };
   query?: Record<string, never>;
@@ -10019,10 +17725,10 @@ export type RetrieveFileContentParams = {
  */
 export async function retrieveFileContent(
   client: Client,
-  args: RetrieveFileContentParams = {},
+  args: RetrieveFileContentParams,
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
+  const resolvedPath = `/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -10032,8 +17738,436 @@ export async function retrieveFileContent(
   });
 }
 
+export type RevokeWorkspaceScimTokenParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Revokes a provisioning token. Requires `settings:write`.
+ */
+export async function revokeWorkspaceScimToken(
+  client: Client,
+  args: RevokeWorkspaceScimTokenParams,
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/scim/tokens/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RotateApiKeyParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    name?: string;
+    previous_key_expires_at?: string | null;
+  };
+};
+
+/**
+ * Creates a replacement with the same limits and optionally sets the previous key expiry. The replacement secret is returned once. Requires `keys:write`.
+ */
+export async function rotateApiKey(
+  client: Client,
+  args: RotateApiKeyParams,
+): Promise<{
+  data: {
+    created_at: string | null;
+    created_by: string | null;
+    creator_user_id: string | null;
+    disabled: boolean;
+    expires_at: string | null;
+    hash: string;
+    id: string;
+    include_byok_in_limit: boolean;
+    key: string;
+    label: string | null;
+    last_used_at: string | null;
+    limit: number | null;
+    limit_remaining: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
+    name: string | null;
+    prefix: string | null;
+    scopes: string | string[];
+    soft_blocked: boolean;
+    status: string | null;
+    updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
+    workspace_id: string;
+  };
+  previous_key_expires_at: string | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}/rotate`;
+  return client.request<{
+    data: {
+      created_at: string | null;
+      created_by: string | null;
+      creator_user_id: string | null;
+      disabled: boolean;
+      expires_at: string | null;
+      hash: string;
+      id: string;
+      include_byok_in_limit: boolean;
+      key: string;
+      label: string | null;
+      last_used_at: string | null;
+      limit: number | null;
+      limit_remaining: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
+      name: string | null;
+      prefix: string | null;
+      scopes: string | string[];
+      soft_blocked: boolean;
+      status: string | null;
+      updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
+      workspace_id: string;
+    };
+    previous_key_expires_at: string | null;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RotateWebhookEndpointSecretParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Replaces the signing secret and returns the new value once.
+ */
+export async function rotateWebhookEndpointSecret(
+  client: Client,
+  args: RotateWebhookEndpointSecretParams,
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  signing_secret: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}/rotate-secret`;
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    signing_secret: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type SetWorkspaceDepartmentMemberParams = {
+  path: {
+    departmentId: string;
+    userId: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    position?: "member" | "lead";
+    primary?: boolean;
+  };
+};
+
+/**
+ * Adds or updates a manual department membership for a workspace user.
+ */
+export async function setWorkspaceDepartmentMember(
+  client: Client,
+  args: SetWorkspaceDepartmentMemberParams,
+): Promise<{
+  data: {
+    department_id: string;
+    is_primary: boolean;
+    position: "member" | "lead";
+    user_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["departmentId"]))}/members/${encodeURIComponent(String(path["userId"]))}`;
+  return client.request<{
+    data: {
+      department_id: string;
+      is_primary: boolean;
+      position: "member" | "lead";
+      user_id: string;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type SummarizeGatewayFeedbackParams = {
+  path?: Record<string, never>;
+  query?: {
+    group_by?: "preset" | "preset_id" | "test_run" | "test_run_id" | "metadata";
+    metadata_key?: string;
+    preset_id?: string;
+    since?: string;
+    test_run_id?: string;
+    until?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Aggregates workspace feedback by preset, test run, or metadata dimension.
+ */
+export async function summarizeGatewayFeedback(
+  client: Client,
+  args: SummarizeGatewayFeedbackParams = {},
+): Promise<{
+  data: {
+    average_score: number | null;
+    count: number;
+    last_feedback_at: string | null;
+    metadata_key?: string;
+    metadata_value?: string | null;
+    negative: number;
+    partial: number;
+    positive: number;
+    preset_id?: string | null;
+    ratings: {
+      [key: string]: number;
+    };
+    test_run_id?: string | null;
+  }[];
+  group_by: "preset_id" | "test_run_id" | "metadata";
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/feedback/summary";
+  return client.request<{
+    data: {
+      average_score: number | null;
+      count: number;
+      last_feedback_at: string | null;
+      metadata_key?: string;
+      metadata_value?: string | null;
+      negative: number;
+      partial: number;
+      positive: number;
+      preset_id?: string | null;
+      ratings: {
+        [key: string]: number;
+      };
+      test_run_id?: string | null;
+    }[];
+    group_by: "preset_id" | "test_run_id" | "metadata";
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type TestWorkspaceNotificationDestinationParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Delivers a test through an existing encrypted workspace destination.
+ */
+export async function testWorkspaceNotificationDestination(
+  client: Client,
+  args: TestWorkspaceNotificationDestinationParams,
+): Promise<{
+  data: {
+    delivered: true;
+    status: number | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/notifications/destinations/${encodeURIComponent(String(path["id"]))}/test`;
+  return client.request<{
+    data: {
+      delivered: true;
+      status: number | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type TestWorkspaceNotificationDestinationConfigParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    target: string;
+    type:
+      | "email"
+      | "discord"
+      | "discord_webhook"
+      | "slack"
+      | "microsoft_teams"
+      | "custom_webhook";
+  };
+};
+
+/**
+ * Validates and delivers a test to an unsaved destination configuration. The target is not persisted.
+ */
+export async function testWorkspaceNotificationDestinationConfig(
+  client: Client,
+  args: TestWorkspaceNotificationDestinationConfigParams = {},
+): Promise<{
+  data: {
+    delivered: true;
+    status: number | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/destinations/test";
+  return client.request<{
+    data: {
+      delivered: true;
+      status: number | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateApiKeyParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -10044,6 +18178,20 @@ export type UpdateApiKeyParams = {
     include_byok_in_limit?: boolean;
     limit?: number | null;
     limit_reset?: "daily" | "weekly" | "monthly";
+    limits?: {
+      daily?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      monthly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+      weekly?: {
+        cost?: number | null;
+        requests?: number | null;
+      };
+    };
     name?: string;
     scopes?: string | string[];
     soft_blocked?: boolean;
@@ -10055,44 +18203,126 @@ export type UpdateApiKeyParams = {
  */
 export async function updateApiKey(
   client: Client,
-  args: UpdateApiKeyParams = {},
+  args: UpdateApiKeyParams,
 ): Promise<{
   data: {
     created_at: string | null;
     created_by: string | null;
+    creator_user_id: string | null;
     disabled: boolean;
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_remaining: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    limits: {
+      daily: {
+        cost: number | null;
+        requests: number | null;
+      };
+      monthly: {
+        cost: number | null;
+        requests: number | null;
+      };
+      weekly: {
+        cost: number | null;
+        requests: number | null;
+      };
+    };
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
     soft_blocked: boolean;
     status: string | null;
     updated_at: string | null;
+    usage: number;
+    usage_daily: number;
+    usage_details: {
+      daily: {
+        cost: number;
+        requests: number;
+      };
+      monthly: {
+        cost: number;
+        requests: number;
+      };
+      total: {
+        cost: number;
+        requests: number;
+      };
+      weekly: {
+        cost: number;
+        requests: number;
+      };
+    };
+    usage_monthly: number;
+    usage_weekly: number;
     workspace_id: string;
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
       created_by: string | null;
+      creator_user_id: string | null;
       disabled: boolean;
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_remaining: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      limits: {
+        daily: {
+          cost: number | null;
+          requests: number | null;
+        };
+        monthly: {
+          cost: number | null;
+          requests: number | null;
+        };
+        weekly: {
+          cost: number | null;
+          requests: number | null;
+        };
+      };
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      usage: number;
+      usage_daily: number;
+      usage_details: {
+        daily: {
+          cost: number;
+          requests: number;
+        };
+        monthly: {
+          cost: number;
+          requests: number;
+        };
+        total: {
+          cost: number;
+          requests: number;
+        };
+        weekly: {
+          cost: number;
+          requests: number;
+        };
+      };
+      usage_monthly: number;
+      usage_weekly: number;
       workspace_id: string;
     };
   }>({
@@ -10104,8 +18334,1318 @@ export async function updateApiKey(
   });
 }
 
+export type UpdateDataContributionClassifierParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    categories?: {
+      [key: string]: string[];
+    };
+    description?: string | null;
+    enabled?: boolean;
+    instructions?: string;
+    model?: string;
+    name?: string;
+    sampleRateBps?: number;
+    serviceTier?: "standard" | "flex";
+  };
+};
+
+/**
+ * Updates a custom workspace classifier. Requires `settings:write` and feature access.
+ */
+export async function updateDataContributionClassifier(
+  client: Client,
+  args: UpdateDataContributionClassifierParams,
+): Promise<{
+  data: {
+    categories: {
+      [key: string]: string[];
+    };
+    created_at?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    id: string;
+    instructions: string;
+    kind: "starter" | "custom";
+    model: string;
+    name: string;
+    sample_rate_bps: number;
+    service_tier: "standard" | "flex";
+    slug: string;
+    updated_at?: string | null;
+    [key: string]: unknown;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/data-contribution/classifiers/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      categories: {
+        [key: string]: string[];
+      };
+      created_at?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      id: string;
+      instructions: string;
+      kind: "starter" | "custom";
+      model: string;
+      name: string;
+      sample_rate_bps: number;
+      service_tier: "standard" | "flex";
+      slug: string;
+      updated_at?: string | null;
+      [key: string]: unknown;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateDataContributionConsentParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    enabled: boolean;
+    reason?: string;
+  };
+};
+
+/**
+ * Enables or disables workspace data contribution and refreshes gateway policy state. Requires `settings:write` and feature access.
+ */
+export async function updateDataContributionConsent(
+  client: Client,
+  args: UpdateDataContributionConsentParams = {},
+): Promise<{
+  data: {
+    classifierSampleRateBps: number;
+    discountBps: number;
+    enabled: boolean;
+    policyVersion: string;
+    sampleRateBps: number;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/data-contribution/consent";
+  return client.request<{
+    data: {
+      classifierSampleRateBps: number;
+      discountBps: number;
+      enabled: boolean;
+      policyVersion: string;
+      sampleRateBps: number;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateDynamicRouteParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    description?: string | null;
+    name?: string;
+    status?: "active" | "paused";
+  };
+};
+
+/**
+ * Updates route metadata and creates a new immutable version when configuration changes.
+ */
+export async function updateDynamicRoute(
+  client: Client,
+  args: UpdateDynamicRouteParams,
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateGuardrailParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowedApiModelIds?: string[];
+    budgets?: {
+      dailyCostNanos?: number | null;
+      dailyRequests?: number | null;
+      monthlyCostNanos?: number | null;
+      monthlyRequests?: number | null;
+      weeklyCostNanos?: number | null;
+      weeklyRequests?: number | null;
+    };
+    description?: string | null;
+    enabled?: boolean;
+    modelRestrictionMode?: "none" | "allowlist" | "blocklist";
+    name?: string;
+    privacyEnableFreeMayPublishPrompts?: boolean | null;
+    privacyEnableFreeMayTrain?: boolean | null;
+    privacyEnableInputOutputLogging?: boolean | null;
+    privacyEnablePaidMayTrain?: boolean | null;
+    privacyZdrOnly?: boolean | null;
+    promptInjectionAction?: "flag" | "block";
+    promptInjectionEnabled?: boolean;
+    providerRestrictionEnforceAllowed?: boolean;
+    providerRestrictionMode?: "none" | "allowlist" | "blocklist";
+    providerRestrictionProviderIds?: string[];
+    sensitiveInfoDefaultAction?: "flag" | "redact" | "block";
+    sensitiveInfoEnabled?: boolean;
+    sensitiveInfoRules?: {
+      [key: string]: unknown;
+    }[];
+  };
+};
+
+/**
+ * Updates guardrail policy fields. Requires `guardrails:write`.
+ */
+export async function updateGuardrail(
+  client: Client,
+  args: UpdateGuardrailParams,
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean | null;
+    id: string;
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean | null;
+      id: string;
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateManagementKeyParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    dailyCostNanos?: number | null;
+    dailyRequests?: number | null;
+    expires_at?: string | null;
+    monthlyCostNanos?: number | null;
+    monthlyRequests?: number | null;
+    name?: string;
+    paused?: boolean;
+    scopes?: string | string[];
+    softBlocked?: boolean;
+    template?: "read-only" | "read-write" | "full-control";
+    weeklyCostNanos?: number | null;
+    weeklyRequests?: number | null;
+  };
+};
+
+/**
+ * Updates scopes, limits, expiry, name, or paused state. Requires `management_keys:write`.
+ */
+export async function updateManagementKey(
+  client: Client,
+  args: UpdateManagementKeyParams,
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateOAuthClientParams = {
+  path: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_scopes?: string[];
+    description?: string;
+    homepage_url?: string;
+    logo_url?: string;
+    name?: string;
+    privacy_policy_url?: string;
+    redirect_uris?: string[];
+    terms_of_service_url?: string;
+  };
+};
+
+/**
+ * Updates OAuth application metadata, scopes, or redirect URIs. Requires `oauth_clients:write`.
+ */
+export async function updateOAuthClient(
+  client: Client,
+  args: UpdateOAuthClientParams,
+): Promise<{
+  active_authorizations?: number;
+  allowed_scopes?: string[];
+  client_id: string;
+  client_type: "public" | "confidential";
+  created_at?: string | null;
+  description?: string | null;
+  homepage_url?: string | null;
+  last_used_at?: string | null;
+  logo_url?: string | null;
+  name: string;
+  privacy_policy_url?: string | null;
+  redirect_uris: string[];
+  requests_last_30d?: number;
+  status: string;
+  terms_of_service_url?: string | null;
+  total_authorizations?: number;
+  updated_at?: string | null;
+  workspace_id: string;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path["client_id"]))}`;
+  return client.request<{
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateObservabilityDestinationParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      [key: string]: string;
+    };
+    enabled?: boolean;
+    group_join?: "and" | "or";
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters?: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name?: string;
+    privacy_mode?: boolean;
+    rule_groups?: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate?: number;
+  };
+};
+
+/**
+ * Updates destination policy, filters, or write-only configuration.
+ */
+export async function updateObservabilityDestination(
+  client: Client,
+  args: UpdateObservabilityDestinationParams,
+): Promise<{
+  data: {
+    configured: boolean;
+    created_at?: string | null;
+    enabled: boolean;
+    group_join: "and" | "or";
+    id: string;
+    include_cost_metadata?: boolean;
+    include_generation_metadata?: boolean;
+    include_identity_metadata?: boolean;
+    include_request_context?: boolean;
+    key_filters: {
+      key_id: string;
+      mode: "include" | "exclude";
+    }[];
+    name: string;
+    privacy_mode: boolean;
+    rule_groups: {
+      match: "and" | "or";
+      rules: {
+        condition:
+          | "equals"
+          | "not_equals"
+          | "contains"
+          | "not_contains"
+          | "starts_with"
+          | "ends_with"
+          | "exists"
+          | "not_exists"
+          | "matches_regex";
+        field:
+          | "model"
+          | "provider"
+          | "session_id"
+          | "user_id"
+          | "api_key_name"
+          | "finish_reason"
+          | "input"
+          | "output"
+          | "token_cost"
+          | "total_cost"
+          | "total_tokens"
+          | "prompt_tokens"
+          | "completion_tokens";
+        value?: string | null;
+      }[];
+    }[];
+    sampling_rate: number;
+    type: "otel_collector" | "webhook";
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/observability/destinations/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      configured: boolean;
+      created_at?: string | null;
+      enabled: boolean;
+      group_join: "and" | "or";
+      id: string;
+      include_cost_metadata?: boolean;
+      include_generation_metadata?: boolean;
+      include_identity_metadata?: boolean;
+      include_request_context?: boolean;
+      key_filters: {
+        key_id: string;
+        mode: "include" | "exclude";
+      }[];
+      name: string;
+      privacy_mode: boolean;
+      rule_groups: {
+        match: "and" | "or";
+        rules: {
+          condition:
+            | "equals"
+            | "not_equals"
+            | "contains"
+            | "not_contains"
+            | "starts_with"
+            | "ends_with"
+            | "exists"
+            | "not_exists"
+            | "matches_regex";
+          field:
+            | "model"
+            | "provider"
+            | "session_id"
+            | "user_id"
+            | "api_key_name"
+            | "finish_reason"
+            | "input"
+            | "output"
+            | "token_cost"
+            | "total_cost"
+            | "total_tokens"
+            | "prompt_tokens"
+            | "completion_tokens";
+          value?: string | null;
+        }[];
+      }[];
+      sampling_rate: number;
+      type: "otel_collector" | "webhook";
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateObservabilityLoggingPolicyParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    enabled?: boolean;
+    include_provider_payloads?: boolean;
+    retention_days?: number;
+  };
+};
+
+/**
+ * Updates log storage, retention, and provider-payload capture settings.
+ */
+export async function updateObservabilityLoggingPolicy(
+  client: Client,
+  args: UpdateObservabilityLoggingPolicyParams = {},
+): Promise<{
+  data: {
+    billing_status: "active" | "grace" | "suspended";
+    enabled: boolean;
+    grace_until?: string | null;
+    include_provider_payloads: boolean;
+    price_per_million_units_nanos: number;
+    retention_days: number;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/observability/logging-policy";
+  return client.request<{
+    data: {
+      billing_status: "active" | "grace" | "suspended";
+      enabled: boolean;
+      grace_until?: string | null;
+      include_provider_payloads: boolean;
+      price_per_million_units_nanos: number;
+      retention_days: number;
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdatePresetParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      [key: string]: unknown;
+    };
+    description?: string | null;
+    name?: string;
+    replace_config?: boolean;
+    slug?: string;
+    versioning_method?: "sequential" | "semver" | "date";
+    visibility?: "private" | "team" | "public";
+  };
+};
+
+/**
+ * Updates draft metadata or configuration without changing the active published version.
+ */
+export async function updatePreset(
+  client: Client,
+  args: UpdatePresetParams,
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdatePresetPublisherParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    handle: string;
+  };
+};
+
+/**
+ * Renames the workspace publisher handle while retaining its prior handle as an alias.
+ */
+export async function updatePresetPublisher(
+  client: Client,
+  args: UpdatePresetPublisherParams = {},
+): Promise<{
+  data: {
+    handle: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets/publisher";
+  return client.request<{
+    data: {
+      handle: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdatePresetTestRunParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    completed_at?: string | null;
+    description?: string | null;
+    name?: string | null;
+    started_at?: string | null;
+    status?: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary?: {
+      [key: string]: unknown;
+    };
+  };
+};
+
+/**
+ * Updates test-run lifecycle state, summary, timestamps, name, or description. Requires `feedback:write` and an owner or admin identity.
+ */
+export async function updatePresetTestRun(
+  client: Client,
+  args: UpdatePresetTestRunParams,
+): Promise<{
+  data: {
+    baseline_preset_id: string | null;
+    completed_at: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by_user_id: string | null;
+    dataset_name: string | null;
+    description: string | null;
+    id: string;
+    name: string | null;
+    preset_id: string | null;
+    started_at: string | null;
+    status: "pending" | "running" | "completed" | "failed" | "cancelled";
+    summary: {
+      [key: string]: unknown;
+    };
+    updated_at: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/preset-test-runs/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      baseline_preset_id: string | null;
+      completed_at: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by_user_id: string | null;
+      dataset_name: string | null;
+      description: string | null;
+      id: string;
+      name: string | null;
+      preset_id: string | null;
+      started_at: string | null;
+      status: "pending" | "running" | "completed" | "failed" | "cancelled";
+      summary: {
+        [key: string]: unknown;
+      };
+      updated_at: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdatePrivateModelParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    base_url?: string;
+    context_length?: number | null;
+    credential?: string;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled?: boolean;
+    host_provider_id?: string | null;
+    max_output_tokens?: number | null;
+    model_reference?: string;
+    name?: string;
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses?: boolean;
+    upstream_model_id?: string;
+  };
+};
+
+/**
+ * Updates private model metadata or replaces its write-only encrypted credential.
+ */
+export async function updatePrivateModel(
+  client: Client,
+  args: UpdatePrivateModelParams,
+): Promise<{
+  data: {
+    base_url: string;
+    catalog_model_id?: string | null;
+    context_length?: number | null;
+    created_at?: string | null;
+    created_by?: string | null;
+    credential_prefix?: string | null;
+    credential_suffix?: string | null;
+    custom_provider_name?: string | null;
+    custom_provider_url?: string | null;
+    description?: string | null;
+    enabled: boolean;
+    host_provider_id?: string | null;
+    id: string;
+    input_modalities?: string[];
+    local_slug?: string;
+    max_output_tokens?: number | null;
+    model_id: string;
+    name: string;
+    output_modalities?: string[];
+    routing_policy?: "preferred" | "balanced" | "fallback";
+    supports_responses: boolean;
+    updated_at?: string | null;
+    upstream_model_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/private-models/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      base_url: string;
+      catalog_model_id?: string | null;
+      context_length?: number | null;
+      created_at?: string | null;
+      created_by?: string | null;
+      credential_prefix?: string | null;
+      credential_suffix?: string | null;
+      custom_provider_name?: string | null;
+      custom_provider_url?: string | null;
+      description?: string | null;
+      enabled: boolean;
+      host_provider_id?: string | null;
+      id: string;
+      input_modalities?: string[];
+      local_slug?: string;
+      max_output_tokens?: number | null;
+      model_id: string;
+      name: string;
+      output_modalities?: string[];
+      routing_policy?: "preferred" | "balanced" | "fallback";
+      supports_responses: boolean;
+      updated_at?: string | null;
+      upstream_model_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateProviderCredentialParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_api_key_ids?: string[];
+    allowed_models?: string[];
+    enabled?: boolean;
+    key?: string;
+    name?: string;
+    routing_mode?: "priority" | "fallback";
+  };
+};
+
+/**
+ * Updates credential metadata, filters, routing group, or replaces the write-only secret.
+ */
+export async function updateProviderCredential(
+  client: Client,
+  args: UpdateProviderCredentialParams,
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWebhookEndpointParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    events?: string[];
+    name?: string;
+    status?: "active" | "disabled";
+    url?: string;
+  };
+};
+
+/**
+ * Updates endpoint delivery settings. Requires `settings:write`.
+ */
+export async function updateWebhookEndpoint(
+  client: Client,
+  args: UpdateWebhookEndpointParams,
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateWorkspaceParams = {
-  path?: {
+  path: {
     id: string;
   };
   query?: Record<string, never>;
@@ -10121,30 +19661,696 @@ export type UpdateWorkspaceParams = {
  */
 export async function updateWorkspace(
   client: Client,
-  args: UpdateWorkspaceParams = {},
+  args: UpdateWorkspaceParams,
 ): Promise<{
   data: {
     created_at: string | null;
     created_by: string | null;
     id: string;
     name: string | null;
-    slug: string | null;
+    slug?: string | null;
     updated_at: string | null;
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
       created_by: string | null;
       id: string;
       name: string | null;
-      slug: string | null;
+      slug?: string | null;
       updated_at: string | null;
     };
   }>({
     method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceAppParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    category?: string | null;
+    docs_url?: string | null;
+    image_url?: string | null;
+    is_active?: boolean;
+    is_public?: boolean;
+    title?: string;
+    url?: string | null;
+  };
+};
+
+/**
+ * Updates display metadata, catalogue visibility, or active status for an attributed application. Managed platform applications cannot be edited.
+ */
+export async function updateWorkspaceApp(
+  client: Client,
+  args: UpdateWorkspaceAppParams,
+): Promise<{
+  data: {
+    app_key: string;
+    category: string | null;
+    created_at: string | null;
+    docs_url: string | null;
+    id: string;
+    image_url: string | null;
+    is_active: boolean;
+    is_managed: boolean;
+    is_public: boolean;
+    last_seen: string | null;
+    title: string;
+    url: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/apps/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      app_key: string;
+      category: string | null;
+      created_at: string | null;
+      docs_url: string | null;
+      id: string;
+      image_url: string | null;
+      is_active: boolean;
+      is_managed: boolean;
+      is_public: boolean;
+      last_seen: string | null;
+      title: string;
+      url: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceBudgetParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    interval?: "daily" | "weekly" | "monthly" | "lifetime";
+    limit?: number;
+  };
+};
+
+/**
+ * Changes the interval or USD ceiling for an existing workspace budget.
+ */
+export async function updateWorkspaceBudget(
+  client: Client,
+  args: UpdateWorkspaceBudgetParams,
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    exceeded: boolean;
+    id: string;
+    interval: "daily" | "weekly" | "monthly" | "lifetime";
+    limit: number;
+    limit_nanos: number;
+    remaining: number;
+    remaining_nanos: number;
+    reset_at?: string | null;
+    updated_at: string;
+    usage: number;
+    usage_nanos: number;
+    window_start?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/budgets/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      exceeded: boolean;
+      id: string;
+      interval: "daily" | "weekly" | "monthly" | "lifetime";
+      limit: number;
+      limit_nanos: number;
+      remaining: number;
+      remaining_nanos: number;
+      reset_at?: string | null;
+      updated_at: string;
+      usage: number;
+      usage_nanos: number;
+      window_start?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceDepartmentParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    color?:
+      | "blue"
+      | "emerald"
+      | "amber"
+      | "rose"
+      | "violet"
+      | "slate"
+      | "cyan"
+      | "teal"
+      | "lime"
+      | "yellow"
+      | "orange"
+      | "red"
+      | "pink"
+      | "fuchsia"
+      | "indigo"
+      | "sky"
+      | "green"
+      | "purple";
+    description?: string | null;
+    icon?:
+      | "users"
+      | "briefcase"
+      | "megaphone"
+      | "code"
+      | "palette"
+      | "headphones"
+      | "landmark"
+      | "scale"
+      | "heart-pulse"
+      | "globe"
+      | "flask"
+      | "graduation-cap"
+      | "shield-check"
+      | "shopping-bag"
+      | "wrench"
+      | "truck"
+      | "handshake"
+      | "chart";
+    name?: string;
+  };
+};
+
+/**
+ * Updates department name, description, icon, or color without removing its directory mapping.
+ */
+export async function updateWorkspaceDepartment(
+  client: Client,
+  args: UpdateWorkspaceDepartmentParams,
+): Promise<{
+  data: {
+    color?: string;
+    created_at?: string | null;
+    description?: string | null;
+    directory_name?: string | null;
+    icon?: string;
+    id: string;
+    name: string;
+    name_overridden?: boolean;
+    source_id?: string | null;
+    source_type?: "manual" | "scim_group";
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceDirectoryMemberParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    access_role?: "directory" | "admin" | "member" | null;
+    department_id?: string | null;
+    department_mode?: "directory" | "department" | "none";
+    department_position?: "member" | "lead";
+  };
+};
+
+/**
+ * Sets or clears effective role and department overrides for a workspace member. Requires `settings:write`.
+ */
+export async function updateWorkspaceDirectoryMember(
+  client: Client,
+  args: UpdateWorkspaceDirectoryMemberParams,
+): Promise<{
+  data: {
+    updated: boolean;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/directory/members/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      updated: boolean;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceGroupMappingParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    access_role?: "member" | "admin";
+    department_position?: "member" | "lead";
+  };
+};
+
+/**
+ * Updates the access role or department position assigned by a mapping.
+ */
+export async function updateWorkspaceGroupMapping(
+  client: Client,
+  args: UpdateWorkspaceGroupMappingParams,
+): Promise<{
+  data: {
+    access_role: "member" | "admin";
+    created_at?: string | null;
+    department_id: string;
+    department_position: "member" | "lead";
+    id: string;
+    scim_group_id: string;
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path["id"]))}`;
+  return client.request<{
+    data: {
+      access_role: "member" | "admin";
+      created_at?: string | null;
+      department_id: string;
+      department_position: "member" | "lead";
+      id: string;
+      scim_group_id: string;
+      updated_at?: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceMemberRoleParams = {
+  path: {
+    id: string;
+    user_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    role: "admin" | "member";
+  };
+};
+
+/**
+ * Changes a non-owner member between admin and member. Workspace owner and management API key required.
+ */
+export async function updateWorkspaceMemberRole(
+  client: Client,
+  args: UpdateWorkspaceMemberRoleParams,
+): Promise<{
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role: "owner" | "admin" | "member";
+    user_id: string;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path["id"]))}/members/${encodeURIComponent(String(path["user_id"]))}`;
+  return client.request<{
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role: "owner" | "admin" | "member";
+      user_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceNotificationRouteParams = {
+  path: {
+    eventKind:
+      | "low_balance"
+      | "auto_top_up_failed"
+      | "payment_method_expiring"
+      | "model_deprecation";
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    destination_ids: string[];
+  };
+};
+
+/**
+ * Replaces the destination assignments for a supported event kind.
+ */
+export async function updateWorkspaceNotificationRoute(
+  client: Client,
+  args: UpdateWorkspaceNotificationRouteParams,
+): Promise<{
+  data: {
+    destination_ids: string[];
+    event_kind:
+      | "low_balance"
+      | "auto_top_up_failed"
+      | "payment_method_expiring"
+      | "model_deprecation";
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/notifications/routes/${encodeURIComponent(String(path["eventKind"]))}`;
+  return client.request<{
+    data: {
+      destination_ids: string[];
+      event_kind:
+        | "low_balance"
+        | "auto_top_up_failed"
+        | "payment_method_expiring"
+        | "model_deprecation";
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceNotificationSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    auto_top_up?: {
+      amount_nanos?: number;
+      balance_threshold_nanos?: number;
+      enabled: boolean;
+      payment_method_id?: string | null;
+    };
+    email_preferences?: {
+      auto_top_up_failure?: boolean;
+      model_deprecation?: boolean;
+      payment_method_expiring?: boolean;
+    };
+    low_balance_email?: {
+      enabled: boolean;
+      threshold_usd?: number;
+    };
+  };
+};
+
+/**
+ * Updates one or more durable notification-policy sections. Enabling auto top-up requires an existing saved payment method identifier; payment collection remains an interactive account flow.
+ */
+export async function updateWorkspaceNotificationSettings(
+  client: Client,
+  args: UpdateWorkspaceNotificationSettingsParams = {},
+): Promise<{
+  data: {
+    auto_top_up: {
+      amount_nanos: number;
+      balance_threshold_nanos: number;
+      enabled: boolean;
+      payment_method_id: string | null;
+    };
+    email_preferences: {
+      auto_top_up_failure: boolean;
+      model_deprecation: boolean;
+      payment_method_expiring: boolean;
+    };
+    low_balance_email: {
+      enabled: boolean;
+      threshold_usd: number;
+    };
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/notifications/settings";
+  return client.request<{
+    data: {
+      auto_top_up: {
+        amount_nanos: number;
+        balance_threshold_nanos: number;
+        enabled: boolean;
+        payment_method_id: string | null;
+      };
+      email_preferences: {
+        auto_top_up_failure: boolean;
+        model_deprecation: boolean;
+        payment_method_expiring: boolean;
+      };
+      low_balance_email: {
+        enabled: boolean;
+        threshold_usd: number;
+      };
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceScimParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    enabled: boolean;
+  };
+};
+
+/**
+ * Updates the workspace SCIM endpoint. Enabling SCIM requires the identity add-on and `settings:write`.
+ */
+export async function updateWorkspaceScim(
+  client: Client,
+  args: UpdateWorkspaceScimParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    enabled: boolean;
+    id: string;
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/scim";
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      enabled: boolean;
+      id: string;
+      updated_at?: string | null;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    alpha_channel_enabled?: boolean;
+    beta_channel_enabled?: boolean;
+    byok_fallback_enabled?: boolean;
+    io_logging_enabled?: boolean;
+    io_logging_include_provider_payloads?: boolean;
+    privacy_enable_free_may_publish_prompts?: boolean;
+    privacy_enable_free_may_train?: boolean;
+    privacy_enable_input_output_logging?: boolean;
+    privacy_enable_paid_may_train?: boolean;
+    privacy_zdr_only?: boolean;
+    provider_restriction_enforce_allowed?: boolean;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist";
+    provider_restriction_provider_ids?: string[];
+    response_healing_enabled?: boolean;
+    response_healing_locked?: boolean;
+    response_healing_mode?: "safe" | "strict";
+    routing_mode?: "balanced" | "price" | "latency" | "throughput";
+  };
+};
+
+/**
+ * Updates workspace routing, provider, privacy, or gateway defaults and refreshes affected gateway policy caches.
+ */
+export async function updateWorkspaceSettings(
+  client: Client,
+  args: UpdateWorkspaceSettingsParams = {},
+): Promise<{
+  data: {
+    alpha_channel_enabled?: boolean | null;
+    beta_channel_enabled?: boolean | null;
+    byok_fallback_enabled?: boolean | null;
+    io_logging_enabled?: boolean | null;
+    io_logging_include_provider_payloads?: boolean | null;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    response_healing_enabled?: boolean | null;
+    response_healing_locked?: boolean | null;
+    response_healing_mode?: "safe" | "strict" | null;
+    routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/settings";
+  return client.request<{
+    data: {
+      alpha_channel_enabled?: boolean | null;
+      beta_channel_enabled?: boolean | null;
+      byok_fallback_enabled?: boolean | null;
+      io_logging_enabled?: boolean | null;
+      io_logging_include_provider_payloads?: boolean | null;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      response_healing_enabled?: boolean | null;
+      response_healing_locked?: boolean | null;
+      response_healing_mode?: "safe" | "strict" | null;
+      routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+      updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceSsoParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    domains?: string[];
+    enabled: boolean;
+    enforced?: false;
+    mode: "none" | "saml" | "custom_oidc";
+    provider_identifier?: string | null;
+  };
+};
+
+/**
+ * Updates SAML or custom OIDC settings. Enabling SSO requires the identity add-on and `settings:write`.
+ */
+export async function updateWorkspaceSso(
+  client: Client,
+  args: UpdateWorkspaceSsoParams = {},
+): Promise<{
+  data: {
+    domains: string[];
+    enabled: boolean;
+    enforced: false;
+    mode: "none" | "saml" | "custom_oidc";
+    provider_identifier: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/sso";
+  return client.request<{
+    data: {
+      domains: string[];
+      enabled: boolean;
+      enforced: false;
+      mode: "none" | "saml" | "custom_oidc";
+      provider_identifier: string | null;
+    };
+  }>({
+    method: "PUT",
     path: resolvedPath,
     query,
     headers,

@@ -46,9 +46,11 @@ const getServerSnapshot = () => false;
 export default function SettingsSidebarTrigger({
 	showBroadcast = true,
 	showWebhooks = true,
+	showAutoRouting = false,
 }: {
 	showBroadcast?: boolean;
 	showWebhooks?: boolean;
+	showAutoRouting?: boolean;
 }) {
 	const pathname = usePathname() ?? "";
 	const [open, setOpen] = useState(false);
@@ -57,10 +59,11 @@ export default function SettingsSidebarTrigger({
 		getClientSnapshot,
 		getServerSnapshot,
 	);
-	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks });
+	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks, showAutoRouting });
 	const activeNav = getActiveSettingsNav(pathname, {
 		showBroadcast,
 		showWebhooks,
+		showAutoRouting,
 	});
 	const activeItem = activeNav?.item ?? null;
 	const activeScope = activeNav?.group.scope ?? "personal";

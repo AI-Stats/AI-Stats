@@ -5,6 +5,8 @@ import { requireUser } from "@/auth/requireUser";
 import { getDataClient } from "@/data/supabase";
 import { validateCompatibility, type CompatibilityTarget } from "@/compatibility/validators";
 import { internalGatewayBenchmarkRouter } from "@/routes/internal-gateway-benchmark";
+import { providerCatalogWebhookRouter } from "@/routes/provider-catalog-webhook";
+import { internalProviderCatalogReviewRouter } from "@/routes/internal-provider-catalog-review";
 import {
 	LEGACY_ALLOWED_CACHE_TAGS,
 	isCacheScopeId,
@@ -43,6 +45,8 @@ function isCrossSiteBrowserRequest(request: Request) {
 
 export const internalRouter = new Hono<{ Bindings: Env }>();
 
+internalRouter.route("/", providerCatalogWebhookRouter);
+internalRouter.route("/", internalProviderCatalogReviewRouter);
 internalRouter.route("/", internalGatewayBenchmarkRouter);
 
 internalRouter.get("/cache", async (c) => {

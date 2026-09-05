@@ -70,6 +70,8 @@ type ModelIndex = {
   status?: string | null;
   family_id?: string | null;
   previous_model_id?: string | null;
+  variant_kind?: string;
+  base_model_id?: string | null;
   filePath: string;
   benchmark_ids: string[];
   variants: Array<{ model_id: string; name: string; variant_kind: string }>;
@@ -93,6 +95,8 @@ for (const org of listDirs(modelsDir)) {
         status: j.status ?? null,
         family_id: j.family_id ?? null,
         previous_model_id: j.previous_model_id ?? null,
+        variant_kind: j.variant_kind,
+        base_model_id: j.base_model_id ?? null,
         filePath: p,
         benchmark_ids: Array.isArray(j.benchmarks) ? j.benchmarks.map((x: any) => x.benchmark_id) : [],
         variants,
@@ -120,6 +124,12 @@ const videoProvidersWithExecutorMetadata = new Set([
   'runway',
   'spacex-ai',
 ]);
+const providerPolicyFields = {
+  zero_data_retention: [true, false],
+  data_policy_tier: ['unknown', 'private', 'logs', 'trains'],
+  data_policy_confidence: ['unknown', 'confirmed', 'maybe'],
+  data_policy_contract_mode: ['none', 'customer_agreement', 'enterprise_agreement'],
+} as const;
 
 // Pretty print helpers for CLI-like output ------------------------------
 const ok = (msg: string) => `✅ ${msg}`;
@@ -138,6 +148,19 @@ function paramDetail(params: unknown, name: string): Record<string, any> | null 
 
 function stringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function hasProviderPolicySource(provider: any): boolean {
+  const directSourceFields = [
+    'prompt_training_source_url',
+    'residency_source_url',
+    'privacy_policy_url',
+    'terms_of_service_url',
+  ];
+  if (directSourceFields.some((field) => typeof provider[field] === 'string' && provider[field].trim())) return true;
+  return Array.isArray(provider.sources) && provider.sources.some((source: any) =>
+    source && typeof source.url === 'string' && source.url.trim(),
+  );
 }
 
 // Organisations ----------------------------------------------------------
@@ -230,7 +253,12 @@ describe('Models', () => {
     });
     test(`${m.model_id} variants use canonical identities`, () => {
       const j = readJson(m.filePath);
-      expect(j.api_model_id?.endsWith(':free')).toBe(false);
+      if (m.variant_kind === 'free') {
+        expect(m.model_id.endsWith(':free')).toBe(true);
+        expect(j.api_model_id).toBe(m.model_id);
+      } else {
+        expect(j.api_model_id?.endsWith(':free')).toBe(false);
+      }
       for (const variant of m.variants) {
         expect(variant).toEqual({
           model_id: `${m.model_id}:free`,
@@ -260,6 +288,14 @@ describe('Aliases', () => {
 // API Providers ----------------------------------------------------------
 describe('API Providers', () => {
   const dirs = listDirs(apiProvidersDir);
+  test('rejects unsourced private policy claims', () => {
+    expect(hasProviderPolicySource({
+      data_policy_tier: 'private',
+      zero_data_retention: true,
+      data_policy_confidence: 'confirmed',
+      verification: { status: 'verified' },
+    })).toBe(false);
+  });
   for (const ap of dirs) {
     const p = path.join(apiProvidersDir, ap, 'api_provider.json');
     if (!exists(p)) continue;
@@ -276,6 +312,24 @@ describe('API Providers', () => {
         if (Array.isArray(endpoints)) {
           for (const e of endpoints) expect(typeof e).toBe('string');
         }
+      }
+    });
+    test(`${ap} policy metadata is normalized`, () => {
+      const j = readJson(p);
+      for (const [field, allowed] of Object.entries(providerPolicyFields)) {
+        expect(allowed).toContain(j[field]);
+      }
+      if (j.data_policy_tier === 'private') {
+        expect(j.prompt_training_policy).toBe('no_train');
+        expect(j.zero_data_retention).toBe(true);
+        expect(j.data_policy_confidence).toBe('confirmed');
+      }
+      if (j.zero_data_retention === true) {
+        expect(j.data_retention_days).toBe(0);
+      }
+      if (j.data_policy_tier === 'private' || (j.zero_data_retention === true && j.data_policy_confidence === 'confirmed')) {
+        expect(hasProviderPolicySource(j)).toBe(true);
+        expect(j.verification?.status).toBe('verified');
       }
     });
 

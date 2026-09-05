@@ -42,6 +42,7 @@ export interface ImagesEditRequest {
         };
     zdr?: boolean | null;
   };
+  resolution?: string;
   size?: string;
   usage?: boolean;
   user?: string;

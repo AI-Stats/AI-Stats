@@ -1,9 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { getBrowserAccessToken } from "@/lib/fetchers/internal/accountAuthClient";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
-import { AlertTriangle, Bug, ClipboardCopy, InfoIcon } from "lucide-react";
+import {
+	AlertTriangle,
+	ArrowRight,
+	Bug,
+	ClipboardCopy,
+	InfoIcon,
+	RefreshCw,
+	WalletCards,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +44,8 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { FREE_ROUTER_MODEL_ID } from "@/lib/models/freeRouter";
+import { getChatRequestErrorPresentation } from "./chatRequestErrorPresentation";
 
 export type ChatRequestErrorDetails = {
 	status: number | null;
@@ -59,6 +70,8 @@ type ChatRequestErrorNoticeProps = {
 	error: ChatRequestErrorDetails;
 	threadTitle?: string | null;
 	className?: string;
+	onRetry?: () => void;
+	onChooseModel?: () => void;
 };
 
 function buildSummary(error: ChatRequestErrorDetails): string {
@@ -98,12 +111,28 @@ export function ChatRequestErrorNotice({
 	error,
 	threadTitle,
 	className,
+	onRetry,
+	onChooseModel,
 }: ChatRequestErrorNoticeProps) {
 	const [open, setOpen] = useState(false);
 	const [notes, setNotes] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const summary = useMemo(() => buildSummary(error), [error]);
 	const copyPayload = useMemo(() => buildCopyPayload(error), [error]);
+	const presentation = useMemo(
+		() => getChatRequestErrorPresentation(error),
+		[error],
+	);
+	const isPaymentRequired = presentation.kind === "payment";
+	const isRecoveryState = [
+		"payment",
+		"authentication",
+		"model-unavailable",
+		"timeout",
+		"conflict",
+		"rate-limit",
+		"service",
+	].includes(presentation.kind);
 
 	const copyDiagnostics = async () => {
 		try {
@@ -157,23 +186,94 @@ export function ChatRequestErrorNotice({
 	return (
 		<>
 			<Bubble
-				variant="destructive"
+				variant={isRecoveryState ? "tinted" : "destructive"}
 				className={cn("mb-4 max-w-full", className)}
 			>
-				<BubbleContent className="w-full max-w-full border-destructive/20 px-3.5 py-3">
+				<BubbleContent
+					className={cn(
+						"w-full max-w-full px-3.5 py-3",
+						isRecoveryState
+							? "border-primary/20"
+							: "border-destructive/20",
+					)}
+				>
 					<div className="flex min-w-0 items-start gap-2.5">
-						<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+						{isPaymentRequired ? (
+							<WalletCards className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+						) : (
+							<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+						)}
 						<div className="min-w-0 flex-1">
 							<p className="text-sm font-medium">
-								Request failed{error.status ? ` (${error.status})` : ""}.
+								{presentation.title}
 							</p>
-							<p className="mt-0.5 text-xs text-destructive/80">{summary}</p>
+							<p
+								className={cn(
+									"mt-0.5 text-xs",
+									isRecoveryState
+										? "text-muted-foreground"
+										: "text-destructive/80",
+								)}
+							>
+								{presentation.description}
+							</p>
+							{isPaymentRequired ||
+							presentation.kind === "authentication" ||
+							(presentation.canRetry && onRetry) ||
+							(presentation.canChooseModel && onChooseModel) ? (
+								<div className="mt-3 flex flex-wrap gap-2">
+									{isPaymentRequired ? (
+										<>
+											<Button asChild size="sm">
+												<Link href="/settings/credits">
+													Add credits
+													<ArrowRight />
+												</Link>
+											</Button>
+											<Button asChild size="sm" variant="outline">
+												<Link
+													href={`/chat?model=${encodeURIComponent(FREE_ROUTER_MODEL_ID)}`}
+												>
+													Try a free model
+												</Link>
+											</Button>
+										</>
+									) : null}
+									{presentation.kind === "authentication" ? (
+										<Button asChild size="sm">
+											<Link href="/sign-in?returnUrl=%2Fchat">
+												Sign in
+												<ArrowRight />
+											</Link>
+										</Button>
+									) : null}
+									{presentation.canRetry && onRetry ? (
+										<Button type="button" size="sm" onClick={onRetry}>
+											<RefreshCw />
+											Try again
+										</Button>
+									) : null}
+									{presentation.canChooseModel && onChooseModel ? (
+										<Button
+											type="button"
+											size="sm"
+											variant="outline"
+											onClick={onChooseModel}
+										>
+											Choose another model
+										</Button>
+									) : null}
+								</div>
+							) : null}
 						</div>
 					</div>
 				</BubbleContent>
 				<BubbleReactions
 					align="end"
-					className="bg-background text-destructive ring-background"
+					className={cn(
+						"bg-background ring-background",
+						isRecoveryState ? "text-foreground" : "text-destructive",
+					)}
 				>
 					<Popover>
 						<Tooltip>
@@ -184,7 +284,11 @@ export function ChatRequestErrorNotice({
 										size="icon-xs"
 										variant="ghost"
 										aria-label="Show error details"
-										className="text-destructive hover:text-destructive aria-expanded:text-destructive"
+										className={cn(
+											isRecoveryState
+												? "text-muted-foreground hover:text-foreground aria-expanded:text-foreground"
+												: "text-destructive hover:text-destructive aria-expanded:text-destructive",
+										)}
 									>
 										<InfoIcon />
 									</Button>
@@ -194,7 +298,7 @@ export function ChatRequestErrorNotice({
 								Show error details
 							</TooltipContent>
 						</Tooltip>
-						<PopoverContent align="end" className="w-80 gap-3 rounded-2xl">
+						<PopoverContent align="end" className="w-80 gap-3 rounded-md">
 							<PopoverHeader>
 								<PopoverTitle className="text-sm">
 									Chat request failed
@@ -230,7 +334,11 @@ export function ChatRequestErrorNotice({
 								size="icon-xs"
 							variant="ghost"
 							aria-label="Copy error diagnostics"
-							className="text-destructive hover:text-destructive"
+							className={cn(
+								isRecoveryState
+									? "text-muted-foreground hover:text-foreground"
+									: "text-destructive hover:text-destructive",
+							)}
 							onClick={copyDiagnostics}
 							>
 								<ClipboardCopy />
@@ -247,7 +355,11 @@ export function ChatRequestErrorNotice({
 								size="icon-xs"
 							variant="ghost"
 							aria-label="Report error"
-							className="text-destructive hover:text-destructive"
+							className={cn(
+								isRecoveryState
+									? "text-muted-foreground hover:text-foreground"
+									: "text-destructive hover:text-destructive",
+							)}
 							onClick={() => setOpen(true)}
 							>
 								<Bug />

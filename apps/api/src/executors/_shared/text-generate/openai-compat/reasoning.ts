@@ -3,6 +3,7 @@
 // How: Maps IR to OpenAI formats and normalizes streaming events.
 
 import type { IRChatRequest } from "@core/ir";
+import { normalizeProviderId } from "@/lib/config/providerAliases";
 
 /**
  * Configuration for provider-specific reasoning parameter mapping
@@ -34,7 +35,11 @@ type ReasoningConfig = {
  * Note: Google is no longer in this list as it uses native implementation
  */
 function resolveReasoningConfig(providerId?: string): ReasoningConfig | null {
-	if (providerId === "openai") {
+	if (providerId === "openai" || providerId === "openai-eu" || providerId === "ovhcloud") {
+		return { mode: "effort", field: "reasoning" };
+	}
+	if (providerId === "morph") {
+		// Morph's fast-model API documents reasoning: { effort: "low" | "medium" | "high" }.
 		return { mode: "effort", field: "reasoning" };
 	}
 	// Xiaomi uses a special format: chat_template_kwargs.enable_thinking
@@ -44,9 +49,10 @@ function resolveReasoningConfig(providerId?: string): ReasoningConfig | null {
 	// Note: Google is no longer OpenAI-compatible - it uses native implementation
 	// Thinking mode is handled in the Google executor via generationConfig.thinkingBudget
 
-	if (providerId === "deepseek") {
+	if (providerId === "deepseek" || providerId === "wafer") {
 		// DeepSeek uses thinking: {type: "enabled"} for thinking mode
 		// https://api-docs.deepseek.com/guides/thinking_mode
+		// Wafer's first-party model quick starts document the same shape.
 		return { mode: "enabled", field: "thinking", format: "type" };
 	}
 
@@ -57,11 +63,74 @@ export function applyReasoningParams(args: {
 	ir: IRChatRequest;
 	request: any;
 	providerId?: string;
+	providerModelSlug?: string | null;
 }): void {
 	const reasoning = args.ir.reasoning;
 	if (!reasoning) return;
+	if (args.providerId === "wafer") {
+		const effort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		if (effort && effort !== "none") {
+			args.request.reasoning_effort = effort;
+		} else if (reasoning.enabled !== undefined || effort === "none") {
+			args.request.thinking = {
+				type: reasoning.enabled === false || effort === "none" ? "disabled" : "enabled",
+			};
+		}
+		return;
+	}
+	if (String(args.providerId ?? "").startsWith("nebius-token-factory")) {
+		const effort = typeof reasoning.effort === "string"
+			? reasoning.effort
+			: reasoning.enabled === false
+				? "none"
+				: reasoning.enabled === true
+					? "medium"
+					: undefined;
+		if (effort !== undefined) {
+			if ("input" in args.request) args.request.reasoning = { effort };
+			else args.request.reasoning_effort = effort;
+		}
+		return;
+	}
 
-	if (args.providerId === "meta" || args.providerId === "meta-contributor") {
+	if (args.providerId === "mistral" || args.providerId === "mistral-eu") {
+		const effort = typeof reasoning.effort === "string"
+			? reasoning.effort
+			: reasoning.enabled === false
+				? "none"
+				: reasoning.enabled === true
+					? "medium"
+					: undefined;
+		if (effort !== undefined) args.request.reasoning_effort = effort;
+		return;
+	}
+	if (args.providerId === "thinking-machines") {
+		const effort = typeof reasoning.effort === "string"
+			? reasoning.effort
+			: reasoning.enabled === false ? "none" : reasoning.enabled === true ? "high" : undefined;
+		if (effort !== undefined) args.request.reasoning_effort = effort;
+		return;
+	}
+	if (args.providerId === "upstage") {
+		const effort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		if (effort && effort !== "none") args.request.reasoning_effort = effort;
+		return;
+	}
+
+	if (args.providerId === "stepfun") {
+		const effort = typeof reasoning.effort === "string"
+			? reasoning.effort
+			: reasoning.enabled === true
+				? "medium"
+				: undefined;
+		if (effort !== undefined && effort !== "none") {
+			if ("input" in args.request) args.request.reasoning = { effort };
+			else args.request.reasoning_effort = effort;
+		}
+		return;
+	}
+
+	if (normalizeProviderId(args.providerId) === "meta") {
 		const rawEffort =
 			typeof reasoning.effort === "string"
 				? reasoning.effort
@@ -80,6 +149,77 @@ export function applyReasoningParams(args: {
 		}
 		return;
 	}
+	if (args.providerId === "akashml") {
+		const rawEffort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		if (rawEffort) {
+			const model = String(args.ir.model ?? "").toLowerCase();
+			const isGptOss = model.includes("gpt-oss");
+			const effort = isGptOss
+				? rawEffort === "minimal" ? "low" : rawEffort === "xhigh" || rawEffort === "max" ? "high" : rawEffort
+				: rawEffort;
+			if (effort !== "none") args.request.reasoning_effort = effort;
+		}
+		return;
+	}
+	if (args.providerId === "nvidia" && String(args.ir.model ?? "").toLowerCase().includes("gpt-oss")) {
+		const rawEffort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		if (rawEffort && rawEffort !== "none") {
+			args.request.reasoning_effort = rawEffort === "minimal"
+				? "low"
+				: rawEffort === "xhigh" || rawEffort === "max"
+					? "high"
+					: rawEffort;
+		}
+		return;
+	}
+	if (args.providerId === "nvidia" && String(args.ir.model ?? "").toLowerCase().includes("nemotron-3-nano-omni")) {
+		if (typeof reasoning.maxTokens === "number") args.request.reasoning_budget = reasoning.maxTokens;
+		return;
+	}
+	if (args.providerId === "cloudflare") {
+		const effort = typeof reasoning.effort === "string"
+			? reasoning.effort
+			: reasoning.enabled === false
+				? "none"
+				: undefined;
+		if (effort !== undefined) args.request.reasoning_effort = effort;
+		return;
+	}
+	if (args.providerId === "friendli") {
+		const effort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		if (effort && effort !== "none") args.request.reasoning_effort = effort;
+		if (typeof reasoning.maxTokens === "number") {
+			args.request.reasoning_budget = reasoning.maxTokens;
+		}
+		return;
+	}
+	if (args.providerId === "alibaba-cloud") {
+		const rawEffort = typeof reasoning.effort === "string" ? reasoning.effort : undefined;
+		const effort = rawEffort === "minimal" || rawEffort === "low"
+			? "low"
+			: rawEffort === "medium"
+				? "medium"
+				: rawEffort === "high" || rawEffort === "xhigh" || rawEffort === "max"
+					? "xhigh"
+					: undefined;
+		const disabled = reasoning.enabled === false || rawEffort === "none";
+
+		if (disabled) {
+			args.request.enable_thinking = false;
+			return;
+		}
+		if (reasoning.enabled === true) args.request.enable_thinking = true;
+		if ("input" in args.request) {
+			if (effort !== undefined) args.request.reasoning = { effort };
+			return;
+		}
+		if (typeof reasoning.maxTokens === "number") {
+			args.request.thinking_budget = reasoning.maxTokens;
+		} else if (effort !== undefined) {
+			args.request.reasoning_effort = effort;
+		}
+		return;
+	}
 
 	const config = resolveReasoningConfig(args.providerId);
 	if (!config) return;
@@ -89,6 +229,7 @@ export function applyReasoningParams(args: {
 		reasoning.effort !== undefined ||
 		reasoning.mode !== undefined ||
 		reasoning.summary !== undefined ||
+		reasoning.context !== undefined ||
 		reasoning.maxTokens !== undefined;
 	if (!hasAny) return;
 
@@ -98,6 +239,24 @@ export function applyReasoningParams(args: {
 
 	if (config.mode === "enabled") {
 		const field = config.field ?? "thinking";
+		const deepseekModel = args.providerModelSlug ?? args.ir.model;
+		if (
+			args.providerId === "deepseek" &&
+			(
+				deepseekModel === "deepseek-v4-pro" ||
+				deepseekModel === "deepseek-v4-flash"
+			) &&
+			typeof reasoning.effort === "string" &&
+			reasoning.effort !== "none" &&
+			args.request.reasoning_effort == null
+		) {
+			args.request.reasoning_effort =
+				reasoning.effort === "minimal"
+					? "low"
+					: reasoning.effort === "low" || reasoning.effort === "max"
+						? reasoning.effort
+					: "high";
+		}
 		if (args.request[field] == null) {
 			const format = config.format ?? "type";
 			const resolvedEnabled = enabled ?? true;
@@ -125,8 +284,7 @@ export function applyReasoningParams(args: {
 			}
 		}
 		return;
-	}
-
+}
 	const field = config.field ?? "reasoning";
 	if (args.request[field] == null || typeof args.request[field] !== "object") {
 		args.request[field] = {};
@@ -135,7 +293,7 @@ export function applyReasoningParams(args: {
 	const effortKey = config.effortKey ?? "effort";
 	const summaryKey = config.summaryKey ?? "summary";
 	const maxKey = config.maxTokensKey;
-	const isOpenAI = String(args.providerId ?? "").toLowerCase() === "openai";
+	const isOpenAI = ["openai", "openai-eu"].includes(String(args.providerId ?? "").toLowerCase());
 
 	if (typeof reasoning.effort === "string") {
 		target[effortKey] = reasoning.effort;
@@ -147,6 +305,9 @@ export function applyReasoningParams(args: {
 
 	if (typeof reasoning.mode === "string") {
 		target.mode = reasoning.mode;
+	}
+	if (typeof reasoning.context === "string") {
+		target.context = reasoning.context;
 	}
 
 	// OpenAI: default summary mode to "auto" only when caller did not provide one.
@@ -160,4 +321,3 @@ export function applyReasoningParams(args: {
 		target[maxKey] = reasoning.maxTokens;
 	}
 }
-

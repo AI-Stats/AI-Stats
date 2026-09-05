@@ -12,6 +12,7 @@ import ModelPricingClient from "@/components/(data)/model/pricing/ModelPricingCl
 import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/ModelPendingApiReleaseBanner";
 import { fetchWorkspacePrivacySettings } from "@/lib/fetchers/internal/fetchWorkspacePrivacySettings";
 import type { WorkspacePrivacySettings } from "@/lib/fetchers/internal/settingsTypes";
+import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import { isAdminViewer } from "@/lib/auth/getViewerRole";
 import {
 	Empty,
@@ -55,6 +56,8 @@ export default async function ModelPricing({
 	modelStatus,
 	modelName,
 	creatorOrganisationId,
+	creatorOrganisationName,
+	providersOverride,
 }: {
 	modelId: string;
 	includeHidden: boolean;
@@ -63,12 +66,24 @@ export default async function ModelPricing({
 	modelStatus?: string | null;
 	modelName?: string | null;
 	creatorOrganisationId?: string | null;
+	creatorOrganisationName?: string | null;
+	providersOverride?: ProviderPricing[];
 }) {
 	const [providers, identity, showAdminPricingControls] = await Promise.all([
-		fetchFrontendModelPricing(modelId),
+		providersOverride ? Promise.resolve(providersOverride) : fetchFrontendModelPricing(modelId),
 		modelStatus !== undefined
-			? Promise.resolve({ status: modelStatus, name: modelName ?? null, organisationId: creatorOrganisationId ?? null })
-			: fetchFrontendModelHeader(modelId, includeHidden).then((header) => ({ status: header?.status ?? null, name: header?.name ?? null, organisationId: header?.organisation_id ?? null })),
+			? Promise.resolve({
+					status: modelStatus,
+					name: modelName ?? null,
+					organisationId: creatorOrganisationId ?? null,
+					organisationName: creatorOrganisationName ?? null,
+				})
+			: fetchFrontendModelHeader(modelId, includeHidden).then((header) => ({
+					status: header?.status ?? null,
+					name: header?.name ?? null,
+					organisationId: header?.organisation_id ?? null,
+					organisationName: header?.organisation?.name ?? null,
+				})),
 		withOptionalTimeout(isAdminViewer(), false, "admin viewer check"),
 	]);
 	const workspacePrivacySettings: WorkspacePrivacySettings | null =
@@ -102,7 +117,7 @@ export default async function ModelPricing({
 	const showPendingApiBanner =
 		identity.status === "Available" && !hasActiveApiProviders;
 
-	const [runtimeStats, routingHealth] = await Promise.all([
+	const [runtimeStats, routingHealth] = providersOverride ? [{}, {}] : await Promise.all([
 		withOptionalTimeout(
 			fetchFrontendModelProviderRuntimeStats({
 				modelId,
@@ -167,26 +182,34 @@ export default async function ModelPricing({
 						<EmptyMedia variant="icon">
 							<CircleAlert className="size-4" />
 						</EmptyMedia>
-						<EmptyTitle>No pricing data available yet</EmptyTitle>
+						<EmptyTitle>
+							{identity.status === "Announced" && identity.organisationName
+								? `${identity.organisationName} coming soon`
+								: "No pricing data available yet"}
+						</EmptyTitle>
 						<EmptyDescription>
-							No API provider pricing or availability is available for this model yet.
+							{identity.status === "Announced" && identity.organisationName
+								? `${identity.name ?? "This model"} has been announced by ${identity.organisationName}. Provider availability and pricing will be added when it becomes available.`
+								: "No API provider pricing or availability is available for this model yet."}
 						</EmptyDescription>
 					</EmptyHeader>
-					<EmptyContent>
-						<EmptyDescription>
-							If you know providers we can integrate, please tell us on
-							Discord or open an issue on GitHub so we can add pricing
-							data.
-							<a
-								className="ml-1 text-primary underline"
-								href="https://github.com/phaseoteam/Phaseo/issues"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								Open an issue
-							</a>
-						</EmptyDescription>
-					</EmptyContent>
+					{identity.status === "Announced" && identity.organisationName ? null : (
+						<EmptyContent>
+							<EmptyDescription>
+								If you know providers we can integrate, please tell us on
+								Discord or open an issue on GitHub so we can add pricing
+								data.
+								<a
+									className="ml-1 text-primary underline"
+									href="https://github.com/phaseoteam/Phaseo/issues"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Open an issue
+								</a>
+							</EmptyDescription>
+						</EmptyContent>
+					)}
 				</Empty>
 			</div>
 		);

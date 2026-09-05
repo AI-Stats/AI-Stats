@@ -6,6 +6,9 @@
 	"scripts": {
 		"dev": "npx wrangler dev",
 		"build": "npx wrangler deploy --dry-run",
+		"build:regional": "pnpm exec wrangler deploy --dry-run --config wrangler.eu.toml && pnpm exec wrangler deploy --dry-run --config wrangler.us.toml",
+		"deploy:eu": "pnpm exec wrangler deploy --config wrangler.eu.toml",
+		"deploy:us": "pnpm exec wrangler deploy --config wrangler.us.toml",
 		"start": "npx wrangler dev",
 		"lint": "eslint . && pnpm run typecheck",
 		"typecheck": "tsc --noEmit",
@@ -48,9 +51,10 @@
 	"dependencies": {
 		"@supabase/supabase-js": "^2.106.2",
 		"@upstash/redis": "^1.38.0",
-		"@visulima/tabular": "^4.0.0",
+		"@visulima/tabular": "^4.1.0",
 		"hono": "^4.12.27",
 		"ink": "^7.1.0",
+		"re2js": "^2.8.6",
 		"react": "^19.2.7",
 		"stripe": "^22.1.0",
 		"zod": "^4.4.3"
@@ -60,7 +64,7 @@
 		"@cloudflare/workers-types": "^4.20260523.1",
 		"@copilotkit/aimock": "1.15.1",
 		"dotenv": "^17.4.2",
-		"eslint": "^10.7.0",
+		"eslint": "^10.8.1",
 		"openai": "^6.39.0",
 		"tsx": "^4.20.6",
 		"typescript": "^6.0.3",

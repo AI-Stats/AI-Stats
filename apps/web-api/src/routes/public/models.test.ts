@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "@/index";
+import { CATALOGUE_CACHE_SCHEMA_VERSION, fetchGatewayMonitorRows, internalProviderFilters, isMissingTierHealthRpcError, publicProviderId } from "@/routes/public/models";
 
 const env = {
 	ENV: "development" as const,
@@ -9,9 +10,118 @@ const env = {
 
 afterEach(() => {
 	vi.unstubAllGlobals();
+	vi.useRealTimers();
+});
+
+describe("provider health RPC fallback", () => {
+	it("falls back only when PostgREST reports the tiered RPC itself as missing", () => {
+		expect(isMissingTierHealthRpcError({
+			code: "PGRST202",
+			message: "Could not find the function public.get_v2_model_provider_tier_health_metrics",
+		})).toBe(true);
+		expect(isMissingTierHealthRpcError({
+			code: "42703",
+			message: "column v2_request_facts.service_tier_slug does not exist",
+		})).toBe(false);
+		expect(isMissingTierHealthRpcError({
+			code: "PGRST202",
+			message: "Could not find the function public.some_other_function",
+		})).toBe(false);
+	});
+});
+
+describe("stealth provider filters", () => {
+	it("invalidates catalogue cache entries created before stealth redaction", () => {
+		expect(CATALOGUE_CACHE_SCHEMA_VERSION).toBe("4");
+	});
+
+	it("maps internal identities to exactly stealth", () => {
+		expect(publicProviderId("private-provider", new Set(["private-provider"]))).toBe("stealth");
+		expect(publicProviderId("public-provider", new Set(["private-provider"]))).toBe("public-provider");
+	});
+
+	it("expands the public stealth filter internally and rejects guessed private filters", () => {
+		const privateProviders = new Set(["private-a", "private-b"]);
+		expect(internalProviderFilters(["stealth"], privateProviders)).toEqual(["private-a", "private-b"]);
+		expect(internalProviderFilters(["private-a"], privateProviders)).toEqual([]);
+		expect(internalProviderFilters(["public", "stealth"], privateProviders)).toEqual([
+			"private-a",
+			"private-b",
+			"public",
+		]);
+	});
+
+	it("redacts service-role monitor rows before building the public catalogue", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_monitor_model_rows")) return new Response(JSON.stringify([{
+				model_id: "stealth/preview",
+				model_name: "Preview",
+				provider_api_model_id: "stealth:preview",
+				provider_id: "private-provider",
+				api_provider_name: "Private Provider",
+				api_model_id: "stealth/preview",
+				provider_model_slug: "secret-upstream-model",
+				capability_id: "text.generate",
+				capability_status: "active",
+				is_active_gateway: true,
+			}]));
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{
+				provider_model_id: "stealth:preview",
+			}]));
+			return new Response(JSON.stringify([]));
+		}));
+
+		const rows = await fetchGatewayMonitorRows(env);
+		const serialized = JSON.stringify([...rows.values()]);
+		expect(serialized).toContain('"id":"stealth"');
+		expect(serialized).toContain('"name":"Stealth"');
+		expect(serialized).not.toContain("private-provider");
+		expect(serialized).not.toContain("secret-upstream-model");
+		expect(serialized).not.toContain("Private Provider");
+	});
 });
 
 describe("public model routes", () => {
+	it("keeps expired rules and time windows in pricing history", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2026-08-30T12:00:00Z"));
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{
+				provider_model_id: "pm-1", provider_slug: "deepseek", model_slug: "deepseek/deepseek-v4-flash-0731",
+				provider_model_slug: "deepseek-v4-flash", status: "active", routing_enabled: true,
+			}]), { status: 200 });
+			if (url.includes("v2_route_capabilities")) return new Response("[]", { status: 200 });
+			if (url.includes("v2_providers")) return new Response(JSON.stringify([{
+				provider_slug: "deepseek", name: "DeepSeek", status: "active", routing_enabled: true, metadata: {},
+			}]), { status: 200 });
+			if (url.includes("v2_pricing_skus")) return new Response(JSON.stringify([
+				{ sku_id: "old", provider_model_id: "pm-1", service_tier_slug: "standard", operation: "text.generate", status: "active", currency: "USD", effective_from: "2026-07-01T00:00:00Z", effective_to: "2026-08-01T00:00:00Z", metadata: {} },
+				{ sku_id: "new", provider_model_id: "pm-1", service_tier_slug: "standard", operation: "text.generate", status: "active", currency: "USD", effective_from: "2026-08-01T00:00:00Z", effective_to: null, metadata: { time_windows: [{ label: "peak", timezone: "UTC", start_time: "01:00", end_time: "04:00", price_per_unit: 0.44 }] } },
+			]), { status: 200 });
+			if (url.includes("v2_pricing_sku_meters")) return new Response(JSON.stringify([
+				{ sku_meter_id: "old-input", sku_id: "old", meter_key: "input_text_tokens", unit: "token", unit_quantity: 1_000_000, price_nanos: 140_000_000, meter_order: 100, metadata: {} },
+				{ sku_meter_id: "new-input", sku_id: "new", meter_key: "input_text_tokens", unit: "token", unit_quantity: 1_000_000, price_nanos: 220_000_000, meter_order: 100, metadata: {} },
+			]), { status: 200 });
+			return new Response("[]", { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/deepseek%2Fdeepseek-v4-flash-0731/pricing-history?days=3650",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			rules: [
+				expect.objectContaining({ ruleId: "new-input", timeWindows: [expect.objectContaining({ label: "peak" })] }),
+				expect.objectContaining({ ruleId: "old-input", effectiveTo: "2026-08-01T00:00:00Z", timeWindows: [] }),
+			],
+		});
+	});
+
 	it("includes the database-composed free router in page projection 5", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
@@ -499,6 +609,126 @@ describe("public model routes", () => {
 		expect(performance.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
 	});
 
+	it("keeps the model page healthy when the optional performance rollup fails", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({ code: "57014", message: "canceling statement due to statement timeout" }), { status: 503 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test/performance",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({ modelId: "openai/gpt-test", metrics: null, performance: null });
+	});
+
+	it("suppresses performance and uptime series for a single-request cohort", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_quality_hourly_v1")) {
+				return new Response(JSON.stringify([{
+					bucket: "2026-08-27T09:00:00Z",
+					requests: 1,
+					tool_call_responses: 1,
+					tool_call_errors: 1,
+					tool_invalid_json_errors: 1,
+					tool_schema_mismatch_errors: 0,
+					tool_unknown_name_errors: 0,
+					structured_output_responses: 1,
+					structured_output_errors: 0,
+					structured_invalid_json_errors: 0,
+					structured_schema_mismatch_errors: 0,
+					structured_missing_output_errors: 0,
+					cache_read_pct: 60,
+				}, {
+					bucket: "2026-08-27T10:00:00Z",
+					requests: 2,
+					tool_call_responses: 0,
+					tool_call_errors: 0,
+					structured_output_responses: 0,
+					structured_output_errors: 0,
+					cache_read_pct: null,
+				}]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
+				return new Response(JSON.stringify([{
+					provider_id: "test-provider",
+					provider_name: "Test Provider",
+					health_requests: 1,
+					uptime_pct: 100,
+					percentile_latency_ms: 240,
+					percentile_throughput: 18.5,
+					buckets: [{
+						start: "2026-08-27T09:00:00Z",
+						end: "2026-08-27T10:00:00Z",
+						requests: 1,
+						success_pct: 100,
+					}],
+				}]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_hourly_performance_v2")) {
+				return new Response(JSON.stringify([{
+					bucket: "2026-08-27T09:00:00Z",
+					provider_id: "test-provider",
+					provider_name: "Test Provider",
+					requests: 1,
+					gateway_ttft_ms: 240,
+					gateway_e2e_ms: 680,
+					effective_throughput_tps: 18.5,
+					tool_call_requests: 1,
+					tool_call_errors: 1,
+					structured_output_requests: 1,
+					structured_output_errors: 0,
+					cache_telemetry_requests: 20,
+					cache_hit_requests: 12,
+				}]), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({
+					last_24h: {
+						total_requests: 1,
+						successful_requests: 1,
+						uptime_pct: 100,
+						avg_latency_ms: 240,
+						avg_throughput: 18.5,
+					},
+					hourly_24h: [{
+						bucket: "2026-08-27T09:00:00Z",
+						requests: 1,
+						success_pct: 100,
+						avg_latency_ms: 240,
+						avg_throughput: 18.5,
+					}],
+					provider_uptime_24h: [],
+					provider_daily_7d: [],
+				}), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/test%2Flow-volume/performance",
+			{},
+			env,
+		);
+		const payload = await response.json() as any;
+
+		expect(response.status).toBe(200);
+		expect(payload.minimumSampleSize).toBe(20);
+		expect(payload.metrics.summary).toMatchObject({ totalRequests: 0, successfulRequests: 0 });
+		expect(payload.metrics.hourly).toEqual([]);
+		expect(payload.metrics.successSeries).toEqual([]);
+		expect(payload.metrics.providerHourly7d).toEqual([]);
+		expect(payload.metrics.qualitySeries).toEqual([]);
+		expect(payload.metrics.providerPerformance).toEqual([]);
+	});
+
 	it("never exposes a synthetic unknown provider in performance data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
@@ -507,24 +737,30 @@ describe("public model routes", () => {
 					{ provider_slug: "poolside", metadata: { colour: "#12AB78" } },
 				]), { status: 200 });
 			}
+			if (url.includes("/rpc/get_v2_model_provider_hourly_performance_v2")) {
+				return new Response(JSON.stringify([
+					{ bucket: "2026-07-23T12:00:00Z", provider_id: "poolside", provider_name: "Poolside", requests: 20 },
+					{ bucket: "2026-07-23T12:00:00Z", provider_id: "unknown", provider_name: "unknown", requests: 1 },
+				]), { status: 200 });
+			}
 			if (url.includes("/rpc/get_v2_model_cached_input_metrics")) {
 				return new Response(JSON.stringify({
 					hourly_24h: [],
 					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 11 },
+						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 20 },
 					],
 				}), { status: 200 });
 			}
 			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
-					last_24h: { total_requests: 12, successful_requests: 11 },
+					last_24h: { total_requests: 21, successful_requests: 20 },
 					hourly_24h: [],
 					provider_uptime_24h: [
-						{ provider: "poolside", provider_name: "Poolside", requests: 11 },
+						{ provider: "poolside", provider_name: "Poolside", requests: 20 },
 						{ provider: "unknown", provider_name: "unknown", requests: 1 },
 					],
 					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 11 },
+						{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 20 },
 						{ day: "2026-07-23", provider: "unknown", provider_name: "unknown", requests: 1 },
 					],
 				}), { status: 200 });
@@ -537,7 +773,7 @@ describe("public model routes", () => {
 					usage_day: "2026-07-23",
 					provider_id: "poolside",
 					provider_name: "Poolside",
-					requests: 11,
+					requests: 20,
 					percentile,
 					gateway_ttft_ms: percentile === 95 ? 900 : 230,
 					provider_duration_ms: percentile === 95 ? 1200 : 500,
@@ -570,14 +806,21 @@ describe("public model routes", () => {
 			expect.objectContaining({ provider: "poolside", providerColor: "#12AB78" }),
 		]);
 		expect(payload.metrics.providerDaily7d).toEqual([
-				expect.objectContaining({
-					provider: "poolside",
-					providerColor: "#12AB78",
-				cachedInputPct: 62.5,
-				cachedInputTokens: 625,
-				effectiveInputTokens: 1000,
-				cacheTelemetryRequests: 11,
-			}),
+			expect.objectContaining({
+			provider: "poolside",
+			providerColor: "#12AB78",
+			cachedInputPct: 62.5,
+			cachedInputTokens: 625,
+			effectiveInputTokens: 1000,
+			cacheTelemetryRequests: 20,
+			requests: 20,
+		}),
+		]);
+		expect(payload.metrics.providerHourly7d).toEqual([
+			expect.objectContaining({ provider: "poolside", requests: 20 }),
+		]);
+		expect(payload.metrics.providerHourly7d).toEqual([
+			expect.objectContaining({ provider: "poolside", requests: 20 }),
 		]);
 		expect(payload.metrics.providerPercentileDaily7d).toHaveLength(5);
 		expect(payload.metrics.providerPercentileDaily7d).toContainEqual(
@@ -743,10 +986,12 @@ describe("public model routes", () => {
 	it("returns the overview shape used by the model page", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_model_overview")) return new Response(JSON.stringify({
-				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
-				organisation_name: "OpenAI", organisation_country_code: "US", model_details: [], model_links: [],
-			}), { status: 200 });
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", description: null, lab_slug: "openai",
+				status: "active", catalogue_status: "active", released_at: "2026-07-01T00:00:00Z",
+				announced_at: null, input_modalities: ["text"], output_modalities: ["text"], metadata: {}, hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
 			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ model_slug: "openai/gpt-test", license: "MIT", license_url: null, limits: { context: 128000 } }), { status: 200 });
 			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify([]), { status: 200 });
 			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify([
@@ -777,6 +1022,80 @@ describe("public model routes", () => {
 				],
 			},
 		});
+	});
+
+	it("renders the overview when optional enrichments are unavailable", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", description: null, lab_slug: "openai",
+				status: "active", catalogue_status: "active", released_at: "2026-07-01T00:00:00Z",
+				announced_at: null, input_modalities: ["text"], output_modalities: ["text"], metadata: {}, hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
+			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ error: "identity temporarily unavailable" }), { status: 503 });
+			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify({ error: "aliases temporarily unavailable" }), { status: 503 });
+			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify({ error: "variants temporarily unavailable" }), { status: 503 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			model: {
+				model_id: "openai/gpt-test",
+				name: "GPT Test",
+				organisation_id: "openai",
+				aliases: [],
+				variants: [],
+			},
+		});
+	});
+
+	it("uses a targeted model lookup without calling the wide overview RPC", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test",
+				name: "GPT Test",
+				description: "A test model",
+				lab_slug: "openai",
+				status: "active",
+				catalogue_status: "active",
+				released_at: "2026-07-01T00:00:00Z",
+				announced_at: null,
+				input_modalities: ["text"],
+				output_modalities: ["text"],
+				metadata: { limits: { context: 128000 } },
+				hidden: false,
+			}]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US" }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-test",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			model: {
+				model_id: "openai/gpt-test",
+				name: "GPT Test",
+				description: "A test model",
+				organisation: { name: "OpenAI" },
+				model_details: [{ detail_name: "input_context_length", detail_value: 128000 }],
+			},
+		});
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_model_overview"))).toBe(false);
 	});
 
 	it("returns public model app usage from the rollup RPC", async () => {
@@ -883,6 +1202,9 @@ describe("public model routes", () => {
 					tone: "warning",
 					markdown: "This model is changing.",
 				}]), { status: 200 });
+			}
+			if (url.includes("v2_models")) {
+				return new Response(JSON.stringify([{ model_slug: "openai/gpt-test" }]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));

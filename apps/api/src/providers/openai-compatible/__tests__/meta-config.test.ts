@@ -24,9 +24,10 @@ describe("Meta OpenAI-compatible config", () => {
 		);
 		const standard = readCatalogJson("models/meta/muse-spark-1.2/model.json");
 		const contributor = readCatalogJson("models/meta/muse-spark-1.2-contributor/model.json");
-		const contributorRoute = readCatalogJson("api_providers/meta-contributor/models.json")[0];
-		const standardProvider = readCatalogJson("api_providers/meta/api_provider.json");
-		const contributorProvider = readCatalogJson("api_providers/meta-contributor/api_provider.json");
+		const contributorRoute = readCatalogJson("api_providers/meta/models.json")
+			.find((route: { provider_model_slug: string }) => route.provider_model_slug === "muse-spark-1.2-contributor");
+		const metaProvider = readCatalogJson("api_providers/meta/api_provider.json");
+		const contributorPricing = readCatalogJson("pricing/meta/meta-muse-spark-1.2-contributor/text.generate/pricing.json");
 		const manifest = readCatalogJson("manifest.json");
 
 		expect(standard.model_id).toBe("meta/muse-spark-1.2");
@@ -35,12 +36,11 @@ describe("Meta OpenAI-compatible config", () => {
 		expect(contributor.family_id).toBe(standard.family_id);
 		expect(contributorRoute.canonical_model_id).toBe(contributor.model_id);
 		expect(contributorRoute.internal_model_id).toBe(contributor.model_id);
-		expect(contributorRoute.provider_api_model_id).toBe(
-			"meta-contributor:meta/muse-spark-1.2-contributor",
-		);
+		expect(contributorRoute.provider_api_model_id).toBe("meta:meta/muse-spark-1.2-contributor");
 		expect(contributorRoute.provider_model_slug).toBe("muse-spark-1.2-contributor");
-		expect(standardProvider.prompt_training_policy).toBe("no_train");
-		expect(contributorProvider.prompt_training_policy).toBe("may_train");
+		expect(metaProvider.prompt_training_policy).toBe("no_train");
+		expect(contributorPricing.api_provider_id).toBe("meta");
+		expect(contributorPricing.service_tiers).toEqual(["contributor"]);
 		expect(manifest.families).toContain("meta-muse-spark-1.2");
 	});
 
@@ -61,6 +61,12 @@ describe("Meta OpenAI-compatible config", () => {
 		);
 		expect(openAICompatUrl("meta-contributor", "/responses")).toBe(
 			"https://api.meta.ai/v1/responses",
+		);
+		expect(openAICompatUrl("meta", "/images/generations")).toBe(
+			"https://api.meta.ai/v1/images/generations",
+		);
+		expect(openAICompatUrl("meta", "/images/edits")).toBe(
+			"https://api.meta.ai/v1/images/edits",
 		);
 	});
 
@@ -88,6 +94,17 @@ describe("Meta OpenAI-compatible config", () => {
 		} as any).key).toBe("test-official-meta-key");
 		expect(resolveOpenAICompatKey({
 			providerId: "meta-contributor",
+			byokMeta: [],
+		} as any).key).toBe("test-official-meta-key");
+
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			MODEL_API_KEY: "test-official-meta-key",
+			META_MODEL_API_KEY: "test-legacy-meta-key",
+		} as any);
+
+		expect(resolveOpenAICompatKey({
+			providerId: "meta",
 			byokMeta: [],
 		} as any).key).toBe("test-official-meta-key");
 

@@ -13,6 +13,8 @@ import {
 import { usePathname, useSearchParams } from "next/navigation";
 import { debounce, useQueryState } from "nuqs";
 import { ModelsGrid } from "./ModelsGrid";
+import { ActiveModelFilters, type ActiveModelFilter } from "./ActiveModelFilters";
+import { resolveDefaultGatewayStatuses } from "@/lib/models/defaultGatewayStatuses";
 import { Logo } from "@/components/Logo";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,6 +45,7 @@ import {
 	Video,
 	CalendarDays,
 	Globe2,
+	LockKeyhole,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -268,12 +271,11 @@ function normalizeModalityFilterValue(value: string): string {
 	if (normalized.includes("realtime") || normalized.includes("real time")) {
 		return "realtime";
 	}
-	if (normalized.includes("text")) return "text";
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -287,6 +289,7 @@ function normalizeModalityFilterValue(value: string): string {
 	) {
 		return "audio_tts";
 	}
+	if (normalized.includes("text")) return "text";
 	if (normalized.includes("audio")) return "audio";
 	if (normalized.includes("file")) return "file";
 	if (normalized.includes("moderat")) return "moderations";
@@ -536,7 +539,7 @@ function getModalityIcon(modality: string): LucideIcon {
 	if (normalized.includes("video")) return Video;
 	if (normalized.includes("music")) return Music4;
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -789,9 +792,18 @@ function mergeOptionCounts(
 	}));
 }
 
-function filterOutFileModality(options: OptionCount[]): OptionCount[] {
+function filterSupportedInputModalities(options: OptionCount[]): OptionCount[] {
 	return options.filter(
-		(option) => normalizeModalityFilterValue(option.value) !== "file",
+		(option) => {
+			const modality = normalizeModalityFilterValue(option.value);
+			return modality !== "file" && modality !== "document";
+		},
+	);
+}
+
+function filterSupportedOutputModalities(options: OptionCount[]): OptionCount[] {
+	return options.filter(
+		(option) => normalizeModalityFilterValue(option.value) !== "action",
 	);
 }
 
@@ -949,15 +961,13 @@ function ModelsDisplayContent({
 	const [hasInteractedWithStatuses, setHasInteractedWithStatuses] = useState(
 		selectedStatuses.length > 0,
 	);
-	const hasSearchQuery = deferredSearch.trim().length > 0;
 	const effectiveSelectedStatuses = useMemo<GatewayStatusFilter[]>(
 		() =>
-			!hasInteractedWithStatuses && selectedStatuses.length === 0
-				? hasSearchQuery
-					? []
-					: ["active"]
-				: (selectedStatuses as GatewayStatusFilter[]),
-		[hasInteractedWithStatuses, hasSearchQuery, selectedStatuses],
+			resolveDefaultGatewayStatuses(
+				selectedStatuses as GatewayStatusFilter[],
+				hasInteractedWithStatuses,
+			),
+		[hasInteractedWithStatuses, selectedStatuses],
 	);
 	const [selectedEndpoints, setSelectedEndpoints] = useQueryState("endpoints", {
 		defaultValue: [] as string[],
@@ -1053,6 +1063,8 @@ function ModelsDisplayContent({
 	});
 	const [sort, setSort] = useQueryState("sort", sortParser);
 	const selectedSort = normalizeSortOption(sort);
+	const hasPrivateModels = models.some((model) => model.gateway_tiers?.includes("private"));
+	const privateOnly = selectedTiers.includes("private");
 	const [showMobileFilterFab, setShowMobileFilterFab] = useState(false);
 	const [isMobileViewport, setIsMobileViewport] = useState(false);
 	const [sidebarCountsReady, setSidebarCountsReady] = useState(false);
@@ -1544,17 +1556,21 @@ function ModelsDisplayContent({
 			}
 			params.delete("q");
 			const statuses = parseGatewayStatusParam(params.get("statuses"));
-			if (statuses.length === 1) {
+			if (statuses.length > 0) {
 				params.set(
 					"statuses",
-					statuses[0] === "active"
-						? "active"
-						: statuses[0] === "coming_soon"
-							? "coming_soon"
-							: "inactive",
+					statuses
+						.map((status) =>
+							status === "not_active" ? "inactive" : status,
+						)
+						.join(","),
 				);
 			} else {
 				params.delete("statuses");
+			}
+			const years = parseCsvParam(params.get("years"));
+			if (years.length > 0) {
+				params.set("year", years[0] ?? "0");
 			}
 		}
 		const qs = params.toString();
@@ -1585,10 +1601,12 @@ function ModelsDisplayContent({
 			}),
 		[dynamicSidebarCounts.endpointOptions],
 	);
-	const inputModalityOptions = filterOutFileModality(
+	const inputModalityOptions = filterSupportedInputModalities(
 		dynamicSidebarCounts.inputModalityOptions,
 	);
-	const outputModalityOptions = dynamicSidebarCounts.outputModalityOptions;
+	const outputModalityOptions = filterSupportedOutputModalities(
+		dynamicSidebarCounts.outputModalityOptions,
+	);
 	const featureOptions = dynamicSidebarCounts.featureOptions;
 	const tierOptions = dynamicSidebarCounts.tierOptions;
 	const supportedParameterOptions =
@@ -1628,6 +1646,32 @@ function ModelsDisplayContent({
 		: shownCountLabel;
 	const hasActiveResultsQuery =
 		activeFilterCount > 0 || Boolean(String(search ?? "").trim());
+	const without = (values: string[], value: string) =>
+		values.filter((candidate) => candidate !== value);
+	const activeFilters: ActiveModelFilter[] = [
+		...(hasInteractedWithStatuses
+			? selectedStatuses.map((value) => ({
+					key: `status-${value}`,
+					label: value === "active" ? "Status: Active" : value === "coming_soon" ? "Status: Coming Soon" : "Status: Not Active",
+					onRemove: () => {
+						const next = without(selectedStatuses, value);
+						setSelectedStatuses(next);
+						if (next.length === 0) setHasInteractedWithStatuses(false);
+					},
+				}))
+			: []),
+		...selectedInputModalities.map((value) => ({ key: `input-${value}`, label: `Input: ${toTitleCase(value)}`, onRemove: () => setSelectedInputModalities(without(selectedInputModalities, value)) })),
+		...selectedOutputModalities.map((value) => ({ key: `output-${value}`, label: `Output: ${toTitleCase(value)}`, onRemove: () => setSelectedOutputModalities(without(selectedOutputModalities, value)) })),
+		...selectedTiers.map((value) => ({ key: `tier-${value}`, label: `Tier: ${toTitleCase(value)}`, onRemove: () => setSelectedTiers(without(selectedTiers, value)) })),
+		...(selectedContextMin > 0 ? [{ key: "context", label: `Context: ${formatContextStop(selectedContextMin)}+`, onRemove: () => setSelectedContextMin(0) }] : []),
+		...selectedSupportedParameters.map((value) => ({ key: `parameter-${value}`, label: `Parameter: ${toTitleCase(value)}`, onRemove: () => setSelectedSupportedParameters(without(selectedSupportedParameters, value)) })),
+		...selectedProviders.map((value) => ({ key: `provider-${value}`, label: `Provider: ${value}`, onRemove: () => setSelectedProviders(without(selectedProviders, value)) })),
+		...selectedRegions.map((value) => ({ key: `region-${value}`, label: `Region: ${formatRegionLabel(value)}`, onRemove: () => setSelectedRegions(without(selectedRegions, value)) })),
+		...selectedCreators.map((value) => ({ key: `creator-${value}`, label: `Creator: ${value}`, onRemove: () => setSelectedCreators(without(selectedCreators, value)) })),
+		...selectedFeatures.map((value) => ({ key: `feature-${value}`, label: featureLabels[value] ?? toTitleCase(value), onRemove: () => setSelectedFeatures(without(selectedFeatures, value)) })),
+		...selectedEndpoints.map((value) => ({ key: `endpoint-${value}`, label: `Endpoint: ${formatEndpointLabel(value)}`, onRemove: () => setSelectedEndpoints(without(selectedEndpoints, value)) })),
+		...selectedYears.map((value) => ({ key: `year-${value}`, label: `Year: ${value}`, onRemove: () => setSelectedYears(without(selectedYears, value)) })),
+	];
 
 	const filterButton = (compact = false) => (
 		<Button
@@ -1653,6 +1697,19 @@ function ModelsDisplayContent({
 			) : null}
 		</Button>
 	);
+	const privateFilterButton = hasPrivateModels ? (
+		<Button
+			type="button"
+			size="sm"
+			variant={privateOnly ? "default" : "outline"}
+			className="h-8 gap-1.5 rounded-md"
+			onClick={() => setSelectedTiers(privateOnly ? without(selectedTiers, "private") : [...selectedTiers, "private"])}
+			aria-pressed={privateOnly}
+		>
+			<LockKeyhole className="h-3.5 w-3.5" />
+			Private
+		</Button>
+	) : null;
 
 	const viewSwitcherItemClass = (active: boolean, isFirst = false) =>
 		cn(
@@ -2046,9 +2103,10 @@ function ModelsDisplayContent({
 							</div>
 						) : null}
 
-						<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
+						<div className="flex items-center gap-2">
 							{sortSelect("h-8 min-w-0 rounded-md bg-background text-sm")}
-							{filterButton(true)}
+							{privateFilterButton}
+							{filterButton()}
 							{showPrimaryHeader ? viewSwitcher : null}
 						</div>
 
@@ -2095,6 +2153,7 @@ function ModelsDisplayContent({
 									{sortSelect(
 										"h-8 w-[12.5rem] rounded-md bg-background text-sm 2xl:w-[13.5rem]",
 									)}
+									{privateFilterButton}
 									{showPrimaryHeader ? viewSwitcher : null}
 								</div>
 							</div>
@@ -2108,6 +2167,7 @@ function ModelsDisplayContent({
 									<div />
 								)}
 								<div className="flex shrink-0 items-center justify-end gap-2">
+									{privateFilterButton}
 									{filterButton()}
 									{showPrimaryHeader ? viewSwitcher : null}
 								</div>
@@ -2143,6 +2203,8 @@ function ModelsDisplayContent({
 							}
 						/>
 					</div>
+
+					<ActiveModelFilters filters={activeFilters} onClear={resetFilters} />
 				</div>
 
 				<div className="w-full px-4 pt-1 pb-5 lg:px-8 lg:pt-1 lg:pb-6">
@@ -2162,10 +2224,10 @@ function ModelsDisplayContent({
 
 			{isMobileViewport ? (
 				<Drawer open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-					<DrawerContent className="sm:hidden h-[85dvh] max-h-[85dvh] overflow-hidden gap-0 p-0">
-						<DrawerHeader className="border-b border-border/70 px-4 py-3 text-left">
+					<DrawerContent className="h-[85dvh] max-h-[85dvh] gap-0 overflow-hidden border-t border-border bg-popover p-0 shadow-xl before:hidden sm:hidden">
+						<DrawerHeader className="border-b border-border/70 px-4 py-3 !text-left">
 							<div className="flex items-start justify-between gap-3 pr-4">
-								<div>
+								<div className="text-left">
 									<DrawerTitle>Filters</DrawerTitle>
 									<DrawerDescription>Refine the models list.</DrawerDescription>
 								</div>
@@ -2228,7 +2290,7 @@ function ModelsDisplayContent({
 				size="sm"
 				onClick={() => setMobileFiltersOpen(true)}
 				className={cn(
-					"fixed bottom-6 left-4 z-40 inline-flex h-11 items-center gap-2 rounded-full border border-border/70 !bg-background px-4 !text-foreground shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md dark:!border-zinc-800 dark:!bg-zinc-950 dark:!text-zinc-50 active:scale-95 md:hidden",
+					"fixed bottom-6 left-4 z-40 inline-flex h-11 items-center gap-2 rounded-md border border-border/70 !bg-background px-4 !text-foreground shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md dark:!border-zinc-800 dark:!bg-zinc-950 dark:!text-zinc-50 active:scale-95 md:hidden",
 					showMobileFilterFab && !mobileFiltersOpen
 						? "translate-y-0 opacity-100"
 						: "pointer-events-none translate-y-3 opacity-0",

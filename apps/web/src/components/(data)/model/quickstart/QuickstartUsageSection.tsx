@@ -42,6 +42,7 @@ import {
 } from "@/lib/parameters/reference";
 import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 import { cn } from "@/lib/utils";
+import { captureProductEvent } from "@/lib/productAnalytics";
 
 type LanguageFamilyOption = {
 	id: string;
@@ -62,12 +63,13 @@ type ServiceTierOption = {
 
 const SERVICE_TIER_OPTIONS: ServiceTierOption[] = [
 	{ value: "standard", label: "Standard" },
-	{ value: "priority", label: "Priority" },
+	{ value: "priority", label: "Fast" },
 	{ value: "flex", label: "Flex" },
 	{ value: "batch", label: "Batch", disabled: true, hint: "Coming soon" },
 ];
 
 type QuickstartUsageSectionProps = {
+	analyticsModelId: string;
 	modelIdentifierInCode: string;
 	acceptedIdentifiers: string[];
 	onSelectModelIdentifier: (value: string) => void;
@@ -284,8 +286,10 @@ function sortSupportedParameters(
 
 function MiniCopyButton({
 	content,
+	onCopy,
 }: {
 	content: string;
+	onCopy: () => void;
 }) {
 	const [copied, setCopied] = useState(false);
 
@@ -306,6 +310,7 @@ function MiniCopyButton({
 			onClick={async () => {
 				await navigator.clipboard.writeText(content);
 				setCopied(true);
+				onCopy();
 			}}
 		>
 			{copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -380,6 +385,7 @@ function RequestCodePane({
 }
 
 export function QuickstartUsageSection({
+	analyticsModelId,
 	modelIdentifierInCode,
 	acceptedIdentifiers,
 	onSelectModelIdentifier,
@@ -710,7 +716,17 @@ export function QuickstartUsageSection({
 							</div>
 						) : null}
 						<div className="w-full lg:absolute lg:right-2 lg:top-2 lg:w-auto">
-							<MiniCopyButton content={requestExample.code} />
+									<MiniCopyButton
+										content={requestExample.code}
+										onCopy={() =>
+											captureProductEvent("quickstart_code_copied", {
+												code_kind: "request",
+												endpoint: selectedEndpointValue,
+												language: selectedLanguage,
+												model_id: analyticsModelId,
+											})
+										}
+									/>
 						</div>
 					</div>
 				</div>
@@ -737,9 +753,13 @@ export function QuickstartUsageSection({
 										variant="outline"
 										size="sm"
 										className="h-auto min-h-8 max-w-full justify-start gap-2 rounded-md px-2.5 py-1.5 font-mono text-xs"
-										onClick={async () => {
-											onSelectModelIdentifier(identifier);
-											await navigator.clipboard.writeText(identifier);
+											onClick={async () => {
+												onSelectModelIdentifier(identifier);
+												await navigator.clipboard.writeText(identifier);
+												captureProductEvent("quickstart_model_id_copied", {
+													model_id: analyticsModelId,
+													selected_model_id: identifier,
+												});
 											toast.success("Updated model ID", {
 												description: identifier,
 											});

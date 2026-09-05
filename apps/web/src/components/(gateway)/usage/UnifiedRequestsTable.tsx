@@ -30,6 +30,13 @@ import {
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
 	ChevronLeft,
 	ChevronRight,
 	ChevronsLeft,
@@ -42,7 +49,10 @@ import {
 	Package,
 	Terminal,
 	Loader2,
+	Copy,
+	PanelRightOpen,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
 	fetchPaginatedRequests,
 	fetchModelMetadata,
@@ -95,6 +105,92 @@ interface UnifiedRequestsTableProps {
 	onExportRef?: React.MutableRefObject<
 		((format: "csv" | "pdf") => void) | null
 	>;
+}
+
+function RequestRowContextMenu({
+	row,
+	modelId,
+	onInspect,
+}: {
+	row: RequestRow;
+	modelId: string | null;
+	onInspect: () => void;
+}) {
+	const requestId = row.request_id?.trim() || null;
+	const sessionId = row.session_id?.trim() || null;
+	const nativeResponseId = row.native_response_id?.trim() || null;
+	const resolvedModelId = modelId?.trim() || null;
+	const canInspect = Boolean(requestId && !row.is_sample);
+	const hasCopyAction = Boolean(
+		requestId || sessionId || nativeResponseId || resolvedModelId,
+	);
+	const copyValue = async (label: string, value: string) => {
+		try {
+			await navigator.clipboard.writeText(value);
+			toast.success(`${label} copied`);
+		} catch {
+			toast.error(`Failed to copy ${label.toLowerCase()}`);
+		}
+	};
+
+	return (
+		<ContextMenuContent className="w-56 rounded-md">
+			{canInspect ? (
+				<ContextMenuItem className="rounded-md" onClick={onInspect}>
+					<PanelRightOpen />
+					Open Request Details
+				</ContextMenuItem>
+			) : null}
+			{canInspect && hasCopyAction ? <ContextMenuSeparator /> : null}
+			{requestId ? (
+				<ContextMenuItem
+					className="rounded-md"
+					onClick={() => void copyValue("Request ID", requestId)}
+				>
+					<Copy />
+					Copy Request ID
+				</ContextMenuItem>
+			) : null}
+			{sessionId ? (
+				<ContextMenuItem
+					className="rounded-md"
+					onClick={() => void copyValue("Session ID", sessionId)}
+				>
+					<Copy />
+					Copy Session ID
+				</ContextMenuItem>
+			) : null}
+			{nativeResponseId ? (
+				<ContextMenuItem
+					className="rounded-md"
+					onClick={() => void copyValue("Native response ID", nativeResponseId)}
+				>
+					<Copy />
+					Copy Native Response ID
+				</ContextMenuItem>
+			) : null}
+			{resolvedModelId ? (
+				<ContextMenuItem
+					className="rounded-md"
+					onClick={() => void copyValue("Model ID", resolvedModelId)}
+				>
+					<Copy />
+					Copy Model ID
+				</ContextMenuItem>
+			) : null}
+		</ContextMenuContent>
+	);
+}
+
+function isInteractiveRowTarget(target: EventTarget | null): boolean {
+	return (
+		target instanceof Element &&
+		Boolean(
+			target.closest(
+				'a, button, input, select, textarea, [role="button"], [role="link"], [data-row-click-ignore]',
+			),
+		)
+	);
 }
 
 function formatCost(nanos: number | null | undefined): string {
@@ -163,10 +259,24 @@ function getClientSource(row: RequestRow) {
 		? metadata.client_source
 		: null;
 	if (!source || typeof source !== "object" || Array.isArray(source)) {
-		return null;
+		return {
+			id: "api",
+			name: "Direct HTTP",
+			version: null,
+			detection: "unknown",
+			kind: "api",
+		};
 	}
 	const id = typeof source.id === "string" ? source.id : null;
-	if (!id) return null;
+	if (!id) {
+		return {
+			id: "api",
+			name: "Direct HTTP",
+			version: null,
+			detection: "unknown",
+			kind: "api",
+		};
+	}
 	return {
 		id,
 		name: typeof source.name === "string" ? source.name : id,
@@ -256,6 +366,8 @@ export default function UnifiedRequestsTable({
 	const [requestFilter] = useQueryState("req");
 	const [sessionFilter] = useQueryState("session");
 	const [sourceFilter] = useQueryState("source");
+	const [labelKey] = useQueryState("label_key");
+	const [labelValue] = useQueryState("label_value");
 	const [inputTokensFilter] = useQueryState("input_tokens");
 	const [inputTokensMax] = useQueryState("input_tokens_max");
 	const [inputTokensOperator] = useQueryState("input_tokens_op");
@@ -315,7 +427,7 @@ export default function UnifiedRequestsTable({
 	const [dialogOpen, setDialogOpen] = useState(false);
 	// Build cache key from filters
 	const getCacheKey = useCallback(() => {
-		return `${timeRange.from}-${timeRange.to}-${pageSize}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sourceFilter}-${inputTokensFilter}-${inputTokensMax}-${inputTokensOperator}-${outputTokensFilter}-${outputTokensMax}-${outputTokensOperator}-${totalTokensFilter}-${totalTokensMax}-${totalTokensOperator}-${JSON.stringify(filterOperators)}`;
+		return `${timeRange.from}-${timeRange.to}-${pageSize}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sourceFilter}-${labelKey}-${labelValue}-${inputTokensFilter}-${inputTokensMax}-${inputTokensOperator}-${outputTokensFilter}-${outputTokensMax}-${outputTokensOperator}-${totalTokensFilter}-${totalTokensMax}-${totalTokensOperator}-${JSON.stringify(filterOperators)}`;
 	}, [
 		timeRange,
 		pageSize,
@@ -332,6 +444,8 @@ export default function UnifiedRequestsTable({
 		requestFilter,
 		sessionFilter,
 		sourceFilter,
+		labelKey,
+		labelValue,
 		inputTokensFilter, inputTokensMax, inputTokensOperator,
 		outputTokensFilter, outputTokensMax, outputTokensOperator,
 		totalTokensFilter, totalTokensMax, totalTokensOperator,
@@ -376,7 +490,9 @@ export default function UnifiedRequestsTable({
 					statusFilter: (statusFilter as any) || "all",
 					requestFilter: requestFilter || null,
 					sessionFilter: sessionFilter || null,
-					 sourceFilter: sourceFilter || null,
+					sourceFilter: sourceFilter || null,
+					labelKey: labelKey || null,
+					labelValue: labelValue || null,
 					filterOperators,
 					inputTokensFilter: inputTokensFilter || null,
 					inputTokensMax: inputTokensMax || null,
@@ -468,6 +584,8 @@ export default function UnifiedRequestsTable({
 			requestFilter,
 			sessionFilter,
 			sourceFilter,
+			labelKey,
+			labelValue,
 			pageCursors,
 			filterOperators,
 			inputTokensFilter, inputTokensMax, inputTokensOperator,
@@ -566,13 +684,26 @@ export default function UnifiedRequestsTable({
 
 	const handleRowClick = useCallback((request: RequestRow) => {
 		if (request.is_sample) return;
+		const isSelectedRequest = detailBasePath
+			? detailRequestId === request.request_id
+			: selectedRequest?.request_id === request.request_id;
+		if (isSelectedRequest && (detailBasePath || dialogOpen)) {
+			setDialogOpen(false);
+			setSelectedRequest(null);
+			setSelectedDetail(null);
+			setDetailLoading(false);
+			if (detailBasePath) void setDetailRequestId(null);
+			return;
+		}
 		setSelectedRequest(request);
 		setSelectedDetail(null);
 		setDetailLoading(Boolean(detailBasePath));
 		setSelectedAppName(request.app_title ?? null);
 		setDialogOpen(true);
-		if (detailBasePath) void setDetailRequestId(request.request_id);
-	}, [detailBasePath, setDetailRequestId]);
+		if (detailBasePath) {
+			void setDetailRequestId(request.request_id);
+		}
+	}, [detailBasePath, detailRequestId, dialogOpen, selectedRequest?.request_id, setDetailRequestId]);
 
 	const handleDialogOpenChange = useCallback(
 		(nextOpen: boolean) => {
@@ -585,6 +716,21 @@ export default function UnifiedRequestsTable({
 		},
 		[detailBasePath, setDetailRequestId],
 	);
+	const navigableRows = React.useMemo(
+		() => data.filter((row) => !row.is_sample),
+		[data],
+	);
+	const activeRequestId =
+		(selectedDetail?.request ?? selectedRequest)?.request_id ?? detailRequestId;
+	const activeRequestIndex = activeRequestId
+		? navigableRows.findIndex((row) => row.request_id === activeRequestId)
+		: -1;
+	const previousRequest =
+		activeRequestIndex > 0 ? navigableRows[activeRequestIndex - 1] : null;
+	const nextRequest =
+		activeRequestIndex >= 0 && activeRequestIndex < navigableRows.length - 1
+			? navigableRows[activeRequestIndex + 1]
+			: null;
 
 	const handleExport = React.useCallback(
 		(format: "csv" | "pdf") => {
@@ -604,6 +750,7 @@ export default function UnifiedRequestsTable({
 					row.app_id ? appNames.get(row.app_id) : null,
 				);
 				const appLabel = appTitle ?? mappedAppName ?? "-";
+				const source = getClientSource(row);
 				const requestedModelId = getRequestedModelId(row);
 				const routedModelId = getRoutedModelId(row);
 				return {
@@ -619,6 +766,11 @@ export default function UnifiedRequestsTable({
 					),
 					"Routed Model ID": routedModelId || "-",
 					Provider: providerLabel,
+					Source: source?.name ?? "Direct HTTP",
+					"Source ID": source?.id ?? "api",
+					"Source Type": source?.kind ?? "api",
+					"Source Version": source?.version ?? "-",
+					"Source Detection": source?.detection ?? "unknown",
 					App: appLabel,
 					Usage: usageSummary,
 					"Input Tokens": formatUsageNumber(inputTokens),
@@ -688,7 +840,9 @@ export default function UnifiedRequestsTable({
 						const requestedModelId = getRequestedModelId(row);
 						const routedModelId = getRoutedModelId(row);
 						const rowKey = `mobile-${row.request_id}-${row.created_at}-${requestedModelId ?? "no-requested-model"}-${routedModelId ?? "no-routed-model"}-${row.provider ?? "no-provider"}-${index}`;
-						const modelHref = getModelDetailsHref(routedModelId);
+						const modelHref = row.provider === "private-model"
+							? "/settings/workspaces/private-models"
+							: getModelDetailsHref(routedModelId);
 						const modelMeta = routedModelId
 							? resolvedModelMetadata.get(routedModelId)
 							: undefined;
@@ -698,6 +852,7 @@ export default function UnifiedRequestsTable({
 						const providerLabel = row.provider
 							? resolveProviderDisplayName({ providerId: row.provider, providerName: providerNames.get(row.provider) || providerMeta?.name || row.provider })
 							: null;
+						const source = getClientSource(row);
 						const appTitle = normalizeNonEmpty(row.app_title);
 						const mappedAppName = normalizeNonEmpty(
 							row.app_id ? appNames.get(row.app_id) : null,
@@ -725,12 +880,13 @@ export default function UnifiedRequestsTable({
 								key={rowKey}
 								type="button"
 								className={cn(
-									"w-full rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:bg-muted/40",
+									"w-full rounded-lg border border-l-2 border-l-transparent bg-card px-4 py-3 text-left transition-colors hover:bg-muted/40",
 									loading && "opacity-50",
 									detailRequestId === row.request_id &&
-										"border-primary/45 bg-muted/55 ring-1 ring-primary/20",
+										"border-l-foreground bg-muted/55",
 								)}
 								aria-pressed={detailRequestId === row.request_id}
+								data-request-row-id={row.request_id}
 								onClick={() => void handleRowClick(row)}
 							>
 								<div className="flex items-start justify-between gap-3">
@@ -855,10 +1011,27 @@ export default function UnifiedRequestsTable({
 									</div>
 								</div>
 								<div className="mt-3 flex flex-wrap items-center gap-2">
+									{source ? (
+										<UsageEntityHoverCard
+											title={source.name}
+											subtitle={source.kind === "coding_agent" ? "Coding agent" : source.kind === "sdk" ? "Software development kit" : source.kind === "http_client" ? "HTTP client" : null}
+											visual={<ClientSourceVisual sourceId={source.id} kind={source.kind ?? ""} />}
+											rows={[
+												...(source.version ? [{ label: "Version", value: source.version }] : []),
+												...(source.detection ? [{ label: "Detection", value: source.detection === "declared" ? "Declared by client" : source.detection === "user_agent" ? "User agent" : source.detection }] : []),
+											]}
+										>
+											<span className="inline-flex min-w-0 items-center gap-2 font-medium text-foreground">
+												<ClientSourceVisual sourceId={source.id} kind={source.kind ?? ""} />
+												<span className="truncate">{source.name}</span>
+											</span>
+										</UsageEntityHoverCard>
+									) : null}
+
 									{row.provider ? (
 										<UsageEntityHoverCard
 											title={providerLabel ?? row.provider}
-											href={`/api-providers/${encodeURIComponent(row.provider)}`}
+											href={row.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(row.provider)}`}
 											visual={
 												<Logo
 													id={row.provider}
@@ -886,7 +1059,7 @@ export default function UnifiedRequestsTable({
 											]}
 										>
 											<Link
-												href={`/api-providers/${encodeURIComponent(row.provider)}`}
+											href={row.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(row.provider)}`}
 											className="inline-flex min-w-0 items-center gap-2 font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 												onClick={stopRowClick}
 											>
@@ -1075,8 +1248,12 @@ export default function UnifiedRequestsTable({
 									const requestedModelId = getRequestedModelId(row);
 									const routedModelId = getRoutedModelId(row);
 									const rowKey = `${row.request_id}-${row.created_at}-${requestedModelId ?? "no-requested-model"}-${routedModelId ?? "no-routed-model"}-${row.provider ?? "no-provider"}-${index}`;
-									const requestedModelHref = getModelDetailsHref(requestedModelId);
-									const routedModelHref = getModelDetailsHref(routedModelId);
+									const requestedModelHref = row.provider === "private-model"
+										? "/settings/workspaces/private-models"
+										: getModelDetailsHref(requestedModelId);
+									const routedModelHref = row.provider === "private-model"
+										? "/settings/workspaces/private-models"
+										: getModelDetailsHref(routedModelId);
 									const requestedModelMeta = requestedModelId
 										? resolvedModelMetadata.get(requestedModelId)
 										: undefined;
@@ -1116,16 +1293,22 @@ export default function UnifiedRequestsTable({
 										: null;
 
 									return (
-										<TableRow
-											key={rowKey}
+										<ContextMenu key={rowKey}>
+											<ContextMenuTrigger asChild>
+											<TableRow
 											className={cn(
 												loading && "opacity-50",
-												"cursor-pointer hover:bg-muted/40",
+												"cursor-pointer border-l-2 border-l-transparent hover:bg-muted/40",
 												detailRequestId === row.request_id &&
-													"bg-muted/65 outline outline-1 -outline-offset-1 outline-primary/40 hover:bg-muted/65",
+													"border-l-2 border-l-foreground bg-muted/65 hover:bg-muted/65",
 											)}
 											aria-selected={detailRequestId === row.request_id}
-											onClick={() => void handleRowClick(row)}
+											data-request-row-id={row.request_id}
+											onClickCapture={(event) => {
+												if (!isInteractiveRowTarget(event.target)) {
+													void handleRowClick(row);
+												}
+											}}
 										>
 											<TableCell className="py-2 font-mono text-xs">
 												<HoverCard>
@@ -1416,7 +1599,7 @@ export default function UnifiedRequestsTable({
 												{row.provider ? (
 													<UsageEntityHoverCard
 														title={providerLabel ?? row.provider}
-														href={`/api-providers/${encodeURIComponent(row.provider)}`}
+													href={row.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(row.provider)}`}
 														visual={<Logo id={row.provider} width={16} height={16} />}
 														rows={[
 															{
@@ -1438,7 +1621,7 @@ export default function UnifiedRequestsTable({
 														]}
 													>
 														<Link
-															href={`/api-providers/${encodeURIComponent(row.provider)}`}
+														href={row.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(row.provider)}`}
 															className="inline-flex min-w-0 max-w-[180px] items-center gap-2 font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 															onClick={stopRowClick}
 														>
@@ -1567,7 +1750,14 @@ export default function UnifiedRequestsTable({
 													)}
 												</div>
 											</TableCell>
-										</TableRow>
+											</TableRow>
+											</ContextMenuTrigger>
+											<RequestRowContextMenu
+												row={row}
+												modelId={routedModelId}
+												onInspect={() => void handleRowClick(row)}
+											/>
+										</ContextMenu>
 									);
 								})}
 							</>
@@ -1650,6 +1840,38 @@ export default function UnifiedRequestsTable({
 				open={dialogOpen}
 				loading={detailLoading}
 				presentation={detailBasePath ? "sheet" : undefined}
+				disablePointerDismissal={Boolean(detailBasePath)}
+				headerNavigation={
+					activeRequestIndex >= 0 ? (
+						<div className="flex items-center gap-2">
+							<div className="flex items-center gap-1">
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon-sm"
+									disabled={!previousRequest}
+									aria-label="Open previous request"
+									onClick={() => previousRequest && handleRowClick(previousRequest)}
+								>
+									<ChevronLeft className="size-4" />
+								</Button>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon-sm"
+									disabled={!nextRequest}
+									aria-label="Open next request"
+									onClick={() => nextRequest && handleRowClick(nextRequest)}
+								>
+									<ChevronRight className="size-4" />
+								</Button>
+							</div>
+							<span className="min-w-8 text-right text-[10px] font-medium tabular-nums text-muted-foreground">
+								{activeRequestIndex + 1} / {navigableRows.length}
+							</span>
+						</div>
+					) : null
+				}
 				onOpenChange={handleDialogOpenChange}
 				request={selectedDetail?.request ?? selectedRequest}
 				modelMetadata={selectedDetail ? new Map(selectedDetail.modelMetadata ?? []) : resolvedModelMetadata}

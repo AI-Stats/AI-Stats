@@ -1,5 +1,6 @@
 import { assertOk, client, isDryRun, logWrite } from "./supa";
 import { chunk } from "./util";
+import { deleteStaleModels } from "./stale-models";
 import { DATA_ROOT, DIR_ALIASES } from "./paths";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -9,17 +10,30 @@ type DbClient = ReturnType<typeof client>;
 
 const PAGE_SIZE = 1_000;
 let catalogueOverrideIndex: Map<string, Set<string>> | null = null;
+// These legacy rows predate JSON ownership metadata, so retire them explicitly when removed from the catalog.
+const RETIRED_CATALOGUE_ALIAS_SLUGS = new Set(["openai/gpt-latest"]);
+
+export const PROTECTED_CATALOGUE_DISPOSITIONS = ["database_managed", "database", "suppressed", "stealth"] as const;
+
+export function protectedCatalogueIndex(
+    overrideRows: Record<string, any>[],
+): Map<string, Set<string>> {
+    const protectedDispositions = new Set<string>(PROTECTED_CATALOGUE_DISPOSITIONS);
+    const index = new Map<string, Set<string>>();
+    for (const row of overrideRows) {
+        if (!protectedDispositions.has(String(row.disposition))) continue;
+        const sourceType = String(row.source_type);
+        const keys = index.get(sourceType) ?? new Set<string>();
+        keys.add(String(row.source_key));
+        index.set(sourceType, keys);
+    }
+    return index;
+}
 
 async function databaseOwnedCatalogueKeys(supa: DbClient) {
     if (catalogueOverrideIndex) return catalogueOverrideIndex;
     const rows = await fetchAll(supa, "v2_catalogue_source_overrides", "source_type,source_key,disposition");
-    catalogueOverrideIndex = new Map<string, Set<string>>();
-    for (const row of rows) {
-        if (!['database_managed', 'database', 'suppressed'].includes(String(row.disposition))) continue;
-        const keys = catalogueOverrideIndex.get(String(row.source_type)) ?? new Set<string>();
-        keys.add(String(row.source_key));
-        catalogueOverrideIndex.set(String(row.source_type), keys);
-    }
+    catalogueOverrideIndex = protectedCatalogueIndex(rows);
     return catalogueOverrideIndex;
 }
 
@@ -31,6 +45,28 @@ function asTextArray(value: unknown): string[] {
     if (Array.isArray(value)) return value.map(asText).filter((item): item is string => Boolean(item));
     const text = asText(value);
     return text ? text.split(",").map(item => item.trim()).filter(Boolean) : [];
+}
+
+export function resolveCapabilityDataPolicy(
+    provider: Record<string, any> | null | undefined,
+    capabilityId: string,
+    providerModelSlug?: unknown,
+    explicitPolicy?: unknown,
+): Record<string, any> | null {
+    if (explicitPolicy && typeof explicitPolicy === "object" && !Array.isArray(explicitPolicy)) {
+        return explicitPolicy as Record<string, any>;
+    }
+    const policy = provider?.capability_data_policies?.[capabilityId];
+    if (!policy || typeof policy !== "object" || Array.isArray(policy)) return null;
+    const modelSlug = String(providerModelSlug ?? "").trim().toLowerCase();
+    const excluded = Array.isArray(provider?.capability_data_policy_exclusions) &&
+        provider.capability_data_policy_exclusions.some((exclusion: Record<string, any>) =>
+            exclusion?.capability_id === capabilityId &&
+            (exclusion.provider_model_slug_prefix == null ||
+                (typeof exclusion.provider_model_slug_prefix === "string" &&
+                    modelSlug.startsWith(exclusion.provider_model_slug_prefix.trim().toLowerCase()))),
+        );
+    return excluded ? null : policy as Record<string, any>;
 }
 
 export function catalogueStatus(value: unknown): string {
@@ -148,10 +184,19 @@ export function routeAccessScope(row: Record<string, any>, providerIsExternal = 
     return phaseoStatus(row, providerIsExternal) === "testing" ? "internal" : "public";
 }
 
+function providerAvailabilityAllowsRouting(row: Record<string, any>): boolean {
+    const availability = providerAvailabilityStatus(row);
+    if (["available", "preview", "limited_access"].includes(availability)) return true;
+    if (availability !== "deprecated") return false;
+
+    const effectiveTo = Date.parse(String(row.effective_to ?? ""));
+    return Number.isFinite(effectiveTo) && effectiveTo > Date.now();
+}
+
 export function phaseoRoutingEnabled(row: Record<string, any>, providerIsExternal = false): boolean {
     return phaseoStatus(row, providerIsExternal) === "enabled"
         && routeAccessScope(row, providerIsExternal) === "public"
-        && ["available", "preview", "limited_access"].includes(providerAvailabilityStatus(row))
+        && providerAvailabilityAllowsRouting(row)
         && !["disabled", "retired"].includes(normalizedStatus(row.routing_status));
 }
 
@@ -167,6 +212,21 @@ export function v2RouteExecutionRegions(
 function slug(value: unknown, fallback = "standard"): string {
     const normalized = String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9._:-]+/g, "-").replace(/^-+|-+$/g, "");
     return normalized || fallback;
+}
+
+export function canonicalServiceTierSlug(value: unknown): string {
+    const normalized = slug(value);
+    return normalized === "fast" ? "priority" : normalized;
+}
+
+function pricingRulePriority(rule: Record<string, any>): number {
+	if (Number.isFinite(rule.priority)) return Number(rule.priority);
+	const conditions = Array.isArray(rule.match)
+		? rule.match
+		: Array.isArray(rule.conditions)
+			? rule.conditions
+			: [];
+	return conditions.length > 0 ? 300 : 100;
 }
 
 function stableUuid(value: string): string {
@@ -198,7 +258,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
         const identity = stableJson({
             model_key: rule.model_key,
             operation: rule.capability_id ?? "inference",
-            service_tier: slug(rule.pricing_plan),
+            service_tier: canonicalServiceTierSlug(rule.pricing_plan),
             region: rule.region ?? null,
             currency: rule.currency ?? "USD",
             effective_from: rule.effective_from ?? "1970-01-01T00:00:00Z",
@@ -206,7 +266,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
             match: rule.match ?? rule.conditions ?? [],
             billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
             time_windows: rule.time_windows ?? [],
-            priority: rule.priority ?? 100,
+			priority: pricingRulePriority(rule),
             meter_key: slug(rule.meter, "meter"),
         });
         const comparable = {
@@ -230,7 +290,7 @@ export function v2PricingMeterMetadata(rule: Record<string, any>): Record<string
         source: "json",
         source_key: rule.source_key ?? rule.rule_id,
         note: rule.note ?? null,
-        priority: rule.priority ?? 100,
+		priority: pricingRulePriority(rule),
         billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
         time_windows: rule.time_windows ?? [],
         ...(rule.included_quantity === undefined
@@ -413,25 +473,34 @@ async function upsertChunks(
     rows: Record<string, any>[],
     onConflict: string,
 ) {
-    const ownership: Record<string, { sourceTypes: string[]; key: string }> = {
-        v2_labs: { sourceTypes: ["organisations"], key: "lab_slug" },
-        v2_models: { sourceTypes: ["models", "model"], key: "model_slug" },
-        v2_providers: { sourceTypes: ["providers"], key: "provider_slug" },
-        v2_benchmarks: { sourceTypes: ["benchmarks"], key: "benchmark_id" },
-        v2_subscription_plans: { sourceTypes: ["subscription-plans"], key: "plan_uuid" },
-        v2_model_links: { sourceTypes: ["model"], key: "model_slug" },
-        v2_model_details: { sourceTypes: ["model"], key: "model_slug" },
-        v2_benchmark_results: { sourceTypes: ["model"], key: "model_slug" },
-        v2_subscription_plan_models: { sourceTypes: ["model"], key: "model_slug" },
-        v2_model_provider_routes: { sourceTypes: ["model"], key: "model_slug" },
+    const ownership: Record<string, { sourceTypes: string[]; key: string }[]> = {
+        v2_labs: [{ sourceTypes: ["organisations"], key: "lab_slug" }],
+        v2_models: [{ sourceTypes: ["models", "model"], key: "model_slug" }],
+        v2_providers: [{ sourceTypes: ["providers"], key: "provider_slug" }],
+        v2_benchmarks: [{ sourceTypes: ["benchmarks"], key: "benchmark_id" }],
+        v2_subscription_plans: [{ sourceTypes: ["subscription-plans"], key: "plan_uuid" }],
+        v2_model_links: [{ sourceTypes: ["model"], key: "model_slug" }],
+        v2_model_details: [{ sourceTypes: ["model"], key: "model_slug" }],
+        v2_benchmark_results: [{ sourceTypes: ["model"], key: "model_slug" }],
+        v2_subscription_plan_models: [
+            { sourceTypes: ["subscription-plans"], key: "plan_uuid" },
+            { sourceTypes: ["models", "model"], key: "model_slug" },
+        ],
+        v2_subscription_plan_features: [{ sourceTypes: ["subscription-plans"], key: "plan_uuid" }],
+        v2_model_provider_routes: [
+            { sourceTypes: ["model"], key: "model_slug" },
+            { sourceTypes: ["provider_route"], key: "provider_model_id" },
+        ],
     };
-    const rule = ownership[table];
-    const filteredRows = rule
-        ? rows.filter(row => !rule.sourceTypes.some(sourceType => (catalogueOverrideIndex ?? new Map()).get(sourceType)?.has(String(row[rule.key]))))
+    const rules = ownership[table] ?? [];
+    const isProtected = (row: Record<string, any>, index: Map<string, Set<string>>) =>
+        rules.some(rule => rule.sourceTypes.some(sourceType => index.get(sourceType)?.has(String(row[rule.key]))));
+    const filteredRows = rules.length
+        ? rows.filter(row => !isProtected(row, catalogueOverrideIndex ?? new Map()))
         : rows;
-    if (rule && catalogueOverrideIndex === null) {
+    if (rules.length && catalogueOverrideIndex === null) {
         const overrides = await databaseOwnedCatalogueKeys(supa);
-        filteredRows.splice(0, filteredRows.length, ...rows.filter(row => !rule.sourceTypes.some(sourceType => overrides.get(sourceType)?.has(String(row[rule.key])))));
+        filteredRows.splice(0, filteredRows.length, ...rows.filter(row => !isProtected(row, overrides)));
     }
     for (const group of chunk(filteredRows, 500)) {
         assertOk(
@@ -484,16 +553,121 @@ export function staleOwnedModelChildRows(
         .filter(row => !desiredIdentities.has(childIdentity(row, identityFields)));
 }
 
+export function staleSubscriptionPlanUuids(
+    existingRows: Record<string, any>[],
+    desiredPlanUuids: Set<string>,
+    protectedPlanUuids: Set<string>,
+): string[] {
+    return existingRows
+        .map(row => String(row.plan_uuid ?? ""))
+        .filter(Boolean)
+        .filter(planUuid => !desiredPlanUuids.has(planUuid))
+        .filter(planUuid => !protectedPlanUuids.has(planUuid));
+}
+
+export function staleSubscriptionPlanChildRows(
+    existingRows: Record<string, any>[],
+    desiredRows: Record<string, any>[],
+    desiredPlanUuids: Set<string>,
+    protectedPlanUuids: Set<string>,
+    identityFields: string[],
+    protectedModelSlugs: Set<string> = new Set(),
+): Record<string, any>[] {
+    const desiredIdentities = new Set(desiredRows.map(row => childIdentity(row, identityFields)));
+    return existingRows
+        .filter(row => desiredPlanUuids.has(String(row.plan_uuid ?? "")))
+        .filter(row => !protectedPlanUuids.has(String(row.plan_uuid ?? "")))
+        .filter(row => !row.model_slug || !protectedModelSlugs.has(String(row.model_slug)))
+        .filter(row => !desiredIdentities.has(childIdentity(row, identityFields)));
+}
+
 export function staleJsonProviderRouteIds(
     existingRows: Record<string, any>[],
     desiredRouteIds: Set<string>,
     excludedRouteIds: Set<string>,
+    protectedRouteIds: Set<string> = new Set(),
 ): string[] {
     return existingRows
         .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
         .filter(row => !desiredRouteIds.has(String(row.provider_model_id)))
         .filter(row => !excludedRouteIds.has(String(row.provider_model_id)))
+        .filter(row => !protectedRouteIds.has(String(row.provider_model_id)))
         .map(row => String(row.provider_model_id));
+}
+
+export function staleModelSlugs(
+    existingRows: Record<string, any>[],
+    desiredModelSlugs: Set<string>,
+    protectedModelSlugs: Set<string>,
+): string[] {
+    return existingRows
+        .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
+        .filter(row => !desiredModelSlugs.has(String(row.model_slug)))
+        .filter(row => !protectedModelSlugs.has(String(row.model_slug)))
+        .map(row => String(row.model_slug));
+}
+
+export function explicitlyRetiredAliasSlugs(
+    existingRows: Record<string, any>[],
+    retiredAliasSlugs: Set<string>,
+): string[] {
+    return [...new Set(existingRows
+        .map(row => String(row.alias_slug ?? "").trim().toLowerCase())
+        .filter(aliasSlug => retiredAliasSlugs.has(aliasSlug)))];
+}
+
+export function staleBenchmarkResultIds(
+    existingRows: Record<string, any>[],
+    desiredResultIds: Set<string>,
+    protectedModelSlugs: Set<string>,
+): string[] {
+    return existingRows
+        .filter(row => !desiredResultIds.has(String(row.result_id)))
+        .filter(row => !protectedModelSlugs.has(String(row.model_slug ?? "")))
+        .map(row => String(row.result_id));
+}
+
+export function stalePricingSkuIds(
+    existingSkus: Record<string, any>[],
+    desiredSkuKeys: Set<string>,
+    protectedPricingSourceKeys: Set<string>,
+    protectedRouteIds: Set<string>,
+): string[] {
+    return existingSkus
+        .filter(row => String(row.metadata?.source ?? "") !== "admin")
+        .filter(row => !desiredSkuKeys.has(`${row.provider_model_id}:${row.sku_code}:${row.version}`))
+        .filter(row => !protectedPricingSourceKeys.has(String(row.metadata?.source_key ?? "")))
+        .filter(row => !protectedRouteIds.has(String(row.provider_model_id)))
+        .map(row => String(row.sku_id));
+}
+
+export function staleRouteVariantIds(
+    existingRows: Record<string, any>[],
+    desiredVariantKeys: Set<string>,
+    protectedRouteIds: Set<string>,
+): string[] {
+    return existingRows
+        .filter(row => ["json", "models.dev", "v2_provider_regions"].includes(String(row.metadata?.source ?? "")))
+        .filter(row => !protectedRouteIds.has(String(row.provider_model_id)))
+        .filter(row => !desiredVariantKeys.has(`${String(row.provider_model_id)}:${String(row.variant_key)}`))
+        .map(row => String(row.variant_id));
+}
+
+export function stealthRouteIds(rows: Record<string, any>[]): Set<string> {
+    return new Set(
+        rows
+            .filter(row => row.is_stealth === true)
+            .map(row => String(row.provider_model_id ?? "").trim())
+            .filter(Boolean),
+    );
+}
+
+export function isProtectedProviderModel(
+    row: Record<string, any> | null | undefined,
+    protectedRouteIds: ReadonlySet<string>,
+) {
+    const providerModelId = String(row?.provider_model_id ?? row?.provider_api_model_id ?? "");
+    return providerModelId !== "" && protectedRouteIds.has(providerModelId);
 }
 
 function sourceJsonMaps(): {
@@ -559,6 +733,12 @@ function sourceJsonMaps(): {
                         max_output_tokens: capability.max_output_tokens ?? null,
                         params: capability.params ?? {},
                         notes: capability.notes ?? null,
+                        data_policy: resolveCapabilityDataPolicy(
+                            providers.get(String(providerSlug)),
+                            String(capability.capability_id),
+                            entry.provider_model_slug,
+                            capability.data_policy,
+                        ),
                     });
                 }
             }
@@ -737,6 +917,22 @@ export async function syncV2Catalogue(): Promise<void> {
         return;
     }
 
+    const protectedCatalogueKeys = await databaseOwnedCatalogueKeys(supa);
+    const existingStealthRoutes = await fetchAll(
+        supa,
+        "v2_model_provider_routes",
+        "provider_model_id,is_stealth",
+    );
+    const protectedRouteIds = new Set([
+        ...(protectedCatalogueKeys.get("provider_route") ?? []),
+        ...stealthRouteIds(existingStealthRoutes),
+    ]);
+    protectedCatalogueKeys.set("provider_route", protectedRouteIds);
+    const protectedModelSlugs = new Set([
+        ...(protectedCatalogueKeys.get("models") ?? []),
+        ...(protectedCatalogueKeys.get("model") ?? []),
+    ]);
+
     if (modelPreflight.issues.length) {
         await upsertChunks(supa, "v2_catalogue_backfill_issues", modelPreflight.issues, "source_type,source_key,issue_code");
     }
@@ -766,7 +962,7 @@ export async function syncV2Catalogue(): Promise<void> {
         },
     })), "lab_slug");
 
-    const baseModelRows = canonicalModels.filter(row => organisationIds.has(String(row.organisation_id))).map(row => ({
+    const canonicalModelRows = canonicalModels.filter(row => organisationIds.has(String(row.organisation_id))).map(row => ({
         model_slug: row.model_id,
         lab_slug: row.organisation_id,
         name: row.name,
@@ -786,8 +982,8 @@ export async function syncV2Catalogue(): Promise<void> {
         released_at: row.release_date ?? null,
         deprecated_at: row.deprecation_date ?? null,
         retired_at: row.retirement_date ?? null,
-        variant_kind: "standard",
-        base_model_slug: null,
+        variant_kind: String(row.variant_kind ?? (isFreeModelVariant(row.model_id) ? "free" : "standard")),
+        base_model_slug: canonicalModelSlug(row.base_model_id) || null,
         metadata: {
             source: "json",
             legacy_model_id: row.model_id,
@@ -805,7 +1001,7 @@ export async function syncV2Catalogue(): Promise<void> {
             verification: source.models.get(String(row.model_id))?.verification ?? null,
         },
     }));
-    const baseModelRowsBySlug = new Map(baseModelRows.map(row => [String(row.model_slug), row]));
+    const baseModelRowsBySlug = new Map(canonicalModelRows.map(row => [String(row.model_slug), row]));
     const variantModelRows = [...source.modelVariants.values()].map(variant => {
         const baseModelSlug = canonicalModelSlug(variant.base_model_id);
         const base = baseModelRowsBySlug.get(baseModelSlug);
@@ -827,7 +1023,7 @@ export async function syncV2Catalogue(): Promise<void> {
         };
     });
     for (const row of variantModelRows) modelById.set(String(row.model_slug), row);
-    await upsertChunks(supa, "v2_models", [...baseModelRows, ...variantModelRows], "model_slug");
+    await upsertChunks(supa, "v2_models", [...canonicalModelRows, ...variantModelRows], "model_slug");
 
     await upsertChunks(supa, "v2_model_families", source.families.map(family => ({
         family_slug: family.family_id,
@@ -851,7 +1047,7 @@ export async function syncV2Catalogue(): Promise<void> {
             const url = asText(link.url);
             if (!kind || !url) return [];
             return [{
-                model_slug: model.model_id,
+                model_slug: canonicalModelSlug(model.model_id),
                 link_kind: slug(kind),
                 title: asText(link.title) ?? kind.replace(/[_-]+/g, " ").replace(/\b\w/g, character => character.toUpperCase()),
                 url,
@@ -876,7 +1072,7 @@ export async function syncV2Catalogue(): Promise<void> {
     const modelDetailRows = uniqueRows([...source.models.values()].flatMap(model =>
         (Array.isArray(model.details) ? model.details : []).flatMap((detail: Record<string, any>, index: number) =>
             detail?.name ? [{
-                model_slug: model.model_id,
+                model_slug: canonicalModelSlug(model.model_id),
                 detail_name: String(detail.name),
                 detail_value: detail.value ?? null,
                 detail_order: index,
@@ -899,7 +1095,7 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const modelPageNoticeRows = uniqueRows([...source.models.values()].flatMap(model =>
         model.page_notice?.markdown ? [{
-            model_slug: model.model_id,
+            model_slug: canonicalModelSlug(model.model_id),
             tone: model.page_notice.tone ?? "info",
             markdown: model.page_notice.markdown,
         }] : [],
@@ -944,6 +1140,8 @@ export async function syncV2Catalogue(): Promise<void> {
                 ? row.provider_family_id
                 : null,
         name: row.api_provider_name,
+        offer_label: row.offer_label ?? null,
+        offer_scope: row.offer_scope ?? "global",
         status: sourceRoutable === false ? "external" : providerStatus(row.status),
         routing_enabled: routingEnabled,
         routable,
@@ -951,7 +1149,7 @@ export async function syncV2Catalogue(): Promise<void> {
         residency_mode: row.residency_mode ?? "unknown",
         default_execution_regions: row.default_execution_regions ?? null,
         default_data_regions: row.default_data_regions ?? null,
-        zero_data_retention: row.zero_data_retention ?? "unknown",
+        zero_data_retention: row.zero_data_retention === true,
         data_retention_days: row.data_retention_days ?? null,
         prompt_training_policy: row.prompt_training_policy ?? "unknown",
         data_policy_tier: row.data_policy_tier ?? "unknown",
@@ -985,7 +1183,7 @@ export async function syncV2Catalogue(): Promise<void> {
             data_policy_confidence: row.data_policy_confidence ?? null,
             data_policy_contract_mode: row.data_policy_contract_mode ?? null,
             data_policy_contract_notes: row.data_policy_contract_notes ?? null,
-            zero_data_retention: row.zero_data_retention ?? null,
+            zero_data_retention: row.zero_data_retention ?? false,
             data_retention_days: row.data_retention_days ?? null,
             privacy_policy_url: row.privacy_policy_url ?? null,
             terms_of_service_url: row.terms_of_service_url ?? null,
@@ -1003,6 +1201,7 @@ export async function syncV2Catalogue(): Promise<void> {
             auth_env: sourceProvider?.auth_env ?? null,
             api_formats: sourceProvider?.api_formats ?? [],
             service_tiers: sourceProvider?.service_tiers ?? [],
+            service_tier_data_policies: sourceProvider?.service_tier_data_policies ?? {},
             sources: sourceProvider?.sources ?? [],
             verification: sourceProvider?.verification ?? null,
             availability:
@@ -1152,7 +1351,7 @@ export async function syncV2Catalogue(): Promise<void> {
         supa,
         "v2_model_provider_routes",
         "provider_model_id",
-        staleJsonProviderRouteIds(existingRouteRows, desiredRouteIds, excludedRouteIds),
+        staleJsonProviderRouteIds(existingRouteRows, desiredRouteIds, excludedRouteIds, protectedRouteIds),
     );
 
     await upsertChunks(supa, "v2_route_capabilities", uniqueRows(capabilities
@@ -1173,6 +1372,7 @@ export async function syncV2Catalogue(): Promise<void> {
             metadata: {
                 source: "json",
                 notes: row.notes ?? null,
+                data_policy: row.data_policy ?? null,
                 capability_evidence: source.providerModels.get(String(row.provider_api_model_id))?.capabilities?.find((capability: Record<string, any>) => capability.capability_id === row.capability_id) ?? null,
             },
         })), row => `${row.provider_model_id}:${row.capability_id}`), "provider_model_id,capability_id");
@@ -1192,7 +1392,7 @@ export async function syncV2Catalogue(): Promise<void> {
             source.providerModels.get(String(row.provider_api_model_id)),
         );
         const aliasSlug = String(row.api_model_id ?? "").trim().toLowerCase();
-        if (!aliasSlug || aliasSlug === modelSlug || !source.modelVariants.has(modelSlug)) return [];
+        if (!aliasSlug || aliasSlug === modelSlug || !modelById.has(modelSlug)) return [];
         return [{
             alias_slug: aliasSlug,
             model_slug: modelSlug,
@@ -1215,6 +1415,13 @@ export async function syncV2Catalogue(): Promise<void> {
         [...v2AliasRows.values()],
         "alias_slug",
     );
+    const existingAliasRows = await fetchAll(supa, "v2_model_aliases", "alias_slug");
+    await deleteByIds(
+        supa,
+        "v2_model_aliases",
+        "alias_slug",
+        explicitlyRetiredAliasSlugs(existingAliasRows, RETIRED_CATALOGUE_ALIAS_SLUGS),
+    );
 
     const routeByProviderModelId = new Map<string, Record<string, any>>();
     for (const row of providerModels) routeByProviderModelId.set(String(row.provider_api_model_id), row);
@@ -1235,7 +1442,7 @@ export async function syncV2Catalogue(): Promise<void> {
         const offerIdentity = stableJson({
             provider_model_id: providerModelId,
             operation: rule.capability_id ?? "inference",
-            service_tier: slug(rule.pricing_plan),
+            service_tier: canonicalServiceTierSlug(rule.pricing_plan),
             region: rule.region ?? null,
             currency: rule.currency ?? "USD",
             effective_from: rule.effective_from ?? "1970-01-01T00:00:00Z",
@@ -1243,7 +1450,7 @@ export async function syncV2Catalogue(): Promise<void> {
             match: normalizedMatch,
             billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
             time_windows: rule.time_windows ?? [],
-            priority: rule.priority ?? 100,
+			priority: pricingRulePriority(rule),
         });
         const skuCode = `offer-${shortHash(offerIdentity)}`;
         const skuLookupKey = `${providerModelId}:${skuCode}:1`;
@@ -1252,7 +1459,7 @@ export async function syncV2Catalogue(): Promise<void> {
             provider_model_id: providerModelId,
             sku_code: skuCode,
             version: 1,
-            service_tier_slug: slug(rule.pricing_plan),
+            service_tier_slug: canonicalServiceTierSlug(rule.pricing_plan),
             operation: rule.capability_id ?? "inference",
             status: rule.effective_to && new Date(rule.effective_to) <= new Date() ? "deprecated" : "active",
             display_name: rule.tier_label || `${slug(rule.pricing_plan)} ${rule.capability_id ?? "inference"}`,
@@ -1267,16 +1474,33 @@ export async function syncV2Catalogue(): Promise<void> {
                 match: normalizedMatch,
                 billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
                 time_windows: rule.time_windows ?? [],
-                priority: rule.priority ?? 100,
+				priority: pricingRulePriority(rule),
             },
         });
     }
     const pricingRows = [...pricingRowsByKey.values()];
     const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
-    const tierSlugs = [...new Set([...pricingRules.map(rule => slug(rule.pricing_plan)), ...canonicalServiceTiers])];
+    const retiredServiceTiers = new Set(["provisioned"]);
+    const serviceTierDisplayNames: Record<string, string> = {
+        standard: "Standard",
+        fast: "Fast",
+        priority: "Fast",
+        batch: "Batch",
+        flex: "Flex",
+    };
+    const routeServiceTiers = [...source.providerModels.values()].flatMap((providerModel) => {
+        const tiers = asTextArray(providerModel.service_tiers).map((tier) => canonicalServiceTierSlug(tier));
+        return tiers.length ? tiers : ["standard"];
+    });
+    const tierSlugs = [...new Set([
+        ...pricingRules.map(rule => slug(rule.pricing_plan)),
+        ...routeServiceTiers,
+        ...canonicalServiceTiers,
+        ...retiredServiceTiers,
+    ])];
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
-        display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
+        display_name: serviceTierDisplayNames[service_tier_slug] ?? service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
         status: canonicalServiceTiers.has(service_tier_slug) ? "active" : "disabled",
         metadata: { source: "json", legacy_pricing_plan: service_tier_slug },
     })), "service_tier_slug");
@@ -1305,43 +1529,46 @@ export async function syncV2Catalogue(): Promise<void> {
         supa,
         "v2_pricing_skus",
         pricingRows.filter(row =>
-            !databaseAuthoredSkuKeys.has(`${row.provider_model_id}:${row.sku_code}:${row.version}`)
+            !isProtectedProviderModel(row, protectedRouteIds)
+            && !databaseAuthoredSkuKeys.has(`${row.provider_model_id}:${row.sku_code}:${row.version}`)
             && !databaseOwnedPricingSourceKeys.has(String(row.metadata?.source_key ?? "")),
         ),
         "provider_model_id,sku_code,version",
     );
 
     const routesForVariants = await fetchAll(supa, "v2_model_provider_routes", "provider_model_id,provider_slug,status,routing_enabled,regions");
-    const variantRows = routesForVariants.flatMap(route => {
-        const regions = asTextArray(route.regions)
-            .filter(region => region !== "global");
-        const sourceTiers = source.providerModels.get(String(route.provider_model_id))?.service_tiers;
-        const routeTiers = Array.isArray(sourceTiers) && sourceTiers.length
-            ? sourceTiers.map((tier: unknown) => slug(tier))
-            : ["standard"];
-        return routeTiers.flatMap(tier => {
-            const global = [{
-                provider_model_id: route.provider_model_id,
-                variant_key: `global:${tier}`,
-                service_tier_slug: tier,
-                status: route.status,
-                routing_enabled: Boolean(route.routing_enabled),
-                endpoint_label: tier,
-                metadata: { source: "json", scope: "global" },
-            }];
-            const regional = regions.map(region => ({
-                provider_model_id: route.provider_model_id,
-                variant_key: `region:${region}:${tier}`,
-                execution_region: region,
-                service_tier_slug: tier,
-                status: route.status,
-                routing_enabled: Boolean(route.routing_enabled),
-                endpoint_label: `${region.toUpperCase()} ${tier}`,
-                metadata: { source: "json", scope: "regional" },
-            }));
-            return [...global, ...regional];
+    const variantRows = routesForVariants
+        .filter(route => !protectedRouteIds.has(String(route.provider_model_id)))
+        .flatMap(route => {
+            const regions = asTextArray(route.regions)
+                .filter(region => region !== "global");
+            const sourceTiers = source.providerModels.get(String(route.provider_model_id))?.service_tiers;
+            const routeTiers = Array.isArray(sourceTiers) && sourceTiers.length
+                ? sourceTiers.map((tier: unknown) => canonicalServiceTierSlug(tier))
+                : ["standard"];
+            return routeTiers.flatMap(tier => {
+                const global = [{
+                    provider_model_id: route.provider_model_id,
+                    variant_key: `global:${tier}`,
+                    service_tier_slug: tier,
+                    status: route.status,
+                    routing_enabled: Boolean(route.routing_enabled),
+                    endpoint_label: tier,
+                    metadata: { source: "json", scope: "global" },
+                }];
+                const regional = regions.map(region => ({
+                    provider_model_id: route.provider_model_id,
+                    variant_key: `region:${region}:${tier}`,
+                    execution_region: region,
+                    service_tier_slug: tier,
+                    status: route.status,
+                    routing_enabled: Boolean(route.routing_enabled),
+                    endpoint_label: `${region.toUpperCase()} ${tier}`,
+                    metadata: { source: "json", scope: "regional" },
+                }));
+                return [...global, ...regional];
+            });
         });
-    });
     await upsertChunks(supa, "v2_route_variants", variantRows, "provider_model_id,variant_key");
     const desiredVariantKeys = new Set(
         variantRows.map(row => `${String(row.provider_model_id)}:${String(row.variant_key)}`),
@@ -1355,10 +1582,7 @@ export async function syncV2Catalogue(): Promise<void> {
         supa,
         "v2_route_variants",
         "variant_id",
-        existingVariantRows
-            .filter(row => ["json", "models.dev", "v2_provider_regions"].includes(String(row.metadata?.source ?? "")))
-            .filter(row => !desiredVariantKeys.has(`${String(row.provider_model_id)}:${String(row.variant_key)}`))
-            .map(row => String(row.variant_id)),
+        staleRouteVariantIds(existingVariantRows, desiredVariantKeys, protectedRouteIds),
     );
     assertOk(
         await supa.rpc("refresh_v2_pricing_variant_links"),
@@ -1372,6 +1596,7 @@ export async function syncV2Catalogue(): Promise<void> {
         if (databaseOwnedPricingSourceKeys.has(String(rule.source_key ?? rule.rule_id))) continue;
         const parsed = pricingModelPart(String(rule.model_key ?? ""));
         const providerModel = parsed ? providerModelByApiKey.get(`${parsed.providerSlug}:${parsed.apiModelId}`) : null;
+        if (isProtectedProviderModel(providerModel, protectedRouteIds)) continue;
         const skuKey = pricingRuleSkuKey.get(String(rule.rule_id)) ?? "";
         if (databaseAuthoredSkuKeys.has(skuKey)) continue;
         const skuId = providerModel ? skuByCode.get(skuKey) : null;
@@ -1429,10 +1654,13 @@ export async function syncV2Catalogue(): Promise<void> {
     await upsertChunks(supa, "v2_pricing_sku_meters", meterRows, "sku_id,meter_key");
 
     const desiredSkuKeys = new Set(pricingRows.map(row => `${row.provider_model_id}:${row.sku_code}:${row.version}`));
-    const staleSkuIds = skuRows
-        .filter(row => String(row.metadata?.source ?? "") !== "admin")
-        .filter(row => !desiredSkuKeys.has(`${row.provider_model_id}:${row.sku_code}:${row.version}`))
-        .map(row => String(row.sku_id));
+    const protectedPricingSourceKeys = protectedCatalogueKeys.get("pricing_rule") ?? new Set<string>();
+    const staleSkuIds = stalePricingSkuIds(
+        skuRows,
+        desiredSkuKeys,
+        protectedPricingSourceKeys,
+        protectedRouteIds,
+    );
     await deleteByIds(supa, "v2_pricing_skus", "sku_id", staleSkuIds);
 
     assertOk(
@@ -1447,14 +1675,12 @@ export async function syncV2Catalogue(): Promise<void> {
 
     await upsertChunks(supa, "v2_benchmark_results", benchmarkPreflight.rows, "result_id");
     const desiredBenchmarkResultIds = new Set(benchmarkPreflight.rows.map(row => String(row.result_id)));
-    const existingBenchmarkResults = await fetchAll(supa, "v2_benchmark_results", "result_id");
+    const existingBenchmarkResults = await fetchAll(supa, "v2_benchmark_results", "result_id,model_slug");
     await deleteByIds(
         supa,
         "v2_benchmark_results",
         "result_id",
-        existingBenchmarkResults
-            .filter(row => !desiredBenchmarkResultIds.has(String(row.result_id)))
-            .map(row => String(row.result_id)),
+        staleBenchmarkResultIds(existingBenchmarkResults, desiredBenchmarkResultIds, protectedModelSlugs),
     );
 
     const subscriptionPlanRows = source.subscriptionPlans.flatMap(plan =>
@@ -1478,7 +1704,7 @@ export async function syncV2Catalogue(): Promise<void> {
         entries.push(row);
         subscriptionPlanById.set(String(row.plan_id), entries);
     }
-    await upsertChunks(supa, "v2_subscription_plan_models", source.subscriptionPlans.flatMap(plan =>
+    const subscriptionPlanModelRows = source.subscriptionPlans.flatMap(plan =>
         (subscriptionPlanById.get(String(plan.plan_id)) ?? []).flatMap(option =>
             (Array.isArray(plan.models) ? plan.models : []).flatMap((model: Record<string, any>) => {
                 const modelSlug = canonicalModelSlug(model.model_id ?? model.model_slug);
@@ -1492,8 +1718,9 @@ export async function syncV2Catalogue(): Promise<void> {
                 }];
             }),
         ),
-    ), "plan_uuid,model_slug");
-    await upsertChunks(supa, "v2_subscription_plan_features", source.subscriptionPlans.flatMap(plan =>
+    );
+    await upsertChunks(supa, "v2_subscription_plan_models", subscriptionPlanModelRows, "plan_uuid,model_slug");
+    const subscriptionPlanFeatureRows = source.subscriptionPlans.flatMap(plan =>
         (subscriptionPlanById.get(String(plan.plan_id)) ?? []).flatMap(option =>
             (Array.isArray(plan.features) ? plan.features : []).flatMap((feature: Record<string, any>) =>
                 feature?.feature_name ? [{
@@ -1505,18 +1732,63 @@ export async function syncV2Catalogue(): Promise<void> {
                 }] : [],
             ),
         ),
-    ), "plan_uuid,feature_name");
+    );
+    await upsertChunks(supa, "v2_subscription_plan_features", subscriptionPlanFeatureRows, "plan_uuid,feature_name");
 
-    const desiredModelSlugs = new Set([...baseModelRows, ...variantModelRows].map(row => String(row.model_slug)));
-    const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");
+    const desiredSubscriptionPlanUuids = new Set(subscriptionPlanRows.map(row => String(row.plan_uuid)));
+    const protectedSubscriptionPlanUuids = protectedCatalogueKeys.get("subscription-plans") ?? new Set<string>();
+    const existingSubscriptionPlanModels = await fetchAll(
+        supa,
+        "v2_subscription_plan_models",
+        "plan_uuid,model_slug",
+    );
+    await deleteByCompositeRows(
+        supa,
+        "v2_subscription_plan_models",
+        ["plan_uuid", "model_slug"],
+        staleSubscriptionPlanChildRows(
+            existingSubscriptionPlanModels,
+            subscriptionPlanModelRows,
+            desiredSubscriptionPlanUuids,
+            protectedSubscriptionPlanUuids,
+            ["plan_uuid", "model_slug"],
+            protectedModelSlugs,
+        ),
+    );
+    const existingSubscriptionPlanFeatures = await fetchAll(
+        supa,
+        "v2_subscription_plan_features",
+        "plan_uuid,feature_name",
+    );
+    await deleteByCompositeRows(
+        supa,
+        "v2_subscription_plan_features",
+        ["plan_uuid", "feature_name"],
+        staleSubscriptionPlanChildRows(
+            existingSubscriptionPlanFeatures,
+            subscriptionPlanFeatureRows,
+            desiredSubscriptionPlanUuids,
+            protectedSubscriptionPlanUuids,
+            ["plan_uuid", "feature_name"],
+        ),
+    );
+    const existingSubscriptionPlans = await fetchAll(supa, "v2_subscription_plans", "plan_uuid");
     await deleteByIds(
         supa,
-        "v2_models",
-        "model_slug",
-        existingModels
-            .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
-            .filter(row => !desiredModelSlugs.has(String(row.model_slug)))
-            .map(row => String(row.model_slug)),
+        "v2_subscription_plans",
+        "plan_uuid",
+        staleSubscriptionPlanUuids(
+            existingSubscriptionPlans,
+            desiredSubscriptionPlanUuids,
+            protectedSubscriptionPlanUuids,
+        ),
+    );
+
+    const desiredModelSlugs = new Set([...canonicalModelRows, ...variantModelRows].map(row => String(row.model_slug)));
+    const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");
+    await deleteStaleModels(
+        supa,
+        staleModelSlugs(existingModels, desiredModelSlugs, protectedModelSlugs),
     );
 
     const preflightIssues = [...modelPreflight.issues, ...benchmarkPreflight.issues];

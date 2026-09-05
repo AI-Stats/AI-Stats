@@ -5,7 +5,10 @@ import {
     checkApiProviderModelEntrySafety,
     checkPreviousModelReference,
     checkPricingEntrySafety,
+    checkSubscriptionPlanModels,
+    checkSubscriptionPlanShape,
     isMajorError,
+    normalizedModelIdentity,
 } from '@/data/validate';
 
 const DATA_ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -43,6 +46,70 @@ describe('model lineage reference checks', () => {
             previousModelExists: true,
             previousModelOrganisationId: 'openai',
         })[0]).toContain('from a different organisation');
+    });
+});
+
+describe('subscription plan model checks', () => {
+    test('duplicate model IDs are rejected before import', () => {
+        expect(checkSubscriptionPlanModels(
+            'example-plan',
+            [
+                { model_id: 'example/model' },
+                { model_id: 'example/model' },
+            ],
+            new Set(['example/model']),
+        )).toEqual([
+            'Subscription plan example-plan contains duplicate model example/model',
+        ]);
+    });
+});
+
+describe('subscription plan shape checks', () => {
+    test('rejects missing pricing, feature, and model arrays', () => {
+        expect(checkSubscriptionPlanShape('example-plan', {})).toEqual([
+            'Subscription plan example-plan must contain at least one pricing option',
+            'Subscription plan example-plan features must be an array',
+            'Subscription plan example-plan models must be an array',
+        ]);
+    });
+
+    test('rejects invalid prices, frequencies, and source links', () => {
+        expect(checkSubscriptionPlanShape('example-plan', {
+            pricing_options: [{ frequency: 'weekly', usd_price: -1, link: 'http://example.com' }],
+            features: [],
+            models: [],
+        })).toEqual([
+            'Subscription plan example-plan pricing option 0 has unsupported frequency weekly',
+            'Subscription plan example-plan pricing option 0 must have a non-negative finite usd_price',
+            'Subscription plan example-plan pricing option 0 source link must use HTTPS',
+        ]);
+    });
+
+    test('accepts a valid usage-priced plan', () => {
+        expect(checkSubscriptionPlanShape('example-plan', {
+            pricing_options: [{ frequency: 'usage', usd_price: 0, link: 'https://example.com/pricing' }],
+            features: [],
+            models: [],
+        })).toEqual([]);
+    });
+});
+
+describe('model identity normalization', () => {
+    test('collapses a redundant organisation prefix without changing distinct models', () => {
+        expect(normalizedModelIdentity(
+            'nvidia/nvidia-nemotron-nano-9b-v2',
+            'nvidia',
+        )).toBe(normalizedModelIdentity('nvidia/nemotron-nano-9b-v2', 'nvidia'));
+        expect(normalizedModelIdentity(
+            'nvidia/nemotron-nano-9b-v2',
+            'nvidia',
+        )).not.toBe(normalizedModelIdentity('nvidia/nemotron-nano-12b-v2', 'nvidia'));
+    });
+});
+
+describe('validation error severity', () => {
+    test('classifies duplicate model_id errors as major', () => {
+        expect(isMajorError('Duplicate model_id detected: nvidia/example')).toBe(true);
     });
 });
 
@@ -274,9 +341,257 @@ describe('pricing safety checks', () => {
         );
         expect(pricing.rules.some((rule: any) => rule?.pricing_plan === 'flex')).toBe(false);
     });
+
+    test('GLM 5.3 Flash captures provider discounts and active list-price comparisons', () => {
+        for (const provider of ['z-ai', 'gmicloud', 'novita']) {
+            const pricing = readPricingJson(
+                `pricing/${provider}/z-ai-glm-5.3-flash/text.generate/pricing.json`
+            );
+            for (const [meter, discounted, list] of [
+                ['input_text_tokens', 0.075, 0.15],
+                ['cached_read_text_tokens', 0.015, 0.03],
+                ['output_text_tokens', 0.25, 0.5],
+            ] as const) {
+                expect(pricing.rules).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            meter,
+                            price_per_unit: discounted,
+                            priority: 200,
+                            effective_to: '2026-09-09T16:00:00Z',
+                        }),
+                        expect.objectContaining({
+                            meter,
+                            price_per_unit: list,
+                            priority: 100,
+                            effective_from: '2026-08-26T00:00:00Z',
+                        }),
+                    ])
+                );
+            }
+        }
+
+        const ioNet = readPricingJson(
+            'pricing/io-net/z-ai-glm-5.3-flash/text.generate/pricing.json'
+        );
+        expect(ioNet.rules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    meter: 'cached_read_text_tokens',
+                    price_per_unit: 0.075,
+                }),
+            ])
+        );
+    });
+
+    test('confirmed provider promotions retain active list-price comparisons', () => {
+        const cases = [
+            {
+                path: 'pricing/friendli/lg-k-exaone-2.0/text.generate/pricing.json',
+                prices: [
+                    ['input_text_tokens', 0.6, 1.2],
+                    ['cached_read_text_tokens', 0.12, 0.24],
+                    ['output_text_tokens', 2.4, 4.8],
+                ],
+            },
+            {
+                path: 'pricing/upstage/upstage-solar-pro-4/text.generate/pricing.json',
+                prices: [
+                    ['input_text_tokens', 0.03, 0.3],
+                    ['cached_read_text_tokens', 0.006, 0.06],
+                    ['output_text_tokens', 0.12, 1.2],
+                ],
+                effective_from: '2026-08-11T00:00:00Z',
+                effective_to: '2026-09-11T00:00:00Z',
+            },
+            ...[
+                ['google-ai-studio', 'google/gemini-3.6-flash'],
+                ['google-ai-studio', 'google/gemini-3.7-flash'],
+                ['google-vertex', 'google/gemini-3.6-flash'],
+                ['google-vertex', 'google/gemini-3.7-flash'],
+            ].map(([provider, model]) => ({
+                path: `pricing/${provider}/${model.replaceAll('/', '-')}/text.generate/pricing.json`,
+                prices: [
+                    ['input_text_tokens', 0.75, 1.5],
+                    ['cached_read_text_tokens', 0.075, 0.15],
+                    ['output_text_tokens', 3.75, 7.5],
+                    ['cached_read_audio_tokens', 0.0375, 0.075],
+                ],
+                effective_from: '2026-08-13T00:00:00Z',
+                effective_to: '2027-01-01T00:00:00Z',
+            })),
+        ];
+
+        for (const entry of cases) {
+            const pricing = readPricingJson(entry.path);
+            for (const [meter, discounted, list] of entry.prices) {
+                const window = entry.effective_from
+                    ? { effective_from: entry.effective_from, effective_to: entry.effective_to }
+                    : {};
+                expect(pricing.rules).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ meter, price_per_unit: discounted, priority: 200, ...window }),
+                        expect.objectContaining({ meter, price_per_unit: list, priority: 100, ...window }),
+                    ])
+                );
+            }
+        }
+    });
 });
 
 describe('api provider model safety checks', () => {
+    test('Lyria 3.5 remains unroutable until Google publishes an API model identifier', () => {
+        const row = readProviderModels('google-ai-studio').find(
+            (candidate: any) => candidate.api_model_id === 'google/lyria-3.5'
+        );
+
+        expect(row).toMatchObject({
+            provider_model_slug: null,
+            is_active_gateway: false,
+            provider_status: 'unknown',
+            phaseo_status: 'blocked',
+            effective_from: null,
+            routing_status: 'disabled',
+            routable: false,
+            verification: {
+                status: 'verified',
+                checked_at: '2026-09-03T00:00:00Z',
+            },
+        });
+        expect(row.capabilities).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    capability_id: 'music.generate',
+                    status: 'disabled',
+                }),
+            ])
+        );
+    });
+
+    test('Astra keeps its documented OpenAI contract and pricing while available', () => {
+        const row = readProviderModels('openai').find(
+            (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
+        );
+        const proRow = readProviderModels('openai').find(
+            (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra-pro'
+        );
+
+        expect(row).toMatchObject({
+            is_active_gateway: true,
+            routable: true,
+            routing_status: 'active',
+            provider_status: 'available',
+            phaseo_status: 'enabled',
+            context_length: 1050000,
+            max_output_tokens: 128000,
+        });
+        expect(row?.capabilities).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    capability_id: 'text.generate',
+                    status: 'active',
+                    params: expect.arrayContaining([
+                        expect.objectContaining({
+                            param_id: 'reasoning.mode',
+                            provider_default: 'standard',
+                            values: ['standard', 'pro'],
+                        }),
+                    ]),
+                }),
+            ])
+        );
+        expect(proRow).toMatchObject({
+            api_model_id: 'openai/gpt-6-astra-pro',
+            provider_model_slug: 'gpt-6-astra-pro',
+            internal_model_id: 'openai/gpt-6-astra-pro',
+            is_active_gateway: true,
+            routable: true,
+        });
+        expect(proRow?.capabilities).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    capability_id: 'text.generate',
+                    params: expect.arrayContaining([
+                        expect.objectContaining({
+                            param_id: 'reasoning.mode',
+                            provider_default: 'pro',
+                            values: ['standard', 'pro'],
+                        }),
+                    ]),
+                }),
+            ])
+        );
+        const pricingPath = path.join(
+            DATA_ROOT,
+            'pricing',
+            'openai',
+            'openai-gpt-6-astra',
+            'text.generate',
+            'pricing.json'
+        );
+        const pricing = JSON.parse(fs.readFileSync(pricingPath, 'utf8'));
+        expect(pricing.rules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    meter: 'input_text_tokens',
+                    pricing_plan: 'standard',
+                    price_per_unit: 10,
+                    match: [{ path: 'input_tokens', op: 'lte', value: 272000 }],
+                }),
+                expect.objectContaining({
+                    meter: 'output_text_tokens',
+                    pricing_plan: 'standard',
+                    price_per_unit: 75,
+                    match: [{ path: 'input_tokens', op: 'gt', value: 272000 }],
+                }),
+                expect.objectContaining({
+                    meter: 'native_web_search_requests',
+                    pricing_plan: 'standard',
+                    price_per_unit: 0.01,
+                }),
+            ])
+        );
+        const proPricingPath = path.join(
+            DATA_ROOT,
+            'pricing',
+            'openai',
+            'openai-gpt-6-astra-pro',
+            'text.generate',
+            'pricing.json'
+        );
+        const proPricing = JSON.parse(fs.readFileSync(proPricingPath, 'utf8'));
+        expect(proPricing).toMatchObject({
+            key: 'openai:openai/gpt-6-astra-pro:text.generate',
+            api_model_id: 'openai/gpt-6-astra-pro',
+            capability_id: 'text.generate',
+        });
+        expect(proPricing.rules).toHaveLength(pricing.rules.length);
+    });
+
+    it('rejects internal routes whose Phaseo integration is not testing or enabled', () => {
+        const result = checkApiProviderModelEntrySafety({
+            api_model_id: 'anthropic/claude-mythos-5.1',
+            provider_api_model_id: 'anthropic:anthropic/claude-mythos-5.1',
+            provider_model_slug: 'claude-mythos-5-1',
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            access_scope: 'internal',
+            input_modalities: 'text,image',
+            output_modalities: 'text',
+        }, { providerId: 'anthropic' });
+
+        expect(result.errors).toContain(
+            'API provider model anthropic (anthropic:anthropic/claude-mythos-5.1) with internal access_scope must set phaseo_status to testing or enabled'
+        );
+    });
+
+    test('Venice E2EE models remain unroutable until the encryption protocol is implemented', () => {
+        const rows = readProviderModels('venice-e2ee');
+        expect(rows.length).toBeGreaterThan(0);
+        expect(rows.every((row: any) => row.is_active_gateway === false && row.routable === false)).toBe(true);
+    });
+
     test('Kimi K3 provider rows retain provider-specific limits and support', () => {
         const gmi = readProviderModels('gmicloud').find(
             (row: any) => row.provider_api_model_id === 'gmicloud:moonshotai/kimi-k3'
@@ -386,6 +701,22 @@ describe('api provider model safety checks', () => {
         };
         const result = checkApiProviderModelEntrySafety(bad, { providerId: 'gmicloud' });
         expect(result.errors).toEqual(
+            expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
+        );
+    });
+
+    test('disabled unroutable future row may omit unverified provider_model_slug', () => {
+        const row = {
+            api_model_id: 'qwen/qwen3.8-27b',
+            provider_api_model_id: 'cerebras:qwen/qwen3.8-27b',
+            internal_model_id: 'qwen/qwen3.8-27b',
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            capabilities: [{ capability_id: 'text.generate', status: 'disabled', params: [] }],
+        };
+        const result = checkApiProviderModelEntrySafety(row, { providerId: 'cerebras' });
+        expect(result.errors).not.toEqual(
             expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
         );
     });

@@ -12,6 +12,11 @@ import {
 	extractRequestedParams,
 	getUnsupportedParamsForProvider,
 } from "../before/paramCapabilities";
+import {
+	applyDownstreamRateLimitHeaders,
+	extractDownstreamRateLimitHeaders,
+} from "../upstream-rate-limit-headers";
+import { buildSafeStealthUpstreamError, isStealthRequest } from "../stealth";
 
 export type AfterGuardOk<T> = { ok: true; value: T };
 export type AfterGuardErr = { ok: false; response: Response };
@@ -26,6 +31,7 @@ export async function guardUpstreamStatus(
     const statusOk = upstreamStatus >= 200 && upstreamStatus < 300;
 
     if (!statusOk) {
+        const stealth = isStealthRequest(ctx);
         // Import error helpers dynamically to avoid circular deps
         const {
             safeJson,
@@ -112,11 +118,28 @@ export async function guardUpstreamStatus(
         const providerFailureDiagnostics = classifyProviderFailureDiagnostics(failureSample);
 
         const headers = makeHeaders(timingHeader);
-        headers.set("X-Gateway-Error-Attribution", attribution);
-        headers.set("X-Gateway-Error-Origin", errorOrigin);
+		headers.set("X-Gateway-Error-Attribution", attribution);
+		headers.set("X-Gateway-Error-Origin", errorOrigin);
+		const downstreamRateLimitHeaders = extractDownstreamRateLimitHeaders(result.upstream.headers, {
+			includeQuotaDetails: !stealth && result.keySource === "byok",
+		});
+		applyDownstreamRateLimitHeaders(
+				headers,
+				downstreamRateLimitHeaders,
+		);
 
         const generationId = ctx.requestId ?? body?.generation_id ?? body?.request_id ?? body?.requestId ?? "unknown";
-        const responseBody: Record<string, unknown> = {
+        const responseBody: Record<string, unknown> = stealth
+            ? buildSafeStealthUpstreamError({
+                status: upstreamStatus,
+                requestId: generationId,
+                model: ctx.requestedModel ?? ctx.model,
+                endpoint: ctx.endpoint,
+                keySource: result.keySource ?? null,
+                retryAfter: downstreamRateLimitHeaders["Retry-After"] ?? null,
+                param: unsupportedParamSignal?.param ?? null,
+            })
+            : {
             generation_id: generationId,
             status_code: upstreamStatus,
             error: errCode,
@@ -124,10 +147,10 @@ export async function guardUpstreamStatus(
             error_origin: errorOrigin,
             description,
         };
-        if (details?.length) {
+        if (!stealth && details?.length) {
             responseBody.details = details;
         }
-        if (upstreamErrorCode || upstreamMessage || description || unsupportedParamSignal?.param) {
+        if (!stealth && (upstreamErrorCode || upstreamMessage || description || unsupportedParamSignal?.param)) {
             responseBody.upstream_error = {
                 code: upstreamErrorCode,
                 message: upstreamMessage,
@@ -136,13 +159,13 @@ export async function guardUpstreamStatus(
             };
             responseBody.failure_sample = failureSample;
         }
-        if (providerFailureDiagnostics) {
+        if (!stealth && providerFailureDiagnostics) {
             responseBody.provider_failure_diagnostics = providerFailureDiagnostics;
         }
-        if (ctx.meta?.debug?.return_upstream_request && result.mappedRequest) {
+        if (!stealth && ctx.meta?.debug?.return_upstream_request && result.mappedRequest) {
             responseBody.upstream_request = parseJsonLoose(result.mappedRequest);
         }
-        if (ctx.meta?.debug?.return_upstream_response && result.rawResponse) {
+        if (!stealth && ctx.meta?.debug?.return_upstream_response && result.rawResponse) {
             responseBody.upstream_response = result.rawResponse;
         }
 
@@ -165,10 +188,6 @@ export async function guardUpstreamStatus(
 
     return { ok: true, value: undefined };
 }
-
-
-
-
 
 
 

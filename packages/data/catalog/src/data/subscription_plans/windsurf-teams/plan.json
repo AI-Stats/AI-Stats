@@ -6,15 +6,15 @@
   "pricing_options": [
     {
       "frequency": "monthly",
-      "usd_price": 40,
-      "link": "https://windsurf.com/pricing",
-      "other_info": "Per user per month"
+      "usd_price": 80,
+      "link": "https://devin.ai/pricing",
+      "other_info": "Base team plan; full developer seats cost an additional $40 per month each"
     }
   ],
   "features": [
     {
       "feature_name": "Team Usage",
-      "feature_value": "Included",
+      "feature_value": "$80 base plan plus $40 / full developer seat",
       "feature_description": "Team plan for shared team workflows and paid model access.",
       "other_info": null
     },
@@ -26,24 +26,6 @@
     }
   ],
   "models": [
-    {
-      "model_id": "windsurf/swe-1.6",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Team included quota",
-      "other_info": null
-    },
-    {
-      "model_id": "windsurf/swe-1.6",
-      "model_info": "Windsurf SWE-1.6 fast service tier",
-      "rate_limit": "Team included quota",
-      "other_info": null
-    },
-    {
-      "model_id": "windsurf/swe-1.5",
-      "model_info": "Windsurf native agent model",
-      "rate_limit": "Team included quota",
-      "other_info": null
-    },
     {
       "model_id": "windsurf/swe-1-mini",
       "model_info": "Tab completion model",

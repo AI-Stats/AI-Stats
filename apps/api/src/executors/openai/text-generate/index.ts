@@ -60,6 +60,8 @@ const OPENAI_REASONING_EFFORT_SUPPORT: Record<string, Set<ReasoningEffort>> = {
 	"gpt-5.6-sol-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
 	"gpt-5.6-terra": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
 	"gpt-5.6-terra-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-6-astra": new Set(["low", "medium", "high", "xhigh", "max"]),
+	"gpt-6-astra-pro": new Set(["low", "medium", "high", "xhigh", "max"]),
 	"o1": new Set(["low", "medium", "high"]),
 	"o1-preview": new Set(["low", "medium", "high"]),
 	"o1-mini": new Set(["low", "medium", "high"]),
@@ -414,13 +416,13 @@ function normalizeModelName(model?: string | null): string {
 	return parts[parts.length - 1] || value;
 }
 
-function normalizeOpenAIGpt56ProModelSlug(model?: string | null): {
+function normalizeOpenAIProModelSlug(model?: string | null): {
 	model: string | null;
 	proMode: boolean;
 } {
 	const normalized = normalizeModelName(model);
 	if (!normalized) return { model: model ?? null, proMode: false };
-	const match = normalized.match(/^(gpt-5\.6-(?:sol|terra|luna))-pro$/i);
+	const match = normalized.match(/^(gpt-5\.6-(?:sol|terra|luna)|gpt-6-astra)-pro$/i);
 	if (!match) return { model: model ?? null, proMode: false };
 	return { model: match[1].toLowerCase(), proMode: true };
 }
@@ -431,8 +433,8 @@ function withOpenAIProReasoningMode(
 	modelForRouting: string | null | undefined,
 ): IRChatRequest {
 	if (!isOpenAIProviderOffer(providerId)) return ir;
-	const routed = normalizeOpenAIGpt56ProModelSlug(modelForRouting);
-	const requested = normalizeOpenAIGpt56ProModelSlug(ir.model);
+	const routed = normalizeOpenAIProModelSlug(modelForRouting);
+	const requested = normalizeOpenAIProModelSlug(ir.model);
 	if (!routed.proMode && !requested.proMode) return ir;
 
 	return {
@@ -553,7 +555,7 @@ function withOpenAIRequestMetadata(
 		includeMetadata?: boolean;
 	},
 ): IRChatRequest {
-	if (providerId !== "openai") return ir;
+	if (!isOpenAIProviderOffer(providerId)) return ir;
 	const includeMetadata = options?.includeMetadata !== false;
 	const next: IRChatRequest = { ...ir };
 	const workspaceSafetyIdentifier = typeof workspaceId === "string" && workspaceId.trim().length > 0
@@ -599,7 +601,7 @@ function openAIRequestHeaders(
 	testId?: string | null,
 ): Record<string, string> | undefined {
 	const testHeaders = upstreamTestHeaders({ testId });
-	if (providerId !== "openai") {
+	if (!isOpenAIProviderOffer(providerId)) {
 		return Object.keys(testHeaders).length > 0 ? testHeaders : undefined;
 	}
 	return {
@@ -650,6 +652,7 @@ function cherryPickIRParams(
 				if (leaf === "effort") reasoning.effort = ir.reasoning?.effort;
 				if (leaf === "mode") reasoning.mode = ir.reasoning?.mode;
 				if (leaf === "summary") reasoning.summary = ir.reasoning?.summary;
+				if (leaf === "context") reasoning.context = ir.reasoning?.context;
 				if (leaf === "enabled") reasoning.enabled = ir.reasoning?.enabled;
 				if (leaf === "maxTokens" || leaf === "max_tokens") reasoning.maxTokens = ir.reasoning?.maxTokens;
 			}
@@ -701,6 +704,14 @@ function cherryPickIRParams(
 					return "promptCacheKey";
 				case "prompt_cache_retention":
 					return "promptCacheRetention";
+				case "prompt_cache_options":
+					return "promptCacheOptions";
+				case "verbosity":
+					return "textVerbosity";
+				case "audio":
+					return "audioConfig";
+				case "context_management":
+					return "contextManagement";
 				case "safety_identifier":
 					return "safetyIdentifier";
 				case "user":
@@ -723,13 +734,15 @@ function cherryPickIRParams(
 		next.responseFormat = responseFormat;
 	}
 
-	const openAIContextManagement = (ir.vendor as any)?.openai?.context_management;
-	if (openAIContextManagement && typeof openAIContextManagement === "object") {
+	const openAIVendor = (ir.vendor as any)?.openai;
+	const openAIContextManagement = ir.contextManagement
+		?? openAIVendor?.context_management;
+	if ((openAIVendor && typeof openAIVendor === "object") || openAIContextManagement) {
 		(next as any).vendor = {
 			...((next as any).vendor ?? {}),
 			openai: {
-				...(((next as any).vendor?.openai as Record<string, any> | undefined) ?? {}),
-				context_management: openAIContextManagement,
+				...(openAIVendor ?? {}),
+				...(openAIContextManagement ? { context_management: openAIContextManagement } : {}),
 			},
 		};
 	}
@@ -749,12 +762,14 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 	} as any);
 
 	const requestedRoutingModel = args.providerModelSlug ?? (args.ir as IRChatRequest).model;
-	const normalizedRoutingModel = normalizeOpenAIGpt56ProModelSlug(requestedRoutingModel);
+	const normalizedRoutingModel = normalizeOpenAIProModelSlug(requestedRoutingModel);
 	const modelForRouting = normalizedRoutingModel.model ?? requestedRoutingModel;
+	const hasAsyncTool = (args.ir as IRChatRequest).tools?.some((tool) => tool.async === true) ?? false;
 	const useNativeChatRoute =
 		isOpenAIProviderOffer(args.providerId) &&
 		args.protocol === "openai.chat.completions" &&
-		!(args.ir as IRChatRequest).reasoning;
+		!(args.ir as IRChatRequest).reasoning &&
+		!hasAsyncTool;
 	const irWithRequestMetadata = withOpenAIRequestMetadata(
 		args.ir as IRChatRequest,
 		args.providerId,

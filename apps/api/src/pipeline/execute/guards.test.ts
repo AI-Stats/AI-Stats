@@ -12,6 +12,82 @@ function makeTiming() {
 }
 
 describe("guardAllFailed", () => {
+	it("returns 429 and the earliest reset when every provider is locally capacity limited", async () => {
+		const ctx: any = {
+			model: "openai/gpt-4.1-mini",
+			endpoint: "responses",
+			requestId: "req_capacity",
+			attemptErrors: [
+				{ provider: "openai", type: "provider_rate_limited", status: 429, upstream_rate_limit_headers: { "Retry-After": "40" } },
+				{ provider: "azure", type: "provider_rate_limited", status: 429, upstream_rate_limit_headers: { "Retry-After": "12" } },
+			],
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(429);
+		expect(result.response.headers.get("Retry-After")).toBe("12");
+		expect(await result.response.json()).toMatchObject({
+			error: "provider_capacity_exhausted",
+			reason: "all_candidates_rate_limited",
+			failed_providers: ["openai", "azure"],
+		});
+	});
+
+	it("does not expose provider identities for stealth capacity limits", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_capacity",
+			attemptErrors: [{ provider: "secret-provider", type: "provider_rate_limited", status: 429 }],
+		};
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		const payload = await result.response.json();
+		expect(result.response.status).toBe(429);
+		expect(JSON.stringify(payload)).not.toContain("secret-provider");
+	});
+
+	it("hides every provider failure detail for stealth models", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_failed",
+			attemptErrors: [{
+				provider: "openai",
+				status: 402,
+				upstream_error_code: "billing_secret",
+				upstream_error_message: "OpenAI billing failed",
+				upstream_payload_preview: "api.openai.com",
+			}],
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+
+		expect(result.response.status).toBe(402);
+		const payload = await result.response.json();
+		expect(payload).toEqual({
+			error: "upstream_billing_required",
+			status_code: 402,
+			error_origin: "upstream",
+			responsibility: "phaseo",
+			retryable: false,
+			description: "The upstream service rejected the request because its billing requirements were not met.",
+			action: "Contact Phaseo support, or verify provider billing if you are using BYOK.",
+			request_id: "req_stealth_failed",
+			model: "stealth/test-model-20260827",
+			endpoint: "responses",
+			failed_statuses: [402],
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|billing_secret|failure_sample|provider_payment/i);
+	});
+
 	it("returns provider_payment_required when any upstream attempt failed with 402", async () => {
 		const ctx: any = {
 			model: "openai/gpt-4.1-mini",
@@ -69,6 +145,36 @@ describe("guardAllFailed", () => {
 		expect(String(payload.description)).toContain("Upstream message: provider overloaded");
 		expect(String(payload.description)).toContain("Hint: The provider returned a server error");
 		expect(String(payload.description)).toContain("failure_sample");
+	});
+
+	it("uses retry metadata from the final attempted provider without exposing it in the body", async () => {
+		const ctx: any = {
+			model: "minimax/minimax-m2.7:free",
+			endpoint: "chat.completions",
+			requestId: "req_rate_limited",
+			attemptErrors: [
+				{
+					provider: "first",
+					type: "upstream_non_2xx",
+					status: 429,
+					upstream_rate_limit_headers: { "Retry-After": "5" },
+				},
+				{
+					provider: "gmicloud",
+					type: "upstream_non_2xx",
+					status: 429,
+					upstream_rate_limit_headers: { "Retry-After": "20" },
+				},
+			],
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+
+		expect(result.response.headers.get("Retry-After")).toBe("20");
+		const payload = await result.response.json();
+		expect(JSON.stringify(payload)).not.toContain("upstream_rate_limit_headers");
 	});
 
 	it("summarizes multi-provider failures in the description", async () => {
@@ -401,5 +507,42 @@ describe("guardAllFailed", () => {
 			reason: "all_routes_unavailable_in_request_country",
 			request_country: "CN",
 		});
+	});
+
+	it("hides route diagnostics when a stealth model is region unavailable", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_region",
+			meta: { edgeCountry: "CN" },
+			attemptErrors: [],
+			routingDiagnostics: {
+				filterStages: [{
+					stage: "geographic_availability_gate",
+					beforeCount: 1,
+					afterCount: 0,
+					droppedProviders: [{
+						providerId: "openai",
+						apiModelId: "pam_openai_secret",
+						providerModelSlug: "oai-stealth-test-model-internal",
+					}],
+				}],
+			},
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(403);
+		const payload = await result.response.json();
+		expect(payload).toMatchObject({
+			error: "model_region_unavailable",
+			status_code: 403,
+			error_origin: "gateway",
+			responsibility: "user",
+			request_country: "CN",
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|pam_openai_secret|oai-stealth|routing_diagnostics/i);
 	});
 });

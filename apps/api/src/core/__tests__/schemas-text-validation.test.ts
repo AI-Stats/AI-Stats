@@ -48,6 +48,33 @@ describe("text request schema validation", () => {
 		expect(parsed.success).toBe(true);
 	});
 
+	it("preserves optional async tool declarations on every text surface", () => {
+		const chat = ChatCompletionsSchema.parse({
+			model: "openai/gpt-6-astra",
+			messages: [{ role: "user", content: "hello" }],
+			tools: [{
+				type: "function",
+				async: true,
+				function: { name: "lookup", parameters: { type: "object" } },
+			}],
+		});
+		const responses = ResponsesSchema.parse({
+			model: "openai/gpt-6-astra",
+			input: "hello",
+			tools: [{ type: "function", name: "lookup", parameters: { type: "object" }, async: true }],
+		});
+		const messages = AnthropicMessagesSchema.parse({
+			model: "openai/gpt-6-astra",
+			max_tokens: 128,
+			messages: [{ role: "user", content: "hello" }],
+			tools: [{ name: "lookup", input_schema: { type: "object" }, async: true }],
+		});
+
+		expect(chat.tools?.[0]).toMatchObject({ async: true });
+		expect(responses.tools?.[0]).toMatchObject({ async: true });
+		expect(messages.tools?.[0]).toMatchObject({ async: true });
+	});
+
 	it("accepts gateway datetime server tool on chat requests", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",
@@ -97,6 +124,28 @@ describe("text request schema validation", () => {
 		});
 
 		expect(parsed.success).toBe(true);
+	});
+
+	it("accepts TinyFish web search parameters on chat requests", () => {
+		const parsed = ChatCompletionsSchema.safeParse({
+			model: "gpt-4.1",
+			messages: [{ role: "user", content: "find recent AI news" }],
+			tools: [{
+				type: "phaseo:web_search",
+				parameters: {
+					engine: "tinyfish",
+					language: "en",
+					page: 2,
+				},
+			}],
+		});
+
+		expect(parsed.success).toBe(true);
+		if (parsed.success) {
+			expect(parsed.data.tools?.[0]).toMatchObject({
+				parameters: { engine: "tinyfish", language: "en", page: 2 },
+			});
+		}
 	});
 
 	it("accepts Phaseo web fetch server tool on chat requests", () => {
@@ -172,14 +221,14 @@ describe("text request schema validation", () => {
 		expect(parsed.success).toBe(false);
 	});
 
-	it("rejects chat n", () => {
+	it("accepts chat n", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",
 			n: 1,
 			messages: [{ role: "user", content: "hello" }],
 		});
 
-		expect(parsed.success).toBe(false);
+		expect(parsed.success).toBe(true);
 	});
 
 	it("accepts responses streaming when tools are present", () => {
@@ -374,6 +423,19 @@ describe("text request schema validation", () => {
 					},
 				},
 			},
+		});
+
+		expect(parsed.success).toBe(true);
+	});
+
+	it("accepts current first-class OpenAI Responses controls", () => {
+		const parsed = ResponsesSchema.safeParse({
+			model: "openai/gpt-5.6-sol",
+			input: "hello",
+			context_management: [{ type: "compaction", compact_threshold: 12_000 }],
+			prompt_cache_options: { mode: "explicit", ttl: "30m" },
+			reasoning: { effort: "high", context: "all_turns" },
+			text: { verbosity: "low", format: { type: "text" } },
 		});
 
 		expect(parsed.success).toBe(true);

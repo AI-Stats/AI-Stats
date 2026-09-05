@@ -129,4 +129,40 @@ describe("management key security", () => {
 		});
 		expect(state.dbTouched).toBe(false);
 	});
+
+	it("rejects malformed expiry values as a client error", async () => {
+		const { managementKeysRoutes } = await import("./management-keys");
+		const response = await managementKeysRoutes.request("https://example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				name: "Invalid expiry",
+				scopes: ["management_keys:write"],
+				expires_at: "not-a-date",
+			}),
+		});
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({
+			error: "bad_request",
+			message: "expires_at must be a valid ISO-8601 datetime or null",
+		});
+		expect(state.dbTouched).toBe(false);
+	});
+
+	it("rejects negative request limits before reaching the database", async () => {
+		const { managementKeysRoutes } = await import("./management-keys");
+		const response = await managementKeysRoutes.request("https://example.com/mgmt_1", {
+			method: "PATCH",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ dailyRequests: -1 }),
+		});
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({
+			error: "bad_request",
+			message: "dailyRequests must be a non-negative integer or null",
+		});
+		expect(state.dbTouched).toBe(false);
+	});
 });

@@ -20,8 +20,8 @@
     "jp",
     "au"
   ],
-  "zero_data_retention": "unknown",
-  "data_policy_tier": "private",
+  "zero_data_retention": false,
+  "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "residency_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
@@ -29,13 +29,13 @@
   "pricing_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
   "regional_pricing_notes": "Bedrock Mantle pricing follows Amazon Bedrock model pricing.",
   "country_code": "US",
-  "status": "Alpha",
+  "status": "Active",
   "colour": "#FF9900",
   "privacy_policy_url": "https://aws.amazon.com/privacy/",
   "terms_of_service_url": "https://aws.amazon.com/service-terms/",
   "prompt_training_policy": "no_train",
-  "prompt_training_notes": "AWS says Amazon Bedrock inputs and outputs are never shared with model providers and are not used to train base models.",
-  "prompt_training_source_url": "https://aws.amazon.com/bedrock/security-privacy-responsible-ai/",
+  "prompt_training_notes": "AWS says Amazon Bedrock does not use customer inputs and outputs to train AWS models. Bedrock may retain data by default for abuse detection, so this is not a default-ZDR offer.",
+  "prompt_training_source_url": "https://repost.aws/knowledge-center/amazon-bedrock-model-data-use",
   "gateway_kind": "gateway",
   "routable": true,
   "routing_enabled": true,
@@ -49,25 +49,51 @@
     "AWS_SESSION_TOKEN",
     "AMAZON_BEDROCK_REGION"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": [
+    "openai.responses",
+    "openai.chat.completions",
+    "anthropic.messages"
+  ],
+  "service_tiers": [
+    "standard",
+    "priority",
+    "flex"
+  ],
   "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://repost.aws/knowledge-center/amazon-bedrock-model-data-use",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "AWS documents that Bedrock does not use customer inputs and outputs to train AWS models; the separate Bedrock data-retention documentation describes default retention for abuse detection, so the standard route is not classified as ZDR."
+    },
     {
       "kind": "api_reference",
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html",
-      "accessed_at": "2026-07-27T00:00:00.000Z",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
       "notes": "Mantle supports OpenAI Responses, Chat Completions, and Anthropic Messages; Converse is a Bedrock Runtime API."
     },
     {
       "kind": "api_reference",
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-api-compatibility.html",
-      "accessed_at": "2026-07-27T00:00:00.000Z",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
       "notes": "Model-level API compatibility reference for Mantle routing."
+    },
+    {
+      "kind": "models",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-endpoint-availability.html",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
+      "notes": "Current endpoint availability by model, including OpenAI GPT-5.6 and xAI Grok 4.3."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://aws.amazon.com/bedrock/pricing/",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
+      "notes": "Regional on-demand and service-tier pricing."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-27T00:00:00.000Z",
-    "notes": "Runtime configuration and the active Claude Sonnet 5 route were reviewed against current AWS Mantle documentation."
+    "checked_at": "2026-08-23T00:00:00.000Z",
+    "notes": "Mantle endpoint compatibility was reconciled across the recorded catalogue. Priced US-compatible text routes are active; supported rows without complete pricing or without us-east-1 availability remain disabled. AWS currently documents Grok 4.3, not Grok 4.6."
   }
 }

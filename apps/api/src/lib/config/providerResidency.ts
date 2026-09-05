@@ -4,11 +4,7 @@ export type ResidencyMode =
 	| "customer_selectable"
 	| "account_selected";
 
-export type ZeroDataRetentionMode =
-	| "unknown"
-	| "unsupported"
-	| "optional"
-	| "default";
+export type ZeroDataRetentionMode = boolean;
 
 export type ProviderResidencyMetadata = {
 	residencyMode: ResidencyMode | null;
@@ -32,7 +28,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "customer_selectable",
 		executionRegions: null,
 		dataRegions: null,
-		zeroDataRetention: "optional",
+		zeroDataRetention: false,
 		residencyNotes:
 			"OpenAI data residency requires a region-bound project and the corresponding regional API domain on supported endpoints/models. The default gateway OpenAI integration does not switch regions per request.",
 		residencySourceUrl: "https://developers.openai.com/api/docs/guides/your-data",
@@ -41,16 +37,16 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "provider_managed",
 		executionRegions: ["eu"],
 		dataRegions: ["eu"],
-		zeroDataRetention: "optional",
+		zeroDataRetention: false,
 		residencyNotes:
-			"Modeled EU OpenAI offer. Regional processing requires an EU project and the eu.api.openai.com domain on supported endpoints/models.",
+			"OpenAI EU regional storage and processing require eligibility, an approved retention control, a Modified Retention amendment, and the eu.api.openai.com domain on supported endpoints/models. Requests may use an EU project or an eligible Global project with per-request regional selection.",
 		residencySourceUrl: "https://developers.openai.com/api/docs/guides/your-data",
 	},
 	anthropic: {
 		residencyMode: "customer_selectable",
 		executionRegions: ["global"],
 		dataRegions: ["us"],
-		zeroDataRetention: "optional",
+		zeroDataRetention: false,
 		residencyNotes:
 			"Anthropic supports global or US-only inference on supported 4.6+ models via inference_geo, but the default gateway Anthropic provider routes globally unless a US-specific offer is selected.",
 		residencySourceUrl:
@@ -60,7 +56,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "provider_managed",
 		executionRegions: ["us"],
 		dataRegions: ["us"],
-		zeroDataRetention: "optional",
+		zeroDataRetention: false,
 		residencyNotes:
 			"US-only inference offer for Anthropic first-party API requests. Selected requests must send inference_geo=us.",
 		residencySourceUrl:
@@ -70,7 +66,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "customer_selectable",
 		executionRegions: ["global", "us"],
 		dataRegions: null,
-		zeroDataRetention: "optional",
+		zeroDataRetention: false,
 		residencyNotes:
 			"Claude Platform on AWS uses Anthropic-operated infrastructure. Inference defaults to global and can be pinned to US with inference_geo on supported models.",
 		residencySourceUrl:
@@ -80,7 +76,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "provider_managed",
 		executionRegions: ["us"],
 		dataRegions: null,
-		zeroDataRetention: "optional",
+		zeroDataRetention: false,
 		residencyNotes:
 			"US-only inference offer for Claude Platform on AWS on supported 4.6+ models.",
 		residencySourceUrl:
@@ -90,7 +86,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "customer_selectable",
 		executionRegions: null,
 		dataRegions: null,
-		zeroDataRetention: "unknown",
+		zeroDataRetention: false,
 		residencyNotes:
 			"Vertex AI generative workloads run in the location or multi-region used for the request. The default gateway Vertex integration uses a single configured location and does not switch locations per request.",
 		residencySourceUrl:
@@ -100,7 +96,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "provider_managed",
 		executionRegions: ["eu"],
 		dataRegions: ["eu"],
-		zeroDataRetention: "unknown",
+		zeroDataRetention: false,
 		residencyNotes:
 			"Modeled EU Vertex AI offer. ML processing occurs in the EU location or multi-region used for the request.",
 		residencySourceUrl:
@@ -110,9 +106,9 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		residencyMode: "provider_managed",
 		executionRegions: ["eu"],
 		dataRegions: ["eu"],
-		zeroDataRetention: "default",
+		zeroDataRetention: true,
 		residencyNotes: "EU-hosted infrastructure with zero data retention.",
-		residencySourceUrl: "https://docs.tensorix.ai/",
+		residencySourceUrl: "https://tensorx.ai/pricing/",
 	},
 };
 
@@ -157,7 +153,7 @@ export function getProviderResidencyMetadata(args: {
 			residencyMode: "unknown",
 			executionRegions: null,
 			dataRegions: null,
-			zeroDataRetention: "unknown",
+			zeroDataRetention: false,
 			residencyNotes: null,
 			residencySourceUrl: null,
 		};
@@ -193,10 +189,7 @@ export function providerMeetsResidencyRequirement(
 		return { ok: false, reason: "data_region_mismatch" };
 	}
 	if (requirement.requireZeroDataRetention) {
-		const zdr = metadata.zeroDataRetention ?? "unknown";
-		// "optional" only means the provider can offer ZDR. Without route-specific
-		// evidence that it is enabled for the credential/account, it is not a guarantee.
-		if (zdr !== "default") {
+		if (metadata.zeroDataRetention !== true) {
 			return { ok: false, reason: "zero_data_retention_unsupported" };
 		}
 	}

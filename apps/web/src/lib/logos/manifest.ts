@@ -137,6 +137,9 @@ export const logoManifest = {
 	deepseek: {
 		color: "/logos/deepseek.svg",
 	},
+	"dots-studio": {
+		color: "/logos/dots-studio.svg",
+	},
 	databricks: {
 		color: "/logos/databricks.svg",
 	},
@@ -149,6 +152,10 @@ export const logoManifest = {
 	},
 	essentialai: {
 		color: "/logos/essential-ai.svg",
+	},
+	stealth: {
+		light: "/logos/stealth_light.svg",
+		dark: "/logos/stealth_dark.svg",
 	},
 	featherless: {
 		color: "/logos/featherless.svg",
@@ -493,6 +500,9 @@ export const logoManifest = {
 	tinker: {
 		color: "/logos/tinker.svg",
 	},
+	tinyfish: {
+		color: "/logos/tinyfish.svg",
+	},
 	"thinking-machines": {
 		color: "/logos/thinking-machines.svg",
 	},
@@ -521,6 +531,10 @@ export const logoManifest = {
 	},
 	voyage: {
 		color: "/logos/voyage.svg",
+	},
+	runinfra: {
+		light: "/logos/runinfra.svg",
+		dark: "/logos/runinfra_dark.svg",
 	},
 	wandb: {
 		color: "/logos/weights-and-biases.svg",

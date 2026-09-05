@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getStripe } from "@/lib/stripe";
 import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 type PaymentMethodSummary = {
     id: string;
@@ -172,6 +173,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+	let lease: { workspaceId: string; claimToken: string } | null = null;
     try {
         const stripe = getStripe();
         const { customerId, workspaceId } = await requireActiveTeamStripeCustomer({ createIfMissing: true });
@@ -180,6 +182,22 @@ export async function DELETE(request: Request) {
         if (!paymentMethodId) {
             return toErrorResponse("Missing paymentMethodId", 400);
         }
+		const claimToken = crypto.randomUUID();
+		const admin = createAdminClient();
+		const claim = await admin.rpc("claim_payment_method_mutation", {
+			p_workspace_id: workspaceId,
+			p_claim_token: claimToken,
+		});
+		if (claim.error) return toErrorResponse("Payment method mutation unavailable", 503);
+		if (claim.data !== true) return toErrorResponse("Another payment method change is in progress", 409);
+		lease = { workspaceId, claimToken };
+		const renewLease = async () => {
+			const renewed = await admin.rpc("renew_payment_method_mutation", {
+				p_workspace_id: workspaceId,
+				p_claim_token: claimToken,
+			});
+			if (renewed.error || renewed.data !== true) throw new Error("payment_method_mutation_claim_lost");
+		};
 
         const before = await listPaymentMethods(stripe, customerId);
         const exists = before.paymentMethods.some((pm) => pm.id === paymentMethodId);
@@ -187,42 +205,64 @@ export async function DELETE(request: Request) {
             return toErrorResponse("Payment method not found", 404);
         }
 
-        const nextDefaultId = before.paymentMethods.find((pm) => pm.id !== paymentMethodId)?.id ?? null;
-        if (before.defaultPaymentMethodId === paymentMethodId) {
-            await stripe.customers.update(customerId, {
-                invoice_settings: { default_payment_method: nextDefaultId ?? undefined },
-            });
-        }
-
-        await stripe.paymentMethods.detach(paymentMethodId);
+		await renewLease();
+		await stripe.paymentMethods.detach(paymentMethodId);
+		let payload = await listPaymentMethods(stripe, customerId);
+		const attachedIds = new Set(payload.paymentMethods.map((method) => method.id));
+		const reconciledDefaultId = payload.defaultPaymentMethodId && attachedIds.has(payload.defaultPaymentMethodId)
+			? payload.defaultPaymentMethodId
+			: payload.paymentMethods[0]?.id ?? null;
+		if (payload.defaultPaymentMethodId !== reconciledDefaultId) {
+			await renewLease();
+			await stripe.customers.update(customerId, {
+				invoice_settings: { default_payment_method: reconciledDefaultId ?? "" },
+			});
+			payload = await listPaymentMethods(stripe, customerId);
+		}
 
         const supabase = await createClient();
-        const { data: wallet } = await supabase
+        const { data: wallet, error: walletError } = await supabase
             .from("wallets")
             .select("auto_top_up_enabled, auto_top_up_account_id")
             .eq("workspace_id", workspaceId)
             .maybeSingle();
+		if (walletError) throw new Error(`wallet_payment_method_lookup_failed:${walletError.message}`);
 
-        if (wallet?.auto_top_up_account_id === paymentMethodId) {
-            await supabase
+		const walletPaymentMethodIsAttached = wallet?.auto_top_up_account_id
+			? attachedIds.has(wallet.auto_top_up_account_id)
+			: true;
+        if (!walletPaymentMethodIsAttached) {
+			await renewLease();
+            const walletUpdate = await supabase
                 .from("wallets")
                 .update({
-                    auto_top_up_account_id: nextDefaultId,
-                    auto_top_up_enabled: nextDefaultId ? (wallet?.auto_top_up_enabled ?? false) : false,
+					auto_top_up_account_id: reconciledDefaultId,
+					auto_top_up_enabled: reconciledDefaultId ? (wallet?.auto_top_up_enabled ?? false) : false,
                 })
                 .eq("workspace_id", workspaceId);
+			if (walletUpdate.error) throw new Error(`wallet_payment_method_reconciliation_failed:${walletUpdate.error.message}`);
             revalidatePath("/settings/credits");
         }
 
         revalidatePath("/settings/payment-methods");
 
-        const payload = await listPaymentMethods(stripe, customerId);
         return NextResponse.json(payload);
     } catch (error: any) {
         if (error?.message === "unauthorized") return toErrorResponse("Unauthorized", 401);
         if (error?.message === "missing_team" || error?.message === "missing_stripe_customer") {
             return toErrorResponse(error.message, 400);
         }
-        return toErrorResponse(error, 500);
+		return toErrorResponse(error, 500);
+	} finally {
+		if (lease) {
+			try {
+				await createAdminClient().rpc("release_payment_method_mutation", {
+					p_workspace_id: lease.workspaceId,
+					p_claim_token: lease.claimToken,
+				});
+			} catch {
+				// The lease expires automatically; do not mask the mutation response.
+			}
+		}
     }
 }

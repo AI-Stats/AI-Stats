@@ -1,10 +1,10 @@
 ---
 title: "Phaseo CLI"
 icon: "terminal"
-description: "Install the official Phaseo CLI, sign in with browser OAuth or device code, and manage keys, guardrails, and workspaces from the terminal."
+description: "Install the official Phaseo CLI, configure coding harnesses, and manage Phaseo from the terminal."
 ---
 
-The Phaseo CLI gives you a first-party terminal workflow for the Phaseo control plane.
+The Phaseo CLI is distributed as `@phaseo/cli`. It connects coding harnesses to Phaseo and provides a first-party terminal workflow for the Phaseo control plane.
 
 Use it when you want to:
 
@@ -71,6 +71,10 @@ phaseo login --device-code
 ```
 
 Remote and non-interactive environments automatically prefer device code.
+
+## Terminal output
+
+Interactive terminals receive Phaseo's colour, hierarchy, and ephemeral setup spinners. Spinners use `stderr` and clear their line when work completes. Non-TTY `stderr` and `TERM=dumb` disable animation; `NO_COLOR` disables colour. Commands using `--json` always return decoration-free structured output for agents and automation. Use `FORCE_COLOR=1` only when a terminal wrapper supports colour but does not report itself as a TTY.
 
 ## Confirm who you are
 

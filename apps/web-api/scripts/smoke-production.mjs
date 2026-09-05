@@ -42,10 +42,10 @@ async function main() {
 	assert(search.status === 200, `Search endpoint returned ${search.status}, expected 200.`);
 	assert(!search.headers.has("x-vercel-id"), "Search endpoint unexpectedly reached Vercel.");
 	const searchCacheControl = search.headers.get("cache-control") ?? "";
-	assert(searchCacheControl.includes("s-maxage=900"), "Search response is missing s-maxage=900.");
+	assert(searchCacheControl.includes("s-maxage=86400"), "Search response is missing s-maxage=86400.");
 	assert(
-		searchCacheControl.includes("stale-while-revalidate=3600"),
-		"Search response is missing stale-while-revalidate=3600.",
+		searchCacheControl.includes("stale-while-revalidate=604800"),
+		"Search response is missing stale-while-revalidate=604800.",
 	);
 	console.log("PASS search: Cloudflare route and cache contract");
 

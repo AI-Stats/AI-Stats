@@ -1,7 +1,7 @@
 import type { Session, User } from "@supabase/supabase-js";
-import { Resend } from "resend";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { classifyAuthMethodFromSession } from "@/lib/auth/method";
+import { classifyAuthMethodFromSession, ssoProviderIdFromSession } from "@/lib/auth/method";
+import { linkScimDirectoryUser } from "@/lib/auth/scimDirectory";
 import { evaluateTeamSsoEnforcementNoop } from "@/lib/auth/ssoEnforcement";
 import { sendAccountLifecycleDiscordWebhook } from "@/lib/auth/accountLifecycleDiscord";
 import {
@@ -71,58 +71,6 @@ function deriveFirstName(name: string): string {
 	return trimmed.split(/\s+/)[0] ?? "";
 }
 
-async function sendSignupWelcomeEmail(args: {
-	email: string;
-	displayName: string;
-}) {
-	const apiKey = String(process.env.RESEND_API_KEY ?? "").trim();
-	if (!apiKey) return;
-
-	const from =
-		String(process.env.RESEND_FROM_EMAIL ?? "").trim() ||
-		"Phaseo <noreply@phaseo.app>";
-	const subject =
-		String(process.env.RESEND_WELCOME_SUBJECT ?? "").trim() ||
-		"Welcome to Phaseo";
-	const templateId =
-		String(process.env.RESEND_WELCOME_TEMPLATE_ID ?? "").trim() ||
-		"welcome-email";
-	const firstName = deriveFirstName(args.displayName);
-	const dashboardUrl =
-		String(
-			process.env.NEXT_PUBLIC_WEBSITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "",
-		).trim() || "https://phaseo.app";
-	const getStartedUrl = `${dashboardUrl.replace(/\/+$/, "")}/settings/keys`;
-	const docsUrl = `${dashboardUrl.replace(/\/+$/, "")}/help`;
-	const resend = new Resend(apiKey);
-	const { error } = await resend.emails.send({
-		from,
-		to: args.email,
-		subject,
-		template: {
-			id: templateId,
-			variables: {
-				user_first_name: firstName || "",
-				welcome_heading: firstName ? `Welcome, ${firstName}` : "Welcome",
-				app_name: "Phaseo",
-				providers_count: 14,
-				models_count: 300,
-				endpoints_count: 9,
-				gateway_base_url: "https://api.phaseo.app/v1",
-				example_model: "openai/gpt-4.1-mini",
-				dashboard_url: dashboardUrl,
-				quickstart_url: getStartedUrl,
-				docs_url: docsUrl,
-				support_email: "support@phaseo.app",
-			},
-		},
-	});
-
-	if (error) {
-		throw new Error(`resend_error:${error.name}:${error.message}`);
-	}
-}
-
 async function sendSignupWelcomeNotification(args: {
 	email: string;
 	displayName: string;
@@ -131,43 +79,19 @@ async function sendSignupWelcomeNotification(args: {
 	source: "auth_callback" | "server_action";
 	createdAtIso: string;
 }) {
-	if (!isResendOnboardingAutomationsEnabled()) {
-		await sendSignupWelcomeEmail({
-			email: args.email,
-			displayName: args.displayName,
-		});
-		return;
-	}
+	if (!isResendOnboardingAutomationsEnabled()) return;
 
 	const firstName = deriveFirstName(args.displayName);
-
-	try {
-		await sendUserCreatedEvent({
-			email: args.email,
-			payload: {
-				userId: args.userId,
-				workspaceId: args.workspaceId,
-				displayName: args.displayName,
-				firstName,
-				source: args.source,
-				createdAtIso: args.createdAtIso,
-			},
-		});
-		return;
-	} catch (automationError) {
-		console.error("Failed sending onboarding automation signup event", {
+	await sendUserCreatedEvent({
+		email: args.email,
+		payload: {
 			userId: args.userId,
 			workspaceId: args.workspaceId,
-			error:
-				automationError instanceof Error
-					? automationError.message
-					: String(automationError),
-		});
-	}
-
-	await sendSignupWelcomeEmail({
-		email: args.email,
-		displayName: args.displayName,
+			displayName: args.displayName,
+			firstName,
+			source: args.source,
+			createdAtIso: args.createdAtIso,
+		},
 	});
 }
 
@@ -450,14 +374,32 @@ export async function finalizePostLogin(
 		"User";
 
 	const supabaseAdmin = createAdminClient();
-
-	const provisionedTeam = await provisionPersonalWorkspace({
-		supabaseAdmin,
-		userId: user.id,
-		displayName,
-	});
+	const session = input.session ?? (await input.supabaseUser.auth.getSession()).data.session;
+	const directoryLink = await linkScimDirectoryUser({ admin: supabaseAdmin, authUserId: user.id, email: user.email, ssoProviderId: ssoProviderIdFromSession(session) });
+	const provisionedTeam = directoryLink
+		? { workspaceId: directoryLink.workspaceId, createdPersonalTeam: false }
+		: await provisionPersonalWorkspace({ supabaseAdmin, userId: user.id, displayName });
 	const workspaceId = provisionedTeam.workspaceId;
 	await setActiveWorkspaceCookie(workspaceId);
+
+	if (directoryLink) {
+		const { error: usageError } = await supabaseAdmin.rpc(
+			"record_workspace_sso_active_user",
+			{
+				p_workspace_id: workspaceId,
+				p_auth_user_id: user.id,
+				p_seen_at: new Date().toISOString(),
+			},
+		);
+		if (usageError) {
+			console.error("Failed to record workspace SSO active user", {
+				source: input.source,
+				workspaceId,
+				userId: user.id,
+				error: usageError.message,
+			});
+		}
+	}
 
 	try {
 		await ensureWalletRow(
@@ -522,11 +464,6 @@ export async function finalizePostLogin(
 	}
 
 	try {
-		const session =
-			input.session ??
-			(
-				await input.supabaseUser.auth.getSession()
-			).data.session;
 		await evaluateTeamSsoEnforcementNoop({
 			workspaceId,
 			userId: user.id,

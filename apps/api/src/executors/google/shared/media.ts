@@ -1,5 +1,6 @@
 import type { IRContentPart } from "@core/ir";
 import type { ExecutorUpstreamTiming } from "@executors/types";
+import { fetchPublicMedia, type PublicMediaResponse } from "@core/public-media-fetch";
 
 const DEFAULT_MAX_REMOTE_ASSET_BYTES = 20 * 1024 * 1024;
 const RETRY_FETCH_USER_AGENT =
@@ -112,15 +113,12 @@ function audioMimeFromFormat(format?: string): string {
 async function fetchRemoteMediaWithRetry(
 	url: string,
 	fallbackMimeType: string,
+	maxBytes: number,
 	upstreamTiming?: ExecutorUpstreamTiming,
-): Promise<Response | null> {
-	const first = await (
-		upstreamTiming
-			? upstreamTiming.fetch(url, undefined, "media")
-			: fetch(url)
-	).catch(() => null);
-	const firstMime = normalizeContentType(first?.headers?.get("content-type"), fallbackMimeType);
-	if (first?.ok && looksBinaryMimeType(firstMime)) {
+): Promise<PublicMediaResponse | null> {
+	const first = await fetchPublicMedia({ url, maxBytes, upstreamTiming }).catch(() => null);
+	const firstMime = normalizeContentType(first?.contentType, fallbackMimeType);
+	if (first && looksBinaryMimeType(firstMime)) {
 		return first;
 	}
 
@@ -132,17 +130,15 @@ async function fetchRemoteMediaWithRetry(
 				: fallbackMimeType.startsWith("video/")
 					? "video/*,*/*;q=0.8"
 					: "*/*";
-	const retryInit: RequestInit = {
+	return fetchPublicMedia({
+		url,
+		maxBytes,
+		upstreamTiming,
 		headers: {
 			Accept: accept,
 			"User-Agent": RETRY_FETCH_USER_AGENT,
 		},
-	};
-	return (
-		upstreamTiming
-			? upstreamTiming.fetch(url, retryInit, "media")
-			: fetch(url, retryInit)
-	).catch(() => null);
+	}).catch(() => null);
 }
 
 async function mediaUrlToGeminiPart(
@@ -171,8 +167,8 @@ async function mediaUrlToGeminiPart(
 	}
 
 	try {
-		const res = await fetchRemoteMediaWithRetry(url, fallbackMimeType, upstreamTiming);
-		if (!res || !res.ok) {
+		const res = await fetchRemoteMediaWithRetry(url, fallbackMimeType, maxRemoteAssetBytes, upstreamTiming);
+		if (!res) {
 			return {
 				file_data: {
 					mime_type: fallbackMimeType,
@@ -181,27 +177,10 @@ async function mediaUrlToGeminiPart(
 			};
 		}
 
-		const contentLength = Number(res.headers.get("content-length") || "0");
-		if (contentLength > 0 && contentLength > maxRemoteAssetBytes) {
-			return {
-				file_data: {
-					mime_type: fallbackMimeType,
-					file_uri: url,
-				},
-			};
-		}
-
-		const bytes = await res.arrayBuffer();
-		if (bytes.byteLength > maxRemoteAssetBytes) {
-			return {
-				file_data: {
-					mime_type: fallbackMimeType,
-					file_uri: url,
-				},
-			};
-		}
-
-		const rawMimeHeader = res.headers.get("content-type");
+		const copiedBytes = new Uint8Array(res.bytes.byteLength);
+		copiedBytes.set(res.bytes);
+		const bytes = copiedBytes.buffer;
+		const rawMimeHeader = res.contentType;
 		const normalizedRawMime = normalizeContentType(rawMimeHeader, "");
 		const inferredMime = inferMimeTypeFromUrl(url);
 		const chosenMime =
@@ -214,7 +193,7 @@ async function mediaUrlToGeminiPart(
 		return {
 			inline_data: {
 				mime_type: chosenMime,
-				data: encodeBase64(bytes),
+			data: encodeBase64(bytes),
 			},
 		};
 	} catch {

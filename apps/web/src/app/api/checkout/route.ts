@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
 
 		return await createStripeCheckoutResponse({
 			amountPence: totalAmount,
-			currency: "usd",
 			countryCode: body?.country_code,
 			kind: "oneoff",
 			notificationCheckoutKind: "legacy_checkout",

@@ -1,10 +1,10 @@
 [
   {
     "api_model_id": "kwaipilot/kat-coder-air-v2.5",
-    "provider_api_model_id": "streamlake:ep-cbso5h-1784044408030577927",
-    "provider_model_slug": "ep-cbso5h-1784044408030577927",
+    "provider_api_model_id": "streamlake:kat-coder-air-v2.5",
+    "provider_model_slug": "kat-coder-air-v2.5",
     "internal_model_id": "kwaipilot/kat-coder-air-v2.5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -15,44 +15,69 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "inactive",
-        "params": [],
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
-        "temperature": null,
+        "temperature": true,
         "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official preset model ID, OpenAI-compatible pay-as-you-go route, 256K context, function calling, output limit, and pricing verified."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "kwaipilot/kat-coder-pro-v2.5",
-    "provider_api_model_id": "streamlake:ep-nixvpn-1784044408036465292",
-    "provider_model_slug": "ep-nixvpn-1784044408036465292",
+    "provider_api_model_id": "streamlake:kat-coder-pro-v2.5",
+    "provider_model_slug": "kat-coder-pro-v2.5",
     "internal_model_id": "kwaipilot/kat-coder-pro-v2.5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -63,35 +88,60 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "inactive",
-        "params": [],
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
-        "temperature": null,
+        "temperature": true,
         "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official preset model ID, OpenAI-compatible pay-as-you-go route, 256K context, function calling, output limit, and pricing verified."
     },
     "rate_limits": []
   },
@@ -238,14 +288,18 @@
     "sources": [
       {
         "kind": "documentation",
-        "url": "https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9",
-        "accessed_at": "2026-08-03T00:00:00Z",
-        "notes": "Provider deployment recorded against the official API documentation."
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-03T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Provider deployment recorded; routing remains disabled until an account-specific endpoint deployment ID is configured."
     },
     "rate_limits": []
@@ -306,15 +360,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -376,15 +434,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -446,15 +508,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -512,15 +578,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -581,15 +651,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -650,15 +724,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -717,15 +795,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -785,15 +867,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -854,15 +940,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -923,15 +1013,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -988,15 +1082,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -1058,15 +1156,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -1127,15 +1229,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -1196,15 +1302,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -1260,15 +1370,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -1328,15 +1442,19 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
@@ -1396,16 +1514,2237 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
+      "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_api_model_id": "streamlake:qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_model_slug": "qwen/qwen3-vl-235b-a22b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-05-22T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "custom_or_preset_unverified"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Model and multimodal contract verified; routing remains disabled until the exact account-visible API model slug and pricing are verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000
+      }
+    ]
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "streamlake:minimax/minimax-m3",
+    "provider_model_slug": "minimax/minimax-m3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "image,text,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 512000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 30,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 200000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "xiaomi/mimo-v2.5",
+    "provider_api_model_id": "streamlake:xiaomi/mimo-v2.5",
+    "provider_model_slug": "xiaomi/mimo-v2.5",
+    "internal_model_id": "xiaomi/mimo-v2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio,image,text,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "audio",
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 60,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 600000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.7-code",
+    "provider_api_model_id": "streamlake:moonshotai/kimi-k2.7-code",
+    "provider_model_slug": "moonshotai/kimi-k2.7-code",
+    "internal_model_id": "moonshotai/kimi-k2.7-code",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "image,text,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 10,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 300000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3-30b-a3b-thinking-2507",
+    "provider_api_model_id": "streamlake:qwen/qwen3-30b-a3b-thinking-2507",
+    "provider_model_slug": "qwen/qwen3-30b-a3b-thinking-2507",
+    "internal_model_id": "qwen/qwen3-30b-a3b-thinking-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-35b-a3b",
+    "provider_api_model_id": "streamlake:qwen/qwen3.6-35b-a3b",
+    "provider_model_slug": "qwen/qwen3.6-35b-a3b",
+    "internal_model_id": "qwen/qwen3.6-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "image,text,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 30,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 300000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "streamlake:qwen/qwen3.6-27b",
+    "provider_model_slug": "qwen/qwen3.6-27b",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "image,text,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 30,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 300000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.1",
+    "provider_api_model_id": "streamlake:minimax/minimax-m2.1",
+    "provider_model_slug": "minimax/minimax-m2.1",
+    "internal_model_id": "minimax/minimax-m2.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 50,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 200000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "minimax/minimax-m2",
+    "provider_api_model_id": "streamlake:minimax/minimax-m2",
+    "provider_model_slug": "minimax/minimax-m2",
+    "internal_model_id": "minimax/minimax-m2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 5,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 300000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3-coder-480b-a35b",
+    "provider_api_model_id": "streamlake:qwen/qwen3-coder-480b-a35b-instruct-fp8",
+    "provider_model_slug": "qwen/qwen3-coder-480b-a35b-instruct-fp8",
+    "internal_model_id": "qwen/qwen3-coder-480b-a35b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 100000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "provider_api_model_id": "streamlake:qwen/qwen3-vl-235b-a22b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-235b-a22b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "image,text,video",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 100000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2-speciale",
+    "provider_api_model_id": "streamlake:deepseek/deepseek-v3.2-speciale",
+    "provider_model_slug": "deepseek/deepseek-v3.2-speciale",
+    "internal_model_id": "deepseek/deepseek-v3.2-speciale",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 160000,
+    "max_output_tokens": 64000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": "2026-08-11T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog retired listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 60,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 100000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2-exp",
+    "provider_api_model_id": "streamlake:deepseek/deepseek-v3.2-exp",
+    "provider_model_slug": "deepseek/deepseek-v3.2-exp",
+    "internal_model_id": "deepseek/deepseek-v3.2-exp",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 64000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "deepseek/deepseek-r1-2025-05-28",
+    "provider_api_model_id": "streamlake:deepseek/deepseek-r1-0528",
+    "provider_model_slug": "deepseek/deepseek-r1-0528",
+    "internal_model_id": "deepseek/deepseek-r1-2025-05-28",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 16000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3-235b-a22b-thinking-2507",
+    "provider_api_model_id": "streamlake:qwen/qwen3-235b-a22b-thinking-2507",
+    "provider_model_slug": "qwen/qwen3-235b-a22b-thinking-2507",
+    "internal_model_id": "qwen/qwen3-235b-a22b-thinking-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3-30b-a3b",
+    "provider_api_model_id": "streamlake:qwen/qwen3-30b-a3b",
+    "provider_model_slug": "qwen/qwen3-30b-a3b",
+    "internal_model_id": "qwen/qwen3-30b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 32000,
+    "max_output_tokens": 8000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 500000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "kwaipilot/kat-coder-pro-v1",
+    "provider_api_model_id": "streamlake:kat-coder-pro-v1",
+    "provider_model_slug": "kat-coder-pro-v1",
+    "internal_model_id": "kwaipilot/kat-coder-pro-v1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 60,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 2000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "kwaipilot/kat-coder-exp-72b-1010",
+    "provider_api_model_id": "streamlake:kat-coder-exp-72b-1010",
+    "provider_model_slug": "kat-coder-exp-72b-1010",
+    "internal_model_id": "kwaipilot/kat-coder-exp-72b-1010",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": "2026-08-11T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog retired listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 20,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 2000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3",
+    "provider_api_model_id": "streamlake:deepseek/deepseek-v3",
+    "provider_model_slug": "deepseek/deepseek-v3",
+    "internal_model_id": "deepseek/deepseek-v3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 64000,
+    "max_output_tokens": 8000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.1",
+    "provider_api_model_id": "streamlake:deepseek/deepseek-v3.1",
+    "provider_model_slug": "deepseek/deepseek-v3.1",
+    "internal_model_id": "deepseek/deepseek-v3.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 500,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 1000000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "kwaipilot/keye-vl-2.0-30b-a3b",
+    "provider_api_model_id": "streamlake:kwaipilot/keye-vl-2.0-30b-a3b",
+    "provider_model_slug": "kwaipilot/keye-vl-2.0-30b-a3b",
+    "internal_model_id": "kwaipilot/keye-vl-2.0-30b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "image,text,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "image",
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 3,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 600000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2-2025-07-11",
+    "provider_api_model_id": "streamlake:moonshotai/kimi-k2-instruct-0905",
+    "provider_model_slug": "moonshotai/kimi-k2-instruct-0905",
+    "internal_model_id": "moonshotai/kimi-k2-2025-07-11",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "tools",
+          "tool_choice",
+          "stream"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake catalog active listing, modalities, context/output limits, function calling, and default throttling verified."
+    },
+    "rate_limits": [
+      {
+        "type": "requests",
+        "unit": "minute",
+        "limit": 60,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      },
+      {
+        "type": "tokens",
+        "unit": "minute",
+        "limit": 100000,
+        "scope": "model",
+        "region": null,
+        "note": "Official default model throttling."
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-122b-a10b",
+    "provider_api_model_id": "streamlake:qwen/qwen3.5-122b-a10b",
+    "provider_model_slug": "qwen/qwen3.5-122b-a10b",
+    "internal_model_id": "qwen/qwen3.5-122b-a10b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake pay-as-you-go model and pricing listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-27b",
+    "provider_api_model_id": "streamlake:qwen/qwen3.5-27b",
+    "provider_model_slug": "qwen/qwen3.5-27b",
+    "internal_model_id": "qwen/qwen3.5-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake pay-as-you-go model and pricing listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-35b-a3b",
+    "provider_api_model_id": "streamlake:qwen/qwen3.5-35b-a3b",
+    "provider_model_slug": "qwen/qwen3.5-35b-a3b",
+    "internal_model_id": "qwen/qwen3.5-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake pay-as-you-go model and pricing listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-4.6",
+    "provider_api_model_id": "streamlake:z-ai/glm-4.6",
+    "provider_model_slug": "z-ai/glm-4.6",
+    "internal_model_id": "z-ai/glm-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-chat-completions"
+      ],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Official StreamLake pay-as-you-go model and pricing listing."
     },
     "rate_limits": []
   }

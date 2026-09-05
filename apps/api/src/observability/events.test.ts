@@ -725,7 +725,7 @@ describe("emitGatewayRequestEvent", () => {
 				residencyMode: "customer_selectable",
 				executionRegions: ["eu"],
 				dataRegions: ["eu"],
-				zeroDataRetention: "default",
+				zeroDataRetention: true,
 				promptTrainingPolicy: "no_train",
 				dataPolicyTier: "private",
 				dataPolicyConfidence: "confirmed",
@@ -776,7 +776,7 @@ describe("emitGatewayRequestEvent", () => {
 			provider_offer_scope: "regional",
 			provider_data_policy_variant: "zdr",
 			provider_rollout_status: "active",
-			provider_zero_data_retention: "default",
+				provider_zero_data_retention: true,
 			provider_prompt_training_policy: "no_train",
 			provider_pricing_available: true,
 			provider_byok_key_count: 1,
@@ -878,6 +878,7 @@ describe("emitGatewayRequestEvent", () => {
 			error_origin: "user",
 			error_operational_kind: "request_provider_filter_no_match",
 			error_action_owner: "caller",
+			error_operationally_actionable: false,
 			error_requires_investigation: false,
 		});
 	});
@@ -916,6 +917,7 @@ describe("emitGatewayRequestEvent", () => {
 			error_origin: "gateway",
 			error_operational_kind: "gateway_provider_availability_gap",
 			error_action_owner: "gateway",
+			error_operationally_actionable: true,
 			error_requires_investigation: true,
 		});
 	});
@@ -951,5 +953,39 @@ describe("emitGatewayRequestEvent", () => {
 			model: "openai/gpt-5-nano",
 			input: "[redacted 5 chars]",
 		});
+	});
+
+	it("never copies parsed document content into detailed telemetry", async () => {
+		await emitGatewayRequestEvent({
+			requestId: "req_parse_obs_123",
+			workspaceId: "ws_parse_obs_123",
+			endpoint: "parse",
+			model: "phaseo/parse",
+			statusCode: 500,
+			success: false,
+			errorCode: "parse_failed",
+			errorMessage: "private parse error message",
+			requestPayload: { document: "private source document" },
+			providerResponse: { extracted: "private provider parse output" },
+			gatewayResponse: { output: "private parsed result" },
+			errorDetails: { error: { message: "private upstream error message" } },
+		});
+
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event).toMatchObject({
+			observability_detail_level: "full",
+			endpoint: "parse",
+			status_code: 500,
+			error_code: "parse_failed",
+		});
+		expect(event.request_payload_redacted_json).toBeUndefined();
+		expect(event.upstream_request_redacted_json).toBeUndefined();
+		expect(event.provider_response_redacted_json).toBeUndefined();
+		expect(event.gateway_response_redacted_json).toBeUndefined();
+		expect(event.error_details_redacted_json).toBeUndefined();
+		expect(event.error_message).toBeUndefined();
+		expect(event.upstream_error_message).toBeUndefined();
+		expect(event.failure_sample_first_upstream_error_message).toBeUndefined();
+		expect(JSON.stringify(event)).not.toContain("private");
 	});
 });

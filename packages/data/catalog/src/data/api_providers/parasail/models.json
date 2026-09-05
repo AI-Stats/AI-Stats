@@ -15,7 +15,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -27,7 +27,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -72,7 +72,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -120,7 +120,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -168,7 +168,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -1597,6 +1597,1079 @@
       "status": "partial",
       "checked_at": "2026-08-12T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  }
+,
+  {
+      "api_model_id": "moonshotai/kimi-k3",
+      "provider_api_model_id": "parasail:moonshotai/kimi-k3",
+      "provider_model_slug": "parasail-kimi-k3",
+      "internal_model_id": "moonshotai/kimi-k3",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text,image,video",
+      "output_modalities": "text",
+      "context_length": 1048576,
+      "max_output_tokens": 1048576,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/kimi-k3",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "z-ai/glm-5",
+      "provider_api_model_id": "parasail:z-ai/glm-5",
+      "provider_model_slug": "parasail-glm-5",
+      "internal_model_id": "z-ai/glm-5",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 200000,
+      "max_output_tokens": 131072,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/glm-5",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "minimax/minimax-m2.5",
+      "provider_api_model_id": "parasail:minimax/minimax-m2.5",
+      "provider_model_slug": "parasail-minimax-m25",
+      "internal_model_id": "minimax/minimax-m2.5",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 204800,
+      "max_output_tokens": null,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/minimax-m25",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "provider_api_model_id": "parasail:nvidia/nemotron-3-ultra-550b-a55b",
+      "provider_model_slug": "parasail-nemotron-3-ultra-550b-nvfp4",
+      "internal_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 1000000,
+      "max_output_tokens": null,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/nemotron-3-ultra-550b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "meta/llama-4-maverick",
+      "provider_api_model_id": "parasail:meta/llama-4-maverick",
+      "provider_model_slug": "parasail-llama-4-maverick-instruct-fp8",
+      "internal_model_id": "meta/llama-4-maverick",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text,image",
+      "output_modalities": "text",
+      "context_length": null,
+      "max_output_tokens": null,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/llama-4-maverick",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "meta/llama-3.3-70b-instruct",
+      "provider_api_model_id": "parasail:meta/llama-3.3-70b-instruct",
+      "provider_model_slug": "parasail-llama-33-70b-fp8",
+      "internal_model_id": "meta/llama-3.3-70b-instruct",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 131072,
+      "max_output_tokens": 0,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/llama-33-70b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "qwen/qwen2.5-vl-72b-instruct",
+      "provider_api_model_id": "parasail:qwen/qwen2.5-vl-72b-instruct",
+      "provider_model_slug": "parasail-qwen25-vl-72b-instruct",
+      "internal_model_id": "qwen/qwen2.5-vl-72b-instruct",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text,image",
+      "output_modalities": "text",
+      "context_length": 128000,
+      "max_output_tokens": 128000,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/qwen25-vl-72b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "mistral/mistral-small-3.2-24b-instruct",
+      "provider_api_model_id": "parasail:mistral/mistral-small-3.2-24b-instruct",
+      "provider_model_slug": "parasail-mistral-small-32-24b",
+      "internal_model_id": "mistral/mistral-small-3.2-24b-instruct",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "image,text",
+      "output_modalities": "text",
+      "context_length": 131072,
+      "max_output_tokens": 16384,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/mistral-small-32",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "google/gemma-4-26b-a4b-it",
+      "provider_api_model_id": "parasail:google/gemma-4-26b-a4b-it",
+      "provider_model_slug": "parasail-gemma-4-26b-a4b-it",
+      "internal_model_id": "google/gemma-4-26b-a4b-it",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text,image",
+      "output_modalities": "text",
+      "context_length": 262144,
+      "max_output_tokens": 0,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/gemma-4-26b-a4b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "google/gemma-4-31b-it",
+      "provider_api_model_id": "parasail:google/gemma-4-31b-it",
+      "provider_model_slug": "parasail-gemma-4-31b-it",
+      "internal_model_id": "google/gemma-4-31b-it",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text,image",
+      "output_modalities": "text",
+      "context_length": 262144,
+      "max_output_tokens": 0,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/gemma-4-31b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "google/gemma-3-27b-it",
+      "provider_api_model_id": "parasail:google/gemma-3-27b-it",
+      "provider_model_slug": "parasail-gemma3-27b-it",
+      "internal_model_id": "google/gemma-3-27b-it",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 128000,
+      "max_output_tokens": 8192,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/gemma-3-27b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "openai/gpt-oss-120b",
+      "provider_api_model_id": "parasail:openai/gpt-oss-120b:fast",
+      "provider_model_slug": "parasail-gpt-oss-120b-fast",
+      "internal_model_id": "openai/gpt-oss-120b",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 131072,
+      "max_output_tokens": 131072,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/gpt-oss-120b-fast",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "thedrummer/cydonia-24b-v4.1",
+      "provider_api_model_id": "parasail:thedrummer/cydonia-24b-v4.1",
+      "provider_model_slug": "parasail-cydonia-24-v41",
+      "internal_model_id": "thedrummer/cydonia-24b-v4.1",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 131072,
+      "max_output_tokens": 131072,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/cydonia-24-v41",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "baai/bge-m3",
+      "provider_api_model_id": "parasail:baai/bge-m3",
+      "provider_model_slug": "parasail-bge-m3",
+      "internal_model_id": "baai/bge-m3",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "embeddings",
+      "context_length": 8192,
+      "max_output_tokens": null,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.embed",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.embeddings"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/bge-m3",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "bytedance/ui-tars-1.5-7b",
+      "provider_api_model_id": "parasail:bytedance/ui-tars-1.5-7b",
+      "provider_model_slug": "parasail-ui-tars-1p5-7b",
+      "internal_model_id": "bytedance/ui-tars-1.5-7b",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "image,text",
+      "output_modalities": "text",
+      "context_length": 128000,
+      "max_output_tokens": 2048,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/ui-tars-15-7b",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "thedrummer/skyfall-36b-v2",
+      "provider_api_model_id": "parasail:thedrummer/skyfall-36b-v2",
+      "provider_model_slug": "parasail-skyfall-36b-v2-fp8",
+      "internal_model_id": "thedrummer/skyfall-36b-v2",
+      "is_active_gateway": false,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 32768,
+      "max_output_tokens": 32768,
+      "effective_from": null,
+      "effective_to": null,
+      "capabilities": [
+        {
+          "capability_id": "text.generate",
+          "status": "active",
+          "params": [],
+          "reasoning": null,
+          "tool_call": null,
+          "structured_output": null,
+          "temperature": null,
+          "attachment": null,
+          "input_modalities": null,
+          "output_modalities": null,
+          "modes": []
+        }
+      ],
+      "routing_status": "active",
+      "routable": false,
+      "regions": {
+        "execution": null,
+        "data": null
+      },
+      "service_tiers": [],
+      "api": {
+        "formats": [
+          "openai.chat.completions"
+        ],
+        "endpoint": null,
+        "deployment": null
+      },
+      "sources": [
+        {
+          "kind": "official_company_page",
+          "url": "https://www.parasail.io/models/skyfall-36b-v2",
+          "accessed_at": "2026-08-26T00:00:00Z",
+          "notes": "Parasail public model library confirms the model name, endpoint slug, modalities, context and published availability."
+        }
+      ],
+      "verification": {
+        "status": "partial",
+        "checked_at": "2026-08-26T00:00:00Z",
+        "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
+      },
+      "rate_limits": []
+    },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "parasail:z-ai/glm-5.3-flash",
+    "provider_model_slug": "z-ai/glm-5.3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 943718,
+    "effective_from": "2026-08-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "min_p",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash-20260826/endpoints",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists Parasail as serving z-ai/glm-5.3-flash with FP8 quantization and multimodal input."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.parasail.io/parasail-docs/serverless-and-models/serverless",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Parasail documents its OpenAI-compatible Serverless API; provider-level routing remains disabled in this catalog."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Endpoint availability, limits, capabilities, and pricing were recorded from OpenRouter; provider-level routing remains non-routable pending direct onboarding verification."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "parasail:z-ai/glm-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-28T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "max",
+            "values": ["low", "high", "max"],
+            "notes": "GLM-5.3 always reasons and Parasail documents low, high, and max reasoning effort."
+          },
+          "include_reasoning",
+          "reasoning_effort",
+          "temperature",
+          "top_p",
+          "top_k",
+          "max_tokens",
+          "repetition_penalty",
+          "presence_penalty",
+          "frequency_penalty",
+          "seed"
+        ],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": "/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_company_page",
+        "url": "https://www.parasail.io/models/glm-53",
+        "accessed_at": "2026-08-28T22:47:52Z",
+        "notes": "Parasail publishes the exact zai-org/GLM-5.3 request model, parasail-glm-53 endpoint label, 1M context, reasoning levels, and current token pricing."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.parasail.io/parasail-docs/serverless/available-parameters",
+        "accessed_at": "2026-08-28T22:47:52Z",
+        "notes": "Parasail documents the supported vLLM sampling parameters for serverless models."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-28T22:47:52Z",
+      "notes": "Exact request slug, endpoint, context, reasoning behavior, supported parameters, and pricing verified from first-party Parasail pages; provider-level gateway routing remains disabled."
     },
     "rate_limits": []
   }

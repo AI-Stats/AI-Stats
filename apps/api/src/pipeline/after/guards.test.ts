@@ -27,6 +27,52 @@ function makeResult(overrides?: Partial<any>): any {
 }
 
 describe("guardUpstreamStatus", () => {
+	it("returns only a Phaseo-owned error for stealth models while auditing the upstream failure", async () => {
+		vi.mocked(handleFailureAudit).mockClear();
+		const result = await guardUpstreamStatus(
+			makeCtx({
+				model: "stealth/test-model-20260827",
+				requestedModel: "stealth/test-model-20260827",
+				meta: { debug: { return_upstream_request: true, return_upstream_response: true } },
+			}),
+			makeResult({
+				provider: "openai",
+				mappedRequest: { model: "oai-stealth-test-model-internal" },
+				rawResponse: { error: { code: "secret_openai_error", message: "OpenAI account exhausted" } },
+				upstream: new Response(JSON.stringify({
+					error: { code: "secret_openai_error", message: "OpenAI account exhausted" },
+				}), {
+					status: 429,
+					headers: { "content-type": "application/json", "retry-after": "37" },
+				}),
+			}),
+		);
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(429);
+		expect(result.response.headers.get("X-Gateway-Error-Origin")).toBe("upstream");
+		expect(result.response.headers.get("Retry-After")).toBe("37");
+		const payload = await result.response.json();
+		expect(payload).toEqual({
+			error: "upstream_rate_limited",
+			status_code: 429,
+			error_origin: "upstream",
+			responsibility: "upstream",
+			retryable: true,
+			description: "The upstream service rate limited this request.",
+			action: "Retry after the indicated delay, using exponential backoff.",
+			request_id: "G-AFTER-1",
+			model: "stealth/test-model-20260827",
+			endpoint: "responses",
+			retry_after_seconds: 37,
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|secret|upstream_response|failure_sample/i);
+		expect(vi.mocked(handleFailureAudit).mock.calls[0]?.[6]).toMatchObject({
+			error: { code: "secret_openai_error", message: "OpenAI account exhausted" },
+		});
+	});
+
 	it("preserves structured provider diagnostics for direct upstream failures", async () => {
 		vi.mocked(handleFailureAudit).mockClear();
 		const result = await guardUpstreamStatus(
@@ -152,5 +198,49 @@ describe("guardUpstreamStatus", () => {
 				}),
 			],
 		});
+	});
+
+	it("forwards retry guidance while hiding managed-key quota details", async () => {
+		const result = await guardUpstreamStatus(
+			makeCtx(),
+			makeResult({
+				keySource: "gateway",
+				upstream: new Response(JSON.stringify({ error: "rate_limited" }), {
+					status: 429,
+					headers: {
+						"retry-after": "15",
+						"x-ratelimit-remaining-requests": "0",
+					},
+				}),
+			}),
+		);
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.headers.get("Retry-After")).toBe("15");
+		expect(result.response.headers.get("X-Phaseo-Upstream-RateLimit-Remaining-Requests")).toBeNull();
+	});
+
+	it("exposes prefixed quota details for a BYOK provider response", async () => {
+		const result = await guardUpstreamStatus(
+			makeCtx(),
+			makeResult({
+				keySource: "byok",
+				upstream: new Response(JSON.stringify({ error: "rate_limited" }), {
+					status: 429,
+					headers: {
+						"x-ratelimit-limit-requests": "100",
+						"x-ratelimit-remaining-requests": "0",
+						"set-cookie": "provider_session=secret",
+					},
+				}),
+			}),
+		);
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.headers.get("X-Phaseo-Upstream-RateLimit-Limit-Requests")).toBe("100");
+		expect(result.response.headers.get("X-Phaseo-Upstream-RateLimit-Remaining-Requests")).toBe("0");
+		expect(result.response.headers.get("Set-Cookie")).toBeNull();
 	});
 });

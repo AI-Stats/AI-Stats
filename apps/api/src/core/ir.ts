@@ -22,7 +22,7 @@
  *   that generate images alongside text in text.generate responses
  */
 export type IRContentPart =
-	| { type: "text"; text: string; cacheControl?: IRCacheControl }
+	| { type: "text"; text: string; cacheControl?: IRCacheControl; annotations?: any[] }
 	| {
 		type: "reasoning_text";
 		text: string;
@@ -34,7 +34,7 @@ export type IRContentPart =
 		source: "url" | "data";
 		data: string; // URL or base64
 		mimeType?: string;
-		detail?: "auto" | "low" | "high"; // OpenAI detail level
+		detail?: "auto" | "low" | "high" | "original"; // OpenAI detail level
 		cacheControl?: IRCacheControl;
 		// Optional signature for preserving reasoning context across turns (Google Nano Banana)
 		thoughtSignature?: string;
@@ -44,6 +44,7 @@ export type IRContentPart =
 		source: "url" | "data";
 		data: string; // URL or base64
 		format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
+		cacheControl?: IRCacheControl;
 	}
 	| {
 		type: "video";
@@ -69,6 +70,7 @@ export type IRTool = {
 	description?: string;
 	parameters: Record<string, any>; // JSON Schema
 	strict?: boolean; // OpenAI/xAI function-schema strictness
+	async?: boolean; // OpenAI Responses async function/custom tool execution
 	cacheControl?: IRCacheControl;
 	raw?: Record<string, any>; // Original provider-native tool payload for passthrough
 };
@@ -84,6 +86,7 @@ export type IRToolCall = {
 	id: string; // Unique identifier for this tool call
 	name: string; // Function name
 	arguments: string; // JSON string of arguments
+	type?: "function" | "custom";
 };
 
 /**
@@ -98,6 +101,7 @@ export type IRToolResult = {
 	content: string; // Result (can be structured JSON string)
 	isError?: boolean; // Optional error flag
 	cacheControl?: IRCacheControl;
+	type?: "function" | "custom";
 };
 
 // ============================================================================
@@ -151,9 +155,10 @@ export type IRToolChoice =
  * Reasoning configuration (for o1-style and MiniMax-style reasoning)
  */
 export type IRReasoning = {
-	effort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
+	effort?: "none" | "instant" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
 	mode?: "standard" | "pro";
 	summary?: "auto" | "concise" | "detailed";
+	context?: "auto" | "current_turn" | "all_turns";
 	enabled?: boolean;
 	maxTokens?: number;
 	includeThoughts?: boolean;
@@ -228,6 +233,7 @@ export type IRChatRequest = {
 	temperature?: number;
 	topP?: number;
 	topK?: number;
+	minP?: number;
 	seed?: number;
 	stream: boolean;
 
@@ -272,6 +278,19 @@ export type IRChatRequest = {
 	geo?: IRGeoPreferences;
 	promptCacheKey?: string;
 	promptCacheRetention?: string;
+	promptCacheOptions?: {
+		mode?: "implicit" | "explicit";
+		ttl?: string;
+	};
+	textVerbosity?: "low" | "medium" | "high";
+	audioConfig?: {
+		format: "wav" | "aac" | "mp3" | "flac" | "opus" | "pcm16";
+		voice: string | { id: string };
+	};
+	contextManagement?: Array<{
+		type: "compaction";
+		compact_threshold?: number;
+	}>;
 	anthropicCacheControl?: IRCacheControl & {
 		scope?: "all_text" | "last_user_message" | "none" | string;
 	};
@@ -299,7 +318,11 @@ export type IREmbeddingsRequest = {
 	input: IREmbeddingsInput;
 	encodingFormat?: string;
 	dimensions?: number;
+	serviceTier?: "auto" | "default" | "over-limit" | "flex" | "no-limit";
 	providerOptions?: {
+		morpheus?: {
+			sessionId?: string;
+		};
 		google?: {
 			taskType?: string;
 			title?: string;
@@ -313,9 +336,14 @@ export type IREmbeddingsRequest = {
 			outputDtype?: "float" | "int8" | "uint8" | "binary" | "ubinary";
 			outputDimension?: number;
 		};
+		fireworks?: {
+			promptTemplate?: string;
+			returnLogits?: number[];
+			normalize?: boolean;
+		};
 	};
 	userId?: string;
-	metadata?: Record<string, string>;
+	metadata?: Record<string, unknown>;
 	// Debug-only fields (never logged)
 	rawRequest?: any;
 };
@@ -328,6 +356,7 @@ export type IREmbeddingsContentPart = Extract<
 export type IREmbeddingsInputItem =
 	| string
 	| number[]
+	| Record<string, unknown>
 	| IREmbeddingsContentPart[];
 
 export type IREmbeddingsInput =
@@ -336,7 +365,8 @@ export type IREmbeddingsInput =
 
 export type IREmbedding = {
 	index: number;
-	embedding: number[];
+	// OpenAI returns a base64-encoded float vector when encoding_format is base64.
+	embedding: number[] | string;
 };
 
 export type IREmbeddingsUsage = {
@@ -344,6 +374,7 @@ export type IREmbeddingsUsage = {
 	totalTokens?: number;
 	embeddingTokens?: number;
 	_ext?: {
+		providerCost?: Record<string, number | string>;
 		inputImageTokens?: number;
 		inputAudioTokens?: number;
 		inputVideoTokens?: number;
@@ -357,6 +388,7 @@ export type IREmbeddingsResponse = {
 	model: string;
 	data: IREmbedding[];
 	usage?: IREmbeddingsUsage;
+	serviceTier?: "auto" | "default" | "over-limit" | "flex" | "no-limit";
 	// Debug-only fields (never logged)
 	rawResponse?: any;
 };
@@ -369,14 +401,16 @@ export type IRModerationsRequest = {
 	model: string;
 	input: any;
 	userId?: string;
-	metadata?: Record<string, string>;
+	metadata?: Record<string, any>;
 	// Debug-only fields (never logged)
 	rawRequest?: any;
 };
 
 export type IRModerationsResult = {
 	flagged: boolean;
-	categories?: Record<string, boolean>;
+	// OpenAI's legacy text moderation models may return null for categories
+	// introduced after those models were released (for example `illicit`).
+	categories?: Record<string, boolean | null>;
 	categoryScores?: Record<string, number>;
 	categoryAppliedInputTypes?: Record<string, string[]>;
 };
@@ -406,8 +440,11 @@ export type IRRerankRequest = {
 	topN?: number;
 	returnDocuments?: boolean;
 	maxChunksPerDoc?: number;
+	maxTokensPerDoc?: number;
+	priority?: number;
 	rankFields?: string[];
 	userId?: string;
+	serviceTier?: "auto" | "default" | "over-limit" | "flex" | "no-limit";
 	metadata?: Record<string, string>;
 	vendor?: Record<string, any>;
 	rawRequest?: any;
@@ -428,6 +465,7 @@ export type IRRerankResponse = {
 		inputTokens?: number;
 		outputTokens?: number;
 		totalTokens?: number;
+		searchUnits?: number;
 	};
 	rawResponse?: any;
 };
@@ -439,8 +477,8 @@ export type IRRerankResponse = {
 export type IRImageGenerationRequest = {
 	model: string;
 	prompt: string;
-	image?: string | string[];
-	mask?: string;
+	image?: string | Blob | Array<string | Blob>;
+	mask?: string | Blob;
 	size?: string;
 	n?: number;
 	quality?: string;
@@ -463,6 +501,10 @@ export type IRImageGenerationResponse = {
 	created: number;
 	model: string;
 	provider: string;
+	background?: "transparent" | "opaque";
+	outputFormat?: "png" | "jpeg" | "webp";
+	size?: string;
+	quality?: string;
 	data: Array<{
 		url?: string | null;
 		b64Json?: string | null;
@@ -485,8 +527,10 @@ export type IRAudioSpeechRequest = {
 	streamFormat?: "audio" | "sse";
 	speed?: number;
 	instructions?: string;
+	sessionId?: string;
 	vendor?: {
 		elevenlabs?: Record<string, any>;
+		minimax?: Record<string, any>;
 	};
 	userId?: string;
 	rawRequest?: any;
@@ -508,12 +552,23 @@ export type IRAudioSpeechResponse = {
 
 export type IRAudioTranscriptionRequest = {
 	model: string;
-	file: File | Blob;
+	file?: File | Blob;
+	fileUrl?: string | null;
+	s3PresignedUrl?: string | null;
+	fileId?: string | null;
 	language?: string;
+	languages?: string[];
+	keywords?: string[];
 	prompt?: string;
 	temperature?: number;
 	responseFormat?: string;
+	stream?: boolean | null;
 	timestampGranularities?: Array<"word" | "segment">;
+	diarize?: boolean;
+	enableDiarization?: boolean;
+	outputContent?: string;
+	sessionId?: string;
+	contextBias?: string[];
 	include?: string[];
 	chunkingStrategy?: "auto" | {
 		type: "server_vad";
@@ -532,7 +587,14 @@ export type IRAudioTranscriptionResponse = {
 	model: string;
 	provider: string;
 	text: string;
+	task?: string;
+	language?: string;
+	languages?: Array<{ code: string }>;
+	duration?: number;
+	words?: any[];
 	segments?: any[];
+	diarization?: any[];
+	logprobs?: any[];
 	usage?: IRUsage;
 	rawResponse?: any;
 };
@@ -553,6 +615,8 @@ export type IRAudioTranslationResponse = {
 	model: string;
 	provider: string;
 	text: string;
+	duration?: number;
+	language?: string;
 	segments?: any[];
 	usage?: IRUsage;
 	rawResponse?: any;
@@ -589,7 +653,7 @@ export type IRVideoGenerationRequest = {
 	// Legacy alias retained while callers migrate to size.
 	resolution?: string;
 	quality?: string;
-	inputReference?: string | Record<string, any>;
+	inputReference?: string | Blob | Record<string, any>;
 	inputReferenceMimeType?: string;
 	input?: {
 		image?: string | Record<string, any>;
@@ -630,6 +694,16 @@ export type IRVideoGenerationResponse = {
 	model: string;
 	provider: string;
 	status?: "queued" | "pending" | "in_progress" | "completed" | "failed" | "cancelled" | "expired";
+	progress?: number;
+	createdAt?: number;
+	completedAt?: number | null;
+	expiresAt?: number | null;
+	error?: { code: string; message: string } | null;
+	prompt?: string | null;
+	remixedFromVideoId?: string | null;
+	seconds?: string;
+	size?: string;
+	quality?: string;
 	outputAccess?: "bytes" | "signed_url" | "both";
 	output?: any[];
 	result?: any;
@@ -643,8 +717,23 @@ export type IRVideoGenerationResponse = {
 
 export type IROcrRequest = {
 	model: string;
-	image: string;
-	language?: string;
+	image?: string;
+	document?:
+		| { type: "file"; file_id: string }
+		| { type: "document_url"; document_url: string; document_name?: string | null }
+		| { type: "image_url"; image_url: string | { url: string; detail?: "auto" | "low" | "high" | null } };
+	pages?: string | number[] | null;
+	includeImageBase64?: boolean | null;
+	imageLimit?: number | null;
+	imageMinSize?: number | null;
+	bboxAnnotationFormat?: Record<string, any> | null;
+	documentAnnotationFormat?: Record<string, any> | null;
+	documentAnnotationPrompt?: string | null;
+	tableFormat?: "markdown" | "html" | null;
+	extractHeader?: boolean;
+	extractFooter?: boolean;
+	includeBlocks?: boolean;
+	confidenceScoresGranularity?: "word" | "page" | null;
 	rawRequest?: any;
 };
 
@@ -654,6 +743,29 @@ export type IROcrResponse = {
 	model: string;
 	provider: string;
 	text: string;
+	pages?: any[];
+	documentAnnotation?: string | null;
+	usage?: IRUsage;
+	rawResponse?: any;
+};
+
+export type IRParseRequest = {
+	model: string;
+	document: {
+		type: "image_url";
+		imageUrl: string;
+	};
+	outputFormat?: "markdown" | "blocks";
+	rawRequest?: any;
+};
+
+export type IRParseResponse = {
+	id?: string;
+	nativeId?: string;
+	model: string;
+	provider: string;
+	pages: any[];
+	meta?: Record<string, any>;
 	usage?: IRUsage;
 	rawResponse?: any;
 };
@@ -675,6 +787,17 @@ export type IRMusicGenerateResponse = {
 	status?: string;
 	audioUrl?: string;
 	audioBase64?: string;
+	output?: Array<{
+		index?: number;
+		id?: string | null;
+		audioUrl?: string | null;
+		audioBase64?: string | null;
+		streamAudioUrl?: string | null;
+		imageUrl?: string | null;
+		title?: string | null;
+		tags?: string | null;
+		duration?: number | null;
+	}>;
 	result?: any;
 	usage?: IRUsage;
 	rawResponse?: any;
@@ -740,6 +863,10 @@ export type IRUsage = {
 	// Modality-specific counts (extended meters)
 	// These are stored in _ext for pricing but may be promoted to top-level later
 	_ext?: {
+		citationTokens?: number;
+		numSearchQueries?: number;
+		searchContextSize?: string;
+		providerCost?: Record<string, number>;
 		inputImageTokens?: number;
 		inputAudioTokens?: number;
 		inputVideoTokens?: number;
@@ -749,6 +876,7 @@ export type IRUsage = {
 		cachedWriteTokens?: number;
 		cachedWriteTokens5m?: number;
 		cachedWriteTokens1h?: number;
+		spentCredits?: number;
 		serverToolUse?: {
 			datetime_requests?: number;
 			web_search_requests?: number;
@@ -786,6 +914,14 @@ export type IRChatResponse = {
 	// Service metadata
 	serviceTier?: string; // e.g., "default", "priority"
 	systemFingerprint?: string; // Provider fingerprint
+	// Search-native provider metadata. Kept separate from generated content so
+	// Chat clients can receive the native fields while Responses clients can
+	// also consume citation annotations on text parts.
+	citations?: string[];
+	searchResults?: Array<Record<string, any>>;
+	images?: Array<Record<string, any>>;
+	relatedQuestions?: string[];
+	reasoningSteps?: Array<Record<string, any>>;
 
 	// Debug-only fields (never logged)
 	rawResponse?: any;
@@ -931,5 +1067,3 @@ export function hasToolCalls(message: IRMessage): boolean {
 export function countTotalTokens(usage?: IRUsage): number {
 	return usage?.totalTokens ?? 0;
 }
-
-

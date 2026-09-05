@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import type { SWRConfiguration } from "swr";
 
 import type { ModelPerformanceMetrics } from "@/lib/fetchers/models/getModelPerformance";
 import { fetchOptionalPublicWebApi } from "@/lib/web-api/client";
@@ -51,18 +52,24 @@ export function useModelPerformanceMetrics({
 		cloudflareColo,
 		percentile,
 	});
-	return useSWR<ModelPerformanceMetrics | null>(key, fetchModelPerformanceMetrics, {
+	const options: SWRConfiguration<ModelPerformanceMetrics | null> = {
 		dedupingInterval: 30_000,
 		errorRetryCount: 2,
 		fallbackData,
 		focusThrottleInterval: 60_000,
 		keepPreviousData: true,
-		onError,
-		onSuccess,
 		refreshInterval,
 		refreshWhenHidden: false,
 		refreshWhenOffline: false,
 		revalidateOnFocus: true,
 		revalidateOnReconnect: true,
-	});
+	};
+	if (onError) options.onError = onError;
+	if (onSuccess) options.onSuccess = onSuccess;
+
+	return useSWR<ModelPerformanceMetrics | null>(
+		key,
+		fetchModelPerformanceMetrics,
+		options,
+	);
 }

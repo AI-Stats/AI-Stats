@@ -20,13 +20,20 @@ type ActivityResponse struct {
 
 type AnalyticsAccessTokenRequiredResponse struct {
 	Error string `json:"error"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type AnalyticsNotImplementedResponse struct {
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	Status string `json:"status"`
+}
+
+type AnalyticsResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Limit int `json:"limit"`
+	Offset int `json:"offset"`
+	TotalCount int `json:"total_count"`
 }
 
 type AnthropicContentBlock struct {
@@ -81,6 +88,7 @@ type AnthropicMessagesResponse struct {
 }
 
 type AnthropicTool struct {
+	Async *bool `json:"async,omitempty"`
 	Description *string `json:"description,omitempty"`
 	InputSchema *map[string]interface{} `json:"input_schema,omitempty"`
 	Name string `json:"name"`
@@ -94,18 +102,29 @@ type AnthropicUsage struct {
 type ApiKey struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
+	CreatorUserId *string `json:"creator_user_id"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
+	IncludeByokInLimit bool `json:"include_byok_in_limit"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
+	Limit *float64 `json:"limit"`
+	LimitRemaining *float64 `json:"limit_remaining"`
+	LimitReset *string `json:"limit_reset"`
+	Limits map[string]interface{} `json:"limits"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
+	Usage float64 `json:"usage"`
+	UsageDaily float64 `json:"usage_daily"`
+	UsageDetails map[string]interface{} `json:"usage_details"`
+	UsageMonthly float64 `json:"usage_monthly"`
+	UsageWeekly float64 `json:"usage_weekly"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -115,10 +134,33 @@ type ApiKeyCreateRequest struct {
 	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Limit *float64 `json:"limit,omitempty"`
 	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name string `json:"name"`
 	Scopes interface{} `json:"scopes,omitempty"`
 	SoftBlocked *bool `json:"soft_blocked,omitempty"`
 	WorkspaceId *string `json:"workspace_id,omitempty"`
+}
+
+type ApiKeyLimitBucket struct {
+	Cost *float64 `json:"cost"`
+	Requests *int `json:"requests"`
+}
+
+type ApiKeyLimitInputBucket struct {
+	Cost *float64 `json:"cost,omitempty"`
+	Requests *int `json:"requests,omitempty"`
+}
+
+type ApiKeyLimitInputWindows struct {
+	Daily *map[string]interface{} `json:"daily,omitempty"`
+	Monthly *map[string]interface{} `json:"monthly,omitempty"`
+	Weekly *map[string]interface{} `json:"weekly,omitempty"`
+}
+
+type ApiKeyLimitWindows struct {
+	Daily map[string]interface{} `json:"daily"`
+	Monthly map[string]interface{} `json:"monthly"`
+	Weekly map[string]interface{} `json:"weekly"`
 }
 
 type ApiKeyListResponse struct {
@@ -130,6 +172,16 @@ type ApiKeyResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type ApiKeyRotateRequest struct {
+	Name *string `json:"name,omitempty"`
+	PreviousKeyExpiresAt *string `json:"previous_key_expires_at,omitempty"`
+}
+
+type ApiKeyRotateResponse struct {
+	Data map[string]interface{} `json:"data"`
+	PreviousKeyExpiresAt *string `json:"previous_key_expires_at"`
+}
+
 type ApiKeyScopeValue = interface{}
 
 type ApiKeyUpdateRequest struct {
@@ -138,27 +190,51 @@ type ApiKeyUpdateRequest struct {
 	IncludeByokInLimit *bool `json:"include_byok_in_limit,omitempty"`
 	Limit *float64 `json:"limit,omitempty"`
 	LimitReset *string `json:"limit_reset,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
 	Name *string `json:"name,omitempty"`
 	Scopes interface{} `json:"scopes,omitempty"`
 	SoftBlocked *bool `json:"soft_blocked,omitempty"`
 }
 
+type ApiKeyUsageBucket struct {
+	Cost float64 `json:"cost"`
+	Requests int `json:"requests"`
+}
+
+type ApiKeyUsageWindows struct {
+	Daily map[string]interface{} `json:"daily"`
+	Monthly map[string]interface{} `json:"monthly"`
+	Total map[string]interface{} `json:"total"`
+	Weekly map[string]interface{} `json:"weekly"`
+}
+
 type ApiKeyWithValue struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
+	CreatorUserId *string `json:"creator_user_id"`
 	Disabled bool `json:"disabled"`
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
+	IncludeByokInLimit bool `json:"include_byok_in_limit"`
 	Key string `json:"key"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
+	Limit *float64 `json:"limit"`
+	LimitRemaining *float64 `json:"limit_remaining"`
+	LimitReset *string `json:"limit_reset"`
+	Limits map[string]interface{} `json:"limits"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
 	SoftBlocked bool `json:"soft_blocked"`
 	Status *string `json:"status"`
 	UpdatedAt *string `json:"updated_at"`
+	Usage float64 `json:"usage"`
+	UsageDaily float64 `json:"usage_daily"`
+	UsageDetails map[string]interface{} `json:"usage_details"`
+	UsageMonthly float64 `json:"usage_monthly"`
+	UsageWeekly float64 `json:"usage_weekly"`
 	WorkspaceId string `json:"workspace_id"`
 }
 
@@ -1186,7 +1262,81 @@ type ChatMessage struct {
 
 type CreditsResponse struct {
 	Credits map[string]interface{} `json:"credits"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
+}
+
+type DataContributionCategories struct {
+}
+
+type DataContributionClassifier struct {
+	Categories map[string]interface{} `json:"categories"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	Instructions string `json:"instructions"`
+	Kind string `json:"kind"`
+	Model string `json:"model"`
+	Name string `json:"name"`
+	SampleRateBps int `json:"sample_rate_bps"`
+	ServiceTier string `json:"service_tier"`
+	Slug string `json:"slug"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type DataContributionClassifierCreateRequest struct {
+	Categories map[string]interface{} `json:"categories"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Instructions string `json:"instructions"`
+	Model *string `json:"model,omitempty"`
+	Name string `json:"name"`
+	SampleRateBps *int `json:"sampleRateBps,omitempty"`
+	ServiceTier *string `json:"serviceTier,omitempty"`
+	Slug *string `json:"slug,omitempty"`
+}
+
+type DataContributionClassifierDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DataContributionClassifierInput struct {
+	Categories *map[string]interface{} `json:"categories,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Instructions *string `json:"instructions,omitempty"`
+	Model *string `json:"model,omitempty"`
+	Name *string `json:"name,omitempty"`
+	SampleRateBps *int `json:"sampleRateBps,omitempty"`
+	ServiceTier *string `json:"serviceTier,omitempty"`
+}
+
+type DataContributionClassifierResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DataContributionClassifierUpdateRequest struct {
+	Categories *map[string]interface{} `json:"categories,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Instructions *string `json:"instructions,omitempty"`
+	Model *string `json:"model,omitempty"`
+	Name *string `json:"name,omitempty"`
+	SampleRateBps *int `json:"sampleRateBps,omitempty"`
+	ServiceTier *string `json:"serviceTier,omitempty"`
+}
+
+type DataContributionConsentRequest struct {
+	Enabled bool `json:"enabled"`
+	Reason *string `json:"reason,omitempty"`
+}
+
+type DataContributionConsentResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DataContributionOverviewResponse struct {
+	Data map[string]interface{} `json:"data"`
 }
 
 type DataModel struct {
@@ -1214,7 +1364,120 @@ type DebugOptions struct {
 }
 
 type DeletedResponse struct {
-	Deleted string `json:"deleted"`
+	Deleted bool `json:"deleted"`
+}
+
+type DynamicRoute struct {
+	Config map[string]interface{} `json:"config"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	DeployedVersion *int `json:"deployed_version,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Id string `json:"id"`
+	KeyIds []string `json:"key_ids"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	Version int `json:"version"`
+	Versions []map[string]interface{} `json:"versions"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type DynamicRouteAction struct {
+	AllowFallbacks *bool `json:"allowFallbacks,omitempty"`
+	Model *string `json:"model,omitempty"`
+	ModelFallbacks *[]string `json:"modelFallbacks,omitempty"`
+	ProviderIgnore *[]string `json:"providerIgnore,omitempty"`
+	ProviderOnly *[]string `json:"providerOnly,omitempty"`
+	ProviderOrder *[]string `json:"providerOrder,omitempty"`
+	RoutingMode *string `json:"routingMode,omitempty"`
+}
+
+type DynamicRouteCondition struct {
+	Field string `json:"field"`
+	MetadataKey *string `json:"metadataKey,omitempty"`
+	Operator string `json:"operator"`
+	Value *string `json:"value,omitempty"`
+}
+
+type DynamicRouteConfig struct {
+	CacheAwareRouting *bool `json:"cacheAwareRouting,omitempty"`
+	DefaultAction *map[string]interface{} `json:"defaultAction,omitempty"`
+	Edges *[]map[string]interface{} `json:"edges,omitempty"`
+	EntryNodeId *string `json:"entryNodeId,omitempty"`
+	Nodes *[]map[string]interface{} `json:"nodes,omitempty"`
+	Rules *[]map[string]interface{} `json:"rules,omitempty"`
+	SchemaVersion *string `json:"schemaVersion,omitempty"`
+	SessionAffinity *bool `json:"sessionAffinity,omitempty"`
+}
+
+type DynamicRouteCreateRequest struct {
+	Config map[string]interface{} `json:"config"`
+	Description *string `json:"description,omitempty"`
+	Name string `json:"name"`
+	Slug *string `json:"slug,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type DynamicRouteDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteDeployResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteEdge struct {
+	Id string `json:"id"`
+	Source string `json:"source"`
+	SourceHandle *string `json:"sourceHandle,omitempty"`
+	Target string `json:"target"`
+}
+
+type DynamicRouteKeysResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteKeysUpdateRequest struct {
+	KeyIds []string `json:"key_ids"`
+}
+
+type DynamicRouteListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type DynamicRouteNode struct {
+	Data map[string]interface{} `json:"data"`
+	Id string `json:"id"`
+	Position *map[string]interface{} `json:"position,omitempty"`
+	Type string `json:"type"`
+}
+
+type DynamicRouteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteRule struct {
+	Action map[string]interface{} `json:"action"`
+	Condition map[string]interface{} `json:"condition"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+}
+
+type DynamicRouteUpdateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type DynamicRouteVersion struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Status string `json:"status"`
+	Version int `json:"version"`
 }
 
 type Embedding struct {
@@ -1257,7 +1520,7 @@ type EndpointCatalogueEntry struct {
 type EndpointCatalogueResponse struct {
 	Data []map[string]interface{} `json:"data"`
 	Endpoints []string `json:"endpoints"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	SampleModels []string `json:"sample_models"`
 }
 
@@ -1347,6 +1610,7 @@ type FileUploadRequest struct {
 }
 
 type FunctionToolDefinition struct {
+	Async *bool `json:"async,omitempty"`
 	Function map[string]interface{} `json:"function"`
 	Type string `json:"type"`
 }
@@ -1379,6 +1643,69 @@ type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
 	Type string `json:"type"`
+}
+
+type GatewayFeedback struct {
+	Comment *string `json:"comment"`
+	CreatedAt string `json:"created_at"`
+	CreatedByUserId *string `json:"created_by_user_id"`
+	EndUserId *string `json:"end_user_id"`
+	Id string `json:"id"`
+	Metadata map[string]interface{} `json:"metadata"`
+	MetadataDimensions map[string]interface{} `json:"metadata_dimensions"`
+	PresetId *string `json:"preset_id"`
+	Rating *string `json:"rating"`
+	Reason *string `json:"reason"`
+	ReasonTags []string `json:"reason_tags"`
+	RequestId *string `json:"request_id"`
+	Score *float64 `json:"score"`
+	SessionId *string `json:"session_id"`
+	Source string `json:"source"`
+	TestRunId *string `json:"test_run_id"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type GatewayFeedbackCreateRequest struct {
+	Comment *string `json:"comment,omitempty"`
+	EndUserId *string `json:"end_user_id,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	MetadataDimensions *map[string]interface{} `json:"metadata_dimensions,omitempty"`
+	PresetId *string `json:"preset_id,omitempty"`
+	Rating *string `json:"rating,omitempty"`
+	Reason *string `json:"reason,omitempty"`
+	ReasonTags *[]string `json:"reason_tags,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	Score *float64 `json:"score,omitempty"`
+	SessionId *string `json:"session_id,omitempty"`
+	Source *string `json:"source,omitempty"`
+	TestRunId *string `json:"test_run_id,omitempty"`
+}
+
+type GatewayFeedbackListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GatewayFeedbackResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GatewayFeedbackSummaryResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	GroupBy string `json:"group_by"`
+}
+
+type GatewayFeedbackSummaryRow struct {
+	AverageScore *float64 `json:"average_score"`
+	Count int `json:"count"`
+	LastFeedbackAt *string `json:"last_feedback_at"`
+	MetadataKey *string `json:"metadata_key,omitempty"`
+	MetadataValue *string `json:"metadata_value,omitempty"`
+	Negative int `json:"negative"`
+	Partial int `json:"partial"`
+	Positive int `json:"positive"`
+	PresetId *string `json:"preset_id,omitempty"`
+	Ratings map[string]interface{} `json:"ratings"`
+	TestRunId *string `json:"test_run_id,omitempty"`
 }
 
 type GatewayModalities struct {
@@ -1425,6 +1752,50 @@ type GatewayModelsResponse struct {
 	Total int `json:"total"`
 }
 
+type GatewayObservabilityEvent struct {
+	Category string `json:"category"`
+	CreatedAt string `json:"created_at"`
+	CreatedByUserId *string `json:"created_by_user_id"`
+	EndUserId *string `json:"end_user_id"`
+	EventName string `json:"event_name"`
+	Id string `json:"id"`
+	Metadata map[string]interface{} `json:"metadata"`
+	MetadataDimensions map[string]interface{} `json:"metadata_dimensions"`
+	NumericValue *float64 `json:"numeric_value"`
+	OccurredAt string `json:"occurred_at"`
+	PresetId *string `json:"preset_id"`
+	RequestId *string `json:"request_id"`
+	SessionId *string `json:"session_id"`
+	Source string `json:"source"`
+	TestRunId *string `json:"test_run_id"`
+	Value *interface{} `json:"value"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type GatewayObservabilityEventCreateRequest struct {
+	Category *string `json:"category,omitempty"`
+	EndUserId *string `json:"end_user_id,omitempty"`
+	EventName string `json:"event_name"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	MetadataDimensions *map[string]interface{} `json:"metadata_dimensions,omitempty"`
+	NumericValue *float64 `json:"numeric_value,omitempty"`
+	OccurredAt *string `json:"occurred_at,omitempty"`
+	PresetId *string `json:"preset_id,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	SessionId *string `json:"session_id,omitempty"`
+	Source *string `json:"source,omitempty"`
+	TestRunId *string `json:"test_run_id,omitempty"`
+	Value interface{} `json:"value,omitempty"`
+}
+
+type GatewayObservabilityEventListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GatewayObservabilityEventResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type GatewayPricing struct {
 	Meters map[string]interface{} `json:"meters"`
 	PricingPlan string `json:"pricing_plan"`
@@ -1459,6 +1830,50 @@ const (
 )
 
 
+type GatewayRequestLog struct {
+	AuthMethod *string `json:"auth_method,omitempty"`
+	Byok *bool `json:"byok,omitempty"`
+	CanonicalModelId *string `json:"canonical_model_id,omitempty"`
+	CostNanos *int `json:"cost_nanos,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	Endpoint *string `json:"endpoint,omitempty"`
+	ErrorCode *string `json:"error_code,omitempty"`
+	FinishReason *string `json:"finish_reason,omitempty"`
+	GenerationMs *float64 `json:"generation_ms,omitempty"`
+	KeyId *string `json:"key_id,omitempty"`
+	LatencyMs *float64 `json:"latency_ms,omitempty"`
+	Location *string `json:"location,omitempty"`
+	ModelId *string `json:"model_id,omitempty"`
+	NativeResponseId *string `json:"native_response_id,omitempty"`
+	OauthClientId *string `json:"oauth_client_id,omitempty"`
+	PricingLines *[]map[string]interface{} `json:"pricing_lines,omitempty"`
+	Provider *string `json:"provider,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	RequestedModelId *string `json:"requested_model_id,omitempty"`
+	RoutedModelId *string `json:"routed_model_id,omitempty"`
+	StatusCode *int `json:"status_code,omitempty"`
+	Stream *bool `json:"stream,omitempty"`
+	Success *bool `json:"success,omitempty"`
+	Throughput *float64 `json:"throughput,omitempty"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
+}
+
+type GatewayRequestLogListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	FromTime string `json:"from_time"`
+	Limit int `json:"limit"`
+	Offset int `json:"offset"`
+	Ok bool `json:"ok"`
+	ToTime *string `json:"to_time"`
+	Total int `json:"total"`
+}
+
+type GatewayRequestLogResponse struct {
+	Data map[string]interface{} `json:"data"`
+	Ok bool `json:"ok"`
+}
+
 type GatewayRoutingStatus string
 
 const (
@@ -1477,9 +1892,12 @@ type GatewayWebFetchToolDefinition struct {
 }
 
 type GatewayWebSearchToolDefinition struct {
+	Engine *string `json:"engine,omitempty"`
 	IncludeHighlights *bool `json:"include_highlights,omitempty"`
 	IncludeText *bool `json:"include_text,omitempty"`
+	Language *string `json:"language,omitempty"`
 	MaxResults *int `json:"max_results,omitempty"`
+	Page *int `json:"page,omitempty"`
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Type string `json:"type"`
 }
@@ -1509,6 +1927,184 @@ type GenerationResponse struct {
 	TeamId *string `json:"team_id,omitempty"`
 	Throughput *float64 `json:"throughput,omitempty"`
 	Usage *map[string]interface{} `json:"usage,omitempty"`
+}
+
+type Guardrail struct {
+	AllowedApiModelIds *[]string `json:"allowed_api_model_ids,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	DailyLimitCostNanos *int `json:"daily_limit_cost_nanos,omitempty"`
+	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Id string `json:"id"`
+	ModelRestrictionMode *string `json:"model_restriction_mode,omitempty"`
+	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
+	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
+	Name string `json:"name"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacy_enable_free_may_publish_prompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacy_enable_free_may_train,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacy_enable_input_output_logging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacy_enable_paid_may_train,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacy_zdr_only,omitempty"`
+	PromptInjectionAction *string `json:"prompt_injection_action,omitempty"`
+	PromptInjectionEnabled *bool `json:"prompt_injection_enabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"provider_restriction_enforce_allowed,omitempty"`
+	ProviderRestrictionMode *string `json:"provider_restriction_mode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"provider_restriction_provider_ids,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitive_info_default_action,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitive_info_enabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitive_info_rules,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WeeklyLimitCostNanos *int `json:"weekly_limit_cost_nanos,omitempty"`
+	WeeklyLimitRequests *int `json:"weekly_limit_requests,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type GuardrailBudgetInput struct {
+	DailyCostNanos *int `json:"dailyCostNanos,omitempty"`
+	DailyRequests *int `json:"dailyRequests,omitempty"`
+	MonthlyCostNanos *int `json:"monthlyCostNanos,omitempty"`
+	MonthlyRequests *int `json:"monthlyRequests,omitempty"`
+	WeeklyCostNanos *int `json:"weeklyCostNanos,omitempty"`
+	WeeklyRequests *int `json:"weeklyRequests,omitempty"`
+}
+
+type GuardrailCreateRequest struct {
+	AllowedApiModelIds *[]string `json:"allowedApiModelIds,omitempty"`
+	Budgets *map[string]interface{} `json:"budgets,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	ModelRestrictionMode *string `json:"modelRestrictionMode,omitempty"`
+	Name string `json:"name"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacyEnableFreeMayPublishPrompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacyEnableFreeMayTrain,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacyEnableInputOutputLogging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacyEnablePaidMayTrain,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacyZdrOnly,omitempty"`
+	PromptInjectionAction *string `json:"promptInjectionAction,omitempty"`
+	PromptInjectionEnabled *bool `json:"promptInjectionEnabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"providerRestrictionEnforceAllowed,omitempty"`
+	ProviderRestrictionMode *string `json:"providerRestrictionMode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"providerRestrictionProviderIds,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitiveInfoDefaultAction,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitiveInfoEnabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitiveInfoRules,omitempty"`
+}
+
+type GuardrailDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+type GuardrailDetailResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GuardrailKeyAddResponse struct {
+	AddedCount int `json:"added_count"`
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GuardrailKeyAssignment struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	KeyId string `json:"key_id"`
+	Name *string `json:"name,omitempty"`
+	Prefix *string `json:"prefix,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type GuardrailKeyIdsReplaceRequest struct {
+	KeyIds []string `json:"key_ids"`
+}
+
+type GuardrailKeyIdsRequest struct {
+	KeyIds []string `json:"key_ids"`
+}
+
+type GuardrailKeyListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type GuardrailKeySetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GuardrailListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type GuardrailMemberAddResponse struct {
+	AddedCount int `json:"added_count"`
+	Data []map[string]interface{} `json:"data"`
+}
+
+type GuardrailMemberAssignment struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	JoinedAt *string `json:"joined_at,omitempty"`
+	Role *string `json:"role,omitempty"`
+	UserId string `json:"user_id"`
+}
+
+type GuardrailMemberListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type GuardrailPolicyInput struct {
+	AllowedApiModelIds *[]string `json:"allowedApiModelIds,omitempty"`
+	Budgets *map[string]interface{} `json:"budgets,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	ModelRestrictionMode *string `json:"modelRestrictionMode,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacyEnableFreeMayPublishPrompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacyEnableFreeMayTrain,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacyEnableInputOutputLogging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacyEnablePaidMayTrain,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacyZdrOnly,omitempty"`
+	PromptInjectionAction *string `json:"promptInjectionAction,omitempty"`
+	PromptInjectionEnabled *bool `json:"promptInjectionEnabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"providerRestrictionEnforceAllowed,omitempty"`
+	ProviderRestrictionMode *string `json:"providerRestrictionMode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"providerRestrictionProviderIds,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitiveInfoDefaultAction,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitiveInfoEnabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitiveInfoRules,omitempty"`
+}
+
+type GuardrailRemoveResponse struct {
+	RemovedCount int `json:"removed_count"`
+}
+
+type GuardrailResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type GuardrailUpdateRequest struct {
+	AllowedApiModelIds *[]string `json:"allowedApiModelIds,omitempty"`
+	Budgets *map[string]interface{} `json:"budgets,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	ModelRestrictionMode *string `json:"modelRestrictionMode,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacyEnableFreeMayPublishPrompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacyEnableFreeMayTrain,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacyEnableInputOutputLogging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacyEnablePaidMayTrain,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacyZdrOnly,omitempty"`
+	PromptInjectionAction *string `json:"promptInjectionAction,omitempty"`
+	PromptInjectionEnabled *bool `json:"promptInjectionEnabled,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"providerRestrictionEnforceAllowed,omitempty"`
+	ProviderRestrictionMode *string `json:"providerRestrictionMode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"providerRestrictionProviderIds,omitempty"`
+	SensitiveInfoDefaultAction *string `json:"sensitiveInfoDefaultAction,omitempty"`
+	SensitiveInfoEnabled *bool `json:"sensitiveInfoEnabled,omitempty"`
+	SensitiveInfoRules *[]map[string]interface{} `json:"sensitiveInfoRules,omitempty"`
+}
+
+type GuardrailUserIdsRequest struct {
+	UserIds []string `json:"user_ids"`
 }
 
 type Image struct {
@@ -1544,6 +2140,7 @@ type ImagesEditRequest struct {
 	N *int `json:"n,omitempty"`
 	Prompt string `json:"prompt"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
+	Resolution *string `json:"resolution,omitempty"`
 	Size *string `json:"size,omitempty"`
 	Usage *bool `json:"usage,omitempty"`
 	User *string `json:"user,omitempty"`
@@ -1560,6 +2157,7 @@ type ImagesGenerationRequest struct {
 	Prompt string `json:"prompt"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
 	Quality *string `json:"quality,omitempty"`
+	Resolution *string `json:"resolution,omitempty"`
 	ResponseFormat *string `json:"response_format,omitempty"`
 	Size *string `json:"size,omitempty"`
 	Style *string `json:"style,omitempty"`
@@ -1575,58 +2173,72 @@ type InvalidRequestResponse struct {
 	Error string `json:"error"`
 	MaxOffset *int `json:"max_offset,omitempty"`
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type KeyInvalidateResponse struct {
-	CacheVersion map[string]interface{} `json:"cache_version"`
 	Key map[string]interface{} `json:"key"`
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type KnownModelId string
 
 const (
-	KnownModelIdAi21JambaLarge17 KnownModelId = "ai21/jamba-large-1.7"
-	KnownModelIdAi21JambaMini2 KnownModelId = "ai21/jamba-mini-2"
+	KnownModelIdAi21Jamba15Large KnownModelId = "ai21/jamba-1.5-large"
+	KnownModelIdAi21Jamba15Mini KnownModelId = "ai21/jamba-1.5-mini"
 	KnownModelIdAionLabsAion20 KnownModelId = "aion-labs/aion-2.0"
-	KnownModelIdAionLabsAion25 KnownModelId = "aion-labs/aion-2.5"
 	KnownModelIdAionLabsAion30 KnownModelId = "aion-labs/aion-3.0"
 	KnownModelIdAionLabsAion30Mini KnownModelId = "aion-labs/aion-3.0-mini"
 	KnownModelIdAionLabsAionRpLlama318b KnownModelId = "aion-labs/aion-rp-llama-3.1-8b"
 	KnownModelIdAllenaiMolmo28b KnownModelId = "allenai/molmo-2-8b"
-	KnownModelIdAllenaiOlmo3132b KnownModelId = "allenai/olmo-3.1-32b"
+	KnownModelIdAmazonNova2Lite KnownModelId = "amazon/nova-2-lite"
+	KnownModelIdAmazonNovaLite10 KnownModelId = "amazon/nova-lite-1.0"
+	KnownModelIdAmazonNovaMicro10 KnownModelId = "amazon/nova-micro-1.0"
+	KnownModelIdAmazonNovaPremier KnownModelId = "amazon/nova-premier"
+	KnownModelIdAmazonNovaPro10 KnownModelId = "amazon/nova-pro-1.0"
+	KnownModelIdAnthropicClaude3Haiku KnownModelId = "anthropic/claude-3-haiku"
+	KnownModelIdAnthropicClaude35Haiku KnownModelId = "anthropic/claude-3.5-haiku"
+	KnownModelIdAnthropicClaude37Sonnet KnownModelId = "anthropic/claude-3.7-sonnet"
 	KnownModelIdAnthropicClaudeFable5 KnownModelId = "anthropic/claude-fable-5"
+	KnownModelIdAnthropicClaudeFable51 KnownModelId = "anthropic/claude-fable-5.1"
 	KnownModelIdAnthropicClaudeHaiku45 KnownModelId = "anthropic/claude-haiku-4.5"
+	KnownModelIdAnthropicClaudeOpus4 KnownModelId = "anthropic/claude-opus-4"
 	KnownModelIdAnthropicClaudeOpus41 KnownModelId = "anthropic/claude-opus-4.1"
 	KnownModelIdAnthropicClaudeOpus45 KnownModelId = "anthropic/claude-opus-4.5"
 	KnownModelIdAnthropicClaudeOpus46 KnownModelId = "anthropic/claude-opus-4.6"
 	KnownModelIdAnthropicClaudeOpus47 KnownModelId = "anthropic/claude-opus-4.7"
 	KnownModelIdAnthropicClaudeOpus48 KnownModelId = "anthropic/claude-opus-4.8"
 	KnownModelIdAnthropicClaudeOpus5 KnownModelId = "anthropic/claude-opus-5"
+	KnownModelIdAnthropicClaudeSonnet4 KnownModelId = "anthropic/claude-sonnet-4"
 	KnownModelIdAnthropicClaudeSonnet45 KnownModelId = "anthropic/claude-sonnet-4.5"
 	KnownModelIdAnthropicClaudeSonnet46 KnownModelId = "anthropic/claude-sonnet-4.6"
 	KnownModelIdAnthropicClaudeSonnet5 KnownModelId = "anthropic/claude-sonnet-5"
 	KnownModelIdArceeAiTrinityLarge KnownModelId = "arcee-ai/trinity-large"
 	KnownModelIdArceeAiTrinityLargeThinking KnownModelId = "arcee-ai/trinity-large-thinking"
 	KnownModelIdArceeAiTrinityMini KnownModelId = "arcee-ai/trinity-mini"
-	KnownModelIdBaiduErnie4521bA3b KnownModelId = "baidu/ernie-4.5-21b-a3b"
-	KnownModelIdBaiduErnie4521bA3bThinking KnownModelId = "baidu/ernie-4.5-21b-a3b-thinking"
+	KnownModelIdBaaiBgeM3 KnownModelId = "baai/bge-m3"
+	KnownModelIdBaaiBgeMultilingualGemma2 KnownModelId = "baai/bge-multilingual-gemma2"
+	KnownModelIdBaaiBgeRerankerV2M3 KnownModelId = "baai/bge-reranker-v2-m3"
+	KnownModelIdBaiduCobuddy KnownModelId = "baidu/cobuddy"
 	KnownModelIdBaiduErnie45300bA47b KnownModelId = "baidu/ernie-4.5-300b-a47b"
-	KnownModelIdBaiduErnie45Vl28bA3b KnownModelId = "baidu/ernie-4.5-vl-28b-a3b"
-	KnownModelIdBaiduErnie45Vl28bA3bThinking KnownModelId = "baidu/ernie-4.5-vl-28b-a3b-thinking"
 	KnownModelIdBaiduErnie45Vl424bA47b KnownModelId = "baidu/ernie-4.5-vl-424b-a47b"
 	KnownModelIdBlackForestLabsFlux1Dev KnownModelId = "black-forest-labs/flux-1-dev"
 	KnownModelIdBlackForestLabsFlux1Schnell KnownModelId = "black-forest-labs/flux-1-schnell"
 	KnownModelIdBytedanceSeed16 KnownModelId = "bytedance/seed-1.6"
+	KnownModelIdBytedanceSeed1620251015 KnownModelId = "bytedance/seed-1.6-2025-10-15"
 	KnownModelIdBytedanceSeed16250915 KnownModelId = "bytedance/seed-1.6-250915"
 	KnownModelIdBytedanceSeed16Flash KnownModelId = "bytedance/seed-1.6-flash"
+	KnownModelIdBytedanceSeed16Flash20250828 KnownModelId = "bytedance/seed-1.6-flash-2025-08-28"
 	KnownModelIdBytedanceSeed16Flash250715 KnownModelId = "bytedance/seed-1.6-flash-250715"
 	KnownModelIdBytedanceSeed18 KnownModelId = "bytedance/seed-1.8"
+	KnownModelIdBytedanceSeed1820251228 KnownModelId = "bytedance/seed-1.8-2025-12-28"
+	KnownModelIdBytedanceSeed20CodePreview20260215 KnownModelId = "bytedance/seed-2.0-code-preview-2026-02-15"
 	KnownModelIdBytedanceSeed20Lite KnownModelId = "bytedance/seed-2.0-lite"
+	KnownModelIdBytedanceSeed20Lite20260428 KnownModelId = "bytedance/seed-2.0-lite-2026-04-28"
 	KnownModelIdBytedanceSeed20Lite260428 KnownModelId = "bytedance/seed-2.0-lite-260428"
 	KnownModelIdBytedanceSeed20Mini KnownModelId = "bytedance/seed-2.0-mini"
+	KnownModelIdBytedanceSeed20Mini20260428 KnownModelId = "bytedance/seed-2.0-mini-2026-04-28"
 	KnownModelIdBytedanceSeed20Mini260428 KnownModelId = "bytedance/seed-2.0-mini-260428"
 	KnownModelIdBytedanceSeed20Pro KnownModelId = "bytedance/seed-2.0-pro"
 	KnownModelIdBytedanceSeed21Turbo KnownModelId = "bytedance/seed-2.1-turbo"
@@ -1636,16 +2248,27 @@ const (
 	KnownModelIdBytedanceSeedance20Fast KnownModelId = "bytedance/seedance-2.0-fast"
 	KnownModelIdBytedanceSeedance20Mini260615 KnownModelId = "bytedance/seedance-2.0-mini-260615"
 	KnownModelIdBytedanceSeedream50Pro KnownModelId = "bytedance/seedream-5.0-pro"
+	KnownModelIdCohereCommandA KnownModelId = "cohere/command-a"
+	KnownModelIdCohereCommandR KnownModelId = "cohere/command-r"
+	KnownModelIdCohereCommandRPlus KnownModelId = "cohere/command-r-plus"
+	KnownModelIdCohereCommandR7b KnownModelId = "cohere/command-r7b"
+	KnownModelIdCohereEmbedEnglishV3 KnownModelId = "cohere/embed-english-v3"
+	KnownModelIdCohereEmbedMultilingualV3 KnownModelId = "cohere/embed-multilingual-v3"
+	KnownModelIdCohereEmbedV4 KnownModelId = "cohere/embed-v4"
+	KnownModelIdCohereParseV50 KnownModelId = "cohere/parse-v5.0"
+	KnownModelIdCohereRerankV35 KnownModelId = "cohere/rerank-v3.5"
+	KnownModelIdCohereRerankV40Fast KnownModelId = "cohere/rerank-v4.0-fast"
+	KnownModelIdCohereRerankV40Pro KnownModelId = "cohere/rerank-v4.0-pro"
 	KnownModelIdCrofaiGreg1Mini KnownModelId = "crofai/greg-1-mini"
 	KnownModelIdCrofaiGreg2Super KnownModelId = "crofai/greg-2-super"
 	KnownModelIdCrofaiGreg2Ultra KnownModelId = "crofai/greg-2-ultra"
 	KnownModelIdCrofaiGregRp KnownModelId = "crofai/greg-rp"
 	KnownModelIdDeepseekDeepseekOcr KnownModelId = "deepseek/deepseek-ocr"
 	KnownModelIdDeepseekDeepseekOcr2 KnownModelId = "deepseek/deepseek-ocr-2"
-	KnownModelIdDeepseekDeepseekProverV2671b KnownModelId = "deepseek/deepseek-prover-v2-671b"
 	KnownModelIdDeepseekDeepseekR1 KnownModelId = "deepseek/deepseek-r1"
 	KnownModelIdDeepseekDeepseekR10528 KnownModelId = "deepseek/deepseek-r1-0528"
 	KnownModelIdDeepseekDeepseekR120250528 KnownModelId = "deepseek/deepseek-r1-2025-05-28"
+	KnownModelIdDeepseekDeepseekR1DistillLlama70b KnownModelId = "deepseek/deepseek-r1-distill-llama-70b"
 	KnownModelIdDeepseekDeepseekR1Turbo KnownModelId = "deepseek/deepseek-r1-turbo"
 	KnownModelIdDeepseekDeepseekV3 KnownModelId = "deepseek/deepseek-v3"
 	KnownModelIdDeepseekDeepseekV30324 KnownModelId = "deepseek/deepseek-v3-0324"
@@ -1654,84 +2277,89 @@ const (
 	KnownModelIdDeepseekDeepseekV31Terminus KnownModelId = "deepseek/deepseek-v3.1-terminus"
 	KnownModelIdDeepseekDeepseekV32 KnownModelId = "deepseek/deepseek-v3.2"
 	KnownModelIdDeepseekDeepseekV32Exp KnownModelId = "deepseek/deepseek-v3.2-exp"
-	KnownModelIdDeepseekDeepseekV32Speciale KnownModelId = "deepseek/deepseek-v3.2-speciale"
 	KnownModelIdDeepseekDeepseekV4Flash KnownModelId = "deepseek/deepseek-v4-flash"
 	KnownModelIdDeepseekDeepseekV4Flash0731 KnownModelId = "deepseek/deepseek-v4-flash-0731"
+	KnownModelIdDeepseekDeepseekV4FlashVisionExp KnownModelId = "deepseek/deepseek-v4-flash-vision-exp"
 	KnownModelIdDeepseekDeepseekV4Pro KnownModelId = "deepseek/deepseek-v4-pro"
+	KnownModelIdDeepseekDeepseekV4Pro0813 KnownModelId = "deepseek/deepseek-v4-pro-0813"
 	KnownModelIdElevenLabsElevenFlashV2 KnownModelId = "eleven-labs/eleven-flash-v2"
 	KnownModelIdElevenLabsElevenFlashV25 KnownModelId = "eleven-labs/eleven-flash-v2.5"
 	KnownModelIdElevenLabsElevenMultilingualV2 KnownModelId = "eleven-labs/eleven-multilingual-v2"
 	KnownModelIdElevenLabsElevenTurboV2 KnownModelId = "eleven-labs/eleven-turbo-v2"
 	KnownModelIdElevenLabsElevenTurboV25 KnownModelId = "eleven-labs/eleven-turbo-v2.5"
 	KnownModelIdElevenLabsElevenV3 KnownModelId = "eleven-labs/eleven-v3"
+	KnownModelIdElevenLabsMusic KnownModelId = "eleven-labs/music"
+	KnownModelIdElevenLabsScribeV2 KnownModelId = "eleven-labs/scribe-v2"
 	KnownModelIdEssentialAiRnj1 KnownModelId = "essential-ai/rnj-1"
 	KnownModelIdGoogleGemini25Flash KnownModelId = "google/gemini-2.5-flash"
+	KnownModelIdGoogleGemini25FlashImage KnownModelId = "google/gemini-2.5-flash-image"
 	KnownModelIdGoogleGemini25FlashLite KnownModelId = "google/gemini-2.5-flash-lite"
-	KnownModelIdGoogleGemini25FlashLitePreview20250617 KnownModelId = "google/gemini-2.5-flash-lite-preview-2025-06-17"
-	KnownModelIdGoogleGemini25FlashLitePreview20250925 KnownModelId = "google/gemini-2.5-flash-lite-preview-2025-09-25"
 	KnownModelIdGoogleGemini25Pro KnownModelId = "google/gemini-2.5-pro"
 	KnownModelIdGoogleGemini3FlashPreview KnownModelId = "google/gemini-3-flash-preview"
 	KnownModelIdGoogleGemini3ProImage KnownModelId = "google/gemini-3-pro-image"
 	KnownModelIdGoogleGemini31FlashImage KnownModelId = "google/gemini-3.1-flash-image"
-	KnownModelIdGoogleGemini31FlashImagePreview KnownModelId = "google/gemini-3.1-flash-image-preview"
 	KnownModelIdGoogleGemini31FlashLite KnownModelId = "google/gemini-3.1-flash-lite"
 	KnownModelIdGoogleGemini31FlashLiteImage KnownModelId = "google/gemini-3.1-flash-lite-image"
-	KnownModelIdGoogleGemini31FlashLitePreview KnownModelId = "google/gemini-3.1-flash-lite-preview"
 	KnownModelIdGoogleGemini31FlashLivePreview KnownModelId = "google/gemini-3.1-flash-live-preview"
 	KnownModelIdGoogleGemini31FlashTtsPreview KnownModelId = "google/gemini-3.1-flash-tts-preview"
 	KnownModelIdGoogleGemini31ProPreview KnownModelId = "google/gemini-3.1-pro-preview"
 	KnownModelIdGoogleGemini31ProPreviewCustomtools KnownModelId = "google/gemini-3.1-pro-preview-customtools"
 	KnownModelIdGoogleGemini35Flash KnownModelId = "google/gemini-3.5-flash"
 	KnownModelIdGoogleGemini35FlashLite KnownModelId = "google/gemini-3.5-flash-lite"
-	KnownModelIdGoogleGemini35Pro KnownModelId = "google/gemini-3.5-pro"
 	KnownModelIdGoogleGemini36Flash KnownModelId = "google/gemini-3.6-flash"
+	KnownModelIdGoogleGemini37Flash KnownModelId = "google/gemini-3.7-flash"
+	KnownModelIdGoogleGemini38Flash KnownModelId = "google/gemini-3.8-flash"
 	KnownModelIdGoogleGeminiEmbedding001 KnownModelId = "google/gemini-embedding-001"
 	KnownModelIdGoogleGeminiEmbedding2 KnownModelId = "google/gemini-embedding-2"
-	KnownModelIdGoogleGeminiEmbedding2Preview KnownModelId = "google/gemini-embedding-2-preview"
-	KnownModelIdGoogleGeminiRoboticsEr16Preview KnownModelId = "google/gemini-robotics-er-1.6-preview"
+	KnownModelIdGoogleGeminiRoboticsEr2Preview KnownModelId = "google/gemini-robotics-er-2-preview"
+	KnownModelIdGoogleGemma312b KnownModelId = "google/gemma-3-12b"
 	KnownModelIdGoogleGemma327b KnownModelId = "google/gemma-3-27b"
-	KnownModelIdGoogleGemma3nE4b KnownModelId = "google/gemma-3n-e4b"
+	KnownModelIdGoogleGemma34b KnownModelId = "google/gemma-3-4b"
+	KnownModelIdGoogleGemma412b KnownModelId = "google/gemma-4-12b"
 	KnownModelIdGoogleGemma426bA4b KnownModelId = "google/gemma-4-26b-a4b"
 	KnownModelIdGoogleGemma426bA4bFree KnownModelId = "google/gemma-4-26b-a4b:free"
 	KnownModelIdGoogleGemma431b KnownModelId = "google/gemma-4-31b"
 	KnownModelIdGoogleGemma431bIt KnownModelId = "google/gemma-4-31b-it"
 	KnownModelIdGoogleGemma431bFree KnownModelId = "google/gemma-4-31b:free"
+	KnownModelIdGoogleImagen40Preview KnownModelId = "google/imagen-4.0-preview"
 	KnownModelIdGoogleLyria3ClipPreview KnownModelId = "google/lyria-3-clip-preview"
 	KnownModelIdGoogleLyria3ProPreview KnownModelId = "google/lyria-3-pro-preview"
-	KnownModelIdGoogleVeo2 KnownModelId = "google/veo-2"
+	KnownModelIdGoogleVeo31 KnownModelId = "google/veo-3.1"
+	KnownModelIdGoogleVeo31Fast KnownModelId = "google/veo-3.1-fast"
 	KnownModelIdGoogleVeo31FastPreview KnownModelId = "google/veo-3.1-fast-preview"
-	KnownModelIdGoogleVeo31LiteGeneratePreview KnownModelId = "google/veo-3.1-lite-generate-preview"
+	KnownModelIdGoogleVeo31LitePreview KnownModelId = "google/veo-3.1-lite-preview"
 	KnownModelIdGoogleVeo31Preview KnownModelId = "google/veo-3.1-preview"
 	KnownModelIdIbmGranite418b KnownModelId = "ibm/granite-4.1-8b"
+	KnownModelIdIbmGranite4230b KnownModelId = "ibm/granite-4.2-30b"
+	KnownModelIdIbmGranite423b KnownModelId = "ibm/granite-4.2-3b"
+	KnownModelIdIbmGranite428b KnownModelId = "ibm/granite-4.2-8b"
 	KnownModelIdInceptionMercury2 KnownModelId = "inception/mercury-2"
 	KnownModelIdInceptionMercuryEdit2 KnownModelId = "inception/mercury-edit-2"
 	KnownModelIdInclusionaiLing261t KnownModelId = "inclusionai/ling-2.6-1t"
+	KnownModelIdInclusionaiLing26Flash KnownModelId = "inclusionai/ling-2.6-flash"
 	KnownModelIdInclusionaiLing30Flash KnownModelId = "inclusionai/ling-3.0-flash"
-	KnownModelIdInclusionaiLing30Tiny KnownModelId = "inclusionai/ling-3.0-tiny"
+	KnownModelIdInclusionaiLing30FlashFin KnownModelId = "inclusionai/ling-3.0-flash-fin"
+	KnownModelIdInclusionaiLing30FlashSante KnownModelId = "inclusionai/ling-3.0-flash-sante"
+	KnownModelIdInclusionaiLing30FlashVl KnownModelId = "inclusionai/ling-3.0-flash-vl"
 	KnownModelIdInclusionaiLingFlash20 KnownModelId = "inclusionai/ling-flash-2.0"
+	KnownModelIdInclusionaiRing261t KnownModelId = "inclusionai/ring-2.6-1t"
 	KnownModelIdInclusionaiRingFlash20 KnownModelId = "inclusionai/ring-flash-2.0"
 	KnownModelIdInflectionInflection3Pi KnownModelId = "inflection/inflection-3-pi"
 	KnownModelIdInflectionInflection3Productivity KnownModelId = "inflection/inflection-3-productivity"
+	KnownModelIdJetbrainsMellum212bA25b KnownModelId = "jetbrains/mellum2-12b-a2.5b"
 	KnownModelIdKwaipilotKatCoderAirV25 KnownModelId = "kwaipilot/kat-coder-air-v2.5"
-	KnownModelIdKwaipilotKatCoderExp72b1010 KnownModelId = "kwaipilot/kat-coder-exp-72b-1010"
 	KnownModelIdKwaipilotKatCoderPro KnownModelId = "kwaipilot/kat-coder-pro"
-	KnownModelIdKwaipilotKatCoderProV1 KnownModelId = "kwaipilot/kat-coder-pro-v1"
 	KnownModelIdKwaipilotKatCoderProV2 KnownModelId = "kwaipilot/kat-coder-pro-v2"
 	KnownModelIdKwaipilotKatCoderProV25 KnownModelId = "kwaipilot/kat-coder-pro-v2.5"
 	KnownModelIdLiquidAiLfm224bA2b KnownModelId = "liquid-ai/lfm-2-24b-a2b"
+	KnownModelIdLiquidAiLfm258bA1b KnownModelId = "liquid-ai/lfm-2.5-8b-a1b"
 	KnownModelIdLtx23Fast KnownModelId = "ltx-2-3-fast"
 	KnownModelIdLtx23Pro KnownModelId = "ltx-2-3-pro"
 	KnownModelIdLtx25Fast KnownModelId = "ltx-2-5-fast"
 	KnownModelIdLtx25Pro KnownModelId = "ltx-2-5-pro"
-	KnownModelIdLtx2Fast KnownModelId = "ltx-2-fast"
-	KnownModelIdLtx2Pro KnownModelId = "ltx-2-pro"
 	KnownModelIdMeituanLongcat20 KnownModelId = "meituan/longcat-2.0"
-	KnownModelIdMetaLlama370b KnownModelId = "meta/llama-3-70b"
-	KnownModelIdMetaLlama38b KnownModelId = "meta/llama-3-8b"
-	KnownModelIdMetaLlama38bLite KnownModelId = "meta/llama-3-8b-lite"
 	KnownModelIdMetaLlama3170b KnownModelId = "meta/llama-3.1-70b"
 	KnownModelIdMetaLlama318b KnownModelId = "meta/llama-3.1-8b"
-	KnownModelIdMetaLlama3211bVision KnownModelId = "meta/llama-3.2-11b-vision"
 	KnownModelIdMetaLlama323b KnownModelId = "meta/llama-3.2-3b"
 	KnownModelIdMetaLlama3370b KnownModelId = "meta/llama-3.3-70b"
 	KnownModelIdMetaLlama4Maverick KnownModelId = "meta/llama-4-maverick"
@@ -1740,14 +2368,21 @@ const (
 	KnownModelIdMetaLlamaPromptGuard222m KnownModelId = "meta/llama-prompt-guard-2-22m"
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
 	KnownModelIdMetaMuseGlimmer30b KnownModelId = "meta/muse-glimmer-30b"
+	KnownModelIdMetaMuseImage10 KnownModelId = "meta/muse-image-1.0"
 	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
+	KnownModelIdMetaMuseSpark12Contributor KnownModelId = "meta/muse-spark-1.2-contributor"
+	KnownModelIdMetaMuseSpark13 KnownModelId = "meta/muse-spark-1.3"
+	KnownModelIdMetaMuseSpark13Contributor KnownModelId = "meta/muse-spark-1.3-contributor"
+	KnownModelIdMetaMuseVoiceTranscribe10 KnownModelId = "meta/muse-voice-transcribe-1.0"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
-	KnownModelIdMicrosoftPhi4Mini KnownModelId = "microsoft/phi-4-mini"
+	KnownModelIdMicrosoftWizardlm28x22b KnownModelId = "microsoft/wizardlm-2-8x22b"
 	KnownModelIdMindaiMacaronV1Tall KnownModelId = "mindai/macaron-v1-tall"
-	KnownModelIdMindaiMacaronV1VentiFree KnownModelId = "mindai/macaron-v1-venti:free"
+	KnownModelIdMindaiMacaronV1Venti KnownModelId = "mindai/macaron-v1-venti"
+	KnownModelIdMinimaxH3 KnownModelId = "minimax/h3"
 	KnownModelIdMinimaxHailuo02 KnownModelId = "minimax/hailuo-02"
 	KnownModelIdMinimaxHailuo23 KnownModelId = "minimax/hailuo-2.3"
 	KnownModelIdMinimaxHailuo23Fast KnownModelId = "minimax/hailuo-2.3-fast"
+	KnownModelIdMinimaxImage01 KnownModelId = "minimax/image-01"
 	KnownModelIdMinimaxM2Her KnownModelId = "minimax/m2-her"
 	KnownModelIdMinimaxMinimaxM180k KnownModelId = "minimax/minimax-m1-80k"
 	KnownModelIdMinimaxMinimaxM2 KnownModelId = "minimax/minimax-m2"
@@ -1755,24 +2390,39 @@ const (
 	KnownModelIdMinimaxMinimaxM25 KnownModelId = "minimax/minimax-m2.5"
 	KnownModelIdMinimaxMinimaxM25Highspeed KnownModelId = "minimax/minimax-m2.5-highspeed"
 	KnownModelIdMinimaxMinimaxM27 KnownModelId = "minimax/minimax-m2.7"
+	KnownModelIdMinimaxMinimaxM27Free KnownModelId = "minimax/minimax-m2.7:free"
 	KnownModelIdMinimaxMinimaxM3 KnownModelId = "minimax/minimax-m3"
+	KnownModelIdMinimaxMinimaxM3Free KnownModelId = "minimax/minimax-m3:free"
 	KnownModelIdMinimaxMusic26 KnownModelId = "minimax/music-2.6"
-	KnownModelIdMinimaxMusic26Free KnownModelId = "minimax/music-2.6-free"
+	KnownModelIdMinimaxMusic30 KnownModelId = "minimax/music-3.0"
+	KnownModelIdMinimaxMusic30Free KnownModelId = "minimax/music-3.0:free"
+	KnownModelIdMinimaxSpeech26Hd KnownModelId = "minimax/speech-2.6-hd"
+	KnownModelIdMinimaxSpeech26Turbo KnownModelId = "minimax/speech-2.6-turbo"
+	KnownModelIdMinimaxSpeech28Hd KnownModelId = "minimax/speech-2.8-hd"
+	KnownModelIdMinimaxSpeech28Turbo KnownModelId = "minimax/speech-2.8-turbo"
+	KnownModelIdMinimaxSpeech28Free KnownModelId = "minimax/speech-2.8:free"
+	KnownModelIdMistralCodestral KnownModelId = "mistral/codestral"
 	KnownModelIdMistralCodestralEmbed KnownModelId = "mistral/codestral-embed"
 	KnownModelIdMistralDevstral2 KnownModelId = "mistral/devstral-2"
+	KnownModelIdMistralDevstral20 KnownModelId = "mistral/devstral-2.0"
 	KnownModelIdMistralDevstralMedium10 KnownModelId = "mistral/devstral-medium-1.0"
 	KnownModelIdMistralDevstralSmall11 KnownModelId = "mistral/devstral-small-1.1"
 	KnownModelIdMistralLeanstral15Free KnownModelId = "mistral/leanstral-1.5:free"
 	KnownModelIdMistralMagistralMedium12 KnownModelId = "mistral/magistral-medium-1.2"
+	KnownModelIdMistralMagistralSmall12 KnownModelId = "mistral/magistral-small-1.2"
 	KnownModelIdMistralMinistral314b KnownModelId = "mistral/ministral-3-14b"
 	KnownModelIdMistralMinistral33b KnownModelId = "mistral/ministral-3-3b"
 	KnownModelIdMistralMinistral38b KnownModelId = "mistral/ministral-3-8b"
+	KnownModelIdMistralMinistral3014b KnownModelId = "mistral/ministral-3.0-14b"
+	KnownModelIdMistralMinistral303b KnownModelId = "mistral/ministral-3.0-3b"
+	KnownModelIdMistralMinistral308b KnownModelId = "mistral/ministral-3.0-8b"
 	KnownModelIdMistralMistralEmbed KnownModelId = "mistral/mistral-embed"
 	KnownModelIdMistralMistralLarge21 KnownModelId = "mistral/mistral-large-2.1"
 	KnownModelIdMistralMistralLarge3 KnownModelId = "mistral/mistral-large-3"
+	KnownModelIdMistralMistralLarge30 KnownModelId = "mistral/mistral-large-3.0"
 	KnownModelIdMistralMistralMedium30 KnownModelId = "mistral/mistral-medium-3.0"
 	KnownModelIdMistralMistralMedium31 KnownModelId = "mistral/mistral-medium-3.1"
-	KnownModelIdMistralMistralModeration KnownModelId = "mistral/mistral-moderation"
+	KnownModelIdMistralMistralMedium35 KnownModelId = "mistral/mistral-medium-3.5"
 	KnownModelIdMistralMistralModeration2 KnownModelId = "mistral/mistral-moderation-2"
 	KnownModelIdMistralMistralNemo KnownModelId = "mistral/mistral-nemo"
 	KnownModelIdMistralMistralNemo12b KnownModelId = "mistral/mistral-nemo-12b"
@@ -1780,40 +2430,34 @@ const (
 	KnownModelIdMistralMistralSmall24b2501 KnownModelId = "mistral/mistral-small-24b-2501"
 	KnownModelIdMistralMistralSmall32 KnownModelId = "mistral/mistral-small-3.2"
 	KnownModelIdMistralMistralSmall4 KnownModelId = "mistral/mistral-small-4"
-	KnownModelIdMistralMixtral8x7b KnownModelId = "mistral/mixtral-8x7b"
+	KnownModelIdMistralOcr3 KnownModelId = "mistral/ocr-3"
+	KnownModelIdMistralOcr4 KnownModelId = "mistral/ocr-4"
+	KnownModelIdMistralOcr41 KnownModelId = "mistral/ocr-4.1"
 	KnownModelIdMistralPixtralLarge KnownModelId = "mistral/pixtral-large"
+	KnownModelIdMistralVoxtralMini KnownModelId = "mistral/voxtral-mini"
+	KnownModelIdMistralVoxtralMiniTranscribe2 KnownModelId = "mistral/voxtral-mini-transcribe-2"
+	KnownModelIdMistralVoxtralSmall KnownModelId = "mistral/voxtral-small"
 	KnownModelIdMoonshotaiKimiK2 KnownModelId = "moonshotai/kimi-k2"
 	KnownModelIdMoonshotaiKimiK20905 KnownModelId = "moonshotai/kimi-k2-0905"
-	KnownModelIdMoonshotaiKimiK2Instruct KnownModelId = "moonshotai/kimi-k2-instruct"
-	KnownModelIdMoonshotaiKimiK2Instruct0905 KnownModelId = "moonshotai/kimi-k2-instruct-0905"
 	KnownModelIdMoonshotaiKimiK2Thinking KnownModelId = "moonshotai/kimi-k2-thinking"
 	KnownModelIdMoonshotaiKimiK25 KnownModelId = "moonshotai/kimi-k2.5"
 	KnownModelIdMoonshotaiKimiK26 KnownModelId = "moonshotai/kimi-k2.6"
 	KnownModelIdMoonshotaiKimiK27Code KnownModelId = "moonshotai/kimi-k2.7-code"
 	KnownModelIdMoonshotaiKimiK3 KnownModelId = "moonshotai/kimi-k3"
-	KnownModelIdMoonshotaiMoonshotV1128k KnownModelId = "moonshotai/moonshot-v1-128k"
-	KnownModelIdMoonshotaiMoonshotV1128kVisionPreview KnownModelId = "moonshotai/moonshot-v1-128k-vision-preview"
-	KnownModelIdMoonshotaiMoonshotV132k KnownModelId = "moonshotai/moonshot-v1-32k"
-	KnownModelIdMoonshotaiMoonshotV132kVisionPreview KnownModelId = "moonshotai/moonshot-v1-32k-vision-preview"
-	KnownModelIdMoonshotaiMoonshotV18k KnownModelId = "moonshotai/moonshot-v1-8k"
-	KnownModelIdMoonshotaiMoonshotV18kVisionPreview KnownModelId = "moonshotai/moonshot-v1-8k-vision-preview"
+	KnownModelIdMoonshotaiKimiK3Fast KnownModelId = "moonshotai/kimi-k3-fast"
+	KnownModelIdMorphMorphCompactor KnownModelId = "morph/morph-compactor"
 	KnownModelIdMorphMorphV3Fast KnownModelId = "morph/morph-v3-fast"
 	KnownModelIdMorphMorphV3Large KnownModelId = "morph/morph-v3-large"
+	KnownModelIdMorphMorphWarpGrepV21 KnownModelId = "morph/morph-warp-grep-v2.1"
 	KnownModelIdNexAgiDeepseekV31NexN1 KnownModelId = "nex-agi/deepseek-v3.1-nex-n1"
-	KnownModelIdNexAgiNexN2Pro KnownModelId = "nex-agi/nex-n2-pro"
 	KnownModelIdNousHermes3Llama31405b KnownModelId = "nous/hermes-3-llama-3.1-405b"
 	KnownModelIdNousresearchHermes3Llama3170b KnownModelId = "nousresearch/hermes-3-llama-3.1-70b"
 	KnownModelIdNousresearchHermes4405b KnownModelId = "nousresearch/hermes-4-405b"
-	KnownModelIdNousresearchHermes470b KnownModelId = "nousresearch/hermes-4-70b"
-	KnownModelIdNvidiaCosmos3SuperReasoner KnownModelId = "nvidia/cosmos3-super-reasoner"
-	KnownModelIdNvidiaLlama31Nemotron70bInstruct KnownModelId = "nvidia/llama-3.1-nemotron-70b-instruct"
-	KnownModelIdNvidiaLlama31NemotronUltra253b KnownModelId = "nvidia/llama-3.1-nemotron-ultra-253b"
-	KnownModelIdNvidiaLlama33NemotronSuper49bV15 KnownModelId = "nvidia/llama-3.3-nemotron-super-49b-v1.5"
 	KnownModelIdNvidiaNemotron3Nano30bA3b KnownModelId = "nvidia/nemotron-3-nano-30b-a3b"
-	KnownModelIdNvidiaNemotron3NanoOmni30bA3bReasoning KnownModelId = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 	KnownModelIdNvidiaNemotron3Super120bA12b KnownModelId = "nvidia/nemotron-3-super-120b-a12b"
 	KnownModelIdNvidiaNemotron3Ultra550bA55b KnownModelId = "nvidia/nemotron-3-ultra-550b-a55b"
 	KnownModelIdNvidiaNemotron35Lightning KnownModelId = "nvidia/nemotron-3.5-lightning"
+	KnownModelIdNvidiaNemotronNano9bV2 KnownModelId = "nvidia/nemotron-nano-9b-v2"
 	KnownModelIdNvidiaNvidiaNemotron3Nano30bA3b KnownModelId = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
 	KnownModelIdNvidiaNvidiaNemotronNano12bV2Vl KnownModelId = "nvidia/nvidia-nemotron-nano-12b-v2-vl"
 	KnownModelIdOpenaiBabbage002 KnownModelId = "openai/babbage-002"
@@ -1823,12 +2467,10 @@ const (
 	KnownModelIdOpenaiGpt35Turbo16k KnownModelId = "openai/gpt-3.5-turbo-16k"
 	KnownModelIdOpenaiGpt35Turbo20230321 KnownModelId = "openai/gpt-3.5-turbo-2023-03-21"
 	KnownModelIdOpenaiGpt420230613 KnownModelId = "openai/gpt-4-2023-06-13"
-	KnownModelIdOpenaiGpt4Turbo20230314 KnownModelId = "openai/gpt-4-turbo-2023-03-14"
-	KnownModelIdOpenaiGpt4Turbo20231106 KnownModelId = "openai/gpt-4-turbo-2023-11-06"
-	KnownModelIdOpenaiGpt4Turbo20240125 KnownModelId = "openai/gpt-4-turbo-2024-01-25"
 	KnownModelIdOpenaiGpt41 KnownModelId = "openai/gpt-4.1"
 	KnownModelIdOpenaiGpt41Mini KnownModelId = "openai/gpt-4.1-mini"
 	KnownModelIdOpenaiGpt41Nano KnownModelId = "openai/gpt-4.1-nano"
+	KnownModelIdOpenaiGpt4o KnownModelId = "openai/gpt-4o"
 	KnownModelIdOpenaiGpt4o20240513 KnownModelId = "openai/gpt-4o-2024-05-13"
 	KnownModelIdOpenaiGpt4o20240806 KnownModelId = "openai/gpt-4o-2024-08-06"
 	KnownModelIdOpenaiGpt4o20241120 KnownModelId = "openai/gpt-4o-2024-11-20"
@@ -1857,12 +2499,15 @@ const (
 	KnownModelIdOpenaiGpt56SolPro KnownModelId = "openai/gpt-5.6-sol-pro"
 	KnownModelIdOpenaiGpt56Terra KnownModelId = "openai/gpt-5.6-terra"
 	KnownModelIdOpenaiGpt56TerraPro KnownModelId = "openai/gpt-5.6-terra-pro"
+	KnownModelIdOpenaiGpt6Astra KnownModelId = "openai/gpt-6-astra"
+	KnownModelIdOpenaiGpt6AstraPro KnownModelId = "openai/gpt-6-astra-pro"
 	KnownModelIdOpenaiGptImage1 KnownModelId = "openai/gpt-image-1"
 	KnownModelIdOpenaiGptImage1Mini KnownModelId = "openai/gpt-image-1-mini"
 	KnownModelIdOpenaiGptImage15 KnownModelId = "openai/gpt-image-1.5"
 	KnownModelIdOpenaiGptImage2 KnownModelId = "openai/gpt-image-2"
 	KnownModelIdOpenaiGptOss120b KnownModelId = "openai/gpt-oss-120b"
 	KnownModelIdOpenaiGptOss20b KnownModelId = "openai/gpt-oss-20b"
+	KnownModelIdOpenaiGptOssSafeguard120b KnownModelId = "openai/gpt-oss-safeguard-120b"
 	KnownModelIdOpenaiGptOssSafeguard20b KnownModelId = "openai/gpt-oss-safeguard-20b"
 	KnownModelIdOpenaiGptRealtime KnownModelId = "openai/gpt-realtime"
 	KnownModelIdOpenaiGptRealtime15 KnownModelId = "openai/gpt-realtime-1.5"
@@ -1882,14 +2527,19 @@ const (
 	KnownModelIdOpenaiTextEmbedding3Small KnownModelId = "openai/text-embedding-3-small"
 	KnownModelIdOpenaiTextEmbeddingAda002 KnownModelId = "openai/text-embedding-ada-002"
 	KnownModelIdOpenaiWhisper1 KnownModelId = "openai/whisper-1"
+	KnownModelIdOpenaiWhisperLargeV3 KnownModelId = "openai/whisper-large-v3"
+	KnownModelIdOpenaiWhisperLargeV3Turbo KnownModelId = "openai/whisper-large-v3-turbo"
+	KnownModelIdPerplexityPplxEmbedV106b KnownModelId = "perplexity/pplx-embed-v1-0.6b"
+	KnownModelIdPerplexityPplxEmbedV14b KnownModelId = "perplexity/pplx-embed-v1-4b"
+	KnownModelIdPhaseoAuto KnownModelId = "phaseo/auto"
 	KnownModelIdPhaseoFree KnownModelId = "phaseo/free"
 	KnownModelIdPoolsideLagunaM1Free KnownModelId = "poolside/laguna-m.1:free"
 	KnownModelIdPoolsideLagunaS21Free KnownModelId = "poolside/laguna-s-2.1:free"
 	KnownModelIdPoolsideLagunaXs21Free KnownModelId = "poolside/laguna-xs-2.1:free"
 	KnownModelIdQwenQvqMax KnownModelId = "qwen/qvq-max"
-	KnownModelIdQwenQwen36Plus KnownModelId = "qwen/qwen-3.6-plus"
 	KnownModelIdQwenQwenFlash KnownModelId = "qwen/qwen-flash"
 	KnownModelIdQwenQwenFlashCharacter KnownModelId = "qwen/qwen-flash-character"
+	KnownModelIdQwenQwenImage KnownModelId = "qwen/qwen-image"
 	KnownModelIdQwenQwenMax KnownModelId = "qwen/qwen-max"
 	KnownModelIdQwenQwenMtFlash KnownModelId = "qwen/qwen-mt-flash"
 	KnownModelIdQwenQwenMtLite KnownModelId = "qwen/qwen-mt-lite"
@@ -1924,6 +2574,7 @@ const (
 	KnownModelIdQwenQwen306b KnownModelId = "qwen/qwen3-0.6b"
 	KnownModelIdQwenQwen317b KnownModelId = "qwen/qwen3-1.7b"
 	KnownModelIdQwenQwen314b KnownModelId = "qwen/qwen3-14b"
+	KnownModelIdQwenQwen3235bA22b KnownModelId = "qwen/qwen3-235b-a22b"
 	KnownModelIdQwenQwen3235bA22b2507 KnownModelId = "qwen/qwen3-235b-a22b-2507"
 	KnownModelIdQwenQwen3235bA22bInstruct2507 KnownModelId = "qwen/qwen3-235b-a22b-instruct-2507"
 	KnownModelIdQwenQwen3235bA22bThinking2507 KnownModelId = "qwen/qwen3-235b-a22b-thinking-2507"
@@ -1934,14 +2585,16 @@ const (
 	KnownModelIdQwenQwen332b KnownModelId = "qwen/qwen3-32b"
 	KnownModelIdQwenQwen34b KnownModelId = "qwen/qwen3-4b"
 	KnownModelIdQwenQwen38b KnownModelId = "qwen/qwen3-8b"
-	KnownModelIdQwenQwen3Coder KnownModelId = "qwen/qwen3-coder"
 	KnownModelIdQwenQwen3Coder30bA3b KnownModelId = "qwen/qwen3-coder-30b-a3b"
 	KnownModelIdQwenQwen3Coder480bA35b KnownModelId = "qwen/qwen3-coder-480b-a35b"
 	KnownModelIdQwenQwen3CoderFlash KnownModelId = "qwen/qwen3-coder-flash"
 	KnownModelIdQwenQwen3CoderNext KnownModelId = "qwen/qwen3-coder-next"
 	KnownModelIdQwenQwen3CoderPlus20250722 KnownModelId = "qwen/qwen3-coder-plus-2025-07-22"
 	KnownModelIdQwenQwen3CoderPlus20250923 KnownModelId = "qwen/qwen3-coder-plus-2025-09-23"
+	KnownModelIdQwenQwen3Embedding06b KnownModelId = "qwen/qwen3-embedding-0.6b"
 	KnownModelIdQwenQwen3Embedding8b KnownModelId = "qwen/qwen3-embedding-8b"
+	KnownModelIdQwenQwen3GuardGen06b KnownModelId = "qwen/qwen3-guard-gen-0.6b"
+	KnownModelIdQwenQwen3GuardGen8b KnownModelId = "qwen/qwen3-guard-gen-8b"
 	KnownModelIdQwenQwen3Max KnownModelId = "qwen/qwen3-max"
 	KnownModelIdQwenQwen3Max20250923 KnownModelId = "qwen/qwen3-max-2025-09-23"
 	KnownModelIdQwenQwen3Max20260123 KnownModelId = "qwen/qwen3-max-2026-01-23"
@@ -1951,6 +2604,7 @@ const (
 	KnownModelIdQwenQwen3Next80bA3b KnownModelId = "qwen/qwen3-next-80b-a3b"
 	KnownModelIdQwenQwen3Next80bA3bInstruct KnownModelId = "qwen/qwen3-next-80b-a3b-instruct"
 	KnownModelIdQwenQwen3Next80bA3bThinking KnownModelId = "qwen/qwen3-next-80b-a3b-thinking"
+	KnownModelIdQwenQwen3Omni30bA3b KnownModelId = "qwen/qwen3-omni-30b-a3b"
 	KnownModelIdQwenQwen3Omni30bA3bThinking KnownModelId = "qwen/qwen3-omni-30b-a3b-thinking"
 	KnownModelIdQwenQwen3Reranker KnownModelId = "qwen/qwen3-reranker"
 	KnownModelIdQwenQwen3Vl235bA22b KnownModelId = "qwen/qwen3-vl-235b-a22b"
@@ -1971,7 +2625,6 @@ const (
 	KnownModelIdQwenQwen3527b KnownModelId = "qwen/qwen3.5-27b"
 	KnownModelIdQwenQwen3535bA3b KnownModelId = "qwen/qwen3.5-35b-a3b"
 	KnownModelIdQwenQwen35397bA17b KnownModelId = "qwen/qwen3.5-397b-a17b"
-	KnownModelIdQwenQwen354b KnownModelId = "qwen/qwen3.5-4b"
 	KnownModelIdQwenQwen359b KnownModelId = "qwen/qwen3.5-9b"
 	KnownModelIdQwenQwen35Flash KnownModelId = "qwen/qwen3.5-flash"
 	KnownModelIdQwenQwen35LivetranslateFlashRealtime20260519 KnownModelId = "qwen/qwen3.5-livetranslate-flash-realtime-2026-05-19"
@@ -1979,27 +2632,42 @@ const (
 	KnownModelIdQwenQwen35Plus20260420 KnownModelId = "qwen/qwen3.5-plus-2026-04-20"
 	KnownModelIdQwenQwen3627b KnownModelId = "qwen/qwen3.6-27b"
 	KnownModelIdQwenQwen3635bA3b KnownModelId = "qwen/qwen3.6-35b-a3b"
+	KnownModelIdQwenQwen36Flash KnownModelId = "qwen/qwen3.6-flash"
 	KnownModelIdQwenQwen36MaxPreview KnownModelId = "qwen/qwen3.6-max-preview"
-	KnownModelIdQwenQwen36Plus2 KnownModelId = "qwen/qwen3.6-plus"
+	KnownModelIdQwenQwen36Plus KnownModelId = "qwen/qwen3.6-plus"
 	KnownModelIdQwenQwen37Max KnownModelId = "qwen/qwen3.7-max"
 	KnownModelIdQwenQwen37Max20260517 KnownModelId = "qwen/qwen3.7-max-2026-05-17"
 	KnownModelIdQwenQwen37Plus KnownModelId = "qwen/qwen3.7-plus"
 	KnownModelIdQwenQwen37Plus20260526 KnownModelId = "qwen/qwen3.7-plus-2026-05-26"
+	KnownModelIdQwenQwen3824tA95b KnownModelId = "qwen/qwen3.8-2.4t-a95b"
+	KnownModelIdQwenQwen3827b KnownModelId = "qwen/qwen3.8-27b"
+	KnownModelIdQwenQwen38Flash KnownModelId = "qwen/qwen3.8-flash"
 	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
+	KnownModelIdQwenQwen38Max0902 KnownModelId = "qwen/qwen3.8-max-0902"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
 	KnownModelIdQwenTextEmbeddingV4 KnownModelId = "qwen/text-embedding-v4"
 	KnownModelIdQwenWan27T2v KnownModelId = "qwen/wan2.7-t2v"
-	KnownModelIdSpacexAiGrok420Beta0309 KnownModelId = "spacex-ai/grok-4.20-beta-0309"
+	KnownModelIdQwenWan30Video KnownModelId = "qwen/wan3.0-video"
+	KnownModelIdQwenWan30VideoPrime KnownModelId = "qwen/wan3.0-video-prime"
+	KnownModelIdRekaEdge KnownModelId = "reka-edge"
+	KnownModelIdRekaEdge2603 KnownModelId = "reka-edge-2603"
+	KnownModelIdRekaFlash KnownModelId = "reka-flash"
+	KnownModelIdRekaFlashResearch KnownModelId = "reka-flash-research"
+	KnownModelIdRelaceRelaceSearch KnownModelId = "relace/relace-search"
+	KnownModelIdSakanaFuguUltra KnownModelId = "sakana/fugu-ultra"
+	KnownModelIdSakanaNamazu KnownModelId = "sakana/namazu"
+	KnownModelIdSpacexAiGrok420 KnownModelId = "spacex-ai/grok-4.20"
+	KnownModelIdSpacexAiGrok420MultiAgentBeta KnownModelId = "spacex-ai/grok-4.20-multi-agent-beta"
 	KnownModelIdSpacexAiGrok420MultiAgentBeta0309 KnownModelId = "spacex-ai/grok-4.20-multi-agent-beta-0309"
 	KnownModelIdSpacexAiGrok43 KnownModelId = "spacex-ai/grok-4.3"
 	KnownModelIdSpacexAiGrok45 KnownModelId = "spacex-ai/grok-4.5"
+	KnownModelIdSpacexAiGrok46 KnownModelId = "spacex-ai/grok-4.6"
 	KnownModelIdSpacexAiGrokBuild01 KnownModelId = "spacex-ai/grok-build-0.1"
-	KnownModelIdSpacexAiGrokCodeFast1 KnownModelId = "spacex-ai/grok-code-fast-1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
 	KnownModelIdSpacexAiGrokImagineImage20 KnownModelId = "spacex-ai/grok-imagine-image-2.0"
-	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
+	KnownModelIdSpacexAiGrokTranscribe KnownModelId = "spacex-ai/grok-transcribe"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
@@ -2007,17 +2675,25 @@ const (
 	KnownModelIdTencentHy3 KnownModelId = "tencent/hy3"
 	KnownModelIdTencentHy3Preview KnownModelId = "tencent/hy3-preview"
 	KnownModelIdTencentHy3Free KnownModelId = "tencent/hy3:free"
+	KnownModelIdTencentHy4Preview KnownModelId = "tencent/hy4-preview"
 	KnownModelIdThinkingMachinesInkling KnownModelId = "thinking-machines/inkling"
 	KnownModelIdThinkingMachinesInklingSmall KnownModelId = "thinking-machines/inkling-small"
+	KnownModelIdUpstageSolarEmbedding1LargePassage KnownModelId = "upstage/solar-embedding-1-large-passage"
+	KnownModelIdUpstageSolarEmbedding1LargeQuery KnownModelId = "upstage/solar-embedding-1-large-query"
+	KnownModelIdUpstageSolarEmbedding2Passage KnownModelId = "upstage/solar-embedding-2-passage"
+	KnownModelIdUpstageSolarEmbedding2Query KnownModelId = "upstage/solar-embedding-2-query"
 	KnownModelIdUpstageSolarMini KnownModelId = "upstage/solar-mini"
 	KnownModelIdUpstageSolarPro2 KnownModelId = "upstage/solar-pro-2"
 	KnownModelIdUpstageSolarPro3 KnownModelId = "upstage/solar-pro-3"
 	KnownModelIdUpstageSolarPro4 KnownModelId = "upstage/solar-pro-4"
-	KnownModelIdVeniceVeniceUncensored KnownModelId = "venice/venice-uncensored"
-	KnownModelIdVeniceVeniceUncensored11 KnownModelId = "venice/venice-uncensored-1.1"
+	KnownModelIdVeniceGemma4Uncensored KnownModelId = "venice/gemma-4-uncensored"
+	KnownModelIdVeniceVeniceRolePlayUncensored KnownModelId = "venice/venice-role-play-uncensored"
+	KnownModelIdVeniceVeniceUncensored12 KnownModelId = "venice/venice-uncensored-1.2"
 	KnownModelIdVoyageRerank1 KnownModelId = "voyage/rerank-1"
 	KnownModelIdVoyageRerank2 KnownModelId = "voyage/rerank-2"
 	KnownModelIdVoyageRerank2Lite KnownModelId = "voyage/rerank-2-lite"
+	KnownModelIdVoyageRerank25 KnownModelId = "voyage/rerank-2.5"
+	KnownModelIdVoyageRerank25Lite KnownModelId = "voyage/rerank-2.5-lite"
 	KnownModelIdVoyageRerankLite1 KnownModelId = "voyage/rerank-lite-1"
 	KnownModelIdVoyageVoyage01 KnownModelId = "voyage/voyage-01"
 	KnownModelIdVoyageVoyage02 KnownModelId = "voyage/voyage-02"
@@ -2032,6 +2708,7 @@ const (
 	KnownModelIdVoyageVoyage4Lite KnownModelId = "voyage/voyage-4-lite"
 	KnownModelIdVoyageVoyageCode2 KnownModelId = "voyage/voyage-code-2"
 	KnownModelIdVoyageVoyageCode3 KnownModelId = "voyage/voyage-code-3"
+	KnownModelIdVoyageVoyageCode4 KnownModelId = "voyage/voyage-code-4"
 	KnownModelIdVoyageVoyageContext3 KnownModelId = "voyage/voyage-context-3"
 	KnownModelIdVoyageVoyageFinance2 KnownModelId = "voyage/voyage-finance-2"
 	KnownModelIdVoyageVoyageLarge2 KnownModelId = "voyage/voyage-large-2"
@@ -2043,12 +2720,15 @@ const (
 	KnownModelIdVoyageVoyageMultilingual2 KnownModelId = "voyage/voyage-multilingual-2"
 	KnownModelIdVoyageVoyageMultimodal3 KnownModelId = "voyage/voyage-multimodal-3"
 	KnownModelIdVoyageVoyageMultimodal35 KnownModelId = "voyage/voyage-multimodal-3.5"
-	KnownModelIdXiaomiMimoV2Flash KnownModelId = "xiaomi/mimo-v2-flash"
 	KnownModelIdXiaomiMimoV25 KnownModelId = "xiaomi/mimo-v2.5"
+	KnownModelIdXiaomiMimoV25Asr KnownModelId = "xiaomi/mimo-v2.5-asr"
 	KnownModelIdXiaomiMimoV25Pro KnownModelId = "xiaomi/mimo-v2.5-pro"
+	KnownModelIdXiaomiMimoV25ProUltraspeed KnownModelId = "xiaomi/mimo-v2.5-pro-ultraspeed"
+	KnownModelIdXiaomiMimoV25TtsVoicecloneFree KnownModelId = "xiaomi/mimo-v2.5-tts-voiceclone:free"
+	KnownModelIdXiaomiMimoV25TtsVoicedesignFree KnownModelId = "xiaomi/mimo-v2.5-tts-voicedesign:free"
 	KnownModelIdXiaomiMimoV25TtsFree KnownModelId = "xiaomi/mimo-v2.5-tts:free"
+	KnownModelIdZAiAutoglmPhone9bMultilingual KnownModelId = "z-ai/autoglm-phone-9b-multilingual"
 	KnownModelIdZAiGlm432b KnownModelId = "z-ai/glm-4-32b"
-	KnownModelIdZAiGlm47FlashFree KnownModelId = "z-ai/glm-4-7-flash:free"
 	KnownModelIdZAiGlm45 KnownModelId = "z-ai/glm-4.5"
 	KnownModelIdZAiGlm45Air KnownModelId = "z-ai/glm-4.5-air"
 	KnownModelIdZAiGlm45AirX KnownModelId = "z-ai/glm-4.5-air-x"
@@ -2059,11 +2739,13 @@ const (
 	KnownModelIdZAiGlm46vFlash KnownModelId = "z-ai/glm-4.6v-flash"
 	KnownModelIdZAiGlm47 KnownModelId = "z-ai/glm-4.7"
 	KnownModelIdZAiGlm47Flash KnownModelId = "z-ai/glm-4.7-flash"
+	KnownModelIdZAiGlm47FlashHeretic KnownModelId = "z-ai/glm-4.7-flash-heretic"
 	KnownModelIdZAiGlm5 KnownModelId = "z-ai/glm-5"
-	KnownModelIdZAiGlm5Code KnownModelId = "z-ai/glm-5-code"
 	KnownModelIdZAiGlm5Turbo KnownModelId = "z-ai/glm-5-turbo"
 	KnownModelIdZAiGlm51 KnownModelId = "z-ai/glm-5.1"
 	KnownModelIdZAiGlm52 KnownModelId = "z-ai/glm-5.2"
+	KnownModelIdZAiGlm53 KnownModelId = "z-ai/glm-5.3"
+	KnownModelIdZAiGlm53Flash KnownModelId = "z-ai/glm-5.3-flash"
 	KnownModelIdZAiGlm5vTurbo KnownModelId = "z-ai/glm-5v-turbo"
 	KnownModelIdZaiOrgGlm45Air KnownModelId = "zai-org/glm-4.5-air"
 	KnownModelIdZaiGlm5 KnownModelId = "zai/glm-5"
@@ -2073,6 +2755,10 @@ const (
 type ListFilesResponse struct {
 	Data *[]map[string]interface{} `json:"data,omitempty"`
 	Object *string `json:"object,omitempty"`
+}
+
+type ManagementKeyCollectionResponse struct {
+	Data []map[string]interface{} `json:"data"`
 }
 
 type ManagementKeyCreateRequest struct {
@@ -2086,25 +2772,103 @@ type ManagementKeyCreateRequest struct {
 
 type ManagementKeyCreateResponse struct {
 	Key map[string]interface{} `json:"key"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type ManagementKeyDeleteResponse struct {
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type ManagementKeyDetailResponse struct {
 	Key map[string]interface{} `json:"key"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type ManagementKeyListResponse struct {
 	Keys []map[string]interface{} `json:"keys"`
 	Limit int `json:"limit"`
 	Offset int `json:"offset"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	Total int `json:"total"`
+}
+
+type ManagementKeyRuntime struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	DailyLimitCostNanos *int `json:"daily_limit_cost_nanos,omitempty"`
+	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
+	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
+	Name string `json:"name"`
+	Prefix string `json:"prefix"`
+	Scopes []string `json:"scopes"`
+	SoftBlocked *bool `json:"soft_blocked,omitempty"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WeeklyLimitCostNanos *int `json:"weekly_limit_cost_nanos,omitempty"`
+	WeeklyLimitRequests *int `json:"weekly_limit_requests,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ManagementKeyRuntimeCreated struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	DailyLimitCostNanos *int `json:"daily_limit_cost_nanos,omitempty"`
+	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	Key string `json:"key"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
+	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
+	Name string `json:"name"`
+	Prefix string `json:"prefix"`
+	Scopes []string `json:"scopes"`
+	SoftBlocked *bool `json:"soft_blocked,omitempty"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WeeklyLimitCostNanos *int `json:"weekly_limit_cost_nanos,omitempty"`
+	WeeklyLimitRequests *int `json:"weekly_limit_requests,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ManagementKeyRuntimeCreateRequest struct {
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Name string `json:"name"`
+	Paused *bool `json:"paused,omitempty"`
+	Scopes interface{} `json:"scopes,omitempty"`
+	Template *string `json:"template,omitempty"`
+}
+
+type ManagementKeyRuntimeCreateResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ManagementKeyRuntimeDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+type ManagementKeyRuntimeResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ManagementKeyRuntimeUpdateRequest struct {
+	DailyCostNanos *int `json:"dailyCostNanos,omitempty"`
+	DailyRequests *int `json:"dailyRequests,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	MonthlyCostNanos *int `json:"monthlyCostNanos,omitempty"`
+	MonthlyRequests *int `json:"monthlyRequests,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Paused *bool `json:"paused,omitempty"`
+	Scopes interface{} `json:"scopes,omitempty"`
+	SoftBlocked *bool `json:"softBlocked,omitempty"`
+	Template *string `json:"template,omitempty"`
+	WeeklyCostNanos *int `json:"weeklyCostNanos,omitempty"`
+	WeeklyRequests *int `json:"weeklyRequests,omitempty"`
 }
 
 type ManagementKeyUpdateRequest struct {
@@ -2115,7 +2879,7 @@ type ManagementKeyUpdateRequest struct {
 
 type ManagementKeyUpdateResponse struct {
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type MessageContentPart = interface{}
@@ -2171,7 +2935,7 @@ type ModelEndpointsResponse struct {
 	Id string `json:"id"`
 	Modalities map[string]interface{} `json:"modalities"`
 	Name string `json:"name"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	Organization *map[string]interface{} `json:"organization"`
 }
 
@@ -2251,6 +3015,7 @@ type ModerationsRequest struct {
 
 type ModerationsResponse struct {
 	Id *string `json:"id,omitempty"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
 	Model *string `json:"model,omitempty"`
 	Results *[]map[string]interface{} `json:"results,omitempty"`
 }
@@ -2268,12 +3033,235 @@ type MusicGenerateRequest struct {
 }
 
 type MusicGenerateResponse struct {
+	AudioBase64 *string `json:"audio_base64,omitempty"`
+	AudioUrl *string `json:"audio_url,omitempty"`
+	Id string `json:"id"`
+	Model string `json:"model"`
+	NativeResponseId *string `json:"nativeResponseId,omitempty"`
+	Object string `json:"object"`
+	Output *[]map[string]interface{} `json:"output,omitempty"`
+	Provider string `json:"provider"`
+	Result interface{} `json:"result,omitempty"`
+	Status string `json:"status"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
 type NotImplementedResponse struct {
 	Description string `json:"description"`
 	Error string `json:"error"`
 	StatusCode int `json:"status_code"`
+}
+
+type OAuthClient struct {
+	ActiveAuthorizations *int `json:"active_authorizations,omitempty"`
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	ClientId string `json:"client_id"`
+	ClientType string `json:"client_type"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name string `json:"name"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris []string `json:"redirect_uris"`
+	RequestsLast30d *int `json:"requests_last_30d,omitempty"`
+	Status string `json:"status"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+	TotalAuthorizations *int `json:"total_authorizations,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type OAuthClientCreateRequest struct {
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	ClientType *string `json:"client_type,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name string `json:"name"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris []string `json:"redirect_uris"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+}
+
+type OAuthClientCreateResponse struct {
+	ActiveAuthorizations *int `json:"active_authorizations,omitempty"`
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	ClientId string `json:"client_id"`
+	ClientSecret *string `json:"client_secret,omitempty"`
+	ClientType string `json:"client_type"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name string `json:"name"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris []string `json:"redirect_uris"`
+	RequestsLast30d *int `json:"requests_last_30d,omitempty"`
+	Status string `json:"status"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+	TotalAuthorizations *int `json:"total_authorizations,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type OAuthClientDeleteResponse struct {
+	ClientId string `json:"client_id"`
+	Message string `json:"message"`
+}
+
+type OAuthClientInput struct {
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris *[]string `json:"redirect_uris,omitempty"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+}
+
+type OAuthClientListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Pagination map[string]interface{} `json:"pagination"`
+}
+
+type OAuthClientSecretResponse struct {
+	ClientId string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	Message string `json:"message"`
+}
+
+type OAuthClientUpdateRequest struct {
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris *[]string `json:"redirect_uris,omitempty"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+}
+
+type ObservabilityDestination struct {
+	Configured bool `json:"configured"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Enabled bool `json:"enabled"`
+	GroupJoin string `json:"group_join"`
+	Id string `json:"id"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters []map[string]interface{} `json:"key_filters"`
+	Name string `json:"name"`
+	PrivacyMode bool `json:"privacy_mode"`
+	RuleGroups []map[string]interface{} `json:"rule_groups"`
+	SamplingRate float64 `json:"sampling_rate"`
+	Type string `json:"type"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ObservabilityDestinationCreateRequest struct {
+	Config map[string]interface{} `json:"config"`
+	Enabled *bool `json:"enabled,omitempty"`
+	GroupJoin *string `json:"group_join,omitempty"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters *[]map[string]interface{} `json:"key_filters,omitempty"`
+	Name string `json:"name"`
+	PrivacyMode *bool `json:"privacy_mode,omitempty"`
+	RuleGroups *[]map[string]interface{} `json:"rule_groups,omitempty"`
+	SamplingRate *float64 `json:"sampling_rate,omitempty"`
+	Type string `json:"type"`
+}
+
+type ObservabilityDestinationListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type ObservabilityDestinationPolicyInput struct {
+	Enabled *bool `json:"enabled,omitempty"`
+	GroupJoin *string `json:"group_join,omitempty"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters *[]map[string]interface{} `json:"key_filters,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyMode *bool `json:"privacy_mode,omitempty"`
+	RuleGroups *[]map[string]interface{} `json:"rule_groups,omitempty"`
+	SamplingRate *float64 `json:"sampling_rate,omitempty"`
+}
+
+type ObservabilityDestinationResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ObservabilityDestinationType string
+
+const (
+	ObservabilityDestinationTypeOtelCollector ObservabilityDestinationType = "otel_collector"
+	ObservabilityDestinationTypeWebhook ObservabilityDestinationType = "webhook"
+)
+
+
+type ObservabilityDestinationUpdateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	GroupJoin *string `json:"group_join,omitempty"`
+	IncludeCostMetadata *bool `json:"include_cost_metadata,omitempty"`
+	IncludeGenerationMetadata *bool `json:"include_generation_metadata,omitempty"`
+	IncludeIdentityMetadata *bool `json:"include_identity_metadata,omitempty"`
+	IncludeRequestContext *bool `json:"include_request_context,omitempty"`
+	KeyFilters *[]map[string]interface{} `json:"key_filters,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyMode *bool `json:"privacy_mode,omitempty"`
+	RuleGroups *[]map[string]interface{} `json:"rule_groups,omitempty"`
+	SamplingRate *float64 `json:"sampling_rate,omitempty"`
+}
+
+type ObservabilityKeyFilter struct {
+	KeyId string `json:"key_id"`
+	Mode string `json:"mode"`
+}
+
+type ObservabilityLoggingPolicy struct {
+	BillingStatus string `json:"billing_status"`
+	Enabled bool `json:"enabled"`
+	GraceUntil *string `json:"grace_until,omitempty"`
+	IncludeProviderPayloads bool `json:"include_provider_payloads"`
+	PricePerMillionUnitsNanos int `json:"price_per_million_units_nanos"`
+	RetentionDays int `json:"retention_days"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ObservabilityLoggingPolicyResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ObservabilityLoggingPolicyUpdateRequest struct {
+	Enabled *bool `json:"enabled,omitempty"`
+	IncludeProviderPayloads *bool `json:"include_provider_payloads,omitempty"`
+	RetentionDays *int `json:"retention_days,omitempty"`
+}
+
+type ObservabilityRule struct {
+	Condition string `json:"condition"`
+	Field string `json:"field"`
+	Value *string `json:"value,omitempty"`
+}
+
+type ObservabilityRuleGroup struct {
+	Match string `json:"match"`
+	Rules []map[string]interface{} `json:"rules"`
 }
 
 type OcrRequest struct {
@@ -2298,6 +3286,7 @@ const (
 	OrganisationIdAmazon OrganisationId = "amazon"
 	OrganisationIdAnthropic OrganisationId = "anthropic"
 	OrganisationIdArceeAi OrganisationId = "arcee-ai"
+	OrganisationIdBaai OrganisationId = "baai"
 	OrganisationIdBaidu OrganisationId = "baidu"
 	OrganisationIdBlackForestLabs OrganisationId = "black-forest-labs"
 	OrganisationIdBytedance OrganisationId = "bytedance"
@@ -2309,10 +3298,12 @@ const (
 	OrganisationIdEssentialAi OrganisationId = "essential-ai"
 	OrganisationIdGithub OrganisationId = "github"
 	OrganisationIdGoogle OrganisationId = "google"
+	OrganisationIdHexgrad OrganisationId = "hexgrad"
 	OrganisationIdIbm OrganisationId = "ibm"
 	OrganisationIdInception OrganisationId = "inception"
 	OrganisationIdInclusionai OrganisationId = "inclusionai"
 	OrganisationIdInflection OrganisationId = "inflection"
+	OrganisationIdJetbrains OrganisationId = "jetbrains"
 	OrganisationIdKwaipilot OrganisationId = "kwaipilot"
 	OrganisationIdLg OrganisationId = "lg"
 	OrganisationIdLightricks OrganisationId = "lightricks"
@@ -2335,10 +3326,14 @@ const (
 	OrganisationIdPoolside OrganisationId = "poolside"
 	OrganisationIdPrimeIntellect OrganisationId = "prime-intellect"
 	OrganisationIdQwen OrganisationId = "qwen"
+	OrganisationIdReka OrganisationId = "reka"
 	OrganisationIdRelace OrganisationId = "relace"
 	OrganisationIdRunway OrganisationId = "runway"
+	OrganisationIdSakana OrganisationId = "sakana"
 	OrganisationIdSourceful OrganisationId = "sourceful"
 	OrganisationIdSpacexAi OrganisationId = "spacex-ai"
+	OrganisationIdStabilityAi OrganisationId = "stability-ai"
+	OrganisationIdStealth OrganisationId = "stealth"
 	OrganisationIdStepfun OrganisationId = "stepfun"
 	OrganisationIdSuno OrganisationId = "suno"
 	OrganisationIdTencent OrganisationId = "tencent"
@@ -2355,12 +3350,376 @@ const (
 
 type OrganisationIdList = []string
 
+type ParseBlock = interface{}
+
+type ParseBoundingBox struct {
+	BottomRightX float64 `json:"bottom_right_x"`
+	BottomRightY float64 `json:"bottom_right_y"`
+	TopLeftX float64 `json:"top_left_x"`
+	TopLeftY float64 `json:"top_left_y"`
+}
+
+type ParseImage struct {
+	BoundingBox map[string]interface{} `json:"bounding_box"`
+	BoundingBoxNormalized map[string]interface{} `json:"bounding_box_normalized"`
+	Category string `json:"category"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+}
+
+type ParsePage = interface{}
+
+type ParseRequest struct {
+	Debug *map[string]interface{} `json:"debug,omitempty"`
+	Document map[string]interface{} `json:"document"`
+	EchoUpstreamRequest *bool `json:"echo_upstream_request,omitempty"`
+	Model string `json:"model"`
+	OutputFormat *string `json:"output_format,omitempty"`
+	Provider *map[string]interface{} `json:"provider,omitempty"`
+	Routing *map[string]interface{} `json:"routing,omitempty"`
+}
+
+type ParseResponse struct {
+	Id string `json:"id"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
+	Model string `json:"model"`
+	Object string `json:"object"`
+	Pages []interface{} `json:"pages"`
+	Provider string `json:"provider"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
+}
+
+type Preset struct {
+	ActiveVersionId *string `json:"active_version_id,omitempty"`
+	Config map[string]interface{} `json:"config"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	SourcePresetId *string `json:"source_preset_id,omitempty"`
+	SourcePresetVersionId *string `json:"source_preset_version_id,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	UpstreamVersionId *string `json:"upstream_version_id,omitempty"`
+	VersioningMethod string `json:"versioning_method"`
+	Visibility string `json:"visibility"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PresetConfig struct {
+}
+
+type PresetCreateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name string `json:"name"`
+	Slug *string `json:"slug,omitempty"`
+	VersioningMethod *string `json:"versioning_method,omitempty"`
+	Visibility *string `json:"visibility,omitempty"`
+}
+
+type PresetCreateResponse struct {
+	CanonicalModel string `json:"canonical_model"`
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetForkRequest struct {
+	SourceVersionId *string `json:"source_version_id,omitempty"`
+}
+
+type PresetListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type PresetPublisher struct {
+	Handle *string `json:"handle"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PresetPublisherResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetPublisherUpdateRequest struct {
+	Handle string `json:"handle"`
+}
+
+type PresetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetTestRun struct {
+	BaselinePresetId *string `json:"baseline_preset_id"`
+	CompletedAt *string `json:"completed_at"`
+	Config map[string]interface{} `json:"config"`
+	CreatedAt string `json:"created_at"`
+	CreatedByUserId *string `json:"created_by_user_id"`
+	DatasetName *string `json:"dataset_name"`
+	Description *string `json:"description"`
+	Id string `json:"id"`
+	Name *string `json:"name"`
+	PresetId *string `json:"preset_id"`
+	StartedAt *string `json:"started_at"`
+	Status string `json:"status"`
+	Summary map[string]interface{} `json:"summary"`
+	UpdatedAt string `json:"updated_at"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PresetTestRunCreateRequest struct {
+	BaselinePresetId *string `json:"baseline_preset_id,omitempty"`
+	CompletedAt *string `json:"completed_at,omitempty"`
+	Config *map[string]interface{} `json:"config,omitempty"`
+	DatasetName *string `json:"dataset_name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PresetId *string `json:"preset_id,omitempty"`
+	StartedAt *string `json:"started_at,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Summary *map[string]interface{} `json:"summary,omitempty"`
+}
+
+type PresetTestRunDetailResponse struct {
+	Data map[string]interface{} `json:"data"`
+	FeedbackSummary *map[string]interface{} `json:"feedback_summary"`
+}
+
+type PresetTestRunListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type PresetTestRunResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetTestRunUpdateRequest struct {
+	CompletedAt *string `json:"completed_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	StartedAt *string `json:"started_at,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Summary *map[string]interface{} `json:"summary,omitempty"`
+}
+
+type PresetUpdateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	ReplaceConfig *bool `json:"replace_config,omitempty"`
+	Slug *string `json:"slug,omitempty"`
+	VersioningMethod *string `json:"versioning_method,omitempty"`
+	Visibility *string `json:"visibility,omitempty"`
+}
+
+type PresetUpstreamApplyRequest struct {
+	VersionId string `json:"version_id"`
+}
+
+type PresetUpstreamApplyResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetVersion struct {
+	Config map[string]interface{} `json:"config"`
+	CreatedAt string `json:"created_at"`
+	CreatedBy string `json:"created_by"`
+	Description *string `json:"description,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	PresetId string `json:"preset_id"`
+	ReleaseNotes *string `json:"release_notes,omitempty"`
+	Slug string `json:"slug"`
+	VersionLabel string `json:"version_label"`
+	VersionNumber int `json:"version_number"`
+	VersioningMethod string `json:"versioning_method"`
+	Visibility string `json:"visibility"`
+}
+
+type PresetVersioningMethod string
+
+const (
+	PresetVersioningMethodSequential PresetVersioningMethod = "sequential"
+	PresetVersioningMethodSemver PresetVersioningMethod = "semver"
+	PresetVersioningMethodDate PresetVersioningMethod = "date"
+)
+
+
+type PresetVersionListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type PresetVersionPublishRequest struct {
+	ReleaseNotes *string `json:"release_notes,omitempty"`
+	VersionLabel *string `json:"version_label,omitempty"`
+}
+
+type PresetVersionResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetVisibility string
+
+const (
+	PresetVisibilityPrivate PresetVisibility = "private"
+	PresetVisibilityTeam PresetVisibility = "team"
+	PresetVisibilityPublic PresetVisibility = "public"
+)
+
+
+type PrivateModel struct {
+	BaseUrl string `json:"base_url"`
+	CatalogModelId *string `json:"catalog_model_id,omitempty"`
+	ContextLength *int `json:"context_length,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	CredentialPrefix *string `json:"credential_prefix,omitempty"`
+	CredentialSuffix *string `json:"credential_suffix,omitempty"`
+	CustomProviderName *string `json:"custom_provider_name,omitempty"`
+	CustomProviderUrl *string `json:"custom_provider_url,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled bool `json:"enabled"`
+	HostProviderId *string `json:"host_provider_id,omitempty"`
+	Id string `json:"id"`
+	InputModalities *[]string `json:"input_modalities,omitempty"`
+	LocalSlug *string `json:"local_slug,omitempty"`
+	MaxOutputTokens *int `json:"max_output_tokens,omitempty"`
+	ModelId string `json:"model_id"`
+	Name string `json:"name"`
+	OutputModalities *[]string `json:"output_modalities,omitempty"`
+	RoutingPolicy *string `json:"routing_policy,omitempty"`
+	SupportsResponses bool `json:"supports_responses"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	UpstreamModelId string `json:"upstream_model_id"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PrivateModelCreateRequest struct {
+	BaseUrl string `json:"base_url"`
+	ContextLength *int `json:"context_length,omitempty"`
+	Credential string `json:"credential"`
+	CustomProviderName *string `json:"custom_provider_name,omitempty"`
+	CustomProviderUrl *string `json:"custom_provider_url,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	HostProviderId *string `json:"host_provider_id,omitempty"`
+	MaxOutputTokens *int `json:"max_output_tokens,omitempty"`
+	ModelReference string `json:"model_reference"`
+	Name string `json:"name"`
+	RoutingPolicy *string `json:"routing_policy,omitempty"`
+	SupportsResponses *bool `json:"supports_responses,omitempty"`
+	UpstreamModelId string `json:"upstream_model_id"`
+}
+
+type PrivateModelDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+type PrivateModelListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type PrivateModelResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PrivateModelUpdateRequest struct {
+	BaseUrl *string `json:"base_url,omitempty"`
+	ContextLength *int `json:"context_length,omitempty"`
+	Credential *string `json:"credential,omitempty"`
+	CustomProviderName *string `json:"custom_provider_name,omitempty"`
+	CustomProviderUrl *string `json:"custom_provider_url,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	HostProviderId *string `json:"host_provider_id,omitempty"`
+	MaxOutputTokens *int `json:"max_output_tokens,omitempty"`
+	ModelReference *string `json:"model_reference,omitempty"`
+	Name *string `json:"name,omitempty"`
+	RoutingPolicy *string `json:"routing_policy,omitempty"`
+	SupportsResponses *bool `json:"supports_responses,omitempty"`
+	UpstreamModelId *string `json:"upstream_model_id,omitempty"`
+}
+
 type Provider struct {
 	ApiProviderId *string `json:"api_provider_id,omitempty"`
 	ApiProviderName *string `json:"api_provider_name,omitempty"`
 	CountryCode *string `json:"country_code,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Link *string `json:"link,omitempty"`
+}
+
+type ProviderCredential struct {
+	AllowedApiKeyIds *[]string `json:"allowed_api_key_ids,omitempty"`
+	AllowedModelSlugs *[]string `json:"allowed_model_slugs,omitempty"`
+	AlwaysUse *bool `json:"always_use,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Disabled bool `json:"disabled"`
+	Enabled bool `json:"enabled"`
+	ErrorMessage *string `json:"error_message,omitempty"`
+	Id string `json:"id"`
+	IsFallback bool `json:"is_fallback"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	LastVerifiedAt *string `json:"last_verified_at,omitempty"`
+	Name string `json:"name"`
+	Prefix *string `json:"prefix,omitempty"`
+	ProviderId string `json:"provider_id"`
+	RoutingMode string `json:"routing_mode"`
+	SortOrder int `json:"sort_order"`
+	Suffix *string `json:"suffix,omitempty"`
+	VerificationStatus *string `json:"verification_status,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ProviderCredentialCreateRequest struct {
+	AllowedApiKeyIds *[]string `json:"allowed_api_key_ids,omitempty"`
+	AllowedModels *[]string `json:"allowed_models,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Key string `json:"key"`
+	Name string `json:"name"`
+	Provider string `json:"provider"`
+	RoutingMode *string `json:"routing_mode,omitempty"`
+}
+
+type ProviderCredentialDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+type ProviderCredentialListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type ProviderCredentialReorderRequest struct {
+	KeyIds []string `json:"key_ids"`
+	Provider string `json:"provider"`
+	RoutingMode string `json:"routing_mode"`
+}
+
+type ProviderCredentialReorderResponse struct {
+	Reordered bool `json:"reordered"`
+}
+
+type ProviderCredentialResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ProviderCredentialRoutingMode string
+
+const (
+	ProviderCredentialRoutingModePriority ProviderCredentialRoutingMode = "priority"
+	ProviderCredentialRoutingModeFallback ProviderCredentialRoutingMode = "fallback"
+)
+
+
+type ProviderCredentialUpdateRequest struct {
+	AllowedApiKeyIds *[]string `json:"allowed_api_key_ids,omitempty"`
+	AllowedModels *[]string `json:"allowed_models,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Key *string `json:"key,omitempty"`
+	Name *string `json:"name,omitempty"`
+	RoutingMode *string `json:"routing_mode,omitempty"`
 }
 
 type ProviderOptions struct {
@@ -2610,6 +3969,10 @@ type ToolCallContentPart struct {
 	Type string `json:"type"`
 }
 
+type UpdatedResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type Usage struct {
 	CompletionTokens *int `json:"completion_tokens,omitempty"`
 	PromptTokens *int `json:"prompt_tokens,omitempty"`
@@ -2759,12 +4122,71 @@ type VideoOutputConfig struct {
 	Access *string `json:"access,omitempty"`
 }
 
+type WebhookEndpoint struct {
+	CreatedAt *string `json:"createdAt,omitempty"`
+	CreatedBy *string `json:"createdBy,omitempty"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
+	Events []string `json:"events"`
+	HasSecret bool `json:"hasSecret"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updatedAt,omitempty"`
+	Url string `json:"url"`
+	WorkspaceId string `json:"workspaceId"`
+}
+
+type WebhookEndpointCreateRequest struct {
+	Events *[]string `json:"events,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Url string `json:"url"`
+}
+
+type WebhookEndpointDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+	Id string `json:"id"`
+	Object string `json:"object"`
+}
+
+type WebhookEndpointInput struct {
+	Events *[]string `json:"events,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Url *string `json:"url,omitempty"`
+}
+
+type WebhookEndpointListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Object string `json:"object"`
+}
+
+type WebhookEndpointSecretResponse struct {
+	CreatedAt *string `json:"createdAt,omitempty"`
+	CreatedBy *string `json:"createdBy,omitempty"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
+	Events []string `json:"events"`
+	HasSecret bool `json:"hasSecret"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	SigningSecret string `json:"signing_secret"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updatedAt,omitempty"`
+	Url string `json:"url"`
+	WorkspaceId string `json:"workspaceId"`
+}
+
+type WebhookEndpointUpdateRequest struct {
+	Events *[]string `json:"events,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Url *string `json:"url,omitempty"`
+}
+
 type Workspace struct {
 	CreatedAt *string `json:"created_at"`
 	CreatedBy *string `json:"created_by"`
 	Id string `json:"id"`
 	Name *string `json:"name"`
-	Slug *string `json:"slug"`
+	Slug *string `json:"slug,omitempty"`
 	UpdatedAt *string `json:"updated_at"`
 }
 
@@ -2783,10 +4205,173 @@ type WorkspaceActivityResponse struct {
 	Activity []map[string]interface{} `json:"activity"`
 	Limit int `json:"limit"`
 	Offset int `json:"offset"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	PeriodDays int `json:"period_days"`
 	Total int `json:"total"`
 	TotalCostCents float64 `json:"total_cost_cents"`
+}
+
+type WorkspaceApp struct {
+	AppKey string `json:"app_key"`
+	Category *string `json:"category"`
+	CreatedAt *string `json:"created_at"`
+	DocsUrl *string `json:"docs_url"`
+	Id string `json:"id"`
+	ImageUrl *string `json:"image_url"`
+	IsActive bool `json:"is_active"`
+	IsManaged bool `json:"is_managed"`
+	IsPublic bool `json:"is_public"`
+	LastSeen *string `json:"last_seen"`
+	Title string `json:"title"`
+	Url *string `json:"url"`
+}
+
+type WorkspaceAppListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Limit int `json:"limit"`
+	Offset int `json:"offset"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceAppMergeRequest struct {
+	TargetAppId string `json:"target_app_id"`
+}
+
+type WorkspaceAppMergeResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceAppResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceAppUpdateRequest struct {
+	Category *string `json:"category,omitempty"`
+	DocsUrl *string `json:"docs_url,omitempty"`
+	ImageUrl *string `json:"image_url,omitempty"`
+	IsActive *bool `json:"is_active,omitempty"`
+	IsPublic *bool `json:"is_public,omitempty"`
+	Title *string `json:"title,omitempty"`
+	Url *string `json:"url,omitempty"`
+}
+
+type WorkspaceAssignableRole string
+
+const (
+	WorkspaceAssignableRoleAdmin WorkspaceAssignableRole = "admin"
+	WorkspaceAssignableRoleMember WorkspaceAssignableRole = "member"
+)
+
+
+type WorkspaceAuditEvent struct {
+	Action string `json:"action"`
+	Actor *map[string]interface{} `json:"actor,omitempty"`
+	ActorUserId *string `json:"actor_user_id,omitempty"`
+	CreatedAt string `json:"created_at"`
+	Id string `json:"id"`
+	Metadata map[string]interface{} `json:"metadata"`
+	RequestId *string `json:"request_id,omitempty"`
+	TargetId string `json:"target_id"`
+	TargetName *string `json:"target_name,omitempty"`
+	TargetType string `json:"target_type"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceAuditEventActor struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	Email *string `json:"email,omitempty"`
+}
+
+type WorkspaceAuditEventLimits struct {
+	DailyCostNanos *int `json:"dailyCostNanos,omitempty"`
+	DailyRequests *int `json:"dailyRequests,omitempty"`
+	MonthlyCostNanos *int `json:"monthlyCostNanos,omitempty"`
+	MonthlyRequests *int `json:"monthlyRequests,omitempty"`
+	SoftBlocked *bool `json:"softBlocked,omitempty"`
+	WeeklyCostNanos *int `json:"weeklyCostNanos,omitempty"`
+	WeeklyRequests *int `json:"weeklyRequests,omitempty"`
+}
+
+type WorkspaceAuditEventListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	HasMore bool `json:"has_more"`
+	NextCursor *string `json:"next_cursor,omitempty"`
+}
+
+type WorkspaceAuditEventMetadata struct {
+	AccessTemplate *string `json:"accessTemplate,omitempty"`
+	ChangedFields *[]string `json:"changedFields,omitempty"`
+	ExpiresAt *string `json:"expiresAt,omitempty"`
+	Limits *map[string]interface{} `json:"limits,omitempty"`
+	Prefix *string `json:"prefix,omitempty"`
+	PreviousKeyExpiresAt *string `json:"previousKeyExpiresAt,omitempty"`
+	ReplacementKeyId *string `json:"replacementKeyId,omitempty"`
+	ReplacementKeyName *string `json:"replacementKeyName,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type WorkspaceAutoTopUpSettings struct {
+	AmountNanos int `json:"amount_nanos"`
+	BalanceThresholdNanos int `json:"balance_threshold_nanos"`
+	Enabled bool `json:"enabled"`
+	PaymentMethodId *string `json:"payment_method_id"`
+}
+
+type WorkspaceAutoTopUpUpdate struct {
+	AmountNanos *int `json:"amount_nanos,omitempty"`
+	BalanceThresholdNanos *int `json:"balance_threshold_nanos,omitempty"`
+	Enabled bool `json:"enabled"`
+	PaymentMethodId *string `json:"payment_method_id,omitempty"`
+}
+
+type WorkspaceBudget struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Exceeded bool `json:"exceeded"`
+	Id string `json:"id"`
+	Interval string `json:"interval"`
+	Limit float64 `json:"limit"`
+	LimitNanos int `json:"limit_nanos"`
+	Remaining float64 `json:"remaining"`
+	RemainingNanos int `json:"remaining_nanos"`
+	ResetAt *string `json:"reset_at,omitempty"`
+	UpdatedAt string `json:"updated_at"`
+	Usage float64 `json:"usage"`
+	UsageNanos int `json:"usage_nanos"`
+	WindowStart *string `json:"window_start,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceBudgetDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetInput struct {
+	Interval string `json:"interval"`
+	Limit float64 `json:"limit"`
+}
+
+type WorkspaceBudgetInterval string
+
+const (
+	WorkspaceBudgetIntervalDaily WorkspaceBudgetInterval = "daily"
+	WorkspaceBudgetIntervalWeekly WorkspaceBudgetInterval = "weekly"
+	WorkspaceBudgetIntervalMonthly WorkspaceBudgetInterval = "monthly"
+	WorkspaceBudgetIntervalLifetime WorkspaceBudgetInterval = "lifetime"
+)
+
+
+type WorkspaceBudgetListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceBudgetUpdateInput struct {
+	Interval *string `json:"interval,omitempty"`
+	Limit *float64 `json:"limit,omitempty"`
 }
 
 type WorkspaceCreateRequest struct {
@@ -2794,13 +4379,493 @@ type WorkspaceCreateRequest struct {
 	Slug *string `json:"slug,omitempty"`
 }
 
+type WorkspaceDepartment struct {
+	Color *string `json:"color,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	DirectoryName *string `json:"directory_name,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	NameOverridden *bool `json:"name_overridden,omitempty"`
+	SourceId *string `json:"source_id,omitempty"`
+	SourceType *string `json:"source_type,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceDepartmentCreateRequest struct {
+	Color *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name string `json:"name"`
+}
+
+type WorkspaceDepartmentInput struct {
+	Color *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+type WorkspaceDepartmentListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceDepartmentMember struct {
+	DepartmentId string `json:"department_id"`
+	IsPrimary bool `json:"is_primary"`
+	Position string `json:"position"`
+	UserId string `json:"user_id"`
+}
+
+type WorkspaceDepartmentMemberRequest struct {
+	Position *string `json:"position,omitempty"`
+	Primary *bool `json:"primary,omitempty"`
+}
+
+type WorkspaceDepartmentMemberResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceDepartmentResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceDepartmentUpdateRequest struct {
+	Color *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+type WorkspaceDirectoryMember struct {
+	AccessSource string `json:"access_source"`
+	Department *map[string]interface{} `json:"department"`
+	DepartmentOverrideEnabled bool `json:"department_override_enabled"`
+	DepartmentOverrideId *string `json:"department_override_id"`
+	DepartmentSource string `json:"department_source"`
+	DirectoryDepartment *string `json:"directory_department,omitempty"`
+	DisplayName string `json:"display_name"`
+	EffectiveRole string `json:"effective_role"`
+	Email *string `json:"email,omitempty"`
+	JoinedAt *string `json:"joined_at,omitempty"`
+	RoleOverride *string `json:"role_override"`
+	Status string `json:"status"`
+	UserId string `json:"user_id"`
+	WorkspaceRole string `json:"workspace_role"`
+}
+
+type WorkspaceDirectoryMemberUpdateRequest struct {
+	AccessRole *string `json:"access_role,omitempty"`
+	DepartmentId *string `json:"department_id,omitempty"`
+	DepartmentMode *string `json:"department_mode,omitempty"`
+	DepartmentPosition *string `json:"department_position,omitempty"`
+}
+
+type WorkspaceDirectoryResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceGroupMapping struct {
+	AccessRole string `json:"access_role"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	DepartmentId string `json:"department_id"`
+	DepartmentPosition string `json:"department_position"`
+	Id string `json:"id"`
+	ScimGroupId string `json:"scim_group_id"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceGroupMappingCreateRequest struct {
+	AccessRole *string `json:"access_role,omitempty"`
+	DepartmentId string `json:"department_id"`
+	DepartmentPosition *string `json:"department_position,omitempty"`
+	ScimGroupId string `json:"scim_group_id"`
+}
+
+type WorkspaceGroupMappingListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceGroupMappingResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceGroupMappingUpdateRequest struct {
+	AccessRole *string `json:"access_role,omitempty"`
+	DepartmentPosition *string `json:"department_position,omitempty"`
+}
+
+type WorkspaceInvite struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatorUserId string `json:"creator_user_id"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	MaxUses *int `json:"max_uses,omitempty"`
+	Role string `json:"role"`
+	TokenPreview *string `json:"token_preview,omitempty"`
+	UsesCount *int `json:"uses_count,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceInviteCreateRequest struct {
+	ExpiresInDays *int `json:"expires_in_days,omitempty"`
+	MaxUses *int `json:"max_uses,omitempty"`
+	Role *string `json:"role,omitempty"`
+}
+
+type WorkspaceInviteCreateResponse struct {
+	Data map[string]interface{} `json:"data"`
+	Token string `json:"token"`
+}
+
+type WorkspaceInviteListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceJoinRequest struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	DecidedAt *string `json:"decided_at,omitempty"`
+	DecidedBy *string `json:"decided_by,omitempty"`
+	Id string `json:"id"`
+	InviteId *string `json:"invite_id,omitempty"`
+	RequesterUserId string `json:"requester_user_id"`
+	Status string `json:"status"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceJoinRequestListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceJoinRequestResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceJoinRequestStatus string
+
+const (
+	WorkspaceJoinRequestStatusPending WorkspaceJoinRequestStatus = "pending"
+	WorkspaceJoinRequestStatusApproved WorkspaceJoinRequestStatus = "approved"
+	WorkspaceJoinRequestStatusDenied WorkspaceJoinRequestStatus = "denied"
+)
+
+
 type WorkspaceListResponse struct {
 	Data []map[string]interface{} `json:"data"`
 	TotalCount int `json:"total_count"`
 }
 
+type WorkspaceLowBalanceEmailSettings struct {
+	Enabled bool `json:"enabled"`
+	ThresholdUsd float64 `json:"threshold_usd"`
+}
+
+type WorkspaceLowBalanceEmailUpdate struct {
+	Enabled bool `json:"enabled"`
+	ThresholdUsd *float64 `json:"threshold_usd,omitempty"`
+}
+
+type WorkspaceMember struct {
+	DisplayName *string `json:"display_name,omitempty"`
+	JoinedAt *string `json:"joined_at,omitempty"`
+	Role string `json:"role"`
+	UserId string `json:"user_id"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceMemberAddResponse struct {
+	AddedCount int `json:"added_count"`
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceMemberBulkRequest struct {
+	Role *string `json:"role,omitempty"`
+	UserIds []string `json:"user_ids"`
+}
+
+type WorkspaceMemberListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type WorkspaceMemberRemoveRequest struct {
+	UserIds []string `json:"user_ids"`
+}
+
+type WorkspaceMemberRemoveResponse struct {
+	RemovedCount int `json:"removed_count"`
+}
+
+type WorkspaceMemberResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceMemberRoleUpdateRequest struct {
+	Role string `json:"role"`
+}
+
+type WorkspaceNotificationDestination struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Status string `json:"status"`
+	TargetPreview string `json:"target_preview"`
+	Type string `json:"type"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceNotificationDestinationCreateRequest struct {
+	Name string `json:"name"`
+	Target string `json:"target"`
+	Type string `json:"type"`
+}
+
+type WorkspaceNotificationDestinationListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationDestinationResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationDestinationTestRequest struct {
+	Target string `json:"target"`
+	Type string `json:"type"`
+}
+
+type WorkspaceNotificationDestinationType string
+
+const (
+	WorkspaceNotificationDestinationTypeEmail WorkspaceNotificationDestinationType = "email"
+	WorkspaceNotificationDestinationTypeDiscord WorkspaceNotificationDestinationType = "discord"
+	WorkspaceNotificationDestinationTypeDiscordWebhook WorkspaceNotificationDestinationType = "discord_webhook"
+	WorkspaceNotificationDestinationTypeSlack WorkspaceNotificationDestinationType = "slack"
+	WorkspaceNotificationDestinationTypeMicrosoftTeams WorkspaceNotificationDestinationType = "microsoft_teams"
+	WorkspaceNotificationDestinationTypeCustomWebhook WorkspaceNotificationDestinationType = "custom_webhook"
+)
+
+
+type WorkspaceNotificationEmailPreferences struct {
+	AutoTopUpFailure bool `json:"auto_top_up_failure"`
+	ModelDeprecation bool `json:"model_deprecation"`
+	PaymentMethodExpiring bool `json:"payment_method_expiring"`
+}
+
+type WorkspaceNotificationEmailPreferencesUpdate struct {
+	AutoTopUpFailure *bool `json:"auto_top_up_failure,omitempty"`
+	ModelDeprecation *bool `json:"model_deprecation,omitempty"`
+	PaymentMethodExpiring *bool `json:"payment_method_expiring,omitempty"`
+}
+
+type WorkspaceNotificationEventKind string
+
+const (
+	WorkspaceNotificationEventKindLowBalance WorkspaceNotificationEventKind = "low_balance"
+	WorkspaceNotificationEventKindAutoTopUpFailed WorkspaceNotificationEventKind = "auto_top_up_failed"
+	WorkspaceNotificationEventKindPaymentMethodExpiring WorkspaceNotificationEventKind = "payment_method_expiring"
+	WorkspaceNotificationEventKindModelDeprecation WorkspaceNotificationEventKind = "model_deprecation"
+)
+
+
+type WorkspaceNotificationRoute struct {
+	DestinationIds []string `json:"destination_ids"`
+	EventKind string `json:"event_kind"`
+}
+
+type WorkspaceNotificationRouteMap struct {
+	AutoTopUpFailed []string `json:"auto_top_up_failed"`
+	LowBalance []string `json:"low_balance"`
+	ModelDeprecation []string `json:"model_deprecation"`
+	PaymentMethodExpiring []string `json:"payment_method_expiring"`
+}
+
+type WorkspaceNotificationRouteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationRoutesResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationRouteUpdateRequest struct {
+	DestinationIds []string `json:"destination_ids"`
+}
+
+type WorkspaceNotificationSettings struct {
+	AutoTopUp map[string]interface{} `json:"auto_top_up"`
+	EmailPreferences map[string]interface{} `json:"email_preferences"`
+	LowBalanceEmail map[string]interface{} `json:"low_balance_email"`
+}
+
+type WorkspaceNotificationSettingsResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceNotificationSettingsUpdateRequest struct {
+	AutoTopUp *map[string]interface{} `json:"auto_top_up,omitempty"`
+	EmailPreferences *map[string]interface{} `json:"email_preferences,omitempty"`
+	LowBalanceEmail *map[string]interface{} `json:"low_balance_email,omitempty"`
+}
+
+type WorkspaceNotificationTestResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceProviderRestrictionMode string
+
+const (
+	WorkspaceProviderRestrictionModeNone WorkspaceProviderRestrictionMode = "none"
+	WorkspaceProviderRestrictionModeAllowlist WorkspaceProviderRestrictionMode = "allowlist"
+	WorkspaceProviderRestrictionModeBlocklist WorkspaceProviderRestrictionMode = "blocklist"
+)
+
+
 type WorkspaceResponse struct {
 	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceRole string
+
+const (
+	WorkspaceRoleOwner WorkspaceRole = "owner"
+	WorkspaceRoleAdmin WorkspaceRole = "admin"
+	WorkspaceRoleMember WorkspaceRole = "member"
+)
+
+
+type WorkspaceRoutingMode string
+
+const (
+	WorkspaceRoutingModeBalanced WorkspaceRoutingMode = "balanced"
+	WorkspaceRoutingModePrice WorkspaceRoutingMode = "price"
+	WorkspaceRoutingModeLatency WorkspaceRoutingMode = "latency"
+	WorkspaceRoutingModeThroughput WorkspaceRoutingMode = "throughput"
+)
+
+
+type WorkspaceScimAuditResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimEndpoint struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceScimEndpointResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimEvent struct {
+	Action *string `json:"action,omitempty"`
+	CorrelationId *string `json:"correlation_id,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Detail *map[string]interface{} `json:"detail,omitempty"`
+	HttpStatus *int `json:"http_status,omitempty"`
+	Id *string `json:"id,omitempty"`
+	Outcome *string `json:"outcome,omitempty"`
+	RequestId *string `json:"request_id,omitempty"`
+	ResourceId *string `json:"resource_id,omitempty"`
+	ResourceType *string `json:"resource_type,omitempty"`
+	ScimType *string `json:"scim_type,omitempty"`
+}
+
+type WorkspaceScimResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimToken struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	Label string `json:"label"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	RevokedAt *string `json:"revoked_at,omitempty"`
+	TokenPrefix string `json:"token_prefix"`
+}
+
+type WorkspaceScimTokenCreateRequest struct {
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Label *string `json:"label,omitempty"`
+}
+
+type WorkspaceScimTokenCreateResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceScimUpdateRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
+type WorkspaceSettings struct {
+	AlphaChannelEnabled *bool `json:"alpha_channel_enabled,omitempty"`
+	BetaChannelEnabled *bool `json:"beta_channel_enabled,omitempty"`
+	ByokFallbackEnabled *bool `json:"byok_fallback_enabled,omitempty"`
+	IoLoggingEnabled *bool `json:"io_logging_enabled,omitempty"`
+	IoLoggingIncludeProviderPayloads *bool `json:"io_logging_include_provider_payloads,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacy_enable_free_may_publish_prompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacy_enable_free_may_train,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacy_enable_input_output_logging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacy_enable_paid_may_train,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacy_zdr_only,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"provider_restriction_enforce_allowed,omitempty"`
+	ProviderRestrictionMode *interface{} `json:"provider_restriction_mode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"provider_restriction_provider_ids,omitempty"`
+	ResponseHealingEnabled *bool `json:"response_healing_enabled,omitempty"`
+	ResponseHealingLocked *bool `json:"response_healing_locked,omitempty"`
+	ResponseHealingMode *string `json:"response_healing_mode,omitempty"`
+	RoutingMode *interface{} `json:"routing_mode,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceSettingsResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceSettingsUpdateRequest struct {
+	AlphaChannelEnabled *bool `json:"alpha_channel_enabled,omitempty"`
+	BetaChannelEnabled *bool `json:"beta_channel_enabled,omitempty"`
+	ByokFallbackEnabled *bool `json:"byok_fallback_enabled,omitempty"`
+	IoLoggingEnabled *bool `json:"io_logging_enabled,omitempty"`
+	IoLoggingIncludeProviderPayloads *bool `json:"io_logging_include_provider_payloads,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacy_enable_free_may_publish_prompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacy_enable_free_may_train,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacy_enable_input_output_logging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacy_enable_paid_may_train,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacy_zdr_only,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"provider_restriction_enforce_allowed,omitempty"`
+	ProviderRestrictionMode *string `json:"provider_restriction_mode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"provider_restriction_provider_ids,omitempty"`
+	ResponseHealingEnabled *bool `json:"response_healing_enabled,omitempty"`
+	ResponseHealingLocked *bool `json:"response_healing_locked,omitempty"`
+	ResponseHealingMode *string `json:"response_healing_mode,omitempty"`
+	RoutingMode *string `json:"routing_mode,omitempty"`
+}
+
+type WorkspaceSsoResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceSsoSettings struct {
+	Domains []string `json:"domains"`
+	Enabled bool `json:"enabled"`
+	Enforced bool `json:"enforced"`
+	Mode string `json:"mode"`
+	ProviderIdentifier *string `json:"provider_identifier"`
+}
+
+type WorkspaceSsoUpdateRequest struct {
+	Domains *[]string `json:"domains,omitempty"`
+	Enabled bool `json:"enabled"`
+	Enforced *bool `json:"enforced,omitempty"`
+	Mode string `json:"mode"`
+	ProviderIdentifier *string `json:"provider_identifier,omitempty"`
 }
 
 type WorkspaceUpdateRequest struct {

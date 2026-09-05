@@ -11,8 +11,8 @@ describe("public provider routes", () => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("get_public_provider_index")) return new Response(JSON.stringify([{
 				provider_slug: "openai", provider_name: "OpenAI", colour: "#000", country_code: "US",
-				provider_family_id: "openai", offer_label: null, offer_scope: "global", is_gateway_provider: true,
-				prompt_training_policy: "no_train", data_policy_tier: "private", zero_data_retention: "optional", data_retention_days: 30,
+				provider_family_id: "openai", offer_label: null, offer_scope: "global", is_gateway_provider: true, provider_status: "active", byok_available: true, default_execution_regions: ["US", "EU"], default_data_regions: ["US", "EU"],
+				prompt_training_policy: "no_train", data_policy_tier: "private", zero_data_retention: "default", data_retention_days: 0,
 				privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/",
 				total_model_ids: ["openai/gpt-test:free"], active_model_ids: ["openai/gpt-test:free"], free_model_ids: ["openai/gpt-test:free"],
 				requests_24h: 10, tokens_24h: 100, tokens_30d: 100, last_updated_at: "2026-01-01T00:00:00Z",
@@ -26,7 +26,7 @@ describe("public provider routes", () => {
 		const response = await app.request("https://phaseo.app/api/_web/api-providers", {}, env);
 		expect(response.status).toBe(200);
 		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
-		await expect(response.json()).resolves.toMatchObject({ providers: [{ api_provider_id: "openai", api_provider_name: "OpenAI", prompt_training_policy: "no_train", zero_data_retention: "optional", data_retention_days: 30, privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/", total_models: 1, active_models: 1, free_models: 1, total_daily_tokens: 100, total_monthly_tokens: 100, modality_support: { text: { input: 1, output: 1 }, image: { input: 1, output: 0 } } }] });
+		await expect(response.json()).resolves.toMatchObject({ providers: [{ api_provider_id: "openai", api_provider_name: "OpenAI", provider_status: "active", byok_available: true, default_execution_regions: ["US", "EU"], default_data_regions: ["US", "EU"], prompt_training_policy: "no_train", zero_data_retention: true, data_retention_days: 0, privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/", total_models: 1, active_models: 1, free_models: 1, total_daily_tokens: 100, total_monthly_tokens: 100, modality_support: { text: { input: 1, output: 1 }, image: { input: 1, output: 0 } } }] });
 	});
 
 	it("loads the provider index through one aggregate RPC without raw catalogue reads", async () => {
@@ -43,9 +43,52 @@ describe("public provider routes", () => {
 		expect(requestedUrls.some((url) => url.includes("v2_model_provider_routes") || url.includes("v2_models") || url.includes("v2_providers"))).toBe(false);
 	});
 
+	it("does not expose telemetry for a provider that has only stealth routes", async () => {
+		const requestedUrls: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/api-providers/secret-provider/top-models",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(404);
+		expect(requestedUrls.some((url) => url.includes("get_top_models_stats_tokens"))).toBe(false);
+	});
+
+	it("keeps legitimate inactive providers addressable", async () => {
+		const requestedUrls: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
+			if (url.includes("v2_model_provider_routes")) {
+				return new Response(JSON.stringify([{ provider_model_id: "pm-inactive" }]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/api-providers/inactive-provider/top-models",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		const visibilityUrl = requestedUrls.find((url) => url.includes("v2_model_provider_routes"));
+		expect(visibilityUrl).toContain("is_stealth=eq.false");
+		expect(visibilityUrl).not.toContain("routing_enabled");
+		expect(visibilityUrl).not.toContain("status=in.");
+	});
+
 	it("returns parity-shaped top model and app telemetry with the short edge policy", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_model_id: "pm-openai" }]), { status: 200 });
 			if (url.includes("get_top_models_stats_tokens")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", model_name: "GPT Test", request_count: "4", total_tokens: "120", median_latency_ms: "12.6", median_throughput: "3.456" }]), { status: 200 });
 			if (url.includes("get_top_apps_stats")) return new Response(JSON.stringify([{ app_id: "app-1", title: "Example", url: "https://example.com", total_tokens: "99" }, { app_id: "app-private", title: "Private", url: "https://private.example", total_tokens: "500" }, { app_id: "unknown", title: "Unknown", total_tokens: 1000 }]), { status: 200 });
 			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", hidden: false }]), { status: 200 });
@@ -83,6 +126,7 @@ describe("public provider routes", () => {
 	it("aggregates provider rollups into the existing metrics payload", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_model_id: "pm-openai" }]), { status: 200 });
 			if (url.includes("v2_web_public_usage_hourly")) return new Response(JSON.stringify([{
 				bucket_15m: new Date().toISOString(), canonical_model_id: "openai/gpt-test", requests: 10, success_requests: 9,
 				total_tokens: 100, latency_sum_ms: 500, latency_samples: 10, throughput_sum: 200, throughput_samples: 10,
@@ -104,6 +148,7 @@ describe("public provider routes", () => {
 		const bucket = new Date().toISOString();
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_model_id: "pm-openai" }]), { status: 200 });
 			if (url.includes("get_top_models_stats_tokens")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test" }]), { status: 200 });
 			if (url.includes("get_top_apps_stats")) return new Response(JSON.stringify([{ app_id: "app-1", title: "Example", url: "https://example.com" }]), { status: 200 });
 			if (url.includes("v2_web_public_usage_hourly") && url.includes("canonical_model_id")) return new Response(JSON.stringify([{ bucket_15m: bucket, canonical_model_id: "openai/gpt-test", total_tokens: 20 }]), { status: 200 });

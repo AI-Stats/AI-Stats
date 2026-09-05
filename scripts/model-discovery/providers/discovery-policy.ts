@@ -42,7 +42,7 @@ export const PLATFORM_DISCOVERY_RULES: PlatformDiscoveryRule[] = [
     {
         platformId: "alibaba-cloud",
         platformName: "Alibaba Cloud",
-        providerIds: ["alibaba"],
+          providerIds: ["alibaba-cloud"],
         modelsEndpoint: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/models",
         active: true,
     },
@@ -363,9 +363,8 @@ export const PLATFORM_DISCOVERY_RULES: PlatformDiscoveryRule[] = [
         platformId: "phala",
         platformName: "Phala",
         providerIds: ["phala"],
-        modelsEndpoint: null,
-        active: false,
-        reason: "No API models endpoint mapped yet.",
+        modelsEndpoint: "https://inference.phala.com/v1/models",
+        active: true,
     },
     {
         platformId: "sambanova",

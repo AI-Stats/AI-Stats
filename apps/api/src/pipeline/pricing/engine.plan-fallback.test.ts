@@ -14,7 +14,20 @@ const makeCard = (rules: PriceCard["rules"]): PriceCard => ({
 });
 
 describe("pricing engine non-standard plan fallback", () => {
-	it("falls back to standard when requested plan is missing for a meter", () => {
+    it("rejects a missing standard plan instead of reporting zero for paid usage", () => {
+        const card = makeCard([{ pricing_plan: "priority", meter: "input_text_tokens", unit: "token",
+            unit_size: 1_000_000, price_per_unit: "2", currency: "USD", match: [], priority: 100 }]);
+        expect(() => computeBillSummary({ input_text_tokens: 1000 }, card)).toThrow("pricing_plan_missing:standard");
+        expect(computeBillSummary({ input_text_tokens: 1000 }, card, {}, "priority").cost_usd_str).toBe("0.002000000");
+    });
+
+    it("preserves explicitly free cards", () => {
+        const card = makeCard([{ pricing_plan: "free", meter: "input_text_tokens", unit: "token",
+            unit_size: 1_000_000, price_per_unit: "0", currency: "USD", match: [], priority: 100 }]);
+        expect(computeBillSummary({ input_text_tokens: 1000 }, card).cost_usd_str).toBe("0.000000000");
+    });
+
+	it("keeps matching standard-meter fallback for batch pricing", () => {
 		const card = makeCard([
 			{
 				id: "standard-input",
@@ -44,7 +57,7 @@ describe("pricing engine non-standard plan fallback", () => {
 			{ input_text_tokens: 100_000, output_text_tokens: 10_000 },
 			card,
 			{},
-			"priority",
+			"batch",
 		);
 
 		expect(result.lines).toHaveLength(2);
@@ -118,5 +131,31 @@ describe("pricing engine non-standard plan fallback", () => {
 		]);
 		expect(result.cost_usd_str).toBe("9.900000000");
 	});
-});
 
+	it("uses the highest configured rate when a requested plan has a conditional coverage hole", () => {
+		const card = makeCard([
+			{
+				id: "batch-high-quality-image",
+				pricing_plan: "batch",
+				meter: "output_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: "0.25",
+				currency: "USD",
+				match: [{ path: "image_params.quality", op: "eq", value: "high" }],
+				priority: 100,
+			},
+		]);
+
+		const result = computeBillSummary(
+			{ output_image: 1 },
+			card,
+			{ image_params: { quality: "low" } },
+			"batch",
+		);
+
+		expect(result.lines).toHaveLength(1);
+		expect(result.lines[0]?.rule_id).toBe("batch-high-quality-image");
+		expect(result.cost_usd_str).toBe("0.250000000");
+	});
+});

@@ -72,6 +72,26 @@ describe("google-vertex empty response handling", () => {
 });
 
 describe("google-vertex irToGemini", () => {
+	it("maps Gemini 3.8 service tier and structured output", async () => {
+		const request = await irToGemini({
+			model: "gemini-3.8-flash",
+			stream: false,
+			serviceTier: "flex",
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+			responseFormat: {
+				type: "json_schema",
+				name: "result",
+				schema: { type: "object", properties: { answer: { type: "string" } } },
+			},
+		} as any);
+
+		expect(request.serviceTier).toBe("flex");
+		expect(request.generationConfig).toMatchObject({
+			responseMimeType: "application/json",
+			responseSchema: { type: "object", properties: { answer: { type: "string" } } },
+		});
+	});
+
 	it("removes JSON Schema additionalProperties from function declarations", async () => {
 		const request = await irToGemini({
 			model: "gemini-3.5-flash-lite",
@@ -210,4 +230,3 @@ describe("google-vertex geminiToIR", () => {
 		});
 	});
 });
-

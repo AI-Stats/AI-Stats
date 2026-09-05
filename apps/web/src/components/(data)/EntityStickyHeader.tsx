@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { List, PanelsTopLeft, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AppLogo from "@/components/(data)/apps/AppLogo";
 import { cn } from "@/lib/utils";
 
 function useVisibility(observeId: string) {
@@ -44,7 +44,7 @@ export default function EntityStickyHeader({ kind, id, name, observeId, baseHref
 				<div className="pointer-events-auto border-b border-border/80 bg-background/95 shadow-sm backdrop-blur">
 					<div className="container mx-auto flex items-center justify-between gap-3 px-4 py-2.5 md:px-6 xl:px-8">
 						<Link href={baseHref} className="flex min-w-0 items-center gap-3">
-							{kind === "app" ? <Avatar className="size-8 shrink-0 rounded-md border"><AvatarImage src={imageUrl ?? undefined} alt="" className="object-cover" /><AvatarFallback className="rounded-md text-xs font-semibold">{name.slice(0, 1).toUpperCase()}</AvatarFallback></Avatar> : <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background">{kind === "country" ? <Image src={`/flags/${id.toLowerCase()}.svg`} alt="" fill className="object-cover" /> : kind === "benchmark" || kind === "family" ? <Sparkles className="size-4 text-muted-foreground" /> : <span className="relative size-6"><Logo id={id} alt="" fill className="object-contain" /></span>}</span>}
+							{kind === "app" ? <AppLogo src={imageUrl} alt="" fallback={name.slice(0, 1).toUpperCase()} className="size-8 shrink-0" fallbackClassName="text-xs" /> : <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background">{kind === "country" ? <Image src={`/flags/${id.toLowerCase()}.svg`} alt="" fill className="object-cover" /> : kind === "benchmark" || kind === "family" ? <Sparkles className="size-4 text-muted-foreground" /> : <span className="relative size-6"><Logo id={id} alt="" fill className="object-contain" /></span>}</span>}
 							<span className="truncate text-sm font-semibold">{name}</span>
 						</Link>
 						<div className="flex shrink-0 items-center gap-2">

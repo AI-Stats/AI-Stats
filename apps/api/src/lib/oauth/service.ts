@@ -8,6 +8,7 @@ import {
 } from "@/lib/authz/capabilities";
 import { resolveActiveKeyPepper, resolveKeyPepperCandidates } from "@/lib/security/keyPepper";
 import { generateGatewayKey, hmacSecret, timingSafeEqual } from "@/routes/auth.helpers";
+import { validateWebhookEndpointUrlForDelivery } from "@/core/webhook-endpoints";
 import { validateOAuthToken, type JWTClaims } from "./jwt";
 
 const encoder = new TextEncoder();
@@ -47,6 +48,7 @@ type OAuthClient = {
 	beta_status: "private" | "beta" | "public";
 	status: string;
 	registration_source: "first_party" | "dynamic" | "developer" | "cimd";
+	application_type?: "native" | "web";
 };
 
 const CIMD_MAX_CLIENT_ID_LENGTH = 2048;
@@ -65,6 +67,28 @@ const CIMD_DEFAULT_SCOPES = [
 	CAPABILITIES.GENERATIONS_READ,
 ] as const;
 const cimdClientCache = new Map<string, { expiresAt: number; client: OAuthClient }>();
+const CIMD_CACHE_MAX_ENTRIES = 256;
+const CIMD_CACHE_MAX_ENTRIES_PER_ORIGIN = 16;
+
+function pruneCimdClientCache(now: number, incomingOrigin?: string): void {
+	for (const [key, entry] of cimdClientCache) {
+		if (entry.expiresAt <= now) cimdClientCache.delete(key);
+	}
+	if (incomingOrigin) {
+		const matching = [...cimdClientCache.keys()].filter((key) => {
+			try { return new URL(key).origin === incomingOrigin; } catch { return false; }
+		});
+		while (matching.length >= CIMD_CACHE_MAX_ENTRIES_PER_ORIGIN) {
+			const oldest = matching.shift();
+			if (oldest) cimdClientCache.delete(oldest);
+		}
+	}
+	while (cimdClientCache.size >= CIMD_CACHE_MAX_ENTRIES) {
+		const oldest = cimdClientCache.keys().next().value;
+		if (typeof oldest !== "string") break;
+		cimdClientCache.delete(oldest);
+	}
+}
 
 export function isReservedOAuthClientName(value: string): boolean {
 	return /\b(?:phaseo|ai[\s_-]*stats)\b/i.test(value.normalize("NFKC"));
@@ -492,12 +516,20 @@ async function readResponseTextWithinLimit(response: Response, maximumBytes: num
 async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 	const clientUrl = parseCimdClientId(clientId);
 	if (!clientUrl) return null;
+	const now = Date.now();
+	pruneCimdClientCache(now);
 	const cached = cimdClientCache.get(clientId);
-	if (cached && cached.expiresAt > Date.now()) return cached.client;
+	if (cached && cached.expiresAt > now) {
+		cimdClientCache.delete(clientId);
+		cimdClientCache.set(clientId, cached);
+		return cached.client;
+	}
 
 	let response: Response;
 	try {
-		response = await fetch(clientUrl, {
+		const validated = await validateWebhookEndpointUrlForDelivery(clientUrl.toString());
+		if (!validated.ok) return null;
+		response = await fetch(validated.url, {
 			headers: { Accept: "application/json" },
 			redirect: "error",
 			signal: AbortSignal.timeout(CIMD_FETCH_TIMEOUT_MS),
@@ -524,6 +556,7 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 	const redirectUris = Array.isArray(metadata.redirect_uris) ? metadata.redirect_uris : [];
 	const clientUri = optionalHttpsMetadataUrl(metadata.client_uri);
 	const logoUri = optionalHttpsMetadataUrl(metadata.logo_uri);
+	const applicationType = metadata.application_type === "native" ? "native" : "web";
 	if (
 		name.length < 1
 		|| name.length > 100
@@ -562,7 +595,9 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 		beta_status: "public",
 		status: "active",
 		registration_source: "cimd",
+		application_type: applicationType,
 	};
+	pruneCimdClientCache(Date.now(), clientUrl.origin);
 	cimdClientCache.set(clientId, { expiresAt: Date.now() + CIMD_CACHE_TTL_MS, client });
 	return client;
 }
@@ -662,8 +697,37 @@ function isCliLoopbackRedirectUri(client: OAuthClient, redirectUri: string): boo
 	}
 }
 
+function isCimdLoopbackRedirectUri(client: OAuthClient, redirectUri: string): boolean {
+	if (client.registration_source !== "cimd" || client.application_type !== "native") return false;
+	try {
+		const requested = new URL(redirectUri);
+		if (
+			requested.protocol !== "http:"
+			|| !["127.0.0.1", "localhost", "::1", "[::1]"].includes(requested.hostname)
+			|| requested.username
+			|| requested.password
+			|| requested.hash
+		) return false;
+		return client.redirect_uris.some((registeredUri) => {
+			const registered = new URL(registeredUri);
+			return registered.protocol === "http:"
+				&& registered.hostname === requested.hostname
+				&& registered.port === ""
+				&& registered.pathname === requested.pathname
+				&& registered.search === requested.search
+				&& !registered.username
+				&& !registered.password
+				&& !registered.hash;
+		});
+	} catch {
+		return false;
+	}
+}
+
 export function assertRedirectAllowed(client: OAuthClient, redirectUri: string): boolean {
-	return client.redirect_uris.some((uri) => uri === redirectUri) || isCliLoopbackRedirectUri(client, redirectUri);
+	return client.redirect_uris.some((uri) => uri === redirectUri)
+		|| isCliLoopbackRedirectUri(client, redirectUri)
+		|| isCimdLoopbackRedirectUri(client, redirectUri);
 }
 
 export async function ensureGrant(args: {

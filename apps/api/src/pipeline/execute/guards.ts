@@ -4,9 +4,11 @@
 // How: Provides routing, health, and attempt helpers used by the execute stage.
 
 import type { PipelineContext } from "../before/types";
+import { buildSafeStealthUpstreamError, isStealthRequest } from "../stealth";
+import { applyDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
 import type { PipelineTiming } from "./index";
 import type { ProviderCandidate } from "../before/types";
-import { err } from "./http";
+import { err, json } from "./http";
 import { captureTimingSnapshot } from "./utils";
 
 export type ExecuteGuardOk<T> = { ok: true; value: T };
@@ -459,8 +461,47 @@ export async function guardAllFailed(
             Number(stage?.afterCount ?? 0) === 0
         )
         : null;
+	const allProviderCapacityLimited = attemptErrors.length > 0 && attemptErrors.every(
+		(entry) => entry?.type === "provider_rate_limited",
+	);
+	if (allProviderCapacityLimited) {
+		captureTimingSnapshot(ctx, timing);
+		const retryAfter = attemptErrors
+			.map((entry) => Number(entry?.upstream_rate_limit_headers?.["Retry-After"] ?? NaN))
+			.filter((value) => Number.isFinite(value) && value > 0)
+			.sort((a, b) => a - b)[0] ?? null;
+		const response = err("provider_capacity_exhausted", {
+			reason: "all_candidates_rate_limited",
+			description: "All eligible providers are temporarily at capacity.",
+			model: ctx.model,
+			endpoint: ctx.endpoint,
+			request_id: ctx.requestId,
+			failed_providers: !isStealthRequest(ctx) && failedProviders.length ? failedProviders : null,
+		});
+		if (retryAfter != null) response.headers.set("Retry-After", String(retryAfter));
+		return { ok: false, response };
+	}
     if (geographicAvailabilityStage) {
         captureTimingSnapshot(ctx, timing);
+        if (isStealthRequest(ctx)) {
+            return {
+                ok: false,
+                response: json({
+                    error: "model_region_unavailable",
+                    status_code: 403,
+                    error_origin: "gateway",
+                    responsibility: "user",
+                    retryable: false,
+                    description: "This model is not available from the request's geographic location.",
+                    action: "Use the model from a supported location or select another model.",
+                    request_id: ctx.requestId,
+                    model: ctx.model,
+                    endpoint: ctx.endpoint,
+                    request_country: ctx.meta?.edgeCountry ?? null,
+                    request_subdivision: ctx.meta?.edgeRegionCode ?? null,
+                }, 403),
+            };
+        }
         return {
             ok: false,
             response: err("model_region_unavailable", {
@@ -490,6 +531,28 @@ export async function guardAllFailed(
         });
 
     captureTimingSnapshot(ctx, timing);
+    if (isStealthRequest(ctx)) {
+        const publicStatus = failedStatuses.length === 1 ? failedStatuses[0] : 502;
+        const retryAfter = [...attemptErrors]
+            .reverse()
+            .map((entry) => entry?.upstream_rate_limit_headers?.["Retry-After"])
+            .find((value): value is string => typeof value === "string") ?? null;
+        const keySource = attemptErrors.some((entry) => entry?.key_source === "byok") ? "byok" : "gateway";
+        const response = json(buildSafeStealthUpstreamError({
+            status: publicStatus,
+            failedStatuses,
+            model: ctx.model,
+            endpoint: ctx.endpoint,
+            requestId: ctx.requestId,
+            keySource,
+            retryAfter,
+        }), publicStatus);
+        applyDownstreamRateLimitHeaders(response.headers, retryAfter ? { "Retry-After": retryAfter } : null);
+        return {
+            ok: false,
+            response,
+        };
+    }
     const res = err(hasUpstreamPaymentRequired ? "provider_payment_required" : "upstream_error", {
         reason: hasUpstreamPaymentRequired
             ? "upstream_provider_payment_required"
@@ -512,15 +575,13 @@ export async function guardAllFailed(
         provider_candidate_diagnostics: candidateBuild,
         provider_failure_diagnostics: providerFailureDiagnostics,
     });
+	const finalRateLimitHeaders = [...attemptErrors]
+		.reverse()
+		.map((entry) => entry?.upstream_rate_limit_headers)
+		.find((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object");
+	applyDownstreamRateLimitHeaders(res.headers, finalRateLimitHeaders);
 
     return { ok: false, response: res };
 }
-
-
-
-
-
-
-
 
 

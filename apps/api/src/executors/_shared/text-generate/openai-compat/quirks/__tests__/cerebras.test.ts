@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cerebrasQuirks } from "../../providers/cerebras/quirks";
+import { openAIChatToIR } from "../../transform-chat";
 
 describe("Cerebras quirks", () => {
 	it("maps reasoning and service tier, and rewrites developer role", () => {
@@ -22,7 +23,6 @@ describe("Cerebras quirks", () => {
 
 		expect(request.max_tokens).toBeUndefined();
 		expect(request.max_completion_tokens).toBe(128);
-		expect(request.max_reasoning_tokens).toBe(256);
 		expect(request.reasoning_effort).toBe("high");
 		expect(request.service_tier).toBe("default");
 		expect(request.messages[0].role).toBe("system");
@@ -41,11 +41,12 @@ describe("Cerebras quirks", () => {
 		expect(request.reasoning_effort).toBe("none");
 	});
 
-	it("drops unsupported penalties/logit_bias and response_format on reasoning", () => {
+	it("preserves supported penalties, logit bias, caching, and structured output", () => {
 		const request: Record<string, any> = {
 			frequency_penalty: 0.2,
 			presence_penalty: 0.1,
 			logit_bias: { 42: 1 },
+			prompt_cache_key: "conversation-1",
 			response_format: {
 				type: "json_object",
 			},
@@ -58,10 +59,11 @@ describe("Cerebras quirks", () => {
 
 		cerebrasQuirks.transformRequest?.({ request, ir });
 
-		expect(request.frequency_penalty).toBeUndefined();
-		expect(request.presence_penalty).toBeUndefined();
-		expect(request.logit_bias).toBeUndefined();
-		expect(request.response_format).toBeUndefined();
+		expect(request.frequency_penalty).toBe(0.2);
+		expect(request.presence_penalty).toBe(0.1);
+		expect(request.logit_bias).toEqual({ 42: 1 });
+		expect(request.prompt_cache_key).toBe("conversation-1");
+		expect(request.response_format).toEqual({ type: "json_object" });
 	});
 
 	it("drops unsupported OpenAI fields used by responses payloads", () => {
@@ -79,7 +81,7 @@ describe("Cerebras quirks", () => {
 
 		cerebrasQuirks.transformRequest?.({ request, ir: {} as any });
 
-		expect(request.prompt_cache_key).toBeUndefined();
+		expect(request.prompt_cache_key).toBeNull();
 		expect(request.safety_identifier).toBeUndefined();
 		expect(Array.isArray(request.input_items)).toBe(true);
 	});
@@ -119,7 +121,22 @@ describe("Cerebras quirks", () => {
 		expect(chunk.choices[0].delta.reasoning_content).toBe("chain ");
 	});
 
-	it("passes through Cerebras raw curl params for glm models", () => {
+	it("preserves Cerebras top-level image token usage", () => {
+		const response = openAIChatToIR({
+			id: "chatcmpl-cerebras-1",
+			choices: [],
+			usage: {
+				prompt_tokens: 20,
+				completion_tokens: 5,
+				total_tokens: 25,
+				image_tokens: 12,
+			},
+		}, "request-1", "gemma-4-31b", "cerebras");
+
+		expect(response.usage?._ext?.inputImageTokens).toBe(12);
+	});
+
+	it("passes through current Cerebras reasoning params for glm models", () => {
 		const request: Record<string, any> = {
 			model: "zai-glm-4.7",
 		};
@@ -128,8 +145,8 @@ describe("Cerebras quirks", () => {
 			rawRequest: {
 				clear_thinking: false,
 				disable_reasoning: true,
-				max_reasoning_tokens: 321,
 				reasoning_effort: "low",
+				reasoning_format: "parsed",
 				prediction: {
 					type: "content",
 					content: "known prefix",
@@ -140,9 +157,9 @@ describe("Cerebras quirks", () => {
 		cerebrasQuirks.transformRequest?.({ request, ir });
 
 		expect(request.clear_thinking).toBe(false);
-		expect(request.disable_reasoning).toBe(true);
-		expect(request.max_reasoning_tokens).toBe(321);
+		expect(request.disable_reasoning).toBeUndefined();
 		expect(request.reasoning_effort).toBe("low");
+		expect(request.reasoning_format).toBe("parsed");
 		expect(request.prediction).toEqual({
 			type: "content",
 			content: "known prefix",

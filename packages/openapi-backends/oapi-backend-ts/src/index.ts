@@ -108,6 +108,7 @@ function renderOperation(operation: IROperation): string {
 	const paramsTypeName = `${capitalize(operation.operationId)}Params`;
 	const responseType = tsType(selectSuccessSchema(operation));
 	const pathParams = operation.params.filter((param) => param.in === "path");
+	const hasRequiredPathParams = pathParams.some((param) => param.required);
 	const queryParams = operation.params.filter((param) => param.in === "query");
 	const headerParams = operation.params.filter((param) => param.in === "header");
 	const bodySchema = operation.requestBody?.schema;
@@ -127,7 +128,7 @@ function renderOperation(operation: IROperation): string {
 
 	lines.push(`export async function ${operation.operationId}(`);
 	lines.push(`\tclient: Client,`);
-	lines.push(`\targs: ${paramsTypeName} = {}`);
+	lines.push(`\targs: ${paramsTypeName}${hasRequiredPathParams ? "" : " = {}"}`);
 	lines.push(`): Promise<${responseType}> {`);
 	lines.push(`\tconst { path, query, headers, body } = args;`);
 	lines.push(`\tconst resolvedPath = ${renderPathTemplate(operation.path, pathParams)};`);
@@ -151,7 +152,7 @@ function renderOperationParamsType(
 	bodySchema?: IRSchema
 ): string {
 	const fields: string[] = [
-		`path?: ${pathParams.length > 0 ? renderParamsObject(pathParams) : "Record<string, never>"};`,
+		`path${pathParams.some((param) => param.required) ? "" : "?"}: ${pathParams.length > 0 ? renderParamsObject(pathParams) : "Record<string, never>"};`,
 		`query?: ${queryParams.length > 0 ? renderParamsObject(queryParams) : "Record<string, never>"};`,
 		`headers?: ${headerParams.length > 0 ? renderParamsObject(headerParams) : "Record<string, never>"};`,
 		`body?: ${bodySchema ? tsType(bodySchema) : "never"};`
@@ -177,8 +178,10 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
-			const name = JSON.stringify(segment.slice(1, -1));
-			return `\${encodeURIComponent(String(path?.[${name}]))}`;
+			const paramName = segment.slice(1, -1);
+			const name = JSON.stringify(paramName);
+			const param = params.find((candidate) => candidate.name === paramName);
+			return `\${encodeURIComponent(String(path${param?.required ? "" : "?"}[${name}]))}`;
 		}
 		return segment.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$/g, "\\$");
 	});
@@ -263,7 +266,7 @@ function toFileName(tag: string): string {
 }
 
 function renderJsDoc(text: string): string {
-	const lines = text.split(/\r?\n/);
+	const lines = text.replace(/\*\//g, "*\\/").split(/\r?\n/);
 	return ["/**", ...lines.map((line) => ` * ${line}`), " */"].join("\n");
 }
 

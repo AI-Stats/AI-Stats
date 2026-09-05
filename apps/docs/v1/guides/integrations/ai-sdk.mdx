@@ -11,42 +11,42 @@ Phaseo ships an official Vercel AI SDK provider in the `@phaseo/ai-sdk-provider`
 AI SDK 7 and the native Phaseo `ProviderV4` implementation are the default for new projects:
 
 ```bash
-npm install @phaseo/ai-sdk-provider ai
+npm install @phaseo/ai-sdk-provider
 ```
+
+The unversioned Phaseo package follows npm's `latest` tag and therefore selects the active AI SDK 7-compatible provider line. The package declares AI SDK 7 as a peer dependency, which npm installs automatically.
 
 ### AI SDK 6 maintenance line
 
-AI SDK 6 uses the previous `ProviderV3` contract. Pin Phaseo provider 1.x and AI SDK 6:
+AI SDK 6 uses the previous `ProviderV3` contract. Install its tagged compatibility release:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6
 ```
 
 Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SDK 8 reaches a stable release, Phaseo will mark the 1.x line as deprecated on npm. Deprecation will not remove existing releases; any eventual end-of-support decision will be announced separately.
 
 ### AI SDK 5 compatibility
 
-AI SDK 5 only accepts the older v2 provider contract. Use Vercel's version-matched OpenAI-compatible provider with Phaseo:
+AI SDK 5 accepts the older ProviderV2 contract. Install Phaseo's dedicated compatibility release:
 
 ```bash
-npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5
 ```
 
-```ts
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { generateText } from "ai";
+If your package manager is configured not to install peer dependencies automatically, install the matching `ai` major (`ai@^7`, `ai@^6`, or `ai@^5`) separately.
 
-const phaseo = createOpenAICompatible({
-	name: "phaseo",
-	apiKey: process.env.PHASEO_API_KEY,
-	baseURL: "https://api.phaseo.app/v1",
-});
+```ts
+import { phaseo } from "@phaseo/ai-sdk-provider";
+import { generateText } from "ai";
 
 const result = await generateText({
 	model: phaseo("openai/gpt-4o"),
 	prompt: "Summarize this in one sentence.",
 });
 ```
+
+The v5 line supports text generation and streaming, tools, structured output, embeddings, images, transcription, and speech. Standardized reranking is available in the AI SDK 6 and 7 provider contracts.
 
 ## Basic usage
 
@@ -71,11 +71,27 @@ Provider 2.x implements and tests AI SDK 7's native v4 contracts for:
 - Text and image file inputs using V7's tagged file-data format
 - URL citation sources
 - Embeddings and image generation
+- Reranking
 - Transcription and speech generation
 - Provider metadata, usage, request headers, abort signals, and raw stream chunks
 
 Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx). Individual capabilities still depend on the selected model and upstream provider.
 
-## Explicitly unsupported V7 surfaces
+## Reranking and capability boundaries
 
-ProviderV4 capabilities that require Phaseo API surfaces not currently exposed—managed file uploads and references, skills, reranking, provider-executed tools, and tool-approval flows—are not advertised. Unsupported provider-specific or custom prompt parts fail with a clear error instead of being silently discarded.
+Reranking is available through the AI SDK `rerank()` helper and `phaseo.rerankingModel(modelId)`. ProviderV4 capabilities that require Phaseo API surfaces not currently exposed—managed file uploads and references, skills, and provider-executed tool definitions, results, or approval responses—are not advertised. Application-executed function tools continue to use the AI SDK's normal execution and approval flow. Unsupported provider-specific or custom prompt parts fail with a clear error instead of being silently discarded.
+
+```typescript
+import { rerank } from "ai";
+import { phaseo } from "@phaseo/ai-sdk-provider";
+
+const result = await rerank({
+  model: phaseo.rerankingModel("voyage/rerank-2"),
+  query: "Which document is about TypeScript?",
+  documents: [
+    "TypeScript adds static types to JavaScript.",
+    "Rust is a systems programming language.",
+  ],
+  topN: 1,
+});
+```

@@ -22,8 +22,9 @@
     "build": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist",
     "dev": "tsc -p tsconfig.build.json --watch",
-    "test": "dotenv -e ../../../.env.local -- vitest run",
+    "test": "vitest run",
     "test:compatibility:v7": "tsc -p tsconfig.build.json && node ./scripts/verify-ai-sdk-v7.mjs",
+    "test:release": "pnpm run test && pnpm run test:compatibility:v7 && pnpm pack --dry-run",
     "test:gateway": "dotenv -e ../../../.env.local -- node ./scripts/run-gateway-tests.mjs",
     "test:watch": "vitest",
     "prepublishOnly": "pnpm build"
@@ -41,11 +42,11 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/provider": "^4.0.4",
+    "@ai-sdk/provider": "^4.0.7",
     "@ai-sdk/provider-utils": "^5.0.14"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
+    "@types/node": "^26.1.2",
     "@vitest/coverage-v8": "^4.1.10",
     "ai": "^7.0.41",
     "rimraf": "^6.0.1",

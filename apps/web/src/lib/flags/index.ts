@@ -9,15 +9,18 @@ import {
 	VIDEO_API_GATE,
 	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
+	AUTO_ROUTING_GATE,
 	PRESET_EXPERIMENTS_GATE,
 	SAML_SSO_GATE,
 	CATALOGUE_GAMES_PREVIEW_GATE,
+	ENTERPRISE_SELF_SERVE_PREVIEW_GATE,
 	NEW_LANDING_PAGE_EXPERIMENT,
 	NEW_LANDING_PAGE_GATE,
 	type GatewayHeroVariant,
 } from "@/lib/statsig/shared";
 
 import { identify } from "./identify";
+import { isAdminViewer } from "@/lib/auth/getViewerRole";
 
 const statsigAdapter = getStatsigFlagsAdapter();
 
@@ -68,6 +71,17 @@ export const gatewayIoLoggingFlag = statsigAdapter
 		})
 	: flag<boolean>({
 			key: GATEWAY_IO_LOGGING_GATE,
+			decide: () => false,
+		});
+
+export const autoRoutingFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: AUTO_ROUTING_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: AUTO_ROUTING_GATE,
 			decide: () => false,
 		});
 
@@ -129,3 +143,22 @@ export const catalogueGamesPreviewFlag = statsigAdapter
 			key: CATALOGUE_GAMES_PREVIEW_GATE,
 			decide: () => false,
 		});
+
+export const enterpriseSelfServePreviewFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: ENTERPRISE_SELF_SERVE_PREVIEW_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: ENTERPRISE_SELF_SERVE_PREVIEW_GATE,
+			decide: () => false,
+		});
+
+export async function enterpriseSelfServePreviewEnabled(): Promise<boolean> {
+	const [isAdmin, gateEnabled] = await Promise.all([
+		isAdminViewer().catch(() => false),
+		enterpriseSelfServePreviewFlag().catch(() => false),
+	]);
+	return isAdmin && (gateEnabled || process.env.NODE_ENV === "development");
+}

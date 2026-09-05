@@ -22,6 +22,7 @@ export interface PricingRule {
     time_windows?: Array<{
         label: string;
         timezone: "UTC";
+        days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
         start_time: string;
         end_time: string;
         price_per_unit?: number | string | null;
@@ -116,6 +117,17 @@ export interface ProviderModel {
     params?: Record<string, unknown> | null;
     max_input_tokens?: number | null;
     max_output_tokens?: number | null;
+    data_policy?: ProviderModelDataPolicy | null;
+}
+
+export interface ProviderModelDataPolicy {
+    tier?: string | null;
+    confidence?: string | null;
+    zdrEligibility?: string | null;
+    retentionMode?: string | null;
+    retentionDays?: number | null;
+    reason?: string | null;
+    evidenceUrl?: string | null;
 }
 
 export interface ProviderInfo {
@@ -137,12 +149,7 @@ export interface ProviderInfo {
         | null;
     default_execution_regions?: string[] | null;
     default_data_regions?: string[] | null;
-    zero_data_retention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zero_data_retention?: boolean | null;
     data_retention_days?: number | null;
     residency_source_url?: string | null;
     residency_notes?: string | null;
@@ -167,6 +174,7 @@ export interface ProviderInfo {
     user_identifier_notes?: string | null;
     privacy_policy_url?: string | null;
     terms_of_service_url?: string | null;
+    service_tier_data_policies?: Record<string, ProviderModelDataPolicy> | null;
 }
 
 export interface ProviderPricing {
@@ -181,6 +189,7 @@ type ProviderModelCapability = {
     max_input_tokens?: number | null;
     max_output_tokens?: number | null;
     status?: string | null;
+    data_policy?: ProviderModelDataPolicy | null;
 };
 
 function normalizeCapabilityStatus(value: unknown): string {
@@ -248,11 +257,13 @@ function isMissingProviderModelColumnError(error: unknown): boolean {
 export default async function getModelPricing(
     modelId: string,
     includeHidden: boolean,
-    includeInternal = false
+    includeInternal = false,
+	signal?: AbortSignal,
 ): Promise<ProviderPricing[]> {
 	if (!includeHidden && !includeInternal) {
 		return (await fetchPublicWebApi<{ providers: ProviderPricing[] }>(
 			`/api/_web/models/${encodeURIComponent(modelId)}/pricing`,
+			{ signal },
 		)).providers;
 	}
     // console.log(`[getModelPricing] Starting for modelId: ${modelId}`);
@@ -498,6 +509,8 @@ export default async function getModelPricing(
                         row.data_api_providers?.privacy_policy_url ?? null,
                     terms_of_service_url:
                         row.data_api_providers?.terms_of_service_url ?? null,
+                    service_tier_data_policies:
+                        row.data_api_providers?.service_tier_data_policies ?? null,
                 },
                 provider_models: [],
                 pricing_rules: [],
@@ -554,6 +567,7 @@ export default async function getModelPricing(
                     row.prompt_training_override_source_url ?? null,
                 max_input_tokens: null,
                 max_output_tokens: row.max_output_tokens ?? null,
+                data_policy: row.data_policy ?? null,
             };
 
             providerModels.push(providerModel);
@@ -600,6 +614,7 @@ export default async function getModelPricing(
                 max_input_tokens: capability.max_input_tokens ?? null,
                 max_output_tokens:
                     capability.max_output_tokens ?? row.max_output_tokens ?? null,
+                data_policy: capability.data_policy ?? null,
             };
 
             providerModels.push(providerModel);

@@ -42,6 +42,7 @@ const ENDPOINT_SET = new Set<Endpoint>([
 	"embeddings",
 	"batch",
 	"ocr",
+	"parse",
 	"music.generate",
 	"files.upload",
 	"files.list",
@@ -246,7 +247,6 @@ async function handleProviderDerank(req: Request) {
 }
 
 healthRoutes.get("/providers/:providerId/derank", withRuntime(handleProviderDerank));
-
 
 
 

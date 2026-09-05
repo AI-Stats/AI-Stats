@@ -11,6 +11,7 @@ SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
 AMAZON_BEDROCK_REGION = "us-east-1"
 AMAZON_BEDROCK_MANTLE_BASE_URL = "https://bedrock-mantle.us-east-1.api.aws"
 MODEL_DISCOVERY_ENABLED = "true"
+ACCOUNT_DELETION_PURGE_ENABLED = "true"
 MODEL_DISCOVERY_RETENTION_DAYS = "7"
 MODEL_DISCOVERY_SHARD_SIZE = "20"
 MODEL_DISCOVERY_ISSUE_SYNC_ENABLED = "false"
@@ -22,11 +23,19 @@ BATCH_RECONCILIATION_ENABLED = "true"
 BATCH_RECONCILIATION_LIMIT = "500"
 BATCH_RECONCILIATION_CONCURRENCY = "12"
 BATCH_RECONCILIATION_LEASE_SECONDS = "300"
-BATCH_API_PREVIEW_PROVIDERS = "openai,anthropic,google-ai-studio,mistral"
+BATCH_API_PREVIEW_PROVIDERS = "openai,anthropic,google-ai-studio,mistral,together"
 BATCH_PROVIDER_WEBHOOK_REPLAY_ENABLED = "true"
 BATCH_PROVIDER_WEBHOOK_REPLAY_LIMIT = "100"
 OTEL_EXPORT_ENABLED = "true"
 OTEL_EXPORT_OUTBOX_LIMIT = "100"
+AXIOM_SUCCESS_SAMPLE_RATE = "0.1"
+AXIOM_DETAIL_SAMPLE_RATE = "0.01"
+AXIOM_SLOW_REQUEST_MS = "8000"
+LINEAR_TEAM_ID = "225da192-bf92-4b06-bdcd-2aa801b05c22"
+LINEAR_PROJECT_ID = "ca9a8e13-5650-40a6-9fd0-d02b965cf71e"
+LINEAR_TRIAGE_STATUS_ID = "eceffe2e-8550-43b2-ae59-c737bbe83f78"
+LINEAR_ASSIGNEE_ID = "c05c0a22-0a3b-425c-ac3b-a38a195bb88b"
+LINEAR_OBSERVABILITY_LABEL_ID = "7ae8dc6e-d628-4c88-8775-4e9844960d56"
 STATSIG_BATCH_API_GATE = "gateway_batch_api"
 STATSIG_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging"
 STATSIG_DATA_CONTRIBUTION_GATE = "gateway_data_contribution"
@@ -35,7 +44,8 @@ STATSIG_ENVIRONMENT_TIER = "production"
 EMAIL_OUTBOX_DRAIN_ENABLED = "true"
 EMAIL_OUTBOX_DRAIN_LIMIT = "25"
 VIDEO_API_ENABLED = "true"
-PRICING_MONITOR_ENABLED = "true"
+PRICING_MONITOR_ENABLED = "false"
+PRICING_PAGE_MONITOR_ENABLED = "true"
 ENTERPRISE_INVOICING_ENABLED = "true"
 GATEWAY_PUBLIC_BASE_URL = "https://api.phaseo.app"
 PHASEO_THIRD_PARTY_OAUTH_ENABLED = "true"
@@ -68,7 +78,7 @@ custom_domain = true
 [observability]
 [observability.logs]
 enabled = true
-head_sampling_rate = 1
+head_sampling_rate = 0.1
 invocation_logs = true
 
 [[kv_namespaces]]
@@ -116,6 +126,14 @@ period = 60
 name = "REALTIME_RELAY"
 class_name = "RealtimeRelayDurableObject"
 
+[[durable_objects.bindings]]
+name = "PROVIDER_RATE_LIMITS"
+class_name = "ProviderRateLimitDurableObject"
+
 [[migrations]]
 tag = "v1-realtime-relay"
 new_sqlite_classes = ["RealtimeRelayDurableObject"]
+
+[[migrations]]
+tag = "v2-provider-rate-limits"
+new_sqlite_classes = ["ProviderRateLimitDurableObject"]

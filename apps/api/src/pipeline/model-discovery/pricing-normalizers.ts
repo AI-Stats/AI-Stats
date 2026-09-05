@@ -44,6 +44,18 @@ function novitaPerMillion(value: unknown): number | null {
 	return parsed >= 1_000 ? parsed / 10_000 : parsed;
 }
 
+function novitaPricing(model: JsonRecord): NormalizedProviderPricing | null {
+	const pricing = asRecord(model.pricing);
+	const prompt = asRecord(pricing?.prompt);
+	const completion = asRecord(pricing?.completion);
+	const cacheRead = asRecord(pricing?.input_cache_read);
+	return fromMeters({
+		input_text_tokens: asNumber(prompt?.price_per_m_decimal) ?? novitaPerMillion(model.input_token_price_per_m),
+		cached_read_text_tokens: asNumber(cacheRead?.price_per_m_decimal) ?? novitaPerMillion(cacheRead?.price_per_m),
+		output_text_tokens: asNumber(completion?.price_per_m_decimal) ?? novitaPerMillion(model.output_token_price_per_m),
+	});
+}
+
 function usd(value: unknown): number | null {
 	const record = asRecord(value);
 	return asNumber(record?.usd ?? value);
@@ -91,15 +103,6 @@ function singleUnconditionalPerMillion(pricings: unknown): number | null {
 	return asNumber(asRecord(candidates[0])?.value);
 }
 
-function nanoGptPricing(pricing: JsonRecord): NormalizedProviderPricing | null {
-	const cacheRead = asNumber(pricing.cacheReadInputPer1kTokens);
-	return fromMeters({
-		input_text_tokens: asNumber(pricing.prompt),
-		cached_read_text_tokens: cacheRead === null ? null : Math.round(cacheRead * 1_000 * 1_000_000_000) / 1_000_000_000,
-		output_text_tokens: asNumber(pricing.completion),
-	});
-}
-
 function zenmuxPricing(pricings: JsonRecord): NormalizedProviderPricing | null {
 	return fromMeters({
 		input_text_tokens: singleUnconditionalPerMillion(pricings.prompt),
@@ -114,7 +117,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 
 	switch (providerId) {
 		case "ambient":
-		case "kilo":
 		case "llmgateway":
 		case "orcarouter":
 		case "openrouter":
@@ -126,10 +128,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 			const pricing = asRecord(model.pricing);
 			return pricing ? promptCompletionPricing(pricing, true) : null;
 		}
-		case "nano-gpt": {
-			const pricing = asRecord(model.pricing);
-			return pricing ? nanoGptPricing(pricing) : null;
-		}
 		case "fastrouter":
 		case "poe": {
 			const pricing = asRecord(model.pricing);
@@ -138,11 +136,7 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 		case "novita-ai":
 		case "novita":
 		case "novitaai":
-			return fromMeters({
-				input_text_tokens: novitaPerMillion(model.input_token_price_per_m),
-				cached_read_text_tokens: novitaPerMillion(asRecord(asRecord(model.pricing)?.input_cache_read)?.price_per_m),
-				output_text_tokens: novitaPerMillion(model.output_token_price_per_m),
-			});
+			return novitaPricing(model);
 		case "pioneer":
 			return fromMeters({
 				input_text_tokens: asNumber(model.input_price_per_million),
@@ -252,12 +246,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 			const pricing = Array.isArray(model.pricing) ? asRecord(model.pricing[0]) : null;
 			return pricing ? promptCompletionPricing(pricing, true) : null;
 		}
-		case "novita":
-		case "novitaai":
-			return fromMeters({
-				input_text_tokens: asNumber(model.input_token_price_per_m),
-				output_text_tokens: asNumber(model.output_token_price_per_m),
-			});
 		case "spacex-ai":
 			return fromMeters({
 				input_text_tokens: centsPerHundredMillionTokensToPerMillion(model.prompt_text_token_price),

@@ -63,10 +63,9 @@ export default function CreateKeyDialog({
 		e?.preventDefault();
 		if (!name) return;
 		if (!currentUserId || selectedTeamId === undefined) {
-			// surface an error so users understand why nothing happens
 			setPlainKey(null);
 			setLoading(false);
-			alert("Missing user or workspace context. Make sure you are signed in.");
+			toast.error("Missing user or workspace context. Make sure you are signed in.");
 			return;
 		}
 		try {

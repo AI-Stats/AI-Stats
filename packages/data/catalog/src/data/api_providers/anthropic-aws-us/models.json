@@ -1,5 +1,31 @@
 [
   {
+    "api_model_id": "anthropic/claude-fable-5.1",
+    "provider_api_model_id": "anthropic-aws-us:anthropic/claude-fable-5.1",
+    "provider_model_slug": "anthropic.claude-fable-5-1",
+    "internal_model_id": "anthropic/claude-fable-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": ["max_tokens", "stop", "reasoning", "include_reasoning", "tool_choice", "tools", "reasoning_effort"], "reasoning": true, "tool_call": true, "structured_output": null, "temperature": null, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
+    "routing_status": "active",
+    "routable": false,
+    "regions": { "execution": ["us"], "data": ["us"] },
+    "provider_status": "available",
+    "phaseo_status": "planned",
+    "access_scope": "public",
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [{ "kind": "docs", "url": "https://platform.claude.com/docs/en/models/fable-5-1/migration-guide", "accessed_at": "2026-09-01T00:00:00Z", "notes": "Anthropic confirms Claude Platform on AWS availability and the 1M context / 128K output limits." }],
+    "verification": { "status": "partial", "checked_at": "2026-09-01T00:00:00Z", "notes": "Platform availability and the Mantle model ID are corroborated; this US-pinned route remains disabled pending inference-geo and pricing verification." },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "anthropic/claude-opus-4.6",
     "provider_api_model_id": "anthropic-aws-us:anthropic/claude-opus-4.6",
     "provider_model_slug": "claude-opus-4-6",
@@ -108,15 +134,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Claude Platform on AWS model ID, Claude API route, and US inference geography support." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-opus-4-6 is available on Claude Platform on AWS and supports inference_geo=us on POST /v1/messages."
     },
     "rate_limits": []
   },
@@ -158,15 +184,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Claude Platform on AWS model ID, Claude API route, and US inference geography support." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-sonnet-4-6 is available on Claude Platform on AWS and supports inference_geo=us on POST /v1/messages."
     },
     "rate_limits": []
   },
@@ -187,7 +213,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "stop",
+          "tool_choice",
+          "tools",
+          "structured_outputs",
+          "response_format",
+          "verbosity",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -208,15 +245,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Claude Sonnet 5 model ID and launch availability on Claude Platform on AWS." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-sonnet-5 is active on Claude Platform on AWS, supports inference_geo=us, and is the currently enabled Phaseo route for this regional offer."
     },
     "rate_limits": []
   },
@@ -322,15 +359,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Claude Platform on AWS model ID, Claude API route, and US inference geography support." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-opus-4-7 is available on Claude Platform on AWS and supports inference_geo=us on POST /v1/messages."
     },
     "rate_limits": []
   },
@@ -436,15 +473,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/about-claude/models/overview", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Current Claude Opus 5 lifecycle, model ID, and Claude Platform on AWS availability." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-opus-5 is active on Claude Platform on AWS and eligible for the US inference route; Phaseo does not currently enable it for routing on this offer."
     },
     "rate_limits": []
   },
@@ -486,15 +523,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/about-claude/models/overview", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Claude Fable 5 general availability, model ID, lifecycle, and Claude Platform on AWS availability." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-fable-5 is active on Claude Platform on AWS and eligible for the US inference route; Phaseo does not currently enable it for routing on this offer."
     },
     "rate_limits": []
   },
@@ -600,15 +637,15 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["anthropic.messages"],
+      "endpoint": "/v1/messages",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "official_documentation", "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Claude Platform on AWS model ID, Claude API route, and US inference geography support." }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "claude-opus-4-8 is active on Claude Platform on AWS and eligible for the US inference route; Phaseo does not currently enable it for routing on this offer."
     },
     "rate_limits": []
   }

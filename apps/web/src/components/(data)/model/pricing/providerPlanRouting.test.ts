@@ -21,7 +21,7 @@ function makeProviderPricing(): ProviderPricing {
             residency_mode: "unknown",
             default_execution_regions: null,
             default_data_regions: null,
-            zero_data_retention: "unknown",
+            zero_data_retention: false,
             residency_source_url: null,
             residency_notes: null,
             regional_pricing_mode: "unknown",
@@ -96,6 +96,12 @@ function makeProviderPricing(): ProviderPricing {
 }
 
 describe("providerPlanRouting", () => {
+	it("keeps a standard offering visible when a provider has no pricing yet", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules = [];
+		expect(getProviderAvailablePlans(provider)).toEqual(["standard"]);
+	});
+
 	it("keeps Standard as the multiplier baseline when Batch is selected globally", () => {
 		expect(
 			getProviderPlanComparisonBase(

@@ -4,6 +4,8 @@
 // How: Emits audit events for success/failure requests.
 
 import { auditSuccess, auditFailure } from "../audit";
+import { protectStealthAuditArgs } from "../audit/stealth-identity";
+import { isStealthRequest } from "../stealth";
 import type { PipelineContext } from "../before/types";
 import type { RequestResult } from "../execute";
 import { sanitizeForAxiom, sanitizeJsonStringForAxiom, stringifyForAxiom } from "@observability/privacy";
@@ -275,6 +277,14 @@ export async function handleFailureAudit(
     errorDetails?: unknown,
     gatewayErrorPayload?: Record<string, unknown> | null,
 ) {
+    const protectedOtlp = protectStealthAuditArgs({
+        model: ctx.model,
+        requestedModel: ctx.requestedModel ?? ctx.model,
+        provider: result.provider ?? null,
+        providerModelSlug: result.providerModelSlug ?? null,
+        providerAttempts: Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : null,
+        gatewayResponse: gatewayErrorPayload ?? null,
+    });
     const beforeMs = resolveBeforeLatencyMs(ctx);
     const execMs = resolveExecuteTotalLatencyMs(ctx) ?? 0;
     const genMs = resolveExecuteAdapterMs(ctx);
@@ -355,6 +365,8 @@ export async function handleFailureAudit(
             referer: ctx.meta.referer ?? null,
             appId: ctx.meta.appId ?? null,
             appName: ctx.meta.appName ?? null,
+            appCategories: ctx.meta.appCategories ?? null,
+            labels: ctx.meta.labels ?? null,
             authMethod: ctx.meta.authMethod ?? "api_key",
             oauthClientId: ctx.meta.oauthClientId ?? null,
             oauthUserId: ctx.meta.oauthUserId ?? null,
@@ -385,6 +397,7 @@ export async function handleFailureAudit(
             providerResponse: errorDetails ?? result.rawResponse ?? null,
             detailMetadata: {
                 stage: "execute",
+                labels: ctx.meta.labels ?? [],
                 client_source: ctx.meta.clientSource ?? null,
                 routing_snapshot: sanitizeForAxiom((ctx as any).routingSnapshot ?? null),
                 routing_diagnostics: sanitizeForAxiom((ctx as any).routingDiagnostics ?? null),
@@ -417,19 +430,19 @@ export async function handleFailureAudit(
 			appName: ctx.meta.appName ?? ctx.meta.appTitle ?? null,
 			clientSource: ctx.meta.clientSource?.name ?? null,
             endpoint: ctx.endpoint,
-            requestedModel: ctx.requestedModel ?? ctx.model,
-            provider: result.provider ?? null,
-            providerModel: result.providerModelSlug ?? null,
+            requestedModel: protectedOtlp.requestedModel,
+            provider: protectedOtlp.provider,
+            providerModel: protectedOtlp.providerModelSlug ?? null,
             requestPayload: ctx.rawBody ?? ctx.body ?? null,
-            responsePayload: gatewayErrorPayload ?? gatewayFailurePayload,
+            responsePayload: protectedOtlp.gatewayResponse ?? gatewayFailurePayload,
             usage: (result.bill?.usage && typeof result.bill.usage === "object")
                 ? result.bill.usage as Record<string, unknown>
                 : {},
-            providerAttempts: Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : null,
+            providerAttempts: protectedOtlp.providerAttempts,
             stream: ctx.stream,
             statusCode: upstreamStatus,
             success: false,
-            errorType: `${attribution}:${errorCode}`,
+            errorType: isStealthRequest(ctx) ? "upstream_error" : `${attribution}:${errorCode}`,
             currency: result.bill?.currency ?? null,
             generationMs,
             timeToFirstChunkMs: latencyMs,
@@ -473,6 +486,14 @@ export async function handleSuccessAudit(
     nativeResponseId?: string | null,
     gatewayResponse?: unknown,
 ) {
+    const protectedOtlp = protectStealthAuditArgs({
+        model: ctx.model,
+        requestedModel: ctx.requestedModel ?? ctx.model,
+        provider: result.provider,
+        providerModelSlug: result.providerModelSlug ?? null,
+        providerAttempts: Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : null,
+        gatewayResponse: gatewayResponse ?? result.rawResponse ?? null,
+    });
     const byok = (result?.keySource ?? ctx.meta.keySource) === "byok";
     const execTiming = (ctx as any)?.timing?.execute ?? {};
     const beforeMs = resolveBeforeLatencyMs(ctx);
@@ -607,6 +628,8 @@ export async function handleSuccessAudit(
             referer: ctx.meta.referer ?? null,
             appId: ctx.meta.appId ?? null,
             appName: ctx.meta.appName ?? null,
+            appCategories: ctx.meta.appCategories ?? null,
+            labels: ctx.meta.labels ?? null,
             authMethod: ctx.meta.authMethod ?? "api_key",
             oauthClientId: ctx.meta.oauthClientId ?? null,
             oauthUserId: ctx.meta.oauthUserId ?? null,
@@ -656,6 +679,7 @@ export async function handleSuccessAudit(
             providerResponse: result.rawResponse ?? null,
             detailMetadata: {
                 stage: "execute",
+                labels: ctx.meta.labels ?? [],
                 client_source: ctx.meta.clientSource ?? null,
                 finish_reason: finishReason ?? null,
                 plugin_executions: sanitizeForAxiom(ctx.pluginExecutions ?? null),
@@ -689,17 +713,19 @@ export async function handleSuccessAudit(
 			appName: ctx.meta.appName ?? ctx.meta.appTitle ?? null,
 			clientSource: ctx.meta.clientSource?.name ?? null,
             endpoint: ctx.endpoint,
-            requestedModel: ctx.requestedModel ?? ctx.model,
-            provider: result.provider,
-            providerModel: result.providerModelSlug ?? null,
-            responseModel: (result.rawResponse && typeof result.rawResponse === "object")
+            requestedModel: protectedOtlp.requestedModel,
+            provider: protectedOtlp.provider,
+            providerModel: protectedOtlp.providerModelSlug ?? null,
+            responseModel: isStealthRequest(ctx)
+                ? protectedOtlp.model
+                : (result.rawResponse && typeof result.rawResponse === "object")
                 ? String((result.rawResponse as any).model ?? "") || null
                 : null,
             responseId: nativeResponseId ?? null,
             requestPayload: ctx.rawBody ?? ctx.body ?? null,
-            responsePayload: gatewayResponse ?? result.rawResponse ?? null,
+            responsePayload: protectedOtlp.gatewayResponse,
             usage: usageWithMultimodal ?? {},
-            providerAttempts: Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : null,
+            providerAttempts: protectedOtlp.providerAttempts,
             stream: isStream,
             finishReason,
             statusCode,
@@ -735,7 +761,7 @@ export async function handleSuccessAudit(
         onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
     });
 
-	if (!byok && ctx.teamSettings?.dataContributionEnabled === true) {
+	if (!isStealthRequest(ctx) && !byok && ctx.teamSettings?.dataContributionEnabled === true) {
 		const pricing = (usageWithMultimodal as any)?.pricing;
 		const currentDiscountNanos = currentDataContributionDiscountNanos(pricing, totalNanos);
 		const capture = await persistDataContribution({

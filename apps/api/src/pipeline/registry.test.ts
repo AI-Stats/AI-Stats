@@ -26,6 +26,7 @@ describe("resolvePipeline", () => {
 		expect(resolvePipeline("audio.translations")).toBe(runNonTextPipeline);
 		expect(resolvePipeline("video.generation")).toBe(runVideoGeneratePipeline);
 		expect(resolvePipeline("ocr")).toBe(runNonTextPipeline);
+		expect(resolvePipeline("parse")).toBe(runNonTextPipeline);
 		expect(resolvePipeline("music.generate")).toBe(runNonTextPipeline);
 	});
 

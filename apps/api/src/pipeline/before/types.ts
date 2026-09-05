@@ -25,7 +25,7 @@ export type GateCheck = {
     resetAt: string | null;
     now?: string | null;
     balanceNanos?: number | null;
-    limitWindow?: "daily" | "weekly" | "monthly" | null;
+    limitWindow?: "daily" | "weekly" | "monthly" | "lifetime" | null;
     limitMetric?: "requests" | "cost" | "soft_blocked" | null;
     currentValue?: number | null;
     limitValue?: number | null;
@@ -52,6 +52,17 @@ export type GateCheck = {
             costLimitNanos: number;
         };
     } | null;
+    budgets?: Array<{
+        id: string;
+        interval: "daily" | "weekly" | "monthly" | "lifetime";
+        limitNanos: number;
+        usageNanos: number;
+        remainingNanos: number;
+        projectedUsageNanos: number;
+        exceeded: boolean;
+        windowStart: string | null;
+        resetAt: string | null;
+    }> | null;
 };
 
 /**
@@ -64,7 +75,7 @@ export type ByokKeyMeta = {
     fingerprintSha256: string;
     keyVersion: string | null;
     alwaysUse: boolean;
-	routingMode?: "priority" | "fallback";
+	routingMode?: "priority" | "balanced" | "fallback";
 	sortOrder?: number;
 	allowedModelSlugs?: string[] | null;
 	allowedApiKeyIds?: string[] | null;
@@ -198,12 +209,7 @@ export type GatewayProviderSnapshot = {
         | null;
     executionRegions?: string[] | null;
     dataRegions?: string[] | null;
-    zeroDataRetention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zeroDataRetention?: boolean | null;
     promptTrainingPolicy?:
         | "unknown"
         | "no_train"
@@ -228,6 +234,11 @@ export type GatewayProviderSnapshot = {
     baseWeight: number;
     byokMeta: ByokKeyMeta[];
     providerModelSlug: string | null;
+    privateEndpoint?: {
+        baseUrl: string;
+        supportsResponses: boolean;
+    } | null;
+    quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
@@ -300,6 +311,9 @@ export type KeyEnrichment = {
 };
 
 export type ContextFetchTelemetry = {
+    presetAccessMs?: number | null;
+    privateModelMs?: number | null;
+    byokHydrationMs?: number | null;
     cacheStatus: "hit" | "miss" | "bypass" | "credit_refresh";
     totalMs: number;
     keyVersionMs?: number | null;
@@ -356,12 +370,7 @@ export type ProviderCandidate = {
         | null;
     executionRegions?: string[] | null;
     dataRegions?: string[] | null;
-    zeroDataRetention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zeroDataRetention?: boolean | null;
     promptTrainingPolicy?:
         | "unknown"
         | "no_train"
@@ -387,6 +396,11 @@ export type ProviderCandidate = {
     byokMeta: ByokKeyMeta[];
     pricingCard: PriceCard | null;
     providerModelSlug: string | null;
+    privateEndpoint?: {
+        baseUrl: string;
+        supportsResponses: boolean;
+    } | null;
+    quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
@@ -404,6 +418,7 @@ export type ParamRoutingDiagnostics = {
         param: string;
         supportedProviders: string[];
         unsupportedProviders: string[];
+        unknownProviders: string[];
     }>;
     droppedProviders: Array<{
         providerId: string;
@@ -461,6 +476,7 @@ export type ProviderAttemptLog = {
         | "upstream_non_2xx"
         | "error"
         | "retryable_error"
+		| "rate_limited"
         | "blocked"
         | "no_pricing"
         | "unsupported_executor";
@@ -471,7 +487,7 @@ export type ProviderAttemptLog = {
     retryable?: boolean | null;
     key_source?: "gateway" | "byok" | null;
     byok_key_id?: string | null;
-    credential_phase?: "priority_byok" | "gateway" | "fallback_byok";
+    credential_phase?: "priority_byok" | "balanced_byok" | "gateway" | "fallback_byok";
     upstream_url?: string | null;
     upstream_error_code?: string | null;
     upstream_error_type?: string | null;
@@ -648,6 +664,8 @@ export type WebFetchObservability = {
 export type PipelineContext = {
     endpoint: Endpoint;
     capability: string;
+    /** Server-owned idempotency key for this billable pipeline execution. */
+    billingRequestId: string;
     requestId: string;
     protocol?: string;
     providerCapabilitiesBeta?: boolean;
@@ -692,7 +710,7 @@ export type PipelineContext = {
     credentialPlan?: Array<{
         attempt_number: number;
         provider: string;
-        credential_phase: "priority_byok" | "gateway" | "fallback_byok";
+        credential_phase: "priority_byok" | "balanced_byok" | "gateway" | "fallback_byok";
         key_source: "gateway" | "byok";
         byok_key_id: string | null;
     }>;

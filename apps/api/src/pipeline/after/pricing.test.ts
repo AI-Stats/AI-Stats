@@ -85,11 +85,13 @@ const TTS_CARD: PriceCard = {
 
 function loadActiveCatalogPriceCard(pricingPath: string, nowIso = "2026-07-01T00:00:00.000Z"): PriceCard {
 	const raw = JSON.parse(fs.readFileSync(pricingPath, "utf8"));
+	const nowMs = Date.parse(nowIso);
 	const rules = raw.rules
 		.filter((rule: Record<string, unknown>) => {
 			const effectiveFrom = typeof rule.effective_from === "string" ? rule.effective_from : null;
 			const effectiveTo = typeof rule.effective_to === "string" ? rule.effective_to : null;
-			return (!effectiveFrom || effectiveFrom <= nowIso) && (!effectiveTo || effectiveTo > nowIso);
+			return (!effectiveFrom || Date.parse(effectiveFrom) <= nowMs)
+				&& (!effectiveTo || Date.parse(effectiveTo) > nowMs);
 		})
 		.map((rule: Record<string, unknown>): PriceRule => ({
 			id: `${String(raw.api_provider_id)}:${String(raw.api_model_id)}:${String(rule.pricing_plan)}:${String(rule.meter)}`,
@@ -152,6 +154,22 @@ function activateDeepSeekV4ProPeakWindows(card: PriceCard): PriceCard {
 }
 
 describe("after/pricing calculatePricing", () => {
+    it.each([
+        [{}, { service_tier: "priority" }],
+        [{ service_tier: "default" }, { service_tier: "fast" }],
+        [{ serviceTier: "standard" }, { serviceTier: "priority" }],
+    ])("bills an explicitly requested dedicated priority route with usage %j", (observed, body) => {
+        const card: PriceCard = { ...TTS_CARD, provider: "fireworks", model: "z-ai/glm-5.3",
+            rules: [{ ...TTS_CARD.rules[0], pricing_plan: "priority", price_per_unit: "2" }] };
+        const result = calculatePricing({ input_text_tokens: 1_000_000, ...observed }, card, body);
+        expect(result.totalNanos).toBe(2_000_000_000);
+    });
+
+    it("rejects default billing against a priority-only card", () => {
+        const card: PriceCard = { ...TTS_CARD, rules: [{ ...TTS_CARD.rules[0], pricing_plan: "priority" }] };
+        expect(() => calculatePricing({ input_text_tokens: 1_000 }, card, {})).toThrow("pricing_plan_missing:standard");
+    });
+
 	beforeEach(() => {
 		loadPriceCardMock.mockReset();
 	});
@@ -180,7 +198,7 @@ describe("after/pricing calculatePricing", () => {
 		expect(result.pricedUsage?.pricing?.lines ?? []).toHaveLength(0);
 	});
 
-	it("bills conservatively when a requested pricing plan has a coverage gap", () => {
+	it("falls back to a matching standard rule when the requested plan conditions do not match", () => {
 		const card: PriceCard = {
 			...TTS_CARD,
 			rules: [
@@ -628,5 +646,93 @@ describe("after/pricing calculatePricing", () => {
 			"text.generate",
 		);
 		expect(card?.model).toBe("anthropic/claude-opus-5-fast");
+	});
+
+	it("fails closed when an executed provider-model route has no exact pricing card", async () => {
+		loadPriceCardMock.mockResolvedValue(null);
+
+		await expect(loadProviderPricing(
+			{
+				model: "minimax/speech-2.8",
+				capability: "audio.speech",
+				pricing: {},
+			} as any,
+			{
+				provider: "minimax",
+				apiModelId: "minimax/speech-2.8-hd",
+				generationTimeMs: 0,
+				kind: "completed",
+				bill: { usage: {} } as any,
+				upstream: new Response(null, { status: 200 }),
+			},
+		)).rejects.toThrow("pricing_card_missing_for_executed_route");
+	});
+
+	it("reloads pricing when provider acceptance crosses the cached card boundary", async () => {
+		const oldCard = {
+			...TTS_CARD,
+			provider: "deepseek",
+			model: "deepseek/deepseek-v4-pro-0813",
+			effective_to: "2026-08-16T16:00:00Z",
+		};
+		const newCard = {
+			...oldCard,
+			effective_from: "2026-08-16T16:00:00Z",
+			effective_to: null,
+		};
+		loadPriceCardMock.mockResolvedValue(newCard);
+
+		const card = await loadProviderPricing(
+			{
+				model: "deepseek/deepseek-v4-pro-0813",
+				capability: "text.generate",
+				pricing: { "deepseek:deepseek/deepseek-v4-pro-0813": oldCard },
+				meta: { upstreamStartMs: Date.parse("2026-08-16T16:00:00.001Z") },
+			} as any,
+			{
+				provider: "deepseek",
+				apiModelId: "deepseek/deepseek-v4-pro-0813",
+				pricingKey: "deepseek:deepseek/deepseek-v4-pro-0813",
+				generationTimeMs: 0,
+				kind: "completed",
+				bill: { usage: {} } as any,
+				upstream: new Response(null, { status: 200 }),
+			},
+		);
+
+		expect(loadPriceCardMock).toHaveBeenCalledWith(
+			"deepseek",
+			"deepseek/deepseek-v4-pro-0813",
+			"text.generate",
+		);
+		expect(card).toBe(newCard);
+	});
+
+	it("fails closed when an expired executed-route card cannot be refreshed", async () => {
+		const oldCard = {
+			...TTS_CARD,
+			provider: "deepseek",
+			model: "deepseek/deepseek-v4-pro-0813",
+			effective_to: "2026-08-16T16:00:00Z",
+		};
+		loadPriceCardMock.mockResolvedValue(null);
+
+		await expect(loadProviderPricing(
+			{
+				model: "deepseek/deepseek-v4-pro-0813",
+				capability: "text.generate",
+				pricing: { "deepseek:deepseek/deepseek-v4-pro-0813": oldCard },
+				meta: { upstreamStartMs: Date.parse("2026-08-16T16:00:00.001Z") },
+			} as any,
+			{
+				provider: "deepseek",
+				apiModelId: "deepseek/deepseek-v4-pro-0813",
+				pricingKey: "deepseek:deepseek/deepseek-v4-pro-0813",
+				generationTimeMs: 0,
+				kind: "completed",
+				bill: { usage: {} } as any,
+				upstream: new Response(null, { status: 200 }),
+			},
+		)).rejects.toThrow("pricing_card_missing_for_executed_route");
 	});
 });

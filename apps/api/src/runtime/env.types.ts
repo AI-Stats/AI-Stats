@@ -3,6 +3,7 @@
 export type GatewayBindings = {
     SUPABASE_URL: string;
     SUPABASE_SERVICE_ROLE_KEY: string;
+	GATEWAY_ROUTING_REGION?: "eu" | "us";
     GATEWAY_CACHE: KVNamespace;
 	GATEWAY_IO_LOGS_BUCKET?: R2Bucket;
 	GATEWAY_IO_LOGS_BUCKET_NAME?: string;
@@ -25,10 +26,14 @@ export type GatewayBindings = {
 	V2_ANALYTICS_OUTBOX_LIMIT?: string;
 	OTEL_EXPORT_ENABLED?: string;
 	OTEL_EXPORT_OUTBOX_LIMIT?: string;
+	INVITE_ENCRYPTION_KEY?: string;
+	HMAC_ENCRYPTION_KEY?: string;
+	SCIM_TOKEN_PEPPER?: string;
     OAUTH_STRICT_RATE_LIMITER?: RateLimit;
     OAUTH_TOKEN_RATE_LIMITER?: RateLimit;
 	REALTIME_RELAY_RATE_LIMITER?: RateLimit;
     REALTIME_RELAY?: DurableObjectNamespace;
+	PROVIDER_RATE_LIMITS?: DurableObjectNamespace;
     KV?: KVNamespace;
     DB?: D1Database;
     PHASEO_CONTROL_SECRET?: string;
@@ -44,7 +49,15 @@ export type GatewayBindings = {
     AXIOM_DETAIL_SAMPLE_RATE?: string;
     AXIOM_SLOW_REQUEST_MS?: string;
     AXIOM_LOG_FAILURE_COOLDOWN_MS?: string;
-    OPENAI_API_KEY?: string;
+	OBSERVABILITY_WEBHOOK_SECRET?: string;
+	LINEAR_API_KEY?: string;
+	LINEAR_TEAM_ID?: string;
+	LINEAR_PROJECT_ID?: string;
+	LINEAR_TRIAGE_STATUS_ID?: string;
+	LINEAR_ASSIGNEE_ID?: string;
+	LINEAR_OBSERVABILITY_LABEL_ID?: string;
+	OPENAI_API_KEY?: string;
+	OPENAI_EU_BASE_URL?: string;
     OPENAI_BASE_URL?: string;
     OPENAI_WEBHOOK_SECRET?: string;
     OPENAI_VIDEO_WEBHOOK_SECRET?: string;
@@ -55,7 +68,10 @@ export type GatewayBindings = {
     GOOGLE_VIDEO_OAUTH_BEARER_TOKEN?: string;
     GOOGLE_AI_STUDIO_BASE_URL?: string;
     GOOGLE_BASE_URL?: string;
-    ANTHROPIC_API_KEY?: string;
+	ANTHROPIC_API_KEY?: string;
+	ANTHROPIC_AWS_API_KEY?: string;
+	ANTHROPIC_AWS_BASE_URL?: string;
+	ANTHROPIC_AWS_WORKSPACE_ID?: string;
     ANTHROPIC_BASE_URL?: string;
     X_AI_API_KEY?: string;
     XAI_BASE_URL?: string;
@@ -65,9 +81,12 @@ export type GatewayBindings = {
     AKASHML_API_KEY?: string;
     AKASHML_BASE_URL?: string;
     ALIBABA_CLOUD_API_KEY?: string;
+    DASHSCOPE_API_KEY?: string;
     ALIBABA_BASE_URL?: string;
     ALIBABA_VIDEO_WEBHOOK_SECRET?: string;
 	AMAZON_BEDROCK_API_KEY?: string;
+	AMAZON_BEDROCK_MANTLE_API_KEY?: string;
+	AWS_BEARER_TOKEN_BEDROCK?: string;
 	AMAZON_BEDROCK_MANTLE_BASE_URL?: string;
 	AMAZON_BEDROCK_REGION?: string;
     AWS_ACCESS_KEY_ID?: string;
@@ -103,9 +122,12 @@ export type GatewayBindings = {
     CLOUDFLARE_API_TOKEN?: string;
     CLOUDFLARE_ACCOUNT_ID?: string;
     CLOUDFLARE_AI_GATEWAY_BASE_URL?: string;
+    CLOUDFLARE_AI_GATEWAY_ID?: string;
     COHERE_API_KEY?: string;
     COHERE_BASE_URL?: string;
     CROFAI_API_KEY?: string;
+    CANOPYWAVE_API_KEY?: string;
+    CANOPYWAVE_BASE_URL?: string;
     CROFAI_BASE_URL?: string;
     CROF_AI_API_KEY?: string;
     CROF_AI_BASE_URL?: string;
@@ -115,6 +137,8 @@ export type GatewayBindings = {
     CRUSOE_BASE_URL?: string;
     DEEPINFRA_API_KEY?: string;
     DEEPINFRA_BASE_URL?: string;
+    IOINTELLIGENCE_API_KEY?: string;
+    IOINTELLIGENCE_BASE_URL?: string;
     DEEPSEEK_API_KEY?: string;
     DEEPSEEK_BASE_URL?: string;
     DARKBLOOM_API_KEY?: string;
@@ -133,6 +157,7 @@ export type GatewayBindings = {
     GMI_API_KEY?: string;
     GMI_CLOUD_API_KEY?: string;
     GMI_BASE_URL?: string;
+    GMI_QUEUE_BASE_URL?: string;
     GROQ_API_KEY?: string;
     GROQ_BASE_URL?: string;
     GOOGLE_VERTEX_API_KEY?: string;
@@ -148,10 +173,13 @@ export type GatewayBindings = {
     INFERMATIC_BASE_URL?: string;
     INFLECTION_API_KEY?: string;
     INFLECTION_BASE_URL?: string;
+    INFERENCE_API_KEY?: string;
     INFERENCE_NET_API_KEY?: string;
     INFERENCE_NET_BASE_URL?: string;
     IONROUTER_API_KEY?: string;
-    IONROUTER_BASE_URL?: string;
+	IONROUTER_BASE_URL?: string;
+	IONROUTER_KIMI_BASE_URL?: string;
+	IONROUTER_MINIMAX_BASE_URL?: string;
     LIQUID_API_KEY?: string;
     LIQUID_BASE_URL?: string;
     LIQUID_AI_API_KEY?: string;
@@ -167,6 +195,7 @@ export type GatewayBindings = {
     MINIMAX_BASE_URL?: string;
     LTX_API_KEY?: string;
     LTX_BASE_URL?: string;
+    MISTRAL_API_KEY?: string;
     MISTRAL_AI_API_KEY?: string;
     MISTRAL_BASE_URL?: string;
     MISTRAL_EU_BASE_URL?: string;
@@ -176,6 +205,7 @@ export type GatewayBindings = {
     SUNO_API_KEY?: string;
     SUNO_BASE_URL?: string;
     MOONSHOT_AI_API_KEY?: string;
+    MOONSHOT_API_KEY?: string;
     MOONSHOT_AI_BASE_URL?: string;
     MORPH_API_KEY?: string;
     MORPH_BASE_URL?: string;
@@ -193,6 +223,8 @@ export type GatewayBindings = {
     STEPFUN_BASE_URL?: string;
     TENSORIX_API_KEY?: string;
     TENSORIX_BASE_URL?: string;
+    TENCENT_CLOUD_TOKENHUB_API_KEY?: string;
+    TENCENT_CLOUD_TOKENHUB_BASE_URL?: string;
     TINKER_API_KEY?: string;
     TINKER_BASE_URL?: string;
     VENICE_API_KEY?: string;
@@ -216,12 +248,15 @@ export type GatewayBindings = {
     PARASAIL_API_KEY?: string;
     PARASAIL_BASE_URL?: string;
     RUNWAY_API_KEY?: string;
+    RUNWAYML_API_SECRET?: string;
     RUNWAY_BASE_URL?: string;
     RUNWAY_API_VERSION?: string;
     FAL_KEY?: string;
     FAL_QUEUE_BASE_URL?: string;
     PERPLEXITY_API_KEY?: string;
     PERPLEXITY_BASE_URL?: string;
+    TINYFISH_API_KEY?: string;
+    TINYFISH_SEARCH_BASE_URL?: string;
     POOLSIDE_API_KEY?: string;
     POOLSIDE_BASE_URL?: string;
     PHALA_API_KEY?: string;
@@ -234,6 +269,8 @@ export type GatewayBindings = {
     REKA_BASE_URL?: string;
     SAKANA_API_KEY?: string;
     SAKANA_BASE_URL?: string;
+    SAIL_API_KEY?: string;
+    SAIL_BASE_URL?: string;
     SAMBANOVA_API_KEY?: string;
     SAMBANOVA_BASE_URL?: string;
     SCW_SECRET_KEY?: string;
@@ -258,17 +295,18 @@ export type GatewayBindings = {
     ZAI_API_KEY?: string;
     ZAI_BASE_URL?: string;
     AZURE_OPENAI_API_KEY?: string;
+	AZURE_OPENAI_AUTH_TOKEN?: string;
     AZURE_OPENAI_BASE_URL?: string;
     AZURE_OPENAI_API_VERSION?: string;
     RESEND_API_KEY?: string;
     RESEND_FROM_EMAIL?: string;
     RESEND_ONBOARDING_AUTOMATIONS_ENABLED?: string;
-    RESEND_TEMPLATE_WELCOME_ID?: string;
     RESEND_TEMPLATE_LOW_BALANCE_ID?: string;
     DISCORD_WEBHOOK_URL?: string;
     DISCORD_ROLE_ID?: string;
     DISCORD_USER_ID?: string;
     ENV?: string;
+	ACCOUNT_DELETION_PURGE_ENABLED?: string;
     HF_TOKEN?: string;
     GITHUB_TOKEN?: string;
     GH_TOKEN?: string;
@@ -316,6 +354,7 @@ export type GatewayBindings = {
     STATSIG_REALTIME_VOICE_GATE?: string;
     STATSIG_GATEWAY_IO_LOGGING_GATE?: string;
     STATSIG_DATA_CONTRIBUTION_GATE?: string;
+    STATSIG_AUTO_ROUTING_GATE?: string;
     STATSIG_ENVIRONMENT_TIER?: string;
     REALTIME_SESSION_RECONCILIATION_ENABLED?: string;
     REALTIME_SESSION_RECONCILIATION_LIMIT?: string;
@@ -337,6 +376,7 @@ export type GatewayBindings = {
     NODE_ENV?: string;
     BYOK_KMS_KEY_V1_B64?: string;
     BYOK_ACTIVE_KEY_VERSION?: string;
+    BYOK_FINGERPRINT_PEPPER?: string;
 };
 
 export type GatewayRuntime = {

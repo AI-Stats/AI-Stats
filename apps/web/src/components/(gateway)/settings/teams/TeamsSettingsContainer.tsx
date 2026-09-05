@@ -11,7 +11,7 @@ import TeamsMembers from "./members/TeamsMembers";
 import TeamsAccessPanel from "./TeamsAccessPanel";
 import type { TeamSsoSettingsRow } from "@/lib/auth/teamSsoSettings";
 
-type Team = { id: string; name: string; publisherHandle?: string | null };
+type Team = { id: string; name: string; publisherHandle?: string | null; logoUrl?: string | null };
 
 type Props = {
 	teams: Team[];
@@ -24,7 +24,7 @@ type Props = {
 	manageableTeamIds?: string[];
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
-	samlSsoEnabled?: boolean;
+	canConfigureEnterprise?: boolean;
 	hideTitle?: boolean;
 	sampleMembersPreview?: boolean;
 	tab?: "members" | "access" | "settings";
@@ -41,7 +41,7 @@ export default function TeamsSettingsContainer({
 	manageableTeamIds,
 	walletBalances,
 	teamSsoSettingsByTeam,
-	samlSsoEnabled = false,
+	canConfigureEnterprise = false,
 	hideTitle = false,
 	sampleMembersPreview = false,
 	tab = "members",
@@ -107,7 +107,7 @@ export default function TeamsSettingsContainer({
 					personalTeamId={personalTeamId}
 					walletBalances={walletBalances}
 					teamSsoSettingsByTeam={teamSsoSettingsByTeam}
-					samlSsoEnabled={samlSsoEnabled}
+					canConfigureEnterprise={canConfigureEnterprise}
 				/>
 			) : tab === "access" ? (
 				<TeamsAccessPanel

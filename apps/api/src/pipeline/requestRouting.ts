@@ -92,6 +92,106 @@ export type ProviderQualifiedModelCandidateResult =
 		model: string;
 	};
 
+export type QuantizationCandidateResult =
+	| {
+		ok: true;
+		providers: ProviderCandidate[];
+		diagnostics: QuantizationRoutingDiagnostics | null;
+	}
+	| {
+		ok: false;
+		reason: "quantization_not_available";
+		requested: string[];
+		diagnostics: QuantizationRoutingDiagnostics;
+	};
+
+export type QuantizationRoutingDiagnostics = {
+	requested: string[];
+	normalizedRequested: string[];
+	available: string[];
+	providerCountBefore: number;
+	providerCountAfter: number;
+	droppedProviders: Array<{
+		providerId: string;
+		providerModelSlug: string | null;
+		quantization: string | null;
+		reason: "quantization_mismatch" | "quantization_metadata_missing";
+	}>;
+};
+
+const QUANTIZATION_ALIASES: Record<string, string> = {
+	bfloat16: "bf16",
+	float16: "fp16",
+	float32: "fp32",
+	float4: "fp4",
+	float6: "fp6",
+	float8: "fp8",
+};
+
+/** Normalize only unambiguous spelling variants; do not equate e.g. `4-bit` with FP4 or INT4. */
+export function normalizeQuantization(value: string): string {
+	const normalized = value.trim().toLowerCase().replace(/[\s_-]+/g, "");
+	return QUANTIZATION_ALIASES[normalized] ?? normalized;
+}
+
+export function filterQuantizationCandidates(
+	providers: ProviderCandidate[],
+	requestedQuantizations: string[] | null,
+): QuantizationCandidateResult {
+	if (requestedQuantizations === null) {
+		return { ok: true, providers, diagnostics: null };
+	}
+
+	const normalizedRequested = Array.from(new Set(
+		requestedQuantizations.map(normalizeQuantization).filter(Boolean),
+	));
+	const requestedSet = new Set(normalizedRequested);
+	const available = Array.from(new Set(
+		providers
+			.map((provider) => provider.quantizationScheme)
+			.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+			.map(normalizeQuantization),
+	)).sort();
+	const droppedProviders: QuantizationRoutingDiagnostics["droppedProviders"] = [];
+	const filtered = providers.filter((provider) => {
+		const raw = provider.quantizationScheme;
+		if (typeof raw !== "string" || !raw.trim()) {
+			droppedProviders.push({
+				providerId: provider.providerId,
+				providerModelSlug: provider.providerModelSlug,
+				quantization: null,
+				reason: "quantization_metadata_missing",
+			});
+			return false;
+		}
+		if (requestedSet.has(normalizeQuantization(raw))) return true;
+		droppedProviders.push({
+			providerId: provider.providerId,
+			providerModelSlug: provider.providerModelSlug,
+			quantization: raw,
+			reason: "quantization_mismatch",
+		});
+		return false;
+	});
+	const diagnostics: QuantizationRoutingDiagnostics = {
+		requested: requestedQuantizations,
+		normalizedRequested,
+		available,
+		providerCountBefore: providers.length,
+		providerCountAfter: filtered.length,
+		droppedProviders,
+	};
+	if (filtered.length === 0) {
+		return {
+			ok: false,
+			reason: "quantization_not_available",
+			requested: requestedQuantizations,
+			diagnostics,
+		};
+	}
+	return { ok: true, providers: filtered, diagnostics };
+}
+
 const PROVIDER_QUALIFIER_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/i;
 
 export type ProviderQualifiedModelSyntaxError = {
@@ -531,12 +631,6 @@ export function collectUnsupportedRoutingFields(body: any): Array<{
 			aliases: ["enforce_distillable_text", "enforceDistillableText"],
 			message:
 				"Routing by distillable-text policy is not yet backed by provider metadata in Phaseo Gateway.",
-		},
-		{
-			field: "quantizations",
-			aliases: ["quantizations"],
-			message:
-				"Routing by quantization is not yet backed by provider metadata in Phaseo Gateway.",
 		},
 	];
 

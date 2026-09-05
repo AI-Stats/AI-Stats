@@ -13,6 +13,11 @@ function bounded(value: string | undefined, fallback: number, max: number) {
 	return Number.isFinite(parsed) ? Math.max(1, Math.min(max, parsed)) : fallback;
 }
 
+function boundedAtLeast(value: string | undefined, fallback: number, min: number, max: number) {
+	const parsed = Math.round(Number(value));
+	return Number.isFinite(parsed) ? Math.max(min, Math.min(max, parsed)) : fallback;
+}
+
 function csv(value: string | undefined, max = 500) {
 	return [...new Set((value ?? "").split(",").map((item) => item.trim()).filter(Boolean))].slice(0, max);
 }
@@ -96,6 +101,52 @@ publicRankingsRouter.get("/rankings/image-inputs", async (c) => {
 publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 	try { const { data, error } = await getDataClient(c.env).rpc("get_public_unique_user_timeseries", { p_time_range: c.req.query("time_range") || "year", p_bucket_size: c.req.query("bucket_size") || "week", p_top_n: bounded(c.req.query("top_n"), 10, 100) }); if (error) throw error; return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE); }
 	catch (error) { console.error("[web-api/rankings] unique users failed", error); return c.json({ error: "unique_users_unavailable" }, 503); }
+});
+
+publicRankingsRouter.get("/rankings/model-retention", async (c) => {
+	const cohortWeeks = bounded(c.req.query("weeks"), 10, 52);
+	const limit = bounded(c.req.query("limit"), 20, 100);
+	const minimumWorkspaceWeeks = Math.max(25, bounded(c.req.query("min_workspace_weeks"), 25, 10_000));
+	const minimumWorkspaces = Math.max(20, bounded(c.req.query("min_workspaces"), 20, 10_000));
+	const minimumWeeks = Math.max(2, bounded(c.req.query("min_weeks"), 2, 52));
+	try {
+		const client = getDataClient(c.env);
+		const { data, error } = await client.rpc("get_public_model_retention_rankings", {
+			p_weeks: cohortWeeks, p_limit: limit,
+			p_min_workspace_weeks: minimumWorkspaceWeeks,
+			p_min_workspaces: minimumWorkspaces,
+			p_min_weeks: minimumWeeks,
+		});
+		if (error) throw error;
+		const rows = (data ?? []) as Array<Record<string, unknown>>;
+		const modelIds = rows.map((row) => String(row.model_id ?? "").trim()).filter(Boolean);
+		const modelsResult = modelIds.length
+			? await client.from("v2_models")
+				.select("model_slug,name,lab_slug,lab:v2_labs!v2_models_lab_slug_fkey(name)")
+				.in("model_slug", [...new Set(modelIds)]).eq("hidden", false)
+			: { data: [], error: null };
+		if (modelsResult.error) throw modelsResult.error;
+		const models = new Map((modelsResult.data ?? []).map((row) => {
+			const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab;
+			return [row.model_slug, {
+				model_name: row.name ?? row.model_slug,
+				organisation_id: row.lab_slug ?? null,
+				organisation_name: lab?.name ?? row.lab_slug ?? null,
+			}];
+		}));
+		return withPublicCache(c.json({
+			// Only publish aggregates for visible catalogue models; do not leak
+			// an unrecognised raw model id through the fallback representation.
+			data: rows.flatMap((row) => {
+				const model = models.get(String(row.model_id ?? ""));
+				return model ? [{ ...row, ...model }] : [];
+			}),
+			methodology: { cohortWeeks, minimumWorkspaceWeeks, minimumWorkspaces, minimumWeeks },
+		}), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] model retention failed", error);
+		return c.json({ error: "model_retention_rankings_unavailable" }, 503);
+	}
 });
 
 publicRankingsRouter.get("/rankings/tool-calls", async (c) => {
@@ -338,8 +389,8 @@ publicRankingsRouter.get("/rankings/model-meta", async (c) => {
 		const unresolved = ids.filter((id) => !models[id]);
 		if (unresolved.length) {
 			const [byProviderId, bySlug, byAlias] = await Promise.all([
-				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_id", unresolved),
-				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_slug", unresolved),
+				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_id", unresolved).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]),
+				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_slug", unresolved).eq("is_stealth", false).eq("routing_enabled", true).in("status", ["active", "degraded"]),
 				client.from("v2_model_aliases").select("alias_slug,model_slug").in("alias_slug", unresolved).eq("enabled", true),
 			]);
 			for (const result of [byProviderId, bySlug, byAlias]) if (result.error) throw result.error;

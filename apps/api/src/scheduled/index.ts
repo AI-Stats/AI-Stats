@@ -15,6 +15,7 @@ import { runAsyncWebhookRetriesJob } from "@/core/async-notifications";
 import { runBatchReconciliationJob } from "@/pipeline/batch-reconciliation";
 import { drainEmailOutbox } from "@/pipeline/notifications/email-outbox";
 import { runPaymentMethodExpiryNotificationJob } from "@/pipeline/notifications/billing-alerts";
+import { enqueueModelDeprecationNotifications, runNotificationDeliveryJob } from "@/pipeline/notifications/notification-delivery";
 import { runVideoReconciliationJob } from "@/pipeline/video-reconciliation";
 import { runGatewayIoRetentionBillingJob } from "@/pipeline/audit/io-retention-billing";
 import { runBatchProviderWebhookReplayJob } from "@/routes/internal/batch-webhooks.helpers";
@@ -22,6 +23,8 @@ import { runRealtimeSessionReconciliationJob } from "@core/realtime-sessions";
 import { runDataContributionClassifierJob } from "@/pipeline/classification/classifier-worker";
 import { pruneExpiredDataContributions } from "@/pipeline/classification/data-contribution";
 import { drainGatewayOtlpOutbox } from "@/observability/otlp-export";
+import { runAccountDeletionPurgeJob } from "@/pipeline/privacy/account-deletion";
+import { pruneExpiredGatewayIoLogs } from "@/pipeline/audit/io-retention-expiry";
 
 const MODEL_DISCOVERY_TICKS_PER_DAY = Array.from({ length: 24 }, (_value, hour) =>
 	60 / getModelDiscoveryStepMinutesUtc(hour),
@@ -299,6 +302,26 @@ async function handlePaymentMethodExpiryScheduledEvent(env: GatewayBindings): Pr
 	}
 }
 
+async function handleNotificationDeliveryScheduledEvent(env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await runNotificationDeliveryJob(toInt(env.EMAIL_OUTBOX_DRAIN_LIMIT, 25));
+		if (summary.queued > 0 || summary.sent > 0 || summary.failed > 0) console.log("notification_delivery_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
+async function handleModelDeprecationScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await enqueueModelDeprecationNotifications(new Date(event.scheduledTime));
+		if (summary.enqueued > 0) console.log("model_deprecation_notifications_enqueued", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
 async function handleGatewayIoRetentionBillingScheduledEvent(
 	event: ScheduledController,
 	env: GatewayBindings,
@@ -400,12 +423,45 @@ async function handleDataContributionRetentionScheduledEvent(env: GatewayBinding
 	}
 }
 
+async function handleAccountDeletionScheduledEvent(env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await runAccountDeletionPurgeJob();
+		if (summary.claimed > 0) console.log("account_deletion_purge_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
+async function handleGatewayIoRetentionExpiryScheduledEvent(
+	event: ScheduledController,
+	env: GatewayBindings,
+): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await pruneExpiredGatewayIoLogs({
+			asOf: new Date(event.scheduledTime),
+			limit: toInt(env.GATEWAY_IO_RETENTION_PRUNE_LIMIT, 250),
+		});
+		if (summary.deleted > 0 || summary.failed > 0) {
+			console.log("gateway_io_retention_expiry_completed", summary);
+		}
+	} finally {
+		clearRuntime();
+	}
+}
+
 export async function handleScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
 	if (isDailyPaymentMethodExpiryTick(event)) {
 		try {
 			await handlePaymentMethodExpiryScheduledEvent(env);
 		} catch (error) {
 			console.error("payment_method_expiry_notifications_scheduled_failed", serializeError(error));
+		}
+		try {
+			await handleModelDeprecationScheduledEvent(event, env);
+		} catch (error) {
+			console.error("model_deprecation_notifications_scheduled_failed", serializeError(error));
 		}
 	}
 	if (isDailyRetentionBillingTick(event)) {
@@ -416,6 +472,18 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		}
 	}
 	if (isCoreJobsTick(event)) {
+		try {
+			await handleGatewayIoRetentionExpiryScheduledEvent(event, env);
+		} catch (error) {
+			console.error("gateway_io_retention_expiry_scheduled_failed", serializeError(error));
+		}
+		if (env.ENV === "prod" && env.ACCOUNT_DELETION_PURGE_ENABLED === "true") {
+			try {
+				await handleAccountDeletionScheduledEvent(env);
+			} catch (error) {
+				console.error("account_deletion_scheduled_failed", serializeError(error));
+			}
+		}
 		try {
 			await handleDataContributionClassifierScheduledEvent(env);
 		} catch (error) {
@@ -440,6 +508,11 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 			await handleEmailOutboxScheduledEvent(event, env);
 		} catch (error) {
 			console.error("email_outbox_scheduled_failed", serializeError(error));
+		}
+		try {
+			await handleNotificationDeliveryScheduledEvent(env);
+		} catch (error) {
+			console.error("notification_delivery_scheduled_failed", serializeError(error));
 		}
 		try {
 			await handleAsyncWebhookRetriesScheduledEvent(event, env);

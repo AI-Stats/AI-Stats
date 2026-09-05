@@ -147,9 +147,7 @@ const ISSUE_OPTIONS: IssueOption[] = [
 	},
 ];
 const ISSUE_VALUES = new Set(ISSUE_OPTIONS.map((option) => option.value));
-
-const TAWK_PROPERTY_ID = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID ?? "";
-const TAWK_WIDGET_ID = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ?? "default";
+const TAWK_TICKET_URL = "https://phaseo.tawk.help";
 
 type TawkApi = {
 	hideWidget?: () => void;
@@ -180,6 +178,8 @@ type ContactClientProps = {
 	userEmail?: string | null;
 	tierLabel?: string;
 	defaultInternalId?: string;
+	tawkPropertyId?: string;
+	tawkWidgetId?: string;
 };
 
 function MethodIcon({ method }: { method: ContactMethod }) {
@@ -247,20 +247,24 @@ function TawkSupportLauncher({
 	defaultInternalId,
 	issueLabel,
 	supportIsOpen,
+	tawkPropertyId,
+	tawkWidgetId = "default",
 	tierLabel,
 	userEmail,
 }: {
 	defaultInternalId?: string;
 	issueLabel?: string;
 	supportIsOpen: boolean;
+	tawkPropertyId?: string;
+	tawkWidgetId?: string;
 	tierLabel?: string;
 	userEmail?: string | null;
 }) {
 	const [chatStatus, setChatStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
-	const isConfigured = Boolean(TAWK_PROPERTY_ID);
+	const isConfigured = Boolean(tawkPropertyId);
 	const canStartChat = isConfigured && supportIsOpen;
 	const directChatHref = isConfigured
-		? `https://tawk.to/chat/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`
+		? `https://tawk.to/chat/${tawkPropertyId}/${tawkWidgetId}`
 		: "";
 	const emailHref = useMemo(() => {
 		const subject = issueLabel
@@ -331,7 +335,7 @@ function TawkSupportLauncher({
 			const firstScript = document.getElementsByTagName("script")[0];
 			script.id = "phaseo-tawk-widget";
 			script.async = true;
-			script.src = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
+			script.src = `https://embed.tawk.to/${tawkPropertyId}/${tawkWidgetId}`;
 			script.charset = "UTF-8";
 			script.setAttribute("crossorigin", "*");
 			script.onerror = () => setChatStatus("error");
@@ -346,13 +350,12 @@ function TawkSupportLauncher({
 	};
 
 	return (
-		<div className="rounded-2xl border border-border/60 px-4 py-4">
+		<div className="rounded-md border border-border/60 px-4 py-4">
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<p className="text-sm font-medium">Live chat or email</p>
+					<p className="text-sm font-medium">Live chat, ticket, or email</p>
 					<p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-						Start a live chat from this page, or open a prefilled email with
-						the context we need.
+						Chat now, create a tracked support ticket, or open a prefilled email.
 					</p>
 					{userEmail ? (
 						<p className="mt-2 text-xs text-muted-foreground">
@@ -361,7 +364,7 @@ function TawkSupportLauncher({
 					) : null}
 					{isConfigured ? null : (
 						<p className="mt-2 text-xs text-muted-foreground">
-							Live chat needs `NEXT_PUBLIC_TAWK_PROPERTY_ID` before it can load.
+							Live chat is not configured for this deployment.
 						</p>
 					)}
 					{isConfigured && !supportIsOpen ? (
@@ -392,6 +395,12 @@ function TawkSupportLauncher({
 						</Button>
 					)}
 					<Button asChild type="button" variant="outline" className="w-full">
+						<a href={TAWK_TICKET_URL} target="_blank" rel="noreferrer">
+							Create ticket
+							<ArrowUpRight className="size-4" />
+						</a>
+					</Button>
+					<Button asChild type="button" variant="outline" className="w-full">
 						<a href={emailHref}>
 							Send email
 							<ArrowRight className="size-4" />
@@ -420,6 +429,8 @@ export function ContactClient({
 	userEmail,
 	tierLabel,
 	defaultInternalId,
+	tawkPropertyId,
+	tawkWidgetId,
 }: ContactClientProps) {
 	const resolvedStatusLabel = statusLabel ?? "Support";
 	const resolvedStatusTone = statusTone ?? "bg-amber-500 ring-amber-400/60";
@@ -475,7 +486,7 @@ export function ContactClient({
 					</div>
 				</div>
 
-				<div className="rounded-2xl border border-border/60 px-4 py-3 text-sm">
+				<div className="rounded-md border border-border/60 px-4 py-3 text-sm">
 					<div className="flex items-center gap-2 font-medium text-foreground">
 						<span className="relative flex size-2.5">
 							<span
@@ -519,7 +530,7 @@ export function ContactClient({
 									void setIssueParam(value);
 								}}
 							>
-								<SelectTrigger className="h-11 w-full rounded-2xl px-4">
+								<SelectTrigger className="h-11 w-full rounded-md px-4">
 									{selectedIssue ? (
 										<span>{selectedIssue.label}</span>
 									) : (
@@ -548,7 +559,7 @@ export function ContactClient({
 								</p>
 								<div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 									<div className="flex min-w-0 flex-col gap-3 sm:flex-row">
-										<span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-muted/60 text-foreground">
+										<span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted/60 text-foreground">
 											<MethodIcon method={recommendedMethod} />
 										</span>
 										<div className="min-w-0 space-y-1">
@@ -585,11 +596,13 @@ export function ContactClient({
 											defaultInternalId={defaultInternalId}
 											issueLabel={selectedIssue.label}
 											supportIsOpen={Boolean(isOpen)}
+											tawkPropertyId={tawkPropertyId}
+											tawkWidgetId={tawkWidgetId}
 											tierLabel={tierLabel}
 											userEmail={userEmail}
 										/>
 							) : (
-								<div className="rounded-2xl border border-border/60 px-4 py-4">
+								<div className="rounded-md border border-border/60 px-4 py-4">
 									<p className="text-sm font-medium">
 										Prefer a private reply?
 									</p>
@@ -625,11 +638,11 @@ export function ContactClient({
 							<Link
 								key={method.key}
 								href={method.href}
-								className="group flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-border/60 px-3 py-3 text-sm transition-colors hover:border-border hover:bg-muted/35"
+								className="group flex min-w-0 items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-3 text-sm transition-colors hover:border-border hover:bg-muted/35"
 								{...(method.external ? { target: "_blank", rel: "noreferrer" } : {})}
 							>
 								<span className="flex min-w-0 items-center gap-3">
-									<span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted/60 text-foreground">
+									<span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted/60 text-foreground">
 										<MethodIcon method={method} />
 									</span>
 									<span className="min-w-0">

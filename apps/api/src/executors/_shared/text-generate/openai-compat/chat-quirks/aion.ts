@@ -10,6 +10,19 @@ const AION_REASONING_SPLIT_BLOCKLIST = new Set([
 	"aion-rp-llama-3.1-8b",
 ]);
 
+const AION_REASONING_EFFORT_MODELS = new Set(["aion-2.0", "aion-3.0", "aion-3.0-mini"]);
+
+function normalizeAionReasoningEffort(ir: any): "none" | "low" | "medium" | "high" | undefined {
+	const reasoning = ir?.reasoning;
+	if (!reasoning || typeof reasoning !== "object") return undefined;
+	if (reasoning.enabled === false || reasoning.effort === "none") return "none";
+	if (reasoning.enabled === true && reasoning.effort == null) return "medium";
+	if (reasoning.effort === "minimal" || reasoning.effort === "low") return "low";
+	if (reasoning.effort === "medium") return "medium";
+	if (reasoning.effort === "high" || reasoning.effort === "xhigh" || reasoning.effort === "max") return "high";
+	return undefined;
+}
+
 function normalizeModelName(model?: string | null): string {
 	if (!model) return "";
 	const value = model.trim();
@@ -21,9 +34,13 @@ function normalizeModelName(model?: string | null): string {
 export const aionChatQuirk: ChatQuirk = {
 	id: "aion",
 	matches: (providerId) => isAionProvider(providerId ?? ""),
-	onRequest: ({ request, model }) => {
+	onRequest: ({ ir, request, model }) => {
 		const resolvedModel = model ?? request?.model;
 		const normalized = normalizeModelName(resolvedModel);
+		if (AION_REASONING_EFFORT_MODELS.has(normalized)) {
+			const effort = normalizeAionReasoningEffort(ir);
+			if (effort !== undefined) request.reasoning_effort = effort;
+		}
 		if (AION_REASONING_SPLIT_BLOCKLIST.has(resolvedModel ?? "") || AION_REASONING_SPLIT_BLOCKLIST.has(normalized)) {
 			if ("reasoning_split" in request) {
 				delete request.reasoning_split;
@@ -44,4 +61,3 @@ export const aionChatQuirk: ChatQuirk = {
 		};
 	},
 };
-

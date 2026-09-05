@@ -58,6 +58,7 @@ function parseNumericValue(value: unknown): number | undefined {
 export function isMajorError(msg: string): boolean {
     const majorPatterns = [
         /model_id.*missing|model.*name.*missing/i,
+        /duplicate model[ _](?:id|identity)/i,
         /benchmark.*not found|benchmark.*missing/i,
         /pricing.*active.*no rules/i,
         /pricing.*invalid key/i,
@@ -73,6 +74,17 @@ export function isMajorError(msg: string): boolean {
         /pricing.*rule effective_(?:from|to).*match.*top-level/i,
     ];
     return majorPatterns.some((p) => p.test(msg));
+}
+
+export function normalizedModelIdentity(modelId: string, organisationId: string): string {
+    const [prefix, ...parts] = modelId.trim().split('/');
+    let slug = parts.join('/').trim().toLowerCase();
+    const organisationSlug = organisationId.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (prefix?.trim().toLowerCase() === organisationId.trim().toLowerCase() && organisationSlug) {
+        const redundantPrefix = `${organisationSlug}-`;
+        if (slug.startsWith(redundantPrefix)) slug = slug.slice(redundantPrefix.length);
+    }
+    return `${prefix?.trim().toLowerCase() ?? ''}/${slug}`;
 }
 
 function hasExplicitUtcTimestamp(value: unknown): value is string {
@@ -230,6 +242,19 @@ export function checkPricingEntrySafety(p: any): string[] {
                                 `pricing: time window ${index} timezone must be UTC for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
                             );
                         }
+                        if (window?.days_of_week !== undefined) {
+                            const allowedDays = new Set(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
+                            if (
+                                !Array.isArray(window.days_of_week) ||
+                                window.days_of_week.length === 0 ||
+                                new Set(window.days_of_week).size !== window.days_of_week.length ||
+                                window.days_of_week.some((day: unknown) => !allowedDays.has(String(day)))
+                            ) {
+                                errs.push(
+                                    `pricing: time window ${index} days_of_week must contain unique weekday keys for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
+                                );
+                            }
+                        }
                         if (startMinute === null || endMinute === null || startMinute === endMinute) {
                             errs.push(
                                 `pricing: time window ${index} must use HH:mm UTC start/end times for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
@@ -304,8 +329,20 @@ export function checkApiProviderModelEntrySafety(
     const apiModelId = normalizeReference(row?.api_model_id);
     const rowLabel = `${providerId}${providerApiModelId ? ` (${providerApiModelId})` : apiModelId ? ` (${apiModelId})` : ''}`;
 
-    if (!normalizeReference(row?.provider_model_slug)) {
+    const canOmitProviderModelSlug =
+        row?.is_active_gateway === false &&
+        row?.routable === false &&
+        row?.routing_status === 'disabled';
+    if (!normalizeReference(row?.provider_model_slug) && !canOmitProviderModelSlug) {
         errors.push(`API provider model ${rowLabel} missing provider_model_slug`);
+    }
+
+    const accessScope = normalizeReference(row?.access_scope)?.toLowerCase();
+    const integrationStatus = normalizeReference(row?.phaseo_status)?.toLowerCase();
+    if (accessScope === 'internal' && integrationStatus !== 'testing' && integrationStatus !== 'enabled') {
+        errors.push(
+            `API provider model ${rowLabel} with internal access_scope must set phaseo_status to testing or enabled`
+        );
     }
 
     if (row?.availability !== undefined && row?.availability !== null) {
@@ -901,7 +938,7 @@ function checkOrganisations(state: ValidationState): string[] {
             errors.push(`Organisation ${organisationId} missing name`);
         }
         const countryCode = typeof data.country_code === 'string' ? data.country_code.trim() : '';
-        if (!/^[A-Z]{2,3}$/.test(countryCode)) {
+        if (data.country_code !== null && !/^[A-Z]{2,3}$/.test(countryCode)) {
             errors.push(`Organisation ${organisationId} has invalid country_code`);
         }
         const links = Array.isArray(data.organisation_links) ? data.organisation_links : [];
@@ -994,6 +1031,112 @@ function checkBenchmarks(state: ValidationState): string[] {
     return errors;
 }
 
+function hasProviderPolicySource(data: Record<string, any>): boolean {
+    const directSourceFields = [
+        'prompt_training_source_url',
+        'residency_source_url',
+        'privacy_policy_url',
+        'terms_of_service_url',
+    ];
+    if (directSourceFields.some((field) => typeof data[field] === 'string' && data[field].trim())) {
+        return true;
+    }
+    return Array.isArray(data.sources) && data.sources.some((source: any) =>
+        source && typeof source.url === 'string' && source.url.trim(),
+    );
+}
+
+function validateCapabilityDataPolicy(
+    policy: unknown,
+    label: string,
+    errors: string[],
+): void {
+    if (!policy || typeof policy !== 'object' || Array.isArray(policy)) {
+        errors.push(`${label} must be an object`);
+        return;
+    }
+    const value = policy as Record<string, unknown>;
+    const allowed = {
+        tier: ['unknown', 'private', 'logs', 'trains'],
+        confidence: ['unknown', 'confirmed', 'inferred'],
+        zdrEligibility: ['unknown', 'eligible', 'ineligible'],
+        retentionMode: ['unknown', 'transient', 'until_deleted'],
+    } as const;
+    for (const [key, values] of Object.entries(allowed)) {
+        if (typeof value[key] !== 'string' || !values.includes(value[key] as never)) {
+            errors.push(`${label} has invalid ${key}`);
+        }
+    }
+    if (
+        value.retentionDays !== undefined &&
+        value.retentionDays !== null &&
+        (typeof value.retentionDays !== 'number' ||
+            !Number.isInteger(value.retentionDays) ||
+            value.retentionDays < 0)
+    ) {
+        errors.push(`${label} retentionDays must be a non-negative integer or null`);
+    }
+    if (value.retentionMode === 'transient' && value.retentionDays !== 0) {
+        errors.push(`${label} transient retention must set retentionDays to 0`);
+    }
+    if (value.zdrEligibility === 'eligible' && value.tier !== 'private') {
+        errors.push(`${label} eligible ZDR must use the private tier`);
+    }
+    for (const key of ['reason', 'evidenceUrl']) {
+        if (value[key] !== undefined && value[key] !== null && typeof value[key] !== 'string') {
+            errors.push(`${label} ${key} must be a string or null`);
+        }
+    }
+    if (value.evidenceUrl !== undefined && value.evidenceUrl !== null) {
+        try {
+            const url = new URL(String(value.evidenceUrl));
+            if (!['http:', 'https:'].includes(url.protocol)) throw new Error('unsupported protocol');
+        } catch {
+            errors.push(`${label} evidenceUrl must be an HTTP(S) URL`);
+        }
+    }
+}
+
+function validateProviderCapabilityPolicyConfiguration(
+    data: Record<string, any>,
+    providerId: string,
+    errors: string[],
+): void {
+    for (const field of ['capability_data_policies', 'service_tier_data_policies']) {
+        const policies = data[field];
+        if (policies === undefined) continue;
+        if (!policies || typeof policies !== 'object' || Array.isArray(policies)) {
+            errors.push(`API provider ${providerId} ${field} must be an object`);
+            continue;
+        }
+        for (const [key, policy] of Object.entries(policies)) {
+            validateCapabilityDataPolicy(policy, `API provider ${providerId} ${field}.${key}`, errors);
+        }
+    }
+    const exclusions = data.capability_data_policy_exclusions;
+    if (exclusions === undefined) return;
+    if (!Array.isArray(exclusions)) {
+        errors.push(`API provider ${providerId} capability_data_policy_exclusions must be an array`);
+        return;
+    }
+    for (const [index, exclusion] of exclusions.entries()) {
+        if (!exclusion || typeof exclusion !== 'object' || Array.isArray(exclusion)) {
+            errors.push(`API provider ${providerId} capability_data_policy_exclusions[${index}] must be an object`);
+            continue;
+        }
+        if (typeof exclusion.capability_id !== 'string' || !exclusion.capability_id.trim()) {
+            errors.push(`API provider ${providerId} capability_data_policy_exclusions[${index}] is missing capability_id`);
+        }
+        if (
+            exclusion.provider_model_slug_prefix !== undefined &&
+            exclusion.provider_model_slug_prefix !== null &&
+            (typeof exclusion.provider_model_slug_prefix !== 'string' || !exclusion.provider_model_slug_prefix.trim())
+        ) {
+            errors.push(`API provider ${providerId} capability_data_policy_exclusions[${index}] has invalid provider_model_slug_prefix`);
+        }
+    }
+}
+
 function checkApiProviders(state: ValidationState): string[] {
     const errors: string[] = [];
     const providersDir = path.join(DATA_ROOT, 'api_providers');
@@ -1010,6 +1153,7 @@ function checkApiProviders(state: ValidationState): string[] {
             errors.push(`API provider ${provider} missing api_provider_id`);
             continue;
         }
+        validateProviderCapabilityPolicyConfiguration(data, providerId, errors);
         if (data.availability !== undefined && data.availability !== null) {
             const availabilityChecks = checkApiProviderModelEntrySafety({
                 provider_model_slug: providerId,
@@ -1062,9 +1206,9 @@ function checkApiProviders(state: ValidationState): string[] {
         if (
             data.zero_data_retention !== undefined &&
             data.zero_data_retention !== null &&
-            !['unknown', 'unsupported', 'optional', 'default'].includes(String(data.zero_data_retention))
+            typeof data.zero_data_retention !== 'boolean'
         ) {
-            errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'`);
+            errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'; expected boolean`);
         }
         if (
             data.data_retention_days !== undefined &&
@@ -1118,8 +1262,8 @@ function checkApiProviders(state: ValidationState): string[] {
             if (data.offer_scope !== 'specialized') {
                 errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
             }
-            if (data.zero_data_retention !== 'default') {
-                errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            if (data.zero_data_retention !== true) {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to true`);
             }
             if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
                 errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
@@ -1139,6 +1283,34 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
         }
+        for (const key of ['zero_data_retention', 'data_policy_tier', 'data_policy_confidence', 'data_policy_contract_mode']) {
+            const value = (data as Record<string, unknown>)[key];
+            if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+                errors.push(`API provider ${providerId} is missing ${key}`);
+            }
+        }
+        if (data.data_policy_tier === 'private') {
+            if (data.prompt_training_policy !== 'no_train') {
+                errors.push(`Private API provider ${providerId} must have prompt_training_policy 'no_train'`);
+            }
+            if (data.zero_data_retention !== true || data.data_policy_confidence !== 'confirmed') {
+                errors.push(`Private API provider ${providerId} must have confirmed default zero data retention`);
+            }
+        }
+        if (
+            data.data_policy_tier === 'private' ||
+            (data.zero_data_retention === true && data.data_policy_confidence === 'confirmed')
+        ) {
+            if (!hasProviderPolicySource(data)) {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must cite a policy source`);
+            }
+            if (data.verification?.status !== 'verified') {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must have verified provenance`);
+            }
+        }
+        if (data.zero_data_retention === true && data.data_retention_days !== 0) {
+            errors.push(`API provider ${providerId} with zero data retention must set data_retention_days to 0`);
+        }
 		const providerModelsPath = path.join(providersDir, provider, 'models.json');
 		const providerModels = fs.existsSync(providerModelsPath)
 			? safeReadJson(providerModelsPath, errors, 'API provider models')
@@ -1153,7 +1325,7 @@ function checkApiProviders(state: ValidationState): string[] {
 					errors.push(`Active API provider ${providerId} is missing ${key}`);
 				}
 			}
-			if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+            if (data.zero_data_retention === true && data.data_retention_days !== 0) {
 				errors.push(`Active ZDR provider ${providerId} must set data_retention_days to 0`);
 			}
 		}
@@ -1161,8 +1333,8 @@ function checkApiProviders(state: ValidationState): string[] {
 			if (data.offer_scope !== 'specialized') {
 				errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
 			}
-			if (data.zero_data_retention !== 'default') {
-				errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            if (data.zero_data_retention !== true) {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to true`);
 			}
 			if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
 				errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
@@ -1223,6 +1395,7 @@ function checkApiProviders(state: ValidationState): string[] {
 
 function loadModels(state: ValidationState): string[] {
     const errors: string[] = [];
+    const modelIdentities = new Map<string, string>();
     const modelsDir = path.join(DATA_ROOT, 'models');
     for (const org of listDirs(modelsDir)) {
         const orgPath = path.join(modelsDir, org);
@@ -1244,11 +1417,40 @@ function loadModels(state: ValidationState): string[] {
             } else {
                 state.modelIds.set(modelId, filePath);
             }
+            const organisationId = typeof data.organisation_id === 'string' ? data.organisation_id.trim() : org;
+            if (organisationId.toLowerCase() === 'nvidia') {
+                const identityKey = normalizedModelIdentity(modelId, organisationId);
+                const existingIdentity = modelIdentities.get(identityKey);
+                if (existingIdentity && existingIdentity !== modelId) {
+                    errors.push(`Duplicate model identity detected: ${modelId} conflicts with ${existingIdentity}`);
+                } else {
+                    modelIdentities.set(identityKey, modelId);
+                }
+            }
             const apiModelId = normalizeReference(data.api_model_id);
-            if (apiModelId?.toLowerCase().endsWith(':free')) {
-                errors.push(
-                    `Model ${modelId} api_model_id must identify the base model; free offers belong in variants`
-                );
+            const modelIsFree = modelId.toLowerCase().endsWith(':free');
+            const variantKind = normalizeReference(data.variant_kind) ?? 'standard';
+            const baseModelId = normalizeReference(data.base_model_id);
+            if (variantKind !== 'standard' && variantKind !== 'free') {
+                errors.push(`Model ${modelId} has unsupported variant_kind '${variantKind}'`);
+            }
+            if (modelIsFree !== (variantKind === 'free')) {
+                errors.push(`Model ${modelId} must use variant_kind '${modelIsFree ? 'free' : 'standard'}'`);
+            }
+            if (apiModelId?.toLowerCase().endsWith(':free') && apiModelId !== modelId) {
+                errors.push(`Standalone free model ${modelId} api_model_id must match its model_id`);
+            }
+            if (!modelIsFree && apiModelId?.toLowerCase().endsWith(':free')) {
+                errors.push(`Standard model ${modelId} cannot use a free api_model_id`);
+            }
+            if (baseModelId && variantKind !== 'free') {
+                errors.push(`Model ${modelId} can only use base_model_id when variant_kind is 'free'`);
+            }
+            if (baseModelId === modelId) {
+                errors.push(`Model ${modelId} cannot reference itself as base_model_id`);
+            }
+            if (modelIsFree && Array.isArray(data.variants) && data.variants.length > 0) {
+                errors.push(`Standalone free model ${modelId} cannot define nested variants`);
             }
             if (typeof data.organisation_id !== 'string' || !data.organisation_id.trim()) {
                 errors.push(`Model ${modelId} missing organisation_id`);
@@ -1294,6 +1496,13 @@ function loadModels(state: ValidationState): string[] {
                 });
             }
             state.models.push({ filePath, data });
+        }
+    }
+    for (const { data } of state.models) {
+        const modelId = normalizeReference(data.model_id);
+        const baseModelId = normalizeReference(data.base_model_id);
+        if (modelId && baseModelId && !state.modelIds.has(baseModelId)) {
+            errors.push(`Model ${modelId} references unknown base_model_id ${baseModelId}`);
         }
     }
     return errors;
@@ -1419,10 +1628,19 @@ function checkApiProviderModels(
                         `API provider model ${rowLabel} canonical_model_id must be '${canonicalVariantId}'`
                     );
                 }
-                if (canonicalModelId && !state.modelVariants.has(canonicalModelId)) {
+                const standaloneFreeModel = canonicalModelId
+                    ? modelEntriesById.get(canonicalModelId)
+                    : undefined;
+                const hasAuthoredFreeModel = Boolean(
+                    canonicalModelId && (
+                        state.modelVariants.has(canonicalModelId) ||
+                        standaloneFreeModel?.data.variant_kind === 'free'
+                    )
+                );
+                if (canonicalModelId && !hasAuthoredFreeModel) {
                     errors.push(
                         `API provider model ${rowLabel} references free offer '${apiModelId}' ` +
-                        `without authored model variant '${canonicalModelId}'`
+                        `without authored free model '${canonicalModelId}'`
                     );
                 } else if (canonicalModelId) {
                     referencedVariantIds.add(canonicalModelId);
@@ -1699,6 +1917,78 @@ function checkPricing(state: ValidationState): string[] {
     return errors;
 }
 
+export function checkSubscriptionPlanModels(
+    planId: string,
+    planModels: unknown[],
+    modelIds: ReadonlySet<string>,
+): string[] {
+    const errors: string[] = [];
+    const seenModelIds = new Set<string>();
+    for (const entry of planModels) {
+        const modelId = typeof (entry as { model_id?: unknown })?.model_id === 'string'
+            ? (entry as { model_id: string }).model_id
+            : '';
+        if (!modelId) {
+            errors.push(`Subscription plan ${planId} has a model entry without model_id`);
+            continue;
+        }
+        if (!modelIds.has(modelId)) {
+            errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
+        }
+        if (seenModelIds.has(modelId)) {
+            errors.push(`Subscription plan ${planId} contains duplicate model ${modelId}`);
+        }
+        seenModelIds.add(modelId);
+    }
+    return errors;
+}
+
+const SUBSCRIPTION_PLAN_FREQUENCIES = new Set([
+    'custom',
+    'monthly',
+    'one-time',
+    'quarterly',
+    'usage',
+    'yearly',
+]);
+
+export function checkSubscriptionPlanShape(planId: string, data: any): string[] {
+    const errors: string[] = [];
+    const pricingOptions = Array.isArray(data?.pricing_options) ? data.pricing_options : null;
+    if (!pricingOptions?.length) {
+        errors.push(`Subscription plan ${planId} must contain at least one pricing option`);
+    } else {
+        pricingOptions.forEach((option: any, index: number) => {
+            const label = `Subscription plan ${planId} pricing option ${index}`;
+            if (!SUBSCRIPTION_PLAN_FREQUENCIES.has(option?.frequency)) {
+                errors.push(`${label} has unsupported frequency ${String(option?.frequency)}`);
+            }
+            if (typeof option?.usd_price !== 'number' || !Number.isFinite(option.usd_price) || option.usd_price < 0) {
+                errors.push(`${label} must have a non-negative finite usd_price`);
+            }
+            if (typeof option?.link !== 'string' || !option.link.trim()) {
+                errors.push(`${label} must include a source link`);
+            } else {
+                try {
+                    const sourceUrl = new URL(option.link);
+                    if (sourceUrl.protocol !== 'https:') {
+                        errors.push(`${label} source link must use HTTPS`);
+                    }
+                } catch {
+                    errors.push(`${label} has an invalid source link`);
+                }
+            }
+        });
+    }
+    if (!Array.isArray(data?.features)) {
+        errors.push(`Subscription plan ${planId} features must be an array`);
+    }
+    if (!Array.isArray(data?.models)) {
+        errors.push(`Subscription plan ${planId} models must be an array`);
+    }
+    return errors;
+}
+
 function checkSubscriptionPlans(state: ValidationState): string[] {
     const errors: string[] = [];
     const plansDir = path.join(DATA_ROOT, 'subscription_plans');
@@ -1714,6 +2004,8 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
         const planId = typeof data.plan_id === 'string' ? data.plan_id.trim() : plan;
         if (!planId) {
             errors.push(`Subscription plan at ${plan} missing plan_id`);
+        } else if (planId !== plan) {
+            errors.push(`Subscription plan directory ${plan} does not match plan_id ${planId}`);
         }
         if (typeof data.name !== 'string' || !data.name.trim()) {
             errors.push(`Subscription plan ${planId} missing name`);
@@ -1726,17 +2018,9 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
         } else {
             errors.push(`Subscription plan ${planId} missing organisation_id`);
         }
+        errors.push(...checkSubscriptionPlanShape(planId, data));
         const planModels = Array.isArray(data.models) ? data.models : [];
-        for (const entry of planModels) {
-            const modelId = typeof entry?.model_id === 'string' ? entry.model_id : '';
-            if (!modelId) {
-                errors.push(`Subscription plan ${planId} has a model entry without model_id`);
-                continue;
-            }
-            if (!state.modelIds.has(modelId)) {
-                errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
-            }
-        }
+        errors.push(...checkSubscriptionPlanModels(planId, planModels, state.modelIds));
     }
     return errors;
 }

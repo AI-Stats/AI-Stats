@@ -54,6 +54,34 @@
       },
       "additionalProperties": true
     },
+    "capabilityDataPolicy": {
+      "type": "object",
+      "required": ["tier", "confidence", "zdrEligibility", "retentionMode"],
+      "properties": {
+        "tier": { "type": "string", "enum": ["unknown", "private", "logs", "trains"] },
+        "confidence": { "type": "string", "enum": ["unknown", "confirmed", "inferred"] },
+        "zdrEligibility": { "type": "string", "enum": ["unknown", "eligible", "ineligible"] },
+        "retentionMode": { "type": "string", "enum": ["unknown", "transient", "until_deleted"] },
+        "retentionDays": { "type": ["integer", "null"], "minimum": 0 },
+        "reason": { "type": ["string", "null"] },
+        "evidenceUrl": { "type": ["string", "null"], "format": "uri" }
+      },
+      "additionalProperties": false
+    },
+    "capabilityDataPolicyMap": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/capabilityDataPolicy" }
+    },
+    "capabilityDataPolicyExclusion": {
+      "type": "object",
+      "required": ["capability_id"],
+      "properties": {
+        "capability_id": { "type": "string", "minLength": 1 },
+        "provider_model_slug_prefix": { "type": ["string", "null"], "minLength": 1 },
+        "reason": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
     "modalities": {
       "type": ["object", "null"],
       "properties": {
@@ -123,6 +151,8 @@
         "input_types": { "type": ["string", "array", "null"] },
         "output_types": { "type": ["string", "array", "null"] },
         "api_model_id": { "type": ["string", "null"] },
+        "variant_kind": { "type": "string", "enum": ["standard", "free"] },
+        "base_model_id": { "type": ["string", "null"] },
         "variants": {
           "type": "array",
           "items": { "$ref": "#/$defs/modelVariant" },
@@ -162,7 +192,14 @@
     },
     "apiProvider": {
       "type": "object",
-      "required": ["api_provider_id", "api_provider_name"],
+      "required": [
+        "api_provider_id",
+        "api_provider_name",
+        "zero_data_retention",
+        "data_policy_tier",
+        "data_policy_confidence",
+        "data_policy_contract_mode"
+      ],
       "properties": {
         "api_provider_id": { "$ref": "#/$defs/slug" },
         "api_provider_name": { "type": "string", "minLength": 1 },
@@ -198,6 +235,16 @@
         "link": { "type": ["string", "null"], "format": "uri" },
         "default_execution_regions": { "type": ["array", "null"], "items": { "type": "string" } },
         "default_data_regions": { "type": ["array", "null"], "items": { "type": "string" } },
+        "zero_data_retention": { "type": "boolean", "description": "Whether the exact provider offer is documented to enforce zero data retention by default. false means ZDR is not guaranteed for the offer; it does not claim that the provider can never offer ZDR on another route." },
+        "data_policy_tier": { "type": "string", "enum": ["unknown", "private", "logs", "trains"] },
+        "data_policy_confidence": { "type": "string", "enum": ["unknown", "confirmed", "maybe"] },
+        "data_policy_contract_mode": { "type": "string", "enum": ["none", "customer_agreement", "enterprise_agreement"] },
+        "capability_data_policies": { "$ref": "#/$defs/capabilityDataPolicyMap" },
+        "capability_data_policy_exclusions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/capabilityDataPolicyExclusion" }
+        },
+        "service_tier_data_policies": { "$ref": "#/$defs/capabilityDataPolicyMap" },
         "regional_pricing_mode": { "type": ["string", "null"] },
         "pricing_source_url": { "type": ["string", "null"], "format": "uri" },
         "gateway_kind": { "type": ["string", "null"] },
@@ -223,18 +270,19 @@
           "type": "string",
           "enum": ["active", "inactive", "coming_soon", "internal_testing", "disabled", "deranked_lvl1", "deranked_lvl2", "deranked_lvl3"]
         },
-        "params": { "type": "array", "items": { "type": "object" } }
+        "params": { "type": "array", "items": { "type": "object" } },
+        "data_policy": { "$ref": "#/$defs/capabilityDataPolicy" }
       },
       "additionalProperties": true
     },
     "providerModel": {
       "type": "object",
-      "required": ["provider_api_model_id", "api_model_id", "provider_model_slug"],
+      "required": ["provider_api_model_id", "api_model_id"],
       "properties": {
         "provider_api_model_id": { "type": "string", "minLength": 1 },
         "api_model_id": { "$ref": "#/$defs/slug" },
         "canonical_model_id": { "$ref": "#/$defs/slug" },
-        "provider_model_slug": { "type": "string", "minLength": 1 },
+        "provider_model_slug": { "type": ["string", "null"], "minLength": 1 },
         "internal_model_id": { "type": ["string", "null"] },
         "is_active_gateway": { "type": "boolean" },
         "input_modalities": { "type": ["string", "array", "null"] },

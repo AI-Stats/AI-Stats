@@ -8,7 +8,7 @@ import { configureRuntime, setWaitUntil, clearRuntime, getBindings, dispatchBack
 import { safeJsonStringify } from "@/lib/safe-json";
 import { sanitizeRequestHeaders } from "@pipeline/http/sanitize-headers";
 
-type Handler = (req: Request) => Promise<Response>;
+type Handler = (req: Request, context?: Context<{ Bindings: GatewayBindings }>) => Promise<Response>;
 type CacheOptions = {
     scope: string;
     ttlSeconds: number;
@@ -109,7 +109,7 @@ export function withRuntime(handler: Handler) {
         const sanitized = sanitizeRequestHeaders(c.req.raw, { preserve: ["authorization"] });
 
         try {
-            const response = await handler(sanitized);
+            const response = await handler(sanitized, c);
             if (!isSseResponse(response)) {
                 cleanup();
                 return response;
@@ -400,7 +400,8 @@ export function withCors(
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
         "Access-Control-Allow-Headers":
-            "Authorization,Content-Type,x-title,http-referer,x-app-id,x-app-name,x-phaseo-client,x-phaseo-client-version,x-gateway-debug,x-phaseo-debug,X-Phaseo-Strictness,x-phaseo-cache-revalidate",
+            "Authorization,Content-Type,x-title,http-referer,x-app-id,x-app-name,x-app-categories,x-phaseo-client,x-phaseo-client-version,x-gateway-debug,x-phaseo-debug,X-Phaseo-Strictness,x-phaseo-cache-revalidate",
+        "Access-Control-Expose-Headers": "X-Request-Id",
         "Access-Control-Max-Age": "86400",
     };
 

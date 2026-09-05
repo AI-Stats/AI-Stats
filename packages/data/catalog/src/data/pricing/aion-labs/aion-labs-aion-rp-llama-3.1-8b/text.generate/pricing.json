@@ -42,10 +42,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://www.aionlabs.ai/docs/models/", "accessed_at": "2026-08-21T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against Aion Labs' current per-token pricing."
   }
 }

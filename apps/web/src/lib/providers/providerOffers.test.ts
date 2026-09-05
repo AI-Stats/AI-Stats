@@ -1,5 +1,6 @@
 import {
     formatProviderOfferDisplayName,
+    formatProviderOfferVariantLabel,
     resolveProviderDisplayName,
     resolveProviderLogoId,
 } from "@/lib/providers/providerOffers";
@@ -69,5 +70,35 @@ describe("providerOffers", () => {
                 offerScope: "regional",
             }),
         ).toBe("OpenAI (EU)");
+    });
+
+    test("keeps regional offers distinct when an older pricing projection omits offer metadata", () => {
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "anthropic-us",
+                providerName: "Anthropic",
+            }),
+        ).toBe("Anthropic (US)");
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "anthropic-aws-us",
+                providerName: "Anthropic",
+            }),
+		).toBe("Claude Platform for AWS (US)");
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "google-vertex-eu",
+                providerName: "Google Vertex",
+            }),
+        ).toBe("Google Vertex (EU)");
+    });
+
+    test("labels fast provider variants as Fast", () => {
+        expect(
+            formatProviderOfferVariantLabel({ providerId: "minimax-lightning" }),
+        ).toBe("Fast");
+        expect(
+            formatProviderOfferVariantLabel({ offerLabel: "priority" }),
+        ).toBe("Fast");
     });
 });

@@ -123,6 +123,7 @@ function buildSupabaseMock(
                             provider_slug: row.provider_id,
                             model_slug: row.api_model_id ?? row.model_id,
                             provider_model_slug: row.provider_model_slug,
+                            is_stealth: row.is_stealth ?? false,
                             routing_enabled: row.is_active_gateway,
                             status: row.routing_status,
                             input_modalities: row.input_modalities,
@@ -175,9 +176,112 @@ function buildSupabaseMock(
     };
 }
 
+describe("publicCatalogueProviderRoute", () => {
+    it("leaves ordinary routes unchanged", async () => {
+        const { publicCatalogueProviderRoute } = await import("./models.catalogue");
+        const route = {
+            provider_api_model_id: "openai:gpt-test",
+            provider_id: "openai",
+            api_model_id: "openai/gpt-test",
+            model_id: "openai/gpt-test",
+            provider_model_slug: "gpt-test",
+            is_stealth: false,
+            is_active_gateway: true,
+        };
+        expect(publicCatalogueProviderRoute(route)).toBe(route);
+    });
+
+    it("projects stealth routes without retaining either real provider identifier", async () => {
+        const { publicCatalogueProviderRoute } = await import("./models.catalogue");
+        expect(publicCatalogueProviderRoute({
+            provider_api_model_id: "stealth:preview",
+            provider_id: "private-provider",
+            api_model_id: "stealth/preview",
+            model_id: "stealth/preview",
+            provider_model_slug: "secret-upstream-model",
+            is_stealth: true,
+            is_active_gateway: true,
+        })).toMatchObject({
+            provider_id: "stealth",
+            provider_model_slug: "stealth/preview",
+        });
+    });
+});
+
 describe("fetchCatalogue", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+    });
+
+    it("never returns the internal provider or upstream model for a stealth route", async () => {
+        const state: QueryState = { emptyCapabilityInCalled: false };
+        const responses: Record<string, QueryResult[]> = {
+            data_models: [{
+                data: [{
+                    model_id: "stealth/preview",
+                    name: "Preview",
+                    release_date: null,
+                    deprecation_date: null,
+                    retirement_date: null,
+                    status: "available",
+                    organisation_id: "stealth",
+                    input_types: ["text"],
+                    output_types: ["text"],
+                    organisation: { organisation_id: "stealth", name: "Stealth" },
+                }],
+                error: null,
+            }],
+            data_api_provider_models: [{
+                data: [{
+                    provider_api_model_id: "stealth:preview",
+                    provider_id: "private-provider",
+                    api_model_id: "stealth/preview",
+                    model_id: "stealth/preview",
+                    provider_model_slug: "secret-upstream-model",
+                    is_stealth: true,
+                    is_active_gateway: true,
+                    routing_status: "active",
+                    input_modalities: ["text"],
+                    output_modalities: ["text"],
+                    effective_from: null,
+                    effective_to: null,
+                }],
+                error: null,
+            }],
+            data_api_provider_model_capabilities: [{
+                data: [{
+                    provider_api_model_id: "stealth:preview",
+                    capability_id: "text.generate",
+                    status: "active",
+                    params: {},
+                }],
+                error: null,
+            }],
+            data_api_model_aliases: [{ data: [], error: null }],
+            data_api_providers: [{
+                data: [{
+                    api_provider_id: "stealth",
+                    api_provider_name: "Stealth",
+                    status: "active",
+                    routing_status: "active",
+                }],
+                error: null,
+            }],
+            data_api_pricing_rules: [{ data: [], error: null }],
+        };
+
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
+        const { fetchCatalogue } = await import("./models.catalogue");
+        const models = await fetchCatalogue({});
+
+        expect(models[0]?.providers[0]).toMatchObject({
+            api_provider_id: "stealth",
+            api_provider_name: "Stealth",
+            provider_model_slug: "stealth/preview",
+        });
+        const serialized = JSON.stringify(models);
+        expect(serialized).not.toContain("private-provider");
+        expect(serialized).not.toContain("secret-upstream-model");
     });
 
     it("skips capabilities lookup when there are no provider model ids", async () => {

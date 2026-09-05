@@ -15,6 +15,7 @@ import { ToolCallsSection } from "@/components/(rankings)/ToolCallsSection";
 import { BenchmarkRankingsSectionServer } from "@/components/(rankings)/BenchmarkRankingsSectionServer";
 import { ContextLengthSection } from "@/components/(rankings)/ContextLengthSection";
 import { ImageInputsSection } from "@/components/(rankings)/ImageInputsSection";
+import { ModelRetentionSection } from "@/components/(rankings)/ModelRetentionSection";
 import { TopAppsSection } from "@/components/(rankings)/TopAppsSection";
 import {
 	ModalityLeaderboards,
@@ -78,6 +79,7 @@ const textRankingTocItems: ModelPageTocItem[] = [
 	{ id: "benchmarks", label: "Intelligence Index" },
 	{ id: "context-length", label: "Context Length" },
 	{ id: "unique-users", label: "Unique Users" },
+	{ id: "retention", label: "Return Rate" },
 	{ id: "market-share", label: "Market Share" },
 	{ id: "tool-calls", label: "Tool Calls" },
 	{ id: "image-inputs", label: "Image Inputs" },
@@ -90,7 +92,9 @@ export function isRankingModality(value: string): value is RankingModality {
 }
 
 export async function generateRankingsMetadata(): Promise<Metadata> {
-	const indexability = await fetchFrontendRankingsIndexability();
+	const indexability = await fetchFrontendRankingsIndexability().catch(() => ({
+		shouldIndex: false,
+	}));
 
 	return buildMetadata({
 		title: "Rankings",
@@ -157,6 +161,10 @@ export default async function RankingsPageContent({
                     <Suspense fallback={<ChartSkeleton />}>
                         <UniqueUsersSectionServer />
                     </Suspense>
+
+					<Suspense fallback={<ListSkeleton />}>
+						<ModelRetentionSection />
+					</Suspense>
 
                     <section id="market-share" className="scroll-mt-32 space-y-12 border-t border-border pt-12">
 						<div className="space-y-0.5">
@@ -350,18 +358,18 @@ async function ModalityLeaderboardsServer({
 		embeddingTimeseries,
 		rerankTimeseries,
 	] = await Promise.all([
-		fetchFrontendRankingMultimodal("month"),
-		fetchFrontendRankingFastestModels(30, 20),
-		fetchFrontendRankingTextLeaderboard("year", 20),
-		fetchFrontendRankingImageInputs("year", 20),
-		fetchFrontendRankingModalityTimeseries("image_outputs", "year"),
-		fetchFrontendRankingModalityTimeseries("audio_tokens", "year"),
-		fetchFrontendRankingModalityTimeseries("video_tokens", "year"),
-		fetchFrontendRankingModalityTimeseries("video_seconds", "year"),
-		fetchFrontendRankingModalityTimeseries("cached_tokens", "year"),
-		fetchFrontendRankingModalityTimeseries("audio_seconds", "year"),
-		fetchFrontendRankingModalityTimeseries("embedding_tokens", "year"),
-		fetchFrontendRankingModalityTimeseries("rerank_quad_tokens", "year"),
+		fetchFrontendRankingMultimodal("month").catch(() => ({ data: [] })),
+		fetchFrontendRankingFastestModels(30, 20).catch(() => ({ data: [] })),
+		fetchFrontendRankingTextLeaderboard("year", 20).catch(() => ({ data: [] })),
+		fetchFrontendRankingImageInputs("year", 20).catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("image_outputs", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("audio_tokens", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("video_tokens", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("video_seconds", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("cached_tokens", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("audio_seconds", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("embedding_tokens", "year").catch(() => ({ data: [] })),
+		fetchFrontendRankingModalityTimeseries("rerank_quad_tokens", "year").catch(() => ({ data: [] })),
 	]);
 
 	const modelIds = Array.from(
@@ -384,8 +392,12 @@ async function ModalityLeaderboardsServer({
 		new Set(perfRes.data.map((row) => row.provider).filter(Boolean)),
 	);
 	const [metaMap, providerNames] = await Promise.all([
-		fetchFrontendModelLeaderboardMetaByIds(modelIds),
-		fetchFrontendProviderNamesByIds(providerIds),
+		fetchFrontendModelLeaderboardMetaByIds(modelIds).catch(
+			(): Awaited<ReturnType<typeof fetchFrontendModelLeaderboardMetaByIds>> => ({}),
+		),
+		fetchFrontendProviderNamesByIds(providerIds).catch(
+			(): Record<string, string> => ({}),
+		),
 	]);
 	const nameMap = Object.fromEntries(
 		Object.entries(metaMap).map(([modelId, meta]) => [
@@ -767,7 +779,7 @@ function TextRankingSignals({
 }
 
 async function UniqueUsersSectionServer() {
-	const result = await fetchFrontendRankingUniqueUserTimeseries("year", "week", 10);
+	const result = await fetchFrontendRankingUniqueUserTimeseries("year", "week", 10).catch(() => ({ data: [] }));
 	const modelIds = Array.from(
 		new Set(
 			result.data
@@ -775,7 +787,9 @@ async function UniqueUsersSectionServer() {
 				.filter((id) => id && id.toLowerCase() !== "other" && id.toLowerCase() !== "unknown"),
 		),
 	);
-	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds);
+	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds).catch(
+		(): Awaited<ReturnType<typeof fetchFrontendModelLeaderboardMetaByIds>> => ({}),
+	);
 	const nameMap = Object.fromEntries(
 		modelIds.map((modelId) => [
 			modelId,
@@ -832,8 +846,8 @@ async function UniqueUsersSectionServer() {
 
 async function MarketShareOrganizationServer() {
     const [timeseriesResult, leaderboardResult] = await Promise.all([
-        fetchFrontendMarketShareTimeseries("organization", "year", "week", 10),
-        fetchFrontendMarketShare("organization", "year"),
+        fetchFrontendMarketShareTimeseries("organization", "year", "week", 10).catch(() => ({ data: [] })),
+        fetchFrontendMarketShare("organization", "year").catch(() => ({ data: [] })),
     ]);
 
     const organisationNames = Array.from(
@@ -843,7 +857,9 @@ async function MarketShareOrganizationServer() {
                 .filter((name) => name && name.toLowerCase() !== "unknown")
         )
     );
-    const logoMap = await fetchFrontendOrganisationLogoIdsByNames(organisationNames);
+    const logoMap = await fetchFrontendOrganisationLogoIdsByNames(organisationNames).catch(
+        (): Record<string, string> => ({}),
+    );
 
     const chartData = (timeseriesResult.data ?? []).filter(
         (row) => row.name && row.name.toLowerCase() !== "unknown"
@@ -891,8 +907,8 @@ async function MarketShareOrganizationServer() {
 
 async function MarketShareProviderServer() {
     const [timeseriesResult, leaderboardResult] = await Promise.all([
-        fetchFrontendMarketShareTimeseries("provider", "year", "week", 10),
-        fetchFrontendMarketShare("provider", "year"),
+        fetchFrontendMarketShareTimeseries("provider", "year", "week", 10).catch(() => ({ data: [] })),
+        fetchFrontendMarketShare("provider", "year").catch(() => ({ data: [] })),
     ]);
 
     const providerIds = Array.from(
@@ -907,7 +923,9 @@ async function MarketShareProviderServer() {
                 )
         )
     );
-    const providerNameMap = await fetchFrontendProviderNamesByIds(providerIds);
+    const providerNameMap = await fetchFrontendProviderNamesByIds(providerIds).catch(
+        (): Record<string, string> => ({}),
+    );
 
     const chartData = (timeseriesResult.data ?? [])
         .filter((row) => row.name && row.name.toLowerCase() !== "unknown")

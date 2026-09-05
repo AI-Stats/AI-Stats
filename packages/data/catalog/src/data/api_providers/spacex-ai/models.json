@@ -1402,6 +1402,155 @@
                         ]
     },
     {
+        "api_model_id": "spacex-ai/grok-4.6",
+        "provider_api_model_id": "spacex-ai:spacex-ai/grok-4.6",
+        "provider_model_slug": "grok-4.6",
+        "internal_model_id": "spacex-ai/grok-4.6",
+        "is_active_gateway": true,
+        "quantization_scheme": null,
+        "input_modalities": "text,image",
+        "output_modalities": "text",
+        "context_length": 500000,
+        "max_output_tokens": null,
+        "effective_from": "2026-08-12T00:00:00Z",
+        "effective_to": null,
+        "capabilities": [
+            {
+                "capability_id": "text.generate",
+                "status": "active",
+                "params": [
+                    {
+                        "param_id": "include_reasoning",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "max_tokens",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": "xAI documents no text output limit for Grok 4.6."
+                    },
+                    {
+                        "param_id": "reasoning",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": "high",
+                        "notes": "Supported reasoning efforts are low, medium, high, and xhigh."
+                    },
+                    {
+                        "param_id": "response_format",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "service_tier",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": "standard",
+                        "notes": "Priority Processing is available at 2x standard token prices."
+                    },
+                    {
+                        "param_id": "structured_outputs",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "tool_choice",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "tools",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": "Supports function calling plus xAI web search, X search, and code execution tools."
+                    }
+                ],
+                "reasoning": true,
+                "tool_call": true,
+                "structured_output": true,
+                "temperature": null,
+                "attachment": true,
+                "input_modalities": null,
+                "output_modalities": null,
+                "modes": []
+            }
+        ],
+        "routing_status": "active",
+        "routable": true,
+        "regions": {
+            "execution": [
+                "us-east-1",
+                "us-west-2"
+            ],
+            "data": null
+        },
+        "service_tiers": [
+            "standard",
+            "priority"
+        ],
+        "api": {
+            "formats": [
+                "openai.chat.completions",
+                "openai.responses"
+            ],
+            "endpoint": null,
+            "deployment": null
+        },
+        "sources": [
+            {
+                "kind": "api_reference",
+                "url": "https://docs.x.ai/developers/grok-4-6",
+                "accessed_at": "2026-08-12T00:00:00Z",
+                "notes": "Official model slug, limits, modalities, reasoning efforts, APIs, and tools."
+            },
+            {
+                "kind": "pricing",
+                "url": "https://docs.x.ai/developers/pricing",
+                "accessed_at": "2026-08-12T00:00:00Z",
+                "notes": "Official token prices and Priority Processing terms."
+            }
+        ],
+        "verification": {
+            "status": "verified",
+            "checked_at": "2026-08-12T00:00:00Z",
+            "notes": "Verified against the official Grok 4.6 developer overview and xAI pricing documentation."
+        },
+        "rate_limits": [
+            {
+                "type": "requests_per_second",
+                "limit": 150,
+                "window": "second",
+                "scope": "model",
+                "notes": null
+            },
+            {
+                "type": "requests_per_minute",
+                "limit": 7200,
+                "window": "minute",
+                "scope": "model",
+                "notes": null
+            },
+            {
+                "type": "tokens_per_minute",
+                "limit": 50000000,
+                "window": "minute",
+                "scope": "model",
+                "notes": null
+            }
+        ]
+    },
+    {
         "api_model_id":  "spacex-ai/grok-build-0.1",
         "provider_api_model_id":  "spacex-ai:spacex-ai/grok-build-0.1",
         "provider_model_slug":  "grok-build-0.1",
@@ -1843,14 +1992,14 @@
         "provider_api_model_id":  "spacex-ai:spacex-ai/grok-imagine-image-quality",
         "provider_model_slug":  "grok-imagine-image-quality",
         "internal_model_id":  "spacex-ai/grok-imagine-image-quality",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text,image",
         "output_modalities":  "image",
         "context_length":  8000,
         "max_output_tokens":  null,
         "effective_from":  "2026-05-06T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-09-03T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "image.generate",
@@ -1887,8 +2036,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  null,
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -1926,22 +2075,78 @@
         "output_modalities":  "image",
         "context_length":  null,
         "max_output_tokens":  null,
-        "effective_from":  "2026-08-11T00:00:00",
+        "effective_from":  "2026-08-11T00:00:00Z",
         "effective_to":  null,
         "capabilities":  [
                              {
                                  "capability_id":  "image.generate",
                                  "status":  "active",
-                                 "params":  [
-
-                                            ],
-                                 "reasoning":  null,
-                                 "tool_call":  null,
-                                 "structured_output":  null,
-                                 "temperature":  null,
-                                 "attachment":  null,
-                                 "input_modalities":  null,
-                                 "output_modalities":  null,
+                                 "params":  {
+                                             "n":  {
+                                                       "type":  "integer",
+                                                       "min":  1,
+                                                       "max":  10,
+                                                       "default":  1
+                                                   },
+                                             "aspect_ratio":  {
+                                                                   "type":  "enum",
+                                                                   "values":  [
+                                                                                 "1:1",
+                                                                                 "16:9",
+                                                                                 "9:16",
+                                                                                 "4:3",
+                                                                                 "3:4",
+                                                                                 "3:2",
+                                                                                 "2:3",
+                                                                                 "2:1",
+                                                                                 "1:2",
+                                                                                 "19.5:9",
+                                                                                 "9:19.5",
+                                                                                 "20:9",
+                                                                                 "9:20",
+                                                                                 "21:9",
+                                                                                 "5:2",
+                                                                                 "auto"
+                                                                             ],
+                                                                   "default":  "auto"
+                                                               },
+                                             "resolution":  {
+                                                                "type":  "enum",
+                                                                "values":  [
+                                                                              "1k",
+                                                                              "2k"
+                                                                          ],
+                                                                "default":  "1k"
+                                                            },
+                                             "quality":  {
+                                                            "type":  "enum",
+                                                            "values":  [
+                                                                          "low",
+                                                                          "medium",
+                                                                          "auto"
+                                                                      ],
+                                                            "default":  "auto"
+                                                        },
+                                             "response_format":  {
+                                                                    "type":  "enum",
+                                                                    "values":  [
+                                                                                  "url",
+                                                                                  "b64_json"
+                                                                              ],
+                                                                    "default":  "url"
+                                                                }
+                                         },
+                                 "reasoning":  false,
+                                 "tool_call":  false,
+                                 "structured_output":  false,
+                                 "temperature":  false,
+                                 "attachment":  true,
+                                 "input_modalities":  [
+                                                           "text"
+                                                       ],
+                                 "output_modalities":  [
+                                                            "image"
+                                                        ],
                                  "modes":  [
 
                                            ]
@@ -1949,16 +2154,72 @@
                              {
                                  "capability_id":  "image.edit",
                                  "status":  "active",
-                                 "params":  [
-
-                                            ],
-                                 "reasoning":  null,
-                                 "tool_call":  null,
-                                 "structured_output":  null,
-                                 "temperature":  null,
-                                 "attachment":  null,
-                                 "input_modalities":  null,
-                                 "output_modalities":  null,
+                                 "params":  {
+                                             "images":  {
+                                                               "type":  "array",
+                                                               "min_items":  1,
+                                                               "max_items":  5
+                                                           },
+                                             "aspect_ratio":  {
+                                                                   "type":  "enum",
+                                                                   "values":  [
+                                                                                 "1:1",
+                                                                                 "16:9",
+                                                                                 "9:16",
+                                                                                 "4:3",
+                                                                                 "3:4",
+                                                                                 "3:2",
+                                                                                 "2:3",
+                                                                                 "2:1",
+                                                                                 "1:2",
+                                                                                 "19.5:9",
+                                                                                 "9:19.5",
+                                                                                 "20:9",
+                                                                                 "9:20",
+                                                                                 "21:9",
+                                                                                 "5:2",
+                                                                                 "auto"
+                                                                             ],
+                                                                   "default":  "auto"
+                                                               },
+                                             "resolution":  {
+                                                                "type":  "enum",
+                                                                "values":  [
+                                                                              "1k",
+                                                                              "2k"
+                                                                          ],
+                                                                "default":  "1k"
+                                                            },
+                                             "quality":  {
+                                                            "type":  "enum",
+                                                            "values":  [
+                                                                          "low",
+                                                                          "medium",
+                                                                          "auto"
+                                                                      ],
+                                                            "default":  "auto"
+                                                        },
+                                             "response_format":  {
+                                                                    "type":  "enum",
+                                                                    "values":  [
+                                                                                  "url",
+                                                                                  "b64_json"
+                                                                              ],
+                                                                    "default":  "url"
+                                                                }
+                                         },
+                                 "reasoning":  false,
+                                 "tool_call":  false,
+                                 "structured_output":  false,
+                                 "temperature":  false,
+                                 "attachment":  true,
+                                 "input_modalities":  [
+                                                           "text",
+                                                           "image"
+                                                       ],
+                                 "output_modalities":  [
+                                                            "image"
+                                                        ],
                                  "modes":  [
 
                                            ]
@@ -1974,32 +2235,44 @@
                         "data":  null
                     },
         "service_tiers":  [
-
+                              "standard"
                           ],
         "api":  {
                     "formats":  [
-
-                                ],
-                    "endpoint":  null,
+                                  "openai.images"
+                              ],
+                    "endpoint":  "/v1/images/generations",
                     "deployment":  null
                 },
         "sources":  [
                         {
                             "kind":  "api_reference",
                             "url":  "https://docs.x.ai/developers/models/grok-imagine-image-2.0",
-                            "accessed_at":  "2026-08-11T00:00:00",
-                            "notes":  "Official xAI model page."
+                            "accessed_at":  "2026-09-03T00:00:00Z",
+                            "notes":  "Official xAI model page documents regions, batch support, 1K/2K resolution, and pricing."
+                        },
+                        {
+                            "kind":  "documentation",
+                            "url":  "https://docs.x.ai/developers/model-capabilities/images/generation",
+                            "accessed_at":  "2026-09-03T00:00:00Z",
+                            "notes":  "Documents count up to 10, aspect ratios, response formats, and quality behavior."
+                        },
+                        {
+                            "kind":  "documentation",
+                            "url":  "https://docs.x.ai/developers/model-capabilities/images/multi-image-editing",
+                            "accessed_at":  "2026-09-03T00:00:00Z",
+                            "notes":  "Documents up to five source images per edit."
                         }
                     ],
         "verification":  {
                              "status":  "verified",
-                             "checked_at":  "2026-08-11T00:00:00",
-                             "notes":  "API slug, modalities, regions and rate limit verified against xAI documentation."
+                             "checked_at":  "2026-09-03T00:00:00Z",
+                             "notes":  "API slug, modalities, regions, batch support, request controls, multi-image editing, pricing, and rate limit verified against xAI documentation."
                          },
         "rate_limits":  [
                             {
                                 "type":  "requests_per_second",
-                                "limit":  5,
+                                "limit":  6,
                                 "window":  "second",
                                 "scope":  "model",
                                 "notes":  null
@@ -2520,5 +2793,28 @@
         "rate_limits":  [
 
                         ]
+    },
+    {
+        "api_model_id": "spacex-ai/grok-transcribe",
+        "provider_api_model_id": "spacex-ai:spacex-ai/grok-transcribe",
+        "provider_model_slug": "grok-transcribe",
+        "internal_model_id": "spacex-ai/grok-transcribe",
+        "is_active_gateway": true,
+        "quantization_scheme": null,
+        "input_modalities": "audio",
+        "output_modalities": "text",
+        "context_length": null,
+        "max_output_tokens": null,
+        "effective_from": "2026-07-23T00:00:00",
+        "effective_to": null,
+        "capabilities": [{ "capability_id": "audio.transcription", "status": "active", "params": ["language", "keywords", "diarize"], "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null, "attachment": true, "input_modalities": ["audio"], "output_modalities": ["text"], "modes": [] }],
+        "routing_status": "active",
+        "routable": true,
+        "regions": { "execution": ["us-east-1"], "data": ["us-east-1"] },
+        "service_tiers": [],
+        "api": { "formats": ["xai.stt"], "endpoint": "/v1/stt", "deployment": "regional" },
+        "sources": [{ "kind": "documentation", "url": "https://docs.x.ai/developers/model-capabilities/audio/speech-to-text", "accessed_at": "2026-08-12T00:00:00Z", "notes": "REST multipart schema, 500 MB limit, formats, languages, word timestamps, diarization and keyterms." }],
+        "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "REST speech-to-text route and usage verified against current first-party docs." },
+        "rate_limits": [{ "requests": 10, "window": "second", "scope": "provider_model", "source": "https://docs.x.ai/developers/models/speech-to-text" }]
     }
 ]

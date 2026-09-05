@@ -20,11 +20,11 @@ Every model file carries the v2 fields `model_type`, `knowledge_cutoff`,
 `license_url`, and `verification`. Unknown values are represented explicitly as `null`; an
 empty array means the category is known but has no entries yet.
 
-Offer variants are authored in the base model's `variants` array. A free
-variant must use `{base model_id}:free`, the name `{base name} (Free)`, and
-`variant_kind: "free"`. The provider-model row must reference that exact
-identity with `canonical_model_id`. The validator rejects inferred, missing,
-duplicate, or unreferenced variants; importers do not manufacture them.
+Free API models may be standalone model records with a `:free` model ID and
+`variant_kind: "free"`. `base_model_id` is optional. When a real standard
+sibling exists, a free offer may instead use that model's `variants` array.
+Provider-model rows reference the exact free identity with
+`canonical_model_id`; importers do not manufacture model identities.
 
 Provider files additionally carry `gateway_kind`, `routable`,
 `routing_enabled`, SDK/API metadata, `api_formats`, `service_tiers`, sources,
@@ -38,7 +38,7 @@ codes with request-origin geolocation; provider-family defaults are inherited
 unless a route overrides them. It is deliberately separate from execution and data residency.
 Only
 `phaseo_status: "enabled"` can become publicly routable. See
-[`docs/architecture/catalogue-status-model.md`](../../../../docs/architecture/catalogue-status-model.md)
+[`apps/api/docs/catalogue-status-model.md`](../../../../apps/api/docs/catalogue-status-model.md)
 for the canonical vocabularies and compatibility mappings.
 
 Pricing rules have explicit `region`, `cache_duration_seconds`, `conditions`,

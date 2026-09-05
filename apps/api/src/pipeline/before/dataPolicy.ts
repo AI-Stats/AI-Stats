@@ -1,5 +1,13 @@
 import type { EffectiveDataPolicy, GatewayProviderSnapshot } from "./types";
 
+type DataPolicyProvider = Pick<GatewayProviderSnapshot,
+	"dataPolicyTier" |
+	"dataPolicyConfidence" |
+	"zeroDataRetention" |
+	"dataPolicyVariant" |
+	"capabilityParams"
+>;
+
 type CapabilityPolicyOverride = Partial<{
     tier: EffectiveDataPolicy["tier"];
     confidence: EffectiveDataPolicy["confidence"];
@@ -74,24 +82,29 @@ function parseCapabilityOverride(params: Record<string, any> | null | undefined)
 }
 
 function providerZdrEligibility(
-    value: GatewayProviderSnapshot["zeroDataRetention"],
+	value: GatewayProviderSnapshot["zeroDataRetention"],
 ): EffectiveDataPolicy["zdrEligibility"] {
-    if (value === "default") return "eligible";
-    if (value === "unsupported") return "ineligible";
-    if (value === "optional") return "conditional";
-    return "unknown";
+	return value === true ? "eligible" : "ineligible";
+}
+
+function providerRetentionMode(
+	provider: DataPolicyProvider,
+): EffectiveDataPolicy["retentionMode"] {
+	return provider.zeroDataRetention === true && provider.dataPolicyVariant === "zdr"
+		? "none"
+		: "unknown";
 }
 
 export function resolveEffectiveDataPolicy(args: {
     endpoint: string;
-    provider: GatewayProviderSnapshot;
+	provider: DataPolicyProvider;
 }): EffectiveDataPolicy {
     const provider = args.provider;
     const inherited: EffectiveDataPolicy = {
         tier: provider.dataPolicyTier ?? "unknown",
         confidence: provider.dataPolicyConfidence ?? "unknown",
         zdrEligibility: providerZdrEligibility(provider.zeroDataRetention),
-        retentionMode: provider.zeroDataRetention === "default" ? "none" : "unknown",
+		retentionMode: providerRetentionMode(provider),
         retentionDays: null,
         source: "provider",
         reason: null,

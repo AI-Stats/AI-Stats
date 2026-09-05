@@ -65,10 +65,8 @@ import { cn } from "@/lib/utils";
 import type { ChatThread } from "@/lib/indexeddb/chats";
 import type {
 	ChatResponseLayout,
-	ModelOption,
 } from "@/components/(chat)/playground/chat-playground-core";
 import {
-	Cpu,
 	Save,
 	X,
 } from "lucide-react";
@@ -79,12 +77,18 @@ import {
 	getRequestContextMarker,
 	type ChatMessageMarker,
 } from "@/components/(chat)/ChatMessageMarkers";
+import {
+	formatChatTimeSeparator,
+	formatModelChangeMarker,
+	shouldShowChatTimeSeparator,
+} from "@/components/(chat)/chatMessageMarkerHelpers";
 import type {
 	ChatToolCall,
 	ChatTraceEvent,
 } from "@/components/(chat)/chatPayload";
 import { ChatMessagesEmptyState } from "@/components/(chat)/ChatMessagesEmptyState";
 import { ChatVirtualMessageList } from "@/components/(chat)/ChatVirtualMessageList";
+import { ChatSelectionToolbar } from "@/components/(chat)/ChatSelectionToolbar";
 import { markChatUserMessageRendered } from "@/components/(chat)/playground/chat-performance";
 import {
 	chatMarkdownPlugins,
@@ -126,6 +130,54 @@ function formatProviderIdLabel(providerId: string | null | undefined) {
 		.filter(Boolean)
 		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
 		.join(" ");
+}
+
+function ModelChangeMarkerIcon({
+	modelIds,
+	modelOrgIdById,
+	orgNameById,
+}: {
+	modelIds: string[];
+	modelOrgIdById: Record<string, string>;
+	orgNameById: Record<string, string>;
+}) {
+	const labIds = Array.from(
+		new Set(
+			modelIds.map((modelId) => {
+				const mappedOrgId = modelOrgIdById[modelId]?.trim();
+				return (
+					mappedOrgId ||
+					(isInternalModelId(modelId) ? getOrgId(modelId) : "phaseo")
+				);
+			}),
+		),
+	);
+	const visibleLabIds = labIds.slice(0, 3);
+	const remainingLabCount = labIds.length - visibleLabIds.length;
+
+	return (
+		<span className="flex items-center -space-x-1" aria-hidden="true">
+			{visibleLabIds.map((labId) => (
+				<span
+					key={labId}
+					className="flex size-4 shrink-0 items-center justify-center rounded-sm bg-background ring-1 ring-background"
+				>
+					<Logo
+						id={labId}
+						alt={orgNameById[labId] ?? labId}
+						width={14}
+						height={14}
+						className="size-3.5 rounded-none object-contain"
+					/>
+				</span>
+			))}
+			{remainingLabCount > 0 ? (
+				<span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-semibold text-muted-foreground ring-1 ring-background">
+					+{remainingLabCount}
+				</span>
+			) : null}
+		</span>
+	);
 }
 
 function GeneratingResponseIndicator() {
@@ -225,6 +277,14 @@ function formatMessageSentAt(value: string): string | null {
 	return `${dateLabel}, ${time}`;
 }
 
+function getChatMessageTimestamp(message: ChatThread["messages"][number]) {
+	if (message.role !== "assistant") return message.createdAt;
+	const variants = ensureVariants(message);
+	const activeVariant =
+		variants[message.activeVariantIndex ?? 0] ?? variants[0];
+	return activeVariant?.createdAt ?? message.createdAt;
+}
+
 const getReadableTextColor = (backgroundColor: string) => {
 	const hex = backgroundColor.trim().replace(/^#/, "");
 	const normalized =
@@ -312,10 +372,10 @@ type ChatConversationMessagesProps = {
 	scrollViewportRef: RefObject<HTMLDivElement | null>;
 	responseLayout?: ChatResponseLayout;
 	modelOrderIds?: string[];
-	modelOptions: ModelOption[];
-	selectedModelIds: string[];
-	onAddModelSet: (modelIds: string[]) => void;
+	onSelectPrompt: (prompt: string) => void;
 	temporaryMode?: boolean;
+	onSelectionAction: (prompt: string) => void;
+	onOpenModelPicker: () => void;
 };
 
 export function ChatConversationMessages({
@@ -342,10 +402,10 @@ export function ChatConversationMessages({
 	scrollViewportRef,
 	responseLayout = "sequential",
 	modelOrderIds = [],
-	modelOptions,
-	selectedModelIds,
-	onAddModelSet,
+	onSelectPrompt,
 	temporaryMode = false,
+	onSelectionAction,
+	onOpenModelPicker,
 }: ChatConversationMessagesProps) {
 	const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
 	const copiedResetTimeoutRef = useRef<number | null>(null);
@@ -463,6 +523,10 @@ export function ChatConversationMessages({
 	const metadataProviderLabel =
 		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
+	const effectiveResponseLayout: ChatResponseLayout =
+		responseLayout === "side-by-side" && modelOrderIds.length < 2
+			? "sequential"
+			: responseLayout;
 	useEffect(() => {
 		const latestUserMessage = messages
 			.slice()
@@ -474,7 +538,7 @@ export function ChatConversationMessages({
 	}, [messages]);
 
 	const shouldVirtualizeMessages =
-		responseLayout === "sequential" &&
+		effectiveResponseLayout === "sequential" &&
 		messages.length > VIRTUALIZE_AFTER_MESSAGES;
 	// TanStack Virtual exposes imperative measurement APIs; keep them local to this list.
 	// eslint-disable-next-line react-hooks/incompatible-library
@@ -498,12 +562,31 @@ export function ChatConversationMessages({
 		if (!activeThread || !messages.length) {
 			return (
 				<ChatMessagesEmptyState
-					modelOptions={modelOptions}
-					selectedModelIds={selectedModelIds}
-					onAddModelSet={onAddModelSet}
+					onSelectPrompt={onSelectPrompt}
 					temporaryMode={temporaryMode}
 				/>
 			);
+		}
+
+		const userModelChangeMarkerIds = new Set<string>();
+		let previousUserRequestContext: ReturnType<
+			typeof getRequestContextMarker
+		> = null;
+		for (const candidate of messages) {
+			if (candidate.role !== "user") continue;
+			const currentUserRequestContext = getRequestContextMarker(
+				candidate.meta,
+			);
+			if (
+				currentUserRequestContext &&
+				previousUserRequestContext &&
+				getComparableModelSet(currentUserRequestContext) &&
+				getComparableModelSet(currentUserRequestContext) !==
+					getComparableModelSet(previousUserRequestContext)
+			) {
+				userModelChangeMarkerIds.add(candidate.id);
+			}
+			previousUserRequestContext = currentUserRequestContext;
 		}
 
 		const renderMessage = (
@@ -533,43 +616,65 @@ export function ChatConversationMessages({
 				(message.meta as Record<string, unknown> | null) ??
 				null;
 			const toolCalls = isUser ? [] : getToolCallsFromMeta(activeMeta);
-			const requestContext = isUser
-				? getRequestContextMarker(message.meta)
+			let currentUserMessageIndex = -1;
+			for (let index = 0; index <= messageIndex; index += 1) {
+				if (messages[index]?.role === "user") {
+					currentUserMessageIndex = index;
+				}
+			}
+			const currentUserMessage =
+				currentUserMessageIndex >= 0
+					? messages[currentUserMessageIndex]
+					: null;
+			const currentUserRequestContext = currentUserMessage
+				? getRequestContextMarker(currentUserMessage.meta)
 				: null;
-			const previousUserRequestContext = isUser
-				? getRequestContextMarker(
-						activeThread.messages
-							.slice(0, messageIndex)
-							.reverse()
-							.find((item) => item.role === "user")?.meta,
-					)
-				: null;
+			const requestContext = isUser ? currentUserRequestContext : null;
 			const requestContextMarkers: ChatMessageMarker[] = [];
-			if (requestContext && previousUserRequestContext) {
+			const hasUserModelChangeMarker = Boolean(
+				currentUserMessage &&
+				userModelChangeMarkerIds.has(currentUserMessage.id),
+			);
+			if (requestContext && hasUserModelChangeMarker) {
 				const currentModelSet = getComparableModelSet(requestContext);
-				const previousModelSet = getComparableModelSet(previousUserRequestContext);
-				if (currentModelSet && currentModelSet !== previousModelSet) {
-					const labels = [
-						requestContext.modelId
-							? (modelDisplayNameById[requestContext.modelId] ??
-								formatModelLabel(requestContext.modelId))
-							: null,
-						...requestContext.compareModelIds.map(
-							(modelId) =>
-								modelDisplayNameById[modelId] ??
-								formatModelLabel(modelId),
+				if (currentModelSet) {
+					const modelIds = Array.from(
+						new Set(
+							[requestContext.modelId, ...requestContext.compareModelIds].filter(
+								(value): value is string => Boolean(value),
+							),
 						),
-					].filter((value): value is string => Boolean(value));
+					);
+					const labels = modelIds.map(
+						(modelId) =>
+							modelDisplayNameById[modelId] ?? formatModelLabel(modelId),
+					);
+					const modelChange = formatModelChangeMarker(labels);
 					requestContextMarkers.push({
 						id: "model",
-						icon: Cpu,
-						label:
-							labels.length > 1
-								? `Models changed to ${labels.join(", ")}`
-								: `Model changed to ${labels[0] ?? "selected model"}`,
+						icon: (
+							<ModelChangeMarkerIcon
+								modelIds={modelIds}
+								modelOrgIdById={modelOrgIdById}
+								orgNameById={orgNameById}
+							/>
+						),
+						label: modelChange.label,
+						title: modelChange.title,
 					});
 				}
 			}
+			const timestamp = getChatMessageTimestamp(message);
+			const previousTimestamp =
+				messageIndex > 0
+					? getChatMessageTimestamp(messages[messageIndex - 1])
+					: null;
+			const timeSeparatorLabel = shouldShowChatTimeSeparator(
+				timestamp,
+				previousTimestamp,
+			)
+				? formatChatTimeSeparator(timestamp)
+				: null;
 			let messageRequestError: ChatRequestErrorDetails | null = null;
 			if (!isUser) {
 				if (
@@ -658,6 +763,36 @@ export function ChatConversationMessages({
 				overrideModelLabel ||
 				mappedModelLabel ||
 				(displayModelId ? formatModelLabel(displayModelId) : "Model");
+			const previousAssistant = !isUser
+				? messages
+						.slice(0, messageIndex)
+						.reverse()
+						.find((item) => item.role === "assistant")
+				: null;
+			const previousAssistantModelId = previousAssistant
+				? (previousAssistant.modelId ?? activeThread.modelId ?? "").trim()
+				: "";
+			if (
+				!isUser &&
+				displayModelId &&
+				previousAssistantModelId &&
+				displayModelId !== previousAssistantModelId &&
+				!hasUserModelChangeMarker
+			) {
+				const modelChange = formatModelChangeMarker([modelLabel]);
+				requestContextMarkers.push({
+					id: "model",
+					icon: (
+						<ModelChangeMarkerIcon
+							modelIds={[displayModelId]}
+							modelOrgIdById={modelOrgIdById}
+							orgNameById={orgNameById}
+						/>
+					),
+					label: modelChange.label,
+					title: modelChange.title,
+				});
+			}
 			const orgId =
 				(displayModelId ? modelOrgIdById[displayModelId] : undefined) ??
 				(displayModelId
@@ -760,14 +895,17 @@ export function ChatConversationMessages({
 										error={messageRequestError}
 										threadTitle={activeThread.title}
 										className="mb-0 max-w-full"
+										onRetry={() => onRetryAssistant(message.id)}
+										onChooseModel={onOpenModelPicker}
 									/>
 								) : (
 									<div
 										data-slot="message-panel"
+										data-chat-assistant-content={isUser ? undefined : "true"}
 										className={cn(
 											isUser
 												? cn(
-												"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
+												"min-w-0 max-w-full rounded-md px-4 py-3 text-sm leading-relaxed shadow-sm",
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
@@ -778,7 +916,7 @@ export function ChatConversationMessages({
 														: "bg-foreground text-background",
 													)
 											: cn(
-												"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
+												"min-w-0 w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
 												inSideBySideGroup &&
 															"flex h-full min-h-[180px] flex-col",
 													),
@@ -1214,6 +1352,7 @@ export function ChatConversationMessages({
 						<ChatMessageMarkers
 							markers={requestContextMarkers}
 							messageId={message.id}
+							separatorLabel={timeSeparatorLabel}
 						/>
 					)}
 					<MessageScroller.Item
@@ -1239,7 +1378,7 @@ export function ChatConversationMessages({
 			);
 		}
 
-		if (responseLayout === "side-by-side") {
+		if (effectiveResponseLayout === "side-by-side") {
 			type SideBySideItem = {
 				message: ChatThread["messages"][number];
 				messageIndex: number;
@@ -1355,6 +1494,8 @@ export function ChatConversationMessages({
 					renderMessage(message, messageIndex),
 				);
 			}
+			const hasMultipleComparisonModels =
+				modelOrderIds.length > 1 || modelKeys.length > 1;
 
 			return (
 				<MessageScroller.Item
@@ -1373,9 +1514,14 @@ export function ChatConversationMessages({
 						viewportClassName="overscroll-x-contain"
 					>
 						<div
-							className="grid w-full min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
+							className={cn(
+								"grid w-full items-stretch gap-x-4 gap-y-5 pr-4",
+								hasMultipleComparisonModels
+									? "min-w-max 2xl:min-w-0"
+									: "min-w-0",
+							)}
 							style={{
-								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(min(88vw, 32rem), 1fr))`,
+								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(${hasMultipleComparisonModels ? "min(88vw, 32rem)" : "0px"}, 1fr))`,
 							}}
 						>
 							{turns.flatMap((turn) =>
@@ -1532,6 +1678,7 @@ export function ChatConversationMessages({
 		onEditingIdChange,
 		onEditMessage,
 		onRetryAssistant,
+		onOpenModelPicker,
 		onBranchAssistant,
 		onSelectVariant,
 		endToEndDisplay,
@@ -1542,11 +1689,14 @@ export function ChatConversationMessages({
 		onMetadataOpenIdChange,
 		responseLayout,
 		modelOrderIds,
-		modelOptions,
-		selectedModelIds,
-		onAddModelSet,
+		onSelectPrompt,
 		temporaryMode,
 	]);
 
-	return <>{messagesContent}</>;
+	return (
+		<>
+			{messagesContent}
+			<ChatSelectionToolbar onAction={onSelectionAction} />
+		</>
+	);
 }

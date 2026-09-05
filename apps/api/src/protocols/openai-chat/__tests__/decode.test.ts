@@ -8,6 +8,39 @@ import { decodeOpenAIChatRequest } from "../decode";
 import type { IRChatRequest } from "@core/ir";
 
 describe("decodeOpenAIChatRequest", () => {
+	it("preserves Moonshot partial-mode message fields", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "kimi-k2.6",
+			messages: [
+				{ role: "user", content: "write code", name: "caller" },
+				{ role: "assistant", content: "```ts\n", partial: true },
+			],
+			prediction: { type: "content", content: "known output" },
+		} as any);
+		expect((ir.vendor as any)?.moonshot).toEqual({
+			prediction: { type: "content", content: "known output" },
+			message_fields: [{ name: "caller" }, { partial: true }],
+		});
+	});
+	it("preserves Mistral Chat extension fields through vendor IR", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "mistral-large-latest",
+			messages: [{ role: "user", content: "hello" }],
+			n: 2,
+			prediction: { type: "content", content: "known suffix" },
+			safe_prompt: true,
+			prompt_mode: "reasoning",
+			guardrails: [{ name: "policy" }],
+		} as any);
+
+		expect((ir.vendor as any)?.mistral).toEqual({
+			n: 2,
+			prediction: { type: "content", content: "known suffix" },
+			safe_prompt: true,
+			prompt_mode: "reasoning",
+			guardrails: [{ name: "policy" }],
+		});
+	});
 	it("should decode simple text message", () => {
 		const request = {
 			model: "gpt-4",
@@ -238,6 +271,20 @@ describe("decodeOpenAIChatRequest", () => {
 				required: ["location"],
 			},
 		});
+	});
+
+	it("preserves async on Chat Completions tools", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "gpt-6-astra",
+			messages: [{ role: "user", content: "Start the lookup." }],
+			tools: [{
+				type: "function",
+				async: true,
+				function: { name: "lookup", parameters: { type: "object" } },
+			}],
+		} as any);
+
+		expect(ir.tools?.[0]).toMatchObject({ name: "lookup", async: true });
 	});
 
 	it("should preserve native web search tools", () => {
@@ -789,5 +836,16 @@ describe("decodeOpenAIChatRequest cache options", () => {
 
 		expect(ir.reasoning?.effort).toBe("minimal");
 	});
-});
 
+	it("preserves MiniMax reasoning output control", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "minimax/minimax-m3",
+			messages: [{ role: "user", content: "Hello" }],
+			reasoning_split: false,
+		} as any);
+
+		expect((ir.vendor as any)?.minimax).toEqual({
+			reasoning_split: false,
+		});
+	});
+});

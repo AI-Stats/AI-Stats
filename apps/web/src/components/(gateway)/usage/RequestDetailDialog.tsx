@@ -61,8 +61,8 @@ import {
 	normalizeProviderPromptTrainingPolicy,
 } from "@/lib/providers/promptTrainingPolicy";
 import { formatRoomError } from "@/lib/chat/formatRoomError";
-import { buildRoutingExplanation } from "@/lib/gateway/usage/routingExplanation";
 import UsageEntityHoverCard from "./UsageEntityHoverCard";
+import { RoutingTracePanel } from "@/components/(gateway)/usage/RoutingTracePanel";
 import {
 	ProviderInspectorSheet,
 	ProviderInspectorSheetContent,
@@ -77,9 +77,11 @@ interface RequestDetailDialogProps {
 	providerName?: string | null;
 	providerNames?: Map<string, string>;
 	providerMetadata?: Map<string, ProviderMetadataEntry>;
+	headerNavigation?: React.ReactNode;
 	headerActions?: React.ReactNode;
 	ioLog?: GatewayIoLog | null;
 	presentation?: "dialog" | "sheet";
+	disablePointerDismissal?: boolean;
 	loading?: boolean;
 }
 
@@ -775,14 +777,19 @@ function buildUsageSummary(usage: any): {
 
 function RequestHeader({
 	request,
+	headerNavigation,
 }: {
 	request: RequestRow;
+	headerNavigation?: React.ReactNode;
 }) {
 	const timestamp = formatWordyDateTime(request.created_at, { includeTime: true });
 	return (
-		<div>
+		<div className="relative">
+			{headerNavigation ? (
+				<div className="absolute right-14 top-4 z-10">{headerNavigation}</div>
+			) : null}
 			<div className="px-5 py-4 sm:px-6 sm:py-5">
-				<div className="pr-10">
+				<div className={cn("pr-10", headerNavigation && "pr-36")}>
 					<DialogTitle className="text-base font-semibold">Generation details</DialogTitle>
 					<div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
 						<span>{timestamp}</span>
@@ -805,14 +812,50 @@ export default function RequestDetailDialog({
 	providerName,
 	providerNames,
 	providerMetadata,
+	headerNavigation,
 	headerActions,
 	ioLog,
 	presentation = "dialog",
+	disablePointerDismissal = false,
 	loading = false,
 }: RequestDetailDialogProps) {
 	const searchParams = useSearchParams();
 
 	if (!request) return null;
+	if (loading) {
+		const loadingContent = (
+			<>
+				<RequestHeader request={request} />
+				<div className="flex min-h-72 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+					<div className="relative flex size-12 items-center justify-center rounded-2xl border border-sky-500/20 bg-sky-500/5 text-sky-600 dark:text-sky-300">
+						<div className="absolute inset-1 rounded-xl border border-sky-500/10" />
+						<LoaderCircle className="size-5 animate-spin" />
+					</div>
+					<div>
+						<p className="text-sm font-medium text-foreground">Loading request details</p>
+						<p className="mt-1 text-xs text-muted-foreground">Fetching routing, attempts, pricing, and stored payloads.</p>
+					</div>
+				</div>
+			</>
+		);
+		if (presentation === "sheet") {
+			return (
+				<ProviderInspectorSheet open={open} onOpenChange={onOpenChange}>
+					<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[58vw] lg:!w-[54vw] xl:!w-[50vw] 2xl:!w-[46vw] data-[side=right]:sm:max-w-none">
+						{loadingContent}
+					</ProviderInspectorSheetContent>
+				</ProviderInspectorSheet>
+			);
+		}
+		return (
+			<Dialog open={open} onOpenChange={onOpenChange}>
+				<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
+					<DialogHeader className="sr-only"><DialogTitle>Loading request details</DialogTitle></DialogHeader>
+					{loadingContent}
+				</DialogContent>
+			</Dialog>
+		);
+	}
 
 	const metadata = modelMetadata ?? new Map();
 	const normalizedUsage = buildUsageFromNormalizedRequestFields(request.usage, request);
@@ -845,6 +888,9 @@ export default function RequestDetailDialog({
 		: null;
 	const attempts = Array.isArray(request.provider_attempts)
 		? request.provider_attempts
+		: [];
+	const pricingLines = Array.isArray(request.pricing_lines)
+		? request.pricing_lines
 		: [];
 	const finalSuccessAttempt = [...attempts]
 		.reverse()
@@ -999,7 +1045,7 @@ export default function RequestDetailDialog({
 										<span className="min-w-0 break-words">
 											{request.provider ? (
 												<Link
-													href={`/api-providers/${encodeURIComponent(request.provider)}`}
+											href={request.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(request.provider)}`}
 													className="text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70"
 												>
 													{providerName ?? request.provider}
@@ -1067,9 +1113,7 @@ export default function RequestDetailDialog({
 	const workspacePolicyDiagnostics = routingDiagnostics?.workspacePolicy;
 	const consideredProviders = routingDiagnostics?.consideredProviders ?? [];
 	const rankedProviders = routingDiagnostics?.rankedProviders ?? [];
-	const routingExplanation = buildRoutingExplanation(
-		formattedGatewayError ?? formattedDetailRouting,
-	);
+	const storedRoutingDecisions = request.routing_decisions ?? [];
 	const failedProviders = formattedGatewayError?.failedProviders ?? [];
 	const failedStatuses = formattedGatewayError?.failedStatuses ?? [];
 	const pluginExecutions = extractPluginExecutions(request.detail_metadata ?? null);
@@ -1227,7 +1271,7 @@ export default function RequestDetailDialog({
 			value: request.provider ? (
 				<UsageEntityHoverCard
 					title={providerName ?? request.provider}
-					href={`/api-providers/${encodeURIComponent(request.provider)}`}
+				href={request.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(request.provider)}`}
 					visual={
 						<Logo
 							id={request.provider}
@@ -1256,7 +1300,7 @@ export default function RequestDetailDialog({
 					]}
 				>
 					<Link
-						href={`/api-providers/${encodeURIComponent(request.provider)}`}
+					href={request.provider === "private-model" ? "/settings/workspaces/private-models" : `/api-providers/${encodeURIComponent(request.provider)}`}
 					className="inline-flex items-center gap-2 text-foreground underline decoration-transparent transition-colors duration-200 hover:text-foreground hover:decoration-foreground/70"
 					>
 						<Logo
@@ -1459,7 +1503,7 @@ export default function RequestDetailDialog({
 			value: (
 				<span className="inline-flex items-center justify-end gap-2">
 					<ClientSourceIcon kind={request.client_source_kind ?? "api"} />
-					{request.client_source_name ?? request.client_source_id ?? "Direct API"}
+					{request.client_source_name ?? request.client_source_id ?? "Direct HTTP"}
 				</span>
 			),
 		},
@@ -1471,7 +1515,7 @@ export default function RequestDetailDialog({
 
 	const detailContent = (
 		<>
-				<RequestHeader request={request} />
+				<RequestHeader request={request} headerNavigation={headerNavigation} />
 				{loading ? (
 					<div className="flex items-center gap-2 border-b border-border/70 px-5 py-2 text-xs text-muted-foreground sm:px-6">
 						<LoaderCircle className="size-3.5 animate-spin" />
@@ -2586,20 +2630,6 @@ export default function RequestDetailDialog({
 							</div>
 						) : null}
 
-						{routingExplanation.length > 0 ? (
-							<div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">
-								<div className="mb-2 flex items-center gap-2 font-medium">
-									<Info className="h-4 w-4" />
-									Routing explanation
-								</div>
-								<div className="space-y-2">
-									{routingExplanation.map((line, index) => (
-										<div key={`routing-explanation-${index}`}>{line}</div>
-									))}
-								</div>
-							</div>
-						) : null}
-
 						<GenerationSection title="Routing details">
 							<DetailRows items={routingDetailItems} />
 						</GenerationSection>
@@ -2620,6 +2650,11 @@ export default function RequestDetailDialog({
 
 						<GenerationSection title="Provider Responses">
 							<DetailTimingBar items={responseTimelineItems} />
+							<RoutingTracePanel
+								trace={request.routing_trace ?? null}
+								decisions={storedRoutingDecisions}
+								providerNames={providerNames}
+							/>
 						</GenerationSection>
 
 						<GenerationSection title="Usage">
@@ -2661,10 +2696,10 @@ export default function RequestDetailDialog({
 							<DetailRows items={technicalDetailItems} />
 						</GenerationSection>
 
-						{request.pricing_lines.length > 0 ? (
+						{pricingLines.length > 0 ? (
 							<GenerationSection title="Pricing">
 								<div className="space-y-2">
-									{request.pricing_lines.map((line, index) => (
+									{pricingLines.map((line, index) => (
 										<div
 											key={`request-pricing-line-${index}`}
 											className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2"
@@ -2684,7 +2719,11 @@ export default function RequestDetailDialog({
 
 	if (presentation === "sheet") {
 		return (
-			<ProviderInspectorSheet open={open} onOpenChange={onOpenChange}>
+			<ProviderInspectorSheet
+				open={open}
+				onOpenChange={onOpenChange}
+				disablePointerDismissal={disablePointerDismissal}
+			>
 				<ProviderInspectorSheetContent
 					className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[58vw] lg:!w-[54vw] xl:!w-[50vw] 2xl:!w-[46vw] data-[side=right]:sm:max-w-none"
 				>

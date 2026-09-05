@@ -26,11 +26,14 @@ export const REALTIME_VOICE_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_REALTIME_VOICE_GATE ?? "gateway_realtime_voice";
 export const GATEWAY_IO_LOGGING_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_GATEWAY_IO_LOGGING_GATE ?? "gateway_io_logging";
+export const AUTO_ROUTING_GATE =
+	process.env.NEXT_PUBLIC_STATSIG_AUTO_ROUTING_GATE ?? "gateway_auto_routing";
 export const PRESET_EXPERIMENTS_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_PRESET_EXPERIMENTS_GATE ?? "preset_experiments";
 export const SAML_SSO_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_SAML_SSO_GATE ?? "workspace_saml_sso";
 export const CATALOGUE_GAMES_PREVIEW_GATE = "catalogue_games_preview";
+export const ENTERPRISE_SELF_SERVE_PREVIEW_GATE = "enterprise_self_serve_preview";
 export const NEW_GATEWAY_HERO_GATE = NEW_LANDING_PAGE_GATE;
 export const NEW_GATEWAY_HERO_EXPERIMENT = NEW_LANDING_PAGE_EXPERIMENT;
 export const REALTIME_VOICE_BETA_FEATURE = "chat_realtime_voice";

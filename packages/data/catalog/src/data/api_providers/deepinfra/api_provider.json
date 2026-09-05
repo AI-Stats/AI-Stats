@@ -6,11 +6,10 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
-  "data_retention_days": 0,
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.deepinfra.com/account/data-privacy",
   "residency_notes": "DeepInfra documents memory-only handling for standard inference but does not specify a customer-selectable data or execution region or a named account-level Zero Data Retention control. Bulk inference may use encrypted disk temporarily, image outputs may be retained briefly, and Google/Anthropic upstream policies can apply.",
-  "data_policy_tier": "private",
+  "data_policy_tier": "logs",
   "data_policy_confidence": "maybe",
   "data_policy_contract_mode": "none",
   "country_code": "US",
@@ -26,15 +25,36 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://deepinfra.com/docs/",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "api_base_url": "https://api.deepinfra.com/v1/openai",
+  "docs_url": "https://docs.deepinfra.com/chat/overview",
+  "auth_env": ["DEEPINFRA_API_KEY"],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.embeddings",
+    "openai.images"
+  ],
+  "service_tiers": [
+    "default",
+    "priority",
+    "flex"
+  ],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/v1/openai/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative current OpenAI-compatible model inventory."
+    },
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/models/list",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative model types, limits, lifecycle metadata, pricing, cache discounts, and service-tier multipliers."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Current inventory, API formats, model types, limits, lifecycle, pricing, cache discounts, and service tiers verified against DeepInfra's first-party endpoints and documentation."
   }
 }

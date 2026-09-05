@@ -83,6 +83,8 @@ export interface PaginatedRequestsParams {
 	requestFilter?: string | null;
 	sessionFilter?: string | null;
 	sourceFilter?: string | null;
+	labelKey?: string | null;
+	labelValue?: string | null;
 	filterOperators?: Record<string, string>;
 	inputTokensFilter?: string | null;
 	inputTokensMax?: string | null;
@@ -168,6 +170,11 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 	stream: boolean;
 	session_id: string | null;
 	app_id: string | null;
+	client_source_id: string | null;
+	client_source_name: string | null;
+	client_source_kind: string | null;
+	client_source_version: string | null;
+	client_source_detection: string | null;
 	app_key: string | null;
 	app_title: string | null;
 	app_image_url: string | null;
@@ -211,6 +218,29 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 		upstream_error_message: string | null;
 		upstream_error_description: string | null;
 	}>;
+	routing_trace?: Record<string, unknown> | null;
+	routing_decisions?: RoutingDecisionRow[];
+}
+
+export interface RoutingDecisionRow {
+	routing_decision_id: number | string;
+	decision_order: number;
+	provider_slug: string;
+	provider_api_model_id: string | null;
+	decision: "ranked" | "excluded";
+	rank: number | null;
+	score: number | string | null;
+	selected: boolean;
+	attempted: boolean;
+	breaker: string | null;
+	provider_status: string | null;
+	provider_routing_status: string | null;
+	model_routing_status: string | null;
+	capability_status: string | null;
+	exclusion_stage: string | null;
+	exclusion_reason: string | null;
+	score_factors: Record<string, unknown>;
+	score_trace: Record<string, unknown>;
 }
 
 export type SerializableModelMetadataEntry = {
@@ -338,6 +368,7 @@ async function fetchGatewayIoLog(
 			`${baseUrl}/internal/io-logs/${encodeURIComponent(requestId)}?workspace_id=${encodeURIComponent(workspaceId)}`,
 			{
 				headers: { "x-phaseo-internal-token": token },
+				signal: AbortSignal.timeout(2_500),
 			},
 		);
 		if (!response.ok) return null;
@@ -466,6 +497,32 @@ function normalizePlainObject(
 	return value && typeof value === "object" && !Array.isArray(value)
 		? (value as Record<string, unknown>)
 		: null;
+}
+
+async function attachRoutingObservability(
+	supabase: Awaited<ReturnType<typeof createClient>>,
+	workspaceId: string,
+	requestId: string,
+	request: RequestRow,
+): Promise<void> {
+	const { data, error } = await supabase.rpc("get_gateway_request_observability", {
+		p_workspace_id: workspaceId,
+		p_request_id: requestId,
+	});
+	if (error) {
+		console.warn("Routing observability unavailable for request detail", {
+			requestId,
+			code: error.code ?? null,
+		});
+		return;
+	}
+	const observability = normalizePlainObject(data);
+	request.routing_trace = normalizePlainObject(observability?.routing_trace);
+	request.routing_decisions = Array.isArray(observability?.routing_decisions)
+		? observability.routing_decisions.filter(
+				(value): value is RoutingDecisionRow => Boolean(value && typeof value === "object"),
+			)
+		: [];
 }
 
 function toRequestRow(row: any): RequestRow {
@@ -624,6 +681,9 @@ export async function fetchPaginatedRequests(
 	if (params.sourceFilter) {
 		query = params.filterOperators?.source === "is_not" ? query.neq("client_source_id", params.sourceFilter) : query.eq("client_source_id", params.sourceFilter);
 	}
+	if (params.labelKey && params.labelValue) {
+		query = query.contains("detail_metadata", { labels: [{ key: params.labelKey, value: params.labelValue }] });
+	}
 	if (params.statusFilter === "success") {
 		query = params.filterOperators?.status === "is_not" ? query.neq("success", true) : query.eq("success", true);
 	} else if (params.statusFilter === "error") {
@@ -676,14 +736,10 @@ export async function fetchPaginatedRequests(
 				generation_ms,
 				latency_ms,
 				finish_reason,
-				pricing_lines,
-				provider_attempts,
                                 success,
                                 status_code,
                                 error_code,
                                 error_message,
-                                error_payload,
-                                detail_metadata,
                                 key_id,
                                 throughput
                         `,
@@ -710,6 +766,9 @@ export async function fetchPaginatedRequests(
 		if (params.keyFilter) fallback = fallback.eq("key_id", params.keyFilter);
 		if (params.requestFilter) fallback = fallback.eq("request_id", params.requestFilter);
 		if (params.sessionFilter) fallback = fallback.eq("session_id", params.sessionFilter);
+		if (params.labelKey && params.labelValue) {
+			fallback = fallback.contains("detail_metadata", { labels: [{ key: params.labelKey, value: params.labelValue }] });
+		}
 		if (params.statusFilter === "success") fallback = fallback.eq("success", true);
 		else if (params.statusFilter === "error") fallback = fallback.eq("success", false);
 
@@ -744,13 +803,10 @@ export async function fetchPaginatedRequests(
 					generation_ms,
 					latency_ms,
 					finish_reason,
-					pricing_lines,
-					provider_attempts,
                                         success,
                                         status_code,
                                         error_code,
                                         error_message,
-                                        error_payload,
                                         key_id,
                                         throughput
                                 `,
@@ -781,6 +837,9 @@ export async function fetchPaginatedRequests(
 			if (params.keyFilter) legacyFallback = legacyFallback.eq("key_id", params.keyFilter);
 			if (params.requestFilter) legacyFallback = legacyFallback.eq("request_id", params.requestFilter);
 			if (params.sessionFilter) legacyFallback = legacyFallback.eq("session_id", params.sessionFilter);
+			if (params.labelKey && params.labelValue) {
+				legacyFallback = legacyFallback.contains("detail_metadata", { labels: [{ key: params.labelKey, value: params.labelValue }] });
+			}
 			if (params.statusFilter === "success") legacyFallback = legacyFallback.eq("success", true);
 			else if (params.statusFilter === "error") legacyFallback = legacyFallback.eq("success", false);
 			const {
@@ -831,6 +890,9 @@ export async function fetchPaginatedRequests(
 				}
 				if (params.keyFilter) minimalFallback = minimalFallback.eq("key_id", params.keyFilter);
 				if (params.requestFilter) minimalFallback = minimalFallback.eq("request_id", params.requestFilter);
+				if (params.labelKey && params.labelValue) {
+					minimalFallback = minimalFallback.contains("detail_metadata", { labels: [{ key: params.labelKey, value: params.labelValue }] });
+				}
 				if (params.statusFilter === "success") minimalFallback = minimalFallback.eq("success", true);
 				else if (params.statusFilter === "error") minimalFallback = minimalFallback.eq("success", false);
 
@@ -1643,6 +1705,8 @@ export async function investigateGeneration(
 		created_at,
 		endpoint,
 		model_id,
+		requested_model_id,
+		routed_model_id,
 		provider,
 		native_response_id,
 		stream,
@@ -1664,6 +1728,12 @@ export async function investigateGeneration(
 		status_code,
 		error_code,
 		error_message,
+		client_source_id,
+		client_source_name,
+		client_source_kind,
+		client_source_version,
+		client_source_detection,
+		detail_metadata,
 		key_id,
 		pricing_lines,
 		throughput,
@@ -1689,6 +1759,8 @@ export async function investigateGeneration(
 				created_at,
 				endpoint,
 				model_id,
+				requested_model_id,
+				routed_model_id,
 				provider,
 				native_response_id,
 				stream,
@@ -1703,6 +1775,12 @@ export async function investigateGeneration(
 				status_code,
 				error_code,
 				error_message,
+				client_source_id,
+				client_source_name,
+				client_source_kind,
+				client_source_version,
+				client_source_detection,
+				detail_metadata,
 				key_id,
 				pricing_lines,
 				throughput,
@@ -1741,11 +1819,13 @@ export async function investigateGeneration(
 			trimmedRequestId,
 		);
 		if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
+		await attachRoutingObservability(supabase, workspaceId, trimmedRequestId, request);
 		const providerIds = Array.from(
 			new Set(
 				[
 					request.provider,
 					...request.provider_attempts.map((attempt) => attempt.provider),
+					...(request.routing_decisions ?? []).map((decision) => decision.provider_slug),
 				].filter(
 					(value): value is string =>
 					typeof value === "string" && value.trim().length > 0,
@@ -1794,11 +1874,13 @@ export async function investigateGeneration(
 		trimmedRequestId,
 	);
 	if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
+	await attachRoutingObservability(supabase, workspaceId, trimmedRequestId, request);
 	const providerIds = Array.from(
 		new Set(
 			[
 				request.provider,
 				...request.provider_attempts.map((attempt) => attempt.provider),
+				...(request.routing_decisions ?? []).map((decision) => decision.provider_slug),
 			].filter(
 				(value): value is string =>
 				typeof value === "string" && value.trim().length > 0,
@@ -2648,6 +2730,8 @@ export async function fetchSessionRequests(params: {
 			request_id,
 			created_at,
 			model_id,
+			requested_model_id,
+			routed_model_id,
 			provider,
 			native_response_id,
 			stream,
@@ -2670,6 +2754,12 @@ export async function fetchSessionRequests(params: {
 			error_code,
 			error_message,
 			error_payload,
+			client_source_id,
+			client_source_name,
+			client_source_kind,
+			client_source_version,
+			client_source_detection,
+			detail_metadata,
 			key_id,
 			pricing_lines,
 			throughput,
@@ -2701,6 +2791,8 @@ export async function fetchSessionRequests(params: {
 			request_id,
 			created_at,
 			model_id,
+			requested_model_id,
+			routed_model_id,
 			provider,
 			native_response_id,
 			stream,
@@ -2722,6 +2814,12 @@ export async function fetchSessionRequests(params: {
 			error_code,
 			error_message,
 			error_payload,
+			client_source_id,
+			client_source_name,
+			client_source_kind,
+			client_source_version,
+			client_source_detection,
+			detail_metadata,
 			key_id,
 			pricing_lines,
 			throughput,
@@ -2782,6 +2880,11 @@ export interface JobsRollupRow {
 	request_id: string | null;
 	session_id: string | null;
 	app_id: string | null;
+	client_source_id: string | null;
+	client_source_name: string | null;
+	client_source_kind: string | null;
+	client_source_version: string | null;
+	client_source_detection: string | null;
 	provider: string | null;
 	model: string | null;
 	status: string | null;
@@ -2922,6 +3025,11 @@ export interface AsyncJobRow {
 	request_id: string | null;
 	session_id: string | null;
 	app_id: string | null;
+	client_source_id: string | null;
+	client_source_name: string | null;
+	client_source_kind: string | null;
+	client_source_version: string | null;
+	client_source_detection: string | null;
 	provider: string | null;
 	model: string | null;
 	status: string | null;
@@ -3177,6 +3285,9 @@ function toAsyncJobRow(
 			: null;
 	if (isInternalBatchFileRecord({ kind, internalId, meta })) return null;
 	const failureDiagnostics = parseAsyncJobFailureDiagnostics(meta);
+	const clientSource = meta?.client_source && typeof meta.client_source === "object" && !Array.isArray(meta.client_source)
+		? meta.client_source as Record<string, unknown>
+		: null;
 	const webhook = buildWebhookSummary(meta);
 	if (
 		!options?.includeWithoutWebhook &&
@@ -3192,6 +3303,11 @@ function toAsyncJobRow(
 		request_id: normalizeText(row.request_id),
 		session_id: normalizeText(row.session_id),
 		app_id: normalizeText(row.app_id),
+		client_source_id: normalizeText(clientSource?.id),
+		client_source_name: normalizeText(clientSource?.name),
+		client_source_kind: normalizeText(clientSource?.kind),
+		client_source_version: normalizeText(clientSource?.version),
+		client_source_detection: normalizeText(clientSource?.detection),
 		provider: normalizeText(row.provider),
 		model: normalizeText(row.model),
 		status: normalizeText(row.status),
@@ -3308,7 +3424,7 @@ export async function fetchRecentAsyncJobs(params?: {
 
 	const { data: requestRows, error: requestError } = await admin
 		.from("gateway_requests")
-		.select("request_id,created_at,cost_nanos")
+		.select("request_id,created_at,cost_nanos,client_source_id,client_source_name,client_source_kind,client_source_version,client_source_detection")
 		.eq("workspace_id", workspaceId)
 		.in("request_id", requestIds)
 		.order("created_at", { ascending: false });
@@ -3323,6 +3439,11 @@ export async function fetchRecentAsyncJobs(params?: {
 		{
 			created_at: string | null;
 			cost_nanos: number | null;
+			client_source_id: string | null;
+			client_source_name: string | null;
+			client_source_kind: string | null;
+			client_source_version: string | null;
+			client_source_detection: string | null;
 		}
 	>();
 	for (const row of requestRows ?? []) {
@@ -3331,6 +3452,11 @@ export async function fetchRecentAsyncJobs(params?: {
 		requestMap.set(requestId, {
 			created_at: normalizeIsoDate((row as Record<string, unknown>).created_at),
 			cost_nanos: normalizeFiniteNumber((row as Record<string, unknown>).cost_nanos),
+			client_source_id: normalizeText((row as Record<string, unknown>).client_source_id),
+			client_source_name: normalizeText((row as Record<string, unknown>).client_source_name),
+			client_source_kind: normalizeText((row as Record<string, unknown>).client_source_kind),
+			client_source_version: normalizeText((row as Record<string, unknown>).client_source_version),
+			client_source_detection: normalizeText((row as Record<string, unknown>).client_source_detection),
 		});
 	}
 
@@ -3341,6 +3467,11 @@ export async function fetchRecentAsyncJobs(params?: {
 			...job,
 			request_created_at: requestMeta.created_at,
 			request_cost_nanos: requestMeta.cost_nanos,
+			client_source_id: requestMeta.client_source_id,
+			client_source_name: requestMeta.client_source_name,
+			client_source_kind: requestMeta.client_source_kind,
+			client_source_version: requestMeta.client_source_version,
+			client_source_detection: requestMeta.client_source_detection,
 		};
 	});
 }
@@ -3393,10 +3524,15 @@ export async function fetchAsyncJobDetail(input: {
 	let requestGenerationMs: number | null = null;
 	let requestProviderAttempts: RequestRow["provider_attempts"] = [];
 	let requestPricingLines: AsyncJobRequestPricingLine[] = [];
+	let requestClientSourceId: string | null = null;
+	let requestClientSourceName: string | null = null;
+	let requestClientSourceKind: string | null = null;
+	let requestClientSourceVersion: string | null = null;
+	let requestClientSourceDetection: string | null = null;
 	if (base.request_id) {
 		const { data: requestData } = await admin
 			.from("gateway_requests")
-			.select("created_at,cost_nanos,native_response_id,endpoint,model_id,success,status_code,error_code,error_message,error_payload,finish_reason,latency_ms,generation_ms,provider_attempts,pricing_lines")
+			.select("created_at,cost_nanos,native_response_id,endpoint,model_id,success,status_code,error_code,error_message,error_payload,finish_reason,latency_ms,generation_ms,provider_attempts,pricing_lines,client_source_id,client_source_name,client_source_kind,client_source_version,client_source_detection")
 			.eq("workspace_id", workspaceId)
 			.eq("request_id", base.request_id)
 			.order("created_at", { ascending: false })
@@ -3417,6 +3553,11 @@ export async function fetchAsyncJobDetail(input: {
 		requestGenerationMs = normalizeFiniteNumber(requestData?.generation_ms);
 		requestProviderAttempts = normalizeProviderAttempts(requestData?.provider_attempts);
 		requestPricingLines = normalizePricingLines(requestData?.pricing_lines);
+		requestClientSourceId = normalizeText(requestData?.client_source_id);
+		requestClientSourceName = normalizeText(requestData?.client_source_name);
+		requestClientSourceKind = normalizeText(requestData?.client_source_kind);
+		requestClientSourceVersion = normalizeText(requestData?.client_source_version);
+		requestClientSourceDetection = normalizeText(requestData?.client_source_detection);
 	}
 
 	return {
@@ -3464,6 +3605,11 @@ export async function fetchAsyncJobDetail(input: {
 		request_generation_ms: requestGenerationMs,
 		request_provider_attempts: requestProviderAttempts,
 		request_pricing_lines: requestPricingLines,
+		client_source_id: requestClientSourceId ?? base.client_source_id,
+		client_source_name: requestClientSourceName ?? base.client_source_name,
+		client_source_kind: requestClientSourceKind ?? base.client_source_kind,
+		client_source_version: requestClientSourceVersion ?? base.client_source_version,
+		client_source_detection: requestClientSourceDetection ?? base.client_source_detection,
 		job_upstream_error: failureDiagnostics.job_upstream_error,
 		job_provider_failure_diagnostics:
 			failureDiagnostics.job_provider_failure_diagnostics,
@@ -3476,4 +3622,3 @@ export async function fetchAsyncJobDetail(input: {
 		webhook_attempts: webhookAttempts,
 	};
 }
-

@@ -42,10 +42,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://docs.arcee.ai/get-started/pricing",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Official Arcee Platform token pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Checked against Arcee's official pricing documentation."
   }
 }

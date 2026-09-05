@@ -7,11 +7,9 @@
   "description": "Mistral's EU regional inference endpoint processes eligible inference inputs and outputs within EU and EFTA data centres.",
   "link": "https://docs.mistral.ai/inference/regional-inference",
   "residency_mode": "provider_managed",
-  "default_execution_regions": [
-    "eu"
-  ],
-  "default_data_regions": [],
-  "zero_data_retention": "optional",
+  "default_execution_regions": ["EU"],
+  "default_data_regions": ["EU"],
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.mistral.ai/inference/regional-inference",
   "residency_notes": "Regional inference controls inference processing location only. Mistral documents that control-plane data can still be handled outside the selected geography.",
   "prompt_training_policy": "no_train",
@@ -20,9 +18,9 @@
   "privacy_policy_url": "https://legal.mistral.ai/terms/privacy-policy?language=fr-FR",
   "terms_of_service_url": "https://legal.mistral.ai/terms/commercial-terms-of-service",
   "regional_pricing_mode": "offer_specific",
-  "data_policy_tier": "unknown",
-  "data_policy_confidence": "unknown",
-  "data_policy_contract_mode": "none",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "customer_agreement",
   "regional_pricing_uplift_percent": 10,
   "pricing_source_url": "https://docs.mistral.ai/inference/regional-inference",
   "regional_pricing_notes": "EU regional inference is billed at 1.1x standard list pricing for input, output, cached reads, and cache writes. Batch is unavailable on regional endpoints.",
@@ -35,9 +33,10 @@
   "sdk_package": null,
   "api_base_url": "https://api.eu.mistral.ai",
   "docs_url": "https://docs.mistral.ai/inference/regional-inference",
-  "auth_env": "MISTRAL_AI_API_KEY",
+  "auth_env": "MISTRAL_API_KEY",
   "api_formats": [
-    "openai.chat.completions"
+    "openai.chat.completions",
+    "openai.embeddings"
   ],
   "service_tiers": [
     "standard",

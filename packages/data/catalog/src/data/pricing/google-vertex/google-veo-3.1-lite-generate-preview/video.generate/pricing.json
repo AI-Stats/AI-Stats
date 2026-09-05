@@ -1,8 +1,8 @@
 {
-  "key": "google-vertex:google/veo-3.1-lite-generate-preview:video.generate",
+  "key": "google-vertex:google/veo-3.1-lite-preview:video.generate",
   "api_provider_id": "google-vertex",
   "provider_slug": "google-vertex",
-  "api_model_id": "google/veo-3.1-lite-generate-preview",
+  "api_model_id": "google/veo-3.1-lite-preview",
   "capability_id": "video.generate",
   "rules": [
     {

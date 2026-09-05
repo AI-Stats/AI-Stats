@@ -20,9 +20,19 @@ import {
 	Gift,
 	Bell,
 	Gauge,
+	FlaskConical,
 } from "lucide-react";
 
 const internalTools = [
+	{
+		id: "model-test-playground",
+		title: "Model Test Lab",
+		description:
+			"Stress-test models and parameter support across one, several, or every available provider.",
+		icon: FlaskConical,
+		href: "/internal/model-test-playground",
+		comingSoon: false,
+	},
 	{
 		id: "data-editor",
 		title: "Data Editor",

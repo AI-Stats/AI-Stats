@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, DragEvent } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
 import { ChatConversationMessages } from "@/components/(chat)/ChatConversationMessages";
+import { appendChatSelectionPrompt } from "@/components/(chat)/chatSelectionActions";
 import type { ChatRequestErrorDetails } from "@/components/(chat)/ChatRequestErrorNotice";
 import {
 	shouldResetComposerForConversationChange,
@@ -16,7 +18,14 @@ import type {
 	ChatSettings,
 	ChatThread,
 } from "@/lib/indexeddb/chats";
-import { ArrowDown } from "lucide-react";
+import {
+	ArrowDown,
+	FileAudio,
+	FileImage,
+	FileText,
+	FileVideo,
+	Upload,
+} from "lucide-react";
 import {
 	DEFAULT_CHAT_PLACEHOLDER,
 	REASONING_OPTIONS,
@@ -24,8 +33,14 @@ import {
 	extractClipboardFiles,
 	getRandomPlaceholder,
 	getSupportedRecordingMimeType,
+	normalizeAttachmentFiles,
 } from "./chatConversationHelpers";
 import { startChatSendPerformanceRun } from "@/components/(chat)/playground/chat-performance";
+import {
+	clearChatAuthDraft,
+	readChatAuthDraft,
+	saveChatAuthDraft,
+} from "@/components/(chat)/chatAuthDraft";
 import type {
 	ChatResponseLayout,
 	ModelOption,
@@ -152,7 +167,20 @@ export function ChatConversation({
 	responseLayout = "sequential",
 }: ChatConversationProps) {
 	const isUnified = mode === "unified";
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const search = searchParams.toString();
+	const authReturnUrl = `${pathname}${search ? `?${search}` : ""}`;
 	const [composer, setComposer] = useState("");
+	const handleSelectionAction = useCallback((prompt: string) => {
+		setComposer((current) => appendChatSelectionPrompt(current, prompt));
+		requestAnimationFrame(() => {
+			const input = document.querySelector<HTMLTextAreaElement>(
+				"[data-chat-composer-input='true']",
+			);
+			input?.focus();
+		});
+	}, []);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editingValue, setEditingValue] = useState("");
 	const [metadataOpenId, setMetadataOpenId] = useState<string | null>(null);
@@ -161,6 +189,7 @@ export function ChatConversation({
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const audioInputRef = useRef<HTMLInputElement | null>(null);
 	const [attachments, setAttachments] = useState<File[]>([]);
+	const [isFileDragActive, setIsFileDragActive] = useState(false);
 	const [queuedPrompts, setQueuedPrompts] = useState<QueuedChatPrompt[]>([]);
 	const [editingQueuedPromptIndex, setEditingQueuedPromptIndex] = useState<
 		number | null
@@ -191,6 +220,17 @@ export function ChatConversation({
 	useEffect(() => {
 		setPlaceholder(getRandomPlaceholder());
 	}, []);
+
+	useEffect(() => {
+		if (!isAuthenticated) return;
+		const restoredDraft = readChatAuthDraft();
+		if (!restoredDraft) return;
+		const timeout = window.setTimeout(() => {
+			setComposer(restoredDraft);
+			clearChatAuthDraft();
+		}, 1_000);
+		return () => window.clearTimeout(timeout);
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		setRecordingSupported(
@@ -497,7 +537,9 @@ export function ChatConversation({
 			}
 			if (!pastedFiles.length && !pastedText) return;
 			if (pastedFiles.length > 0) {
-				setAttachments((prev) => prev.concat(pastedFiles));
+				setAttachments((prev) =>
+					prev.concat(normalizeAttachmentFiles(pastedFiles)),
+				);
 			}
 			if (pastedText) {
 				if (isEditableTarget) {
@@ -671,6 +713,7 @@ export function ChatConversation({
 			Boolean(selectedModelId);
 		if (!hasSelectedModel) return;
 		if (!isAuthenticated) {
+			saveChatAuthDraft(composer);
 			setSendGateType("auth");
 			return;
 		}
@@ -697,6 +740,11 @@ export function ChatConversation({
 		setComposer("");
 		setAttachments([]);
 	};
+
+	const handleComposerChange = useCallback((value: string) => {
+		setComposer(value);
+		if (!isAuthenticated) saveChatAuthDraft(value);
+	}, [isAuthenticated]);
 
 	const handleEditQueuedPrompt = (id: string) => {
 		const promptIndex = queuedPrompts.findIndex((prompt) => prompt.id === id);
@@ -735,10 +783,62 @@ export function ChatConversation({
 		[],
 	);
 
+	const handleFilesAdded = useCallback((files: File[]) => {
+		const normalizedFiles = normalizeAttachmentFiles(files);
+		if (!normalizedFiles.length) return;
+		setAttachments((prev) => prev.concat(normalizedFiles));
+	}, []);
+	const hasDraggedFiles = useCallback((event: DragEvent<HTMLElement>) => {
+		return (
+			event.dataTransfer.types.includes("Files") ||
+			event.dataTransfer.files.length > 0
+		);
+	}, []);
+	const handleFileDragEnter = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			event.preventDefault();
+			event.dataTransfer.dropEffect = "copy";
+			setIsFileDragActive(true);
+		},
+		[hasDraggedFiles],
+	);
+	const handleFileDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			event.preventDefault();
+			event.dataTransfer.dropEffect = "copy";
+		},
+		[hasDraggedFiles],
+	);
+	const handleFileDragLeave = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			const relatedTarget = event.relatedTarget;
+			if (
+				relatedTarget instanceof Node &&
+				event.currentTarget.contains(relatedTarget)
+			) {
+				return;
+			}
+			setIsFileDragActive(false);
+		},
+		[hasDraggedFiles],
+	);
+	const handleFileDrop = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			event.preventDefault();
+			setIsFileDragActive(false);
+			const files = Array.from(event.dataTransfer.files ?? []);
+			if (files.length > 0) handleFilesAdded(files);
+		},
+		[handleFilesAdded, hasDraggedFiles],
+	);
+
 	const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(event.target.files ?? []);
-		if (!files.length) return;
-		setAttachments((prev) => prev.concat(files));
+		handleFilesAdded(files);
 		event.target.value = "";
 	};
 
@@ -763,8 +863,6 @@ export function ChatConversation({
 	const effectiveSendGateType =
 		isAuthenticated && sendGateType === "auth" ? null : sendGateType;
 	const hasNoMessages = (activeThread?.messages.length ?? 0) === 0;
-	const useWideComparisonLayout =
-		responseLayout === "side-by-side" && selectedModelCount > 1;
 	const promptHistory = useMemo(
 		() =>
 			(activeThread?.messages ?? [])
@@ -774,20 +872,60 @@ export function ChatConversation({
 	);
 
 	return (
-		<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+		<main
+			className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+			onDragEnter={handleFileDragEnter}
+			onDragOver={handleFileDragOver}
+			onDragLeave={handleFileDragLeave}
+			onDrop={handleFileDrop}
+		>
+        {isFileDragActive ? (
+            <div
+                role="status"
+                aria-label="Drop to attach files"
+                className="pointer-events-none absolute inset-0 z-50 grid place-items-center border-2 border-dashed border-primary/60 bg-background/80 p-6 text-center backdrop-blur-[2px]"
+            >
+                <div className="rounded-2xl border border-primary/20 bg-background/95 px-8 py-7 shadow-[0_24px_80px_-32px_hsl(var(--primary)/0.45)]">
+                    <div className="flex items-center justify-center gap-3">
+                        <div className="grid size-11 place-items-center rounded-xl border border-primary/25 bg-primary/[0.08] text-primary">
+                            <Upload className="size-5" strokeWidth={1.8} />
+                        </div>
+                        <p className="text-base font-semibold tracking-tight text-foreground">
+                            Drop to attach
+                        </p>
+                    </div>
+                    <div className="mt-5 flex items-center justify-center gap-2 text-muted-foreground">
+                        {[
+                            { label: "Images", icon: FileImage },
+                            { label: "Audio", icon: FileAudio },
+                            { label: "Video", icon: FileVideo },
+                            { label: "Files", icon: FileText },
+                        ].map(({ label, icon: Icon }) => (
+                            <div
+                                key={label}
+                                aria-label={label}
+                                className="grid size-8 place-items-center rounded-lg border border-border/80 bg-background/75"
+                            >
+                                <Icon className="size-4" strokeWidth={1.8} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        ) : null}
 			<MessageScroller.Provider
 				autoScroll
 				defaultScrollPosition="end"
 				scrollEdgeThreshold={48}
 				scrollMargin={24}
 			>
-				<MessageScroller.Root className="relative flex min-h-0 flex-1 overflow-hidden overscroll-contain">
+				<MessageScroller.Root className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden overscroll-contain">
 					<MessageScroller.Viewport
 						ref={scrollViewportRef}
-						className="h-full w-full overflow-y-auto overscroll-contain"
+						className="h-full min-w-0 w-full overflow-y-auto overscroll-contain"
 					>
 						<MessageScroller.Content
-							className={`mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${useWideComparisonLayout ? "2xl:max-w-[96rem]" : ""} ${hasNoMessages ? "min-h-full" : ""}`}
+							className={`mx-auto flex min-w-0 w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${hasNoMessages ? "min-h-full" : ""}`}
 						>
 							<ChatConversationMessages
 								activeThread={activeThread}
@@ -813,10 +951,10 @@ export function ChatConversation({
 								scrollViewportRef={scrollViewportRef}
 								responseLayout={responseLayout}
 								modelOrderIds={selectedModelIds}
-								modelOptions={modelOptions}
-								selectedModelIds={selectedModelIds}
-								onAddModelSet={onAddModelSet}
+								onSelectPrompt={handleSelectEvaluationPrompt}
 								temporaryMode={temporaryMode}
+								onSelectionAction={handleSelectionAction}
+								onOpenModelPicker={onOpenModelPicker}
 							/>
 						</MessageScroller.Content>
 					</MessageScroller.Viewport>
@@ -832,6 +970,7 @@ export function ChatConversation({
 			<ChatConversationComposer
 				sendGateType={effectiveSendGateType}
 				isSending={isSending}
+				authReturnUrl={authReturnUrl}
 				composer={composer}
 				promptHistory={promptHistory}
 				attachments={attachments}
@@ -883,7 +1022,7 @@ export function ChatConversation({
 				onEditQueuedPrompt={handleEditQueuedPrompt}
 				onReorderQueuedPrompt={handleReorderQueuedPrompt}
 				onSelectEvaluationPrompt={handleSelectEvaluationPrompt}
-				onComposerChange={setComposer}
+				onComposerChange={handleComposerChange}
 				onRemoveAttachment={(index) =>
 					setAttachments((prev) => prev.filter((_, i) => i !== index))
 				}

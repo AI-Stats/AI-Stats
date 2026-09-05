@@ -13,7 +13,7 @@ vi.mock("@/runtime/env", () => ({
 	}),
 }));
 
-import { loadOAuthClient } from "./service";
+import { assertRedirectAllowed, loadOAuthClient } from "./service";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -33,7 +33,8 @@ describe("OAuth client ID metadata documents", () => {
 		}));
 		vi.stubGlobal("fetch", fetchMock);
 
-		await expect(loadOAuthClient(clientId)).resolves.toMatchObject({
+		const client = await loadOAuthClient(clientId);
+		expect(client).toMatchObject({
 			id: clientId,
 			name: "Example MCP Client",
 			client_type: "public",
@@ -41,10 +42,41 @@ describe("OAuth client ID metadata documents", () => {
 			allowed_scopes: ["models:read", "providers:read", "pricing:read"],
 			registration_source: "cimd",
 		});
+		expect(assertRedirectAllowed(client!, "https://client.example/oauth/callback")).toBe(true);
 		expect(fetchMock).toHaveBeenCalledWith(
-			new URL(clientId),
+			clientId,
 			expect.objectContaining({ redirect: "error" }),
 		);
+	});
+
+	it("allows native CIMD loopback callbacks to use an ephemeral port", async () => {
+		const clientId = "https://chatgpt.example/oauth/codex/client.json";
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+			client_id: clientId,
+			client_name: "Codex",
+			application_type: "native",
+			redirect_uris: ["http://127.0.0.1/callback/client"],
+			token_endpoint_auth_method: "none",
+		})));
+		const client = await loadOAuthClient(clientId);
+
+		expect(assertRedirectAllowed(client!, "http://127.0.0.1:61903/callback/client")).toBe(true);
+		expect(assertRedirectAllowed(client!, "http://127.0.0.1:61903/callback/other")).toBe(false);
+		expect(assertRedirectAllowed(client!, "http://localhost:61903/callback/client")).toBe(false);
+	});
+
+	it("keeps CIMD web-client loopback redirects on their registered port", async () => {
+		const clientId = "https://web-client.example/client.json";
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+			client_id: clientId,
+			client_name: "Web Client",
+			application_type: "web",
+			redirect_uris: ["http://127.0.0.1/callback/client"],
+			token_endpoint_auth_method: "none",
+		})));
+		const client = await loadOAuthClient(clientId);
+
+		expect(assertRedirectAllowed(client!, "http://127.0.0.1:61903/callback/client")).toBe(false);
 	});
 
 	it("rejects metadata that does not bind itself to the exact client_id", async () => {
@@ -101,5 +133,21 @@ describe("OAuth client ID metadata documents", () => {
 		})));
 
 		await expect(loadOAuthClient(clientId)).resolves.toBeNull();
+	});
+
+	it("bounds cached metadata documents per origin", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const clientId = String(input);
+			return Response.json({
+				client_id: clientId,
+				client_name: `Client ${new URL(clientId).pathname}`,
+				redirect_uris: ["https://cache-limit.example/callback"],
+			});
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		const ids = Array.from({ length: 17 }, (_, index) => `https://cache-limit.example/client-${index}.json`);
+		for (const id of ids) await expect(loadOAuthClient(id)).resolves.not.toBeNull();
+		await expect(loadOAuthClient(ids[0])).resolves.not.toBeNull();
+		expect(fetchMock).toHaveBeenCalledTimes(18);
 	});
 });

@@ -52,6 +52,11 @@ function optionalString(v: FormDataEntryValue | null) {
 	return trimmed.length ? trimmed : null;
 }
 
+function optionalStringArray(v: FormDataEntryValue | null) {
+	if (typeof v !== "string") return [];
+	return Array.from(new Set(v.split(",").map((item) => item.trim().toUpperCase()).filter(Boolean)));
+}
+
 const CORE_TYPE_OPTIONS = MODEL_MODALITY_OPTIONS;
 const MODEL_DETAIL_NAME_OPTIONS = [
 	"input_context_length",
@@ -278,6 +283,8 @@ export async function createAPIProviderAction(formData: FormData) {
 		description: optionalString(formData.get("description")),
 		link: optionalString(formData.get("link")),
 		country_code: optionalString(formData.get("country_code")),
+		default_execution_regions: optionalStringArray(formData.get("default_execution_regions")),
+		byok_available: formData.get("byok_available") === "on",
 		prompt_training_policy: promptTrainingPolicy,
 		prompt_training_notes: optionalString(formData.get("prompt_training_notes")),
 		prompt_training_source_url: optionalString(formData.get("prompt_training_source_url")),
@@ -315,6 +322,8 @@ export async function updateAPIProviderAction(apiProviderId: string, formData: F
 			description: optionalString(formData.get("description")),
 			link: optionalString(formData.get("link")),
 			country_code: optionalString(formData.get("country_code")),
+			default_execution_regions: optionalStringArray(formData.get("default_execution_regions")),
+			byok_available: formData.get("byok_available") === "on",
 			prompt_training_policy: promptTrainingPolicy,
 			prompt_training_notes: optionalString(formData.get("prompt_training_notes")),
 			prompt_training_source_url: optionalString(formData.get("prompt_training_source_url")),

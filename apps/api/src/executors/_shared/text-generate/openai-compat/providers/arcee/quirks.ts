@@ -18,6 +18,7 @@ function mapReasoningEffortToArcee(value?: string): ArceeReasoningEffort | undef
 			return "medium";
 		case "high":
 		case "xhigh":
+		case "max":
 			return "high";
 		default:
 			return undefined;
@@ -25,6 +26,23 @@ function mapReasoningEffortToArcee(value?: string): ArceeReasoningEffort | undef
 }
 
 export const arceeQuirks: ProviderQuirks = {
+	transformStreamChunk: ({ chunk }) => {
+		for (const choice of Array.isArray(chunk?.choices) ? chunk.choices : []) {
+			if (typeof choice?.delta?.reasoning === "string" && choice.delta.reasoning_content == null) {
+				choice.delta.reasoning_content = choice.delta.reasoning;
+			}
+			if (typeof choice?.message?.reasoning === "string" && choice.message.reasoning_content == null) {
+				choice.message.reasoning_content = choice.message.reasoning;
+			}
+		}
+	},
+	extractReasoning: ({ choice, rawContent }) => {
+		const reasoning = choice?.message?.reasoning;
+		return {
+			main: rawContent,
+			reasoning: typeof reasoning === "string" && reasoning.length > 0 ? [reasoning] : [],
+		};
+	},
 	transformRequest: ({ request, ir }) => {
 		const effort = mapReasoningEffortToArcee(ir.reasoning?.effort);
 		if (effort) {

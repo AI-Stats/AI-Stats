@@ -1,10 +1,12 @@
 import { getSupabaseAdmin } from "@/runtime/env";
 import { loadPriceCard } from "@pipeline/pricing";
+import { requiresExplicitServiceTier } from "../pricing/service-tiers";
 import { normalizeTextServiceTier, readRequestedServiceTier } from "@core/serviceTiers";
 import type { PriceCard } from "../pricing/types";
-import { ROUTABLE_CAPABILITY_STATUSES, isWithinEffectiveWindow } from "./context.shared";
+import { getProviderPricingKey, ROUTABLE_CAPABILITY_STATUSES, isWithinEffectiveWindow } from "./context.shared";
 import type { ProviderCandidate } from "./types";
 import { parseRouteAvailabilityPolicy } from "@/lib/config/routeAvailability";
+import { resolveEffectiveDataPolicy } from "./dataPolicy";
 
 type ServiceTierPlan = "standard" | "priority" | "batch" | "flex";
 
@@ -51,6 +53,8 @@ const PRIORITY_SIBLING_API_MODEL_IDS = new Map<string, string>([
 ]);
 
 const PRIORITY_HIDDEN_SAME_MODEL_KEYS = new Set([
+    "crofai:deepseek/deepseek-v4-pro",
+    "crofai:moonshotai/kimi-k2.5",
     "deepinfra:minimax/minimax-m2.7",
 ]);
 
@@ -94,15 +98,11 @@ function isTierDedicatedOffer(candidate: ProviderCandidate, requestedPlan: Servi
 
 function isTierSiblingModel(candidate: ProviderCandidate, requestedPlan: ServiceTierPlan): boolean {
     const apiModelId = String(candidate.apiModelId ?? "").trim().toLowerCase();
-    const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
     if (requestedPlan === "priority") {
-        return (
-            apiModelId.endsWith("-fast") ||
-            providerModelSlug.endsWith("-fast") ||
-            PRIORITY_SIBLING_VALUE_IDS.has(apiModelId)
-        );
+        return PRIORITY_SIBLING_VALUE_IDS.has(apiModelId);
     }
     if (requestedPlan === "flex") {
+        const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
         return apiModelId.endsWith("-flex") || providerModelSlug.endsWith("-flex");
     }
     return false;
@@ -247,11 +247,16 @@ async function remapToTierSibling(
     }
 
     const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
-    return {
+    const remappedProviderModelSlug = matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug;
+    const remapped: ProviderCandidate = {
         ...candidate,
         apiModelId: siblingApiModelId,
-        pricingKey: `${candidate.providerId}:${siblingApiModelId}`,
-        providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        pricingKey: getProviderPricingKey(candidate.providerId, siblingApiModelId, remappedProviderModelSlug),
+        providerModelSlug: remappedProviderModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         pricingCard: siblingPricingCard,
         capabilityParams:
@@ -267,6 +272,10 @@ async function remapToTierSibling(
                 ? candidate.maxOutputTokens
                 : Number(siblingCapability.max_output_tokens),
     };
+	return {
+		...remapped,
+		effectiveDataPolicy: resolveEffectiveDataPolicy({ endpoint: capability, provider: remapped }),
+	};
 }
 
 async function remapToHiddenTierSibling(
@@ -342,9 +351,15 @@ async function remapToHiddenTierSibling(
     if (!matchedProviderRow?.provider_model_id) return null;
 
     const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
-    return {
+    const remappedProviderModelSlug = matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug;
+    const remapped: ProviderCandidate = {
         ...candidate,
-        providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        pricingKey: getProviderPricingKey(candidate.providerId, candidate.apiModelId, remappedProviderModelSlug),
+        providerModelSlug: remappedProviderModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         capabilityParams:
             siblingCapability?.params && typeof siblingCapability.params === "object"
@@ -359,12 +374,17 @@ async function remapToHiddenTierSibling(
                 ? candidate.maxOutputTokens
                 : Number(siblingCapability.max_output_tokens),
     };
+	return {
+		...remapped,
+		effectiveDataPolicy: resolveEffectiveDataPolicy({ endpoint: capability, provider: remapped }),
+	};
 }
 
 export async function applyServiceTierRouting(args: {
     candidates: ProviderCandidate[];
     body: any;
     capability: string;
+	authorizeRemappedCandidate?: (candidate: ProviderCandidate) => boolean;
 }): Promise<{
     candidates: ProviderCandidate[];
     diagnostics: ServiceTierRoutingDiagnostics;
@@ -372,14 +392,24 @@ export async function applyServiceTierRouting(args: {
     const requestedTier = normalizeRequestedServiceTier(args.body);
     const requestedPlan = normalizeRequestedPlan(requestedTier);
     if (!requestedPlan) {
+		const candidates = args.candidates.filter((candidate) =>
+			!isTierDedicatedOffer(candidate, "priority") && !isTierSiblingModel(candidate, "priority") &&
+			!requiresExplicitServiceTier(candidate.pricingCard)
+		);
         return {
-            candidates: args.candidates,
+            candidates,
             diagnostics: {
                 requestedTier,
                 requestedPlan,
                 beforeCount: args.candidates.length,
-                afterCount: args.candidates.length,
-                droppedProviders: [],
+                afterCount: candidates.length,
+                droppedProviders: args.candidates.filter((candidate) => !candidates.includes(candidate)).map((candidate) => ({
+					providerId: candidate.providerId,
+					apiModelId: candidate.apiModelId ?? null,
+					providerModelSlug: candidate.providerModelSlug ?? null,
+					reason: isTierDedicatedOffer(candidate, "priority") || isTierSiblingModel(candidate, "priority")
+						? "service_tier_priority_required" : "service_tier_standard_unsupported",
+				})),
                 remappedProviders: [],
             },
         };
@@ -390,6 +420,15 @@ export async function applyServiceTierRouting(args: {
     const remappedProviders: ServiceTierRoutingDiagnostics["remappedProviders"] = [];
 
     for (const candidate of args.candidates) {
+		if (requestedPlan !== "priority" && (isTierDedicatedOffer(candidate, "priority") || isTierSiblingModel(candidate, "priority"))) {
+			droppedProviders.push({
+				providerId: candidate.providerId,
+				apiModelId: candidate.apiModelId ?? null,
+				providerModelSlug: candidate.providerModelSlug ?? null,
+				reason: "service_tier_priority_required",
+			});
+			continue;
+		}
         if (!hasConfiguredPricing(candidate)) {
             nextCandidates.push(candidate);
             continue;
@@ -407,6 +446,15 @@ export async function applyServiceTierRouting(args: {
                 requestedPlan,
             );
             if (hiddenSiblingCandidate) {
+				if (args.authorizeRemappedCandidate && !args.authorizeRemappedCandidate(hiddenSiblingCandidate)) {
+					droppedProviders.push({
+						providerId: hiddenSiblingCandidate.providerId,
+						apiModelId: hiddenSiblingCandidate.apiModelId ?? null,
+						providerModelSlug: hiddenSiblingCandidate.providerModelSlug ?? null,
+						reason: "service_tier_remap_not_authorized",
+					});
+					continue;
+				}
                 const remappedApiModelId = candidate.apiModelId
                     ? getHiddenTierSiblingLookupApiModelId(
                         candidate.providerId,
@@ -433,6 +481,15 @@ export async function applyServiceTierRouting(args: {
         if (requestedPlan === "priority") {
             const remappedCandidate = await remapToTierSibling(candidate, args.capability, requestedPlan);
             if (remappedCandidate) {
+				if (args.authorizeRemappedCandidate && !args.authorizeRemappedCandidate(remappedCandidate)) {
+					droppedProviders.push({
+						providerId: remappedCandidate.providerId,
+						apiModelId: remappedCandidate.apiModelId ?? null,
+						providerModelSlug: remappedCandidate.providerModelSlug ?? null,
+						reason: "service_tier_remap_not_authorized",
+					});
+					continue;
+				}
                 nextCandidates.push(remappedCandidate);
                 remappedProviders.push({
                     providerId: candidate.providerId,
@@ -446,6 +503,15 @@ export async function applyServiceTierRouting(args: {
         if (requestedPlan === "flex") {
             const remappedCandidate = await remapToTierSibling(candidate, args.capability, requestedPlan);
             if (remappedCandidate) {
+				if (args.authorizeRemappedCandidate && !args.authorizeRemappedCandidate(remappedCandidate)) {
+					droppedProviders.push({
+						providerId: remappedCandidate.providerId,
+						apiModelId: remappedCandidate.apiModelId ?? null,
+						providerModelSlug: remappedCandidate.providerModelSlug ?? null,
+						reason: "service_tier_remap_not_authorized",
+					});
+					continue;
+				}
                 nextCandidates.push(remappedCandidate);
                 remappedProviders.push({
                     providerId: candidate.providerId,

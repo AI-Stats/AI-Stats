@@ -26,6 +26,7 @@ import {
 } from "@executors/google/shared/thinking";
 import { sanitizeGeminiSchema } from "@executors/google/shared/schema";
 import type { ProviderExecutor } from "../../types";
+import { googleOAuthTokenRequestInit, resolveGoogleOAuthTokenUri } from "../../../providers/google-vertex/token-uri";
 
 type VertexServiceAccount = {
 	client_email: string;
@@ -424,6 +425,7 @@ export async function irToGemini(ir: IRChatRequest, modelOverride?: string | nul
 	}
 
 	const request: any = { contents };
+	if (ir.serviceTier) request.serviceTier = ir.serviceTier;
 
 	if (ir.googleCachedContent !== undefined) {
 		request.cachedContent = ir.googleCachedContent;
@@ -677,7 +679,7 @@ function isVertexServiceAccount(payload: Record<string, unknown>): payload is Ve
 }
 
 async function mintServiceAccountAccessToken(sa: VertexServiceAccount, upstreamTiming?: ExecutorUpstreamTiming): Promise<string> {
-	const tokenUri = sa.token_uri || "https://oauth2.googleapis.com/token";
+	const tokenUri = resolveGoogleOAuthTokenUri(sa.token_uri);
 	const now = Math.floor(Date.now() / 1000);
 	const header = { alg: "RS256", typ: "JWT" };
 	const claimSet = {
@@ -700,13 +702,7 @@ async function mintServiceAccountAccessToken(sa: VertexServiceAccount, upstreamT
 		assertion,
 	});
 
-	const init: RequestInit = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		body,
-	};
+	const init = googleOAuthTokenRequestInit(body);
 	const res = await (upstreamTiming
 		? upstreamTiming.fetch(tokenUri, init, "auth")
 		: fetch(tokenUri, init));
@@ -777,6 +773,3 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
-
-

@@ -1,0 +1,11 @@
+---
+title: "Rerank documents"
+sidebarTitle: "Rerank documents"
+badge: "Beta"
+openapi: "POST /rerank"
+description: "Rank documents by relevance to a query with a supported reranking model."
+---
+
+Use this endpoint to reorder candidate documents before they are passed to a search, retrieval, or generation step.
+
+Verify the model in `GET /v1/models` before deployment. The default response contains only models with a public Gateway route.

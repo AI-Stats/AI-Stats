@@ -6,7 +6,7 @@
     "internal_model_id": "minimax/hailuo-02",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "video",
     "context_length": null,
     "max_output_tokens": null,
@@ -15,7 +15,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": {
           "prompt": {
             "type": "string"
@@ -29,7 +29,8 @@
             "aliases": [
               "seconds",
               "duration_seconds"
-            ]
+            ],
+            "notes": "10-second generation is available only at 768P; 1080P supports 6 seconds."
           },
           "size": {
             "type": "enum",
@@ -42,21 +43,19 @@
               "resolution"
             ]
           },
-          "quality": {
-            "type": "string"
-          },
-          "seed": {
-            "type": "integer"
-          }
+          "input_reference": { "type": "image" },
+          "input_references": { "type": "array" },
+          "enhance_prompt": { "type": "boolean" },
+          "provider_params": { "type": "object" }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video"],
+        "modes": ["text-to-video", "image-to-video", "first-last-frame"]
       }
     ],
     "routing_status": "active",
@@ -67,15 +66,26 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["minimax-v1"],
+      "endpoint": "/v1/video_generation",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/api-reference/video-generation-t2v",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against MiniMax's current V1 text-, image-, and first/last-frame video references and pay-as-you-go pricing."
     },
     "rate_limits": []
   },
@@ -86,7 +96,7 @@
     "internal_model_id": "minimax/hailuo-2.3",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "video",
     "context_length": null,
     "max_output_tokens": null,
@@ -95,7 +105,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": {
           "prompt": {
             "type": "string"
@@ -109,7 +119,8 @@
             "aliases": [
               "seconds",
               "duration_seconds"
-            ]
+            ],
+            "notes": "10-second generation is available only at 768P; 1080P supports 6 seconds."
           },
           "size": {
             "type": "enum",
@@ -121,21 +132,18 @@
               "resolution"
             ]
           },
-          "quality": {
-            "type": "string"
-          },
-          "seed": {
-            "type": "integer"
-          }
+          "input_reference": { "type": "image" },
+          "enhance_prompt": { "type": "boolean" },
+          "provider_params": { "type": "object" }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video"],
+        "modes": ["text-to-video", "image-to-video"]
       }
     ],
     "routing_status": "active",
@@ -146,15 +154,26 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["minimax-v1"],
+      "endpoint": "/v1/video_generation",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/api-reference/video-generation-t2v",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against MiniMax's current V1 text- and image-to-video references and pay-as-you-go pricing."
     },
     "rate_limits": []
   },
@@ -165,7 +184,7 @@
     "internal_model_id": "minimax/hailuo-2.3-fast",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "video",
     "context_length": null,
     "max_output_tokens": null,
@@ -174,7 +193,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": {
           "prompt": {
             "type": "string"
@@ -200,21 +219,18 @@
               "resolution"
             ]
           },
-          "quality": {
-            "type": "string"
-          },
-          "seed": {
-            "type": "integer"
-          }
+          "input_reference": { "type": "image", "required": true },
+          "enhance_prompt": { "type": "boolean" },
+          "provider_params": { "type": "object" }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video"],
+        "modes": ["image-to-video"]
       }
     ],
     "routing_status": "active",
@@ -225,15 +241,136 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["minimax-v1"],
+      "endpoint": "/v1/video_generation",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/api-reference/video-generation-i2v",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      },
+      {
+        "kind": "pricing",
+        "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified as an image-to-video-only V1 model against MiniMax's current API reference and pay-as-you-go pricing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/h3-max",
+    "provider_api_model_id": "minimax:minimax/h3-max",
+    "provider_model_slug": "MiniMax-H3-Max",
+    "internal_model_id": "minimax/h3-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": {
+          "prompt": {
+            "type": "string",
+            "max_length": 7000
+          },
+          "duration": {
+            "type": "number",
+            "min": 5,
+            "max": 15,
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "enum",
+            "values": [
+              "480P",
+              "768P"
+            ],
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "ratio": {
+            "type": "string"
+          },
+          "content": {
+            "type": "array",
+            "item_types": [
+              "text",
+              "image_url"
+            ]
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video",
+          "first-last-frame"
+        ]
+      }
+    ],
+    "provider_status": "available",
+    "phaseo_status": "unsupported",
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "minimax-v2"
+      ],
+      "endpoint": "/v2/video_generation",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/guides/video-generation",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "MiniMax documents MiniMax H3 Max as a jointly released, fast variant supporting text-to-video and image-to-video at 480P or 768P for 5-15 second videos."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
+        "accessed_at": "2026-08-31T00:00:00Z",
+        "notes": "MiniMax publishes $0.05/sec at 480P and $0.08/sec at 768P; input images are currently free."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-31T00:00:00Z",
+      "notes": "Verified against MiniMax's current V2 video-generation and pay-as-you-go documentation. Phaseo remains unroutable until the MiniMax V2 adapter supports H3 Max's task lifecycle."
     },
     "rate_limits": []
   },
@@ -242,7 +379,7 @@
     "provider_api_model_id": "minimax:minimax/h3",
     "provider_model_slug": "MiniMax-H3",
     "internal_model_id": "minimax/h3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "video",
@@ -261,7 +398,7 @@
           },
           "duration": {
             "type": "number",
-            "min": 5,
+            "min": 4,
             "max": 15,
             "aliases": [
               "seconds",
@@ -315,9 +452,9 @@
       }
     ],
     "provider_status": "available",
-    "phaseo_status": "unsupported",
+    "phaseo_status": "available",
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -347,7 +484,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-07-31T00:00:00Z",
-      "notes": "MiniMax documents MiniMax-H3 on POST /v2/video_generation. Phaseo remains unroutable until its MiniMax adapter supports the V2 multimodal content array and task lifecycle."
+      "notes": "MiniMax documents MiniMax-H3 on POST /v2/video_generation. Phaseo routes H3 through the native V2 adapter."
     },
     "rate_limits": []
   },
@@ -424,46 +561,201 @@
     "provider_api_model_id": "minimax:minimax/image-01",
     "provider_model_slug": "image-01",
     "internal_model_id": "minimax/image-01",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "image,text",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-02-15T00:00:00",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": {
+          "prompt": {
+            "type": "string",
+            "max_length": 1500
+          },
+          "size": {
+            "type": "string",
+            "aspect_ratio_values": ["1:1", "16:9", "4:3", "3:2", "2:3", "3:4", "9:16", "21:9"],
+            "dimension_min": 512,
+            "dimension_max": 2048,
+            "dimension_multiple_of": 8,
+            "aliases": ["aspect_ratio", "width+height"],
+            "notes": "Gateway convenience field: an aspect ratio maps to aspect_ratio and WIDTHxHEIGHT maps to the paired width and height fields."
+          },
+          "aspect_ratio": {
+            "type": "enum",
+            "values": ["1:1", "16:9", "4:3", "3:2", "2:3", "3:4", "9:16", "21:9"],
+            "provider_default": "1:1",
+            "notes": "Takes precedence when width and height are also provided."
+          },
+          "width": {
+            "type": "integer",
+            "min": 512,
+            "max": 2048,
+            "multiple_of": 8,
+            "requires": ["height"]
+          },
+          "height": {
+            "type": "integer",
+            "min": 512,
+            "max": 2048,
+            "multiple_of": 8,
+            "requires": ["width"]
+          },
+          "n": {
+            "type": "integer",
+            "min": 1,
+            "max": 9,
+            "provider_default": 1
+          },
+          "response_format": {
+            "type": "enum",
+            "values": ["url", "b64_json"],
+            "provider_values": ["url", "base64"],
+            "provider_default": "url"
+          },
+          "seed": {
+            "type": "integer",
+            "format": "int64",
+            "notes": "Omission generates a random seed for each image."
+          },
+          "prompt_optimizer": {
+            "type": "boolean",
+            "provider_default": false
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      },
+      {
+        "capability_id": "image.edit",
+        "status": "active",
+        "params": {
+          "prompt": {
+            "type": "string",
+            "max_length": 1500
+          },
+          "image": {
+            "type": "image_or_array",
+            "provider_param": "subject_reference",
+            "notes": "Phaseo converts image inputs into MiniMax character subject references."
+          },
+          "size": {
+            "type": "string",
+            "aspect_ratio_values": ["1:1", "16:9", "4:3", "3:2", "2:3", "3:4", "9:16", "21:9"],
+            "dimension_min": 512,
+            "dimension_max": 2048,
+            "dimension_multiple_of": 8,
+            "aliases": ["aspect_ratio", "width+height"],
+            "notes": "Gateway convenience field: an aspect ratio maps to aspect_ratio and WIDTHxHEIGHT maps to the paired width and height fields."
+          },
+          "aspect_ratio": {
+            "type": "enum",
+            "values": ["1:1", "16:9", "4:3", "3:2", "2:3", "3:4", "9:16", "21:9"],
+            "provider_default": "1:1",
+            "notes": "Takes precedence when width and height are also provided."
+          },
+          "width": {
+            "type": "integer",
+            "min": 512,
+            "max": 2048,
+            "multiple_of": 8,
+            "requires": ["height"]
+          },
+          "height": {
+            "type": "integer",
+            "min": 512,
+            "max": 2048,
+            "multiple_of": 8,
+            "requires": ["width"]
+          },
+          "n": {
+            "type": "integer",
+            "min": 1,
+            "max": 9,
+            "provider_default": 1
+          },
+          "response_format": {
+            "type": "enum",
+            "values": ["url", "b64_json"],
+            "provider_values": ["url", "base64"],
+            "provider_default": "url"
+          },
+          "seed": {
+            "type": "integer",
+            "format": "int64",
+            "notes": "Omission generates a distinct random seed for each image."
+          },
+          "prompt_optimizer": {
+            "type": "boolean",
+            "provider_default": false
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["minimax.image_generation"],
+      "endpoint": "https://api.minimax.io/v1/image_generation",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/api-reference/image-generation-t2i",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official text-to-image request contract."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://platform.minimax.io/docs/api-reference/image-generation-i2i",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-to-image request contract."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Verified Image-01 text-to-image and reference-image parameters against both current first-party request references."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "minimax/m2-her",
     "provider_api_model_id": "minimax:minimax/m2-her",
-    "provider_model_slug": "m2-her",
+	"provider_model_slug": "m2-her",
     "internal_model_id": "minimax/minimax-m2-her",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+	"input_modalities": "text",
+	"output_modalities": "text",
+	"context_length": 65536,
+	"max_output_tokens": 2048,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -473,13 +765,6 @@
         "params": [
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -629,14 +914,14 @@
   {
     "api_model_id": "minimax/minimax-m2",
     "provider_api_model_id": "minimax:minimax/minimax-m2",
-    "provider_model_slug": "MiniMax-M2",
+	"provider_model_slug": "MiniMax-M2",
     "internal_model_id": "minimax/minimax-m2",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+	"context_length": 204800,
+    "max_output_tokens": 128000,
     "effective_from": "2025-10-27T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -653,11 +938,12 @@
           },
           {
             "param_id": "max_tokens",
-            "provider_min": null,
+            "provider_min": 1,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           },
+          "max_completion_tokens",
           {
             "param_id": "reasoning",
             "provider_min": null,
@@ -695,9 +981,9 @@
           },
           {
             "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 0,
+            "provider_max": 1,
+            "provider_default": 0.9,
             "notes": null
           }
         ],
@@ -734,13 +1020,13 @@
   {
     "api_model_id": "minimax/minimax-m2.1",
     "provider_api_model_id": "minimax:minimax/minimax-m2.1",
-    "provider_model_slug": "MiniMax-M2.1",
+	"provider_model_slug": "MiniMax-M2.1",
     "internal_model_id": "minimax/minimax-m2.1",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+	"context_length": 204800,
     "max_output_tokens": null,
     "effective_from": "2025-12-23T00:00:00",
     "effective_to": null,
@@ -758,11 +1044,12 @@
           },
           {
             "param_id": "max_tokens",
-            "provider_min": null,
+            "provider_min": 1,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           },
+          "max_completion_tokens",
           {
             "param_id": "reasoning",
             "provider_min": null,
@@ -800,9 +1087,9 @@
           },
           {
             "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 0,
+            "provider_max": 1,
+            "provider_default": 0.9,
             "notes": null
           }
         ],
@@ -839,13 +1126,13 @@
   {
     "api_model_id": "minimax/minimax-m2.5",
     "provider_api_model_id": "minimax:minimax/minimax-m2.5",
-    "provider_model_slug": "minimax-m2.5",
+	"provider_model_slug": "MiniMax-M2.5",
     "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+	"context_length": 204800,
     "max_output_tokens": null,
     "effective_from": "2026-02-12T00:00:00",
     "effective_to": null,
@@ -853,7 +1140,17 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "max_completion_tokens",
+          "temperature",
+          "top_p",
+          "response_format",
+          "tool_choice",
+          "tools"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -887,13 +1184,13 @@
   {
     "api_model_id": "minimax/minimax-m2.5-highspeed",
     "provider_api_model_id": "minimax:minimax/minimax-m2.5-highspeed",
-    "provider_model_slug": "MiniMax-M2.5-highspeed",
+	"provider_model_slug": "MiniMax-M2.5-highspeed",
     "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
+	"input_modalities": "text",
+	"output_modalities": "text",
+	"context_length": 204800,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -942,7 +1239,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 204800,
-    "max_output_tokens": 131072,
+    "max_output_tokens": null,
     "effective_from": "2026-03-18T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -952,11 +1249,12 @@
         "params": [
           {
             "param_id": "max_tokens",
-            "provider_min": null,
+            "provider_min": 1,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           },
+          "max_completion_tokens",
           {
             "param_id": "temperature",
             "provider_min": null,
@@ -966,9 +1264,9 @@
           },
           {
             "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
+            "provider_min": 0,
+            "provider_max": 1,
+            "provider_default": 0.9,
             "notes": null
           },
           {
@@ -991,7 +1289,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1033,7 +1333,7 @@
     "input_modalities": "text,image,video",
     "output_modalities": "text",
     "context_length": 1000000,
-    "max_output_tokens": null,
+	"max_output_tokens": 524288,
     "effective_from": "2026-06-01T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1050,25 +1350,20 @@
           },
           {
             "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
+            "provider_min": 0,
+            "provider_max": 2,
             "provider_default": null,
             "notes": null
           },
           {
             "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
+            "provider_min": 0,
+            "provider_max": 1,
             "provider_default": null,
             "notes": null
           },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
+          "stream_options",
+          "reasoning_split",
           {
             "param_id": "tool_choice",
             "provider_min": null,
@@ -1083,13 +1378,20 @@
             "provider_default": null,
             "notes": null
           },
-          {
-            "param_id": "service_tier",
+		  {
+			"param_id": "service_tier",
             "provider_min": null,
             "provider_max": null,
             "provider_default": "standard",
-            "notes": "MiniMax documents standard and priority service tiers for M3."
-          }
+			"notes": "MiniMax documents standard and priority service tiers for M3."
+		  },
+		  {
+			"param_id": "reasoning.effort",
+			"provider_min": null,
+			"provider_max": null,
+			"provider_default": "none",
+			"notes": "Responses accepts none, minimal, low, medium, or high. Any non-none value enables M3 Adaptive Thinking without changing reasoning depth."
+		  }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1107,7 +1409,10 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+	"service_tiers": [
+	  "standard",
+	  "priority"
+	],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1254,7 +1559,7 @@
   {
     "api_model_id": "minimax/music-2.6",
     "provider_api_model_id": "minimax:minimax/music-2.6",
-    "provider_model_slug": "music-2.6-free",
+    "provider_model_slug": "music-2.6",
     "internal_model_id": "minimax/music-2.6",
     "is_active_gateway": true,
     "quantization_scheme": null,
@@ -1267,8 +1572,48 @@
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": [
+          {
+            "param_id": "prompt",
+            "provider_min": null,
+            "provider_max": 2000,
+            "provider_default": null,
+            "notes": "Required for instrumental generation; optional in lyrics-driven mode."
+          },
+          {
+            "param_id": "format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "mp3",
+            "values": ["mp3", "wav"],
+            "notes": "Phaseo maps this to minimax.audio_setting.format."
+          },
+          {
+            "param_id": "minimax",
+            "type": "object",
+            "properties": {
+              "lyrics": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 3500,
+                "notes": "Required when is_instrumental is false unless the lyrics optimizer is enabled."
+              },
+              "output_format": {
+                "type": "enum",
+                "values": ["url", "hex"],
+                "default": "url"
+              },
+              "lyrics_optimizer": {
+                "type": "boolean"
+              },
+              "is_instrumental": {
+                "type": "boolean"
+              }
+            },
+            "notes": "MiniMax-native options accepted under the top-level minimax request object."
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1287,15 +1632,19 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["minimax-music-v1"],
+      "endpoint": "/v1/music_generation",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{
+      "kind": "documentation",
+      "url": "https://platform.minimax.io/docs/api-reference/music-generation",
+      "accessed_at": "2026-08-12T00:00:00Z"
+    }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against MiniMax's synchronous Music Generation API and current pricing reference."
     },
     "rate_limits": []
   },
@@ -1304,19 +1653,19 @@
     "provider_api_model_id": "minimax:minimax/music-2.6-free",
     "provider_model_slug": "music-2.6-free",
     "internal_model_id": "minimax/music-2.6",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "music",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-20T00:00:00",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "retired",
+        "params": ["prompt", "lyrics", "format", "provider_options.minimax"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1327,23 +1676,27 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["minimax-music-v1"],
+      "endpoint": "/v1/music_generation",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{
+      "kind": "documentation",
+      "url": "https://platform.minimax.io/docs/api-reference/music-generation",
+      "accessed_at": "2026-08-12T00:00:00Z"
+    }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified as the RPM-3 free-tier Music 2.6 model against MiniMax's current API reference."
     },
     "rate_limits": []
   },
@@ -1352,7 +1705,7 @@
     "provider_api_model_id": "minimax:minimax/music-3.0",
     "provider_model_slug": "music-3.0",
     "internal_model_id": "minimax/music-3.0",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "music",
@@ -1364,7 +1717,12 @@
       {
         "capability_id": "music.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "prompt",
+          "lyrics",
+          "format",
+          "provider_options.minimax"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1376,9 +1734,9 @@
       }
     ],
     "provider_status": "available",
-    "phaseo_status": "unsupported",
+    "phaseo_status": "supported",
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1387,7 +1745,7 @@
       "standard"
     ],
     "api": {
-      "formats": [],
+      "formats": ["minimax-music-v1"],
       "endpoint": "/v1/music_generation",
       "deployment": null
     },
@@ -1465,6 +1823,98 @@
       "checked_at": null,
       "notes": null
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.8-hd",
+    "provider_api_model_id": "minimax:minimax/speech-2.8-hd",
+    "provider_model_slug": "speech-2.8-hd",
+    "internal_model_id": "minimax/speech-2.8:free",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-01-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":[{"param_id":"input","provider_min":1,"provider_max":9999,"provider_default":null,"notes":"Phaseo maps input to MiniMax's text field; the synchronous adapter requires fewer than 10000 characters."},{"param_id":"voice","provider_min":null,"provider_max":null,"provider_default":null,"notes":"Mapped to config.minimax.voice_setting.voice_id."},{"param_id":"response_format","provider_min":null,"provider_max":null,"provider_default":"mp3","values":["mp3","wav","flac","opus","pcm"],"notes":"Mapped to MiniMax audio_setting.format."},{"param_id":"stream_format","provider_min":null,"provider_max":null,"provider_default":"audio","values":["audio","sse"],"notes":"SSE requests use MiniMax streaming and require hex output."},{"param_id":"speed","provider_min":0.25,"provider_max":4,"provider_default":1,"notes":"Mapped into MiniMax voice_setting."},{"param_id":"config.minimax","type":"object","properties":{"voice_setting":{"type":"object"},"audio_setting":{"type":"object"},"pronunciation_dict":{"type":"object"},"language_boost":{"type":"string"},"voice_modify":{"type":"object"},"subtitle_type":{"type":"enum","values":["sentence","word","word_streaming"],"notes":"word_streaming requires stream_format=sse."},"output_format":{"type":"enum","values":["url","hex"],"default":"hex","notes":"Streaming supports hex only."}},"notes":"MiniMax-native options accepted under config.minimax."}],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified current HD T2A route and pricing."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.8-turbo",
+    "provider_api_model_id": "minimax:minimax/speech-2.8-turbo",
+    "provider_model_slug": "speech-2.8-turbo",
+    "internal_model_id": "minimax/speech-2.8:free",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-01-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":[{"param_id":"input","provider_min":1,"provider_max":9999,"provider_default":null,"notes":"Phaseo maps input to MiniMax's text field; the synchronous adapter requires fewer than 10000 characters."},{"param_id":"voice","provider_min":null,"provider_max":null,"provider_default":null,"notes":"Mapped to config.minimax.voice_setting.voice_id."},{"param_id":"response_format","provider_min":null,"provider_max":null,"provider_default":"mp3","values":["mp3","wav","flac","opus","pcm"],"notes":"Mapped to MiniMax audio_setting.format."},{"param_id":"stream_format","provider_min":null,"provider_max":null,"provider_default":"audio","values":["audio","sse"],"notes":"SSE requests use MiniMax streaming and require hex output."},{"param_id":"speed","provider_min":0.25,"provider_max":4,"provider_default":1,"notes":"Mapped into MiniMax voice_setting."},{"param_id":"config.minimax","type":"object","properties":{"voice_setting":{"type":"object"},"audio_setting":{"type":"object"},"pronunciation_dict":{"type":"object"},"language_boost":{"type":"string"},"voice_modify":{"type":"object"},"subtitle_type":{"type":"enum","values":["sentence","word","word_streaming"],"notes":"word_streaming requires stream_format=sse."},"output_format":{"type":"enum","values":["url","hex"],"default":"hex","notes":"Streaming supports hex only."}},"notes":"MiniMax-native options accepted under config.minimax."}],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified current Turbo T2A route and pricing."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.6-hd",
+    "provider_api_model_id": "minimax:minimax/speech-2.6-hd",
+    "provider_model_slug": "speech-2.6-hd",
+    "internal_model_id": "minimax/speech-2.6-hd",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-10-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":[{"param_id":"input","provider_min":1,"provider_max":9999,"provider_default":null,"notes":"Phaseo maps input to MiniMax's text field; the synchronous adapter requires fewer than 10000 characters."},{"param_id":"voice","provider_min":null,"provider_max":null,"provider_default":null,"notes":"Mapped to config.minimax.voice_setting.voice_id."},{"param_id":"response_format","provider_min":null,"provider_max":null,"provider_default":"mp3","values":["mp3","wav","flac","opus","pcm"],"notes":"Mapped to MiniMax audio_setting.format."},{"param_id":"stream_format","provider_min":null,"provider_max":null,"provider_default":"audio","values":["audio","sse"],"notes":"SSE requests use MiniMax streaming and require hex output."},{"param_id":"speed","provider_min":0.25,"provider_max":4,"provider_default":1,"notes":"Mapped into MiniMax voice_setting."},{"param_id":"config.minimax","type":"object","properties":{"voice_setting":{"type":"object"},"audio_setting":{"type":"object"},"pronunciation_dict":{"type":"object"},"language_boost":{"type":"string"},"voice_modify":{"type":"object"},"subtitle_type":{"type":"enum","values":["sentence","word","word_streaming"],"notes":"word_streaming requires stream_format=sse."},"output_format":{"type":"enum","values":["url","hex"],"default":"hex","notes":"Streaming supports hex only."}},"notes":"MiniMax-native options accepted under config.minimax."}],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified available legacy HD T2A route and pricing."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.6-turbo",
+    "provider_api_model_id": "minimax:minimax/speech-2.6-turbo",
+    "provider_model_slug": "speech-2.6-turbo",
+    "internal_model_id": "minimax/speech-2.6-turbo",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-10-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":[{"param_id":"input","provider_min":1,"provider_max":9999,"provider_default":null,"notes":"Phaseo maps input to MiniMax's text field; the synchronous adapter requires fewer than 10000 characters."},{"param_id":"voice","provider_min":null,"provider_max":null,"provider_default":null,"notes":"Mapped to config.minimax.voice_setting.voice_id."},{"param_id":"response_format","provider_min":null,"provider_max":null,"provider_default":"mp3","values":["mp3","wav","flac","opus","pcm"],"notes":"Mapped to MiniMax audio_setting.format."},{"param_id":"stream_format","provider_min":null,"provider_max":null,"provider_default":"audio","values":["audio","sse"],"notes":"SSE requests use MiniMax streaming and require hex output."},{"param_id":"speed","provider_min":0.25,"provider_max":4,"provider_default":1,"notes":"Mapped into MiniMax voice_setting."},{"param_id":"config.minimax","type":"object","properties":{"voice_setting":{"type":"object"},"audio_setting":{"type":"object"},"pronunciation_dict":{"type":"object"},"language_boost":{"type":"string"},"voice_modify":{"type":"object"},"subtitle_type":{"type":"enum","values":["sentence","word","word_streaming"],"notes":"word_streaming requires stream_format=sse."},"output_format":{"type":"enum","values":["url","hex"],"default":"hex","notes":"Streaming supports hex only."}},"notes":"MiniMax-native options accepted under config.minimax."}],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified available legacy Turbo T2A route and pricing."},
     "rate_limits": []
   },
   {

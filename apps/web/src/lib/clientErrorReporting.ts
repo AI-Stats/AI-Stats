@@ -9,6 +9,7 @@ export type ClientErrorPayload = {
 		| "window.unhandledrejection"
 		| "manual";
 	message: string;
+	error?: unknown;
 	stack?: string | null;
 	fatal?: boolean;
 	handled?: boolean;
@@ -35,4 +36,3 @@ export function reportClientError(payload: ClientErrorPayload) {
 		})
 	);
 }
-

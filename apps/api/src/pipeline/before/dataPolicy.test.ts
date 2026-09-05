@@ -11,7 +11,7 @@ function provider(overrides: Partial<GatewayProviderSnapshot> = {}): GatewayProv
         providerModelSlug: "gpt-5",
         dataPolicyTier: "private",
         dataPolicyConfidence: "confirmed",
-        zeroDataRetention: "default",
+        zeroDataRetention: true,
         ...overrides,
     };
 }
@@ -21,6 +21,18 @@ describe("resolveEffectiveDataPolicy", () => {
         expect(resolveEffectiveDataPolicy({ endpoint: "responses", provider: provider() })).toMatchObject({
             tier: "private",
             zdrEligibility: "eligible",
+            retentionMode: "unknown",
+            source: "provider",
+        });
+    });
+
+    it("reports no retention only for an explicitly selected ZDR offer", () => {
+        expect(resolveEffectiveDataPolicy({
+            endpoint: "responses",
+            provider: provider({ dataPolicyVariant: "zdr" }),
+        })).toMatchObject({
+            zdrEligibility: "eligible",
+            retentionMode: "none",
             source: "provider",
         });
     });

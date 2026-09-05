@@ -1,4 +1,5 @@
 import type { Endpoint } from "@core/types";
+import { RE2JS } from "re2js";
 import type { PipelineContext } from "@/pipeline/before/types";
 import type { RequestResult } from "@/pipeline/execute";
 import { normalizeResponseFormat } from "@/protocols/shared/text-normalizers";
@@ -274,7 +275,17 @@ function validateStringFormat(value: string, format: string): boolean {
 	}
 }
 
-function validateJsonSchemaValue(
+// Request-provided JSON Schema patterns are attacker-controlled. JavaScript's
+// regex engine backtracks, so only evaluate a bounded, non-grouping subset.
+function isSafeSchemaPattern(pattern: string): boolean {
+	if (pattern.length > 512) return false;
+	if (/[()|]/u.test(pattern)) return false;
+	if (/\\(?:\d|k<)/u.test(pattern)) return false;
+	if (/\{\d+,\d*\}\s*[+*?]/u.test(pattern)) return false;
+	return true;
+}
+
+export function validateJsonSchemaValue(
 	value: unknown,
 	schema: Record<string, any>,
 	path = "$",
@@ -316,14 +327,18 @@ function validateJsonSchemaValue(
 				if (errors.length >= limit) return;
 			}
 			if (typeof candidateSchema.pattern === "string") {
-				try {
-					const pattern = new RegExp(candidateSchema.pattern);
+				if (!isSafeSchemaPattern(candidateSchema.pattern)) {
+					errors.push(`${candidatePath} uses an unsupported or unsafe pattern`);
+					if (errors.length >= limit) return;
+				} else try {
+					const pattern = compileSchemaPattern(candidateSchema.pattern);
 					if (!pattern.test(candidate)) {
 						errors.push(`${candidatePath} does not match the required pattern`);
 						if (errors.length >= limit) return;
 					}
 				} catch {
-					// Ignore invalid schema regexes here; request-time schema validation is handled elsewhere.
+					errors.push(`${candidatePath} uses an unsupported pattern`);
+					if (errors.length >= limit) return;
 				}
 			}
 			if (typeof candidateSchema.format === "string") {
@@ -733,4 +748,22 @@ export function applyResponseHealingPlugin(
 			},
 		},
 	};
+}
+const MAX_SCHEMA_PATTERN_LENGTH = 512;
+const MAX_SCHEMA_PATTERN_CACHE_ENTRIES = 128;
+const schemaPatternCache = new Map<string, RE2JS>();
+
+function compileSchemaPattern(pattern: string): RE2JS {
+	if (pattern.length > MAX_SCHEMA_PATTERN_LENGTH) {
+		throw new SyntaxError(`schema pattern exceeds ${MAX_SCHEMA_PATTERN_LENGTH} characters`);
+	}
+	const cached = schemaPatternCache.get(pattern);
+	if (cached) return cached;
+	const compiled = RE2JS.compile(pattern);
+	if (schemaPatternCache.size >= MAX_SCHEMA_PATTERN_CACHE_ENTRIES) {
+		const oldest = schemaPatternCache.keys().next().value;
+		if (oldest !== undefined) schemaPatternCache.delete(oldest);
+	}
+	schemaPatternCache.set(pattern, compiled);
+	return compiled;
 }

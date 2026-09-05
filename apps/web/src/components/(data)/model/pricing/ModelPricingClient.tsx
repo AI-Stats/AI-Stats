@@ -8,6 +8,7 @@ import React, {
     useRef,
     useState,
 } from "react";
+import { resolveEnforcedZdr } from "@/components/(data)/model/pricing/zdr";
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -50,8 +51,9 @@ import {
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
-	Table,
-	TableBody,
+    Table,
+    TableBody,
+    TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
@@ -65,22 +67,30 @@ import {
 } from "@/components/ui/empty";
 import { type ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import {
+	getProviderRuntimeStats,
 	getModelProviderRuntimeStats,
+	type ProviderRuntimeStats,
 	type ProviderRuntimeStatsMap,
 } from "@/lib/fetchers/models/getModelProviderRuntimeStats";
 import type { ProviderRoutingStatusMap } from "@/lib/fetchers/models/getModelProviderRoutingHealth";
-import ProviderCard from "@/components/(data)/model/pricing/ProviderCard";
+import ProviderCard, {
+	getProviderTableDiscountBadge,
+	PROVIDER_STATUS_META,
+} from "@/components/(data)/model/pricing/ProviderCard";
+import ProviderInfoHoverIcons from "@/components/(data)/model/ProviderInfoHoverIcons";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { normalizeProviderPromptTrainingPolicy } from "@/lib/providers/promptTrainingPolicy";
 import { mergeProviderPricingOffers } from "@/lib/providers/providerFamilyGroups";
+import { formatProviderOfferDisplayName } from "@/lib/providers/providerOffers";
 import {
     getProviderAvailablePlans,
     getProviderModelScopeForPlan,
 } from "@/components/(data)/model/pricing/providerPlanRouting";
 import { getPricingProviderVariantLabels } from "@/components/(data)/model/pricing/pricingProviderVariants";
 import {
-    buildProviderSections,
-    buildProviderTablePriceSummary,
+	buildProviderSections,
+	buildProviderTablePriceSummary,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import {
     chooseGatewayStatus,
@@ -92,8 +102,18 @@ import ModelPercentileSelect, {
 	DEFAULT_MODEL_PERCENTILE,
 	type ModelPercentile,
 } from "@/components/(data)/models/ModelPercentileSelect";
+import { publishProviderView } from "@/components/(data)/model/pricing/providerViewSync";
+import {
+	clearProviderInspector,
+    dispatchProviderInspectorOpen,
+    subscribeProviderInspectorSelection,
+    type ProviderInspectorSelection,
+} from "@/components/(data)/model/pricing/providerInspectorSync";
+import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
+const PROVIDER_QUERY_KEY = "provider";
+const LEGACY_PROVIDER_VIEW_QUERY_KEY = "provider_view";
 const RUNTIME_STATS_ERROR_RETRY_COUNT = 2;
 
 export function isTerminalRuntimeStatsRetry(retryCount: number) {
@@ -122,6 +142,11 @@ type SortOption =
 type SortDirection = "asc" | "desc";
 type ProviderStatusFilter = "routable" | "preview" | "inactive" | "external";
 type PrivacyFilter = "workspace" | "all" | "zdr" | "no_training";
+type ProviderOffering = {
+	provider: ProviderPricing;
+	plan: string;
+	isPrimary: boolean;
+};
 type WorkspacePrivacySettings = {
     isAuthenticated: boolean;
     privacyEnablePaidMayTrain: boolean;
@@ -391,7 +416,8 @@ function UptimeHeaderHoverContent() {
 
 function getIgnoredPrivacyReasons(
     provider: ProviderPricing,
-    settings: WorkspacePrivacySettings
+    settings: WorkspacePrivacySettings,
+    plan = getProviderDefaultPlan(provider),
 ): string[] {
     const reasons: string[] = [];
     const providerId = provider.provider.api_provider_id;
@@ -413,8 +439,7 @@ function getIgnoredPrivacyReasons(
     }
 
     if (settings.privacyZdrOnly) {
-        const zdr = provider.provider.zero_data_retention ?? "unknown";
-        if (zdr !== "default" && zdr !== "optional") {
+        if (getPlanZdrEligibility(provider, plan) !== true) {
             reasons.push("Does not meet workspace ZDR-only requirement");
         }
     }
@@ -436,19 +461,296 @@ function matchesPrivacyFilter(
     provider: ProviderPricing,
     filter: PrivacyFilter,
     workspacePrivacySettings: WorkspacePrivacySettings | null,
+    plan = getProviderDefaultPlan(provider),
 ): boolean {
     if (filter === "all") return true;
     if (filter === "zdr") {
-        const zdr = provider.provider.zero_data_retention;
-        return zdr === "default" || zdr === "optional";
+        return getPlanZdrEligibility(provider, plan) === true;
     }
     if (filter === "no_training") {
         return getProviderPromptTrainingPolicy(provider) !== "may_train";
     }
     if (!workspacePrivacySettings?.isAuthenticated) return true;
-	return getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+        return getIgnoredPrivacyReasons(provider, workspacePrivacySettings, plan)
 		.filter((reason) => !reason.includes("account provider"))
 		.length === 0;
+}
+
+function getPlanZdrEligibility(
+	provider: ProviderPricing,
+	plan: string,
+): boolean | null {
+	// Eligibility metadata describes a possible offer; it is not proof that
+	// this provider route enforces zero retention. A provider-level false must
+	// always win, and an eligible tier is usable only with a verified true flag.
+	const providerZdr = provider.provider.zero_data_retention;
+	if (providerZdr === false) return false;
+	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+	const tierEligibility = tierPolicy?.zdrEligibility;
+	if (tierEligibility === "eligible") return providerZdr === true ? true : null;
+	if (tierEligibility === "ineligible") return false;
+
+    const providerModels = getProviderModelScopeForPlan(provider, plan);
+    const capabilityPolicies = providerModels.map((providerModel) => providerModel.data_policy);
+    const policiesWithData = capabilityPolicies.filter(
+        (policy): policy is NonNullable<typeof policy> => Boolean(policy),
+    );
+    if (!policiesWithData.length) return provider.provider.zero_data_retention ?? null;
+    if (policiesWithData.length !== capabilityPolicies.length) return null;
+
+    const eligibilities = new Set(
+        policiesWithData.map((policy) => policy.zdrEligibility ?? null),
+    );
+    if (eligibilities.size !== 1) return null;
+    const eligibility = policiesWithData[0]?.zdrEligibility;
+	if (eligibility === "eligible") return providerZdr === true ? true : null;
+	if (eligibility === "ineligible") return false;
+	return providerZdr ?? null;
+}
+
+function formatServiceTierLabel(plan: string): string {
+	if (plan === "priority") return "Fast";
+
+	return plan
+		.replace(/[_-]+/g, " ")
+		.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function formatTierLatency(value: number | null | undefined): string {
+	if (value == null || !Number.isFinite(value)) return "--";
+	const seconds = value / 1_000;
+	return `${seconds.toFixed(seconds >= 10 ? 1 : 2)}s`;
+}
+
+function formatTierThroughput(value: number | null | undefined): string {
+	if (value == null || !Number.isFinite(value)) return "--";
+	return `${value >= 100 ? value.toFixed(0) : value.toFixed(1)} tps`;
+}
+
+function formatTierUptime(stats: ProviderRuntimeStats | null): string {
+	const uptime = getDisplayedProviderUptime(stats ?? undefined);
+	return uptime == null ? "--" : `${uptime.toFixed(1)}%`;
+}
+
+function renderTierTablePrice(
+	summary: ReturnType<typeof buildProviderTablePriceSummary>,
+) {
+	return summary.primary ? (
+		<div className="font-medium tabular-nums text-foreground">
+			{summary.primary.formattedPrice}
+		</div>
+	) : (
+		<div className="font-medium tabular-nums text-foreground">--</div>
+	);
+}
+
+function ProviderServiceTierInfoIcons({
+	provider,
+	plan,
+}: {
+	provider: ProviderPricing;
+	plan: string;
+}) {
+	const providerModels = getProviderModelScopeForPlan(provider, plan);
+	const statusKey = chooseGatewayStatus(
+		providerModels.map((providerModel) =>
+			resolveGatewayStatus({
+				isActiveGateway: providerModel.is_active_gateway,
+				providerAvailabilityStatus: providerModel.provider_availability_status,
+				phaseoStatus: providerModel.phaseo_status,
+				accessScope: providerModel.access_scope,
+				capabilityStatus: providerModel.capability_status,
+				providerStatus: provider.provider.status,
+				providerRoutingStatus: provider.provider.routing_status,
+				modelRoutingStatus: providerModel.routing_status,
+				effectiveFrom: providerModel.effective_from,
+				effectiveTo: providerModel.effective_to,
+			}),
+		),
+	);
+	const statusMeta = PROVIDER_STATUS_META[statusKey] ?? PROVIDER_STATUS_META.not_listed;
+	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+	const capabilityPolicies = providerModels
+		.map((providerModel) => providerModel.data_policy)
+		.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
+	const policies = tierPolicy ? [tierPolicy] : capabilityPolicies;
+	const dataPolicy = (policies.length > 0 ? policies : [null]).map((policy) => ({
+		tier: policy?.tier ?? provider.provider.data_policy_tier ?? null,
+		confidence: policy?.confidence ?? provider.provider.data_policy_confidence ?? null,
+		contractMode: provider.provider.data_policy_contract_mode ?? null,
+		contractNotes: provider.provider.data_policy_contract_notes ?? null,
+		notes: policy?.reason ?? provider.provider.prompt_training_notes ?? null,
+		sourceUrl: policy?.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
+		promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
+		zeroDataRetention: resolveEnforcedZdr(
+			provider.provider.zero_data_retention,
+			policy?.zdrEligibility,
+		),
+	}));
+
+	return (
+		<div className="flex shrink-0 items-center gap-1">
+			<HoverCard openDelay={120} closeDelay={80}>
+				<HoverCardTrigger asChild>
+					<button
+						type="button"
+						aria-label={`Provider status: ${statusMeta.label}`}
+						className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+					>
+						{React.createElement(statusMeta.icon, {
+							className: cn("h-3 w-3", statusMeta.iconClass),
+						})}
+					</button>
+				</HoverCardTrigger>
+				<HoverCardContent align="start" className="w-auto p-2 text-xs">
+					<p className="font-semibold">{statusMeta.label}</p>
+					<p className="mt-1 text-muted-foreground">{statusMeta.description}</p>
+				</HoverCardContent>
+			</HoverCard>
+			<ProviderInfoHoverIcons
+				providerId={provider.provider.api_provider_id}
+				providerModelSlugs={providerModels.map((providerModel) => providerModel.provider_model_slug)}
+				apiModelIds={providerModels.map((providerModel) => providerModel.model_id)}
+				dataPolicy={dataPolicy}
+				residency={[
+					{
+						residencyMode: provider.provider.residency_mode ?? null,
+						executionRegions: provider.provider.default_execution_regions ?? null,
+						dataRegions: provider.provider.default_data_regions ?? null,
+						zeroDataRetention: provider.provider.zero_data_retention ?? null,
+						notes: provider.provider.residency_notes ?? null,
+						sourceUrl: provider.provider.residency_source_url ?? null,
+					},
+				]}
+				showQuantizationTrigger={false}
+				showModelMappingTrigger={false}
+			/>
+		</div>
+	);
+}
+
+function ProviderServiceTierRow({
+	provider,
+	plan,
+	pricingTimeMs,
+	showCacheReadColumn,
+	navigationProviderIds,
+	isActive,
+	runtimeStats,
+	showDisclosureGutter,
+}: {
+	provider: ProviderPricing;
+	plan: string;
+	pricingTimeMs: number;
+	showCacheReadColumn: boolean;
+	navigationProviderIds: string[];
+	isActive: boolean;
+	runtimeStats: ProviderRuntimeStats | null;
+	showDisclosureGutter: boolean;
+}) {
+	const sections = useMemo(
+		() => buildProviderSections(provider, plan, pricingTimeMs),
+		[plan, pricingTimeMs, provider],
+	);
+	const inputPrice = buildProviderTablePriceSummary(sections, "input");
+	const outputPrice = buildProviderTablePriceSummary(sections, "output");
+	const cacheReadPrice = showCacheReadColumn
+		? buildProviderTablePriceSummary(sections, "cached")
+		: null;
+	const tierMeta = getTierFilterMeta(plan);
+	const providerName = getProviderServiceTierDisplayName(provider);
+	const logoProviderId = sections.logoProviderId;
+	const discountBadge = getProviderTableDiscountBadge(sections);
+	const openTier = () => {
+		dispatchProviderInspectorOpen(
+			provider.provider.api_provider_id,
+			false,
+			navigationProviderIds,
+			plan,
+		);
+	};
+
+	return (
+		<TableRow
+			role="button"
+			tabIndex={0}
+			aria-pressed={isActive}
+			aria-label={`Open ${providerName} ${formatServiceTierLabel(plan)} service tier`}
+			onClick={openTier}
+			onKeyDown={(event) => {
+				if (event.key !== "Enter" && event.key !== " ") return;
+				event.preventDefault();
+				openTier();
+			}}
+			className={cn(
+				"group cursor-pointer hover:bg-zinc-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring dark:hover:bg-zinc-900/30",
+				isActive && "bg-primary/[0.06]",
+			)}
+		>
+			<TableCell className="relative min-w-[280px] py-1 pl-3 pr-2">
+				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
+				<div className="flex items-center gap-1.5 whitespace-nowrap">
+					{showDisclosureGutter ? <span aria-hidden="true" className="size-5 shrink-0" /> : null}
+					<span className="inline-flex items-center gap-2.5 font-semibold text-foreground">
+						<span className="relative flex size-6 shrink-0 items-center justify-center rounded-md border border-zinc-200/80 bg-background transition-colors group-hover:border-zinc-300 dark:border-zinc-800 dark:group-hover:border-zinc-700">
+							<span className="relative size-3.5">
+								<Logo
+									id={logoProviderId}
+									alt={`${providerName} logo`}
+									className="object-contain"
+									fill
+									sizes="18px"
+								/>
+							</span>
+						</span>
+						<span>
+							{providerName}{" "}
+							<span className={cn("font-medium", tierMeta.iconClassName)}>
+								({formatServiceTierLabel(plan)})
+							</span>
+						</span>
+						<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
+						{discountBadge ? (
+							<span className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400">
+								{discountBadge}
+							</span>
+						) : null}
+					</span>
+				</div>
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{renderTierTablePrice(inputPrice)}
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{renderTierTablePrice(outputPrice)}
+			</TableCell>
+			{showCacheReadColumn ? (
+				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+					{cacheReadPrice ? renderTierTablePrice(cacheReadPrice) : "--"}
+				</TableCell>
+			) : null}
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{plan === "batch" ? "--" : formatTierLatency(runtimeStats?.latencyMs30m)}
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{plan === "batch" ? "--" : formatTierThroughput(runtimeStats?.throughput30m)}
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{plan === "batch" ? "--" : formatTierUptime(runtimeStats)}
+			</TableCell>
+		</TableRow>
+	);
+}
+
+export function getProviderServiceTierDisplayName(provider: ProviderPricing): string {
+	return formatProviderOfferDisplayName({
+		providerId: provider.provider.api_provider_id,
+		providerName:
+			provider.provider.api_provider_name ||
+			provider.provider.api_provider_id,
+		offerLabel: provider.provider.offer_label ?? null,
+		offerScope: provider.provider.offer_scope ?? null,
+	});
 }
 
 export default function ModelPricingClient({
@@ -480,9 +782,14 @@ export default function ModelPricingClient({
         () => searchParams ?? new URLSearchParams(),
         [searchParams]
     );
+	const requestedProviderId =
+		effectiveSearchParams.get(PROVIDER_QUERY_KEY)?.trim() || null;
     const [selectedPercentile, setSelectedPercentile] = useState<ModelPercentile>(
         DEFAULT_MODEL_PERCENTILE,
     );
+	const [expandedServiceTierProviderIds, setExpandedServiceTierProviderIds] = useState<Set<string>>(
+		() => new Set(),
+	);
     const displayProviders = useMemo(
         () => mergeProviderPricingOffers(providers),
         [providers]
@@ -594,14 +901,33 @@ export default function ModelPricingClient({
         DEFAULT_PROVIDER_STATUS_FILTERS,
     );
     const [privacyFilter, setPrivacyFilter] = useState<PrivacyFilter>("workspace");
+    const [activeInspectorSelection, setActiveInspectorSelection] =
+        useState<ProviderInspectorSelection | null>(null);
+	const inspectorProviderIdRef = useRef<string | null>(null);
+	const lastAppliedUrlProviderIdRef = useRef<string | null | undefined>(undefined);
+	const urlProviderIdRef = useRef<string | null>(
+		effectiveSearchParams.get(PROVIDER_QUERY_KEY)?.trim() || null,
+	);
+
+    useEffect(
+        () => subscribeProviderInspectorSelection((selection) => {
+			inspectorProviderIdRef.current = selection?.providerId ?? null;
+			setActiveInspectorSelection(selection);
+		}),
+        [],
+    );
 
     const sortedProviders = useMemo(() => {
-        const list = displayProviders.filter((provider) =>
-            (provider.pricing_rules.length > 0 || provider.provider_models.length > 0) &&
-            providerStatusFilters.includes(
-                providerStatusFilterKey(resolveProviderGatewayStatus(provider)),
-            )
-        );
+        const list = displayProviders.filter((provider) => {
+			if (
+				provider.pricing_rules.length === 0 &&
+				provider.provider_models.length === 0
+			) return false;
+			if (provider.provider.api_provider_id === requestedProviderId) return true;
+			return providerStatusFilters.includes(
+				providerStatusFilterKey(resolveProviderGatewayStatus(provider)),
+			);
+		});
         const sectionCache = new Map<string, ReturnType<typeof buildProviderSections>>();
         const getCachedSections = (provider: ProviderPricing) => {
             const providerId = provider.provider.api_provider_id;
@@ -647,14 +973,22 @@ export default function ModelPricingClient({
         const latencySamples = list
             .map((provider) =>
                 finitePositive(
-                    liveRuntimeStats[provider.provider.api_provider_id]?.latencyMs30m
+                    getProviderRuntimeStats(
+						liveRuntimeStats,
+						provider.provider.api_provider_id,
+						getProviderDefaultPlan(provider),
+					)?.latencyMs30m
                 )
             )
             .filter((value): value is number => value !== null);
         const throughputSamples = list
             .map((provider) =>
                 finitePositive(
-                    liveRuntimeStats[provider.provider.api_provider_id]?.throughput30m
+                    getProviderRuntimeStats(
+						liveRuntimeStats,
+						provider.provider.api_provider_id,
+						getProviderDefaultPlan(provider),
+					)?.throughput30m
                 )
             )
             .filter((value): value is number => value !== null);
@@ -665,7 +999,11 @@ export default function ModelPricingClient({
 
         const getEstimatedRoutingScore = (provider: ProviderPricing): number => {
             const providerId = provider.provider.api_provider_id;
-            const stats = liveRuntimeStats[providerId];
+            const stats = getProviderRuntimeStats(
+				liveRuntimeStats,
+				providerId,
+				getProviderDefaultPlan(provider),
+			);
             const status = getProviderGatewayStatus(provider);
             const statusMultiplier = routingStatusMultiplier(status);
             if (statusMultiplier <= 0) return 0;
@@ -750,10 +1088,10 @@ export default function ModelPricingClient({
                 const statusCmp = byGatewayStatus(a, b);
                 if (statusCmp !== 0) return statusCmp;
                 const aTp = finitePositive(
-                    liveRuntimeStats[a.provider.api_provider_id]?.throughput30m
+                    getProviderRuntimeStats(liveRuntimeStats, a.provider.api_provider_id, getProviderDefaultPlan(a))?.throughput30m
                 );
                 const bTp = finitePositive(
-                    liveRuntimeStats[b.provider.api_provider_id]?.throughput30m
+                    getProviderRuntimeStats(liveRuntimeStats, b.provider.api_provider_id, getProviderDefaultPlan(b))?.throughput30m
                 );
                 if (aTp == null && bTp == null) return withCreatorBias(a, b);
                 if (aTp == null) return 1;
@@ -770,10 +1108,10 @@ export default function ModelPricingClient({
                 const statusCmp = byGatewayStatus(a, b);
                 if (statusCmp !== 0) return statusCmp;
                 const aLat = finitePositive(
-                    liveRuntimeStats[a.provider.api_provider_id]?.latencyMs30m
+                    getProviderRuntimeStats(liveRuntimeStats, a.provider.api_provider_id, getProviderDefaultPlan(a))?.latencyMs30m
                 );
                 const bLat = finitePositive(
-                    liveRuntimeStats[b.provider.api_provider_id]?.latencyMs30m
+                    getProviderRuntimeStats(liveRuntimeStats, b.provider.api_provider_id, getProviderDefaultPlan(b))?.latencyMs30m
                 );
                 if (aLat == null && bLat == null) return withCreatorBias(a, b);
                 if (aLat == null) return 1;
@@ -807,10 +1145,10 @@ export default function ModelPricingClient({
                 const statusCmp = byGatewayStatus(a, b);
                 if (statusCmp !== 0) return statusCmp;
                 const aUptime = getDisplayedProviderUptime(
-                    liveRuntimeStats[a.provider.api_provider_id]
+                    getProviderRuntimeStats(liveRuntimeStats, a.provider.api_provider_id, getProviderDefaultPlan(a))
                 );
                 const bUptime = getDisplayedProviderUptime(
-                    liveRuntimeStats[b.provider.api_provider_id]
+                    getProviderRuntimeStats(liveRuntimeStats, b.provider.api_provider_id, getProviderDefaultPlan(b))
                 );
                 if (aUptime == null && bUptime == null) return withCreatorBias(a, b);
                 if (aUptime == null) return 1;
@@ -823,21 +1161,33 @@ export default function ModelPricingClient({
         }
 
         return list.sort(withCreatorBias);
-    }, [displayProviders, creatorOrgId, liveRuntimeStats, pricingTimeMs, providerStatusFilters, routingHealth, sort, sortDirection]);
+    }, [displayProviders, creatorOrgId, liveRuntimeStats, pricingTimeMs, providerStatusFilters, requestedProviderId, routingHealth, sort, sortDirection]);
 
     const { filteredProviders, ignoredProviderReasons } = useMemo(() => {
         const ignoredReasonMap = new Map<string, string[]>();
         for (const provider of sortedProviders) {
             const reasons = workspacePrivacySettings?.isAuthenticated
-                ? getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+                ? getIgnoredPrivacyReasons(
+                      provider,
+                      workspacePrivacySettings,
+                      getProviderDefaultPlan(provider),
+                  )
                 : [];
             if (reasons.length) {
                 ignoredReasonMap.set(provider.provider.api_provider_id, reasons);
             }
         }
 
-        const filteredProviders = sortedProviders.filter((provider) =>
-			matchesPrivacyFilter(provider, privacyFilter, workspacePrivacySettings),
+		const filteredProviders = sortedProviders.filter((provider) =>
+			provider.provider.api_provider_id === requestedProviderId ||
+			getProviderAvailablePlans(provider).some((plan) =>
+				matchesPrivacyFilter(
+					provider,
+					privacyFilter,
+					workspacePrivacySettings,
+					plan,
+				),
+			),
 		);
 		filteredProviders.sort((a, b) => {
 			const aAccountBlocked = (ignoredReasonMap.get(a.provider.api_provider_id) ?? []).some((reason) => reason.includes("account provider"));
@@ -848,7 +1198,7 @@ export default function ModelPricingClient({
 			filteredProviders,
             ignoredProviderReasons: ignoredReasonMap,
         };
-    }, [privacyFilter, sortedProviders, workspacePrivacySettings]);
+	}, [privacyFilter, requestedProviderId, sortedProviders, workspacePrivacySettings]);
     const ignoredProviderCount = ignoredProviderReasons.size;
     const allProvidersHiddenByPrivacy =
         sortedProviders.length > 0 &&
@@ -860,16 +1210,124 @@ export default function ModelPricingClient({
         (providerStatusFilters.includes("external") ? 1 : 0) +
         (privacyFilter === "workspace" ? 0 : 1);
     const visibleProviders = filteredProviders;
+    const visibleOfferings = useMemo(() => {
+		const offerings = visibleProviders.flatMap((provider) => {
+			const availablePlans = getProviderAvailablePlans(provider).filter((plan) =>
+				provider.provider.api_provider_id === requestedProviderId ||
+				matchesPrivacyFilter(provider, privacyFilter, workspacePrivacySettings, plan),
+			);
+			const defaultPlan = getProviderDefaultPlan(provider);
+			const primaryPlan = availablePlans.includes(defaultPlan)
+				? defaultPlan
+				: availablePlans[0];
+			return availablePlans.map((plan): ProviderOffering => ({
+				provider,
+				plan,
+				isPrimary: plan === primaryPlan,
+			}));
+		});
+		if (sort === "default") return offerings;
+
+		const tierRank = (plan: string) => {
+			if (plan === "standard") return 0;
+			if (plan === "priority") return 1;
+			if (plan === "flex") return 2;
+			if (plan === "batch") return 3;
+			return 4;
+		};
+		const offeringName = (offering: ProviderOffering) =>
+			getProviderServiceTierDisplayName(offering.provider);
+		const fallbackCompare = (a: ProviderOffering, b: ProviderOffering) => {
+			const nameComparison = offeringName(a).localeCompare(offeringName(b));
+			if (nameComparison !== 0) return nameComparison;
+			return tierRank(a.plan) - tierRank(b.plan);
+		};
+		const metricCompare = (aValue: number | null, bValue: number | null, fallback: number) => {
+			if (aValue == null && bValue == null) return fallback;
+			if (aValue == null) return 1;
+			if (bValue == null) return -1;
+			return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+		};
+		const priceFor = (offering: ProviderOffering, direction: "input" | "output" | "cached") =>
+			buildProviderTablePriceSummary(
+				buildProviderSections(offering.provider, offering.plan, pricingTimeMs),
+				direction,
+			).sortValue;
+		return offerings.sort((a, b) => {
+			const fallback = fallbackCompare(a, b);
+			if (sort === "provider") {
+				return sortDirection === "asc" ? fallback : -fallback;
+			}
+			const aStats = getProviderRuntimeStats(
+				liveRuntimeStats,
+				a.provider.provider.api_provider_id,
+				a.plan,
+			);
+			const bStats = getProviderRuntimeStats(
+				liveRuntimeStats,
+				b.provider.provider.api_provider_id,
+				b.plan,
+			);
+			if (sort === "latency") {
+				return metricCompare(
+					a.plan === "batch" ? null : finitePositive(aStats?.latencyMs30m),
+					b.plan === "batch" ? null : finitePositive(bStats?.latencyMs30m),
+					fallback,
+				);
+			}
+			if (sort === "throughput") {
+				return metricCompare(
+					a.plan === "batch" ? null : finitePositive(aStats?.throughput30m),
+					b.plan === "batch" ? null : finitePositive(bStats?.throughput30m),
+					fallback,
+				);
+			}
+			if (sort === "uptime") {
+				return metricCompare(
+					a.plan === "batch" ? null : getDisplayedProviderUptime(aStats),
+					b.plan === "batch" ? null : getDisplayedProviderUptime(bStats),
+					fallback,
+				);
+			}
+			const priceDirection = sort === "cache_read" ? "cached" : sort;
+			return metricCompare(
+				priceFor(a, priceDirection),
+				priceFor(b, priceDirection),
+				fallback,
+			);
+		});
+	}, [liveRuntimeStats, pricingTimeMs, privacyFilter, requestedProviderId, sort, sortDirection, visibleProviders, workspacePrivacySettings]);
+	const isGroupedProviderView = sort === "default";
+	const displayedOfferings = useMemo(
+		() => sort === "default"
+			? visibleOfferings.filter(
+				(offering) =>
+					offering.isPrimary ||
+					expandedServiceTierProviderIds.has(
+						offering.provider.provider.api_provider_id,
+					),
+			)
+			: visibleOfferings,
+		[expandedServiceTierProviderIds, sort, visibleOfferings],
+	);
+	const toggleServiceTiers = useCallback((providerId: string) => {
+		setExpandedServiceTierProviderIds((current) => {
+			const next = new Set(current);
+			if (next.has(providerId)) next.delete(providerId);
+			else next.add(providerId);
+			return next;
+		});
+	}, []);
     const showCacheReadColumn = useMemo(() => {
-        return visibleProviders.some((provider) => {
+        return visibleOfferings.some(({ provider, plan }) => {
             const sections = buildProviderSections(
                 provider,
-                getProviderDefaultPlan(provider),
+                plan,
                 pricingTimeMs,
             );
             return buildProviderTablePriceSummary(sections, "cached").primary !== null;
         });
-    }, [pricingTimeMs, visibleProviders]);
+    }, [pricingTimeMs, visibleOfferings]);
     const providerTableViewportRef = useRef<HTMLDivElement>(null);
     const [providerTableOverflows, setProviderTableOverflows] = useState<boolean | null>(null);
     const [providerTableThumbWidth, setProviderTableThumbWidth] = useState<number | null>(null);
@@ -923,12 +1381,76 @@ export default function ModelPricingClient({
                 }
             }
             const nextQuery = next.toString();
-            router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+            const hash = window.location.hash;
+            const nextUrl = nextQuery ? `${pathname}?${nextQuery}${hash}` : `${pathname}${hash}`;
+            router.replace(nextUrl, {
                 scroll: false,
             });
         },
         [effectiveSearchParams, pathname, router]
     );
+
+	useEffect(() => {
+		return subscribeProviderInspectorSelection((selection) => {
+			const providerId = selection?.providerId ?? null;
+			inspectorProviderIdRef.current = providerId;
+			if (providerId === urlProviderIdRef.current) return;
+			lastAppliedUrlProviderIdRef.current = providerId;
+			urlProviderIdRef.current = providerId;
+			updateUrlState({ [PROVIDER_QUERY_KEY]: providerId });
+		}, false);
+	}, [updateUrlState]);
+
+	useEffect(() => {
+		const requestedProvider = requestedProviderId
+			? displayProviders.find(
+					(provider) =>
+						provider.provider.api_provider_id === requestedProviderId,
+				)
+			: null;
+
+		if (requestedProviderId && !requestedProvider) {
+			lastAppliedUrlProviderIdRef.current = null;
+			urlProviderIdRef.current = null;
+			if (inspectorProviderIdRef.current) clearProviderInspector();
+			updateUrlState({ [PROVIDER_QUERY_KEY]: null });
+			return;
+		}
+
+		if (
+			lastAppliedUrlProviderIdRef.current === requestedProviderId &&
+			inspectorProviderIdRef.current === requestedProviderId
+		) return;
+		lastAppliedUrlProviderIdRef.current = requestedProviderId;
+		urlProviderIdRef.current = requestedProviderId;
+		if (!requestedProviderId) {
+			if (inspectorProviderIdRef.current) clearProviderInspector();
+			return;
+		}
+
+		dispatchProviderInspectorOpen(
+			requestedProviderId,
+			true,
+			visibleProviders.map(
+				(provider) => provider.provider.api_provider_id,
+			),
+		);
+	}, [displayProviders, requestedProviderId, updateUrlState, visibleProviders]);
+
+    useLayoutEffect(() => {
+		publishProviderView(modelId, activeFilterCount > 0
+            ? filteredProviders
+                .map((provider) => provider.provider.api_provider_id)
+                .sort((a, b) => a.localeCompare(b))
+                .join(",") || "none"
+            : null);
+		return () => publishProviderView(modelId, null);
+	}, [activeFilterCount, filteredProviders, modelId]);
+
+    useEffect(() => {
+        if (!effectiveSearchParams.has(LEGACY_PROVIDER_VIEW_QUERY_KEY)) return;
+        updateUrlState({ [LEGACY_PROVIDER_VIEW_QUERY_KEY]: null });
+    }, [effectiveSearchParams, updateUrlState]);
 
     useEffect(() => {
         const nextSort = parseSortOption(effectiveSearchParams.get(SORT_QUERY_KEY));
@@ -1206,7 +1728,7 @@ export default function ModelPricingClient({
                 ) : null}
             </div>
             <section className="space-y-4">
-                {filteredProviders.length > 0 ? (
+                {visibleOfferings.length > 0 ? (
                     <div className="space-y-2">
                         <div className="overflow-hidden rounded-md border border-zinc-200/80 bg-background dark:border-zinc-800">
                             <ScrollArea
@@ -1272,35 +1794,63 @@ export default function ModelPricingClient({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {visibleProviders.map((prov, index) => (
-                                            <ProviderCard
-                                                key={prov.provider.api_provider_id}
-                                                provider={prov}
-                                                defaultPlan={getProviderDefaultPlan(prov)}
-                                                availablePlans={getProviderAvailablePlans(prov)}
-                                                comparisonProviders={displayProviders}
-                                                navigationProviders={visibleProviders}
-                                                privacyIgnoredReasons={
-                                                    ignoredProviderReasons.get(
-                                                        prov.provider.api_provider_id
-                                                    ) ?? null
-                                                }
-                                                runtimeStats={
-                                                    liveRuntimeStats[prov.provider.api_provider_id] ?? null
-                                                }
-                                                routingStatus={
-                                                    routingHealth[prov.provider.api_provider_id] ?? null
-                                                }
-                                                pricingTimeMs={pricingTimeMs}
-                                                variantLabels={
-                                                    providerVariantLabelsById.get(
-                                                        prov.provider.api_provider_id
-                                                    ) ?? null
-                                                }
-                                                showCacheReadColumn={showCacheReadColumn}
-                                                isLastVisible={index === visibleProviders.length - 1}
-                                            />
-                                        ))}
+                                        {displayedOfferings.map(({ provider: prov, plan, isPrimary }, index) => {
+                                            const providerId = prov.provider.api_provider_id;
+                                            const runtimeStatsForTier = getProviderRuntimeStats(
+											liveRuntimeStats,
+											providerId,
+											plan,
+										);
+                                            const isActive =
+                                                activeInspectorSelection?.providerId === providerId &&
+											(activeInspectorSelection.serviceTier ?? getProviderDefaultPlan(prov)) === plan;
+
+                                            if (!isPrimary) {
+											return (
+												<ProviderServiceTierRow
+													key={`${providerId}-${plan}`}
+													provider={prov}
+													plan={plan}
+													pricingTimeMs={pricingTimeMs}
+													showCacheReadColumn={showCacheReadColumn}
+													navigationProviderIds={visibleProviders.map(
+														(candidate) => candidate.provider.api_provider_id,
+													)}
+													isActive={isActive}
+													runtimeStats={runtimeStatsForTier ?? null}
+													showDisclosureGutter={isGroupedProviderView}
+												/>
+											);
+										}
+
+										return (
+											<ProviderCard
+												key={`${providerId}-${plan}`}
+												provider={prov}
+												defaultPlan={plan}
+												availablePlans={getProviderAvailablePlans(prov)}
+												comparisonProviders={displayProviders}
+												navigationProviders={visibleProviders}
+												privacyIgnoredReasons={ignoredProviderReasons.get(providerId) ?? null}
+												runtimeStats={runtimeStatsForTier ?? null}
+												runtimeStatsByServiceTier={Object.fromEntries(
+													getProviderAvailablePlans(prov).map((serviceTier) => [
+														serviceTier,
+														getProviderRuntimeStats(liveRuntimeStats, providerId, serviceTier) ?? null,
+													]),
+												)}
+												routingStatus={routingHealth[providerId] ?? null}
+												pricingTimeMs={pricingTimeMs}
+												variantLabels={providerVariantLabelsById.get(providerId) ?? null}
+												showCacheReadColumn={showCacheReadColumn}
+													isLastVisible={index === displayedOfferings.length - 1}
+													isSummaryActive={isActive}
+													serviceTiersExpanded={expandedServiceTierProviderIds.has(providerId)}
+													showServiceTierDisclosureGutter={isGroupedProviderView}
+													onToggleServiceTiers={isGroupedProviderView ? () => toggleServiceTiers(providerId) : undefined}
+												/>
+										);
+									})}
                                     </TableBody>
                                 </Table>
                             </ScrollArea>

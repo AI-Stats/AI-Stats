@@ -11,6 +11,7 @@ export type EndpointCollection =
     | "rerank"
     | "moderation"
     | "ocr"
+    | "parse"
     | "music"
     | "batch"
     | "files";
@@ -108,6 +109,12 @@ const ENDPOINT_METADATA: EndpointMetadata[] = [
         aliases: [],
     },
     {
+        id: "parse",
+        public_path: "/v1/parse",
+        collection: "parse",
+        aliases: ["document.parse"],
+    },
+    {
         id: "music.generate",
         public_path: "/v1/music/generate",
         collection: "music",
@@ -160,4 +167,10 @@ export function getEndpointMetadata(endpoint: string): EndpointMetadata {
         return { ...metadata, aliases: [...metadata.aliases] };
     }
     throw new Error(`Unsupported public capability metadata: ${endpoint}`);
+}
+
+export function findEndpointMetadata(endpoint: string): EndpointMetadata | null {
+    const normalized = endpoint.trim().toLowerCase();
+    const metadata = METADATA_BY_KEY.get(normalized);
+    return metadata ? { ...metadata, aliases: [...metadata.aliases] } : null;
 }

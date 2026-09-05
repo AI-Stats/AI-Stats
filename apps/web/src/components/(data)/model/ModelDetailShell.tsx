@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import {
 	fetchFrontendModelHeader,
+	fetchFrontendModelGatewayMetadata,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPageNotice,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
@@ -15,7 +16,9 @@ import ModelIdentifierControl from "./ModelIdentifierControl";
 import ModelDescriptionPanel from "./ModelDescriptionPanel";
 import ModelPageNotice from "./ModelPageNotice";
 import ModelStickyHeader from "./ModelStickyHeader";
+import { UseModelSheet } from "./UseModelSheet";
 import ModelStatusBanner from "./overview/ModelStatusBanner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AccountPolicyNotice from "../AccountPolicyNotice";
 import { resolveModelDescription } from "@/lib/models/modelDescription";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
@@ -72,7 +75,7 @@ export default async function ModelDetailShell({
 	modelOverview: prefetchedModelOverview,
 }: ModelDetailShellProps) {
 	const isFreeRouter = isFreeRouterModelId(modelId);
-	const [header, modelOverview, modelPageNotice] = isFreeRouter
+	const [header, modelOverview, modelPageNotice, gatewayMetadata] = isFreeRouter
 		? [
 				{
 					model_id: FREE_ROUTER_MODEL_ID,
@@ -88,6 +91,7 @@ export default async function ModelDetailShell({
 				},
 				null,
 				null,
+				null,
 			]
 		: await Promise.all([
 				prefetchedHeader ?? fetchFrontendModelHeader(modelId, includeHidden).catch(() => null),
@@ -95,6 +99,7 @@ export default async function ModelDetailShell({
 					? Promise.resolve(prefetchedModelOverview)
 					: fetchFrontendModelOverview(modelId).catch(() => null),
 				fetchFrontendModelPageNotice(modelId, includeHidden).catch(() => null),
+				fetchFrontendModelGatewayMetadata(modelId).catch(() => null),
 			]);
 
 	if (!header) {
@@ -124,6 +129,7 @@ export default async function ModelDetailShell({
 				modelName={header.name}
 				observeId="model-detail-primary-header"
 				canChat={canChat}
+				gatewayMetadata={gatewayMetadata}
 			/>
 
 			<div className="container mx-auto px-4 py-8">
@@ -138,19 +144,24 @@ export default async function ModelDetailShell({
 
 				<div
 					id="model-detail-primary-header"
-					className="mb-5 flex w-full flex-col gap-4 md:flex-row md:items-start md:justify-between"
+					className="mb-5 flex w-full flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"
 				>
 					<div className="flex w-full items-start gap-4">
 						<div className="flex shrink-0 items-center justify-center">
 							<div className="relative flex h-10 w-10 items-center justify-center rounded-xl border md:h-16 md:w-16">
-								<div className="relative h-8 w-8 md:h-12 md:w-12">
+								{header.is_private || header.organisation.logo_url ? (
+									<Avatar className="size-full rounded-md after:rounded-md">
+										{header.organisation.logo_url ? <AvatarImage src={header.organisation.logo_url} alt={`${header.organisation.name} logo`} className="rounded-md object-cover" /> : null}
+										<AvatarFallback className="rounded-md">{header.organisation.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+									</Avatar>
+								) : <div className="relative h-8 w-8 md:h-12 md:w-12">
 									<Logo
 										id={header.organisation_id}
 										alt={header.name}
 										className="object-contain"
 										fill
 									/>
-								</div>
+								</div>}
 							</div>
 						</div>
 						<div className="flex min-w-0 flex-1 flex-col justify-center">
@@ -178,21 +189,22 @@ export default async function ModelDetailShell({
 						</div>
 					</div>
 
-					<div className="flex w-full flex-row gap-2 md:mt-0 md:ml-6 md:w-auto md:flex-col">
+					<div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap xl:mt-0 xl:ml-6 xl:w-auto xl:flex-nowrap xl:items-center">
 						{canChat ? (
-							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
+							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg xl:flex-none">
 								<Link href={`/chat?model=${modelId}`}>
 									<MessageSquare className="h-4 w-4" />
 									Chat
 								</Link>
 							</Button>
 						) : null}
-						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
+						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg xl:flex-none">
 							<Link href={`/compare?models=${modelId}`}>
 								<Scale className="h-4 w-4" />
 								Compare
 							</Link>
 						</Button>
+						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} triggerId="quickstart" className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 xl:flex-none" /> : null}
 					</div>
 				</div>
 

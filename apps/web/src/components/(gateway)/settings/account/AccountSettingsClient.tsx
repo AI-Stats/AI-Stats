@@ -24,21 +24,24 @@ import {
 } from "@/lib/obfuscation";
 import { z } from "zod";
 import { PasswordStrengthIndicator } from "./PasswordStrengthIndicator";
+import { resolveDefaultWorkspaceId } from "./defaultWorkspace";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CountryCombobox } from "@/components/ui/country-combobox";
 import { Label } from "@/components/ui/label";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { ChevronsUpDown, Loader2, Lock, Mail } from "lucide-react";
 
 export type UserPayload = {
 	id: string;
@@ -58,6 +61,63 @@ type Props = {
 	teams: TeamOption[];
 	hasPassword?: boolean;
 };
+
+function WorkspaceCombobox({
+	teams,
+	value,
+	onValueChange,
+}: {
+	teams: TeamOption[];
+	value: string | null;
+	onValueChange: (value: string) => void;
+}) {
+	const [open, setOpen] = React.useState(false);
+	const selectedTeam = teams.find((team) => team.id === value) ?? null;
+
+	return (
+		<Popover open={open} onOpenChange={setOpen}>
+			<PopoverTrigger asChild>
+				<Button
+					id="defaultTeam"
+					type="button"
+					variant="outline"
+					role="combobox"
+					aria-expanded={open}
+					aria-label="Default workspace"
+					className="w-full justify-between rounded-md font-normal"
+				>
+					<span className="truncate">
+						{selectedTeam?.name ?? "Select default workspace"}
+					</span>
+					<ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent align="start" className="w-[var(--anchor-width)] min-w-64 gap-0 p-0">
+				<Command>
+					<CommandInput placeholder="Search workspaces…" />
+					<CommandList className="max-h-64 overscroll-contain pr-1" style={{ scrollbarWidth: "thin" }}>
+						<CommandEmpty>No workspace found.</CommandEmpty>
+						<CommandGroup>
+							{teams.map((team) => (
+								<CommandItem
+									key={team.id}
+									value={`${team.name} ${team.id}`}
+									data-checked={team.id === value}
+									onSelect={() => {
+										onValueChange(team.id);
+										setOpen(false);
+									}}
+								>
+									<span className="truncate">{team.name}</span>
+								</CommandItem>
+							))}
+						</CommandGroup>
+					</CommandList>
+				</Command>
+			</PopoverContent>
+		</Popover>
+	);
+}
 
 const schema = z.object({
 	display_name: z
@@ -109,8 +169,10 @@ export default function AccountSettingsClient({
 	// Force a default team: if the user has no default and teams exist,
 	// select the first team automatically. If there are no teams, we'll
 	// display a disabled 'Personal' input (defaultWorkspaceId remains null).
-	const initialDefaultTeam =
-		user.defaultWorkspaceId ?? (teams && teams.length > 0 ? teams[0].id : null);
+	const initialDefaultTeam = resolveDefaultWorkspaceId(
+		user.defaultWorkspaceId,
+		teams,
+	);
 	const [defaultWorkspaceId, setDefaultTeamId] = React.useState<string | null>(
 		initialDefaultTeam
 	);
@@ -211,7 +273,7 @@ export default function AccountSettingsClient({
 		try {
 			await toast.promise(updateAccount(updatePayload), {
 				loading: "Saving your settings...",
-				success: "Saved [PASS]",
+				success: "Account settings updated",
 				error: (err: any) => err?.message || "Could not save settings",
 			});
 			applyObfuscationMode(Boolean(parsed.data.obfuscate_info));
@@ -468,22 +530,11 @@ export default function AccountSettingsClient({
 						</div>
 						<div className="w-full shrink-0 sm:w-[min(32rem,55%)]">
 								{teams && teams.length > 0 ? (
-									<Select
-										value={defaultWorkspaceId ?? ""}
-										items={teams.map((team) => ({ value: team.id, label: team.name }))}
-										onValueChange={(v) => setDefaultTeamId(v || null)}
-									>
-										<SelectTrigger id="defaultTeam" className="w-full">
-											<SelectValue placeholder="Select default workspace" />
-										</SelectTrigger>
-										<SelectContent>
-											{teams.map((t) => (
-												<SelectItem key={t.id} value={t.id} label={t.name}>
-													{t.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
+									<WorkspaceCombobox
+										teams={teams}
+										value={defaultWorkspaceId}
+										onValueChange={setDefaultTeamId}
+									/>
 								) : (
 									<Input id="defaultTeam" value={"Personal"} readOnly disabled />
 								)}

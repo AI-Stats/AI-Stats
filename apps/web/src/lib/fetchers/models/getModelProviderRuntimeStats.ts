@@ -2,6 +2,7 @@ import { fetchPublicWebApi } from "@/lib/web-api/client";
 
 export type ProviderRuntimeStats = {
 	providerId: string;
+	serviceTier: string;
 	providerName?: string;
 	latencyMs30m: number | null;
 	throughput30m: number | null;
@@ -41,6 +42,19 @@ export type ProviderRuntimeStats = {
 };
 
 export type ProviderRuntimeStatsMap = Record<string, ProviderRuntimeStats>;
+
+export function providerRuntimeStatsKey(providerId: string, serviceTier = "standard"): string {
+	const normalizedTier = serviceTier === "fast" ? "priority" : serviceTier;
+	return `${providerId}\u0000${normalizedTier}`;
+}
+
+export function getProviderRuntimeStats(
+	stats: ProviderRuntimeStatsMap,
+	providerId: string,
+	serviceTier = "standard",
+): ProviderRuntimeStats | undefined {
+	return stats[providerRuntimeStatsKey(providerId, serviceTier)];
+}
 
 export type ProviderHealthBucket = {
 	start: string;
@@ -97,6 +111,7 @@ type GatewayRequestStatsRow = {
 
 type RpcProviderHealthMetricsRow = {
 	provider_id: string | null;
+	service_tier?: string | null;
 	provider_name: string | null;
 	requests: number | string | null;
 	requests_30m: number | string | null;
@@ -394,7 +409,7 @@ function hourOffsetFromUtcHour(nowUtcHourMs: number, bucketDate: Date): 0 | 1 | 
 	return offset as 0 | 1 | 2;
 }
 
-function mapRpcRuntimeStatsRows(args: {
+export function mapRpcRuntimeStatsRows(args: {
 	rows: RpcProviderHealthMetricsRow[];
 	providerIds: string[];
 	now?: Date;
@@ -411,16 +426,24 @@ function mapRpcRuntimeStatsRows(args: {
 		now.getUTCMonth(),
 		now.getUTCDate(),
 	);
-	const byProvider = new Map<string, RpcProviderHealthMetricsRow>();
+	const byProviderTier = new Map<string, RpcProviderHealthMetricsRow>();
 	for (const row of args.rows) {
 		const providerId = String(row.provider_id ?? "").trim();
+		const serviceTier = String(row.service_tier ?? "standard").trim() || "standard";
 		if (!providerId) continue;
-		byProvider.set(providerId, row);
+		byProviderTier.set(providerRuntimeStatsKey(providerId, serviceTier), row);
+	}
+	for (const providerId of args.providerIds) {
+		const standardKey = providerRuntimeStatsKey(providerId);
+		if (!byProviderTier.has(standardKey) && !args.rows.some((row) => row.provider_id === providerId)) {
+			byProviderTier.set(standardKey, { provider_id: providerId } as RpcProviderHealthMetricsRow);
+		}
 	}
 
 	const out: ProviderRuntimeStatsMap = {};
-	for (const providerId of args.providerIds) {
-		const row = byProvider.get(providerId);
+	for (const [statsKey, row] of byProviderTier) {
+		const providerId = String(row.provider_id ?? "").trim();
+		const serviceTier = String(row.service_tier ?? "standard").trim() || "standard";
 		const uptimeDaily3dTotals = [
 			{ requests: 0, successful: 0, healthRequests: 0, healthSuccessful: 0 },
 			{ requests: 0, successful: 0, healthRequests: 0, healthSuccessful: 0 },
@@ -481,8 +504,9 @@ function mapRpcRuntimeStatsRows(args: {
 			}
 		}
 
-		out[providerId] = {
+		out[statsKey] = {
 			providerId,
+			serviceTier,
 			...(row?.provider_name ? { providerName: row.provider_name } : {}),
 			latencyMs30m:
 				toFiniteNumber(row?.percentile_latency_ms_30m) ??

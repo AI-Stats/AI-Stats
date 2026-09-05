@@ -103,6 +103,7 @@ describe("bytedance seed video executor", () => {
 				{ type: "video", role: "source", url: "https://example.com/a.mp4" },
 				{ type: "video", role: "reference", url: "https://example.com/b.mp4" },
 			],
+			inputVideoDurationSeconds: 12,
 		}));
 		mock.restore();
 
@@ -112,6 +113,33 @@ describe("bytedance seed video executor", () => {
 				input_video_count: 2,
 				input_video_seconds: 12,
 			},
+		});
+	});
+
+	it("requires validated input duration and ignores provider duration overrides", async () => {
+		const noDuration = await execute(buildArgs({
+			model: "bytedance-seed/seedance-1-5-pro",
+			prompt: "Animate source",
+			inputReferences: [{ type: "video", role: "source", url: "https://example.com/a.mp4" }],
+			providerParams: { input_video_seconds: 0 },
+		}));
+		expect(noDuration.upstream?.status).toBe(400);
+		expect(state.reservationCalls).toHaveLength(0);
+
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/api/v3/contents/generations/tasks"),
+			response: jsonResponse({ id: "seedance_duration_task", status: "queued" }),
+		}]);
+		await execute(buildArgs({
+			model: "bytedance-seed/seedance-1-5-pro",
+			prompt: "Animate source",
+			inputReferences: [{ type: "video", role: "source", url: "https://example.com/a.mp4" }],
+			inputVideoDurationSeconds: 9,
+			providerParams: { input_video_seconds: 0 },
+		}));
+		mock.restore();
+		expect(state.reservationCalls.at(-1)).toMatchObject({
+			requestOptions: { input_video_seconds: 9 },
 		});
 	});
 
@@ -145,6 +173,8 @@ describe("bytedance seed video executor", () => {
 			type: "text",
 			text: "A street market at night",
 		});
+		expect(capturedBody).toMatchObject({ duration: 6, resolution: "720p" });
+		expect(capturedBody.parameters).toBeUndefined();
 		expect((result as any).ir?.nativeId).toContain("bdvid_");
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",

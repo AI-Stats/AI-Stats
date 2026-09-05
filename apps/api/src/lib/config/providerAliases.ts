@@ -3,10 +3,13 @@
 // How: Apply strict normalization first, then collapse known brand/legacy aliases onto their canonical provider ids.
 
 const PROVIDER_ID_ALIASES = new Map<string, string>([
+	["meta-contributor", "meta"],
+	["nebius-token-factory-fast", "nebius-token-factory"],
 	["novitaai", "novita"],
 	["novita-ai", "novita"],
 	["x-ai", "spacex-ai"],
 	["xai", "spacex-ai"],
+	["tensorx", "tensorix"],
 ]);
 
 export function normalizeProviderId(value: string): string {
