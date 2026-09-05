@@ -233,7 +233,10 @@ jobs:
         if: >-
             always() &&
             needs.check-paths.result == 'success' &&
-            needs.check-paths.outputs.migrations-changed == 'true'
+            (needs.check-paths.outputs.migrations-changed == 'true' ||
+            (github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'))
         permissions:
             contents: read
         steps:
@@ -257,7 +260,6 @@ jobs:
             github.event_name == 'push' &&
             github.ref == 'refs/heads/main' &&
             needs.check-paths.result == 'success' &&
-            needs.check-paths.outputs.migrations-changed == 'true' &&
             needs.migration-validation.result == 'success' &&
             vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'
         environment: production-database
@@ -916,8 +918,10 @@ jobs:
             needs.apps.result == 'success' &&
             needs.check-paths.result == 'success' &&
             github.event_name == 'push' &&
-            (needs.check-paths.outputs.migrations-changed != 'true' ||
-            needs.migrate-production.result == 'success')
+            ((vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true' &&
+            needs.migrate-production.result == 'success') ||
+            (vars.ENABLE_PRODUCTION_DB_MIGRATIONS != 'true' &&
+            needs.migrate-production.result == 'skipped'))
         permissions:
             contents: read
             id-token: write
