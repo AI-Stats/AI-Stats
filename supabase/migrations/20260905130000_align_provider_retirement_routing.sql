@@ -170,6 +170,56 @@ begin
 end;
 $$;
 
+-- The public model projection also feeds provider counts and active details.
+-- Apply the same lifecycle gates there so an expired deprecated route cannot
+-- remain visible as an active provider until the importer next runs.
+do $$
+declare
+  definition text;
+  patched text;
+begin
+  select pg_get_functiondef(
+    'public.get_v2_public_models_page_rows_without_stealth_redaction(text,text)'::regprocedure
+  ) into definition;
+
+  if definition is null then
+    raise exception 'get_v2_public_models_page_rows_without_stealth_redaction is missing';
+  end if;
+
+  if position('route.effective_from is null or route.effective_from <= now()' in definition) = 0
+    or position('route.effective_to is null or route.effective_to > now()' in definition) = 0
+    or position('route.provider_availability_status <> ''deprecated''' in definition) = 0
+  then
+    patched := replace(
+      definition,
+      '      and provider.routing_enabled = true
+      and (p_service_tier is null or variant.service_tier_slug = lower(p_service_tier))',
+      '      and provider.routing_enabled = true
+      and (route.effective_from is null or route.effective_from <= now())
+      and (route.effective_to is null or route.effective_to > now())
+      and (
+        route.provider_availability_status <> ''deprecated''
+        or (
+          route.effective_to is not null
+          and route.effective_to > now()
+        )
+      )
+      and (p_service_tier is null or variant.service_tier_slug = lower(p_service_tier))'
+    );
+
+    if patched = definition
+      or position('route.effective_from is null or route.effective_from <= now()' in patched) = 0
+      or position('route.effective_to is null or route.effective_to > now()' in patched) = 0
+      or position('route.provider_availability_status <> ''deprecated''' in patched) = 0
+    then
+      raise exception 'get_v2_public_models_page_rows_without_stealth_redaction has an unexpected definition';
+    end if;
+
+    execute patched;
+  end if;
+end;
+$$;
+
 revoke all on function public.get_v2_routing_candidates_raw(text, text, text, text)
   from public, anon;
 grant execute on function public.get_v2_routing_candidates_raw(text, text, text, text)
