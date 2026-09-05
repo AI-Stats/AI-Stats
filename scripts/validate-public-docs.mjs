@@ -11,6 +11,8 @@ const DOCS_CONFIG_PATH = resolve(REPOSITORY_ROOT, "apps/docs/docs.json");
 const ALLOWED_ENGINEERING_DOCS = new Set([
 	"apps/api/docs/database-driven-provider-adapters.md",
 	"apps/api/docs/executor-capability-matrix.md",
+	"apps/api/docs/gateway-performance-20260905.json",
+	"apps/api/docs/gateway-performance-20260905.md",
 	"apps/api/docs/params-jsonb-schema.md",
 	"apps/api/docs/provider-executor-architecture.md",
 	"apps/api/docs/public-documentation-policy.md",
