@@ -956,7 +956,8 @@
       "openai/daybreak-blue-latest",
       "openai/daybreak-red-latest",
       "openai/gpt-5.6-cyber",
-      "openai/gpt-6-astra"
+      "openai/gpt-6-astra",
+      "openai/gpt-6-astra-pro"
     ],
     "perplexity": [
       "perplexity/pplx-embed-v1-0.6b",
