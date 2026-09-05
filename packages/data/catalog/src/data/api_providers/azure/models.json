@@ -33,7 +33,7 @@
     "phaseo_status": "planned",
     "access_scope": "public",
     "regions": { "execution": ["global"], "data": null },
-    "service_tiers": ["global-standard", "data-zone-standard"],
+    "service_tiers": [],
     "api": { "formats": ["openai"], "endpoint": "/openai/v1", "deployment": "gpt-6-astra" },
     "sources": [
       {

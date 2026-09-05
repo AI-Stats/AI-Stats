@@ -582,6 +582,7 @@ describe('api provider model safety checks', () => {
             routing_status: 'active',
             is_active_gateway: false,
             routable: false,
+            service_tiers: [],
         });
         expect(bedrockRow).toMatchObject({
             provider_status: 'unknown',
