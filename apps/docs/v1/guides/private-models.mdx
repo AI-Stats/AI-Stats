@@ -87,6 +87,10 @@ Private models use the same Phaseo request surface as catalogue models. A standa
 
 A private model does not become a public provider route and is not visible to other workspaces. Enabled private models are included in the authenticated model catalogue and appear under the **Private** filter.
 
+<Note>
+After adding or enabling a private deployment on an existing catalogue model, allow 5–10 seconds for the change to propagate through the API layer before testing its routing. During this window, requests may continue to use the model's existing public providers. Requests already in flight are not rerouted.
+</Note>
+
 ## Provider examples
 
 | Deployment | What to enter |

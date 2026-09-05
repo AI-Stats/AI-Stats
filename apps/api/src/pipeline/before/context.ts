@@ -10,6 +10,7 @@ import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
 import { normalizePrivateModelBaseUrl } from "@/core/private-models";
+import { mayHavePrivateModel } from "./privateModelIndex";
 import { bytesToString, decryptBYOK } from "@pipeline/byok/decrypt";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT, isByokKeyEligible } from "@/core/byok";
 import { contextSchema } from "./schemas";
@@ -224,9 +225,10 @@ async function hydrateByokKeys(
 			return orderedRows.slice(0, maxKeysPerProvider);
 		});
 
+	const importedKeys = new Map<number, Promise<CryptoKey>>();
 	const decrypted = await Promise.all(selectedRows.map(async (row) => {
 		try {
-			const decryptedBytes = await decryptBYOK(row);
+			const decryptedBytes = await decryptBYOK(row, importedKeys);
 			let key: string;
 			try {
 				key = bytesToString(decryptedBytes);
@@ -310,8 +312,11 @@ export async function loadWorkspacePrivateModel(args: {
 	workspaceId: string;
 	model: string;
 	endpoint: string;
+	apiKeyId?: string;
+	disableCache?: boolean;
 }): Promise<{ provider: GatewayProviderSnapshot; pricingKey: string; pricing: GatewayContextData["pricing"][string]; attached: boolean } | null> {
 	if (args.endpoint !== "text.generate") return null;
+	if (args.apiKeyId && !args.disableCache && !await mayHavePrivateModel({ ...args, apiKeyId: args.apiKeyId })) return null;
 	const { data, error } = await getSupabaseAdmin().from("workspace_private_models")
 		.select("id,workspace_id,model_id,base_url,upstream_model_id,supports_responses,input_modalities,output_modalities,context_length,max_output_tokens,catalog_model_id,host_provider_id,custom_provider_name,routing_policy,provider_id,enc_value,enc_iv,enc_tag,key_version,enc_aad_version,fingerprint_sha256")
 		.eq("workspace_id", args.workspaceId)
@@ -1062,11 +1067,14 @@ export async function fetchGatewayContext(args: {
     includeTestingMode?: boolean;
     disableCache?: boolean;
 }): Promise<GatewayContextData> {
+	const fetchStartedAt = performance.now();
 	await assertPresetAccess(args);
+	const presetAccessMs = round3(performance.now() - fetchStartedAt);
+	const privateModelStartedAt = performance.now();
 	const privateModel = await loadWorkspacePrivateModel(args);
+	const privateModelMs = round3(performance.now() - privateModelStartedAt);
     const supabase = getSupabaseAdmin();
     const cache = getCache();
-    const fetchStartedAt = performance.now();
     const telemetry: ContextFetchTelemetry = {
         cacheStatus: args.disableCache ? "bypass" : "miss",
         totalMs: 0,
@@ -1077,7 +1085,23 @@ export async function fetchGatewayContext(args: {
         enrichMs: null,
         cacheWriteMs: null,
         fallbackRemap: false,
+        presetAccessMs,
+        privateModelMs,
     };
+    async function finishContext(value: GatewayContextData): Promise<GatewayContextData> {
+        const startedAt = performance.now();
+        const hydrated = await hydrateByokKeys(value, args.workspaceId, args.model, args.apiKeyId);
+        return {
+            ...hydrated,
+            contextTelemetry: {
+                ...(value.contextTelemetry ?? telemetry),
+                presetAccessMs,
+                privateModelMs,
+                byokHydrationMs: round3(performance.now() - startedAt),
+                totalMs: round3(performance.now() - fetchStartedAt),
+            },
+        };
+    }
     // Check if model is a preset
     const isPreset = args.model.startsWith("@");
     const shouldUseCache = !args.disableCache && !privateModel;
@@ -1164,14 +1188,14 @@ export async function fetchGatewayContext(args: {
                         credit: creditContext,
                         endpoint: args.endpoint,
                     });
-					return hydrateByokKeys({
+					return finishContext({
                         ...merged,
                         contextTelemetry: {
                             ...telemetry,
                             cacheStatus,
                             totalMs: round3(performance.now() - fetchStartedAt),
                         },
-					}, args.workspaceId, args.model, args.apiKeyId);
+					});
                 }
             }
         } catch {
@@ -1185,7 +1209,7 @@ export async function fetchGatewayContext(args: {
 		const inflight = contextInflight.get(inflightKey);
 		if (inflight) {
 			return inflight.then((value) =>
-				hydrateByokKeys(cloneGatewayContextData(value), args.workspaceId, args.model, args.apiKeyId),
+				finishContext(cloneGatewayContextData(value)),
 			);
         }
     }
@@ -1903,7 +1927,7 @@ export async function fetchGatewayContext(args: {
     }
 
     try {
-		return await hydrateByokKeys(await dbLoader, args.workspaceId, args.model, args.apiKeyId);
+		return await finishContext(await dbLoader);
     } finally {
         if (inflightKey && contextInflight.get(inflightKey) === dbLoader) {
             contextInflight.delete(inflightKey);

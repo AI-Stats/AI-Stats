@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
 	row: null as any,
 	eqCalls: [] as Array<[string, unknown]>,
+	indexRows: [] as Array<{ model_id: string }>,
 }));
 
 vi.mock("@/runtime/env", () => ({
@@ -14,6 +15,7 @@ vi.mock("@/runtime/env", () => ({
 				select: () => query,
 				eq: (column: string, value: unknown) => { state.eqCalls.push([column, value]); return query; },
 				maybeSingle: async () => ({ data: state.row, error: null }),
+				limit: async () => ({ data: state.indexRows, count: state.indexRows.length, error: null }),
 			};
 			return query;
 		},
@@ -26,6 +28,8 @@ vi.mock("@pipeline/byok/decrypt", () => ({
 
 describe("workspace private model context", () => {
 	beforeEach(() => {
+		vi.resetModules();
+		state.indexRows = [];
 		state.eqCalls = [];
 		state.row = {
 			id: "00000000-0000-4000-8000-000000000001",
@@ -46,6 +50,25 @@ describe("workspace private model context", () => {
 			enc_aad_version: 1,
 			fingerprint_sha256: "fingerprint",
 		};
+	});
+
+	it("skips the exact lookup for cached absent models but honors cache bypass", async () => {
+		const { loadWorkspacePrivateModel } = await import("./context");
+		const args = { workspaceId: state.row.workspace_id, model: state.row.model_id, apiKeyId: "test-key", endpoint: "text.generate" };
+		expect(await loadWorkspacePrivateModel(args)).toBeNull();
+		expect(state.eqCalls.some(([column]) => column === "model_id")).toBe(false);
+		expect(await loadWorkspacePrivateModel({ ...args, disableCache: true })).not.toBeNull();
+	});
+
+	it("fetches routing and credentials fresh on every positive index match", async () => {
+		state.indexRows = [{ model_id: state.row.model_id }];
+		const { loadWorkspacePrivateModel } = await import("./context");
+		const args = { workspaceId: state.row.workspace_id, model: state.row.model_id, apiKeyId: "test-key", endpoint: "text.generate" };
+		expect((await loadWorkspacePrivateModel(args))?.provider.providerModelSlug).toBe("legal-v4");
+		state.row.upstream_model_id = "legal-v5";
+		expect((await loadWorkspacePrivateModel(args))?.provider.providerModelSlug).toBe("legal-v5");
+		state.row = null;
+		expect(await loadWorkspacePrivateModel(args)).toBeNull();
 	});
 
 	it("loads an enabled private route only inside its workspace", async () => {

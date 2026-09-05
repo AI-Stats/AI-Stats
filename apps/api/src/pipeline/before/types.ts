@@ -311,6 +311,9 @@ export type KeyEnrichment = {
 };
 
 export type ContextFetchTelemetry = {
+    presetAccessMs?: number | null;
+    privateModelMs?: number | null;
+    byokHydrationMs?: number | null;
     cacheStatus: "hit" | "miss" | "bypass" | "credit_refresh";
     totalMs: number;
     keyVersionMs?: number | null;
