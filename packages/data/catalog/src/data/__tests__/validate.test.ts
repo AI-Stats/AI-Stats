@@ -472,6 +472,9 @@ describe('api provider model safety checks', () => {
         const row = readProviderModels('openai').find(
             (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra'
         );
+        const proRow = readProviderModels('openai').find(
+            (candidate: any) => candidate.internal_model_id === 'openai/gpt-6-astra-pro'
+        );
 
         expect(row).toMatchObject({
             is_active_gateway: true,
@@ -487,6 +490,34 @@ describe('api provider model safety checks', () => {
                 expect.objectContaining({
                     capability_id: 'text.generate',
                     status: 'active',
+                    params: expect.arrayContaining([
+                        expect.objectContaining({
+                            param_id: 'reasoning.mode',
+                            provider_default: 'standard',
+                            values: ['standard', 'pro'],
+                        }),
+                    ]),
+                }),
+            ])
+        );
+        expect(proRow).toMatchObject({
+            api_model_id: 'openai/gpt-6-astra-pro',
+            provider_model_slug: 'gpt-6-astra-pro',
+            internal_model_id: 'openai/gpt-6-astra-pro',
+            is_active_gateway: true,
+            routable: true,
+        });
+        expect(proRow?.capabilities).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    capability_id: 'text.generate',
+                    params: expect.arrayContaining([
+                        expect.objectContaining({
+                            param_id: 'reasoning.mode',
+                            provider_default: 'pro',
+                            values: ['standard', 'pro'],
+                        }),
+                    ]),
                 }),
             ])
         );
@@ -520,6 +551,21 @@ describe('api provider model safety checks', () => {
                 }),
             ])
         );
+        const proPricingPath = path.join(
+            DATA_ROOT,
+            'pricing',
+            'openai',
+            'openai-gpt-6-astra-pro',
+            'text.generate',
+            'pricing.json'
+        );
+        const proPricing = JSON.parse(fs.readFileSync(proPricingPath, 'utf8'));
+        expect(proPricing).toMatchObject({
+            key: 'openai:openai/gpt-6-astra-pro:text.generate',
+            api_model_id: 'openai/gpt-6-astra-pro',
+            capability_id: 'text.generate',
+        });
+        expect(proPricing.rules).toHaveLength(pricing.rules.length);
     });
 
     it('rejects internal routes whose Phaseo integration is not testing or enabled', () => {

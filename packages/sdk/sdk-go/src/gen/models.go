@@ -2500,6 +2500,7 @@ const (
 	KnownModelIdOpenaiGpt56Terra KnownModelId = "openai/gpt-5.6-terra"
 	KnownModelIdOpenaiGpt56TerraPro KnownModelId = "openai/gpt-5.6-terra-pro"
 	KnownModelIdOpenaiGpt6Astra KnownModelId = "openai/gpt-6-astra"
+	KnownModelIdOpenaiGpt6AstraPro KnownModelId = "openai/gpt-6-astra-pro"
 	KnownModelIdOpenaiGptImage1 KnownModelId = "openai/gpt-image-1"
 	KnownModelIdOpenaiGptImage1Mini KnownModelId = "openai/gpt-image-1-mini"
 	KnownModelIdOpenaiGptImage15 KnownModelId = "openai/gpt-image-1.5"

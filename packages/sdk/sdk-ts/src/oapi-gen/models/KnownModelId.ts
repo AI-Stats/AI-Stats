@@ -317,6 +317,7 @@ export type KnownModelId =
   | "openai/gpt-5.6-terra"
   | "openai/gpt-5.6-terra-pro"
   | "openai/gpt-6-astra"
+  | "openai/gpt-6-astra-pro"
   | "openai/gpt-image-1"
   | "openai/gpt-image-1-mini"
   | "openai/gpt-image-1.5"
