@@ -68,6 +68,7 @@ ${migrationCondition}
             (vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true' &&
             needs.migrate-production.result == 'success') ||
             (vars.ENABLE_PRODUCTION_DB_MIGRATIONS != 'true' &&
+            needs.check-paths.outputs.migrations-changed != 'true' &&
             needs.migrate-production.result == 'skipped')
         steps:
             - run: deploy
@@ -121,8 +122,8 @@ test("rechecks production migration state before every opted-in main deployment"
 		workflow.indexOf("    agent-sdk-tests:"),
 	);
 	assert.doesNotMatch(migrationJob, /migrations-changed/);
-	assert.doesNotMatch(deployJob, /migrations-changed/);
 	assert.match(deployJob, /vars\.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'[\s\S]*needs\.migrate-production\.result == 'success'/);
+	assert.match(deployJob, /vars\.ENABLE_PRODUCTION_DB_MIGRATIONS != 'true'[\s\S]*needs\.check-paths\.outputs\.migrations-changed != 'true'/);
 });
 
 test("rejects any pull-request Vercel credential boundary", () => {
