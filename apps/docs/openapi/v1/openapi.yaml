@@ -2095,7 +2095,10 @@ paths:
         Use a Phaseo API key. Downloads do not submit inference or add usage
         charges. Existing file endpoints remain available. Inline rows are
         limited to 8 MiB; interrupted downloads must be discarded and downloaded
-        again.
+        again. Limited to 10 download attempts per workspace per batch in a
+        rolling 30-minute window, shared across API keys and aliases. Failed or
+        cancelled upstream attempts count. A 429 response includes Retry-After
+        in seconds.
       parameters:
         - name: batch_id
           in: path
@@ -2133,6 +2136,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Batch download limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until another download is allowed
+              schema:
+                type: integer
         '501':
           description: Direct results downloads are not supported for this provider
           content:
@@ -2145,6 +2155,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Download admission temporarily unavailable; retry after 30 seconds
+          headers:
+            Retry-After:
+              schema:
+                type: integer
   /batches/{batch_id}/requests:
     get:
       x-beta: true
@@ -7367,7 +7383,10 @@ paths:
         Use a Phaseo API key. Downloads do not submit inference or add usage
         charges. Existing file endpoints remain available. Inline rows are
         limited to 8 MiB; interrupted downloads must be discarded and downloaded
-        again.
+        again. Limited to 10 download attempts per workspace per batch in a
+        rolling 30-minute window, shared across API keys and aliases. Failed or
+        cancelled upstream attempts count. A 429 response includes Retry-After
+        in seconds.
       parameters:
         - name: id
           in: path
@@ -7405,6 +7424,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Batch download limit exceeded
+          headers:
+            Retry-After:
+              description: Seconds until another download is allowed
+              schema:
+                type: integer
         '501':
           description: Direct results downloads are not supported for this provider
           content:
@@ -7417,6 +7443,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Download admission temporarily unavailable; retry after 30 seconds
+          headers:
+            Retry-After:
+              schema:
+                type: integer
   /batch/{id}/requests:
     get:
       x-beta: true

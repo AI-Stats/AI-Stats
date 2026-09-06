@@ -4,6 +4,7 @@
 
 import { Hono } from "hono";
 import { BatchResultsError, openBatchResultsStream, supportsBatchResults } from "@core/batch-results";
+import { admitBatchDownload } from "@core/batch-download-limits";
 import { selectBatchProviderOptions } from "@core/batch-provider-options";
 import type { Env } from "@/runtime/types";
 import { withRuntime } from "../../utils";
@@ -2812,6 +2813,19 @@ async function handleResults(req: Request, id: string) {
 	}
 	if (!isDownloadableBatchStatus(meta.status ?? "")) {
 		return jsonPayload({ error: "not_ready", message: "Batch results are not ready yet.", request_id: requestId }, 409);
+	}
+	try {
+		const admission = await admitBatchDownload(auth.workspaceId, batchId);
+		if (!admission.allowed) {
+			return Response.json({ error: "rate_limit_exceeded", message: "Batch results allow 10 download attempts per workspace per batch every 30 minutes.", request_id: requestId }, {
+				status: 429, headers: { "Retry-After": String(admission.retryAfterSeconds), "Cache-Control": "no-store" },
+			});
+		}
+	} catch {
+		console.error("batch_download_admission_failed", { requestId, workspaceId: auth.workspaceId, batchId });
+		return Response.json({ error: "temporarily_unavailable", request_id: requestId }, {
+			status: 503, headers: { "Retry-After": "30", "Cache-Control": "no-store" },
+		});
 	}
 	const logFailure = (error: unknown) => {
 		console.error("batch_results_fetch_failed", {
