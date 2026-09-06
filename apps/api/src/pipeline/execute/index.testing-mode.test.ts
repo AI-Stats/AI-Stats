@@ -102,6 +102,31 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		reportProbeResultMock.mockResolvedValue(undefined);
 	});
 
+	it.each([429, 402, 401])("returns local video admission denial %s without fallback or provider failure", async (status) => {
+		const candidates = ["google", "minimax"].map((providerId) => ({
+			providerId, pricingCard: { rules: [], currency: "USD" }, byokMeta: [],
+			providerModelSlug: "video-model", capabilityParams: {},
+		}));
+		guardCandidatesMock.mockResolvedValue({ ok: true, value: candidates });
+		rankProvidersMock.mockResolvedValue(candidates.map((candidate) => ({ candidate, health: {} })));
+		const executor = vi.fn(async (args: any) => {
+			args.onReservationDenied({ status, code: "key_limit_exceeded", reason: "daily_cost_limit_reached" });
+			return { kind: "completed", upstream: new Response("{}", { status: 503 }),
+				bill: { cost_cents: 0, currency: "USD" }, keySource: "gateway" };
+		});
+		resolveProviderExecutorMock.mockReturnValue(executor);
+		const result = await doRequestWithIR(createCtx({ capability: "video.generate", endpoint: "video.generation" }),
+			{ model: "video-model", prompt: "test" } as any, createTiming());
+		expect(result).toBeInstanceOf(Response);
+		expect((result as Response).status).toBe(status);
+		expect(await (result as Response).json()).toMatchObject({ error: "key_limit_exceeded", reason: "daily_cost_limit_reached" });
+		expect(executor).toHaveBeenCalledTimes(1);
+		expect(onCallEndMock).toHaveBeenCalledWith("video.generation", expect.objectContaining({ healthImpact: "neutral" }));
+		expect(maybeOpenOnRecentErrorsMock).not.toHaveBeenCalled();
+		expect(reportProbeResultMock).not.toHaveBeenCalled();
+		expect(guardAllFailedMock).not.toHaveBeenCalled();
+	});
+
 	it.each([400, 502, 408, "transport"])("does not repeat a dispatched video submission (%s)", async (failure) => {
 		const candidates = ["openai", "atlascloud"].map((providerId) => ({
 			providerId, pricingCard: { rules: [], currency: "USD" }, byokMeta: [],

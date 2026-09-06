@@ -10962,6 +10962,9 @@ components:
             HTTPS image, audio, or video inputs used to condition generation.
             Supported types, roles, counts, and combinations depend on the
             selected model. Check GET /videos/models before submitting a job.
+            The singular input_reference compatibility alias, omitted from this
+            schema, accepts a multipart image or an object containing exactly
+            one of file_id or image_url. Support depends on the provider.
           items:
             $ref: '#/components/schemas/VideoInputReference'
         frame_images:

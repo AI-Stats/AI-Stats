@@ -143,6 +143,17 @@ describe("async webhook dispatch", () => {
 		vi.stubGlobal("fetch", vi.fn());
 	});
 
+	it("builds the payload from the record refreshed after claiming delivery", async () => {
+		const original = batchRecord({ status: "in_progress" });
+		const fresh = batchRecord();
+		getAsyncOperationMock.mockResolvedValueOnce(original).mockResolvedValue(fresh);
+		vi.mocked(fetch).mockResolvedValueOnce(new Response("accepted", { status: 200 }));
+		await dispatchAsyncWebhookEvent({ workspaceId: "ws_1", kind: "batch", internalId: "batch_1", phase: "completed", baseUrl: "https://gateway.test" });
+		expect(fetch).toHaveBeenCalledTimes(1);
+		const payload = JSON.parse(String(vi.mocked(fetch).mock.calls[0]?.[1]?.body));
+		expect(payload.data).toMatchObject({ status: "completed", lifecycle_status: "completed", billing: { total_nanos: 20250 } });
+	});
+
 	it("delivers signed batch completion webhooks and stores delivery metadata", async () => {
 		getAsyncOperationMock.mockResolvedValue(batchRecord());
 		vi.mocked(fetch).mockResolvedValueOnce(new Response("accepted", { status: 202 }));

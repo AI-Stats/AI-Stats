@@ -546,6 +546,7 @@ export async function doRequestWithIR(
 			}
 			return result;
 		}
+		if ("response" in result && result.response) return result.response;
 		if ("stopFallback" in result && result.stopFallback) {
 			anyPricingFound = true;
 			break;
@@ -601,7 +602,7 @@ async function attemptProviderWithIR(
 	attemptNumber: number,
 	credential: { kind: "gateway" } | { kind: "byok"; key: ByokKeyMeta },
 	credentialPhase: CredentialAttemptPhase,
-): Promise<{ ok: true; result: IRRequestResult } | { ok: false; skip?: string; stopFallback?: boolean }> {
+): Promise<{ ok: true; result: IRRequestResult } | { ok: false; skip?: string; stopFallback?: boolean; response?: Response }> {
 	const attemptErrors: Array<Record<string, unknown>> = (ctx.attemptErrors ??= []);
 	const attemptPrefix = `attempt_${attemptNumber}`;
 	const attemptStartedAtEpochMs = Date.now();
@@ -821,6 +822,7 @@ async function attemptProviderWithIR(
 			}
 			providerRateLimitReservation = rateLimit.reservation;
 		}
+		let reservationDenial: import("@core/video-reservations").VideoReservationDenial | undefined;
 		const buildExecutorArgs = () =>
 			({
 				ir: normalizedIr,
@@ -828,6 +830,7 @@ async function attemptProviderWithIR(
 				workspaceId: ctx.workspaceId,
 				providerId: candidate.providerId,
 				apiKeyId: ctx.keyId,
+				onReservationDenied: (denial) => { reservationDenial = denial; },
 				endpoint: ctx.endpoint,
 				protocol: ctx.protocol as any,
 				capability: ctx.capability,
@@ -901,6 +904,18 @@ async function attemptProviderWithIR(
 			executeWithRetry(),
 		);
 		const upstreamTiming = upstreamTracker.snapshot();
+		if (reservationDenial && upstreamTiming.upstreamRequestCount === 0) {
+			await releaseManagedProviderReservation(providerRateLimitReservation);
+			dispatchProviderHealthBackground(() => onCallEnd(ctx.endpoint, {
+				provider: candidate.providerId, model: baseModel, ok: false,
+				healthImpact: "neutral", latency_ms: Math.round(performance.now() - attemptStartedAt),
+			}));
+			return { ok: false, response: new Response(JSON.stringify({
+				error: reservationDenial.code, reason: reservationDenial.reason,
+				description: "The video request was rejected by your credit or spending limits before provider submission.",
+				request_id: ctx.requestId,
+			}), { status: reservationDenial.status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } }) };
+		}
 		const selectedUpstreamTiming = upstreamTracker.timing.timingFor(executorResult.upstream);
 		executorResult.timing = {
 			...(executorResult.timing ?? {}),

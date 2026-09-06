@@ -86,6 +86,16 @@ describe("google video executor", () => {
 		state.saveVideoJobMetaError = null;
 	});
 
+	it.each(["sampleCount", "numberOfVideos"])("rejects multiple outputs via %s before reserving or submitting", async (field) => {
+		const mock = installFetchMock([]);
+		try {
+			const result = await execute(buildArgs({ model: "veo-3.1-generate-preview", prompt: "test", [field]: 2 } as any));
+			expect(result.upstream.status).toBe(400);
+			expect(state.reservationCalls).toEqual([]);
+			expect(saveVideoJobMetaMock).not.toHaveBeenCalled();
+		} finally { mock.restore(); }
+	});
+
 	it("maps Veo request options and media inputs", async () => {
 		let capturedBody: any = null;
 		let capturedUrl = "";

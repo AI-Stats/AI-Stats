@@ -60,6 +60,34 @@ begin
     if n <> (case when actual>0 then 1 else 0 end) then raise exception 'replay duplicated charge'; end if;
   end loop;
 
+  -- Historical held rows support capture and release, just like reserved rows.
+  foreach actual in array array[100,-1]::bigint[] loop
+    rid := prefix || ':held:' || actual;
+    insert into public.gateway_wallet_reservations(workspace_id,reservation_id,amount_nanos,status) values(w,rid,100,'held');
+    update public.wallets set reserved_nanos=reserved_nanos+100 where workspace_id=w;
+    if actual=100 then
+      select * into result from public.gateway_wallet_capture_once(w,rid,rid);
+    else
+      select * into result from public.gateway_wallet_release_once(w,rid,rid);
+    end if;
+    if not result.ok or not result.applied then raise exception 'historical held row rejected'; end if;
+  end loop;
+
+  -- A Video replay reports the first debit after recomputation changes, without
+  -- another debit or ledger entry. Capture replay also returns the settled cost.
+  rid := 'video_hold:' || prefix || ':replay';
+  insert into public.gateway_wallet_reservations(workspace_id,reservation_id,amount_nanos,status) values(w,rid,100,'held');
+  update public.wallets set reserved_nanos=reserved_nanos+100 where workspace_id=w;
+  perform public.gateway_wallet_settle_once(w,rid,40,rid);
+  select * into result from public.gateway_wallet_settle_once(w,rid,60,rid);
+  if not result.ok or result.applied or result.amount_nanos<>40 or result.before_balance_nanos<>result.after_balance_nanos then
+    raise exception 'video replay lost authoritative debit';
+  end if;
+  select * into result from public.gateway_wallet_capture_once(w,rid,rid);
+  if not result.ok or result.applied or result.amount_nanos<>40 then raise exception 'capture replay lost settled cost'; end if;
+  select count(*) into n from public.credit_ledger where ref_type='async_job_charge' and ref_id=w::text||':'||rid;
+  if n<>1 then raise exception 'video replay duplicated ledger charge'; end if;
+
   -- A settlement cannot spend credits reserved for other jobs.
   rid:=prefix||':insufficient';
   select balance_nanos,reserved_nanos into before_balance,before_reserved from public.wallets where workspace_id=w;

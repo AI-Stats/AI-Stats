@@ -1329,13 +1329,13 @@ export async function dispatchAsyncWebhookEvent(args: {
 		},
 		data: await buildAsyncNotificationData({
 			baseUrl: args.baseUrl ?? null,
-			record,
+			record: claimedRecord,
 			progress: progressBucket ?? args.progress ?? null,
 		}),
 		...(args.phase === "status_changed" ? {
 			status_change: {
 				previous_status: normalizeText(args.previousStatus),
-				status: normalizeText(args.currentStatus) ?? toAsyncLifecycleStatus(record.status),
+				status: normalizeText(args.currentStatus) ?? toAsyncLifecycleStatus(claimedRecord.status),
 			},
 		} : {}),
 	};

@@ -151,6 +151,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		const reserved = await reserveVideoGenerationCredits({
 			keyId: args.apiKeyId,
 			authMethod: args.meta.authMethod,
+			onReservationDenied: args.onReservationDenied,
 			workspaceId: args.workspaceId, videoId: args.requestId, providerId: args.providerId, model,
 			seconds: mapped.seconds, pricingCard: args.pricingCard,
 			requestOptions: buildVideoPricingRequestOptions({ resolution: mapped.resolution, frame_rate: mapped.fps, input_image_count: mapped.inputImageCount, input_audio_seconds: mapped.inputAudioSeconds, mode: mapped.endpoint }),

@@ -78,6 +78,19 @@ afterAll(() => {
 });
 
 describe("atlascloud video executor", () => {
+	it("uses the submitted Seedance audio and inferred ratio in billing metadata", async () => {
+		let body: any;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/api/v1/model/generateVideo"),
+			response: jsonResponse({ data: { id: "defaults", status: "processing" } }),
+			onRequest: (call) => { body = call.bodyJson; },
+		}]);
+		try {
+			await execute(buildArgs({ model: "bytedance/seedance-2.5/text-to-video", prompt: "test", durationSeconds: 6, size: "1280x720" } as any));
+			expect(body).toMatchObject({ generate_audio: true, ratio: "16:9" });
+			expect(saveVideoJobMetaMock).toHaveBeenCalledWith("team_test", "req_atlas_video_test", expect.objectContaining({ audio: true, aspectRatio: "16:9" }), "defaults", "in_progress");
+		} finally { mock.restore(); }
+	});
 	it("passes Seedance 2.5 multimodal references through the public schema and IR", async () => {
 		let body: any;
 		const mock = installFetchMock([{

@@ -10,6 +10,22 @@ import { computeVideoPricedUsage } from "@core/video-pricing";
 
 export const VIDEO_RESERVATION_PREFIX = "video_hold:";
 
+export type VideoReservationDenial = { status: number; code: string; reason: string };
+
+function reservationDenial(reason: string): VideoReservationDenial | null {
+	if (isInsufficientVideoReservationStatus(reason)) return { status: 402, code: "insufficient_funds", reason };
+	if (/^(daily|weekly|monthly)_(cost|request)_limit_reached$/.test(reason) || reason === "key_limit_soft_blocked") {
+		return { status: 429, code: "key_limit_exceeded", reason };
+	}
+	if (/^workspace_(daily|weekly|monthly|lifetime)_cost_budget_reached$/.test(reason)) {
+		return { status: 429, code: "workspace_budget_exceeded", reason };
+	}
+	if (["key_not_found", "key_not_active", "key_wrong_workspace"].includes(reason)) {
+		return { status: 401, code: "invalid_api_key", reason };
+	}
+	return null;
+}
+
 export type VideoReservationResult = {
 	reservationId: string;
 	held: boolean;
@@ -104,6 +120,7 @@ export async function reserveVideoGenerationCredits(args: {
 	workspaceId: string;
 	keyId?: string | null;
 	authMethod?: "api_key" | "oauth";
+	onReservationDenied?: (denial: VideoReservationDenial) => void;
 	videoId: string;
 	providerId: string;
 	model: string;
@@ -183,6 +200,8 @@ export async function reserveVideoGenerationCredits(args: {
 		holdRefId: args.videoId,
 		...(keyId ? { keyId, requestCount: 1 } : {}),
 	});
+	const denial = reservationDenial(reserved.status);
+	if (denial) args.onReservationDenied?.(denial);
 
 	return {
 		reservationId,

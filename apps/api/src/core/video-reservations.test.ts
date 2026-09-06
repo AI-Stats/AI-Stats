@@ -3,12 +3,13 @@ import type { PriceCard } from "@pipeline/pricing/types";
 
 const state = vi.hoisted(() => ({
 	reserveCalls: [] as Array<Record<string, unknown>>,
+	status: "held",
 }));
 
 vi.mock("@core/wallet-reservations", () => ({
 	reserveWalletCredits: vi.fn(async (args: Record<string, unknown>) => {
 		state.reserveCalls.push(args);
-		return { status: "held", applied: true, alreadyApplied: false };
+		return { status: state.status, applied: state.status === "held", alreadyApplied: false };
 	}),
 }));
 
@@ -30,6 +31,25 @@ function makeCard(rules: Array<Record<string, unknown>>): PriceCard {
 describe("reserveVideoGenerationCredits", () => {
 	beforeEach(() => {
 		state.reserveCalls = [];
+		state.status = "held";
+	});
+
+	it.each([
+		["daily_cost_limit_reached", 429, "key_limit_exceeded"],
+		["monthly_request_limit_reached", 429, "key_limit_exceeded"],
+		["workspace_lifetime_cost_budget_reached", 429, "workspace_budget_exceeded"],
+		["insufficient_funds", 402, "insufficient_funds"],
+		["key_not_active", 401, "invalid_api_key"],
+	] as const)("reports %s as a local admission rejection", async (reason, status, code) => {
+		state.status = reason;
+		const onReservationDenied = vi.fn();
+		const result = await reserveVideoGenerationCredits({
+			workspaceId: "ws_video_reserve", keyId: "key_video", videoId: "denied", providerId: "google", model: "video",
+			seconds: 4, pricingCard: makeCard([{ pricing_plan: "standard", meter: "output_video_seconds", unit: "second", unit_size: 1, price_per_unit: "0.05", currency: "USD", match: [], priority: 100 }]),
+			onReservationDenied,
+		});
+		expect(result.held).toBe(false);
+		expect(onReservationDenied).toHaveBeenCalledWith({ status, code, reason });
 	});
 
 	it("requires the authenticated key before any reservation", async () => {

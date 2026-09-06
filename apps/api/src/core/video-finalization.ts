@@ -892,6 +892,9 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 				};
 			}
 			if (captured.status === "captured" && (captured.applied || captured.alreadyApplied)) {
+				const chargedPricedUsage = captured.amountNanos === completionPricing.costNanos ? completionPricing.pricedUsage : undefined;
+				const completionCostNanos = captured.amountNanos;
+				const completionCostUsd = nanosToUsd(completionCostNanos) ?? 0;
 				await setVideoJobStatus(args.workspaceId, args.videoId, nextStatus, {
 					finalizedAt: finalizedAtIso,
 					...(typeof durationMs === "number" ? { durationMs } : {}),
@@ -900,11 +903,11 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 					costUsd: completionCostUsd,
 					billingReason: captured.status,
 					reservationStatus: captured.status,
-					...(completionPricing.pricedUsage ? { pricedUsage: completionPricing.pricedUsage } : {}),
+					pricedUsage: chargedPricedUsage ?? null,
 					pricingBreakdown: buildPricingBreakdownMeta({
 						costNanos: completionCostNanos,
 						costUsd: completionCostUsd,
-						pricedUsage: completionPricing.pricedUsage,
+						pricedUsage: chargedPricedUsage,
 					}),
 				});
 				const syncResult = await syncGatewayRequestFromVideoFinalization({
@@ -916,7 +919,7 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 					resolution: resolutionForAudit,
 					quality: qualityForAudit,
 					durationMs: durationMs ?? null,
-					pricingLines: extractPricingLines(completionPricing.pricedUsage),
+					pricingLines: extractPricingLines(chargedPricedUsage),
 				});
 				if (shouldMarkVideoJobBilled(syncResult)) {
 					await markVideoJobBilled(args.workspaceId, args.videoId);
@@ -924,7 +927,7 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 				return {
 					status: nextStatus,
 					charged: true,
-					pricedUsage: completionPricing.pricedUsage,
+					pricedUsage: chargedPricedUsage,
 					reason: captured.status,
 				};
 			}
@@ -989,31 +992,35 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 			};
 		}
 		const reservationStatus = settled.alreadyApplied ? "already_captured" : "captured";
+		// A replay must report the persisted debit, even if pricing changed meanwhile.
+		const settledCostNanos = settled.amountNanos;
+		const settledCostUsd = nanosToUsd(settledCostNanos) ?? 0;
+		const settledPricedUsage = settledCostNanos === completionCostNanos ? completionPricing.pricedUsage : undefined;
 		await setVideoJobStatus(args.workspaceId, args.videoId, nextStatus, {
 			finalizedAt: finalizedAtIso,
 			...(typeof durationMs === "number" ? { durationMs } : {}),
 			charged: true,
-			costNanos: completionCostNanos,
-			costUsd: completionCostUsd,
+			costNanos: settledCostNanos,
+			costUsd: settledCostUsd,
 			billingReason: reservationStatus,
 			reservationStatus,
-			...(completionPricing.pricedUsage ? { pricedUsage: completionPricing.pricedUsage } : {}),
+			pricedUsage: settledPricedUsage ?? null,
 			pricingBreakdown: buildPricingBreakdownMeta({
-				costNanos: completionCostNanos,
-				costUsd: completionCostUsd,
-				pricedUsage: completionPricing.pricedUsage,
+				costNanos: settledCostNanos,
+				costUsd: settledCostUsd,
+				pricedUsage: settledPricedUsage,
 			}),
 		});
 		const syncResult = await syncGatewayRequestFromVideoFinalization({
 			workspaceId: args.workspaceId,
 			requestId: requestIdForAudit,
-			costNanos: completionCostNanos,
-			costUsd: completionCostUsd,
+			costNanos: settledCostNanos,
+			costUsd: settledCostUsd,
 			seconds: secondsForAudit ?? null,
 			resolution: resolutionForAudit,
 			quality: qualityForAudit,
 			durationMs: durationMs ?? null,
-			pricingLines: extractPricingLines(completionPricing.pricedUsage),
+			pricingLines: extractPricingLines(settledPricedUsage),
 		});
 		if (shouldMarkVideoJobBilled(syncResult)) {
 			await markVideoJobBilled(args.workspaceId, args.videoId);
@@ -1021,7 +1028,7 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 		return {
 			status: nextStatus,
 			charged: true,
-			pricedUsage: completionPricing.pricedUsage,
+			pricedUsage: settledPricedUsage,
 			reason: reservationStatus,
 		};
 	}

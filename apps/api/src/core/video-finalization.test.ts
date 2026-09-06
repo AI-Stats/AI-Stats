@@ -64,7 +64,7 @@ describe("video-finalization", () => {
 			finalizedAt, providerDispatchedAtMs: Date.parse("2026-09-06T10:00:00.000Z"),
 		} });
 		isVideoJobBilledMock.mockResolvedValue(true);
-		await finalizeVideoJob({ workspaceId: "ws_test", videoId: "video_test", status: "completed" });
+		await finalizeVideoJob({ workspaceId: "ws_test", videoId: "video_test", providerId: "openai", status: "completed" });
 		expect(setVideoJobStatusMock).toHaveBeenCalledWith("ws_test", "video_test", "completed",
 			expect.objectContaining({ finalizedAt, durationMs: 30000 }));
 		expect(captureWalletReservationMock).not.toHaveBeenCalled();
@@ -333,7 +333,7 @@ describe("video-finalization", () => {
 		expect(recordUsageAndChargeMock).not.toHaveBeenCalled();
 	});
 
-	it("atomically settles a mismatched reservation at final computed usage", async () => {
+	it.each([false, true])("settles using the persisted charge on replay=%s", async (replay) => {
 		getVideoJobMetaMock.mockResolvedValue({
 			provider: "openai",
 			model: "openai/sora-2",
@@ -361,10 +361,10 @@ describe("video-finalization", () => {
 			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
 		});
 		settleWalletReservationMock.mockResolvedValue({
-			applied: true,
-			alreadyApplied: false,
+			applied: !replay,
+			alreadyApplied: replay,
 			status: "captured",
-			amountNanos: 300_000_000,
+			amountNanos: replay ? 150_000_000 : 200_000_000,
 		});
 
 		const result = await finalizeVideoJob({
@@ -379,8 +379,8 @@ describe("video-finalization", () => {
 		expect(result).toEqual({
 			status: "completed",
 			charged: true,
-			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
-			reason: "captured",
+			pricedUsage: replay ? undefined : { pricing: { total_nanos: 200_000_000 } },
+			reason: replay ? "already_captured" : "captured",
 		});
 		expect(computeBillMock).toHaveBeenCalledWith(
 			expect.objectContaining({ output_video_seconds: 12, output_video: 3 }),
@@ -403,10 +403,10 @@ describe("video-finalization", () => {
 			"completed",
 			expect.objectContaining({
 				charged: true,
-				costNanos: 200_000_000,
-				costUsd: 0.2,
-				billingReason: "captured",
-				reservationStatus: "captured",
+				costNanos: replay ? 150_000_000 : 200_000_000,
+				costUsd: replay ? 0.15 : 0.2,
+				billingReason: replay ? "already_captured" : "captured",
+				reservationStatus: replay ? "already_captured" : "captured",
 			}),
 		);
 	});
