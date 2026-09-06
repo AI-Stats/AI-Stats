@@ -2078,6 +2078,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /batches/{batch_id}/results:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: retrieveBatchResults
+      summary: Download batch results
+      description: >-
+        Streams original Anthropic batch results as JSONL for a terminal batch
+        owned by the authenticated workspace. Use a Phaseo API key. Downloads do
+        not submit inference or add usage charges. Currently Anthropic only.
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Original provider JSONL results
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Batch preview access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Batch not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Batch results are not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '501':
+          description: Direct results downloads are not supported for this provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Provider results could not be retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /batches/{batch_id}/requests:
     get:
       x-beta: true
@@ -7286,6 +7346,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /batch/{id}/results:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: retrieveBatchResultsAlias
+      summary: Download batch results (alias)
+      description: >-
+        Streams original Anthropic batch results as JSONL for a terminal batch
+        owned by the authenticated workspace. Use a Phaseo API key. Downloads do
+        not submit inference or add usage charges. Currently Anthropic only.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Original provider JSONL results
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Batch preview access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Batch not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Batch results are not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '501':
+          description: Direct results downloads are not supported for this provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Provider results could not be retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /batch/{id}/requests:
     get:
       x-beta: true
@@ -12292,6 +12412,14 @@ components:
           format: uri
           nullable: true
           description: Reserved for compatibility; currently always null.
+        results_url:
+          type: string
+          format: uri
+          nullable: true
+          description: >-
+            Authenticated Phaseo JSONL download URL for terminal Anthropic
+            batches. Null while processing. Use an API key from the owning
+            workspace; provider retention limits apply.
         output_file_id:
           type: string
         error_file_id:

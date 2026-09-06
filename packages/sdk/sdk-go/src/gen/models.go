@@ -494,6 +494,7 @@ type BatchResponse struct {
 	Provider *string `json:"provider,omitempty"`
 	RequestCounts *map[string]interface{} `json:"request_counts,omitempty"`
 	RequestId *string `json:"request_id,omitempty"`
+	ResultsUrl *string `json:"results_url,omitempty"`
 	SessionId *string `json:"session_id,omitempty"`
 	Status *string `json:"status,omitempty"`
 	Usage *map[string]interface{} `json:"usage,omitempty"`

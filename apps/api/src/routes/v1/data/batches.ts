@@ -873,6 +873,7 @@ async function fetchProviderBatchApi(providerId: string, args: {
 	body?: BodyInit | null;
 	contentType?: string | null;
 	idempotencyKey?: string | null;
+	redirect?: RequestRedirect;
 }): Promise<Response> {
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	if (providerId === ANTHROPIC_PROVIDER_ID) {
@@ -895,6 +896,7 @@ async function fetchProviderBatchApi(providerId: string, args: {
 			method: args.method,
 			headers,
 			body: args.body ?? undefined,
+			redirect: args.redirect,
 		});
 	}
 	if (providerId === GOOGLE_AI_STUDIO_PROVIDER_ID) {
@@ -1371,6 +1373,11 @@ function decorateBatchPayload(args: {
 	if (publicBatchId) {
 		out.polling_url = buildBatchPollingUrl(args.requestUrl, publicBatchId);
 		out.cancel_url = status && isCancellableBatchStatus(status) ? buildBatchCancelUrl(args.requestUrl, publicBatchId) : null;
+		if (args.meta?.provider === ANTHROPIC_PROVIDER_ID) {
+			out.results_url = status && isDownloadableBatchStatus(status)
+				? `${buildBatchPollingUrl(args.requestUrl, publicBatchId)}/results`
+				: null;
+		}
 	}
 	out.pricing_lines = buildBatchPricingLines(args.meta);
 	const usage = buildBatchUsage(args.meta);
@@ -2786,6 +2793,50 @@ async function finalizeRejectedBatchSubmission(args: {
 	}
 }
 
+function isDownloadableBatchStatus(status: string): boolean {
+	return ["completed", "failed", "expired", "cancelled", "canceled"].includes(status.toLowerCase());
+}
+
+async function handleResults(req: Request, id: string) {
+	const requestId = generatePublicId();
+	const auth = await authenticate(req);
+	if (!auth.ok) return err("unauthorised", { reason: (auth as AuthFailure).reason, request_id: requestId });
+	const accessDenied = await requireBatchApiAccess(auth, requestId);
+	if (accessDenied) return accessDenied;
+	const batchId = String(id ?? "").trim();
+	const meta = await getBatchJobMeta(auth.workspaceId, batchId);
+	if (!meta) return err("not_found", { reason: "batch_not_found_or_not_owned", request_id: requestId });
+	if (meta.provider !== ANTHROPIC_PROVIDER_ID) {
+		return jsonPayload({ error: "unsupported_provider", message: "Direct results downloads are currently supported for Anthropic batches.", request_id: requestId }, 501);
+	}
+	if (!isDownloadableBatchStatus(meta.status ?? "")) {
+		return jsonPayload({ error: "not_ready", message: "Batch results are not ready yet.", request_id: requestId }, 409);
+	}
+	let upstream: Response;
+	try {
+		const nativeId = resolveBatchProviderNativeId({ batchId, meta });
+		upstream = await fetchProviderBatchApi(ANTHROPIC_PROVIDER_ID, {
+			endpointPath: `/messages/batches/${encodeURIComponent(nativeId)}/results`,
+			method: "GET",
+			redirect: "manual",
+		});
+	} catch {
+		return err("upstream_error", { reason: "batch_results_fetch_failed", request_id: requestId });
+	}
+	if (!upstream.ok || !upstream.body) {
+		await upstream.body?.cancel();
+		return err("upstream_error", { reason: "batch_results_fetch_failed", provider_status: upstream.status, request_id: requestId });
+	}
+	// Stream provider JSONL unchanged; never buffer or persist generated content.
+	// Construct the upstream path from owned metadata, not the provider results_url.
+	return new Response(upstream.body, { status: 200, headers: {
+		"Content-Type": "application/x-ndjson",
+		"Content-Disposition": `attachment; filename="${encodeURIComponent(batchId)}.jsonl"`,
+		"Cache-Control": "private, no-store",
+		"X-Content-Type-Options": "nosniff",
+	} });
+}
+
 async function handleListRequests(req: Request, id: string) {
 	const requestId = generatePublicId();
 	const auth = await authenticate(req);
@@ -2852,5 +2903,6 @@ batchRoutes.get("/models", withRuntime(handleModels));
 batchRoutes.get("/capabilities", withRuntime(handleCapabilities));
 batchRoutes.route("/files", batchFilesRoutes);
 batchRoutes.get("/:id/requests", withRuntime((req) => handleListRequests(req, (req as any).param?.("id") ?? req.url.split("/").slice(-2, -1)[0] ?? "")));
+batchRoutes.get("/:id/results", withRuntime((req) => handleResults(req, (req as any).param?.("id") ?? req.url.split("/").slice(-2, -1)[0] ?? "")));
 batchRoutes.get("/:id", withRuntime((req) => handleRetrieve(req, (req as any).param?.("id") ?? req.url.split("/").pop() ?? "")));
 batchRoutes.post("/:id/cancel", withRuntime((req) => handleCancel(req, (req as any).param?.("id") ?? req.url.split("/").slice(-2, -1)[0] ?? "")));

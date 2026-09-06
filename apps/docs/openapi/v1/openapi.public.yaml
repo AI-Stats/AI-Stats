@@ -12114,6 +12114,13 @@ components:
           format: uri
           nullable: true
           description: Reserved for compatibility; currently always null.
+        results_url:
+          type: string
+          format: uri
+          nullable: true
+          description: >-
+            Authenticated Phaseo JSONL download URL for terminal Anthropic batches. Null while processing. Use an API
+            key from the owning workspace; provider retention limits apply.
         output_file_id:
           type: string
         error_file_id:

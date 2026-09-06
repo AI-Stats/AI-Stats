@@ -2,9 +2,22 @@ import { createHmac } from "node:crypto";
 import { describe, expect, test, vi } from "vitest";
 import { Phaseo } from "../src/index.js";
 import { OpenAI } from "../src/compat/openai.js";
-import { PhaseoHttpError } from "../src/runtime/client.js";
+import { Client, PhaseoHttpError } from "../src/runtime/client.js";
+import { retrieveBatchResults } from "../src/oapi-gen/client/default.js";
 
 describe("Phaseo batch helpers", () => {
+  test.each(['', '{"custom_id":"one","result":{"type":"succeeded"}}\n', '{"custom_id":"one"}\n{"custom_id":"two"}\n'])("downloads original JSONL without parsing or dropping newlines: %s", async (jsonl) => {
+    const client = new Client({
+      baseUrl: "https://example.test/v1",
+      headers: { Authorization: "Bearer test-key" },
+      fetchImpl: vi.fn(async (url, init) => {
+        expect(String(url)).toBe("https://example.test/v1/batches/batch_123/results");
+        expect(init?.headers).toMatchObject({ Authorization: "Bearer test-key" });
+        return new Response(jsonl, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8" } });
+      }),
+    });
+    expect(await retrieveBatchResults(client, { path: { batch_id: "batch_123" } })).toBe(jsonl);
+  });
   test("preserves gateway metadata across create and retrieve batch helpers", async () => {
     const fetchImpl: typeof fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);

@@ -339,6 +339,61 @@ vi.mock("../../utils", () => ({
 }));
 
 describe("batchRoutes", () => {
+	it("streams owned Anthropic results without buffering, redirecting or charging", async () => {
+		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "anthropic", status: "completed", nativeBatchId: "msgbatch_native", results_url: "https://untrusted.example/results" });
+		const cancelled = vi.fn();
+		const chunk = new TextEncoder().encode('{"custom_id":"one","result":{"type":"succeeded"}}\n');
+		const fetchMock = vi.fn(async () => new Response(new ReadableStream({ start(controller) { controller.enqueue(chunk); }, cancel: cancelled })));
+		vi.stubGlobal("fetch", fetchMock);
+		const { batchRoutes } = await import("./batches");
+		for (let read = 0; read < 2; read++) {
+			const response = await batchRoutes.request("https://example.com/batch_download/results");
+			expect(response.status).toBe(200);
+			expect(response.headers.get("content-type")).toBe("application/x-ndjson");
+			expect(response.headers.get("cache-control")).toBe("private, no-store");
+			const reader = response.body!.getReader();
+			expect((await reader.read()).value).toEqual(chunk);
+			await reader.cancel();
+		}
+		expect(fetchMock).toHaveBeenCalledWith("https://api.anthropic.com/v1/messages/batches/msgbatch_native/results", expect.objectContaining({ method: "GET", redirect: "manual" }));
+		expect(cancelled).toHaveBeenCalledTimes(2);
+		expect(state.finalizeCalls).toEqual([]);
+		expect(state.webhookEvents).toEqual([]);
+	});
+
+	it.each(["missing", "other-workspace", "gate", "processing", "provider", "auth"])("blocks results before provider access for %s", async (scenario) => {
+		state.batchMeta.set(batchKey(scenario === "other-workspace" ? "ws_other" : "ws_batch_test", "batch_download"), { provider: scenario === "provider" ? "openai" : "anthropic", status: scenario === "processing" ? "in_progress" : "completed", nativeBatchId: "msgbatch_native" });
+		if (scenario === "missing") state.batchMeta.clear();
+		if (scenario === "gate") state.batchApiEnabled = false;
+		if (scenario === "auth") {
+			const { authenticate } = await import("@pipeline/before/auth");
+			vi.mocked(authenticate).mockResolvedValueOnce({ ok: false, reason: "invalid_api_key" } as any);
+		}
+		const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/batch_download/results");
+		expect(response.status).toBe(({ missing: 404, "other-workspace": 404, gate: 403, processing: 409, provider: 501, auth: 401 })[scenario]);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it.each([302, 401, 404, 500])("sanitizes provider result failure %s", async (status) => {
+		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "anthropic", status: "completed", nativeBatchId: "msgbatch_native" });
+		vi.stubGlobal("fetch", vi.fn(async () => new Response("private provider diagnostic", { status, headers: { Location: "https://untrusted.example" } })));
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/batch_download/results");
+		expect(response.status).toBeGreaterThanOrEqual(400);
+		expect(await response.text()).not.toContain("private provider diagnostic");
+		expect(response.headers.get("location")).toBeNull();
+	});
+
+	it("replaces the Anthropic result URL with the authenticated gateway download", async () => {
+		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "anthropic", status: "completed", nativeBatchId: "msgbatch_native" });
+		vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ id: "msgbatch_native", processing_status: "ended", request_counts: { succeeded: 1 }, results_url: "https://api.anthropic.com/private-results" })));
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/batch_download");
+		expect(await response.json()).toMatchObject({ results_url: "https://example.com/batch_download/results" });
+	});
+
 	beforeEach(() => {
 		resetState();
 		vi.resetModules();

@@ -2712,6 +2712,26 @@ func RetrieveBatchFileContentAlias(client *Client, path map[string]string, query
 	return out, nil
 }
 
+func RetrieveBatchResults(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (string, error) {
+	resolvedPath := "/batches/" + url.PathEscape(path["batch_id"]) + "/results"
+	data, err := client.Request("GET", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	return string(data), nil
+}
+
+func RetrieveBatchResultsAlias(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (string, error) {
+	resolvedPath := "/batch/" + url.PathEscape(path["id"]) + "/results"
+	data, err := client.Request("GET", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	return string(data), nil
+}
+
 func RetrieveFile(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
 	resolvedPath := "/files/" + url.PathEscape(path["file_id"])
 	data, err := client.Request("GET", resolvedPath, query, headers, body)

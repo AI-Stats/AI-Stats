@@ -450,6 +450,7 @@ class BatchResponse(TypedDict):
 	provider: NotRequired[str]
 	request_counts: NotRequired[BatchRequestCounts]
 	request_id: NotRequired[str]
+	results_url: NotRequired[Optional[str]]
 	session_id: NotRequired[str]
 	status: NotRequired[str]
 	usage: NotRequired[Dict[str, Any]]

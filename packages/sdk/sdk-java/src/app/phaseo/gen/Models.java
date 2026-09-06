@@ -498,6 +498,7 @@ public final class Models {
 		public String provider;
 		public Object request_counts;
 		public String request_id;
+		public String results_url;
 		public String session_id;
 		public String status;
 		public Object usage;

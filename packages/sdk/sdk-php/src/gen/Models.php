@@ -894,6 +894,8 @@ class BatchResponse
 	/** @var string|null */
 	public $request_id;
 	/** @var string|null */
+	public $results_url;
+	/** @var string|null */
 	public $session_id;
 	/** @var string|null */
 	public $status;

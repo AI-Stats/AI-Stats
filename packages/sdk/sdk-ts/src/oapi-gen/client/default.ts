@@ -353,6 +353,7 @@ export async function cancelBatch(
     total?: number;
   };
   request_id?: string;
+  results_url?: string | null;
   session_id?: string;
   status?: string;
   usage?: {
@@ -466,6 +467,7 @@ export async function cancelBatch(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -600,6 +602,7 @@ export async function cancelBatchAlias(
     total?: number;
   };
   request_id?: string;
+  results_url?: string | null;
   session_id?: string;
   status?: string;
   usage?: {
@@ -713,6 +716,7 @@ export async function cancelBatchAlias(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -1445,6 +1449,7 @@ export async function createBatch(
     total?: number;
   };
   request_id?: string;
+  results_url?: string | null;
   session_id?: string;
   status?: string;
   usage?: {
@@ -1558,6 +1563,7 @@ export async function createBatch(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -1773,6 +1779,7 @@ export async function createBatchAlias(
     total?: number;
   };
   request_id?: string;
+  results_url?: string | null;
   session_id?: string;
   status?: string;
   usage?: {
@@ -1886,6 +1893,7 @@ export async function createBatchAlias(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -11278,6 +11286,7 @@ export async function listBatches(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -11402,6 +11411,7 @@ export async function listBatches(
         total?: number;
       };
       request_id?: string;
+      results_url?: string | null;
       session_id?: string;
       status?: string;
       usage?: {
@@ -11544,6 +11554,7 @@ export async function listBatchesAlias(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -11668,6 +11679,7 @@ export async function listBatchesAlias(
         total?: number;
       };
       request_id?: string;
+      results_url?: string | null;
       session_id?: string;
       status?: string;
       usage?: {
@@ -17142,6 +17154,7 @@ export async function retrieveBatch(
     total?: number;
   };
   request_id?: string;
+  results_url?: string | null;
   session_id?: string;
   status?: string;
   usage?: {
@@ -17255,6 +17268,7 @@ export async function retrieveBatch(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -17389,6 +17403,7 @@ export async function retrieveBatchAlias(
     total?: number;
   };
   request_id?: string;
+  results_url?: string | null;
   session_id?: string;
   status?: string;
   usage?: {
@@ -17502,6 +17517,7 @@ export async function retrieveBatchAlias(
       total?: number;
     };
     request_id?: string;
+    results_url?: string | null;
     session_id?: string;
     status?: string;
     usage?: {
@@ -17692,6 +17708,60 @@ export async function retrieveBatchFileContentAlias(
   const { path, query, headers, body } = args;
   const resolvedPath = `/batch/files/${encodeURIComponent(String(path["file_id"]))}/content`;
   return client.request<Blob>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RetrieveBatchResultsParams = {
+  path: {
+    batch_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Streams original Anthropic batch results as JSONL for a terminal batch owned by the authenticated workspace. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Currently Anthropic only.
+ */
+export async function retrieveBatchResults(
+  client: Client,
+  args: RetrieveBatchResultsParams,
+): Promise<string> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path["batch_id"]))}/results`;
+  return client.request<string>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RetrieveBatchResultsAliasParams = {
+  path: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Streams original Anthropic batch results as JSONL for a terminal batch owned by the authenticated workspace. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Currently Anthropic only.
+ */
+export async function retrieveBatchResultsAlias(
+  client: Client,
+  args: RetrieveBatchResultsAliasParams,
+): Promise<string> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path["id"]))}/results`;
+  return client.request<string>({
     method: "GET",
     path: resolvedPath,
     query,

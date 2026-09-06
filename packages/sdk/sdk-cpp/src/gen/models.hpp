@@ -500,6 +500,7 @@ struct BatchResponse {
 	std::string provider;
 	std::map<std::string, std::any> request_counts;
 	std::string request_id;
+	std::optional<std::string> results_url;
 	std::string session_id;
 	std::string status;
 	std::map<std::string, std::any> usage;

@@ -1089,6 +1089,18 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.retrieveBatchResults(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/batches/#{URI.encode_uri_component(path["batch_id"].to_s)}/results"
+        client.request_bytes(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.retrieveBatchResultsAlias(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/batch/#{URI.encode_uri_component(path["id"].to_s)}/results"
+        client.request_bytes(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.retrieveFile(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/files/#{URI.encode_uri_component(path["file_id"].to_s)}"
