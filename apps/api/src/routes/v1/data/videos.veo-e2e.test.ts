@@ -461,6 +461,7 @@ function buildExecutorArgs(
 		requestId,
 		workspaceId: "ws_video_e2e",
 		providerId: "google-vertex",
+		apiKeyId: "key_video_e2e",
 		endpoint: "video.generation",
 		protocol: "google.vertex.video",
 		capability: "video.generate",
