@@ -1547,8 +1547,8 @@ function AsyncJobDetailSheet({
 										columns={1}
 										items={[
 											{
-												label: "Webhook URL",
-												value: job.webhook.url ?? "No webhook configured",
+												label: "Webhook destination",
+												value: job.webhook.url ?? (job.webhook.configured ? "Workspace endpoint" : "No webhook configured"),
 											},
 											{
 												label: "Subscribed events",
@@ -1560,7 +1560,7 @@ function AsyncJobDetailSheet({
 											{
 												label: "Signing",
 												value: job.webhook.configured
-													? job.webhook.has_secret
+													? !job.webhook.url ? "Managed by endpoint" : job.webhook.has_secret
 														? "Enabled"
 														: "Disabled"
 													: "-",
