@@ -2820,11 +2820,13 @@ async function handleResults(req: Request, id: string) {
 			method: "GET",
 			redirect: "manual",
 		});
-	} catch {
+	} catch (error) {
+		console.error("batch_results_fetch_failed", { requestId, workspaceId: auth.workspaceId, batchId, provider: ANTHROPIC_PROVIDER_ID, errorType: error instanceof Error ? error.name : "unknown" });
 		return err("upstream_error", { reason: "batch_results_fetch_failed", request_id: requestId });
 	}
 	if (!upstream.ok || !upstream.body) {
-		await upstream.body?.cancel();
+		console.error("batch_results_fetch_failed", { requestId, workspaceId: auth.workspaceId, batchId, provider: ANTHROPIC_PROVIDER_ID, providerStatus: upstream.status, providerRequestId: upstream.headers.get("request-id"), reason: upstream.ok ? "missing_body" : "provider_http_error" });
+		await upstream.body?.cancel().catch(() => undefined);
 		return err("upstream_error", { reason: "batch_results_fetch_failed", provider_status: upstream.status, request_id: requestId });
 	}
 	// Stream provider JSONL unchanged; never buffer or persist generated content.

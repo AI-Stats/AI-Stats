@@ -377,6 +377,7 @@ describe("batchRoutes", () => {
 	});
 
 	it.each([302, 401, 404, 500])("sanitizes provider result failure %s", async (status) => {
+		const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
 		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "anthropic", status: "completed", nativeBatchId: "msgbatch_native" });
 		vi.stubGlobal("fetch", vi.fn(async () => new Response("private provider diagnostic", { status, headers: { Location: "https://untrusted.example" } })));
 		const { batchRoutes } = await import("./batches");
@@ -384,6 +385,9 @@ describe("batchRoutes", () => {
 		expect(response.status).toBeGreaterThanOrEqual(400);
 		expect(await response.text()).not.toContain("private provider diagnostic");
 		expect(response.headers.get("location")).toBeNull();
+		expect(log).toHaveBeenCalledWith("batch_results_fetch_failed", expect.objectContaining({ batchId: "batch_download", providerStatus: status }));
+		expect(JSON.stringify(log.mock.calls)).not.toContain("private provider diagnostic");
+		log.mockRestore();
 	});
 
 	it("replaces the Anthropic result URL with the authenticated gateway download", async () => {
