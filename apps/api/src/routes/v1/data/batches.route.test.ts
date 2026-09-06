@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@core/batch-download-limits", () => ({
+	admitBatchDownload: vi.fn(async () => ({ allowed: true, retryAfterSeconds: 0 })),
+}));
+
 const state = vi.hoisted(() => ({
 	authResult: {
 		ok: true as const,
@@ -382,6 +386,20 @@ describe("batchRoutes", () => {
 		expect(state.webhookEvents).toEqual([]);
 	});
 
+	it.each([429, 503])("blocks upstream downloads when admission returns %s", async (status) => {
+		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "anthropic", status: "completed", nativeBatchId: "native" });
+		const { admitBatchDownload } = await import("@core/batch-download-limits");
+		if (status === 429) vi.mocked(admitBatchDownload).mockResolvedValueOnce({ allowed: false, retryAfterSeconds: 1700 });
+		else vi.mocked(admitBatchDownload).mockRejectedValueOnce(new Error("unavailable"));
+		const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/batch_download/results");
+		expect(response.status).toBe(status);
+		expect(response.headers.get("Retry-After")).toBe(status === 429 ? "1700" : "30");
+		expect(fetchMock).not.toHaveBeenCalled();
+		expect(admitBatchDownload).toHaveBeenLastCalledWith("ws_batch_test", "batch_download");
+	});
+
 	it.each(["missing", "other-workspace", "gate", "processing", "provider", "auth"])("blocks results before provider access for %s", async (scenario) => {
 		state.batchMeta.set(batchKey(scenario === "other-workspace" ? "ws_other" : "ws_batch_test", "batch_download"), { provider: scenario === "provider" ? "google-vertex" : "anthropic", status: scenario === "processing" ? "in_progress" : "completed", nativeBatchId: "msgbatch_native" });
 		if (scenario === "missing") state.batchMeta.clear();
@@ -394,6 +412,7 @@ describe("batchRoutes", () => {
 		const { batchRoutes } = await import("./batches");
 		const response = await batchRoutes.request("https://example.com/batch_download/results");
 		expect(response.status).toBe(({ missing: 404, "other-workspace": 404, gate: 403, processing: 409, provider: 501, auth: 401 })[scenario]);
+		expect((await import("@core/batch-download-limits")).admitBatchDownload).not.toHaveBeenCalled();
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
@@ -420,6 +439,7 @@ describe("batchRoutes", () => {
 	});
 
 	beforeEach(() => {
+		vi.clearAllMocks();
 		resetState();
 		vi.resetModules();
 		vi.unstubAllGlobals();
