@@ -203,6 +203,9 @@ jobs:
             - name: Validate data files
               run: pnpm run validate:data && pnpm run validate:pricing && pnpm run validate:gateway
 
+            - name: Enforce EUR routing restriction
+              run: pnpm --filter @phaseo/web test --runTestsByPath scripts/eur-routing.test.ts
+
     check-paths:
         name: Check changed paths
         runs-on: ubuntu-latest
