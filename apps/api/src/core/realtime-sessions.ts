@@ -639,9 +639,10 @@ export function normalizeRealtimeUsage(rawUsage: Record<string, unknown>): Recor
 
 	return {
 		...source,
-		...(inputText != null ? { input_text_tokens: Math.max(0, inputText - (cachedText ?? 0)) } : {}),
+		// Canonical meters already exclude cache reads. Only split raw provider totals.
+		...(inputText != null ? { input_text_tokens: Math.max(0, inputText - (source.input_text_tokens != null ? 0 : cachedText ?? 0)) } : {}),
 		...(inputAudio != null
-			? { input_audio_tokens: Math.max(0, inputAudio - (cachedAudio ?? 0)) }
+			? { input_audio_tokens: Math.max(0, inputAudio - (source.input_audio_tokens != null ? 0 : cachedAudio ?? 0)) }
 			: {}),
 		...(outputText != null ? { output_text_tokens: outputText } : {}),
 		...(outputAudio != null

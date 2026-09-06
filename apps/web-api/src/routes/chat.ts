@@ -149,7 +149,6 @@ chatRouter.post("/realtime/session", async (c) => {
 				...(voice ? { voice } : {}),
 				...(instructions ? { instructions } : {}),
 				source: "chat",
-				relay: true,
 				metadata: { feature: "chat_realtime_voice", userId: auth.userId, workspaceId: auth.workspaceId },
 			}),
 		});

@@ -1369,7 +1369,7 @@ function buildRealtimeModels(models: GatewaySupportedModel[]): RealtimeModel[] {
 		.map(gatewayModelToRealtimeModel)
 		.filter((model): model is RealtimeModel => Boolean(model));
 	const seen = new Set<string>();
-	const deduped = [...mapped, ...REALTIME_MODELS].filter((model) => {
+	const deduped = mapped.filter((model) => {
 		if (seen.has(model.id)) return false;
 		seen.add(model.id);
 		return true;
