@@ -827,6 +827,7 @@ async function attemptProviderWithIR(
 				requestId: ctx.requestId,
 				workspaceId: ctx.workspaceId,
 				providerId: candidate.providerId,
+				apiKeyId: ctx.keyId,
 				endpoint: ctx.endpoint,
 				protocol: ctx.protocol as any,
 				capability: ctx.capability,

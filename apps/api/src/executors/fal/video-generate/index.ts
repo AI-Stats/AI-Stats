@@ -146,6 +146,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	let reservedNanos: number | null = null;
 	try {
 		const reservation = await reserveVideoGenerationCredits({
+			keyId: args.apiKeyId,
+			authMethod: args.meta.authMethod,
 			workspaceId: args.workspaceId,
 			videoId: args.requestId,
 			providerId: args.providerId,

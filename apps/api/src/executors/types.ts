@@ -57,6 +57,7 @@ export type ExecutorExecuteArgs = {
 
 	requestId: string;
 	workspaceId: string;
+	apiKeyId?: string | null;
 	providerId: string;
 	endpoint: Endpoint;
 	protocol?: Protocol;

@@ -733,6 +733,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	if (isVideoGeneration) {
 		try {
 			const reserved = await reserveVideoGenerationCredits({
+				keyId: args.apiKeyId,
+				authMethod: args.meta.authMethod,
 				workspaceId: args.workspaceId,
 				videoId: args.requestId,
 				providerId: args.providerId,

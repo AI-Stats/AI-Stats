@@ -56,6 +56,7 @@ function buildArgs(ir: IRVideoGenerationRequest): ExecutorExecuteArgs {
 		ir,
 		requestId: "req_google_video_test",
 		workspaceId: "team_test",
+		apiKeyId: "key_google_video_test",
 		providerId: "google-ai-studio",
 		endpoint: "video.generation",
 		protocol: "google.video",
@@ -312,6 +313,18 @@ describe("google video executor", () => {
 		});
 		expect(result.ir).toBeUndefined();
 		expect(state.releaseCalls).toEqual([]);
+	});
+
+	it("does not dispatch when the key cannot cover the video hold", async () => {
+		state.reservationResult = { reservationId: "video_hold:req_google_video_test", held: false,
+			amountNanos: 200_000_000, status: "daily_cost_limit_reached" };
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({ model: "google/veo-3.1-generate-preview", prompt: "cap test", seconds: 8, size: "720p" }));
+		mock.restore();
+		expect(result.upstream?.status).toBe(503);
+		expect(result.ir).toBeUndefined();
+		expect(mock.calls).toEqual([]);
+		expect(state.reservationCalls[0]).toMatchObject({ keyId: "key_google_video_test" });
 	});
 
 	it("does not submit upstream when reservation pricing dimensions are missing", async () => {

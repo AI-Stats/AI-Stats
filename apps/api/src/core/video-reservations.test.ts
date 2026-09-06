@@ -32,6 +32,13 @@ describe("reserveVideoGenerationCredits", () => {
 		state.reserveCalls = [];
 	});
 
+	it("requires the authenticated key before any reservation", async () => {
+		await expect(reserveVideoGenerationCredits({
+			workspaceId: "ws_video_reserve", videoId: "missing_key", providerId: "openai", model: "openai/sora",
+		})).rejects.toThrow("video_reservation_key_required");
+		expect(state.reserveCalls).toEqual([]);
+	});
+
 	it("classifies wallet insufficient-credit statuses consistently", () => {
 		expect(isInsufficientVideoReservationStatus("insufficient_funds")).toBe(true);
 		expect(isInsufficientVideoReservationStatus("insufficient_balance")).toBe(true);
@@ -39,10 +46,12 @@ describe("reserveVideoGenerationCredits", () => {
 		expect(isInsufficientVideoReservationStatus(null)).toBe(false);
 	});
 
-	it("holds credits when video pricing matches a paid rule", async () => {
+	it.each(["api_key", "oauth"] as const)("holds paid video credits for %s authentication", async (authMethod) => {
 		const result = await reserveVideoGenerationCredits({
 			workspaceId: "ws_video_reserve",
+			keyId: "key_video",
 			videoId: "video_paid_123",
+			authMethod,
 			providerId: "openai",
 			model: "openai/sora",
 			seconds: 6,
@@ -75,6 +84,7 @@ describe("reserveVideoGenerationCredits", () => {
 				reservationId: "video_hold:video_paid_123",
 				amountNanos: 300_000_000,
 				holdRefId: "video_paid_123",
+				...(authMethod === "api_key" ? { keyId: "key_video", requestCount: 1 } : {}),
 			},
 		]);
 	});
@@ -82,6 +92,7 @@ describe("reserveVideoGenerationCredits", () => {
 	it("allows matched free video pricing without a wallet hold", async () => {
 		const result = await reserveVideoGenerationCredits({
 			workspaceId: "ws_video_reserve",
+			keyId: "key_video",
 			videoId: "video_free_123",
 			providerId: "openai",
 			model: "openai/sora",
@@ -126,6 +137,7 @@ describe("reserveVideoGenerationCredits", () => {
 	it("fails closed when a positive video price card has no matching rule", async () => {
 		const result = await reserveVideoGenerationCredits({
 			workspaceId: "ws_video_reserve",
+			keyId: "key_video",
 			videoId: "video_unmatched_123",
 			providerId: "openai",
 			model: "openai/sora",

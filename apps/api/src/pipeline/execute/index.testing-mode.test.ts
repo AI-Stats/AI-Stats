@@ -58,6 +58,7 @@ function createCtx(overrides?: Partial<any>): any {
 		capability: "image.generate",
 		requestId: "req_test_1",
 		workspaceId: "team_test_1",
+		keyId: "key_test_1",
 		model: "openai/gpt-image-1-mini",
 		body: {},
 		meta: {
@@ -124,6 +125,7 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		await doRequestWithIR(createCtx({ capability: "video.generate", endpoint: "video.generation" }),
 			{ model: "video-model", prompt: "test" } as any, createTiming());
 		expect(executor).toHaveBeenCalledTimes(1);
+		expect(executor.mock.calls[0][0]).toMatchObject({ apiKeyId: "key_test_1" });
 	});
 
 	it("loads pricing lazily for testing-mode candidates and executes", async () => {

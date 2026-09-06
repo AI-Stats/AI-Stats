@@ -102,6 +102,8 @@ function hasPositiveVideoPricingRule(card: PriceCard): boolean {
 
 export async function reserveVideoGenerationCredits(args: {
 	workspaceId: string;
+	keyId?: string | null;
+	authMethod?: "api_key" | "oauth";
 	videoId: string;
 	providerId: string;
 	model: string;
@@ -111,6 +113,8 @@ export async function reserveVideoGenerationCredits(args: {
 	isByok?: boolean;
 }): Promise<VideoReservationResult> {
 	const reservationId = `${VIDEO_RESERVATION_PREFIX}${args.videoId}`;
+	const keyId = args.authMethod === "oauth" ? null : args.keyId;
+	if (!keyId && args.authMethod !== "oauth") throw new Error("video_reservation_key_required");
 	const seconds = toPositiveNumber(args.seconds);
 	if (!seconds || !args.pricingCard) {
 		return {
@@ -177,6 +181,7 @@ export async function reserveVideoGenerationCredits(args: {
 		reservationId,
 		amountNanos: totalNanos,
 		holdRefId: args.videoId,
+		...(keyId ? { keyId, requestCount: 1 } : {}),
 	});
 
 	return {
