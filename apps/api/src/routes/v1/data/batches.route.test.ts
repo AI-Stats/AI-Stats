@@ -412,6 +412,7 @@ describe("batchRoutes", () => {
 		const { batchRoutes } = await import("./batches");
 		const response = await batchRoutes.request("https://example.com/batch_download/results");
 		expect(response.status).toBe(({ missing: 404, "other-workspace": 404, gate: 403, processing: 409, provider: 501, auth: 401 })[scenario]);
+		expect((await import("@core/batch-download-limits")).admitBatchDownload).not.toHaveBeenCalled();
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
@@ -438,6 +439,7 @@ describe("batchRoutes", () => {
 	});
 
 	beforeEach(() => {
+		vi.clearAllMocks();
 		resetState();
 		vi.resetModules();
 		vi.unstubAllGlobals();
