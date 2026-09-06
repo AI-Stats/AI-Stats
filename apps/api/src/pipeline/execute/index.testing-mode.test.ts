@@ -119,7 +119,7 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 			{ model: "video-model", prompt: "test" } as any, createTiming());
 		expect(result).toBeInstanceOf(Response);
 		expect((result as Response).status).toBe(status);
-		expect(await (result as Response).json()).toMatchObject({ error: "key_limit_exceeded", reason: "daily_cost_limit_reached" });
+		expect(await (result as Response).json()).toMatchObject({ error: "key_limit_exceeded", reason: "daily_cost_limit_reached", error_type: "user", error_origin: "user" });
 		expect(executor).toHaveBeenCalledTimes(1);
 		expect(onCallEndMock).toHaveBeenCalledWith("video.generation", expect.objectContaining({ healthImpact: "neutral" }));
 		expect(maybeOpenOnRecentErrorsMock).not.toHaveBeenCalled();

@@ -912,6 +912,7 @@ async function attemptProviderWithIR(
 			}));
 			return { ok: false, response: new Response(JSON.stringify({
 				error: reservationDenial.code, reason: reservationDenial.reason,
+				error_type: "user", error_origin: "user",
 				description: "The video request was rejected by your credit or spending limits before provider submission.",
 				request_id: ctx.requestId,
 			}), { status: reservationDenial.status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } }) };
