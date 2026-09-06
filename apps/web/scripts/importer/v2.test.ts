@@ -28,6 +28,7 @@ import {
     staleModelSlugs,
     explicitlyRetiredAliasSlugs,
     stalePricingSkuIds,
+    stalePricingMeterIds,
     staleRouteVariantIds,
     stealthRouteIds,
     isProtectedProviderModel,
@@ -222,6 +223,19 @@ describe("stealth catalogue protection", () => {
             new Set(),
             protectedModels,
         )).toEqual(["public-result"]);
+    });
+
+    it("retires replaced JSON meters without touching historical, admin or protected pricing", () => {
+        const meter = { sku_id: "refreshed", metadata: { source: "json" }, billable: true };
+        expect(stalePricingMeterIds([
+            { ...meter, sku_meter_id: "old", meter_key: "requests" },
+            { ...meter, sku_meter_id: "current", meter_key: "input_video_seconds" },
+            { ...meter, sku_meter_id: "admin", meter_key: "custom", metadata: { source: "admin" } },
+            { ...meter, sku_meter_id: "protected", meter_key: "protected", metadata: { source: "json", source_key: "override" } },
+            { ...meter, sku_meter_id: "other-sku", sku_id: "unrefreshed", meter_key: "requests" },
+            { ...meter, sku_meter_id: "retired", meter_key: "old", billable: false },
+        ], new Set(["refreshed:input_video_seconds"]), new Set(["refreshed"]), new Set(["override"])))
+            .toEqual(["old"]);
     });
 
     it("preserves protected pricing rules and route SKUs", () => {

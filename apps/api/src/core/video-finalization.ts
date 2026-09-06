@@ -703,6 +703,11 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 			frame_rate: videoMeta?.frameRate,
 		}),
 		...normalizedRequestOptions(args.requestOptions),
+		// The submitted LTX endpoint determines the billing meter, including
+		// terminal reads that do not carry provider polling options.
+		...(args.providerId === "ltx" && videoMeta?.ltxEndpoint
+			? { mode: videoMeta.ltxEndpoint }
+			: {}),
 		// Preserve the authoritative count saved with the async job. Per-output
 		// price cards must not fall back to one output during completion.
 		sample_count: outputCount,
@@ -751,7 +756,9 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 	const hasStoredReservation =
 		Boolean(normalizeOptionalText(videoMeta?.reservationId)) ||
 		(typeof videoMeta?.reservedNanos === "number" && videoMeta.reservedNanos > 0);
-	const completionPricing =
+	let completionPricing: Awaited<ReturnType<typeof computeVideoCompletionPricing>> | null;
+	try {
+		completionPricing =
 		model && billableOutputSeconds != null
 			? await computeVideoCompletionPricing({
 				workspaceId: args.workspaceId,
@@ -763,6 +770,18 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 				isByok: args.isByok ?? (videoMeta?.keySource === "byok"),
 			})
 			: null;
+	} catch (error) {
+		const code = error instanceof Error ? error.message : "";
+		if (!code.startsWith("pricing_") && !code.startsWith("video_pricing_")) throw error;
+		await setVideoJobStatus(args.workspaceId, args.videoId, nextStatus, {
+			finalizedAt: finalizedAtIso, charged: false, billingReason: "pricing_error", billingError: code,
+		});
+		if (videoMeta?.billingReason !== "pricing_error") await emitGatewayOperationalFailure({
+			workflow: "video_finalization", workspaceId: args.workspaceId, resourceId: args.videoId,
+			reason: "pricing_error", error,
+		});
+		return { status: nextStatus, charged: false, reason: "pricing_error" };
+	}
 	const completionCostNanos =
 		typeof completionPricing?.costNanos === "number"
 			? Math.max(0, Math.round(completionPricing.costNanos))

@@ -58,6 +58,43 @@ vi.mock("@core/workspace-usage-rollups", () => ({
 import { finalizeVideoJob } from "./video-finalization";
 
 describe("video-finalization", () => {
+	it.each([undefined, { mode: "text-to-video" }])("settles LTX audio using the stored endpoint with polling options %j", async (requestOptions) => {
+		const { computeBill } = await vi.importActual<typeof import("@pipeline/pricing/engine")>("@pipeline/pricing/engine");
+		const { default: catalog } = await import("../../../../packages/data/catalog/src/data/pricing/ltx/ltx-2-3-pro/video.generate/pricing.json");
+		getVideoJobMetaMock.mockResolvedValue({ model: "ltx-2-3-pro", seconds: 20, resolution: "3840x2160",
+			ltxEndpoint: "audio-to-video", inputAudioSeconds: 20, keySource: "gateway",
+			reservationId: "video_hold:ltx_audio", reservedNanos: 6_800_000_000 });
+		loadPriceCardMock.mockResolvedValue({ ...catalog, provider: "ltx", model: "ltx-2-3-pro", currency: "USD" });
+		computeBillMock.mockImplementation(computeBill);
+		applyByokServiceFeeMock.mockImplementation(async ({ baseCostNanos, pricedUsage }) => ({ totalNanos: baseCostNanos, pricedUsage }));
+		settleWalletReservationMock.mockResolvedValue({ applied: true, status: "captured", amountNanos: 6_800_000_000 });
+		captureWalletReservationMock.mockResolvedValue({ applied: true, status: "captured", amountNanos: 6_800_000_000 });
+		const result = await finalizeVideoJob({ workspaceId: "ws_test", videoId: "ltx_audio", providerId: "ltx", status: "completed", requestOptions });
+		expect(result.charged).toBe(true);
+		expect(applyByokServiceFeeMock).toHaveBeenCalledWith(expect.objectContaining({ baseCostNanos: 6_800_000_000 }));
+		expect(computeBillMock).toHaveBeenCalledWith(expect.objectContaining({ input_audio_seconds: 20 }), expect.anything(), expect.anything());
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
+	});
+	it("retains the hold and records an actionable error when pricing is incomplete", async () => {
+		getVideoJobMetaMock.mockResolvedValue({
+			model: "openai/sora-2", seconds: 4, keySource: "gateway",
+			reservationId: "video_hold:pricing_error", reservedNanos: 400_000_000,
+		});
+		loadPriceCardMock.mockResolvedValue({ rules: [] });
+		computeBillMock.mockImplementation(() => { throw new Error("pricing_rule_missing:output_video_seconds"); });
+		const result = await finalizeVideoJob({
+			workspaceId: "ws_test", videoId: "video_test", providerId: "openai",
+			status: "completed", model: "openai/sora-2", seconds: 4,
+		});
+		expect(result).toMatchObject({ charged: false, reason: "pricing_error" });
+		expect(captureWalletReservationMock).not.toHaveBeenCalled();
+		expect(settleWalletReservationMock).not.toHaveBeenCalled();
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
+		expect(markVideoJobBilledMock).not.toHaveBeenCalled();
+		expect(setVideoJobStatusMock).toHaveBeenCalledWith("ws_test", "video_test", "completed",
+			expect.objectContaining({ billingReason: "pricing_error", billingError: "pricing_rule_missing:output_video_seconds" }));
+		expect(emitGatewayOperationalFailureMock).toHaveBeenCalledWith(expect.objectContaining({ reason: "pricing_error" }));
+	});
 	it("preserves completion time and duration on repeated terminal reads", async () => {
 		const finalizedAt = "2026-09-06T10:00:30.000Z";
 		getVideoJobRecordMock.mockResolvedValue({ status: "completed", meta: {

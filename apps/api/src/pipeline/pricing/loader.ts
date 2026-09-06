@@ -67,6 +67,9 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
             .eq("route.routing_enabled", true)
             .eq("operation", endpoint)
             .eq("status", "active")
+            // Wallet debits are USD. Foreign-currency catalog quotes must be
+            // converted by an explicit pricing policy before they are executable.
+            .eq("currency", "USD")
             .lte("effective_from", nowIso)
             .or(`effective_to.is.null,effective_to.gt.${nowIso}`)
             .eq("meters.billable", true)

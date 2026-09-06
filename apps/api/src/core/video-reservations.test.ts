@@ -29,6 +29,19 @@ function makeCard(rules: Array<Record<string, unknown>>): PriceCard {
 }
 
 describe("reserveVideoGenerationCredits", () => {
+	it("rejects an input-only subtotal before reserving or submitting a video", async () => {
+		const base = { unit_size: 1, currency: "USD", pricing_plan: "standard" };
+		await expect(reserveVideoGenerationCredits({
+			workspaceId: "ws_test", keyId: "key_test", videoId: "video_test", providerId: "test", model: "test",
+			seconds: 4, requestOptions: { resolution: "4k", input_image_count: 1 },
+			pricingCard: makeCard([
+				{ ...base, meter: "input_image", unit: "image", price_per_unit: "0.01", match: [] },
+				{ ...base, meter: "output_video_seconds", unit: "second", price_per_unit: "0.1",
+					match: [{ path: "resolution", op: "eq", value: "720p" }] },
+			]),
+		})).rejects.toThrow("pricing_rule_missing:output_video_seconds");
+		expect(state.reserveCalls).toEqual([]);
+	});
 	beforeEach(() => {
 		state.reserveCalls = [];
 		state.status = "held";
