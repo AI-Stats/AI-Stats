@@ -1039,6 +1039,7 @@ paths:
       tags:
         - Gateway
       operationId: markRealtimeSessionConnected
+      x-excluded: true
       summary: Mark realtime session connected
       description: >-
         Records that the upstream realtime relay connection has been
@@ -1064,6 +1065,7 @@ paths:
       tags:
         - Gateway
       operationId: extendRealtimeSession
+      x-excluded: true
       summary: Extend realtime session credit hold
       description: Extends the reserved credit for an active realtime audio session.
       parameters:
@@ -1100,6 +1102,7 @@ paths:
       tags:
         - Gateway
       operationId: updateRealtimeSessionUsage
+      x-excluded: true
       summary: Update realtime session usage
       description: Records the latest metered usage for an active realtime audio session.
       parameters:
