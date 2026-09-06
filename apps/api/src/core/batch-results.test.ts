@@ -59,6 +59,18 @@ describe("batch result streams", () => {
 		api.mockResolvedValueOnce(json({ response: output, metadata: { output } }));
 		expect(await download("google-ai-studio")).toBe('{"response":{"text":"one"}}\n');
 	});
+	it.each([
+		"dest.inlinedResponses", "dest.inlinedEmbedContentResponses",
+		"response.inlinedResponses", "response.inlinedEmbedContentResponses",
+		"metadata.output.inlinedResponses", "metadata.output.inlinedEmbedContentResponses", "inlinedResponses",
+	])("supports direct and nested Gemini arrays at %s", async (path) => {
+		const rows = [{ metadata: { key: "one" }, response: { embedding: { values: [0.1, 0.2] } } }, { metadata: { key: "two" }, error: { code: 3 } }];
+		for (const value of [rows, { inlinedResponses: rows }]) {
+			const payload = path.split(".").reverse().reduce<unknown>((child, key) => ({ [key]: child }), value);
+			api.mockResolvedValueOnce(json(payload));
+			expect(await download("google-ai-studio")).toBe(rows.map(row => JSON.stringify(row) + "\n").join(""));
+		}
+	});
 	it("streams an inline document larger than the per-row limit", async () => {
 		const row = JSON.stringify({ response: { text: "x".repeat(1024 * 1024) } });
 		let step = 0;

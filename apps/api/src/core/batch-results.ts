@@ -85,9 +85,13 @@ class DownloadContext {
 }
 
 type JsonResultMetadata = { files: string[]; paginationToken?: string; rows: number };
+// Match the same REST/SDK envelopes as extractGoogleInlineResponses.
 const GOOGLE_ROW_PATHS = [
-	"$.response.inlinedResponses.inlinedResponses.*", "$.metadata.output.inlinedResponses.inlinedResponses.*",
-];
+	"$.dest.inlinedResponses", "$.dest.inlinedEmbedContentResponses",
+	"$.response.inlinedResponses", "$.response.inlinedEmbedContentResponses",
+	"$.metadata.output.inlinedResponses", "$.metadata.output.inlinedEmbedContentResponses",
+	"$.inlinedResponses",
+].flatMap((path) => [`${path}.*`, `${path}.inlinedResponses.*`]);
 const GOOGLE_FILE_PATHS = ["$.dest.fileName", "$.dest.file_name", "$.response.responsesFile", "$.response.responses_file", "$.metadata.output.responsesFile", "$.metadata.output.responses_file"];
 
 async function* jsonRows(
@@ -121,12 +125,19 @@ async function* jsonRows(
 		if (typeof key === "number") {
 			// Operation metadata can mirror the final response; emit one result collection.
 			selectedRows ??= parent;
-			if (selectedRows !== parent) { bytesSinceValue = 0; return; }
+			if (selectedRows !== parent) {
+				if (Array.isArray(parent)) parent.length = 0;
+				bytesSinceValue = 0;
+				return;
+			}
 			if (!value || typeof value !== "object" || Array.isArray(value)) throw new BatchResultsError("invalid_result_row");
 			const encoded = encoder.encode(`${JSON.stringify(value)}\n`);
 			if (encoded.length > MAX_INLINE_ROW_BYTES) throw new BatchResultsError("inline_result_row_too_large");
 			queue.push(encoded);
 			metadata.rows++;
+			// Overlapping direct/nested envelope selectors can select an ancestor array.
+			// Drop each emitted row explicitly so that ancestor cannot retain the batch.
+			if (Array.isArray(parent)) parent.length = 0;
 		} else if (key === "pagination_token") {
 			metadata.paginationToken = batchText(value) ?? undefined;
 		} else {
