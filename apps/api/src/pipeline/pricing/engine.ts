@@ -581,7 +581,8 @@ function priceWithRule(qty: number, rule: PriceRule, requestOptions?: Record<str
         : 0;
     const resolvedPrice = resolveRulePrice(rule, requestOptions);
     const numericPrice = Number(resolvedPrice.price_per_unit);
-    if (String(resolvedPrice.price_per_unit).trim() === "" || !Number.isFinite(numericPrice) || numericPrice < 0) {
+    if ((typeof resolvedPrice.price_per_unit !== "string" && typeof resolvedPrice.price_per_unit !== "number") ||
+        String(resolvedPrice.price_per_unit).trim() === "" || !Number.isFinite(numericPrice) || numericPrice < 0) {
         throw new Error("pricing_invalid_unit_price");
     }
     // Pro-rate by unit size (e.g. 8 tokens at a per-1M-token rate).

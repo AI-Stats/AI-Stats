@@ -36,6 +36,10 @@ describe("invalid pricing cannot become a wallet charge", () => {
         expect(() => computeBillSummary({ input_text_tokens: 1000 }, card({ currency: "CNY" })))
             .toThrow("pricing_unsupported_currency");
     });
+    it.each([null, undefined, true, false])("rejects nonnumeric runtime price %s", (price) => {
+        expect(() => computeBillSummary({ input_text_tokens: 1000 }, card({ price_per_unit: price as any })))
+            .toThrow("pricing_invalid_unit_price");
+    });
     it("rejects a debit outside exact integer precision", () => {
         expect(() => computeBillSummary({ input_text_tokens: 1e18 }, card()))
             .toThrow("pricing_amount_out_of_range");
