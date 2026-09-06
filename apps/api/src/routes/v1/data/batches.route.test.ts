@@ -339,6 +339,27 @@ vi.mock("../../utils", () => ({
 }));
 
 describe("batchRoutes", () => {
+	it.each(["openai", "together", "mistral"])("downloads %s success/error files without finalization or webhook effects", async (provider) => {
+		state.batchMeta.set(batchKey("ws_batch_test", "batch_files"), { provider, status: "completed", nativeBatchId: "native", outputFileId: "out", errorFileId: "err" });
+		vi.stubGlobal("fetch", vi.fn(async (url) => new Response(String(url).includes("/out/") ? '{"custom_id":"good","response":{"body":{"output":"full"}}}\n' : '{"custom_id":"bad","error":{"message":"failed"}}\n')));
+		const { batchRoutes } = await import("./batches");
+		for (let read = 0; read < 2; read++) {
+			const response = await batchRoutes.request("https://example.com/batch_files/results");
+			expect(response.status).toBe(200);
+			const rows = (await response.text()).trim().split("\n").map((line) => JSON.parse(line));
+			expect(rows.map((row) => row.custom_id)).toEqual(["good", "bad"]);
+		}
+		expect(state.finalizeCalls).toEqual([]);
+		expect(state.webhookEvents).toEqual([]);
+		expect(state.statusUpdates).toEqual([]);
+	});
+	it("publishes a gateway download URL for completed OpenAI batches", async () => {
+		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "openai", status: "completed", nativeBatchId: "native" });
+		vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ id: "native", status: "completed", output_file_id: "out" })));
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/batch_download");
+		expect(await response.json()).toMatchObject({ results_url: "https://example.com/batch_download/results", output_file_id: "out" });
+	});
 	it("streams owned Anthropic results without buffering, redirecting or charging", async () => {
 		state.batchMeta.set(batchKey("ws_batch_test", "batch_download"), { provider: "anthropic", status: "completed", nativeBatchId: "msgbatch_native", results_url: "https://untrusted.example/results" });
 		const cancelled = vi.fn();
@@ -362,7 +383,7 @@ describe("batchRoutes", () => {
 	});
 
 	it.each(["missing", "other-workspace", "gate", "processing", "provider", "auth"])("blocks results before provider access for %s", async (scenario) => {
-		state.batchMeta.set(batchKey(scenario === "other-workspace" ? "ws_other" : "ws_batch_test", "batch_download"), { provider: scenario === "provider" ? "openai" : "anthropic", status: scenario === "processing" ? "in_progress" : "completed", nativeBatchId: "msgbatch_native" });
+		state.batchMeta.set(batchKey(scenario === "other-workspace" ? "ws_other" : "ws_batch_test", "batch_download"), { provider: scenario === "provider" ? "google-vertex" : "anthropic", status: scenario === "processing" ? "in_progress" : "completed", nativeBatchId: "msgbatch_native" });
 		if (scenario === "missing") state.batchMeta.clear();
 		if (scenario === "gate") state.batchApiEnabled = false;
 		if (scenario === "auth") {

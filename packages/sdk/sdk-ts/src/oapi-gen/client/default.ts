@@ -17726,7 +17726,7 @@ export type RetrieveBatchResultsParams = {
 };
 
 /**
- * Streams original Anthropic batch results as JSONL for a terminal batch owned by the authenticated workspace. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Currently Anthropic only.
+ * Streams complete provider-native result rows as JSONL for a terminal batch owned by the authenticated workspace. Combines success and error files, converts inline outputs, and follows provider result pagination. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Existing file endpoints remain available. Inline rows are limited to 8 MiB; interrupted downloads must be discarded and downloaded again.
  */
 export async function retrieveBatchResults(
   client: Client,
@@ -17753,7 +17753,7 @@ export type RetrieveBatchResultsAliasParams = {
 };
 
 /**
- * Streams original Anthropic batch results as JSONL for a terminal batch owned by the authenticated workspace. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Currently Anthropic only.
+ * Streams complete provider-native result rows as JSONL for a terminal batch owned by the authenticated workspace. Combines success and error files, converts inline outputs, and follows provider result pagination. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Existing file endpoints remain available. Inline rows are limited to 8 MiB; interrupted downloads must be discarded and downloaded again.
  */
 export async function retrieveBatchResultsAlias(
   client: Client,

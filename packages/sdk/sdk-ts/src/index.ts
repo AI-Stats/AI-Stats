@@ -998,7 +998,7 @@ export class Phaseo {
     );
   }
 
-  /** Stream original Anthropic JSONL without buffering. Cancel the stream or signal to stop downloading. */
+  /** Stream batch JSONL without buffering. Cancel the stream or signal to stop downloading. */
   async streamBatchResults(batchId: string, options: { signal?: AbortSignal } = {}): Promise<ReadableStream<Uint8Array>> {
     const res = await this.fetchImpl(`${this.basePath}/batches/${encodeURIComponent(batchId)}/results`, {
       method: "GET",

@@ -12119,8 +12119,8 @@ components:
           format: uri
           nullable: true
           description: >-
-            Authenticated Phaseo JSONL download URL for terminal Anthropic batches. Null while processing. Use an API
-            key from the owning workspace; provider retention limits apply.
+            Authenticated Phaseo JSONL download URL for terminal supported batches. Null while processing. A terminal
+            batch may have no output. Use an API key from the owning workspace; provider retention limits apply.
         output_file_id:
           type: string
         error_file_id:

@@ -84,6 +84,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@streamparser/json':
+        specifier: 0.0.26
+        version: 0.0.26
       '@supabase/supabase-js':
         specifier: ^2.106.2
         version: 2.110.3
@@ -5870,6 +5873,9 @@ packages:
     resolution: {integrity: sha512-r8Ur9/lBuFnzZAFdEWrLUF2s/gRwRRRwruqltdZibyjbCBnuW7SJbFm26nXqvpJPW/gzpBUMrBVBzd88z05D5g==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
+
+  '@streamparser/json@0.0.26':
+    resolution: {integrity: sha512-46597LNFI+MFdUnzX2QJWwmdTRdq0XVD+vVNJTtGVzIrnCuhG9pFo1OAzbNBqci8UJgk/X5KJZ6LcV+y7PTuDQ==}
 
   '@stripe/react-stripe-js@6.8.2':
     resolution: {integrity: sha512-6qxosv6c+LqtdML2R7nCDpFNowuh4ohIM894V9eRkbFJANUKbMKoXBd8AKOQAn1wjEfuYVI2NYtFnqFLOKbPjw==}
@@ -21708,6 +21714,8 @@ snapshots:
       remark-math: 6.0.0
     transitivePeerDependencies:
       - supports-color
+
+  '@streamparser/json@0.0.26': {}
 
   '@stripe/react-stripe-js@6.8.2(@stripe/stripe-js@9.9.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
