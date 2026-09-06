@@ -7,12 +7,15 @@ const isVideoJobBilledMock = vi.fn();
 const markVideoJobBilledMock = vi.fn();
 const captureWalletReservationMock = vi.fn();
 const releaseWalletReservationMock = vi.fn();
+const settleWalletReservationMock = vi.fn();
 const loadPriceCardMock = vi.fn();
 const computeBillMock = vi.fn();
 const applyByokServiceFeeMock = vi.fn();
 const recordUsageAndChargeMock = vi.fn();
 const getSupabaseAdminMock = vi.fn();
 const syncWorkspaceUsageRollupForRequestMock = vi.fn();
+const emitGatewayOperationalFailureMock = vi.fn();
+vi.mock("@/observability/axiom", () => ({ emitGatewayOperationalFailure: (...args: unknown[]) => emitGatewayOperationalFailureMock(...args) }));
 
 vi.mock("@core/video-jobs", () => ({
 	setVideoJobStatus: (...args: unknown[]) => setVideoJobStatusMock(...args),
@@ -25,6 +28,7 @@ vi.mock("@core/video-jobs", () => ({
 vi.mock("@core/wallet-reservations", () => ({
 	captureWalletReservation: (...args: unknown[]) => captureWalletReservationMock(...args),
 	releaseWalletReservation: (...args: unknown[]) => releaseWalletReservationMock(...args),
+	settleWalletReservation: (...args: unknown[]) => settleWalletReservationMock(...args),
 }));
 
 vi.mock("@pipeline/pricing/loader", () => ({
@@ -54,6 +58,17 @@ vi.mock("@core/workspace-usage-rollups", () => ({
 import { finalizeVideoJob } from "./video-finalization";
 
 describe("video-finalization", () => {
+	it("preserves completion time and duration on repeated terminal reads", async () => {
+		const finalizedAt = "2026-09-06T10:00:30.000Z";
+		getVideoJobRecordMock.mockResolvedValue({ status: "completed", meta: {
+			finalizedAt, providerDispatchedAtMs: Date.parse("2026-09-06T10:00:00.000Z"),
+		} });
+		isVideoJobBilledMock.mockResolvedValue(true);
+		await finalizeVideoJob({ workspaceId: "ws_test", videoId: "video_test", providerId: "openai", status: "completed" });
+		expect(setVideoJobStatusMock).toHaveBeenCalledWith("ws_test", "video_test", "completed",
+			expect.objectContaining({ finalizedAt, durationMs: 30000 }));
+		expect(captureWalletReservationMock).not.toHaveBeenCalled();
+	});
 	beforeEach(() => {
 		setVideoJobStatusMock.mockReset();
 		getVideoJobMetaMock.mockReset();
@@ -62,12 +77,14 @@ describe("video-finalization", () => {
 		markVideoJobBilledMock.mockReset();
 		captureWalletReservationMock.mockReset();
 		releaseWalletReservationMock.mockReset();
+		settleWalletReservationMock.mockReset();
 		loadPriceCardMock.mockReset();
 		computeBillMock.mockReset();
 		applyByokServiceFeeMock.mockReset();
 		recordUsageAndChargeMock.mockReset();
 		getSupabaseAdminMock.mockReset();
 		syncWorkspaceUsageRollupForRequestMock.mockReset();
+		emitGatewayOperationalFailureMock.mockReset();
 
 		setVideoJobStatusMock.mockResolvedValue(undefined);
 		getVideoJobMetaMock.mockResolvedValue({
@@ -81,6 +98,20 @@ describe("video-finalization", () => {
 		isVideoJobBilledMock.mockResolvedValue(false);
 		markVideoJobBilledMock.mockResolvedValue(undefined);
 		syncWorkspaceUsageRollupForRequestMock.mockResolvedValue(undefined);
+	});
+
+	it("retains a paid hold and records an anomaly when completion pricing becomes zero", async () => {
+		getVideoJobMetaMock.mockResolvedValue({ model: "openai/sora-2", seconds: 4, keySource: "gateway", reservationId: "hold", reservedNanos: 100_000_000, reservationStatus: "held" });
+		loadPriceCardMock.mockResolvedValue({ rules: [] });
+		computeBillMock.mockReturnValue({ pricing: { total_nanos: 0 } });
+		applyByokServiceFeeMock.mockResolvedValue({ totalNanos: 0, pricedUsage: { pricing: { total_nanos: 0 } } });
+		const result = await finalizeVideoJob({ workspaceId: "ws", videoId: "video", providerId: "openai", status: "completed", model: "openai/sora-2", seconds: 4 });
+		expect(result.reason).toBe("unexpected_zero_cost");
+		expect(setVideoJobStatusMock).toHaveBeenCalledWith("ws", "video", "completed", expect.objectContaining({ billingReason: "unexpected_zero_cost", charged: false }));
+		expect(emitGatewayOperationalFailureMock).toHaveBeenCalledWith(expect.objectContaining({ reason: "unexpected_zero_cost" }));
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
+		expect(settleWalletReservationMock).not.toHaveBeenCalled();
+		expect(markVideoJobBilledMock).not.toHaveBeenCalled();
 	});
 
 	it("does not legacy-charge when reservation is already released", async () => {
@@ -302,7 +333,7 @@ describe("video-finalization", () => {
 		expect(recordUsageAndChargeMock).not.toHaveBeenCalled();
 	});
 
-	it("releases a mismatched reservation and charges final computed usage", async () => {
+	it.each([false, true])("settles using the persisted charge on replay=%s", async (replay) => {
 		getVideoJobMetaMock.mockResolvedValue({
 			provider: "openai",
 			model: "openai/sora-2",
@@ -329,11 +360,11 @@ describe("video-finalization", () => {
 			totalNanos: 200_000_000,
 			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
 		});
-		releaseWalletReservationMock.mockResolvedValue({
-			applied: true,
-			alreadyApplied: false,
-			status: "released",
-			amountNanos: 300_000_000,
+		settleWalletReservationMock.mockResolvedValue({
+			applied: !replay,
+			alreadyApplied: replay,
+			status: "captured",
+			amountNanos: replay ? 150_000_000 : 200_000_000,
 		});
 
 		const result = await finalizeVideoJob({
@@ -348,8 +379,8 @@ describe("video-finalization", () => {
 		expect(result).toEqual({
 			status: "completed",
 			charged: true,
-			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
-			reason: "released_and_charged_actual",
+			pricedUsage: replay ? undefined : { pricing: { total_nanos: 200_000_000 } },
+			reason: replay ? "already_captured" : "captured",
 		});
 		expect(computeBillMock).toHaveBeenCalledWith(
 			expect.objectContaining({ output_video_seconds: 12, output_video: 3 }),
@@ -357,16 +388,14 @@ describe("video-finalization", () => {
 			expect.anything(),
 		);
 		expect(captureWalletReservationMock).not.toHaveBeenCalled();
-		expect(releaseWalletReservationMock).toHaveBeenCalledWith({
+		expect(settleWalletReservationMock).toHaveBeenCalledWith({
 			workspaceId: "team_mismatch",
 			reservationId: "video_hold:req_mismatch",
-			releaseRefId: "video_mismatch",
+			settleRefId: "video_mismatch",
+			actualNanos: 200_000_000,
 		});
-		expect(recordUsageAndChargeMock).toHaveBeenCalledWith({
-			requestId: "video_capture:video_mismatch",
-			workspaceId: "team_mismatch",
-			cost_nanos: 200_000_000,
-		});
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
+		expect(recordUsageAndChargeMock).not.toHaveBeenCalled();
 		expect(markVideoJobBilledMock).toHaveBeenCalledWith("team_mismatch", "video_mismatch");
 		expect(setVideoJobStatusMock).toHaveBeenCalledWith(
 			"team_mismatch",
@@ -374,10 +403,10 @@ describe("video-finalization", () => {
 			"completed",
 			expect.objectContaining({
 				charged: true,
-				costNanos: 200_000_000,
-				costUsd: 0.2,
-				billingReason: "released_and_charged_actual",
-				reservationStatus: "released_and_charged_actual",
+				costNanos: replay ? 150_000_000 : 200_000_000,
+				costUsd: replay ? 0.15 : 0.2,
+				billingReason: replay ? "already_captured" : "captured",
+				reservationStatus: replay ? "already_captured" : "captured",
 			}),
 		);
 	});
@@ -440,7 +469,7 @@ describe("video-finalization", () => {
 		);
 	});
 
-	it("keeps mismatched-reservation completed videos unbilled when release throws", async () => {
+	it.each(["settlement_failed", "reservation_not_found", "insufficient_balance"])("keeps completed video holds safe after %s", async (reason) => {
 		getVideoJobMetaMock.mockResolvedValue({
 			provider: "openai",
 			model: "openai/sora-2",
@@ -466,7 +495,11 @@ describe("video-finalization", () => {
 			totalNanos: 200_000_000,
 			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
 		});
-		releaseWalletReservationMock.mockRejectedValue(new Error("release_timeout"));
+		if (reason === "settlement_failed") {
+			settleWalletReservationMock.mockRejectedValue(new Error("settlement_timeout"));
+		} else {
+			settleWalletReservationMock.mockResolvedValue({ status: reason, applied: false, alreadyApplied: false });
+		}
 
 		const result = await finalizeVideoJob({
 			workspaceId: "team_release_failed",
@@ -477,12 +510,12 @@ describe("video-finalization", () => {
 			seconds: 4,
 		});
 
-		expect(result).toEqual({
+		expect(result).toMatchObject({
 			status: "completed",
 			charged: false,
-			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
-			reason: "release_failed",
+			reason,
 		});
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
 		expect(recordUsageAndChargeMock).not.toHaveBeenCalled();
 		expect(markVideoJobBilledMock).not.toHaveBeenCalled();
 		expect(setVideoJobStatusMock).toHaveBeenCalledWith(
@@ -491,9 +524,8 @@ describe("video-finalization", () => {
 			"completed",
 			expect.objectContaining({
 				charged: false,
-				billingReason: "release_failed",
-				reservationStatus: "release_failed",
-				pricedUsage: { pricing: { total_nanos: 200_000_000 } },
+				billingReason: reason,
+				reservationStatus: reason,
 			}),
 		);
 	});

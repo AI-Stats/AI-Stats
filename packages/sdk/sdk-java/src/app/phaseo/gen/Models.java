@@ -419,6 +419,7 @@ public final class Models {
 		public String model;
 		public java.util.List<String> prompts;
 		public Object provider;
+		public Object provider_options;
 		public java.util.List<Object> requests;
 		public String session_id;
 		public String system;
@@ -2660,6 +2661,7 @@ public final class Models {
 		public Integer compression_quality;
 		public Integer duration;
 		public Boolean enhance_prompt;
+		public java.util.List<Object> frame_images;
 		public Boolean generate_audio;
 		public Double input_audio_duration;
 		public java.util.List<Object> input_references;
@@ -2670,6 +2672,7 @@ public final class Models {
 		public String person_generation;
 		public String prompt;
 		public Object provider;
+		public Object provider_options;
 		public Object provider_params;
 		public String resize_mode;
 		public String resolution;

@@ -216,12 +216,12 @@ function buildUsageLogsFilterHref(args: {
 
 function formatMoneyFromNanos(value: number | null | undefined): string {
 	if (value == null || !Number.isFinite(value)) return "-";
-	return `$${(value / 1e9).toFixed(5)}`;
+	return formatMoneyFromUsd(value / 1e9);
 }
 
 function formatMoneyFromUsd(value: number | null | undefined): string {
 	if (value == null || !Number.isFinite(value)) return "-";
-	return `$${value.toFixed(5)}`;
+	return `$${value.toFixed(value !== 0 && Math.abs(value) < 0.00001 ? 9 : 5)}`;
 }
 
 function formatMilliseconds(value: number | null | undefined): string {
@@ -943,6 +943,12 @@ function AsyncJobDetailSheet({
 										{
 											label: "Billing reason",
 											value: job.billing_reason ?? "-",
+										},
+										{
+											label: "Provider submission",
+											value: job.submission_state === "submitting" || job.submission_state === "unknown"
+												? "Awaiting confirmation"
+												: job.submission_state ?? "-",
 										},
 										{
 											label: "Charged",
@@ -1977,7 +1983,7 @@ export default function AsyncJobsPanel({
 								</div>
 									<div className="shrink-0 text-right">
 										<div className="font-mono text-sm text-foreground">
-											{job.kind === "batch" && (job.settled_cost_nanos != null || job.settled_cost_usd != null)
+											{(job.settled_cost_nanos != null || job.settled_cost_usd != null)
 												? formatSettledCost(job)
 												: formatMoneyFromNanos(job.request_cost_nanos)}
 										</div>
@@ -2240,7 +2246,7 @@ export default function AsyncJobsPanel({
 								) : null}
 								{variant === "logs" ? (
 									<TableCell className="py-2 text-right font-mono text-xs">
-										{job.kind === "batch" && (job.settled_cost_nanos != null || job.settled_cost_usd != null)
+										{(job.settled_cost_nanos != null || job.settled_cost_usd != null)
 											? formatSettledCost(job)
 											: formatMoneyFromNanos(job.request_cost_nanos)}
 									</TableCell>

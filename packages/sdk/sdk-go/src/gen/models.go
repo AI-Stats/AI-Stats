@@ -415,6 +415,7 @@ type BatchRequest struct {
 	Model *string `json:"model,omitempty"`
 	Prompts *[]string `json:"prompts,omitempty"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
+	ProviderOptions *map[string]interface{} `json:"provider_options,omitempty"`
 	Requests *[]map[string]interface{} `json:"requests,omitempty"`
 	SessionId *string `json:"session_id,omitempty"`
 	System *string `json:"system,omitempty"`
@@ -4014,6 +4015,7 @@ type VideoGenerationRequest struct {
 	CompressionQuality *int `json:"compression_quality,omitempty"`
 	Duration *int `json:"duration,omitempty"`
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
+	FrameImages *[]map[string]interface{} `json:"frame_images,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
 	InputAudioDuration *float64 `json:"input_audio_duration,omitempty"`
 	InputReferences *[]interface{} `json:"input_references,omitempty"`
@@ -4024,6 +4026,7 @@ type VideoGenerationRequest struct {
 	PersonGeneration *string `json:"person_generation,omitempty"`
 	Prompt string `json:"prompt"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
+	ProviderOptions *map[string]interface{} `json:"provider_options,omitempty"`
 	ProviderParams *map[string]interface{} `json:"provider_params,omitempty"`
 	ResizeMode *string `json:"resize_mode,omitempty"`
 	Resolution *string `json:"resolution,omitempty"`

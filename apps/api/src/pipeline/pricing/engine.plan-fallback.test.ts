@@ -132,7 +132,7 @@ describe("pricing engine non-standard plan fallback", () => {
 		expect(result.cost_usd_str).toBe("9.900000000");
 	});
 
-	it("uses the highest configured rate when a requested plan has a conditional coverage hole", () => {
+	it("leaves batch coverage holes unpriced so settlement retains the hold", () => {
 		const card = makeCard([
 			{
 				id: "batch-high-quality-image",
@@ -154,8 +154,7 @@ describe("pricing engine non-standard plan fallback", () => {
 			"batch",
 		);
 
-		expect(result.lines).toHaveLength(1);
-		expect(result.lines[0]?.rule_id).toBe("batch-high-quality-image");
-		expect(result.cost_usd_str).toBe("0.250000000");
+		expect(result.lines).toHaveLength(0);
+		expect(result.cost_usd_str).toBe("0.000000000");
 	});
 });

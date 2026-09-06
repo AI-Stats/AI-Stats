@@ -57,6 +57,8 @@ export type ExecutorExecuteArgs = {
 
 	requestId: string;
 	workspaceId: string;
+	apiKeyId?: string | null;
+	onReservationDenied?: (denial: import("@core/video-reservations").VideoReservationDenial) => void;
 	providerId: string;
 	endpoint: Endpoint;
 	protocol?: Protocol;

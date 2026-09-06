@@ -74,6 +74,7 @@
 									"v1/guides/service-tiers",
 									"v1/guides/prompt-caching",
 									"v1/guides/multimodality",
+									"v1/guides/async-video-and-batch",
 									"v1/guides/document-parsing",
 									"v1/guides/tool-calling",
 									{
