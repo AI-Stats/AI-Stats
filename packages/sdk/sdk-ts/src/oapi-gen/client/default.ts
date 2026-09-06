@@ -1350,6 +1350,11 @@ export type CreateBatchParams = {
           };
       zdr?: boolean | null;
     };
+    provider_options?: {
+      [key: string]: {
+        [key: string]: unknown;
+      };
+    };
     requests?: {
       body: {
         [key: string]: unknown;
@@ -1672,6 +1677,11 @@ export type CreateBatchAliasParams = {
             [key: string]: unknown;
           };
       zdr?: boolean | null;
+    };
+    provider_options?: {
+      [key: string]: {
+        [key: string]: unknown;
+      };
     };
     requests?: {
       body: {
@@ -5523,6 +5533,13 @@ export type CreateVideoParams = {
     compression_quality?: number;
     duration?: number;
     enhance_prompt?: boolean;
+    frame_images?: {
+      frame_type: "first_frame" | "last_frame";
+      image_url: {
+        url: string;
+      };
+      type: "image_url";
+    }[];
     generate_audio?: boolean;
     input_audio_duration?: number;
     input_references?: (
@@ -5587,6 +5604,11 @@ export type CreateVideoParams = {
             [key: string]: unknown;
           };
       zdr?: boolean | null;
+    };
+    provider_options?: {
+      [key: string]: {
+        [key: string]: unknown;
+      };
     };
     provider_params?: {
       [key: string]: unknown;
@@ -5849,6 +5871,13 @@ export type CreateVideoAliasParams = {
     compression_quality?: number;
     duration?: number;
     enhance_prompt?: boolean;
+    frame_images?: {
+      frame_type: "first_frame" | "last_frame";
+      image_url: {
+        url: string;
+      };
+      type: "image_url";
+    }[];
     generate_audio?: boolean;
     input_audio_duration?: number;
     input_references?: (
@@ -5913,6 +5942,11 @@ export type CreateVideoAliasParams = {
             [key: string]: unknown;
           };
       zdr?: boolean | null;
+    };
+    provider_options?: {
+      [key: string]: {
+        [key: string]: unknown;
+      };
     };
     provider_params?: {
       [key: string]: unknown;

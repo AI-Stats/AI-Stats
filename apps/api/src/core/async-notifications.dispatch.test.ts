@@ -144,7 +144,7 @@ describe("async webhook dispatch", () => {
 	});
 
 	it("delivers signed batch completion webhooks and stores delivery metadata", async () => {
-		getAsyncOperationMock.mockResolvedValueOnce(batchRecord());
+		getAsyncOperationMock.mockResolvedValue(batchRecord());
 		vi.mocked(fetch).mockResolvedValueOnce(new Response("accepted", { status: 202 }));
 
 		const delivered = await dispatchAsyncWebhookEvent({
@@ -243,7 +243,7 @@ describe("async webhook dispatch", () => {
 	});
 
 	it("schedules retry metadata when the customer webhook fails", async () => {
-		getAsyncOperationMock.mockResolvedValueOnce(batchRecord());
+		getAsyncOperationMock.mockResolvedValue(batchRecord());
 		vi.mocked(fetch).mockResolvedValueOnce(new Response("try later", { status: 503 }));
 
 		const delivered = await dispatchAsyncWebhookEvent({
@@ -289,7 +289,7 @@ describe("async webhook dispatch", () => {
 	});
 
 	it("does not follow webhook redirects", async () => {
-		getAsyncOperationMock.mockResolvedValueOnce(batchRecord());
+		getAsyncOperationMock.mockResolvedValue(batchRecord());
 		vi.mocked(fetch).mockResolvedValueOnce(new Response(null, {
 			status: 307,
 			headers: { Location: "https://127.0.0.1/internal" },
@@ -353,6 +353,7 @@ describe("async webhook dispatch", () => {
 					},
 				}),
 			)
+			.mockImplementationOnce(async () => getAsyncOperationMock.mock.results[0].value)
 			.mockResolvedValueOnce(
 				batchRecord({
 					meta: {

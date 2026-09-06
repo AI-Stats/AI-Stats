@@ -1,0 +1,103 @@
+---
+title: "Video and batch jobs"
+badge: "Beta"
+description: "Track asynchronous jobs, receive webhooks, and pass provider-specific video options."
+---
+
+<Note>
+The Video API and Batch API are invite-only beta previews for selected workspaces. Check **Settings → Feature Preview** for availability. Access is managed per workspace; enabling a personal web preference does not grant API access. Normal model usage charges apply.
+</Note>
+
+Video generation and batch processing return a job before the work finishes. Persist its `id` and use the returned `polling_url` to recover its latest state. A successful create response does not mean generation or batch processing has completed.
+
+During the beta, start with small requests and an API key spending limit. Provider and model capabilities vary; reference inputs, cancellation and output retention depend on the selected provider. Keep your own copy of completed outputs before they expire.
+
+## Receive updates
+
+Attach a webhook endpoint belonging to your workspace when creating either kind of job:
+
+```json
+{
+  "webhook": {
+    "endpoint_id": "YOUR_ENDPOINT_ID",
+    "events": ["job.status_changed", "job.completed", "job.failed", "job.cancelled", "job.expired"]
+  }
+}
+```
+
+Phaseo reconciles provider status and sends customer notifications. Providers that require polling, including Anthropic message batches, can still produce customer webhooks. A webhook delivery failure is separate from a generation or batch failure.
+
+Verify `x-phaseo-signature` using the endpoint secret: the signature is the hexadecimal HMAC-SHA256 of `x-phaseo-timestamp`, a literal period, and the **unmodified request body**. Check timestamp freshness, deduplicate `x-phaseo-event-id`, and acknowledge accepted deliveries with a successful HTTP response. Deliveries can be retried or arrive out of order; retrieve the job before applying a conflicting state change.
+
+Treat `completed`, `failed`, `cancelled`, and `expired` lifecycle states as terminal. Keep a polling recovery path even when using webhooks.
+
+For each event, Phaseo makes one initial delivery attempt and up to three retries, scheduled after 1, 5, and 15 minutes. Each attempt records its number, time, HTTP status, error and next retry time. After the fourth unsuccessful attempt, delivery is marked permanently failed. Receivers must still deduplicate events: a lost acknowledgement or worker interruption can make delivery uncertain.
+
+## View job and request logs
+
+In **Settings → Usage → Logs**, use **Requests** for inference request details, **Video** for video lifecycles, and **Batch** for batch jobs and row results. Video and Batch detail views include billing status, provider attempts, and webhook attempts. A job can complete successfully while its webhook delivery fails.
+
+Video submission reserves credit before contacting the provider. A timeout with no task ID retains the reservation for reconciliation; it is not evidence of a failed generation. If a paid Video or Batch reservation unexpectedly prices at zero after successful work, billing remains open with `unexpected_zero_cost` for investigation. A zero-cost create response alone is normal for asynchronous generation.
+
+## Video inputs
+
+Use `seconds` or `duration` for output duration. If both are present, they must agree. Use `resolution` with `aspect_ratio`, or a pixel `size` such as `1280x720`.
+
+Use `frame_images` for explicit first and last frames:
+
+```json
+{
+  "frame_images": [
+    {
+      "type": "image_url",
+      "frame_type": "first_frame",
+      "image_url": { "url": "https://example.com/start.png" }
+    }
+  ],
+  "input_references": [
+    {
+      "type": "image_url",
+      "role": "reference",
+      "image_url": { "url": "https://example.com/character.png" }
+    }
+  ]
+}
+```
+
+Reference URLs must use HTTPS. Specify `role: "reference"` explicitly for reference-only images: legacy requests without `frame_images` interpret the first unlabelled image as a first frame. Do not combine `frame_images` with first/last-frame roles in `input_references` or with `input_reference`.
+
+Video and audio references use `type: "video_url"` or `"audio_url"` and `media_url: { "url": "https://..." }`. Models and providers support different combinations. Where reference duration affects pricing, supply `input_video_duration` and `input_audio_duration` in seconds.
+
+## Provider options
+
+Keep model, duration, resolution, audio generation, input media, and output count in canonical fields. Pass provider-specific extensions under the canonical provider ID:
+
+```json
+{
+  "provider_options": {
+    "atlascloud": { "watermark": false, "output_format": "mp4" },
+    "byteplus": { "camera_fixed": true }
+  }
+}
+```
+
+Only the selected provider's options are forwarded. Options do not select a provider; use the `provider` routing configuration for that. Do not combine `provider_options` with legacy `provider_params`. Nested options cannot override gateway-controlled billing or callback fields.
+
+| Provider | Example native extensions | Reference |
+| --- | --- | --- |
+| AtlasCloud Seedance 2.5 | `watermark`, `output_format`, `return_last_frame`, `omni_reference_task_type` | [Model API](https://www.atlascloud.ai/models/bytedance/seedance-2.5/reference-to-video) |
+| Novita Seedance 1.5 | `watermark`, `camera_fixed`, `fps` (24), `service_tier` (`default`) | [Unified video API](https://docs.novita.ai/api-reference/reference-unified-video-generation) |
+| BytePlus Seedance | `camera_fixed` | Check the selected model's provider contract before use. |
+| MiniMax V1 | `fast_pretreatment`; use canonical `enhance_prompt` for prompt optimization | [Video API](https://platform.minimax.io/docs/api-reference/video-generation-t2v) |
+
+AtlasCloud Seedance uses native `resolution`, `ratio`, and `last_image` fields. Its reference-to-video variant receives ordered image, video, and audio references. Automatic-duration editing (`duration: -1`) is not supported by the gateway's fixed-duration reservation contract. Provider model availability and pricing must be configured before a model can be routed; a provider option does not enable an unavailable model.
+
+MiniMax H3 uses V2: 4–15 whole seconds at `768P` or `2K`. H3 Max supports 5–15 whole seconds at `480P` or `768P`, with text or frame images. H3 supports reference images, video and audio; references cannot be mixed with first/last frames. Both models produce one video per request and do not support V1 prompt optimization options. Use canonical `aspect_ratio`; frame inputs determine their own ratio. Reference-video reservations cover the provider's 15-second input limit, with actual usage settled on completion. See the [MiniMax V2 contract](https://platform.minimax.io/docs/api-reference/video-generation-v2-create).
+
+## Batch providers
+
+Batch requests also accept `provider_options`: OpenAI supports `output_expires_after`, and Mistral supports `metadata`. Use canonical provider IDs and do not duplicate these fields at the top level. For example, `provider_options: { "openai": { "output_expires_after": { "anchor": "created_at", "seconds": 86400 } } }` sets OpenAI output retention. Row inputs, models, endpoints, and webhook destinations cannot be overridden through options.
+
+Mistral already has a native batch adapter. Anthropic message batches are polled; other providers may combine polling with native completion notifications. Availability depends on the provider's supported endpoints and the deployment's batch allowlist. Check the batch capability response before submitting a file or inline requests.
+
+Batch completion can include failed rows. Inspect each result using its custom ID instead of assuming that every row succeeded. Keep the original input and job ID until results and billing are reconciled. An uncertain submission must be investigated before resubmitting, because a provider may have accepted the original request.

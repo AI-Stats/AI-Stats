@@ -687,7 +687,9 @@ export function computeBillSummary(
             const requestedPlanDefinesMeter = card.rules.some(
                 (rule) => rule.pricing_plan === pricingPlan && rule.meter === dim,
             );
-            if (requestedPlanDefinesMeter) {
+            // Batch settlement must retain the hold when its pricing dimensions
+            // do not match. Selecting an unrelated tier can charge the wrong rate.
+            if (requestedPlanDefinesMeter && pricingPlan !== "batch") {
                 candidates = card.rules
                     .filter((rule) =>
                         (rule.pricing_plan === pricingPlan || rule.pricing_plan === "standard") &&
@@ -705,7 +707,7 @@ export function computeBillSummary(
             }
             if (conservativeCoverageFallback) {
                 resolvedPlan = pricingPlan;
-            } else {
+            } else if (!requestedPlanDefinesMeter || pricingPlan !== "batch") {
                 const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
                 if (fallbackCandidates.length) {
                     candidates = fallbackCandidates;

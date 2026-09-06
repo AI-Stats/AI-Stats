@@ -10964,12 +10964,55 @@ components:
             selected model. Check GET /videos/models before submitting a job.
           items:
             $ref: '#/components/schemas/VideoInputReference'
+        frame_images:
+          type: array
+          minItems: 1
+          maxItems: 2
+          description: >-
+            HTTPS first/last frame images. Each frame_type may appear once. Do
+            not also supply input_reference or frame roles in input_references.
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - type
+              - frame_type
+              - image_url
+            properties:
+              type:
+                type: string
+                enum:
+                  - image_url
+              frame_type:
+                type: string
+                enum:
+                  - first_frame
+                  - last_frame
+              image_url:
+                type: object
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+                    format: uri
         provider_params:
           type: object
           additionalProperties: true
           description: >-
             Provider-specific extensions only. Complete request passthrough and
             duplicate routing, prompt, callback, or billing fields are rejected.
+        provider_options:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties: true
+          description: >-
+            Extensions keyed by canonical provider ID (for example atlascloud or
+            byteplus). Only the selected provider's options are forwarded.
+            Cannot be combined with provider_params. Routing, prompt, callback,
+            duration, resolution, and output-count fields must use validated
+            top-level fields.
         output:
           $ref: '#/components/schemas/VideoOutputConfig'
         webhook:
@@ -11958,6 +12001,16 @@ components:
     BatchRequest:
       type: object
       properties:
+        provider_options:
+          type: object
+          description: >-
+            Extensions scoped by canonical provider ID. OpenAI accepts
+            output_expires_after; Mistral accepts metadata. Only the selected
+            provider's options are applied. Do not duplicate an option at the
+            top level. Options cannot override priced rows, models or files.
+          additionalProperties:
+            type: object
+            additionalProperties: true
         model:
           type: string
           description: >-

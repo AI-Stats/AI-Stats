@@ -605,6 +605,8 @@ module Phaseo
     #   @return [Array<String>, nil]
     # @!attribute [rw] provider
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] provider_options
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] requests
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] session_id
@@ -617,7 +619,7 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] webhook_endpoint_id
     #   @return [String, nil]
-    BatchRequest = Struct.new(:completion_window, :debug, :endpoint, :input_file_id, :items, :max_tokens, :metadata, :model, :prompts, :provider, :requests, :session_id, :system, :temperature, :webhook, :webhook_endpoint_id, keyword_init: true)
+    BatchRequest = Struct.new(:completion_window, :debug, :endpoint, :input_file_id, :items, :max_tokens, :metadata, :model, :prompts, :provider, :provider_options, :requests, :session_id, :system, :temperature, :webhook, :webhook_endpoint_id, keyword_init: true)
     # @!attribute [rw] completed
     #   @return [Integer, nil]
     # @!attribute [rw] failed
@@ -3797,6 +3799,8 @@ module Phaseo
     #   @return [Integer, nil]
     # @!attribute [rw] enhance_prompt
     #   @return [Boolean, nil]
+    # @!attribute [rw] frame_images
+    #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] generate_audio
     #   @return [Boolean, nil]
     # @!attribute [rw] input_audio_duration
@@ -3817,6 +3821,8 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] provider
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] provider_options
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] provider_params
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] resize_mode
@@ -3831,7 +3837,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] webhook
     #   @return [Hash{String => Object}, nil]
-    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_audio_duration, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
+    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :frame_images, :generate_audio, :input_audio_duration, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_options, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
     # @!attribute [rw] asset
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] audio

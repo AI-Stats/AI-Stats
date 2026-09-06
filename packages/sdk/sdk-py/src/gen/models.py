@@ -375,6 +375,7 @@ class BatchRequest(TypedDict):
 	model: NotRequired[str]
 	prompts: NotRequired[List[str]]
 	provider: NotRequired[ProviderRoutingOptions]
+	provider_options: NotRequired[SupportedParameterDetails]
 	requests: NotRequired[List[BatchRequestItem]]
 	session_id: NotRequired[str]
 	system: NotRequired[str]
@@ -2365,6 +2366,7 @@ class VideoGenerationRequest(TypedDict):
 	compression_quality: NotRequired[int]
 	duration: NotRequired[int]
 	enhance_prompt: NotRequired[bool]
+	frame_images: NotRequired[List[Dict[str, Any]]]
 	generate_audio: NotRequired[bool]
 	input_audio_duration: NotRequired[float]
 	input_references: NotRequired[List[Union[Dict[str, Any], Dict[str, Any]]]]
@@ -2375,6 +2377,7 @@ class VideoGenerationRequest(TypedDict):
 	person_generation: NotRequired[str]
 	prompt: str
 	provider: NotRequired[ProviderRoutingOptions]
+	provider_options: NotRequired[SupportedParameterDetails]
 	provider_params: NotRequired[Dict[str, Any]]
 	resize_mode: NotRequired[str]
 	resolution: NotRequired[str]

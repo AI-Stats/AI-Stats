@@ -30,7 +30,7 @@ vi.mock("@core/video-reservations", () => ({
 
 vi.mock("@core/video-jobs", () => ({
 	saveVideoJobMeta: (...args: unknown[]) => {
-		if (state.saveVideoJobMetaError) throw state.saveVideoJobMetaError;
+		if (state.saveVideoJobMetaError && (args[2] as any).submissionState !== "submitting") throw state.saveVideoJobMetaError;
 		return saveVideoJobMetaMock(...args);
 	},
 }));
@@ -131,10 +131,10 @@ describe("google video executor", () => {
 			aspectRatio: "16:9",
 			resolution: "1080p",
 			negativePrompt: "blurry, noisy",
-			numberOfVideos: 1,
 			seed: 42,
 			personGeneration: "allow_adult",
 		});
+		expect(capturedBody?.parameters).not.toHaveProperty("numberOfVideos");
 		expect(state.reservationCalls[0]).toMatchObject({ seconds: 8 });
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
@@ -177,7 +177,7 @@ describe("google video executor", () => {
 		expect(capturedHeaders["x-goog-api-key"]).toBe("test-google-key");
 		expect(capturedBody?.instances?.[0]?.image?.uri).toBe("https://example.com/ref.png");
 		expect(capturedBody?.parameters?.resolution).toBe("720p");
-		expect(capturedBody?.parameters?.numberOfVideos).toBe(1);
+		expect(capturedBody?.parameters).not.toHaveProperty("numberOfVideos");
 	});
 
 	it("maps normalized IR reference images and defaults billable dimensions", async () => {
@@ -277,11 +277,11 @@ describe("google video executor", () => {
 			},
 		});
 		expect(result.ir).toBeUndefined();
-		expect(saveVideoJobMetaMock).not.toHaveBeenCalled();
+		expect(saveVideoJobMetaMock).toHaveBeenCalledTimes(1);
 		expect(state.releaseCalls).toEqual([]);
 	});
 
-	it("releases a held reservation when Google returns success without an operation name", async () => {
+	it("retains a held reservation when Google returns success without an operation name", async () => {
 		state.reservationResult = {
 			reservationId: "video_hold:req_google_video_test",
 			held: true,
@@ -311,13 +311,7 @@ describe("google video executor", () => {
 			},
 		});
 		expect(result.ir).toBeUndefined();
-		expect(state.releaseCalls).toEqual([
-			{
-				workspaceId: "team_test",
-				reservationId: "video_hold:req_google_video_test",
-				releaseRefId: "req_google_video_test",
-			},
-		]);
+		expect(state.releaseCalls).toEqual([]);
 	});
 
 	it("does not submit upstream when reservation pricing dimensions are missing", async () => {

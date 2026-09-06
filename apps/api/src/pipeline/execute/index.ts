@@ -9,6 +9,7 @@ import { Timer } from "../telemetry/timer";
 import { dispatchBackground, ensureRuntimeForBackground, getSupabaseAdmin } from "@/runtime/env";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
 import { getProviderPricingKey } from "../before/context.shared";
+import { selectVideoProviderOptions } from "@core/video-provider-options";
 
 export type PipelineTiming = {
 	timer: Timer;
@@ -545,6 +546,10 @@ export async function doRequestWithIR(
 			}
 			return result;
 		}
+		if ("stopFallback" in result && result.stopFallback) {
+			anyPricingFound = true;
+			break;
+		}
 
 		if ("skip" in result && result.skip === "no_pricing") {
 			continue;
@@ -596,7 +601,7 @@ async function attemptProviderWithIR(
 	attemptNumber: number,
 	credential: { kind: "gateway" } | { kind: "byok"; key: ByokKeyMeta },
 	credentialPhase: CredentialAttemptPhase,
-): Promise<{ ok: true; result: IRRequestResult } | { ok: false; skip?: string }> {
+): Promise<{ ok: true; result: IRRequestResult } | { ok: false; skip?: string; stopFallback?: boolean }> {
 	const attemptErrors: Array<Record<string, unknown>> = (ctx.attemptErrors ??= []);
 	const attemptPrefix = `attempt_${attemptNumber}`;
 	const attemptStartedAtEpochMs = Date.now();
@@ -766,7 +771,9 @@ async function attemptProviderWithIR(
 						modelForReasoning,
 					},
 				)
-				: ir,
+				: normalizedCapability === "video.generate"
+					? selectVideoProviderOptions(ir as IRVideoGenerationRequest, candidate.providerId)
+					: ir,
 		);
 		if (credential.kind === "gateway" && !ctx.testingMode) {
 			const reservationTokens = estimateProviderTokenReservation({
@@ -857,7 +864,9 @@ async function attemptProviderWithIR(
 
 		const executeWithRetry = async () => {
 			let lastErr: unknown = null;
-			const maxRetries = allowSingleProviderRetry
+			// Async creates have no cross-provider idempotency guarantee. A lost
+			// response can still represent a running, billable provider job.
+			const maxRetries = normalizedCapability === "video.generate" ? 0 : allowSingleProviderRetry
 				? SINGLE_PROVIDER_FAILURE_RETRIES
 				: MAX_RETRYABLE_EXECUTOR_RETRIES;
 			for (let retryAttempt = 0; retryAttempt <= maxRetries; retryAttempt += 1) {
@@ -1104,7 +1113,15 @@ async function attemptProviderWithIR(
 				upstream_media_count: executorResult.timing?.upstreamMediaCount ?? null,
 				retry_delay_ms: executorResult.timing?.transientRetryDelayMs ?? null,
 			});
-			return { ok: false };
+			return {
+				ok: false,
+				stopFallback: normalizedCapability === "video.generate" && (
+					// A dispatched create owns a durable job and reservation lifecycle.
+					// Do not reuse that job for a second provider after rejection either.
+					upstreamTracker.snapshot().upstreamRequestCount > 0 ||
+					executorResult.upstream.status >= 500 || executorResult.upstream.status === 408
+				),
+			};
 		}
 
 		// Build result
@@ -1250,6 +1267,6 @@ async function attemptProviderWithIR(
 				await maybeOpenOnRecentErrors(ctx.endpoint, candidate.providerId, baseModel);
 			}
 		});
-		return { ok: false };
+		return { ok: false, stopFallback: ctx.capability === "video.generate" };
 	}
 }

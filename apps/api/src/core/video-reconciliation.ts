@@ -473,7 +473,7 @@ async function fetchGoogleAiStudioVideoStatus(job: VideoJobRecord): Promise<Vide
 		});
 		if (isGoogleOperationsGetAuthFailure(res.status, bodyJson)) {
 			return {
-				status: "failed",
+				status: "in_progress",
 				providerId,
 				model: String(job.model ?? job.meta?.model ?? "").trim() || undefined,
 				seconds: toPositiveNumber(job.meta?.seconds),
@@ -770,7 +770,15 @@ async function fetchMiniMaxVideoStatus(job: VideoJobRecord): Promise<VideoProvid
 		requestOptions: buildVideoPricingRequestOptions({
 			resolution: task.resolution ?? task.size ?? job.meta?.resolution,
 			quality: task.quality ?? job.meta?.quality,
+			input_image_count: task.usage?.input_image_count ?? job.meta?.inputImageCount,
+			input_video_seconds: task.usage?.input_seconds ?? job.meta?.inputVideoSeconds,
+			input_audio_seconds: task.usage?.input_audio_seconds ?? job.meta?.inputAudioSeconds,
 		}),
+		metaPatch: {
+			inputImageCount: task.usage?.input_image_count ?? job.meta?.inputImageCount,
+			inputVideoSeconds: task.usage?.input_seconds ?? job.meta?.inputVideoSeconds,
+			inputAudioSeconds: task.usage?.input_audio_seconds ?? job.meta?.inputAudioSeconds,
+		},
 		raw: json,
 	};
 }
@@ -1019,8 +1027,28 @@ async function fetchLtxVideoStatus(job: VideoJobRecord): Promise<VideoProviderSt
 	};
 }
 
+async function fetchNovitaVideoStatus(job: VideoJobRecord): Promise<VideoProviderStatusResult | null> {
+	const taskId = toNonEmptyString(job.nativeId ?? job.meta?.providerTaskId);
+	if (!taskId) return null;
+	const key = await resolveProviderPollingKey({ job, providerId: "novita", defaultEnvKey: "NOVITA_API_KEY" });
+	if (!key) return null;
+	const response = await fetch(`https://api.novita.ai/v3/async/task-result?task_id=${encodeURIComponent(taskId)}`, {
+		headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(15_000),
+	});
+	if (!response.ok) return null;
+	const json = await response.json() as any;
+	const nativeStatus = json?.task?.status;
+	const status = nativeStatus === "TASK_STATUS_SUCCEED" ? "completed" : nativeStatus === "TASK_STATUS_FAILED" ? "failed" : "in_progress";
+	const downloadUrl = toNonEmptyString(json?.videos?.[0]?.video_url);
+	return { status, providerId: "novita", model: job.model ?? undefined, seconds: toPositiveNumber(job.meta?.seconds),
+		progress: toNonNegativeNumber(json?.task?.progress_percent),
+		requestOptions: buildVideoPricingRequestOptions({ size: job.meta?.resolution, audio: job.meta?.audio, aspect_ratio: job.meta?.aspectRatio }),
+		metaPatch: downloadUrl ? { downloadUrl } : undefined, raw: json };
+}
+
 export async function fetchVideoProviderStatus(job: VideoJobRecord): Promise<VideoProviderStatusResult | null> {
 	const provider = String(job.provider ?? job.meta?.provider ?? "").trim().toLowerCase();
+	if (provider === "novita" || provider === "novitaai") return fetchNovitaVideoStatus(job);
 	if (provider === "google-ai-studio") return fetchGoogleAiStudioVideoStatus(job);
 	if (provider === "google-vertex") return fetchGoogleVertexVideoStatus(job);
 	if (provider === "alibaba" || provider === "alibaba-cloud" || provider === "qwen") return fetchAlibabaVideoStatus(job);

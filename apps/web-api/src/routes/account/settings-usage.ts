@@ -373,7 +373,9 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 		const provider = stringParam(url, "job_provider"); if (provider) query = query.eq("provider", provider);
 		const result = await query.order("updated_at", { ascending: false }).limit(50);
 		if (result.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const recentJobsBase = (result.data ?? []).map((row) => ({ ...row, ...(row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {}), webhook: row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? (row.meta as Record<string, unknown>).webhook ?? null : null }));
+		// Reuse the refresh serializer; never return raw provider/webhook metadata.
+		const { toAsyncJobRow } = await import("@/usage/actions");
+		const recentJobsBase = (result.data ?? []).map((row) => toAsyncJobRow(row as Record<string, unknown>, { includeWithoutWebhook: true })).filter((row): row is NonNullable<typeof row> => row !== null);
 		const requestIds = Array.from(new Set(recentJobsBase.map((row) => row.request_id).filter(Boolean)));
 		const requestSourcesResult = requestIds.length
 			? await context.client.from("gateway_requests")

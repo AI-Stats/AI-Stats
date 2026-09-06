@@ -743,6 +743,8 @@ class BatchRequest
 	public $prompts;
 	/** @var array<string, mixed>|null */
 	public $provider;
+	/** @var array<string, mixed>|null */
+	public $provider_options;
 	/** @var array|null */
 	public $requests;
 	/** @var string|null */
@@ -4665,6 +4667,8 @@ class VideoGenerationRequest
 	public $duration;
 	/** @var bool|null */
 	public $enhance_prompt;
+	/** @var array|null */
+	public $frame_images;
 	/** @var bool|null */
 	public $generate_audio;
 	/** @var float|null */
@@ -4685,6 +4689,8 @@ class VideoGenerationRequest
 	public $prompt;
 	/** @var array<string, mixed>|null */
 	public $provider;
+	/** @var array<string, mixed>|null */
+	public $provider_options;
 	/** @var array<string, mixed>|null */
 	public $provider_params;
 	/** @var string|null */

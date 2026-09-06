@@ -771,6 +771,7 @@ function compactOutputEntry(entry: any, index: number): any {
 						? { response: { videoMetadata: body.response.videoMetadata } }
 						: {}),
 					...(body.seconds != null ? { seconds: body.seconds } : {}),
+					...(typeof body.status === "string" ? { status: body.status } : {}),
 					...(body.duration != null ? { duration: body.duration } : {}),
 					...(body.duration_seconds != null ? { duration_seconds: body.duration_seconds } : {}),
 					...(body.size != null ? { size: body.size } : {}),

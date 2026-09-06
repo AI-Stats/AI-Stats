@@ -945,6 +945,12 @@ function AsyncJobDetailSheet({
 											value: job.billing_reason ?? "-",
 										},
 										{
+											label: "Provider submission",
+											value: job.submission_state === "submitting" || job.submission_state === "unknown"
+												? "Awaiting confirmation"
+												: job.submission_state ?? "-",
+										},
+										{
 											label: "Charged",
 											value:
 												job.charged == null ? "-" : job.charged ? "Yes" : "No",

@@ -3043,6 +3043,7 @@ export interface AsyncJobRow {
 	settled_cost_usd: number | null;
 	charged: boolean | null;
 	billing_reason: string | null;
+	submission_state: string | null;
 	job_failure_category: string | null;
 	job_failure_provider: string | null;
 	job_failure_hint: string | null;
@@ -3270,7 +3271,7 @@ function buildWebhookSummary(meta: Record<string, unknown> | null | undefined): 
 	};
 }
 
-function toAsyncJobRow(
+export function toAsyncJobRow(
 	row: Record<string, unknown>,
 	options?: { includeWithoutWebhook?: boolean },
 ): AsyncJobRow | null {
@@ -3326,6 +3327,7 @@ function toAsyncJobRow(
 					? ["1", "true", "yes", "on"].includes(meta.charged.toLowerCase())
 					: null,
 		billing_reason: normalizeText(meta?.billingReason ?? meta?.billing_reason),
+		submission_state: normalizeText(meta?.submissionState),
 		job_failure_category:
 			failureDiagnostics.job_provider_failure_diagnostics?.category ?? null,
 		job_failure_provider:

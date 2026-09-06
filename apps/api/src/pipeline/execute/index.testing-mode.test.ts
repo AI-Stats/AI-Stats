@@ -101,6 +101,31 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		reportProbeResultMock.mockResolvedValue(undefined);
 	});
 
+	it.each([400, 502, 408, "transport"])("does not repeat a dispatched video submission (%s)", async (failure) => {
+		const candidates = ["openai", "atlascloud"].map((providerId) => ({
+			providerId, pricingCard: { rules: [], currency: "USD" }, byokMeta: [],
+			providerModelSlug: "video-model", capabilityParams: {},
+		}));
+		guardCandidatesMock.mockResolvedValue({ ok: true, value: candidates });
+		rankProvidersMock.mockResolvedValue(candidates.map((candidate) => ({ candidate, health: {} })));
+		const executor = vi.fn(async (args: any) => {
+			if (failure === 400) {
+				const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 400 }));
+				await args.upstreamTiming.fetch("https://provider.test/videos", { method: "POST" });
+				fetchSpy.mockRestore();
+			}
+			if (failure === "transport") throw Object.assign(new Error("lost response"), { retryable: true });
+			return {
+				kind: "completed", upstream: new Response("{}", { status: failure }),
+				bill: { cost_cents: 0, currency: "USD" }, keySource: "gateway",
+			};
+		});
+		resolveProviderExecutorMock.mockReturnValue(executor);
+		await doRequestWithIR(createCtx({ capability: "video.generate", endpoint: "video.generation" }),
+			{ model: "video-model", prompt: "test" } as any, createTiming());
+		expect(executor).toHaveBeenCalledTimes(1);
+	});
+
 	it("loads pricing lazily for testing-mode candidates and executes", async () => {
 		const candidate = {
 			providerId: "openai",

@@ -1024,6 +1024,9 @@ public sealed class BatchRequest
 	[JsonPropertyName("provider")]
 	public Dictionary<string, object>? Provider { get; set; }
 
+	[JsonPropertyName("provider_options")]
+	public Dictionary<string, object>? ProviderOptions { get; set; }
+
 	[JsonPropertyName("requests")]
 	public List<Dictionary<string, object>>? Requests { get; set; }
 
@@ -6413,6 +6416,9 @@ public sealed class VideoGenerationRequest
 	[JsonPropertyName("enhance_prompt")]
 	public bool? EnhancePrompt { get; set; }
 
+	[JsonPropertyName("frame_images")]
+	public List<Dictionary<string, object>>? FrameImages { get; set; }
+
 	[JsonPropertyName("generate_audio")]
 	public bool? GenerateAudio { get; set; }
 
@@ -6442,6 +6448,9 @@ public sealed class VideoGenerationRequest
 
 	[JsonPropertyName("provider")]
 	public Dictionary<string, object>? Provider { get; set; }
+
+	[JsonPropertyName("provider_options")]
+	public Dictionary<string, object>? ProviderOptions { get; set; }
 
 	[JsonPropertyName("provider_params")]
 	public Dictionary<string, object>? ProviderParams { get; set; }

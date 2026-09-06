@@ -421,6 +421,7 @@ struct BatchRequest {
 	std::string model;
 	std::vector<std::string> prompts;
 	std::map<std::string, std::any> provider;
+	std::map<std::string, std::any> provider_options;
 	std::vector<std::map<std::string, std::any>> requests;
 	std::string session_id;
 	std::string system;
@@ -2640,6 +2641,7 @@ struct VideoGenerationRequest {
 	std::optional<int> compression_quality;
 	std::optional<int> duration;
 	std::optional<bool> enhance_prompt;
+	std::vector<std::map<std::string, std::any>> frame_images;
 	std::optional<bool> generate_audio;
 	std::optional<double> input_audio_duration;
 	std::vector<std::any> input_references;
@@ -2650,6 +2652,7 @@ struct VideoGenerationRequest {
 	std::string person_generation;
 	std::string prompt;
 	std::map<std::string, std::any> provider;
+	std::map<std::string, std::any> provider_options;
 	std::map<std::string, std::any> provider_params;
 	std::string resize_mode;
 	std::string resolution;

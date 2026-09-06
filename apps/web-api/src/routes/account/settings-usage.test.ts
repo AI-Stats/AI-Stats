@@ -7,6 +7,27 @@ const env = { ENV: "development" as const, SUPABASE_URL: "https://example.supaba
 afterEach(() => vi.unstubAllGlobals());
 
 describe("account usage settings routes", () => {
+	it.each(["video", "batch"])("filters %s jobs before limiting and returns safe normalized logging fields", async (kind) => {
+		let jobUrl = "";
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", created_at: "2025-01-01" }));
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]));
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]));
+			if (url.includes("gateway_async_operations")) {
+				jobUrl = url;
+				return new Response(JSON.stringify([{ kind, internal_id: "job", status: "completed", created_at: "2026-09-06T10:00:00Z", updated_at: "2026-09-06T10:01:00Z", meta: { billingReason: "unexpected_zero_cost", submissionState: "accepted", providerSecret: "do-not-expose", webhook: { url: "https://receiver.test/hook", secret: "do-not-expose" }, webhookAttempts: [{ event_type: `${kind}.completed`, status: "scheduled_retry", attempt_number: 1, max_attempts: 4, tried_at: "2026-09-06T10:01:00Z", response_status: 503 }] } }]));
+			}
+			return new Response("[]");
+		}));
+		const response = await app.request(`https://phaseo.app/api/account/settings/usage/logs?workspaceId=workspace-1&view=jobs&job_kind=${kind}`, { headers: { authorization: "Bearer session-token" } }, env);
+		expect(response.status).toBe(200);
+		expect(new URL(jobUrl).searchParams.getAll("kind")).toContain(`eq.${kind}`);
+		const payload = await response.json() as any;
+		expect(payload.data.recentJobs[0]).toMatchObject({ kind, billing_reason: "unexpected_zero_cost", submission_state: "accepted", webhook: { attempt_count: 1, last_attempt_status: "scheduled_retry" } });
+		expect(JSON.stringify(payload)).not.toContain("do-not-expose");
+		expect(payload.data.recentJobs[0]).not.toHaveProperty("meta");
+	});
 	it("sorts flattened upstream attempts globally by start time", () => {
 		const attempts = sortUpstreamRequestsNewestFirst([
 			{ request_id: "request-a", attempt_number: 2, created_at: "2026-07-17T00:00:10Z" },
@@ -101,7 +122,7 @@ describe("account usage settings routes", () => {
 		expect(requestedUnfilteredLabelFacets).toBe(true);
 		await expect(labeledLogs.json()).resolves.toMatchObject({ view: "logs", data: { labelSummary: { key: "team", value: "support", requestCount: 1, totalCostNanos: 1000, isSampled: false } } });
 		await expect(upstream.json()).resolves.toMatchObject({ view: "upstream", data: { availableKeys: [{ id: "key-1", name: "Production" }], upstreamRequests: [{ id: "upstream-2", request_id: "G-test", attempt_number: 2 }, { id: "upstream-1", request_id: "G-test", attempt_number: 1 }], providerMetadataEntries: [["openai", { name: "OpenAI" }]], providerNameEntries: [["openai", "OpenAI"]] } });
-		await expect(jobs.json()).resolves.toMatchObject({ view: "jobs", data: { recentJobs: [{ internal_id: "job-1", webhook: { status: "delivered" } }], jobProviders: ["openai"] } });
+		await expect(jobs.json()).resolves.toMatchObject({ view: "jobs", data: { recentJobs: [{ internal_id: "job-1", webhook: { configured: true, attempt_count: 0 } }], jobProviders: ["openai"] } });
 		await expect(sessions.json()).resolves.toMatchObject({ view: "sessions", data: { sessions: [{ session_id: "session-1", request_count: 1, total_cost_nanos: 1000 }], sessionAppIds: ["app-1"] } });
 		await expect(detail.json()).resolves.toMatchObject({ data: { request: { request_id: "request-1" }, providerNames: [["openai", "OpenAI"]] } });
 	});

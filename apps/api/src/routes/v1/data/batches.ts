@@ -3,6 +3,7 @@
 // How: Maps requests to pipeline entrypoints and responses.
 
 import { Hono } from "hono";
+import { selectBatchProviderOptions } from "@core/batch-provider-options";
 import type { Env } from "@/runtime/types";
 import { withRuntime } from "../../utils";
 import { authenticate } from "@pipeline/before/auth";
@@ -1400,6 +1401,7 @@ export function splitGatewayBatchCreatePayload(payload: Record<string, unknown>)
 	delete upstreamPayload.session_id;
 	delete upstreamPayload.sessionId;
 	delete upstreamPayload.provider;
+	delete upstreamPayload.provider_options;
 	delete upstreamPayload.model;
 	const webhook =
 		rawWebhook && typeof rawWebhook === "object" && !Array.isArray(rawWebhook)
@@ -1638,6 +1640,9 @@ async function handleCreate(req: Request) {
 			workspace_id: auth.workspaceId,
 		});
 	}
+	if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+		return err("validation_error", { reason: "batch_body_must_be_object", request_id: requestId });
+	}
 	const { upstreamPayload, webhook, invalidWebhook } = splitGatewayBatchCreatePayload(payload);
 	if (invalidWebhook) {
 		return err("validation_error", {
@@ -1710,6 +1715,16 @@ async function handleCreate(req: Request) {
 	});
 	if (providerResolution.ok === false) return providerResolution.response;
 	const providerId = providerResolution.providerId;
+	try {
+		const scopedOptions = selectBatchProviderOptions(payload.provider_options, providerId);
+		for (const [key, value] of Object.entries(scopedOptions)) {
+			if (payload[key] !== undefined) throw new Error(`Specify ${key} either at the top level or in provider_options`);
+			payload[key] = value;
+			upstreamPayload[key] = value;
+		}
+	} catch (error) {
+		return err("validation_error", { reason: "invalid_batch_provider_options", message: error instanceof Error ? error.message : String(error), request_id: requestId });
+	}
 	if (providerId === OPENAI_PROVIDER_ID) {
 		const completionWindow = toText(payload.completion_window) ?? "24h";
 		if (completionWindow !== "24h") {
