@@ -703,6 +703,11 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 			frame_rate: videoMeta?.frameRate,
 		}),
 		...normalizedRequestOptions(args.requestOptions),
+		// The submitted LTX endpoint determines the billing meter, including
+		// terminal reads that do not carry provider polling options.
+		...(args.providerId === "ltx" && videoMeta?.ltxEndpoint
+			? { mode: videoMeta.ltxEndpoint }
+			: {}),
 		// Preserve the authoritative count saved with the async job. Per-output
 		// price cards must not fall back to one output during completion.
 		sample_count: outputCount,

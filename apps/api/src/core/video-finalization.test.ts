@@ -58,6 +58,23 @@ vi.mock("@core/workspace-usage-rollups", () => ({
 import { finalizeVideoJob } from "./video-finalization";
 
 describe("video-finalization", () => {
+	it.each([undefined, { mode: "text-to-video" }])("settles LTX audio using the stored endpoint with polling options %j", async (requestOptions) => {
+		const { computeBill } = await vi.importActual<typeof import("@pipeline/pricing/engine")>("@pipeline/pricing/engine");
+		const { default: catalog } = await import("../../../../packages/data/catalog/src/data/pricing/ltx/ltx-2-3-pro/video.generate/pricing.json");
+		getVideoJobMetaMock.mockResolvedValue({ model: "ltx-2-3-pro", seconds: 20, resolution: "3840x2160",
+			ltxEndpoint: "audio-to-video", inputAudioSeconds: 20, keySource: "gateway",
+			reservationId: "video_hold:ltx_audio", reservedNanos: 6_800_000_000 });
+		loadPriceCardMock.mockResolvedValue({ ...catalog, provider: "ltx", model: "ltx-2-3-pro", currency: "USD" });
+		computeBillMock.mockImplementation(computeBill);
+		applyByokServiceFeeMock.mockImplementation(async ({ baseCostNanos, pricedUsage }) => ({ totalNanos: baseCostNanos, pricedUsage }));
+		settleWalletReservationMock.mockResolvedValue({ applied: true, status: "captured", amountNanos: 6_800_000_000 });
+		captureWalletReservationMock.mockResolvedValue({ applied: true, status: "captured", amountNanos: 6_800_000_000 });
+		const result = await finalizeVideoJob({ workspaceId: "ws_test", videoId: "ltx_audio", providerId: "ltx", status: "completed", requestOptions });
+		expect(result.charged).toBe(true);
+		expect(applyByokServiceFeeMock).toHaveBeenCalledWith(expect.objectContaining({ baseCostNanos: 6_800_000_000 }));
+		expect(computeBillMock).toHaveBeenCalledWith(expect.objectContaining({ input_audio_seconds: 20 }), expect.anything(), expect.anything());
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
+	});
 	it("retains the hold and records an actionable error when pricing is incomplete", async () => {
 		getVideoJobMetaMock.mockResolvedValue({
 			model: "openai/sora-2", seconds: 4, keySource: "gateway",

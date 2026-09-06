@@ -128,6 +128,7 @@ export async function getVideoByIdHandler(req: Request): Promise<Response> {
 			status: polled.status,
 			model: polled.model ?? videoRecord.model,
 			seconds: polled.seconds,
+			requestOptions: polled.requestOptions,
 			metaPatch: polled.metaPatch,
 		});
 		if (isTerminalVideoStatus(polled.status)) {

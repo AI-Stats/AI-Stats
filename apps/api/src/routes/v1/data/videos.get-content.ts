@@ -187,6 +187,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {
 				status: "completed",
 				model: ownedVideo.record.model,
 				seconds: polled.seconds,
+				requestOptions: polled.requestOptions,
 				metaPatch: polled.metaPatch,
 			});
 		}
