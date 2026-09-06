@@ -110,9 +110,9 @@ Mistral already has a native batch adapter. Anthropic message batches are polled
 
 Batch completion can include failed rows. Inspect each result using its custom ID instead of assuming that every row succeeded. Keep the original input and job ID until results and billing are reconciled. An uncertain submission must be investigated before resubmitting, because a provider may have accepted the original request.
 
-### Download Anthropic results
+### Download batch results
 
-After an Anthropic batch reaches a terminal state, its `results_url` points to an authenticated Phaseo download. Use your normal Phaseo API key from the workspace that owns the batch:
+After a supported batch reaches a terminal state, its `results_url` points to an authenticated Phaseo download. Use your normal Phaseo API key from the workspace that owns the batch:
 
 ```bash
 curl --fail "https://api.phaseo.app/v1/batches/$BATCH_ID/results" \
@@ -120,8 +120,10 @@ curl --fail "https://api.phaseo.app/v1/batches/$BATCH_ID/results" \
   --output results.jsonl
 ```
 
-The response streams Anthropic's original JSONL. Match rows using `custom_id`; successful rows contain the generated message in `result.message`. Downloading results does not submit another batch or add an inference charge. You do not need an Anthropic API key. Save results before the provider's retention period ends.
+The response streams JSONL through the same endpoint for every supported batch provider. Phaseo combines separate success and error files, converts inline result arrays into JSONL, and follows result pagination. Generated content and per-request errors are preserved. Row fields remain provider-native: use `custom_id` for OpenAI-compatible and Anthropic rows, request metadata for Gemini, and `batch_request_id` for xAI. Anthropic successful rows contain the generated message in `result.message`.
 
-This download endpoint currently supports Anthropic. Other providers retain their existing output mechanisms, including `output_file_id` where supplied. The batch request-row endpoint contains tracking and billing metadata, not generated message bodies.
+Downloads support OpenAI, Anthropic, Google AI Studio, Mistral, Together, Groq, Alibaba Cloud, Moonshot, Parasail, OVHcloud, and xAI adapters. Provider availability still depends on preview access and the submission allowlist; download support does not enable additional routes. Existing `output_file_id`, `error_file_id`, and file-content endpoints remain available. The batch request-row endpoint contains tracking and billing metadata, not generated message bodies.
+
+Downloading results does not submit another batch or add an inference charge. You do not need provider credentials. Webhooks signal job updates; download the results separately. A terminal job can have partial results or no output at all: the endpoint returns `409` while processing and `404` when no output is available. Save results before the provider's retention period ends. If a download is interrupted, discard the partial file and retry the download, not the batch submission. Inline JSON results are streamed with an 8 MiB per-row safety limit; native JSONL files are streamed without that row limit.
 
 For large outputs, TypeScript's `client.batches.streamResults(batchId, { signal })` returns a `ReadableStream<Uint8Array>` without buffering. Pipe it to your destination and cancel the stream or abort the signal to stop early; there is no fixed total download timeout. Python's `client.batches.stream_results(batch_id)` yields byte chunks with the configured HTTP timeout; close the iterator when stopping early. The generated `retrieveBatchResults` operations return the complete JSONL text and are best suited to small outputs.

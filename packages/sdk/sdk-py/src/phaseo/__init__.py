@@ -1023,7 +1023,7 @@ class Phaseo:
         return self.request("GET", "/batches/models")
 
     def stream_batch_results(self, batch_id: str) -> Iterator[bytes]:
-        """Stream original Anthropic JSONL. Close the iterator when stopping early."""
+        """Stream batch JSONL. Close the iterator when stopping early."""
         url = f"{self._base_url}/batches/{quote(batch_id, safe='')}/results"
         with httpx.stream("GET", url, headers={**self._headers, "Accept": "application/x-ndjson"}, timeout=self._timeout, follow_redirects=False) as response:
             response.raise_for_status()

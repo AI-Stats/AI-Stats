@@ -3,6 +3,7 @@
 // How: Maps requests to pipeline entrypoints and responses.
 
 import { Hono } from "hono";
+import { BatchResultsError, openBatchResultsStream, supportsBatchResults } from "@core/batch-results";
 import { selectBatchProviderOptions } from "@core/batch-provider-options";
 import type { Env } from "@/runtime/types";
 import { withRuntime } from "../../utils";
@@ -1373,7 +1374,7 @@ function decorateBatchPayload(args: {
 	if (publicBatchId) {
 		out.polling_url = buildBatchPollingUrl(args.requestUrl, publicBatchId);
 		out.cancel_url = status && isCancellableBatchStatus(status) ? buildBatchCancelUrl(args.requestUrl, publicBatchId) : null;
-		if (args.meta?.provider === ANTHROPIC_PROVIDER_ID) {
+		if (args.meta && supportsBatchResults(args.meta.provider)) {
 			out.results_url = status && isDownloadableBatchStatus(status)
 				? `${buildBatchPollingUrl(args.requestUrl, publicBatchId)}/results`
 				: null;
@@ -2806,32 +2807,31 @@ async function handleResults(req: Request, id: string) {
 	const batchId = String(id ?? "").trim();
 	const meta = await getBatchJobMeta(auth.workspaceId, batchId);
 	if (!meta) return err("not_found", { reason: "batch_not_found_or_not_owned", request_id: requestId });
-	if (meta.provider !== ANTHROPIC_PROVIDER_ID) {
-		return jsonPayload({ error: "unsupported_provider", message: "Direct results downloads are currently supported for Anthropic batches.", request_id: requestId }, 501);
+	if (!supportsBatchResults(meta.provider)) {
+		return jsonPayload({ error: "unsupported_provider", message: "Results downloads are unavailable for this provider.", request_id: requestId }, 501);
 	}
 	if (!isDownloadableBatchStatus(meta.status ?? "")) {
 		return jsonPayload({ error: "not_ready", message: "Batch results are not ready yet.", request_id: requestId }, 409);
 	}
-	let upstream: Response;
+	const logFailure = (error: unknown) => {
+		console.error("batch_results_fetch_failed", {
+			requestId, workspaceId: auth.workspaceId, batchId, provider: meta.provider,
+			errorType: error instanceof Error ? error.name : "unknown",
+			...(error instanceof BatchResultsError ? { reason: error.reason, providerStatus: error.providerStatus, providerRequestId: error.providerRequestId } : {}),
+		});
+	};
+	let body: ReadableStream<Uint8Array>;
 	try {
 		const nativeId = resolveBatchProviderNativeId({ batchId, meta });
-		upstream = await fetchProviderBatchApi(ANTHROPIC_PROVIDER_ID, {
-			endpointPath: `/messages/batches/${encodeURIComponent(nativeId)}/results`,
-			method: "GET",
-			redirect: "manual",
-		});
+		body = await openBatchResultsStream({ ...meta, nativeBatchId: nativeId }, { signal: req.signal, onStreamError: logFailure });
 	} catch (error) {
-		console.error("batch_results_fetch_failed", { requestId, workspaceId: auth.workspaceId, batchId, provider: ANTHROPIC_PROVIDER_ID, errorType: error instanceof Error ? error.name : "unknown" });
+		logFailure(error);
+		if (error instanceof BatchResultsError && error.reason === "results_unavailable") {
+			return err("not_found", { reason: "batch_results_unavailable", request_id: requestId });
+		}
 		return err("upstream_error", { reason: "batch_results_fetch_failed", request_id: requestId });
 	}
-	if (!upstream.ok || !upstream.body) {
-		console.error("batch_results_fetch_failed", { requestId, workspaceId: auth.workspaceId, batchId, provider: ANTHROPIC_PROVIDER_ID, providerStatus: upstream.status, providerRequestId: upstream.headers.get("request-id"), reason: upstream.ok ? "missing_body" : "provider_http_error" });
-		await upstream.body?.cancel().catch(() => undefined);
-		return err("upstream_error", { reason: "batch_results_fetch_failed", provider_status: upstream.status, request_id: requestId });
-	}
-	// Stream provider JSONL unchanged; never buffer or persist generated content.
-	// Construct the upstream path from owned metadata, not the provider results_url.
-	return new Response(upstream.body, { status: 200, headers: {
+	return new Response(body, { status: 200, headers: {
 		"Content-Type": "application/x-ndjson",
 		"Content-Disposition": `attachment; filename="${encodeURIComponent(batchId)}.jsonl"`,
 		"Cache-Control": "private, no-store",
