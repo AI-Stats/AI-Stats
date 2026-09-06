@@ -641,6 +641,20 @@ export function stalePricingSkuIds(
         .map(row => String(row.sku_id));
 }
 
+export function stalePricingMeterIds(
+    existingMeters: Record<string, any>[],
+    desiredMeterKeys: Set<string>,
+    refreshedSkuIds: Set<string>,
+    protectedPricingSourceKeys: Set<string>,
+): string[] {
+    return existingMeters
+        .filter(row => row.metadata?.source === "json" && row.billable !== false)
+        .filter(row => refreshedSkuIds.has(String(row.sku_id)))
+        .filter(row => !desiredMeterKeys.has(`${row.sku_id}:${row.meter_key}`))
+        .filter(row => !protectedPricingSourceKeys.has(String(row.metadata?.source_key ?? "")))
+        .map(row => String(row.sku_meter_id));
+}
+
 export function staleRouteVariantIds(
     existingRows: Record<string, any>[],
     desiredVariantKeys: Set<string>,
@@ -1611,6 +1625,7 @@ export async function syncV2Catalogue(): Promise<void> {
             unit: rule.unit ?? "unit",
             unit_quantity: rule.unit_size ?? 1,
             price_nanos: Number(rule.price_per_unit ?? 0) * 1_000_000_000,
+            billable: true,
             display_label: meter,
             display_unit: `${rule.unit_size ?? 1} ${rule.unit ?? "unit"}`,
             metadata: v2PricingMeterMetadata(rule),
@@ -1652,6 +1667,25 @@ export async function syncV2Catalogue(): Promise<void> {
     }
     await upsertChunks(supa, "v2_meter_definitions", [...meterDefinitions.values()], "meter_key");
     await upsertChunks(supa, "v2_pricing_sku_meters", meterRows, "sku_id,meter_key");
+
+    // A changed billing unit can retain the same SKU. Retire its old JSON
+    // meters so they cannot be billed alongside the replacement meter.
+    // Preserve the row for historical request references and admin overrides.
+    const existingMeterRows = await fetchAll(
+        supa, "v2_pricing_sku_meters", "sku_meter_id,sku_id,meter_key,billable,metadata",
+    );
+    const staleMeterIds = stalePricingMeterIds(
+        existingMeterRows,
+        new Set(meterRows.map(row => `${row.sku_id}:${row.meter_key}`)),
+        new Set(meterRows.map(row => String(row.sku_id))),
+        protectedCatalogueKeys.get("pricing_rule") ?? new Set<string>(),
+    );
+    for (const ids of chunk(staleMeterIds, 200)) {
+        assertOk(
+            await supa.from("v2_pricing_sku_meters").update({ billable: false }).in("sku_meter_id", ids),
+            "v2 sync retire stale pricing meters",
+        );
+    }
 
     const desiredSkuKeys = new Set(pricingRows.map(row => `${row.provider_model_id}:${row.sku_code}:${row.version}`));
     const protectedPricingSourceKeys = protectedCatalogueKeys.get("pricing_rule") ?? new Set<string>();
