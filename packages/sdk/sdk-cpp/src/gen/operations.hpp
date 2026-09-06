@@ -909,6 +909,16 @@ inline Response RetrieveBatchFileContentAlias(Client& client, const std::map<std
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response RetrieveBatchResults(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/" + (path.count("batch_id") ? path.at("batch_id") : std::string{}) + "/results";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response RetrieveBatchResultsAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/" + (path.count("id") ? path.at("id") : std::string{}) + "/results";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response RetrieveFile(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/files/" + (path.count("file_id") ? path.at("file_id") : std::string{});
 	return client.request("GET", resolved_path, body);

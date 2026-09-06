@@ -137,6 +137,8 @@ function renderClient(): string {
 		"\t\treq = urllib.request.Request(url, data=payload, headers=request_headers, method=method.upper())",
 		"\t\twith urllib.request.urlopen(req) as resp:",
 		"\t\t\traw = resp.read().decode(\"utf-8\")",
+		"\t\t\tif resp.headers.get_content_type() == \"application/x-ndjson\":",
+		"\t\t\t\treturn raw",
 		"\t\t\tif not raw:",
 		"\t\t\t\treturn None",
 		"\t\t\ttry:",

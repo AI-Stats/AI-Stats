@@ -1270,6 +1270,20 @@ function retrieveBatchFileContentAlias(Client $client, ?array $path = null, ?arr
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function retrieveBatchResults(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/batches/" . rawurlencode((string)($path["batch_id"] ?? "")) . "/results";
+	return $client->requestRaw("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function retrieveBatchResultsAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/batch/" . rawurlencode((string)($path["id"] ?? "")) . "/results";
+	return $client->requestRaw("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function retrieveFile(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];

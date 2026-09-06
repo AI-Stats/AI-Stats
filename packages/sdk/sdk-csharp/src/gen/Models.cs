@@ -1241,6 +1241,9 @@ public sealed class BatchResponse
 	[JsonPropertyName("request_id")]
 	public string? RequestId { get; set; }
 
+	[JsonPropertyName("results_url")]
+	public string? ResultsUrl { get; set; }
+
 	[JsonPropertyName("session_id")]
 	public string? SessionId { get; set; }
 

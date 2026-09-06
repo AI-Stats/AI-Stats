@@ -31,7 +31,7 @@ Verify `x-phaseo-signature` using the endpoint secret: the signature is the hexa
 
 Treat `completed`, `failed`, `cancelled`, and `expired` lifecycle states as terminal. Keep a polling recovery path even when using webhooks.
 
-For each event, Phaseo makes one initial delivery attempt and up to three retries, scheduled after 1, 5, and 15 minutes. Each attempt records its number, time, HTTP status, error and next retry time. After the fourth unsuccessful attempt, delivery is marked permanently failed. Receivers must still deduplicate events: a lost acknowledgement or worker interruption can make delivery uncertain.
+For each event, Phaseo makes one initial delivery attempt. A successful 2xx response ends delivery; no retries are needed. Failed deliveries receive up to three retries, scheduled after 1, 5, and 15 minutes. Background sweeps process eligible retries, so actual delivery can be later than the scheduled time. Each attempt records its number, time, HTTP status, error and next retry time. After the fourth unsuccessful attempt, delivery is marked permanently failed. Receivers must still deduplicate events: a lost acknowledgement or worker interruption can make delivery uncertain.
 
 ## View job and request logs
 
@@ -109,3 +109,19 @@ Batch requests also accept `provider_options`: OpenAI supports `output_expires_a
 Mistral already has a native batch adapter. Anthropic message batches are polled; other providers may combine polling with native completion notifications. Availability depends on the provider's supported endpoints and the deployment's batch allowlist. Check the batch capability response before submitting a file or inline requests.
 
 Batch completion can include failed rows. Inspect each result using its custom ID instead of assuming that every row succeeded. Keep the original input and job ID until results and billing are reconciled. An uncertain submission must be investigated before resubmitting, because a provider may have accepted the original request.
+
+### Download Anthropic results
+
+After an Anthropic batch reaches a terminal state, its `results_url` points to an authenticated Phaseo download. Use your normal Phaseo API key from the workspace that owns the batch:
+
+```bash
+curl --fail "https://api.phaseo.app/v1/batches/$BATCH_ID/results" \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  --output results.jsonl
+```
+
+The response streams Anthropic's original JSONL. Match rows using `custom_id`; successful rows contain the generated message in `result.message`. Downloading results does not submit another batch or add an inference charge. You do not need an Anthropic API key. Save results before the provider's retention period ends.
+
+This download endpoint currently supports Anthropic. Other providers retain their existing output mechanisms, including `output_file_id` where supplied. The batch request-row endpoint contains tracking and billing metadata, not generated message bodies.
+
+For large outputs, TypeScript's `client.batches.streamResults(batchId, { signal })` returns a `ReadableStream<Uint8Array>` without buffering. Pipe it to your destination and cancel the stream or abort the signal to stop early; there is no fixed total download timeout. Python's `client.batches.stream_results(batch_id)` yields byte chunks with the configured HTTP timeout; close the iterator when stopping early. The generated `retrieveBatchResults` operations return the complete JSONL text and are best suited to small outputs.

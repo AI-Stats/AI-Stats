@@ -911,6 +911,16 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object retrieveBatchResults(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/batches/" + (path != null && path.containsKey("batch_id") ? path.get("batch_id") : "") + "/results";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object retrieveBatchResultsAlias(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/batch/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/results";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object retrieveFile(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/files/" + (path != null && path.containsKey("file_id") ? path.get("file_id") : "");
 		return client.request("GET", resolvedPath, query, headers, body);

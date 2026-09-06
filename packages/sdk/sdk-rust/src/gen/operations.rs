@@ -910,6 +910,16 @@ pub fn retrieveBatchFileContentAlias<T: Transport>(client: &Client<T>, path: &Ha
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn retrieveBatchResults<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/batches/{}/results", path.get("batch_id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn retrieveBatchResultsAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/batch/{}/results", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn retrieveFile<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/files/{}", path.get("file_id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)

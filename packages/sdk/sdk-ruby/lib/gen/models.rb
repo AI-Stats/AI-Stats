@@ -743,6 +743,8 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] request_id
     #   @return [String, nil]
+    # @!attribute [rw] results_url
+    #   @return [String, nil]
     # @!attribute [rw] session_id
     #   @return [String, nil]
     # @!attribute [rw] status
@@ -753,7 +755,7 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] websocket_url
     #   @return [String, nil]
-    BatchResponse = Struct.new(:billing, :cancel_url, :cancelled_at, :cancelling_at, :completed_at, :completion_window, :created_at, :endpoint, :error_file_id, :errors, :expired_at, :expires_at, :failed_at, :finalized_at, :finalizing_at, :id, :in_progress_at, :input_file_id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :metadata, :native_batch_id, :next_webhook_retry_at, :object, :output_file_id, :polling_url, :pricing_lines, :progress, :provider, :request_counts, :request_id, :session_id, :status, :usage, :webhook, :websocket_url, keyword_init: true)
+    BatchResponse = Struct.new(:billing, :cancel_url, :cancelled_at, :cancelling_at, :completed_at, :completion_window, :created_at, :endpoint, :error_file_id, :errors, :expired_at, :expires_at, :failed_at, :finalized_at, :finalizing_at, :id, :in_progress_at, :input_file_id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :metadata, :native_batch_id, :next_webhook_retry_at, :object, :output_file_id, :polling_url, :pricing_lines, :progress, :provider, :request_counts, :request_id, :results_url, :session_id, :status, :usage, :webhook, :websocket_url, keyword_init: true)
     BenchmarkId = Object
     # @!attribute [rw] scope
     #   @return [String, nil]

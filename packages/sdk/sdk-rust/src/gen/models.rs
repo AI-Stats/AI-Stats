@@ -496,6 +496,7 @@ pub struct BatchResponse {
 	pub provider: Option<String>,
 	pub request_counts: Option<HashMap<String, String>>,
 	pub request_id: Option<String>,
+	pub results_url: Option<Option<String>>,
 	pub session_id: Option<String>,
 	pub status: Option<String>,
 	pub usage: Option<HashMap<String, String>>,
