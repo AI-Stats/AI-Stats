@@ -41,6 +41,14 @@ Video submission reserves credit before contacting the provider. A timeout with 
 
 ## Video inputs
 
+### Understand video pricing
+
+Video prices depend on the provider and model. A price per second must be multiplied by the billable duration; a price per clip applies only to its specified duration and resolution. Multiple outputs and chargeable reference inputs can increase the total.
+
+LTX text/image generation bills output seconds, while audio-to-video bills input-audio seconds. BytePlus Seedance uses video tokens, with different rates when a reference video is present. MiniMax Hailuo V1 uses fixed-duration clip prices; H3 uses seconds and can charge for reference inputs. Check the selected provider's pricing dimensions rather than interpreting a headline price as the cost of a whole request.
+
+Reservations are estimates held before submission. Final billing uses the job's billable usage; unused reserved credit is released after reconciliation. A provider's supported resolution or option does not guarantee that it is available in the beta.
+
 Use `seconds` or `duration` for output duration. If both are present, they must agree. Use `resolution` with `aspect_ratio`, or a pixel `size` such as `1280x720`.
 
 Use `frame_images` for explicit first and last frames:

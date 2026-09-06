@@ -82,6 +82,24 @@ afterAll(() => {
 });
 
 describe("bytedance seed video executor", () => {
+	it.each([
+		["1280x720", "720p"], ["720x1280", "720p"], ["720P", "720p"],
+		["1920x1080", "1080p"], ["1080x1920", "1080p"], [" 1080P ", "1080p"],
+		["854x480", "480p"], ["480x854", "480p"],
+	])("normalizes %s to %s for reservations and settlement metadata", async (size, resolution) => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/api/v3/contents/generations/tasks"),
+			response: jsonResponse({ id: "seedance_resolution_task", status: "queued" }),
+		}]);
+		try {
+			await execute(buildArgs({ model: "bytedance/seedance-2.0", prompt: "A blue square", duration: 6, size }));
+			expect(state.reservationCalls.at(-1)).toMatchObject({ requestOptions: { resolution } });
+			expect(saveVideoJobMetaMock).toHaveBeenCalledWith("team_test", "req_bytedance_video_test",
+				expect.objectContaining({ resolution }), "seedance_resolution_task", "queued");
+		} finally {
+			mock.restore();
+		}
+	});
 	beforeEach(() => {
 		saveVideoJobMetaMock.mockClear();
 		state.reservationResult = null;
