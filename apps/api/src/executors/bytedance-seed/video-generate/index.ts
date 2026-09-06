@@ -250,7 +250,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const bytePlus = args.providerId.toLowerCase() === "byteplus";
 	const model = args.providerModelSlug || ir.model || "seedance-1-5-pro";
 	const seconds = parseDurationSeconds(ir);
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const size = normalizeSeedanceResolution(resolveVideoSize({ size: ir.size, resolution: ir.resolution }));
 	const quality = ir.quality ?? null;
 	const bytedanceConfig = extractBytedanceConfig((ir.rawRequest ?? {}) as Record<string, any>);
 	const aspectRatioForPricing =
