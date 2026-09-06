@@ -44,6 +44,7 @@ describe("joined price-card loader", () => {
         expect(params.get("route.routing_enabled")).toBe("eq.true");
         expect(params.get("operation")).toBe("eq.text.generate");
         expect(params.get("status")).toBe("eq.active");
+        expect(params.get("currency")).toBe("eq.USD");
         expect(params.get("meters.billable")).toBe("eq.true");
         expect(params.get("effective_from")).toBe("lte.2026-09-05T00:00:00.000Z");
         expect(params.get("or")).toBe("(effective_to.is.null,effective_to.gt.2026-09-05T00:00:00.000Z)");

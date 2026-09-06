@@ -102,6 +102,22 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		reportProbeResultMock.mockResolvedValue(undefined);
 	});
 
+	it.each([
+		{ currency: "EUR", rules: [] },
+		{ currency: "USD", rules: [{ currency: "EUR" }] },
+	])("rejects unconverted cached pricing before provider execution: %j", async (pricingCard) => {
+		const candidate = { providerId: "scaleway", pricingCard, byokMeta: [],
+			providerModelSlug: "model", capabilityParams: {} };
+		guardCandidatesMock.mockResolvedValue({ ok: true, value: [candidate] });
+		rankProvidersMock.mockResolvedValue([{ candidate, health: {} }]);
+		const executor = vi.fn();
+		resolveProviderExecutorMock.mockReturnValue(executor);
+		await doRequestWithIR(createCtx(), { model: "model", prompt: "test" } as any, createTiming());
+		expect(executor).not.toHaveBeenCalled();
+		expect(onCallStartMock).not.toHaveBeenCalled();
+		expect(guardAllFailedMock).toHaveBeenCalled();
+	});
+
 	it.each([429, 402, 401])("returns local video admission denial %s without fallback or provider failure", async (status) => {
 		const candidates = ["google", "minimax"].map((providerId) => ({
 			providerId, pricingCard: { rules: [], currency: "USD" }, byokMeta: [],

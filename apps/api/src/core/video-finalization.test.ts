@@ -58,6 +58,26 @@ vi.mock("@core/workspace-usage-rollups", () => ({
 import { finalizeVideoJob } from "./video-finalization";
 
 describe("video-finalization", () => {
+	it("retains the hold and records an actionable error when pricing is incomplete", async () => {
+		getVideoJobMetaMock.mockResolvedValue({
+			model: "openai/sora-2", seconds: 4, keySource: "gateway",
+			reservationId: "video_hold:pricing_error", reservedNanos: 400_000_000,
+		});
+		loadPriceCardMock.mockResolvedValue({ rules: [] });
+		computeBillMock.mockImplementation(() => { throw new Error("pricing_rule_missing:output_video_seconds"); });
+		const result = await finalizeVideoJob({
+			workspaceId: "ws_test", videoId: "video_test", providerId: "openai",
+			status: "completed", model: "openai/sora-2", seconds: 4,
+		});
+		expect(result).toMatchObject({ charged: false, reason: "pricing_error" });
+		expect(captureWalletReservationMock).not.toHaveBeenCalled();
+		expect(settleWalletReservationMock).not.toHaveBeenCalled();
+		expect(releaseWalletReservationMock).not.toHaveBeenCalled();
+		expect(markVideoJobBilledMock).not.toHaveBeenCalled();
+		expect(setVideoJobStatusMock).toHaveBeenCalledWith("ws_test", "video_test", "completed",
+			expect.objectContaining({ billingReason: "pricing_error", billingError: "pricing_rule_missing:output_video_seconds" }));
+		expect(emitGatewayOperationalFailureMock).toHaveBeenCalledWith(expect.objectContaining({ reason: "pricing_error" }));
+	});
 	it("preserves completion time and duration on repeated terminal reads", async () => {
 		const finalizedAt = "2026-09-06T10:00:30.000Z";
 		getVideoJobRecordMock.mockResolvedValue({ status: "completed", meta: {

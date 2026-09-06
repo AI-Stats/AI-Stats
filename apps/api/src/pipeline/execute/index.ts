@@ -674,7 +674,8 @@ async function attemptProviderWithIR(
 			candidate.pricingCard = pricingCard;
 		}
 	}
-	if (!pricingCard) {
+	if (!pricingCard || (pricingCard.currency && pricingCard.currency.toUpperCase() !== "USD") ||
+		pricingCard.rules.some((rule) => rule.currency && rule.currency.toUpperCase() !== "USD")) {
 		attemptErrors.push({
 			...credentialLog,
 			provider: candidate.providerId,

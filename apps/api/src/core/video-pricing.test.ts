@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { PriceCard } from "@pipeline/pricing/types";
 import { computeVideoPricedUsage } from "./video-pricing";
+import { buildVideoPricingRequestOptions } from "./video-request-options";
 
 function makeCard(rules: Array<Record<string, unknown>>): PriceCard {
 	return {
@@ -28,6 +29,44 @@ function loadCatalogCard(provider: string, model: string): PriceCard {
 function loadLtxCard(model: string): PriceCard {
 	return loadCatalogCard("ltx", model);
 }
+
+describe("video primary pricing coverage", () => {
+	const imageRule = { meter: "input_image", unit: "image", unit_size: 1, price_per_unit: "0.01", currency: "USD", pricing_plan: "standard", match: [] };
+	it("does not settle just the reference image when the output resolution has no price", () => {
+		const card = makeCard([imageRule, {
+			meter: "output_video_seconds", unit: "second", unit_size: 1, price_per_unit: "0.1",
+			currency: "USD", pricing_plan: "standard", match: [{ path: "resolution", op: "eq", value: "720p" }],
+		}]);
+		expect(() => computeVideoPricedUsage({
+			card, model: "test", seconds: 8, requestOptions: { resolution: "4k", input_image_count: 1 },
+		})).toThrow("pricing_rule_missing:output_video_seconds");
+	});
+	it("preserves reference charges when falling back to a clip price", () => {
+		const card = makeCard([imageRule, {
+			meter: "output_video", unit: "video", unit_size: 1, price_per_unit: "0.28",
+			currency: "USD", pricing_plan: "standard", match: [],
+		}]);
+		const priced = computeVideoPricedUsage({
+			card, model: "test", seconds: 6, requestOptions: { input_image_count: 2 },
+		}) as any;
+		expect(priced.pricing.total_nanos).toBe(300_000_000);
+	});
+});
+
+describe("Vertex Veo bills seconds rather than whole clips", () => {
+	it.each([
+		["google-veo-3.1-fast", "720p", false, 4, 0.32],
+		["google-veo-3.1-fast", "720p", false, 8, 0.64],
+		["google-veo-3.1-fast", "1080p", true, 8, 0.96],
+		["google-veo-3.1", "4k", true, 8, 4.8],
+	] as const)("%s %s audio=%s: %s seconds costs $%s", (model, resolution, audio, seconds, usd) => {
+		const priced = computeVideoPricedUsage({
+			card: loadCatalogCard("google-vertex", model), model, seconds,
+			requestOptions: buildVideoPricingRequestOptions({ resolution, audio, outputCount: 1 }),
+		}) as any;
+		expect(priced.pricing.total_nanos).toBe(Math.round(usd * 1e9));
+	});
+});
 
 describe("BytePlus published video token rates", () => {
 	// https://www.byteplus.com/en/product/modelark, checked 2026-09-06.
