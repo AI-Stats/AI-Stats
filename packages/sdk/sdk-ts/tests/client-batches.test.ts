@@ -6,6 +6,26 @@ import { Client, PhaseoHttpError } from "../src/runtime/client.js";
 import { retrieveBatchResults } from "../src/oapi-gen/client/default.js";
 
 describe("Phaseo batch helpers", () => {
+  test("streams batch results before EOF and propagates cancellation", async () => {
+    const cancel = vi.fn();
+    const chunk = new TextEncoder().encode('{"custom_id":"one"}\n');
+    const controller = new AbortController();
+    const client = new Phaseo({ apiKey: "sk_test", baseUrl: "https://example.test/v1", fetchImpl: vi.fn(async (url, init) => {
+      expect(String(url)).toBe("https://example.test/v1/batches/batch%201/results");
+      expect(init?.signal).toBe(controller.signal);
+      expect(init?.headers).toMatchObject({ Authorization: "Bearer sk_test", Accept: "application/x-ndjson" });
+      return new Response(new ReadableStream({ start(c) { c.enqueue(chunk); }, cancel }));
+    }) });
+    const reader = (await client.batches.streamResults("batch 1", { signal: controller.signal })).getReader();
+    expect((await reader.read()).value).toEqual(chunk);
+    await reader.cancel();
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  test("rejects failed streaming downloads with the existing HTTP error type", async () => {
+    const client = new Phaseo({ apiKey: "sk_test", fetchImpl: vi.fn(async () => new Response('{"error":"unauthorized"}', { status: 401 })) });
+    await expect(client.batches.streamResults("batch_1")).rejects.toMatchObject({ status: 401 });
+  });
   test.each(['', '{"custom_id":"one","result":{"type":"succeeded"}}\n', '{"custom_id":"one"}\n{"custom_id":"two"}\n'])("downloads original JSONL without parsing or dropping newlines: %s", async (jsonl) => {
     const client = new Client({
       baseUrl: "https://example.test/v1",

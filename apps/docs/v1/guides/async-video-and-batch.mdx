@@ -123,3 +123,5 @@ curl --fail "https://api.phaseo.app/v1/batches/$BATCH_ID/results" \
 The response streams Anthropic's original JSONL. Match rows using `custom_id`; successful rows contain the generated message in `result.message`. Downloading results does not submit another batch or add an inference charge. You do not need an Anthropic API key. Save results before the provider's retention period ends.
 
 This download endpoint currently supports Anthropic. Other providers retain their existing output mechanisms, including `output_file_id` where supplied. The batch request-row endpoint contains tracking and billing metadata, not generated message bodies.
+
+For large outputs, TypeScript's `client.batches.streamResults(batchId, { signal })` returns a `ReadableStream<Uint8Array>` without buffering. Pipe it to your destination and cancel the stream or abort the signal to stop early; there is no fixed total download timeout. Python's `client.batches.stream_results(batch_id)` yields byte chunks with the configured HTTP timeout; close the iterator when stopping early. The generated `retrieveBatchResults` operations return the complete JSONL text and are best suited to small outputs.
