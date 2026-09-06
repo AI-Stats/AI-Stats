@@ -56,7 +56,7 @@ export default async function BetaSettingsPage() {
 						<p className="text-sm text-muted-foreground">{feature.description}</p>
 						<p className="text-sm text-muted-foreground">Access is granted to selected workspaces. Normal usage charges apply.</p>
 						<div className="flex gap-4 text-sm">
-							<a className="underline underline-offset-4" href="https://docs.phaseo.app/v1/guides/async-video-and-batch">Read the beta guide</a>
+							<a className="underline underline-offset-4" href="https://phaseo.app/docs/v1/guides/async-video-and-batch">Read the beta guide</a>
 							{feature.enabled ? <Link className="underline underline-offset-4" href={`/settings/usage/logs/${feature.kind === "video" ? "videos" : "batches"}`}>View jobs</Link> : null}
 						</div>
 					</div>
