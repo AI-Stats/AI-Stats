@@ -15,6 +15,13 @@ function card(overrides: Partial<PriceRule> = {}): PriceCard {
 }
 
 describe("invalid pricing cannot become a wallet charge", () => {
+    it("rejects unmatched paid output even when the matched input line is free", () => {
+        const mixed = card({ price_per_unit: "0" });
+        mixed.rules.push({ ...mixed.rules[0], meter: "output_text_tokens", price_per_unit: "2",
+            match: [{ path: "quality", op: "eq", value: "standard" }] });
+        expect(() => computeBillSummary({ input_text_tokens: 1000, output_text_tokens: 500 }, mixed, { quality: "premium" }))
+            .toThrow("pricing_rule_missing:output_text_tokens");
+    });
     it("does not present an input-only subtotal as a complete bill when output pricing fails to match", () => {
         const mixed = card();
         mixed.rules.push({

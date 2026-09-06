@@ -855,9 +855,10 @@ export function computeBillSummary(
     }
 
     const totalNanos = lines.reduce((sum, line: any) => sum + (line.line_nanos ?? parseUsdToNanos(line.line_cost_usd)), 0);
-    // A nonzero subtotal is not a complete bill when a configured usage meter
-    // failed its pricing conditions. Leave settlement open for reconciliation.
-    if (totalNanos > 0 && unmatchedConfiguredMeters.length > 0) {
+    // A partial bill (even a free matched line) cannot cover unmatched usage.
+    // Preserve the empty-lines sentinel: async callers use it to reject
+    // reservations or retain holds when there is no matching price at all.
+    if (lines.length > 0 && unmatchedConfiguredMeters.length > 0) {
         throw new Error(`pricing_rule_missing:${unmatchedConfiguredMeters.join(",")}`);
     }
     if (!Number.isSafeInteger(totalNanos)) throw new Error("pricing_amount_out_of_range");

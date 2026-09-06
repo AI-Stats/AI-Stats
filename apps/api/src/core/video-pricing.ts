@@ -339,7 +339,8 @@ export function computeVideoPricedUsage(args: {
 	});
 	const pricingMode = resolveStringOption(args.requestOptions ?? {}, ["mode", "video_params.mode"]);
 	const inputAudioSeconds = resolveNumericOption(args.requestOptions ?? {}, "input_audio_seconds") ?? resolveNumericOption(args.requestOptions ?? {}, "video_params.input_audio_seconds");
-	const usageMeters: Record<string, number> = pricingMode === "audio-to-video" && inputAudioSeconds
+	const usesAudioMeter = pricingMode === "audio-to-video" && hasMeter(args.card, "input_audio_seconds");
+	const usageMeters: Record<string, number> = usesAudioMeter && inputAudioSeconds
 		? { input_audio_seconds: inputAudioSeconds }
 		: { output_video_seconds: args.seconds };
 	const outputVideoCount = resolveNumericOption(args.requestOptions ?? {}, "outputCount")
@@ -366,7 +367,7 @@ export function computeVideoPricedUsage(args: {
 		args.card,
 		primaryContext,
 	);
-	const primaryMeters = pricingMode === "audio-to-video"
+	const primaryMeters = usesAudioMeter
 		? ["input_audio_seconds"]
 		: ["output_video_seconds", "output_video", "total_tokens", "output_video_tokens", "output_video_frames"];
 	const requiresPrimaryLine = primaryMeters.some((meter) => hasMeter(args.card, meter));

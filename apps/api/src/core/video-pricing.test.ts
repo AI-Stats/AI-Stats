@@ -41,13 +41,13 @@ describe("video primary pricing coverage", () => {
 			card, model: "test", seconds: 8, requestOptions: { resolution: "4k", input_image_count: 1 },
 		})).toThrow("pricing_rule_missing:output_video_seconds");
 	});
-	it("preserves reference charges when falling back to a clip price", () => {
+	it.each([undefined, "audio-to-video"])("preserves reference charges when falling back to a clip price for mode %s", (mode) => {
 		const card = makeCard([imageRule, {
 			meter: "output_video", unit: "video", unit_size: 1, price_per_unit: "0.28",
 			currency: "USD", pricing_plan: "standard", match: [],
 		}]);
 		const priced = computeVideoPricedUsage({
-			card, model: "test", seconds: 6, requestOptions: { input_image_count: 2 },
+			card, model: "test", seconds: 6, requestOptions: { input_image_count: 2, mode, input_audio_seconds: 6 },
 		}) as any;
 		expect(priced.pricing.total_nanos).toBe(300_000_000);
 	});
