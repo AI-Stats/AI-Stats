@@ -380,7 +380,7 @@ describe("video-reconciliation provider polling", () => {
 		);
 	});
 
-	it("polls Novita's native task-result endpoint", async () => {
+	it("polls generic openai-compatible video providers using provider-specific auth and URL", async () => {
 		const nativeId = "novita-job-789";
 		const job = makeBaseJob({
 			videoId: "vid_compat_1",
@@ -388,7 +388,6 @@ describe("video-reconciliation provider polling", () => {
 			provider: "novita",
 			model: "novita/seedance-1",
 			meta: {
-				seconds: 6,
 				provider: "novita",
 				keySource: "gateway",
 				resolution: "720p",
@@ -401,8 +400,10 @@ describe("video-reconciliation provider polling", () => {
 			vi.fn().mockResolvedValue({
 				ok: true,
 				json: async () => ({
-					task: { status: "TASK_STATUS_SUCCEED", progress_percent: 100 },
-					videos: [{ video_url: "https://example.com/video.mp4" }],
+					status: "completed",
+					model: "novita/seedance-1",
+					seconds: 6,
+					size: "720p",
 				}),
 			}),
 		);
@@ -410,8 +411,9 @@ describe("video-reconciliation provider polling", () => {
 		const result = await fetchVideoProviderStatus(job);
 
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			`https://api.novita.ai/v3/async/task-result?task_id=${encodeURIComponent(nativeId)}`,
+			`https://novita.example/videos/${encodeURIComponent(nativeId)}`,
 			expect.objectContaining({
+				method: "GET",
 				headers: expect.objectContaining({
 					Authorization: "Bearer gateway-novita-key",
 				}),
