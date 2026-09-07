@@ -17726,7 +17726,7 @@ export type RetrieveBatchResultsParams = {
 };
 
 /**
- * Streams complete provider-native result rows as JSONL for a terminal batch owned by the authenticated workspace. Combines success and error files, converts inline outputs, and follows provider result pagination. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Existing file endpoints remain available. Inline rows are limited to 8 MiB; interrupted downloads must be discarded and downloaded again.
+ * Streams complete provider-native result rows as JSONL for a terminal batch owned by the authenticated workspace. Combines success and error files, converts inline outputs, and follows provider result pagination. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Existing file endpoints remain available. Inline rows are limited to 8 MiB; interrupted downloads must be discarded and downloaded again. Limited to 10 download attempts per workspace per batch in a rolling 30-minute window, shared across API keys and aliases. Failed or cancelled upstream attempts count. A 429 response includes Retry-After in seconds.
  */
 export async function retrieveBatchResults(
   client: Client,
@@ -17753,7 +17753,7 @@ export type RetrieveBatchResultsAliasParams = {
 };
 
 /**
- * Streams complete provider-native result rows as JSONL for a terminal batch owned by the authenticated workspace. Combines success and error files, converts inline outputs, and follows provider result pagination. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Existing file endpoints remain available. Inline rows are limited to 8 MiB; interrupted downloads must be discarded and downloaded again.
+ * Streams complete provider-native result rows as JSONL for a terminal batch owned by the authenticated workspace. Combines success and error files, converts inline outputs, and follows provider result pagination. Use a Phaseo API key. Downloads do not submit inference or add usage charges. Existing file endpoints remain available. Inline rows are limited to 8 MiB; interrupted downloads must be discarded and downloaded again. Limited to 10 download attempts per workspace per batch in a rolling 30-minute window, shared across API keys and aliases. Failed or cancelled upstream attempts count. A 429 response includes Retry-After in seconds.
  */
 export async function retrieveBatchResultsAlias(
   client: Client,
