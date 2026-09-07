@@ -299,6 +299,7 @@ const XAI_GROK_VOICES: RealtimeVoiceOption[] = [
 	{ id: "sal", label: "Sal", description: "Smooth, balanced" },
 	{ id: "altair", label: "Altair" },
 	{ id: "atlas", label: "Atlas" },
+	{ id: "aurora", label: "Aurora" },
 	{ id: "carina", label: "Carina" },
 	{ id: "castor", label: "Castor" },
 	{ id: "celeste", label: "Celeste" },
@@ -307,6 +308,7 @@ const XAI_GROK_VOICES: RealtimeVoiceOption[] = [
 	{ id: "helix", label: "Helix" },
 	{ id: "iris", label: "Iris" },
 	{ id: "kepler", label: "Kepler" },
+	{ id: "liora", label: "Liora" },
 	{ id: "lumen", label: "Lumen" },
 	{ id: "luna", label: "Luna" },
 	{ id: "lux", label: "Lux" },
@@ -508,7 +510,7 @@ const DEFAULT_OPENAI_REALTIME_PRICES: OpenAIRealtimePriceTable = {
 	cachedAudioPerMillion: 0.4,
 	outputAudioPerMillion: 64,
 };
-const XAI_AUDIO_PRICE_PER_MINUTE = 0.05;
+const XAI_AUDIO_PRICE_PER_MINUTE = 0.08;
 const XAI_TEXT_MESSAGE_PRICE = 0.004;
 const GOOGLE_PRICES = {
 	inputTextPerMillion: 0.75,
@@ -1218,7 +1220,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function providerFromGatewayModel(model: GatewaySupportedModel): RealtimeProvider | null {
 	const providerId = model.providerId.trim().toLowerCase();
 	if (providerId === "openai") return "openai";
-	if (providerId === "x-ai" || providerId === "xai") {
+	if (providerId === "x-ai" || providerId === "xai" || providerId === "spacex-ai") {
 		return "xai";
 	}
 	if (providerId === "google-ai-studio" || providerId === "google") {

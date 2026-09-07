@@ -13,7 +13,9 @@ Updated 2026-09-07. This is an operational record, not a public API launch.
 
 ## Live evidence
 
-Setup acknowledgements were received from OpenAI `gpt-realtime`, `gpt-realtime-1.5`, `gpt-realtime-2`, `gpt-realtime-mini` with `marin`; Google `gemini-3.1-flash-live-preview` with `Puck`; and xAI `grok-voice-latest` with `eve`. Setup checks requested no generation.
+Setup acknowledgements were received from OpenAI `gpt-realtime`, `gpt-realtime-1.5`, `gpt-realtime-2`, `gpt-realtime-mini`, `gpt-realtime-2.1` and `gpt-realtime-2.1-mini` with `marin`; Google `gemini-3.1-flash-live-preview` with `Puck`; and xAI `grok-voice-latest` and `grok-voice-think-fast-2.0` with `eve`. Setup checks requested no generation. All ten OpenAI built-in voices passed setup on GPT-Realtime-2. The xAI picker now includes all 28 voices returned by its voice API, including Aurora and Liora; this is catalogue verification, not an audio canary for every voice.
+
+GPT-Realtime-2.1 and 2.1 Mini now have separate Realtime text, cached-input and audio price meters sourced from their official model pages. Incorrect text-generation cards were removed: those records had treated audio rates as text prices, and the provider routes only advertise Realtime. xAI aliases now resolve consistently to the catalogue's `spacex-ai` identity. Its current 2.0 model costs $0.08 per connected audio minute plus $0.004 per text input message; the UI estimate has been updated.
 
 A local build of the relay, using the production database and real Google API, completed a short PCM16 voice turn. Session `rt_01m1wjq03vhxfgc9khw96grfze` captured $0.0015255, released $4.9984745 of its $5 reservation, and recorded a completed request summary. This verifies the relay and database path, not the deployed Chat browser path.
 
@@ -22,9 +24,9 @@ An earlier successful turn captured $0.0016455. A separate test interrupted by l
 ## Remaining release gates
 
 - Deploy and verify the patched Chat web service, gateway and browser together with a signed-in pilot user.
-- Configure the `gateway_realtime_voice` Statsig gate. The gate was absent in the connected project during this review; production changes require the project's review process.
-- OpenAI Realtime routes are currently disabled in the production catalogue. Enable only the selected, priced routes after full relay canaries. Mini has passed setup but lacks an executable Realtime price card in this catalogue.
-- xAI's current catalogue identity and executable pricing must be aligned with its voice endpoint before enabling it in Chat. A successful upstream setup alone does not validate Phaseo billing.
+- Add a reviewed pilot rule to the `gateway_realtime_voice` Statsig gate. The previously absent gate now exists with no passing rules, so it grants no access. Production targeting must go through the project's review process.
+- OpenAI Realtime routes are currently disabled in the production catalogue. Import the new 2.1/2.1 Mini price cards and run full relay canaries before selecting routes for the pilot. The deprecated older Mini remains disabled.
+- xAI's catalogue identity is aligned in this patch, but a full relay and billing canary is still required before enabling its route. A successful upstream setup alone does not validate Phaseo billing.
 - Run interruption, insufficient-credit and multi-turn provider canaries, including cached input and delayed usage. Verify every selectable voice against the selected model.
 - Investigate historical session `rt_01kwykz81wpycgne47rt6bw6ka`: $5 remains held with missing authoritative usage. Do not infer a charge or release from absent request logs. The other 28 historical terminal sessions had balanced reservation totals.
 

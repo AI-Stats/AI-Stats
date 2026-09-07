@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { RealtimeRelayDurableObject } from "./realtime-relay-durable-object";
+import { canonicalModel, providerFromModel } from "./realtime-sessions";
 
 vi.mock("@/runtime/env", () => ({ configureRuntime: vi.fn() }));
 
@@ -12,6 +13,11 @@ function relay(provider = "openai") {
 }
 
 describe("Realtime relay lifecycle", () => {
+	it.each(["x-ai", "xai", "spacex-ai"])("uses the current catalogue identity for %s", (alias) => {
+		const provider = providerFromModel(`${alias}/grok-voice-think-fast-2.0`, alias);
+		expect(provider).toBe("spacex-ai");
+		expect(canonicalModel(provider!, `${alias}/grok-voice-think-fast-2.0`)).toBe("spacex-ai/grok-voice-think-fast-2.0");
+	});
 	it.each([true, false])("records a disconnected session with completed response=%s", async (completed) => {
 		const object = relay();
 		object.checkpointUsage = vi.fn();

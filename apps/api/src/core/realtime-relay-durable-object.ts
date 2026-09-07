@@ -133,7 +133,7 @@ function metadataRecord(session: RealtimeSessionRow): Record<string, unknown> {
 
 function providerFromSession(session: RealtimeSessionRow): RealtimeProvider {
 	const provider = String(session.provider ?? "").trim().toLowerCase();
-	if (provider === "xai") return "x-ai";
+	if (provider === "xai" || provider === "x-ai") return "spacex-ai";
 	if (provider === "google") return "google-ai-studio";
 	return provider as RealtimeProvider;
 }
@@ -323,7 +323,7 @@ function relayTokenFromRequest(request: Request): { token: string; responseProto
 
 function inputSampleRate(provider: RealtimeProvider): number {
 	if (provider === "google-ai-studio") return GOOGLE_INPUT_SAMPLE_RATE;
-	if (provider === "x-ai") return XAI_INPUT_SAMPLE_RATE;
+	if (provider === "spacex-ai") return XAI_INPUT_SAMPLE_RATE;
 	return OPENAI_INPUT_SAMPLE_RATE;
 }
 
@@ -533,7 +533,7 @@ export class RealtimeRelayDurableObject {
 				provider: this.session?.provider,
 			});
 			this.closeUpstream("realtime_provider_socket_error");
-			void this.settle("failed", "provider_socket_error");
+			this.queueUpstreamEvent(() => this.settle("failed", "provider_socket_error"));
 		});
 	}
 
@@ -565,7 +565,7 @@ export class RealtimeRelayDurableObject {
 		});
 		this.upstream = null;
 		if (
-			provider !== "x-ai" &&
+			provider !== "spacex-ai" &&
 			!closedBeforeReady &&
 			(this.responseInFlight || this.inputSinceLastResponse || this.providerState.googleTurnActive)
 		) {
@@ -665,7 +665,7 @@ export class RealtimeRelayDurableObject {
 			this.markResponseInFlight();
 		}
 
-		if (type === "response.output_audio.delta" && provider === "x-ai") {
+		if (type === "response.output_audio.delta" && provider === "spacex-ai") {
 			this.usage = addDuration(
 				this.usage,
 				"output_audio_ms",
@@ -681,7 +681,7 @@ export class RealtimeRelayDurableObject {
 			const usage = response ? getRecordField(response, "usage") : null;
 			if (usage && (!responseId || !this.providerState.seenResponseIds.includes(responseId))) {
 				this.usage = addOpenAIUsage(this.usage, usage);
-				if (provider === "x-ai") {
+				if (provider === "spacex-ai") {
 					const costTicks = toNumber(usage.cost_in_usd_ticks ?? usage.costInUsdTicks);
 					if (costTicks > 0) {
 						this.usage.provider_cost_usd_ticks =
@@ -705,7 +705,7 @@ export class RealtimeRelayDurableObject {
 			this.markResponseComplete();
 		}
 
-		if (type === "response.output_audio.done" && provider === "x-ai") {
+		if (type === "response.output_audio.done" && provider === "spacex-ai") {
 			await this.persistUsage();
 			if (!this.providerCompletedResponseSeen) {
 				await this.emitTurnTelemetry({}, null);
@@ -849,7 +849,7 @@ export class RealtimeRelayDurableObject {
 		if (!this.session || this.settled) return;
 		const provider = providerFromSession(this.session);
 		if (
-			provider === "x-ai" ||
+			provider === "spacex-ai" ||
 			(!this.responseInFlight && !this.inputSinceLastResponse && !this.providerState.googleTurnActive)
 		) {
 			await this.settle(status, reason);
@@ -977,7 +977,7 @@ export class RealtimeRelayDurableObject {
 				},
 			});
 			this.markResponseInFlight();
-		} else if (provider === "x-ai") {
+		} else if (provider === "spacex-ai") {
 			this.sendUpstream({
 				type: "response.create",
 				response: {
@@ -1056,7 +1056,7 @@ export class RealtimeRelayDurableObject {
 		if (this.settling) return false;
 		const provider = providerFromSession(this.session);
 		if (
-			provider !== "x-ai" &&
+			provider !== "spacex-ai" &&
 			(this.responseInFlight || this.inputSinceLastResponse || this.providerState.googleTurnActive)
 		) {
 			return this.markBillingUnresolved(reason);
