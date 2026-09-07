@@ -342,6 +342,7 @@ export class RealtimeRelayDurableObject {
 	};
 	private responseInFlight = false;
 	private providerSetupComplete = false;
+	private upstreamEvents: Promise<void> = Promise.resolve();
 	private providerEventSeen = false;
 	private providerCompletedResponseSeen = false;
 	private settled = false;
@@ -521,10 +522,10 @@ export class RealtimeRelayDurableObject {
 		const upstream = this.upstream;
 		if (!upstream) return;
 		upstream.addEventListener("message", (event) => {
-			void this.handleUpstreamMessage(event.data);
+			this.queueUpstreamEvent(() => this.handleUpstreamMessage(event.data));
 		});
 		upstream.addEventListener("close", (event) => {
-			void this.handleUpstreamClose(event);
+			this.queueUpstreamEvent(() => this.handleUpstreamClose(event));
 		});
 		upstream.addEventListener("error", () => {
 			this.sendClient({
@@ -534,6 +535,15 @@ export class RealtimeRelayDurableObject {
 			this.closeUpstream("realtime_provider_socket_error");
 			void this.settle("failed", "provider_socket_error");
 		});
+	}
+
+	private queueUpstreamEvent(handle: () => Promise<void>) {
+		// A close must not settle while the preceding usage event is still being persisted.
+		this.upstreamEvents = this.upstreamEvents.then(handle).catch(async (error) => {
+			console.error("realtime_provider_event_failed", { sessionId: this.session?.session_id, error });
+			await this.settle("failed", "provider_event_processing_failed");
+		});
+		this.state.waitUntil(this.upstreamEvents);
 	}
 
 	private async handleUpstreamClose(event: CloseEvent) {
@@ -583,7 +593,7 @@ export class RealtimeRelayDurableObject {
 		const message = parseJson(text) as ClientAudioMessage | null;
 		if (!message || message.type !== "client.audio" || !message.audio) return;
 		const provider = this.session ? providerFromSession(this.session) : null;
-		if (!provider || !this.acceptingAudio) return;
+		if (!provider || !this.acceptingAudio || !this.providerSetupComplete) return;
 		if (!this.audioStartedAt) this.audioStartedAt = Date.now();
 		const validated = validateRealtimeAudioIngress({
 			base64: message.audio,
@@ -640,6 +650,11 @@ export class RealtimeRelayDurableObject {
 		this.providerEventSeen = true;
 		const provider = providerFromSession(this.session);
 		const type = getStringField(event, "type");
+		if (type === "session.updated" || event.setupComplete) this.providerSetupComplete = true;
+		if (event.error && !this.providerSetupComplete) {
+			await this.settle("failed", "provider_session_setup_failed");
+			return;
+		}
 
 		if (
 			type === "response.created" ||
@@ -805,7 +820,7 @@ export class RealtimeRelayDurableObject {
 			return;
 		}
 		if (!this.client) {
-			void this.settle("cancelled", "client_disconnected_after_response");
+			void this.settle("completed", "client_disconnected_after_response");
 		}
 	}
 
@@ -824,7 +839,7 @@ export class RealtimeRelayDurableObject {
 			}, RELAY_DRAIN_TIMEOUT_MS) as unknown as number;
 			return;
 		}
-		await this.settle("cancelled", "client_disconnected");
+		await this.settle(this.providerCompletedResponseSeen ? "completed" : "cancelled", "client_disconnected");
 	}
 
 	private async forceAuthoritativeUsage(

@@ -113,6 +113,19 @@ chatRouter.post("/audio", async (c) => {
 	return proxyGateway(c.req.raw, c.env, waitUntil(c), { path: AUDIO_PATHS[action], requestBody: body.requestBody ?? {}, appHeaders: body.appHeaders, debug: body.debug, baseUrl: body.baseUrl });
 });
 
+chatRouter.get("/realtime/session/:sessionId", async (c) => {
+	const auth = await resolveGatewayKeys(c.req.raw, c.env, waitUntil(c));
+	if ("status" in auth) return realtimeError(auth.status, auth.code, auth.message);
+	const sessionId = c.req.param("sessionId");
+	if (!/^rt_[0-9a-hjkmnp-tv-z]{26}$/.test(sessionId)) return realtimeError(400, "invalid_session_id", "Invalid realtime session.");
+	const result = await getDataClient(c.env).from("gateway_realtime_sessions")
+		.select("session_id,status,reserved_nanos,captured_nanos,released_nanos,estimated_cost_nanos,final_cost_nanos,currency")
+		.eq("session_id", sessionId).eq("workspace_id", auth.workspaceId).eq("user_id", auth.userId).eq("source", "chat").maybeSingle();
+	if (result.error) return realtimeError(503, "realtime_status_unavailable", "Realtime billing is temporarily unavailable.");
+	if (!result.data) return realtimeError(404, "realtime_session_not_found", "Realtime session not found.");
+	return c.json(result.data, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
 chatRouter.post("/realtime/session", async (c) => {
 	const auth = await resolveGatewayKeys(c.req.raw, c.env, waitUntil(c));
 	if (!("apiKey" in auth)) return realtimeError(auth.status, auth.code, auth.message);
